@@ -82,7 +82,10 @@
      at 4.9:1; #9F3B0F is its hover and the orange used for text. */
   --primary: #c94f16;
   --primary-foreground: #ffffff;
-  --background: #171311;
+  /* The page surface, not the dark sidebar (which sets its own colour).
+     Dialogs, sheets, tabs and switches paint with this token, so it must
+     stay light enough for --foreground text to read on it. */
+  --background: #fff4d6;
   --foreground: #171311;
   --card: #fff4d6;
   --card-foreground: #171311;
