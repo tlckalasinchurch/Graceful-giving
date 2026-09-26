@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import {
   getChurchRoleInfo,
   isSuperAdmin,
+  canManageChurchSettings,
   canManageFinance,
   canCountOfferings,
 } from "@shared/roles";
@@ -47,7 +48,6 @@ import { useLocation } from "wouter";
 interface ChurchOfficialRoster {
   role: string;
   title: string;
-  appointee: string;
   badgeStyle: { bg: string; text: string; border: string; icon: string };
   summary: string;
   responsibilities: string[];
@@ -57,7 +57,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "SUPER_ADMIN",
     title: "ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)",
-    appointee: "พณ.ท่านหม่อมหลวงราชวงศ์สุริยงค์ บาลเพ็ชร",
     badgeStyle: {
       bg: "bg-amber-100",
       text: "text-amber-900",
@@ -77,7 +76,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "TREASURER",
     title: "เหรัญญิกคริสตจักร (TREASURER)",
-    appointee: "สุดารัตน์ จิณเซ่ง, อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
       bg: "bg-emerald-100",
       text: "text-emerald-900",
@@ -99,7 +97,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "PASTOR",
     title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ (PASTOR)",
-    appointee: "ศบ.อาจารย์สรรเสริญ ดวงจิตร",
     badgeStyle: {
       bg: "bg-blue-100",
       text: "text-blue-900",
@@ -120,7 +117,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "DEACON",
     title: "มัคนายก / คณะกรรมการ (DEACON)",
-    appointee: "อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
       bg: "bg-purple-100",
       text: "text-purple-900",
@@ -141,7 +137,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "COUNTER",
     title: "กรรมการนับเงิน / ทีมนับเงินถวาย (COUNTER)",
-    appointee: "สุดารัตน์ จิณเซ่ง (และผู้ได้รับมอบหมายประจำสัปดาห์)",
     badgeStyle: {
       bg: "bg-orange-100",
       text: "text-orange-900",
@@ -161,7 +156,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "MEMBER",
     title: "สมาชิกคริสตจักร (MEMBER)",
-    appointee: "สมาชิกคริสตจักรทั่วไป",
     badgeStyle: {
       bg: "bg-stone-100",
       text: "text-stone-800",
@@ -207,6 +201,15 @@ export default function Profile() {
   const churchProfileQuery = trpc.church.getProfile.useQuery(undefined, {
     staleTime: 60_000,
   });
+  // auth.listUsers is churchLeaderProcedure-gated (SUPER_ADMIN/PASTOR/admin);
+  // every member can open this page, so the query — and the "who holds this
+  // role" line it feeds — is skipped for anyone else rather than sent to
+  // fail with FORBIDDEN.
+  const canSeeRoleHolders = canManageChurchSettings(user);
+  const usersQuery = trpc.auth.listUsers.useQuery(undefined, {
+    enabled: canSeeRoleHolders,
+    staleTime: 60_000,
+  });
 
   // Modals state
   const [showIdCardModal, setShowIdCardModal] = useState<boolean>(false);
@@ -236,16 +239,12 @@ export default function Profile() {
     onSuccess: async () => {
       setShowEditProfileModal(false);
       await utils.auth.me.invalidate();
-      await Swal.success(
-        "บันทึกข้อมูลเรียบร้อยแล้ว",
-        "โปรไฟล์ของคุณได้รับการอัปเดตอย่างสมบูรณ์"
-      );
+      toast.success("บันทึกข้อมูลโปรไฟล์เรียบร้อยแล้ว");
     },
     onError: err => {
-      Swal.error(
-        "เกิดข้อผิดพลาดในการบันทึก",
-        err.message || "กรุณาลองใหม่อีกครั้ง"
-      );
+      toast.error("บันทึกโปรไฟล์ไม่สำเร็จ", {
+        description: err.message || "กรุณาลองใหม่อีกครั้ง",
+      });
     },
     onSettled: () => {
       setIsSaving(false);
@@ -268,8 +267,10 @@ export default function Profile() {
     });
   };
 
+  // Same fallback chain AppLayout uses for the same value, so this page
+  // does not show a different placeholder church than the rest of the app.
   const churchName =
-    churchProfileQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์";
+    churchProfileQuery.data?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";
   const userRoleInfo = getChurchRoleInfo(user?.churchRole);
 
   const pendingApprovalsCount =
@@ -277,10 +278,14 @@ export default function Profile() {
   const unreadCount =
     notificationsQuery.data?.filter(n => !n.readAt).length || 0;
 
+  // Operator precedence bug: `A || B ? C : D` parses as `(A || B) ? C : D`,
+  // so whenever a custom avatarUrl was set but openId was not a URL, this
+  // returned openId (an auth identifier, not an image) instead of the
+  // avatar the user had just chosen.
+  const avatarUrl = (user as any)?.avatarUrl as string | undefined;
+  const openId = (user as any)?.openId as string | undefined;
   const effectiveAvatar =
-    (user as any)?.avatarUrl || (user as any)?.openId?.includes("http")
-      ? (user as any)?.openId
-      : null;
+    avatarUrl || (openId?.includes("http") ? openId : null);
 
   return (
     <AppLayout
@@ -465,14 +470,26 @@ export default function Profile() {
                     </span>
                   </div>
 
-                  <div>
-                    <span className="text-[11px] font-bold text-[#807266] uppercase tracking-wider">
-                      ผู้รับผิดชอบ:
-                    </span>
-                    <p className="text-sm font-bold text-[#171311]">
-                      {roster.appointee}
-                    </p>
-                  </div>
+                  {canSeeRoleHolders && (
+                    <div>
+                      <span className="text-[11px] font-bold text-[#807266] uppercase tracking-wider">
+                        ผู้ดำรงตำแหน่งในระบบ:
+                      </span>
+                      <p className="text-sm font-bold text-[#171311]">
+                        {usersQuery.isLoading
+                          ? "กำลังโหลด…"
+                          : usersQuery.isError
+                            ? "โหลดไม่สำเร็จ"
+                            : (usersQuery.data ?? [])
+                                .filter(
+                                  u =>
+                                    (u.churchRole || "MEMBER") === roster.role
+                                )
+                                .map(u => u.name || u.email || "ไม่ระบุชื่อ")
+                                .join(", ") || "ยังไม่มี"}
+                      </p>
+                    </div>
+                  )}
 
                   <p className="text-xs text-[#807266] leading-relaxed">
                     {roster.summary}
@@ -548,10 +565,10 @@ export default function Profile() {
           <div className="bg-white rounded-2xl sm:rounded-2xl border border-[#E7DCC8] max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowIdCardModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-stone-100 text-[#51443A] transition-colors min-h-10 min-w-10 flex items-center justify-center"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 rounded-full hover:bg-stone-100 text-[#51443A] transition-colors min-h-11 min-w-11 flex items-center justify-center"
               aria-label="ปิดหน้าต่าง"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
 
             <div className="text-center space-y-1 pt-1 sm:pt-2">
@@ -599,23 +616,13 @@ export default function Profile() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-left pt-2 border-t border-[#E7DCC8]/70 text-xs">
-                <div>
-                  <span className="text-[10px] text-[#807266]">
-                    สังกัดคริสตจักร:
-                  </span>
-                  <p className="font-bold text-[#171311] truncate">
-                    {churchName}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-[10px] text-[#807266]">
-                    สถานะสมาชิก:
-                  </span>
-                  <p className="font-bold text-emerald-700">
-                    ยืนยันแล้ว (Active)
-                  </p>
-                </div>
+              <div className="text-left pt-2 border-t border-[#E7DCC8]/70 text-xs">
+                <span className="text-[10px] text-[#807266]">
+                  สังกัดคริสตจักร:
+                </span>
+                <p className="font-bold text-[#171311] truncate">
+                  {churchName}
+                </p>
               </div>
             </div>
 
@@ -644,10 +651,10 @@ export default function Profile() {
           <div className="bg-white rounded-2xl sm:rounded-2xl border border-[#E7DCC8] max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowEditProfileModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-stone-100 text-[#51443A] transition-colors min-h-10 min-w-10 flex items-center justify-center"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 rounded-full hover:bg-stone-100 text-[#51443A] transition-colors min-h-11 min-w-11 flex items-center justify-center"
               aria-label="ปิดหน้าต่าง"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
 
             <div className="space-y-1">
@@ -665,7 +672,10 @@ export default function Profile() {
             >
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-[#171311]">
-                  ชื่อ-นามสกุลทางการ <span className="text-rose-500">*</span>
+                  ชื่อ-นามสกุลทางการ{" "}
+                  <span className="text-[#C8372D]" aria-hidden="true">
+                    *
+                  </span>
                 </label>
                 <input
                   type="text"
@@ -673,7 +683,7 @@ export default function Profile() {
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
                   className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl border border-[#E7DCC8] text-xs sm:text-sm font-semibold text-[#171311] focus:border-[#C94F16] focus:outline-none focus:ring-2 focus:ring-[#C94F16]/20 transition-all"
-                  placeholder="เช่น พณ.ท่านสุริยงค์ บาลเพ็ชร"
+                  placeholder="เช่น สมชาย ใจดี"
                 />
               </div>
 
@@ -762,8 +772,8 @@ export default function Profile() {
                 <p className="leading-relaxed">
                   บทบาทและสิทธิ์การใช้งานของท่าน ({userRoleInfo.label})
                   ถูกกำหนดโดยมติคริสตจักรและผู้ดูแลระบบสูงสุด
-                  หากต้องการเปลี่ยนแปลงสิทธิ์ กรุณาติดต่อ
-                  พณ.ท่านหม่อมหลวงราชวงศ์สุริยงค์ บาลเพ็ชร
+                  หากต้องการเปลี่ยนแปลงสิทธิ์
+                  กรุณาติดต่อผู้ดูแลระบบสูงสุดของคริสตจักร
                 </p>
               </div>
 
