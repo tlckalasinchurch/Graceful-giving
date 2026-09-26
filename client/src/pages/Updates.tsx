@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import {
   ArrowLeft,
   Bell,
@@ -17,6 +18,15 @@ export default function Updates() {
   const { user, isAuthenticated, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<"feed" | "manage">("feed");
   const canManage = user?.role === "admin";
+  // Mirrors the fallback chain AppLayout uses for the same value, so the
+  // church's actual name shows here too instead of a fixed placeholder.
+  const { data: churchProfile } = trpc.church.getProfile.useQuery(undefined, {
+    retry: false,
+    staleTime: 60_000,
+    enabled: isAuthenticated,
+  });
+  const churchName =
+    churchProfile?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";
 
   if (loading) {
     return (
@@ -81,7 +91,7 @@ export default function Updates() {
                   ข่าวสาร & กิจกรรม
                 </h1>
                 <p className="mt-1 text-sm text-[#51443A]">
-                  ติดตามสิ่งที่เกิดขึ้นในคริสตจักรบ้านแห่งพระคุณ
+                  ติดตามสิ่งที่เกิดขึ้นใน{churchName}
                 </p>
               </div>
             </div>

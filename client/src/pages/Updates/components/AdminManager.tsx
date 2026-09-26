@@ -11,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ErrorState } from "@/components/common/CommonUI";
 import {
   Dialog,
   DialogContent,
@@ -29,9 +30,10 @@ import { AdminEventDialog } from "./AdminEventDialog";
 
 export function AdminManager() {
   const utils = trpc.useUtils();
-  const { data, isLoading } = trpc.updates.adminList.useQuery(undefined, {
-    retry: false,
-  });
+  const { data, isLoading, isError, refetch } = trpc.updates.adminList.useQuery(
+    undefined,
+    { retry: false }
+  );
   const createNews = trpc.updates.createNews.useMutation({
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
@@ -286,6 +288,13 @@ export function AdminManager() {
 
       {isLoading ? (
         <div className="mt-5 h-20 animate-pulse rounded-2xl bg-white/70" />
+      ) : isError ? (
+        <ErrorState
+          title="โหลดข้อมูลไม่สำเร็จ"
+          description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+          onRetry={() => void refetch()}
+          className="mt-5"
+        />
       ) : (
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           {/* Admin News List */}
