@@ -26,6 +26,7 @@ import {
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
+import { downloadCsv } from "@/lib/csv";
 import { EXPENSE_CATEGORIES, expenseCategoryLabel } from "@shared/categories";
 import {
   VoucherModal,
@@ -98,27 +99,31 @@ export default function Expenses() {
   }, [filteredExpenses]);
 
   const exportCSV = () => {
-    const headers =
-      "ID,วันที่,รายการ,หมวดหมู่,ผู้รับเงิน,จำนวนเงิน,เลขที่ใบเสร็จ,กองทุน,สถานะ\n";
-    const rows = filteredExpenses
-      .map(
-        e =>
-          `"${e.id}","${new Date(e.date).toLocaleDateString("th-TH")}","${e.description}","${expenseCategoryLabel(e.category)}","${e.payee}",${e.amount},"${e.receiptRef}","${fundName(e.fundId)}","${e.status}"`
-      )
-      .join("\n");
-    const blob = new Blob(["\uFEFF" + headers + rows], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `grace-giving-expenses-${new Date().toISOString().slice(0, 10)}.csv`
+    downloadCsv(
+      `grace-giving-expenses-${new Date().toISOString().slice(0, 10)}.csv`,
+      [
+        "ID",
+        "วันที่",
+        "รายการ",
+        "หมวดหมู่",
+        "ผู้รับเงิน",
+        "จำนวนเงิน",
+        "เลขที่ใบเสร็จ",
+        "กองทุน",
+        "สถานะ",
+      ],
+      filteredExpenses.map(e => [
+        e.id,
+        new Date(e.date).toLocaleDateString("th-TH"),
+        e.description,
+        expenseCategoryLabel(e.category),
+        e.payee,
+        e.amount,
+        e.receiptRef,
+        fundName(e.fundId),
+        e.status,
+      ])
     );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
     toast.success("ส่งออกข้อมูลรายจ่ายสำเร็จ");
   };
 

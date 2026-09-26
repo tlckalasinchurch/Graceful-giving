@@ -18,6 +18,7 @@ import {
   Printer,
 } from "lucide-react";
 import { toast } from "sonner";
+import { downloadCsv } from "@/lib/csv";
 import { offeringCategoryLabel } from "@shared/categories";
 import {
   VoucherModal,
@@ -81,27 +82,27 @@ export default function Offerings() {
   );
 
   const exportCSV = () => {
-    const headers =
-      "ID,วันที่,ประเภทการถวาย,ผู้ถวาย,จำนวนเงิน,ช่องทาง,กองทุน\n";
-    const rows = filtered
-      .map(
-        o =>
-          `"${o.id}","${new Date(o.date).toLocaleDateString("th-TH")}","${o.title}","${o.donorName}",${o.amount},"${o.method}","${o.fund}"`
-      )
-      .join("\n");
-    const blob = new Blob(["\uFEFF" + headers + rows], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `grace-giving-offerings-${new Date().toISOString().slice(0, 10)}.csv`
+    downloadCsv(
+      `grace-giving-offerings-${new Date().toISOString().slice(0, 10)}.csv`,
+      [
+        "ID",
+        "วันที่",
+        "ประเภทการถวาย",
+        "ผู้ถวาย",
+        "จำนวนเงิน",
+        "ช่องทาง",
+        "กองทุน",
+      ],
+      filtered.map(o => [
+        o.id,
+        new Date(o.date).toLocaleDateString("th-TH"),
+        o.title,
+        o.donorName,
+        o.amount,
+        o.method,
+        o.fund,
+      ])
     );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
     toast.success("ส่งออกข้อมูลการถวายสำเร็จ");
   };
 
