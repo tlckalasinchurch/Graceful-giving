@@ -278,8 +278,17 @@ export const MoneyDisplay: React.FC<{
 
   // Neutral amounts keep their own sign: a negative balance must read as
   // negative, not as its absolute value.
+  // Zero carries no sign: "-฿0.00" reads as money going out.
   const prefix =
-    type === "income" ? "+" : type === "expense" ? "-" : amount < 0 ? "-" : "";
+    amount === 0
+      ? ""
+      : type === "income"
+        ? "+"
+        : type === "expense"
+          ? "-"
+          : amount < 0
+            ? "-"
+            : "";
   const formatted = formatAmount(Math.abs(amount));
 
   // The "฿" is its own element with a small gap. Run together with the
@@ -287,7 +296,7 @@ export const MoneyDisplay: React.FC<{
   // also keeps the digits themselves aligned down a table column.
   return (
     <span
-      className={`tracking-tight tabular-nums font-sans ${getColor()} ${getSize()} ${className}`}
+      className={`whitespace-nowrap tracking-tight tabular-nums font-sans ${getColor()} ${getSize()} ${className}`}
     >
       {prefix}
       <span className="mr-1">฿</span>
