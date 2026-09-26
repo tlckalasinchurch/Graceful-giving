@@ -39,7 +39,7 @@ export function CashCountTab({
 }: CashCountTabProps) {
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
         <div className="border-b border-[#E7DCC8] p-4">
           <h2 className="font-bold text-foreground">ใบนับธนบัตรและเหรียญ</h2>
           <p className="mt-1 text-sm text-[#51443A]">
@@ -90,9 +90,9 @@ export function CashCountTab({
                   }}
                   placeholder="0"
                   aria-label={`จำนวน ${denomination.label}`}
-                  className="w-24 rounded-xl border border-[#E7DCC8] p-2.5 text-right text-base font-bold tabular-nums text-foreground disabled:opacity-60"
+                  className="min-h-11 w-24 rounded-xl border border-[#E7DCC8] bg-white p-2.5 text-right text-base font-bold tabular-nums text-foreground focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30 disabled:opacity-60"
                 />
-                <span className="ml-auto text-right text-sm font-bold tabular-nums text-[#51443A]">
+                <span className="ml-auto whitespace-nowrap text-right text-sm font-bold tabular-nums text-[#51443A]">
                   {fmtBaht(subtotal)}
                 </span>
               </li>

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Swal } from "@/lib/sweetalert";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
 import { fmtBaht } from "./countingUtils";
@@ -95,7 +96,7 @@ export function EnvelopesTab({
       {editable && (
         <form
           onSubmit={submitEnvelope}
-          className="rounded-2xl border border-[#E7DCC8] bg-white p-5 shadow-sm md:p-6"
+          className="rounded-2xl border border-[#E7DCC8] bg-white p-5 md:p-6"
         >
           <h2 className="mb-4 font-bold text-foreground">บันทึกซองถวาย</h2>
           <div className="grid gap-4 md:grid-cols-3">
@@ -228,7 +229,7 @@ export function EnvelopesTab({
         </form>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
         <div className="flex items-center justify-between border-b border-[#E7DCC8] p-4">
           <h2 className="font-bold text-foreground">
             ซองในรอบนี้ ({envelopes.length})
@@ -278,17 +279,27 @@ export function EnvelopesTab({
                     {editable && (
                       <button
                         type="button"
-                        aria-label="ลบซองนี้"
-                        onClick={() =>
-                          removeEnvelope.mutate({
-                            id: envelope.id,
-                            sessionId,
-                          })
-                        }
+                        aria-label={`ลบซอง ${envelope.envelopeNo ?? ""} ${who} ${fmtBaht(envelope.amount)}`}
+                        onClick={async () => {
+                          const ok = await Swal.confirm(
+                            "ลบซองนี้ออกจากรอบ?",
+                            `${who} · ${fmtBaht(envelope.amount)} — ยอดรวมของรอบจะลดลงตามจำนวนนี้`,
+                            {
+                              icon: "warning",
+                              confirmButtonText: "ลบซอง",
+                              cancelButtonText: "ยกเลิก",
+                            }
+                          );
+                          if (ok)
+                            removeEnvelope.mutate({
+                              id: envelope.id,
+                              sessionId,
+                            });
+                        }}
                         disabled={removeEnvelope.isPending}
                         className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FDECEA] disabled:opacity-50"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     )}
                   </div>

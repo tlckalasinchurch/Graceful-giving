@@ -1,6 +1,20 @@
 import React from "react";
 import { RotateCcw, Trash2 } from "lucide-react";
+import { Swal } from "@/lib/sweetalert";
 import { fmtBaht, Variance } from "./countingUtils";
+
+// Verify, post and close cannot be undone from this screen, so each asks
+// first and repeats the figures the user is about to commit.
+async function confirmStep(title: string, text: string, confirm: string) {
+  return Swal.confirm(title, text, {
+    icon: "question",
+    confirmButtonText: confirm,
+    cancelButtonText: "ยกเลิก",
+  });
+}
+
+const PRIMARY_ACTION =
+  "min-h-11 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-5 py-2.5 text-sm font-bold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 interface ReconciliationSummaryTabProps {
   sessionId: number;
@@ -70,7 +84,7 @@ export function ReconciliationSummaryTab({
 }: ReconciliationSummaryTabProps) {
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
         <h2 className="border-b border-[#E7DCC8] p-4 font-bold text-foreground">
           ตารางกระทบยอด
         </h2>
@@ -127,7 +141,7 @@ export function ReconciliationSummaryTab({
               <Variance amount={r.depositVariance} />
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4 border-t-2 border-[#E7DCC8] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t-2 border-[#E7DCC8] p-4">
             <dt className="font-bold text-foreground">
               นับเงินสดได้ − หักเบิก = ยอดนำฝาก
             </dt>
@@ -150,7 +164,8 @@ export function ReconciliationSummaryTab({
             value={varianceNote}
             onChange={e => setVarianceNote(e.target.value)}
             placeholder="เช่น เงินสดขาด 20 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมมัคนายกวันที่…"
-            className="mt-3 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-sm text-foreground"
+            aria-label="คำอธิบายผลต่าง"
+            className="mt-3 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm text-foreground focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
           />
           {sessionVarianceNote && (
             <p className="mt-2 text-sm text-[#51443A]">
@@ -167,7 +182,7 @@ export function ReconciliationSummaryTab({
         </p>
       )}
 
-      <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5">
         <h3 className="font-bold text-foreground">ดำเนินการกับรอบนี้</h3>
         <p className="mt-1 text-sm text-[#51443A]">
           ลำดับงาน: นับ → ส่งตรวจ → ตรวจสอบ → ลงบัญชี → ปิดรอบ
@@ -179,7 +194,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => submitCount.mutate({ id: sessionId })}
               disabled={submitCount.isPending}
-              className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className={PRIMARY_ACTION}
             >
               ส่งนับให้ตรวจสอบ
             </button>
@@ -189,7 +204,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => reopenCount.mutate({ id: sessionId })}
               disabled={reopenCount.isPending}
-              className="min-h-11 rounded-2xl border border-[#E7DCC8] bg-[#FFF8EA] px-5 py-2.5 text-sm font-bold text-[#51443A] disabled:opacity-50"
+              className="min-h-11 rounded-xl border border-[#E7DCC8] bg-white hover:bg-[#FFF8EA] px-5 py-2.5 text-sm font-bold text-[#51443A] transition-colors disabled:opacity-50"
             >
               ส่งกลับไปนับใหม่
             </button>
@@ -197,9 +212,18 @@ export function ReconciliationSummaryTab({
           {status === "counted" && (
             <button
               type="button"
-              onClick={() => verify.mutate({ id: sessionId })}
+              onClick={async () => {
+                if (
+                  await confirmStep(
+                    "รับรองยอดของรอบนี้?",
+                    `ยอดถวายตามซอง ${fmtBaht(r.offeringTotal)} · นับเงินสดได้ ${fmtBaht(r.countedCashTotal)}`,
+                    "รับรองยอด"
+                  )
+                )
+                  verify.mutate({ id: sessionId });
+              }}
               disabled={verify.isPending}
-              className="min-h-11 rounded-xl bg-[#2F7A45] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className={PRIMARY_ACTION}
             >
               ตรวจสอบและรับรองยอด
             </button>
@@ -207,18 +231,25 @@ export function ReconciliationSummaryTab({
           {status === "verified" && (
             <button
               type="button"
-              onClick={() =>
-                post.mutate({
-                  id: sessionId,
-                  varianceNote: varianceNote.trim() || undefined,
-                })
-              }
+              onClick={async () => {
+                if (
+                  await confirmStep(
+                    "ลงบัญชีรอบนี้เข้าระบบ?",
+                    `บันทึกถวาย ${fmtBaht(r.offeringTotal)} และหักเบิก ${fmtBaht(r.deductionTotal)} เข้าบัญชี · ยอดนำฝาก ${fmtBaht(r.expectedDeposit)}`,
+                    "ลงบัญชี"
+                  )
+                )
+                  post.mutate({
+                    id: sessionId,
+                    varianceNote: varianceNote.trim() || undefined,
+                  });
+              }}
               disabled={
                 post.isPending ||
                 unapprovedDeductions.length > 0 ||
                 (!r.isBalanced && !varianceNote.trim() && !sessionVarianceNote)
               }
-              className="min-h-11 rounded-2xl bg-[#1F5C33] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className={PRIMARY_ACTION}
             >
               ลงบัญชีเข้าระบบ
             </button>
@@ -226,9 +257,18 @@ export function ReconciliationSummaryTab({
           {status === "posted" && (
             <button
               type="button"
-              onClick={() => close.mutate({ id: sessionId })}
+              onClick={async () => {
+                if (
+                  await confirmStep(
+                    "ปิดรอบนี้ถาวร?",
+                    "หลังปิดรอบ ข้อมูลจะถูกล็อกและแก้ไขไม่ได้อีก",
+                    "ปิดรอบ"
+                  )
+                )
+                  close.mutate({ id: sessionId });
+              }}
               disabled={close.isPending}
-              className="min-h-11 rounded-2xl bg-[#51443A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className={PRIMARY_ACTION}
             >
               ปิดรอบถาวร
             </button>
@@ -242,9 +282,9 @@ export function ReconciliationSummaryTab({
       </div>
 
       {isUnposted && (
-        <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5">
           <div className="flex items-center gap-2 mb-1.5">
-            <RotateCcw className="h-4 w-4 text-[#9F3B0F]" />
+            <RotateCcw className="h-4 w-4 text-[#9F3B0F]" aria-hidden="true" />
             <h4 className="font-bold text-foreground">
               การจัดการรอบนับเงิน (งานค้าง / เริ่มนับใหม่)
             </h4>
@@ -258,19 +298,22 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleResetThisSession}
               disabled={resetSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-[#E7DCC8] bg-[#FFF8EA] px-4 py-2 text-xs font-bold text-[#9F3B0F] shadow-2xs hover:bg-[#FFF4D6] transition-colors disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[#E7DCC8] bg-white px-4 py-2 text-sm font-bold text-[#9F3B0F] hover:bg-[#FFF8EA] transition-colors disabled:opacity-50"
             >
-              <RotateCcw className="h-4 w-4 text-[#9F3B0F]" />
-              <span>ล้างข้อมูลเพื่อนับใหม่ (Recount)</span>
+              <RotateCcw
+                className="h-4 w-4 text-[#9F3B0F]"
+                aria-hidden="true"
+              />
+              <span>ล้างข้อมูลเพื่อนับใหม่</span>
             </button>
             <button
               type="button"
               onClick={handleDeleteThisSession}
               disabled={deleteSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-bold text-[#C8372D] shadow-2xs hover:bg-rose-100 transition-colors disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[#F8C8C5] bg-white px-4 py-2 text-sm font-bold text-[#B92A20] hover:bg-[#FEECEB] transition-colors disabled:opacity-50"
             >
-              <Trash2 className="h-4 w-4" />
-              <span>ลบรอบนี้ (Delete Session)</span>
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              <span>ลบรอบนี้</span>
             </button>
           </div>
         </div>

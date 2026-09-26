@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Swal } from "@/lib/sweetalert";
 import { MoneyDisplay, StatusBadge } from "@/components/common/CommonUI";
 import { EXPENSE_CATEGORIES } from "@shared/categories";
 import { fmtBaht } from "./countingUtils";
@@ -91,7 +92,7 @@ export function DeductionsTab({
               }
             );
           }}
-          className="rounded-2xl border border-[#E7DCC8] bg-white p-5 shadow-sm md:p-6"
+          className="rounded-2xl border border-[#E7DCC8] bg-white p-5 md:p-6"
         >
           <h2 className="mb-4 font-bold text-foreground">
             บันทึกรายการหักเบิก
@@ -186,7 +187,7 @@ export function DeductionsTab({
         </form>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
         <div className="flex items-center justify-between border-b border-[#E7DCC8] p-4">
           <h2 className="font-bold text-foreground">
             รายการหักเบิก ({deductions.length})
@@ -220,17 +221,27 @@ export function DeductionsTab({
                     {editable && (
                       <button
                         type="button"
-                        aria-label="ลบรายการเบิกนี้"
-                        onClick={() =>
-                          removeDeduction.mutate({
-                            id: deduction.id,
-                            sessionId,
-                          })
-                        }
+                        aria-label={`ลบรายการเบิก ${deduction.purpose} ${fmtBaht(deduction.amount)}`}
+                        onClick={async () => {
+                          const ok = await Swal.confirm(
+                            "ลบรายการหักเบิกนี้?",
+                            `${deduction.purpose} · ${fmtBaht(deduction.amount)}`,
+                            {
+                              icon: "warning",
+                              confirmButtonText: "ลบรายการ",
+                              cancelButtonText: "ยกเลิก",
+                            }
+                          );
+                          if (ok)
+                            removeDeduction.mutate({
+                              id: deduction.id,
+                              sessionId,
+                            });
+                        }}
                         disabled={removeDeduction.isPending}
                         className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FDECEA] disabled:opacity-50"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -243,11 +254,20 @@ export function DeductionsTab({
                       <StatusBadge status="pending" label="รออนุมัติ" />
                       <button
                         type="button"
-                        onClick={() =>
-                          approveDeduction.mutate({ id: deduction.id })
-                        }
+                        onClick={async () => {
+                          const ok = await Swal.confirm(
+                            "อนุมัติการหักเบิกนี้?",
+                            `${deduction.purpose} · เบิกให้ ${deduction.paidTo} · ${fmtBaht(deduction.amount)}`,
+                            {
+                              icon: "question",
+                              confirmButtonText: "อนุมัติ",
+                              cancelButtonText: "ยกเลิก",
+                            }
+                          );
+                          if (ok) approveDeduction.mutate({ id: deduction.id });
+                        }}
                         disabled={approveDeduction.isPending}
-                        className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-[#2F7A45] disabled:opacity-50"
+                        className="min-h-11 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-4 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
                       >
                         อนุมัติรายการนี้
                       </button>

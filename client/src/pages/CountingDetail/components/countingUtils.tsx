@@ -8,8 +8,8 @@ export const fmtBaht = (n: number) => formatBaht(n);
 export function Variance({ amount }: { amount: number }) {
   if (amount === 0) {
     return (
-      <span className="inline-flex items-center gap-1 font-bold text-[#2F7A45]">
-        <Check className="h-4 w-4" />
+      <span className="inline-flex items-center gap-1 whitespace-nowrap font-bold text-[#2F7A45]">
+        <Check className="h-4 w-4" aria-hidden="true" />
         ตรงกัน
       </span>
     );
@@ -17,7 +17,7 @@ export function Variance({ amount }: { amount: number }) {
   const over = amount > 0;
   return (
     <span
-      className={`font-bold tabular-nums ${over ? "text-[#9F3B0F]" : "text-[#C8372D]"}`}
+      className={`whitespace-nowrap font-bold tabular-nums ${over ? "text-[#9F3B0F]" : "text-[#C8372D]"}`}
     >
       {over ? "เกิน " : "ขาด "}
       {fmtBaht(Math.abs(amount))}

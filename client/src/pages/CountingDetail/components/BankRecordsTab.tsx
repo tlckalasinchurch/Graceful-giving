@@ -77,7 +77,7 @@ export function BankRecordsTab({
             }
           );
         }}
-        className="rounded-2xl border border-[#E7DCC8] bg-white p-5 shadow-sm md:p-6"
+        className="rounded-2xl border border-[#E7DCC8] bg-white p-5 md:p-6"
       >
         <h2 className="mb-4 font-bold text-foreground">บันทึกรายการธนาคาร</h2>
         <div className="grid gap-4 md:grid-cols-4">
@@ -154,7 +154,7 @@ export function BankRecordsTab({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
         <h2 className="border-b border-[#E7DCC8] p-4 font-bold text-foreground">
           รายการธนาคาร ({bankRecords.length})
         </h2>
