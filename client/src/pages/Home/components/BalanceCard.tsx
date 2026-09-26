@@ -5,6 +5,7 @@ import {
   EyeOff,
   Info,
   Loader2,
+  RotateCw,
 } from "lucide-react";
 import { Illustration } from "@/components/Illustration";
 
@@ -20,6 +21,7 @@ interface BalanceCardProps {
   canOpenReports: boolean;
   onOpenReports: () => void;
   fmtBaht: (n: number) => string;
+  onRetry: () => void;
 }
 
 export function BalanceCard({
@@ -34,11 +36,19 @@ export function BalanceCard({
   canOpenReports,
   onOpenReports,
   fmtBaht,
+  onRetry,
 }: BalanceCardProps) {
+  // Without a figure there is no sign to colour, so a failed or empty load
+  // must not borrow the "positive" styling that a zero default would give it.
+  const tone = !hasSummaryData
+    ? "neutral"
+    : isPositiveBalance
+      ? "positive"
+      : "negative";
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      className={`bg-white rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${isPositiveBalance ? "border-[#A8D59D] card-elevation-focus" : "border-[#F2C9BE] card-elevation-sm"}`}
+      className={`bg-white rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${tone === "positive" ? "border-[#A8D59D] card-elevation-focus" : tone === "negative" ? "border-[#F2C9BE] card-elevation-sm" : "border-[#E7DCC8] card-elevation-sm"}`}
     >
       <div className="flex items-center justify-between gap-6">
         {/* Left: Prominent financial figures */}
@@ -90,7 +100,7 @@ export function BalanceCard({
                  two lines mid-digit — "4,182,671." over "50" reads as two
                  different numbers. Scaling down is the only safe way for an
                  amount to lose an argument with its container. */
-              className={`whitespace-nowrap text-[clamp(1.75rem,5.5vw,4.5rem)] font-bold tracking-tight tabular-nums ${isPositiveBalance ? "text-[#155724]" : "text-[#9E2D12]"}`}
+              className={`whitespace-nowrap text-[clamp(1.75rem,5.5vw,4.5rem)] font-bold tracking-tight tabular-nums ${tone === "positive" ? "text-[#155724]" : tone === "negative" ? "text-[#9E2D12]" : "text-[#807266]"}`}
             >
               {showBalance && hasSummaryData ? fmtBaht(balance) : "—"}
             </div>
@@ -99,6 +109,12 @@ export function BalanceCard({
           <p className="text-sm sm:text-base text-[#51443A] flex items-center gap-2 pt-1">
             {isBalanceLoading ? (
               <span>กำลังตรวจสอบยอดเงินล่าสุด…</span>
+            ) : isDataUnavailable ? (
+              <span>
+                {summaryError
+                  ? "ยังแสดงยอดเงินไม่ได้ ลองโหลดข้อมูลอีกครั้ง"
+                  : "ยอดเงินจะแสดงเมื่อมีการบันทึกรายการแรก"}
+              </span>
             ) : isPositiveBalance ? (
               <>
                 <span>ขอบคุณพระเจ้าสำหรับทุกการถวาย</span>
@@ -113,16 +129,27 @@ export function BalanceCard({
             )}
           </p>
 
-          {canOpenReports && (
-            <div className="pt-3">
-              <button
-                onClick={onOpenReports}
-                className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] hover:border-[#C94F16]"
-              >
-                <BarChart3 className="w-4 h-4 text-[#C94F16]" />
-                <span>ดูรายละเอียด</span>
-                <ChevronRight className="w-4 h-4 text-[#3F3833]" />
-              </button>
+          {(Boolean(summaryError) || canOpenReports) && (
+            <div className="pt-3 flex flex-wrap gap-3">
+              {Boolean(summaryError) && (
+                <button
+                  onClick={onRetry}
+                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm sm:text-base font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                >
+                  <RotateCw className="w-4 h-4" aria-hidden="true" />
+                  <span>โหลดข้อมูลอีกครั้ง</span>
+                </button>
+              )}
+              {canOpenReports && (
+                <button
+                  onClick={onOpenReports}
+                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] hover:border-[#C94F16]"
+                >
+                  <BarChart3 className="w-4 h-4 text-[#C94F16]" />
+                  <span>ดูรายละเอียด</span>
+                  <ChevronRight className="w-4 h-4 text-[#3F3833]" />
+                </button>
+              )}
             </div>
           )}
         </div>

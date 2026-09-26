@@ -78,6 +78,7 @@ export default function Home() {
     data: summaryData,
     isLoading: summaryLoading,
     isError: summaryError,
+    refetch: refetchSummary,
   } = trpc.finance.summary.useQuery(undefined, {
     retry: false,
     staleTime: 30_000,
@@ -182,6 +183,7 @@ export default function Home() {
             canOpenReports={canOpenReports}
             onOpenReports={() => setLocation("/reports")}
             fmtBaht={fmtBaht}
+            onRetry={() => void refetchSummary()}
           />
           <FinancialSummaryRow
             isBalanceLoading={isBalanceLoading}

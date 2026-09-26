@@ -57,14 +57,16 @@ export function FinancialSummaryRow({
                 : "—"}
             </div>
           )}
-          <span className="text-xs sm:text-sm font-semibold text-[#1F5C33] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-            <span>
-              {trendArrow(incomeTrend)} {trendValue(incomeTrend)}
+          {incomeTrend && (
+            <span className="text-xs sm:text-sm font-semibold text-[#1F5C33] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
+              <span>
+                {trendArrow(incomeTrend)} {trendValue(incomeTrend)}
+              </span>
+              <span className="text-xs text-stone-500 font-normal">
+                จากเดือนที่แล้ว
+              </span>
             </span>
-            <span className="text-xs text-stone-500 font-normal">
-              จากเดือนที่แล้ว
-            </span>
-          </span>
+          )}
         </div>
       </div>
 
@@ -93,14 +95,16 @@ export function FinancialSummaryRow({
                 : "—"}
             </div>
           )}
-          <span className="text-xs sm:text-sm font-semibold text-[#8A2E14] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-            <span>
-              {trendArrow(expenseTrend)} {trendValue(expenseTrend)}
+          {expenseTrend && (
+            <span className="text-xs sm:text-sm font-semibold text-[#8A2E14] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
+              <span>
+                {trendArrow(expenseTrend)} {trendValue(expenseTrend)}
+              </span>
+              <span className="text-xs text-stone-500 font-normal">
+                จากเดือนที่แล้ว
+              </span>
             </span>
-            <span className="text-xs text-stone-500 font-normal">
-              จากเดือนที่แล้ว
-            </span>
-          </span>
+          )}
         </div>
       </div>
 
@@ -133,13 +137,17 @@ export function FinancialSummaryRow({
                 : "—"}
             </div>
           )}
-          <span
-            className={`text-xs sm:text-sm font-semibold flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1 ${isPositiveNet ? "text-[#1F5C33]" : "text-[#9E2D12]"}`}
-          >
-            <span>
-              {isPositiveNet ? "รายรับมากกว่ารายจ่าย" : "รายจ่ายมากกว่ารายรับ"}
+          {netMonthly !== undefined && (
+            <span
+              className={`text-xs sm:text-sm font-semibold flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1 ${isPositiveNet ? "text-[#1F5C33]" : "text-[#9E2D12]"}`}
+            >
+              <span>
+                {isPositiveNet
+                  ? "รายรับมากกว่ารายจ่าย"
+                  : "รายจ่ายมากกว่ารายรับ"}
+              </span>
             </span>
-          </span>
+          )}
         </div>
       </div>
     </section>
