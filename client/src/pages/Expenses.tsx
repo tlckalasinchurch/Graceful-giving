@@ -4,6 +4,7 @@ import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
+  ErrorState,
   FilterBar,
   LoadingSkeleton,
   MoneyDisplay,
@@ -71,7 +72,7 @@ export default function Expenses() {
         description: e.description,
         amount: Number(e.amount),
         date: e.expenseDate,
-        payee: e.payee || "ทั่วไป",
+        payee: e.payee || "ไม่ระบุผู้รับเงิน",
         receiptRef: e.receiptRef || "-",
         fundId: e.fundId as number | null,
         status: e.status || "unknown",
@@ -140,24 +141,27 @@ export default function Expenses() {
     receiptUrl: e.receiptUrl,
   });
 
+  // Colour on this page means money in or out, so categories share one
+  // neutral chip and are told apart by icon and label.
+  const CATEGORY_CHIP = "bg-[#FFF8EA] text-[#51443A]";
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "utilities":
-        return { icon: Zap, color: "bg-amber-100 text-amber-800" };
+        return { icon: Zap, color: CATEGORY_CHIP };
       case "ministry":
-        return { icon: Users, color: "bg-sky-100 text-sky-800" };
+        return { icon: Users, color: CATEGORY_CHIP };
       case "pastoral":
-        return { icon: Cross, color: "bg-emerald-100 text-emerald-800" };
+        return { icon: Cross, color: CATEGORY_CHIP };
       case "admin":
-        return { icon: Receipt, color: "bg-purple-100 text-purple-800" };
+        return { icon: Receipt, color: CATEGORY_CHIP };
       case "building":
-        return { icon: Building, color: "bg-orange-100 text-orange-800" };
+        return { icon: Building, color: CATEGORY_CHIP };
       case "worship":
-        return { icon: GraduationCap, color: "bg-blue-100 text-blue-800" };
+        return { icon: GraduationCap, color: CATEGORY_CHIP };
       case "welfare":
-        return { icon: HeartHandshake, color: "bg-rose-100 text-rose-800" };
+        return { icon: HeartHandshake, color: CATEGORY_CHIP };
       default:
-        return { icon: Receipt, color: "bg-stone-100 text-stone-700" };
+        return { icon: Receipt, color: CATEGORY_CHIP };
     }
   };
 
@@ -177,6 +181,7 @@ export default function Expenses() {
       : null;
   }, [expenses]);
 
+  const metricsPending = isLoading || isError;
   const withReceipt = expenses.filter(
     e => e.receiptUrl || e.receiptRef !== "-"
   ).length;
@@ -189,7 +194,8 @@ export default function Expenses() {
         <>
           <button
             onClick={exportCSV}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-4 text-sm font-medium text-[#3F3833] hover:bg-[#FFF8EA]"
+            disabled={filteredExpenses.length === 0}
+            className="disabled:opacity-50 disabled:cursor-not-allowed inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-4 text-sm font-medium text-[#3F3833] hover:bg-[#FFF8EA]"
           >
             <Download className="size-4" />
             ส่งออก CSV
@@ -212,7 +218,11 @@ export default function Expenses() {
             icon={TrendingDown}
             note={`${filteredExpenses.length} รายการที่แสดง`}
           >
-            <MoneyDisplay amount={totalAmount} size="lg" />
+            {metricsPending ? (
+              <MetricPlaceholder />
+            ) : (
+              <MoneyDisplay amount={totalAmount} size="lg" />
+            )}
           </MetricCard>
           <MetricCard
             label="หมวดที่ใช้จ่ายมากที่สุด"
@@ -220,7 +230,9 @@ export default function Expenses() {
             note={
               topCategory
                 ? `${topCategory.share.toFixed(0)}% ของรายจ่ายที่โหลด`
-                : "ยังไม่มีข้อมูล"
+                : metricsPending
+                  ? "—"
+                  : "ยังไม่มีข้อมูล"
             }
           >
             <p className="text-xl font-bold text-[#171311]">
@@ -232,10 +244,16 @@ export default function Expenses() {
             icon={Paperclip}
             note="มีเลขที่ใบเสร็จหรือไฟล์แนบ"
           >
-            <p className="text-xl font-bold tabular-nums text-[#171311]">
-              {withReceipt} / {expenses.length}{" "}
-              <span className="text-sm font-medium text-[#807266]">รายการ</span>
-            </p>
+            {metricsPending ? (
+              <MetricPlaceholder />
+            ) : (
+              <p className="text-xl font-bold tabular-nums text-[#171311]">
+                {withReceipt} / {expenses.length}{" "}
+                <span className="text-sm font-medium text-[#807266]">
+                  รายการ
+                </span>
+              </p>
+            )}
           </MetricCard>
         </div>
 
@@ -259,23 +277,34 @@ export default function Expenses() {
         {isLoading ? (
           <LoadingSkeleton count={5} />
         ) : isError ? (
-          <EmptyState
+          <ErrorState
             title="โหลดรายการรายจ่ายไม่สำเร็จ"
             description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
-            actionText="ลองใหม่"
-            onAction={() => refetch()}
+            onRetry={() => void refetch()}
+          />
+        ) : expenses.length === 0 ? (
+          <EmptyState
+            title="ยังไม่มีรายการรายจ่าย"
+            description="เมื่อบันทึกรายจ่าย รายการและหลักฐานการจ่ายจะแสดงที่นี่"
+            actionText="บันทึกรายจ่าย"
+            onAction={() => setLocation("/expenses/new")}
           />
         ) : filteredExpenses.length === 0 ? (
           <EmptyState
-            title="ไม่พบรายการรายจ่าย"
-            description="ยังไม่มีรายการรายจ่ายที่ตรงกับเงื่อนไขการค้นหาของคุณ"
-            actionText="บันทึกรายจ่ายใหม่"
-            onAction={() => setLocation("/expenses/new")}
+            title="ไม่พบรายการที่ตรงกับการค้นหา"
+            description="ลองเปลี่ยนคำค้นหา หรือเลือกทุกหมวดหมู่"
+            actionText="ล้างการค้นหา"
+            onAction={() => {
+              setSearchTerm("");
+              setCategoryFilter("all");
+            }}
           />
         ) : (
           <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
+            {/* The table needs about 900px; below xl the card list shows every
+                amount without a sideways scroll. `relative` keeps the sr-only
+                header inside the scroll box instead of widening the page. */}
+            <div className="hidden xl:block overflow-x-auto relative">
               <table className="w-full text-left text-sm text-[#171311]">
                 <caption className="sr-only">
                   รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
@@ -306,14 +335,14 @@ export default function Expenses() {
                         <td className="whitespace-nowrap py-3.5 px-5 text-[#51443A]">
                           {formatThaiDate(e.date)}
                         </td>
-                        <th scope="row" className="max-w-sm py-3.5 px-5 text-left">
+                        <th scope="row" className="w-full max-w-0 py-2 px-5 text-left">
                           <Link
                             href={`/transactions/expense-${e.id}`}
-                            className="block truncate rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                            className="flex min-h-11 items-center rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
                           >
-                            {e.description}
+                            <span className="truncate">{e.description}</span>
                           </Link>
-                          <p className="truncate text-xs text-[#807266]">
+                          <p className="-mt-2 truncate text-xs text-[#807266]">
                             {e.payee} · {fundName(e.fundId)}
                             {e.receiptRef !== "-" && (
                               <span className="font-mono">
@@ -327,7 +356,7 @@ export default function Expenses() {
                           <span
                             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cat.color}`}
                           >
-                            <CatIcon className="size-3.5" />
+                            <CatIcon className="size-3.5" aria-hidden="true" />
                             {expenseCategoryLabel(e.category)}
                           </span>
                         </td>
@@ -355,20 +384,20 @@ export default function Expenses() {
                                     title: e.description,
                                   })
                                 }
-                                className="inline-flex size-10 items-center justify-center rounded-lg text-[#2F7A45] hover:bg-[#E4F3E7]"
+                                className="inline-flex size-11 items-center justify-center rounded-lg text-[#1F5C33] hover:bg-[#E4F3E7] focus-visible:ring-2 focus-visible:ring-[#C94F16]"
                                 title="ดูสลิป/ใบเสร็จ"
                                 aria-label={`ดูสลิปของ ${e.description}`}
                               >
-                                <Paperclip className="size-4" />
+                                <Paperclip className="size-4" aria-hidden="true" />
                               </button>
                             )}
                             <button
                               onClick={() => setSelectedVoucher(toVoucher(e))}
-                              className="inline-flex size-10 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA]"
+                              className="inline-flex size-11 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#C94F16]"
                               title="พิมพ์ใบสำคัญจ่าย"
                               aria-label={`พิมพ์ใบสำคัญจ่ายของ ${e.description}`}
                             >
-                              <Printer className="size-4" />
+                              <Printer className="size-4" aria-hidden="true" />
                             </button>
                           </div>
                         </td>
@@ -380,7 +409,7 @@ export default function Expenses() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-[#E7DCC8]/40">
+            <div className="xl:hidden divide-y divide-[#E7DCC8]/40">
               {filteredExpenses.map(e => {
                 const cat = getCategoryIcon(e.category);
                 const CatIcon = cat.icon;
@@ -395,22 +424,23 @@ export default function Expenses() {
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium ${cat.color}`}
                           >
-                            <CatIcon className="w-3 h-3" />
+                            <CatIcon className="w-3 h-3" aria-hidden="true" />
                             {expenseCategoryLabel(e.category)}
                           </span>
-                          <span className="text-xs text-[#807266] font-mono">
-                            {e.receiptRef}
-                          </span>
+                          {e.receiptRef !== "-" && (
+                            <span className="text-xs text-[#807266] font-mono">
+                              {e.receiptRef}
+                            </span>
+                          )}
                         </div>
                         <Link
                           href={`/transactions/expense-${e.id}`}
-                          className="block rounded-md font-medium text-foreground text-sm truncate underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                          className="flex min-h-11 items-center rounded-md font-medium text-[#171311] text-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
                         >
-                          {e.description}
+                          <span className="truncate">{e.description}</span>
                         </Link>
-                        <p className="text-xs text-[#807266]">
-                          {e.payee} •{" "}
-                          {new Date(e.date).toLocaleDateString("th-TH")}
+                        <p className="-mt-2 text-xs text-[#807266]">
+                          {e.payee} · {formatThaiDate(e.date)}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
@@ -439,17 +469,23 @@ export default function Expenses() {
                               title: e.description,
                             })
                           }
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-medium"
+                          className="min-h-11 inline-flex items-center gap-1.5 px-3 rounded-lg bg-white text-[#51443A] border border-[#E7DCC8] text-xs font-medium hover:bg-[#FFF8EA]"
                         >
-                          <Paperclip className="w-3 h-3" />
+                          <Paperclip
+                            className="w-3.5 h-3.5 text-[#C94F16]"
+                            aria-hidden="true"
+                          />
                           <span>ดูสลิป</span>
                         </button>
                       )}
                       <button
                         onClick={() => setSelectedVoucher(toVoucher(e))}
-                        className="min-h-11 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-[#51443A] border border-stone-200 text-xs font-medium"
+                        className="min-h-11 inline-flex items-center gap-1.5 px-3 rounded-lg bg-white text-[#51443A] border border-[#E7DCC8] text-xs font-medium hover:bg-[#FFF8EA]"
                       >
-                        <Printer className="w-3 h-3 text-primary" />
+                        <Printer
+                          className="w-3.5 h-3.5 text-[#C94F16]"
+                          aria-hidden="true"
+                        />
                         <span>พิมพ์ใบสำคัญ</span>
                       </button>
                     </div>
@@ -502,4 +538,8 @@ function MetricCard({
       <p className="mt-1 text-xs text-[#807266]">{note}</p>
     </div>
   );
+}
+
+function MetricPlaceholder() {
+  return <p className="text-2xl font-bold text-[#807266]">—</p>;
 }
