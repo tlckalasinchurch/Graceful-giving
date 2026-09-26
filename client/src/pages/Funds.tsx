@@ -12,6 +12,7 @@ import {
   MoneyDisplay,
 } from "@/components/common/CommonUI";
 import { NativeSelect } from "@/components/ui/native-select";
+import { FUND_TYPE_LABELS } from "@shared/categories";
 import {
   Dialog,
   DialogContent,
@@ -250,13 +251,19 @@ export default function Funds() {
                     setNewFundType(e.target.value as typeof newFundType)
                   }
                 >
-                  <option value="mission">พันธกิจและประกาศ (Mission)</option>
-                  <option value="building">อาคารและบูรณะ (Building)</option>
-                  <option value="welfare">
-                    สงเคราะห์และสวัสดิการ (Welfare)
-                  </option>
-                  <option value="special">กองทุนโครงการพิเศษ (Special)</option>
-                  <option value="general">ดำเนินงานทั่วไป (General)</option>
+                  {(
+                    [
+                      "mission",
+                      "building",
+                      "welfare",
+                      "special",
+                      "general",
+                    ] as const
+                  ).map(t => (
+                    <option key={t} value={t}>
+                      {FUND_TYPE_LABELS[t]}
+                    </option>
+                  ))}
                 </NativeSelect>
               </div>
 
