@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { formatBaht } from "@/lib/format";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -44,6 +44,17 @@ import {
 } from "@/components/ui/dialog";
 import { OFFERING_CATEGORIES, type OfferingCategory } from "@shared/categories";
 import { NativeSelect } from "@/components/ui/native-select";
+import { ErrorState } from "@/components/common/CommonUI";
+
+/** Baht with at most two decimals; parseFloat would accept "12abc". */
+const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
+
+function parseAmount(value: string): number | null {
+  const raw = value.replace(/,/g, "").trim();
+  if (!AMOUNT_PATTERN.test(raw)) return null;
+  const n = Number(raw);
+  return n > 0 ? n : null;
+}
 
 type InboxStatus =
   | "all"
@@ -224,6 +235,13 @@ export default function GivingInbox() {
       setUploadPreview(null);
       setUploadDonorName("");
       setSelectedStatus("all");
+      // Clear the review form first: it still holds the previously opened
+      // slip's amount, fund and member until the new slip's data arrives.
+      setEditAmount("");
+      setEditMemberId(null);
+      setEditReviewNote("");
+      setEditCategory("general");
+      seededKeyRef.current = null;
       setSelectedSlipId(data.slipId);
     },
     onError: err => {
@@ -280,8 +298,15 @@ export default function GivingInbox() {
   const [editMemberId, setEditMemberId] = useState<number | null>(null);
   const [editReviewNote, setEditReviewNote] = useState<string>("");
 
-  const handleSelectSlip = (slip: any) => {
-    setSelectedSlipId(slip.id);
+  // The review form is seeded from a slip once per (slip, extracted amount):
+  // on selection, on upload (where only the id is known at first), and again
+  // when AI extraction fills in an amount the form did not have yet. A later
+  // refetch with the same data does not overwrite what the reviewer typed.
+  const seededKeyRef = useRef<string | null>(null);
+  const seedKey = (slip: any) =>
+    `${slip.id}:${slip.approvedAmount ?? slip.extractedAmount ?? ""}`;
+  const seedForm = (slip: any) => {
+    seededKeyRef.current = seedKey(slip);
     setEditAmount(slip.approvedAmount || slip.extractedAmount || "");
     setEditFundId(slip.fundId || (fundsQuery.data?.[0]?.id ?? undefined));
     setEditCategory("general");
@@ -289,11 +314,26 @@ export default function GivingInbox() {
     setEditReviewNote(slip.reviewNote || "");
   };
 
+  const handleSelectSlip = (slip: any) => {
+    setSelectedSlipId(slip.id);
+    seedForm(slip);
+  };
+
+  useEffect(() => {
+    if (!currentSlip || seededKeyRef.current === seedKey(currentSlip)) return;
+    const sameSlip = seededKeyRef.current?.startsWith(`${currentSlip.id}:`);
+    if (!sameSlip || !editAmount) seedForm(currentSlip);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSlip]);
+
   const handleApprove = async () => {
     if (!currentSlip) return;
-    const amountNum = parseFloat(editAmount);
-    if (!amountNum || amountNum <= 0) {
-      Swal.error("ยอดเงินไม่ถูกต้อง", "กรุณาระบุจำนวนเงินที่มากกว่า 0 บาท");
+    const amountNum = parseAmount(editAmount);
+    if (amountNum === null) {
+      Swal.error(
+        "ยอดเงินไม่ถูกต้อง",
+        "กรุณาระบุจำนวนเงินมากกว่า 0 บาท ทศนิยมไม่เกิน 2 ตำแหน่ง"
+      );
       return;
     }
     if (!editFundId) {
@@ -306,12 +346,15 @@ export default function GivingInbox() {
 
     const confirmed = await Swal.confirm(
       "ยืนยันการอนุมัติการถวาย",
-      `คุณกำลังจะอนุมัติเงินถวายจำนวน ${amountNum.toLocaleString()} บาท จาก ${
+      `คุณกำลังจะอนุมัติเงินถวาย ${formatBaht(amountNum)} จาก ${
         currentSlip.matchedMemberName ||
         currentSlip.extractedSenderName ||
         currentSlip.lineDisplayName ||
         "ผู้ถวาย"
-      } เข้ากองทุนที่เลือก`,
+      } เข้า${
+        fundsQuery.data?.find(f => f.id === editFundId)?.name ??
+        "กองทุนที่เลือก"
+      } · ${OFFERING_CATEGORIES.find(c => c.id === editCategory)?.label ?? ""}`,
       "อนุมัติและบันทึก"
     );
 
@@ -334,19 +377,19 @@ export default function GivingInbox() {
 
   const handleQuickApprove = async (e: React.MouseEvent, slip: any) => {
     e.stopPropagation();
-    const amountNum = parseFloat(slip.extractedAmount || "0");
+    const amountNum = parseAmount(String(slip.extractedAmount ?? ""));
     const defaultFundId = fundsQuery.data?.[0]?.id;
 
-    if (!amountNum || amountNum <= 0 || !defaultFundId) {
+    if (amountNum === null || !defaultFundId) {
       handleSelectSlip(slip);
       return;
     }
 
     const confirmed = await Swal.confirm(
       "อนุมัติด่วน?",
-      `อนุมัติเงินถวาย ฿${amountNum.toLocaleString()} จาก ${
-        slip.matchedMemberName || slip.extractedSenderName
-      } เข้า ${fundsQuery.data?.[0]?.name}`,
+      `อนุมัติเงินถวาย ${formatBaht(amountNum)} จาก ${
+        slip.matchedMemberName || slip.extractedSenderName || "ผู้ถวาย"
+      } เข้า${fundsQuery.data?.[0]?.name} · ประเภทถวายทั่วไป (เปิดสลิปเพื่อเลือกกองทุนหรือประเภทอื่น)`,
       "อนุมัติทันที"
     );
 
@@ -479,11 +522,13 @@ export default function GivingInbox() {
             type="button"
             onClick={() => drainWorkerMutation.mutate()}
             disabled={drainWorkerMutation.isPending}
-            className="p-2 rounded-2xl bg-white border border-[#E7DCC8] text-[#51443A] hover:bg-[#FFF8EA] transition-all shadow-2xs cursor-pointer"
+            className="flex size-11 items-center justify-center rounded-xl bg-white border border-[#E7DCC8] text-[#51443A] hover:bg-[#FFF8EA] transition-colors disabled:opacity-50"
             title="รีเฟรชข้อมูลและประมวลผลคิวสลิป"
+            aria-label="รีเฟรชข้อมูลและประมวลผลคิวสลิป"
           >
             <RefreshCw
               className={`w-4 h-4 ${drainWorkerMutation.isPending ? "animate-spin" : ""}`}
+              aria-hidden="true"
             />
           </button>
         </div>
@@ -676,9 +721,13 @@ export default function GivingInbox() {
           <div className="lg:col-span-5 space-y-4">
             {/* Search and Filters */}
             <div className="bg-white rounded-2xl border border-[#E7DCC8] p-3 shadow-2xs flex items-center gap-2">
-              <Search className="w-4 h-4 text-[#807266] ml-2" />
+              <Search
+                className="w-4 h-4 text-[#807266] ml-2"
+                aria-hidden="true"
+              />
               <input
-                type="text"
+                type="search"
+                aria-label="ค้นหาสลิป"
                 placeholder="ค้นหาชื่อผู้โอน, สมาชิก, ยอดเงิน..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -691,6 +740,12 @@ export default function GivingInbox() {
               <div className="p-12 text-center text-sm text-[#807266] bg-white rounded-2xl border border-[#E7DCC8]">
                 กำลังโหลดรายการสลิป...
               </div>
+            ) : slipsQuery.isError ? (
+              <ErrorState
+                title="โหลดรายการสลิปไม่สำเร็จ"
+                description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+                onRetry={() => void slipsQuery.refetch()}
+              />
             ) : filteredSlips.length === 0 ? (
               <div className="p-12 text-center text-[#807266] bg-white rounded-2xl border border-[#E7DCC8] space-y-3">
                 <CheckCircle2 className="w-10 h-10 text-emerald-600/50 mx-auto" />
@@ -720,94 +775,105 @@ export default function GivingInbox() {
                   return (
                     <div
                       key={slip.id}
-                      onClick={() => handleSelectSlip(slip)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                      className={`rounded-2xl border transition-colors ${
                         isSelected
-                          ? "bg-[#FFF8EA] border-[#C94F16] shadow-md ring-2 ring-[#C94F16]/20"
-                          : "bg-white border-[#E7DCC8] hover:bg-[#FFFFFF] hover:border-[#C94F16]/50 shadow-2xs"
+                          ? "bg-[#FFF8EA] border-[#C94F16] ring-2 ring-[#C94F16]/20"
+                          : "bg-white border-[#E7DCC8] hover:border-[#C94F16]"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          {slip.signedImageUrl ? (
-                            <img
-                              src={slip.signedImageUrl}
-                              alt="สลิป"
-                              className="w-14 h-14 object-cover rounded-xl border border-[#E7DCC8] shrink-0 bg-stone-100"
-                            />
-                          ) : (
-                            <div className="w-14 h-14 rounded-xl bg-stone-100 border border-[#E7DCC8] flex items-center justify-center text-stone-400 shrink-0">
-                              <CreditCard className="w-6 h-6" />
+                      <button
+                        type="button"
+                        onClick={() => handleSelectSlip(slip)}
+                        aria-pressed={isSelected}
+                        className="block w-full p-4 text-left rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C94F16]"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {slip.signedImageUrl ? (
+                              <img
+                                src={slip.signedImageUrl}
+                                alt="สลิป"
+                                className="w-14 h-14 object-cover rounded-xl border border-[#E7DCC8] shrink-0 bg-stone-100"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-xl bg-stone-100 border border-[#E7DCC8] flex items-center justify-center text-stone-400 shrink-0">
+                                <CreditCard className="w-6 h-6" />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <div className="font-bold text-base text-[#171311] truncate">
+                                {slip.matchedMemberName ||
+                                  slip.extractedSenderName ||
+                                  slip.lineDisplayName ||
+                                  "ผู้ถวาย"}
+                              </div>
+                              <div className="text-xs text-[#807266] flex items-center gap-1.5 mt-0.5 truncate">
+                                <span>{slip.lineDisplayName || "ผู้ใช้"}</span>
+                                {slip.extractedBank && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{slip.extractedBank}</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          )}
-                          <div className="min-w-0">
-                            <div className="font-bold text-base text-[#171311] truncate">
-                              {slip.matchedMemberName ||
-                                slip.extractedSenderName ||
-                                slip.lineDisplayName ||
-                                "ผู้ถวาย"}
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <div className="text-lg font-bold text-[#C94F16]">
+                              {slip.extractedAmount
+                                ? formatBaht(Number(slip.extractedAmount))
+                                : "—"}
                             </div>
-                            <div className="text-xs text-[#807266] flex items-center gap-1.5 mt-0.5 truncate">
-                              <span>{slip.lineDisplayName || "ผู้ใช้"}</span>
-                              {slip.extractedBank && (
-                                <>
-                                  <span>•</span>
-                                  <span>{slip.extractedBank}</span>
-                                </>
-                              )}
-                            </div>
+                            <span
+                              className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
+                            >
+                              {statusConf.text}
+                            </span>
                           </div>
                         </div>
 
-                        <div className="text-right shrink-0">
-                          <div className="text-lg font-bold text-[#C94F16]">
-                            {slip.extractedAmount
-                              ? formatBaht(Number(slip.extractedAmount))
-                              : "—"}
-                          </div>
-                          <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-bold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
-                          >
-                            {statusConf.text}
+                        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#E7DCC8]/50 text-xs text-[#807266]">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {slip.extractedDate
+                              ? new Date(slip.extractedDate).toLocaleDateString(
+                                  "th-TH",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "2-digit",
+                                  }
+                                )
+                              : new Date(slip.createdAt).toLocaleDateString(
+                                  "th-TH"
+                                )}
                           </span>
+
+                          {slip.extractedRef && (
+                            <span className="font-mono text-xs truncate max-w-[130px]">
+                              Ref: {slip.extractedRef}
+                            </span>
+                          )}
                         </div>
-                      </div>
+                      </button>
 
-                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#E7DCC8]/50 text-xs text-[#807266]">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" />
-                          {slip.extractedDate
-                            ? new Date(slip.extractedDate).toLocaleDateString(
-                                "th-TH",
-                                {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "2-digit",
-                                }
-                              )
-                            : new Date(slip.createdAt).toLocaleDateString(
-                                "th-TH"
-                              )}
-                        </span>
-
-                        {/* Quick Approve Button for High-confidence Matched Slips */}
-                        {slip.status === "matched" && (
+                      {/* Quick approve sits outside the select button: a
+                          button inside a button is invalid and unreachable. */}
+                      {slip.status === "matched" && (
+                        <div className="px-4 pb-4">
                           <button
                             type="button"
                             onClick={e => handleQuickApprove(e, slip)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-xs transition-all"
+                            disabled={approveMutation.isPending}
+                            className="min-h-11 inline-flex items-center gap-1.5 px-4 rounded-xl bg-[#2D6A2E] hover:bg-[#235324] text-white font-bold text-sm transition-colors disabled:opacity-50"
                             title="อนุมัติด่วนด้วยข้อมูลที่จับคู่ได้"
                           >
-                            <Zap className="w-3 h-3" /> อนุมัติด่วน
+                            <Zap className="w-4 h-4" aria-hidden="true" />{" "}
+                            อนุมัติด่วน
                           </button>
-                        )}
-
-                        {slip.status !== "matched" && slip.extractedRef && (
-                          <span className="font-mono text-[11px] truncate max-w-[130px]">
-                            Ref: {slip.extractedRef}
-                          </span>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1084,10 +1150,17 @@ export default function GivingInbox() {
 
                     {/* Fund Account */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#51443A]">
-                        เข้ากองทุน <span className="text-rose-500">*</span>
+                      <label
+                        htmlFor="slip-fund"
+                        className="text-xs font-bold text-[#51443A]"
+                      >
+                        เข้ากองทุน{" "}
+                        <span className="text-[#C8372D]" aria-hidden="true">
+                          *
+                        </span>
                       </label>
                       <NativeSelect
+                        id="slip-fund"
                         value={editFundId ?? ""}
                         onChange={e => setEditFundId(Number(e.target.value))}
                         disabled={currentSlip.status === "approved"}
@@ -1103,11 +1176,20 @@ export default function GivingInbox() {
 
                     {/* Amount */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#51443A]">
-                        ยอดเงิน (บาท) <span className="text-rose-500">*</span>
+                      <label
+                        htmlFor="slip-amount"
+                        className="text-xs font-bold text-[#51443A]"
+                      >
+                        ยอดเงิน (บาท){" "}
+                        <span className="text-[#C8372D]" aria-hidden="true">
+                          *
+                        </span>
                       </label>
                       <input
+                        id="slip-amount"
                         type="number"
+                        inputMode="decimal"
+                        min="0.01"
                         step="0.01"
                         value={editAmount}
                         onChange={e => setEditAmount(e.target.value)}
@@ -1118,10 +1200,14 @@ export default function GivingInbox() {
 
                     {/* Category */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#51443A]">
+                      <label
+                        htmlFor="slip-category"
+                        className="text-xs font-bold text-[#51443A]"
+                      >
                         ประเภทการถวาย
                       </label>
                       <NativeSelect
+                        id="slip-category"
                         value={editCategory}
                         onChange={e =>
                           setEditCategory(e.target.value as OfferingCategory)
@@ -1140,16 +1226,20 @@ export default function GivingInbox() {
 
                   {/* Notes */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#51443A]">
+                    <label
+                      htmlFor="slip-note"
+                      className="text-xs font-bold text-[#51443A]"
+                    >
                       หมายเหตุการตรวจสอบ
                     </label>
                     <input
+                      id="slip-note"
                       type="text"
                       placeholder="บันทึกเพิ่มเติมของเจ้าหน้าที่ (ถ้ามี)"
                       value={editReviewNote}
                       onChange={e => setEditReviewNote(e.target.value)}
                       disabled={currentSlip.status === "approved"}
-                      className="min-h-11 w-full text-sm rounded-xl border border-[#E7DCC8] bg-white p-2.5 focus:ring-2 focus:ring-[#C94F16] focus:outline-none"
+                      className="min-h-11 w-full text-base md:text-sm rounded-xl border border-[#E7DCC8] bg-white p-2.5 focus:ring-2 focus:ring-[#C94F16] focus:outline-none"
                     />
                   </div>
                 </div>
