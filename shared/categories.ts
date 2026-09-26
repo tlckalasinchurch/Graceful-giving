@@ -129,3 +129,14 @@ export const FUND_TYPE_LABELS: Record<string, string> = {
 export function fundTypeLabel(type: string | null | undefined): string {
   return (type && FUND_TYPE_LABELS[type]) || type || "—";
 }
+
+/** Member status, mirroring the Postgres enum `member_status`. */
+export const MEMBER_STATUS_LABELS: Record<string, string> = {
+  active: "ใช้งาน",
+  inactive: "ไม่ใช้งาน",
+  pending: "รอยืนยัน",
+};
+
+export function memberStatusLabel(status: string): string {
+  return MEMBER_STATUS_LABELS[status] ?? status;
+}
