@@ -16,7 +16,7 @@ interface BalanceCardProps {
   isDataUnavailable: boolean;
   summaryError: unknown;
   hasSummaryData: boolean;
-  animatedBalance: number;
+  balance: number;
   canOpenReports: boolean;
   onOpenReports: () => void;
   fmtBaht: (n: number) => string;
@@ -30,7 +30,7 @@ export function BalanceCard({
   isDataUnavailable,
   summaryError,
   hasSummaryData,
-  animatedBalance,
+  balance,
   canOpenReports,
   onOpenReports,
   fmtBaht,
@@ -38,8 +38,7 @@ export function BalanceCard({
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      style={{ animationDelay: "90ms" }}
-      className={`animate-fade-up bg-white rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${isPositiveBalance ? "border-[#A8D59D] card-elevation-focus" : "border-[#F2C9BE] card-elevation-sm"}`}
+      className={`bg-white rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${isPositiveBalance ? "border-[#A8D59D] card-elevation-focus" : "border-[#F2C9BE] card-elevation-sm"}`}
     >
       <div className="flex items-center justify-between gap-6">
         {/* Left: Prominent financial figures */}
@@ -63,7 +62,7 @@ export function BalanceCard({
 
             {/* Data-source status */}
             {isBalanceLoading && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#F0EAF8] text-[#7D3C98] text-xs sm:text-sm font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFF8EA] text-[#51443A] text-xs sm:text-sm font-bold">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 กำลังโหลดข้อมูล
               </span>
@@ -93,17 +92,19 @@ export function BalanceCard({
                  amount to lose an argument with its container. */
               className={`whitespace-nowrap text-[clamp(1.75rem,5.5vw,4.5rem)] font-bold tracking-tight tabular-nums ${isPositiveBalance ? "text-[#155724]" : "text-[#9E2D12]"}`}
             >
-              {showBalance && hasSummaryData ? fmtBaht(animatedBalance) : "—"}
+              {showBalance && hasSummaryData ? fmtBaht(balance) : "—"}
             </div>
           )}
 
-          <p className="text-sm sm:text-base md:text-lg text-[#3F3833] font-bold flex items-center gap-2 pt-1">
+          <p className="text-sm sm:text-base text-[#51443A] flex items-center gap-2 pt-1">
             {isBalanceLoading ? (
               <span>กำลังตรวจสอบยอดเงินล่าสุด…</span>
             ) : isPositiveBalance ? (
               <>
                 <span>ขอบคุณพระเจ้าสำหรับทุกการถวาย</span>
-                <span className="text-[#1F5C33] text-lg">♥</span>
+                <span className="text-[#1F5C33]" aria-hidden="true">
+                  ♥
+                </span>
               </>
             ) : (
               <span className="text-[#9E2D12] font-bold">
@@ -116,7 +117,7 @@ export function BalanceCard({
             <div className="pt-3">
               <button
                 onClick={onOpenReports}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs hover:border-[#C94F16]"
+                className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] hover:border-[#C94F16]"
               >
                 <BarChart3 className="w-4 h-4 text-[#C94F16]" />
                 <span>ดูรายละเอียด</span>
@@ -128,7 +129,7 @@ export function BalanceCard({
 
         {/* Right: Balance illustration tucked cleanly in corner */}
         <div className="hidden sm:block shrink-0 z-10">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#E7DCC8] bg-[#FAF8F5] p-1.5 shadow-2xs">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#E7DCC8] bg-[#FFF8EA] p-1.5">
             <Illustration
               src="/illustrations/balance_wallet.jpg"
               alt="กระเป๋าสตางค์ยอดคงเหลือ"

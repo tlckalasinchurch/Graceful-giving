@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { ArrowRight, Heart, Inbox, Landmark } from "lucide-react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canAccessRoute } from "@/lib/routeAccess";
-import { offeringCategoryLabel } from "@shared/categories";
+import {
+  expenseCategoryLabel,
+  offeringCategoryLabel,
+} from "@shared/categories";
 import { HeroSection } from "./Home/components/HeroSection";
 import { BalanceCard } from "./Home/components/BalanceCard";
 import { FinancialSummaryRow } from "./Home/components/FinancialSummaryRow";
@@ -40,36 +43,6 @@ function trendValue(trend: string) {
 
 const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
 
-// ─── Balance count-up (snappy and instant) ───────────────────────────────────
-function useCountUp(target: number, durationMs = 200): number {
-  const [value, setValue] = useState(target);
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setValue(target);
-      return;
-    }
-    const start = performance.now();
-    let frameId: number;
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / durationMs, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(target * eased);
-      if (progress < 1) {
-        frameId = requestAnimationFrame(tick);
-      }
-    };
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, durationMs, prefersReducedMotion]);
-
-  return value;
-}
-
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -86,6 +59,7 @@ export default function Home() {
   const canOpenMembers = canAccessRoute("/members", user);
   const canRecordExpense = canAccessRoute("/expenses", user);
   const canAccessInbox = canAccessRoute("/giving/inbox", user);
+  const canOpenBudgets = canAccessRoute("/budgets", user);
 
   // Three tiles always show (กิจกรรม, ขอเบิกเงิน, เพิ่มเติม); the two gated
   // ones change the count, so match the column count to what is actually
@@ -144,7 +118,6 @@ export default function Home() {
   const isDataUnavailable = !summaryLoading && (summaryError || !summaryData);
   const isPositiveBalance = (totalBalance ?? 0) >= 0;
   const isPositiveNet = (netMonthly ?? 0) >= 0;
-  const animatedBalance = useCountUp(totalBalance ?? 0);
 
   // Combined transactions
   const allTransactions = useMemo<TransactionItem[]>(() => {
@@ -160,9 +133,9 @@ export default function Home() {
           date: o.receiptDate,
           type: "income",
           category: o.category,
-          subCategory: "อาคารคริสตจักร",
+          subCategory: "เงินถวาย",
           amount: Number(o.amount),
-          tone: "bg-[#FDECEA] text-[#E06250]",
+          tone: "bg-[#E4F3E7] text-[#1F5C33]",
           icon: Heart,
         });
       });
@@ -176,9 +149,9 @@ export default function Home() {
           date: e.expenseDate,
           type: "expense",
           category: e.category,
-          subCategory: "พันธกิจนมัสการ",
+          subCategory: expenseCategoryLabel(e.category),
           amount: Number(e.amount),
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
+          tone: "bg-[#FEECEB] text-[#8A2E14]",
           icon: Landmark,
         });
       });
@@ -191,10 +164,40 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-6 sm:space-y-8 md:space-y-10">
-        {/* 1. Hero Section */}
         <HeroSection />
 
-        {/* Action Needed Banner: High-priority inbox alerts */}
+        <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
+          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+            ดูภาพรวม
+          </h2>
+          <BalanceCard
+            showBalance={showBalance}
+            setShowBalance={setShowBalance}
+            isPositiveBalance={isPositiveBalance}
+            isBalanceLoading={isBalanceLoading}
+            isDataUnavailable={isDataUnavailable}
+            summaryError={summaryError}
+            hasSummaryData={!!summaryData}
+            balance={totalBalance ?? 0}
+            canOpenReports={canOpenReports}
+            onOpenReports={() => setLocation("/reports")}
+            fmtBaht={fmtBaht}
+          />
+          <FinancialSummaryRow
+            isBalanceLoading={isBalanceLoading}
+            showBalance={showBalance}
+            monthlyIncome={monthlyIncome}
+            monthlyExpense={monthlyExpense}
+            netMonthly={netMonthly}
+            incomeTrend={incomeTrend}
+            expenseTrend={expenseTrend}
+            isPositiveNet={isPositiveNet}
+            fmtShortBaht={fmtShortBaht}
+            trendArrow={trendArrow}
+            trendValue={trendValue}
+          />
+        </section>
+
         {canAccessInbox && pendingSlipCount > 0 && (
           <div
             role="region"
@@ -224,38 +227,6 @@ export default function Home() {
           </div>
         )}
 
-        <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ดูภาพรวม
-          </h2>
-          <BalanceCard
-            showBalance={showBalance}
-            setShowBalance={setShowBalance}
-            isPositiveBalance={isPositiveBalance}
-            isBalanceLoading={isBalanceLoading}
-            isDataUnavailable={isDataUnavailable}
-            summaryError={summaryError}
-            hasSummaryData={!!summaryData}
-            animatedBalance={animatedBalance}
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-            fmtBaht={fmtBaht}
-          />
-          <FinancialSummaryRow
-            isBalanceLoading={isBalanceLoading}
-            showBalance={showBalance}
-            monthlyIncome={monthlyIncome}
-            monthlyExpense={monthlyExpense}
-            netMonthly={netMonthly}
-            incomeTrend={incomeTrend}
-            expenseTrend={expenseTrend}
-            isPositiveNet={isPositiveNet}
-            fmtShortBaht={fmtShortBaht}
-            trendArrow={trendArrow}
-            trendValue={trendValue}
-          />
-        </section>
-
         <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
           <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
             ทำรายการ
@@ -283,6 +254,8 @@ export default function Home() {
           <BudgetSection
             canOpenReports={canOpenReports}
             onOpenReports={() => setLocation("/reports")}
+            canOpenBudgets={canOpenBudgets}
+            onOpenBudgets={() => setLocation("/budgets")}
           />
           <RecentTransactions
             allTransactions={allTransactions}

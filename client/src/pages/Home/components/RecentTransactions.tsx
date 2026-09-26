@@ -29,7 +29,7 @@ export function RecentTransactions({
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E7DCC8] shadow-xs space-y-4 w-full"
+      className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E7DCC8] space-y-4 w-full"
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg sm:text-xl font-bold text-[#171311]">
