@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "wouter";
+import { Link, useLocation, useParams } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   BackLink,
@@ -162,16 +162,16 @@ export default function BudgetDetail() {
           />
         ) : (
           <>
-            <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8">
-              <h1 className="text-2xl font-bold text-[#171311]">
+            <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8">
+              <h2 className="text-2xl font-bold text-[#171311]">
                 {budgetCategoryLabel(query.data.category)}
-              </h1>
+              </h2>
               <p className="mt-1 text-sm text-[#807266]">
                 {budgetPeriodLabel(query.data.year, query.data.month)}
                 {" · "}
                 {fundName(query.data.fundId) ?? "ทุกกองทุน"}
               </p>
-              <dl className="mt-5 grid grid-cols-3 gap-3">
+              <dl className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
                   <dt className="text-xs text-[#807266]">งบประมาณ</dt>
                   <dd>
@@ -208,7 +208,7 @@ export default function BudgetDetail() {
 
             <form
               onSubmit={submit}
-              className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8"
+              className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8"
             >
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-bold text-[#171311]">แก้ไขงบประมาณ</h2>
@@ -216,9 +216,9 @@ export default function BudgetDetail() {
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50"
+                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-[#F8C8C5] bg-white px-4 py-2 text-sm font-bold text-[#B92A20] hover:bg-[#FEECEB] disabled:opacity-50"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
                   ลบงบประมาณ
                 </button>
               </div>
@@ -228,15 +228,16 @@ export default function BudgetDetail() {
                 funds={funds}
               />
               <button
+                type="submit"
                 disabled={update.isPending || !isDirty}
-                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#2F7A45] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-5 py-2 text-sm font-bold text-white hover:bg-[#9F3B0F] disabled:opacity-50"
               >
-                <Save className="h-4 w-4" />
+                <Save className="h-4 w-4" aria-hidden="true" />
                 {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
               </button>
             </form>
 
-            <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8">
+            <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8">
               <h2 className="font-bold text-[#171311]">
                 รายจ่ายที่นับในงบนี้ ({query.data.expenseCount} รายการ)
               </h2>
@@ -249,19 +250,24 @@ export default function BudgetDetail() {
                   {query.data.expenses.map(expense => (
                     <li
                       key={expense.id}
-                      className="flex items-start justify-between gap-3 py-3"
+                      className="flex items-start justify-between gap-3 py-1.5"
                     >
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-[#171311]">
-                          {expense.description}
-                        </p>
-                        <p className="text-xs text-[#807266]">
+                        <Link
+                          href={`/transactions/expense-${expense.id}`}
+                          className="flex min-h-11 items-center rounded-md text-sm font-semibold text-[#171311] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                        >
+                          <span className="truncate">
+                            {expense.description}
+                          </span>
+                        </Link>
+                        <p className="-mt-2 text-xs text-[#807266]">
                           {formatThaiDate(expense.expenseDate)} ·{" "}
                           {expenseCategoryLabel(expense.category)}
                           {expense.payee ? ` · ${expense.payee}` : ""}
                         </p>
                       </div>
-                      <span className="shrink-0 text-sm font-bold tabular-nums text-[#171311]">
+                      <span className="shrink-0 whitespace-nowrap pt-3 text-sm font-bold tabular-nums text-[#171311]">
                         {formatBaht(expense.amount)}
                       </span>
                     </li>
