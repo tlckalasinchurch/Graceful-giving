@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "wouter";
+import { Link } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
@@ -16,8 +16,10 @@ import {
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 
+const FIELD_CLASS =
+  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm font-normal text-[#171311] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30";
+
 export default function Ministries() {
-  const [, setLocation] = useLocation();
   const { user } = useAuth();
   const canManage = canManageMinistries(user);
 
@@ -60,6 +62,7 @@ export default function Ministries() {
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
+    if (createMinistry.isPending) return;
     if (name.trim().length < 2) {
       toast.error("กรุณาระบุชื่อฝ่ายงาน");
       return;
@@ -87,9 +90,10 @@ export default function Ministries() {
                 setShowCreate(true);
               }
             }}
-            className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-4 py-2 text-xs font-bold text-white"
+            aria-expanded={showCreate}
+            className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-4 py-2 text-sm font-bold text-white transition-colors"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" aria-hidden="true" />
             เพิ่มฝ่ายงาน
           </button>
         ) : undefined
@@ -99,28 +103,32 @@ export default function Ministries() {
         {canManage && showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-[#E7DCC8] bg-white p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-[#171311]">เพิ่มฝ่ายงานใหม่</h2>
               <button
                 type="button"
                 onClick={closeCreateForm}
-                className="text-[#807266]"
                 aria-label="ปิดแบบฟอร์ม"
+                className="-mr-2 flex size-11 items-center justify-center rounded-xl text-[#807266] hover:bg-[#FFF8EA]"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="text-sm font-semibold text-[#51443A]">
-                ชื่อฝ่ายงาน *
+                ชื่อฝ่ายงาน{" "}
+                <span className="text-[#C8372D]" aria-hidden="true">
+                  *
+                </span>
                 <input
                   required
+                  minLength={2}
                   value={name}
                   onChange={event => setName(event.target.value)}
                   placeholder="เช่น ฝ่ายนมัสการ, ฝ่ายอนุชน"
-                  className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 font-normal text-[#171311]"
+                  className={FIELD_CLASS}
                 />
               </label>
               <label className="text-sm font-semibold text-[#51443A]">
@@ -128,7 +136,7 @@ export default function Ministries() {
                 <input
                   value={leaderName}
                   onChange={event => setLeaderName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 font-normal text-[#171311]"
+                  className={FIELD_CLASS}
                 />
               </label>
               <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
@@ -137,7 +145,7 @@ export default function Ministries() {
                   value={meetingSchedule}
                   onChange={event => setMeetingSchedule(event.target.value)}
                   placeholder="เช่น ทุกวันอาทิตย์ 09:00"
-                  className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 font-normal text-[#171311]"
+                  className={FIELD_CLASS}
                 />
               </label>
               <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
@@ -146,13 +154,14 @@ export default function Ministries() {
                   value={description}
                   onChange={event => setDescription(event.target.value)}
                   rows={3}
-                  className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 font-normal text-[#171311]"
+                  className={FIELD_CLASS}
                 />
               </label>
             </div>
             <button
+              type="submit"
               disabled={createMinistry.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-[#2F7A45] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 min-h-11 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
             >
               {createMinistry.isPending ? "กำลังบันทึก…" : "บันทึกฝ่ายงาน"}
             </button>
@@ -165,7 +174,7 @@ export default function Ministries() {
           <ErrorState
             title="โหลดข้อมูลฝ่ายงานไม่สำเร็จ"
             description="เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล กรุณาลองใหม่"
-            onRetry={() => ministriesQuery.refetch()}
+            onRetry={() => void ministriesQuery.refetch()}
           />
         ) : !ministriesQuery.data?.length ? (
           <EmptyState
@@ -181,33 +190,35 @@ export default function Ministries() {
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
             {ministriesQuery.data.map(ministry => (
-              <button
+              <Link
                 key={ministry.id}
-                type="button"
-                onClick={() => setLocation(`/ministries/${ministry.id}`)}
-                className="rounded-2xl border border-[#E7DCC8] bg-white p-5 text-left shadow-sm hover:bg-[#FAF8F5]"
+                href={`/ministries/${ministry.id}`}
+                className="block rounded-2xl border border-[#E7DCC8] bg-white p-5 text-left transition-colors hover:border-[#C94F16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-[#171311]">{ministry.name}</h2>
                   <span
-                    className={`rounded-full px-2 py-1 text-[11px] ${
+                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                       ministry.status === "active"
-                        ? "bg-[#E4F3E7] text-[#171311]"
-                        : "bg-stone-100 text-stone-600"
+                        ? "bg-[#E4F3E7] text-[#1F5C33]"
+                        : "bg-[#FFF8EA] text-[#51443A]"
                     }`}
                   >
                     {ministry.status === "active" ? "ดำเนินการ" : "พักงาน"}
                   </span>
                 </div>
                 <p className="mt-2 flex items-center gap-1.5 text-sm text-[#807266]">
-                  <UserRound className="h-4 w-4 shrink-0" />
+                  <UserRound className="h-4 w-4 shrink-0" aria-hidden="true" />
                   {ministry.leaderName || "ยังไม่ระบุหัวหน้าฝ่าย"}
                 </p>
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-[#807266]">
-                  <CalendarClock className="h-4 w-4 shrink-0" />
+                  <CalendarClock
+                    className="h-4 w-4 shrink-0"
+                    aria-hidden="true"
+                  />
                   {ministry.meetingSchedule || "ยังไม่ระบุเวลานัดประชุม"}
                 </p>
-              </button>
+              </Link>
             ))}
           </div>
         )}

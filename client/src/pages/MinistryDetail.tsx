@@ -4,13 +4,18 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import {
   BackLink,
   EmptyState,
+  ErrorState,
   LoadingSkeleton,
 } from "@/components/common/CommonUI";
+
+const FIELD_CLASS =
+  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm font-normal text-[#171311] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageMinistries } from "@shared/roles";
 import { CalendarClock, Save, UserRound } from "lucide-react";
 import { Swal } from "@/lib/sweetalert";
+import { toast } from "sonner";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
@@ -51,10 +56,7 @@ export default function MinistryDetail() {
     onSuccess: async () => {
       await utils.ministries.list.invalidate();
       await utils.ministries.getById.invalidate({ id });
-      await Swal.success(
-        "บันทึกข้อมูลสำเร็จ!",
-        "อัปเดตข้อมูลฝ่ายงานเรียบร้อยแล้ว"
-      );
+      toast.success("บันทึกข้อมูลฝ่ายงานเรียบร้อยแล้ว");
     },
     onError: async error => {
       await Swal.error(
@@ -68,10 +70,7 @@ export default function MinistryDetail() {
     onSuccess: async () => {
       await utils.ministries.list.invalidate();
       await utils.ministries.getById.invalidate({ id });
-      await Swal.success(
-        "พักงานฝ่ายนี้แล้ว",
-        "ฝ่ายงานถูกเปลี่ยนสถานะเรียบร้อยแล้ว"
-      );
+      toast.success("พักงานฝ่ายนี้เรียบร้อยแล้ว");
     },
     onError: async error => {
       await Swal.error(
@@ -93,7 +92,7 @@ export default function MinistryDetail() {
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!Number.isInteger(id) || id <= 0) return;
+    if (!Number.isInteger(id) || id <= 0 || update.isPending) return;
     update.mutate({
       id,
       name: name.trim(),
@@ -118,11 +117,10 @@ export default function MinistryDetail() {
         {query.isLoading ? (
           <LoadingSkeleton count={3} />
         ) : query.isError ? (
-          <EmptyState
+          <ErrorState
             title="โหลดข้อมูลฝ่ายงานไม่สำเร็จ"
-            description="เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล กรุณาลองใหม่"
-            actionText="ลองใหม่"
-            onAction={() => query.refetch()}
+            description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+            onRetry={() => void query.refetch()}
           />
         ) : !query.data ? (
           <EmptyState
@@ -134,13 +132,13 @@ export default function MinistryDetail() {
         ) : canManage ? (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8"
+            className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8"
           >
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-[#171311]">
+                <h2 className="text-2xl font-bold text-[#171311]">
                   แก้ไขข้อมูลฝ่ายงาน
-                </h1>
+                </h2>
                 <p className="mt-1 text-sm text-[#807266]">
                   สถานะปัจจุบัน:{" "}
                   {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
@@ -150,8 +148,16 @@ export default function MinistryDetail() {
                 <button
                   type="button"
                   disabled={update.isPending}
-                  onClick={() => update.mutate({ id, status: "active" })}
-                  className="min-h-11 rounded-2xl border border-[#B8E2AB] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#1F5C33] disabled:opacity-50"
+                  onClick={async () => {
+                    const ministryName = query.data?.name;
+                    const ok = await Swal.confirm(
+                      "เปิดใช้งานฝ่ายนี้ใหม่?",
+                      `"${ministryName}" จะกลับมาแสดงเป็นฝ่ายงานที่ดำเนินการอยู่`,
+                      { confirmButtonText: "เปิดใช้งาน", icon: "question" }
+                    );
+                    if (ok) update.mutate({ id, status: "active" });
+                  }}
+                  className="min-h-11 rounded-xl border border-[#C3E4B8] bg-white hover:bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#1F5C33] transition-colors disabled:opacity-50"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -171,7 +177,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-[#F8C8C5] bg-white hover:bg-[#FEECEB] px-4 py-2 text-sm font-bold text-[#B92A20] transition-colors disabled:opacity-50"
                 >
                   พักงานฝ่าย
                 </button>
@@ -180,12 +186,16 @@ export default function MinistryDetail() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <label className="text-sm font-semibold text-[#51443A]">
-                ชื่อฝ่ายงาน *
+                ชื่อฝ่ายงาน{" "}
+                <span className="text-[#C8372D]" aria-hidden="true">
+                  *
+                </span>
                 <input
                   required
+                  minLength={2}
                   value={name}
                   onChange={event => setName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 font-normal text-[#171311]"
+                  className={FIELD_CLASS}
                 />
               </label>
               <label className="text-sm font-semibold text-[#51443A]">
@@ -193,7 +203,7 @@ export default function MinistryDetail() {
                 <input
                   value={leaderName}
                   onChange={event => setLeaderName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 font-normal text-[#171311]"
+                  className={FIELD_CLASS}
                 />
               </label>
               <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
@@ -202,7 +212,7 @@ export default function MinistryDetail() {
                   value={meetingSchedule}
                   onChange={event => setMeetingSchedule(event.target.value)}
                   placeholder="เช่น ทุกวันอาทิตย์ 09:00"
-                  className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 font-normal text-[#171311]"
+                  className={FIELD_CLASS}
                 />
               </label>
               <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
@@ -211,30 +221,31 @@ export default function MinistryDetail() {
                   value={description}
                   onChange={event => setDescription(event.target.value)}
                   rows={4}
-                  className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 font-normal text-[#171311]"
+                  className={FIELD_CLASS}
                 />
               </label>
             </div>
 
             <button
-              disabled={update.isPending}
-              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#2F7A45] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              type="submit"
+              disabled={update.isPending || !isDirty}
+              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-5 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
             >
-              <Save className="h-4 w-4" />
+              <Save className="h-4 w-4" aria-hidden="true" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
             </button>
           </form>
         ) : (
-          <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h1 className="text-2xl font-bold text-[#171311]">
+              <h2 className="text-2xl font-bold text-[#171311]">
                 {query.data.name}
-              </h1>
+              </h2>
               <span
-                className={`rounded-full px-2.5 py-1 text-[11px] ${
+                className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                   query.data.status === "active"
-                    ? "bg-[#E4F3E7] text-[#171311]"
-                    : "bg-stone-100 text-stone-600"
+                    ? "bg-[#E4F3E7] text-[#1F5C33]"
+                    : "bg-[#FFF8EA] text-[#51443A]"
                 }`}
               >
                 {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
