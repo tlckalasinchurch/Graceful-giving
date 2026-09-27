@@ -37,7 +37,7 @@ export const NativeSelect = React.forwardRef<
       className={cn(
         "min-h-11 w-full appearance-none rounded-2xl border border-[#E7DCC8]",
         "bg-[#FFFFFF] py-2.5 pl-4 pr-10 text-sm text-[#171311]",
-        "focus:border-[#C94F16] focus:outline-none",
+        "focus:border-[#0066CC] focus:outline-none",
         "disabled:cursor-not-allowed disabled:opacity-50",
         invalid && "border-[#C8372D]",
         className

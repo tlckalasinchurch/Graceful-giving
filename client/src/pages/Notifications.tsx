@@ -68,11 +68,11 @@ export default function Notifications() {
                   if (!item.readAt) markRead.mutate({ id: item.id });
                   if (item.link) setLocation(item.link);
                 }}
-                className={`relative w-full rounded-2xl border bg-white p-4 pl-8 text-left hover:bg-[#FAF8F5] ${item.readAt ? "border-[#E7DCC8]" : "border-[#F9D2AE]"}`}
+                className={`relative w-full rounded-2xl border bg-white p-4 pl-8 text-left hover:bg-[#FAF8F5] ${item.readAt ? "border-[#E7DCC8]" : "border-[#CFE4FA]"}`}
               >
                 {!item.readAt && (
                   <span
-                    className="absolute left-3.5 top-6 size-2 rounded-full bg-[#C94F16]"
+                    className="absolute left-3.5 top-6 size-2 rounded-full bg-[#0066CC]"
                     aria-hidden="true"
                   />
                 )}

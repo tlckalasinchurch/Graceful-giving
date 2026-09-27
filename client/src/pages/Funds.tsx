@@ -25,7 +25,7 @@ import {
 type AccountItem = RouterOutputs["finance"]["accounts"][number];
 
 const INPUT_CLASS =
-  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30";
+  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
 
 export default function Funds() {
   const [showNewFundModal, setShowNewFundModal] = useState(false);
@@ -94,7 +94,7 @@ export default function Funds() {
       action={
         <button
           onClick={() => setShowNewFundModal(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0066CC] px-4 text-sm font-semibold text-white hover:bg-[#0052A3]"
         >
           <Plus className="size-4" aria-hidden="true" />
           สร้างกองทุนใหม่
@@ -150,13 +150,13 @@ export default function Funds() {
                 <li key={f.id}>
                   <Link
                     href={`/funds/${f.id}`}
-                    className="h-full bg-white rounded-2xl border border-[#E7DCC8] p-6 hover:border-[#C94F16] transition-colors flex flex-col justify-between group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                    className="h-full bg-white rounded-2xl border border-[#E7DCC8] p-6 hover:border-[#0066CC] transition-colors flex flex-col justify-between group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC]"
                   >
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="w-11 h-11 rounded-xl bg-[#FFF8EA] flex items-center justify-center">
                           <Icon
-                            className="w-5 h-5 text-[#C94F16]"
+                            className="w-5 h-5 text-[#0066CC]"
                             aria-hidden="true"
                           />
                         </div>
@@ -188,7 +188,7 @@ export default function Funds() {
                       </div>
                     </div>
 
-                    <div className="pt-4 mt-4 border-t border-[#E7DCC8] flex items-center justify-between text-xs font-semibold text-[#51443A] group-hover:text-[#9F3B0F]">
+                    <div className="pt-4 mt-4 border-t border-[#E7DCC8] flex items-center justify-between text-xs font-semibold text-[#51443A] group-hover:text-[#0052A3]">
                       <span>ดูสเตทเมนต์และรายละเอียด</span>
                       <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </div>
@@ -296,7 +296,7 @@ export default function Funds() {
                 <button
                   type="submit"
                   disabled={createAccountMutation.isPending}
-                  className="min-h-11 px-6 rounded-xl bg-[#C94F16] text-white text-sm font-semibold hover:bg-[#9F3B0F] disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="min-h-11 px-6 rounded-xl bg-[#0066CC] text-white text-sm font-semibold hover:bg-[#0052A3] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {createAccountMutation.isPending
                     ? "กำลังสร้าง…"

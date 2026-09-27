@@ -47,7 +47,7 @@ export function TextField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]/20 disabled:opacity-60"
+        className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#0052A3] focus:outline-none focus:ring-2 focus:ring-[#0052A3]/20 disabled:opacity-60"
       />
     </div>
   );
@@ -76,7 +76,7 @@ export function Step1({
           onChange={e => set({ address: e.target.value })}
           placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
           rows={3}
-          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none resize-none"
+          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#0052A3] focus:outline-none resize-none"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -141,7 +141,7 @@ export function Step2({
           onChange={e => set({ motto: e.target.value })}
           placeholder="เช่น 2 โครินธ์ 9:7 · ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก"
           rows={2}
-          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none resize-none"
+          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#0052A3] focus:outline-none resize-none"
         />
       </div>
       <div className="rounded-2xl border border-[#dceeff] bg-[#eef7ff] p-4">
@@ -181,7 +181,7 @@ export function Step3({
         <NativeSelect
           value={data.bankName}
           onChange={e => set({ bankName: e.target.value })}
-          className="border-[#E7DCC8] text-[#3F3833] focus:border-[#9F3B0F]"
+          className="border-[#E7DCC8] text-[#3F3833] focus:border-[#0052A3]"
         >
           <option value="">— เลือกธนาคาร —</option>
           {BANKS.map(b => (
@@ -245,19 +245,19 @@ export function Step4({
               onClick={() => toggleCat(cat)}
               className={`flex min-h-[48px] items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${
                 selected
-                  ? "border-[#9F3B0F] bg-[#FFF8EA] text-[#9F3B0F]"
+                  ? "border-[#0052A3] bg-[#FFF8EA] text-[#0052A3]"
                   : "border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FAF8F5]"
               }`}
             >
               <span
                 className={`grid size-5 shrink-0 place-items-center rounded-md ${
-                  selected ? "bg-[#9F3B0F] text-white" : "bg-[#EDE8E3]"
+                  selected ? "bg-[#0052A3] text-white" : "bg-[#EDE8E3]"
                 }`}
               >
                 {selected ? (
                   <Check className="size-3" />
                 ) : (
-                  <HandCoins className="size-3 text-[#9F3B0F]" />
+                  <HandCoins className="size-3 text-[#0052A3]" />
                 )}
               </span>
               {cat}
@@ -285,7 +285,7 @@ export function Step5({ data }: { data: SetupData }) {
           key={i}
           className="flex items-center gap-3 rounded-2xl border border-[#EDE8E3] bg-white p-3.5"
         >
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#FFF4D6] text-[#9F3B0F]">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#FFF4D6] text-[#0052A3]">
             <WalletCards className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -296,10 +296,10 @@ export function Step5({ data }: { data: SetupData }) {
         </div>
       ))}
       <div className="rounded-2xl border border-[#FFF4D6] bg-[#fffde9] p-4">
-        <p className="text-xs font-bold text-[#C94F16]">
+        <p className="text-xs font-bold text-[#0066CC]">
           💡 สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
-        <p className="mt-1 text-xs text-[#C94F16]">
+        <p className="mt-1 text-xs text-[#0066CC]">
           จากหน้าการเงิน → จัดการกองทุน
         </p>
       </div>
@@ -321,7 +321,7 @@ export function Step6({
         <NativeSelect
           value={data.fiscalYearStartMonth}
           onChange={e => set({ fiscalYearStartMonth: Number(e.target.value) })}
-          className="border-[#E7DCC8] text-[#3F3833] focus:border-[#9F3B0F]"
+          className="border-[#E7DCC8] text-[#3F3833] focus:border-[#0052A3]"
         >
           {THAI_MONTHS.map((m, i) => (
             <option key={i + 1} value={i + 1}>
@@ -342,14 +342,14 @@ export function Step6({
           onChange={e => set({ budgetYear: Number(e.target.value) })}
           min={2550}
           max={2600}
-          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#0052A3] focus:outline-none"
         />
       </div>
       <div className="rounded-2xl border border-[#FFF4D6] bg-[#fffde9] p-4 space-y-2">
-        <p className="text-xs font-bold text-[#C94F16]">
+        <p className="text-xs font-bold text-[#0066CC]">
           📅 ตัวอย่างรอบปีงบประมาณ
         </p>
-        <p className="text-xs text-[#C94F16]">
+        <p className="text-xs text-[#0066CC]">
           ปีที่ {data.budgetYear}: {THAI_MONTHS[data.fiscalYearStartMonth - 1]}{" "}
           {data.budgetYear} →{" "}
           {THAI_MONTHS[(data.fiscalYearStartMonth - 2 + 12) % 12]}{" "}
@@ -384,7 +384,7 @@ export function Step7() {
       role: "MEMBER",
       label: "สมาชิกทั่วไป",
       desc: "ดูยอดรวมและสร้างคำขอเบิก แต่ไม่เห็นรายละเอียดผู้ถวาย",
-      color: "bg-[#FFF8EA] text-[#9F3B0F]",
+      color: "bg-[#FFF8EA] text-[#0052A3]",
     },
   ];
   return (

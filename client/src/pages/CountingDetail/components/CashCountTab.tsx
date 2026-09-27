@@ -90,7 +90,7 @@ export function CashCountTab({
                   }}
                   placeholder="0"
                   aria-label={`จำนวน ${denomination.label}`}
-                  className="min-h-11 w-24 rounded-xl border border-[#E7DCC8] bg-white p-2.5 text-right text-base font-bold tabular-nums text-foreground focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30 disabled:opacity-60"
+                  className="min-h-11 w-24 rounded-xl border border-[#E7DCC8] bg-white p-2.5 text-right text-base font-bold tabular-nums text-foreground focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30 disabled:opacity-60"
                 />
                 <span className="ml-auto whitespace-nowrap text-right text-sm font-bold tabular-nums text-[#51443A]">
                   {fmtBaht(subtotal)}

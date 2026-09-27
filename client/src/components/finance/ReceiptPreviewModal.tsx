@@ -58,7 +58,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
         <div className="p-4 sm:p-6 flex-1 overflow-y-auto flex items-center justify-center bg-stone-100 min-h-[300px]">
           {isPdf ? (
             <div className="text-center p-8 bg-white rounded-2xl border border-stone-200 shadow-xs max-w-sm">
-              <FileText className="w-16 h-16 text-[#C94F16] mx-auto mb-3" />
+              <FileText className="w-16 h-16 text-[#0066CC] mx-auto mb-3" />
               <p className="font-bold text-sm text-stone-800">
                 เอกสารแนบรูปแบบ PDF
               </p>
@@ -69,7 +69,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
                 href={receiptUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shadow-xs transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold shadow-xs transition-colors"
               >
                 <Download className="w-4 h-4" />
                 <span>เปิดและดาวน์โหลด PDF</span>

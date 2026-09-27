@@ -267,7 +267,7 @@ export function DeductionsTab({
                           if (ok) approveDeduction.mutate({ id: deduction.id });
                         }}
                         disabled={approveDeduction.isPending}
-                        className="min-h-11 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-4 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
+                        className="min-h-11 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] px-4 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
                       >
                         อนุมัติรายการนี้
                       </button>

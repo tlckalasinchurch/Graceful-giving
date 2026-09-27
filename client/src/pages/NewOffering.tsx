@@ -46,7 +46,7 @@ function localToday(): string {
 }
 
 const FIELD_CLASS =
-  "min-h-11 w-full p-3 rounded-xl bg-white border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30 disabled:opacity-50";
+  "min-h-11 w-full p-3 rounded-xl bg-white border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30 disabled:opacity-50";
 const LABEL_CLASS = "text-sm font-bold text-[#51443A] block";
 
 interface SavedOffering {
@@ -201,7 +201,7 @@ export default function NewOffering() {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full min-h-14 pl-12 pr-4 py-3 rounded-xl bg-white border border-[#E7DCC8] text-2xl font-bold tabular-nums text-[#1F5C33] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
+                className="w-full min-h-14 pl-12 pr-4 py-3 rounded-xl bg-white border border-[#E7DCC8] text-2xl font-bold tabular-nums text-[#1F5C33] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30"
               />
             </div>
             <div
@@ -320,7 +320,7 @@ export default function NewOffering() {
                 setIsAnonymous(e.target.checked);
                 if (e.target.checked) setDonorName("");
               }}
-              className="size-5 rounded border-[#E7DCC8] accent-[#C94F16]"
+              className="size-5 rounded border-[#E7DCC8] accent-[#0066CC]"
             />
             ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
           </label>
@@ -343,7 +343,7 @@ export default function NewOffering() {
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full min-h-12 py-3.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-base button-elevation transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-12 py-3.5 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-base button-elevation transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <HandCoins className="w-5 h-5" aria-hidden="true" />
             <span>
@@ -407,7 +407,7 @@ export default function NewOffering() {
             <button
               type="button"
               onClick={() => setSaved(null)}
-              className="w-full min-h-11 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm transition-colors"
+              className="w-full min-h-11 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-sm transition-colors"
             >
               บันทึกรายการถัดไป
             </button>

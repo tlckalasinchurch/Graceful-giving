@@ -10,8 +10,8 @@ import { AppMenu } from "@/components/layout/AppNavigation";
 // One grammar for every shortcut: colour marks "this is clickable", not which
 // tile it is. The label already says which tile it is.
 const TILE =
-  "flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C94F16] hover:bg-[#FFF8EA] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]";
-const ICON = "w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C94F16] mb-1.5";
+  "flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#0066CC] hover:bg-[#FFF8EA] transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC]";
+const ICON = "w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#0066CC] mb-1.5";
 
 interface SecondaryMenuProps {
   canOpenReports: boolean;

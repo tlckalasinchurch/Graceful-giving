@@ -185,7 +185,7 @@ export function BankRecordsTab({
                         กระทบสมุดบัญชีแล้ว
                       </span>
                     ) : (
-                      <span className="text-[#9F3B0F]">
+                      <span className="text-[#0052A3]">
                         ยังไม่กระทบสมุดบัญชี
                       </span>
                     )}

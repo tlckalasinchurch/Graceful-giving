@@ -30,7 +30,7 @@ import { ErrorState, LoadingSkeleton } from "@/components/common/CommonUI";
 const ROLE_OPTIONS = Object.values(CHURCH_ROLES);
 
 const FIELD_CLASS =
-  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#E7DCC8] bg-white text-base md:text-sm text-[#171311] placeholder:text-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30";
+  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#E7DCC8] bg-white text-base md:text-sm text-[#171311] placeholder:text-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
 
 type ProfileFields = {
   name: string;
@@ -335,7 +335,7 @@ export default function Settings() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#C94F16] text-white font-bold text-sm hover:bg-[#9F3B0F] transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0066CC] text-white font-bold text-sm hover:bg-[#0052A3] transition-all shadow-xs"
             >
               กลับสู่หน้าหลัก
             </Link>
@@ -364,7 +364,7 @@ export default function Settings() {
               aria-pressed={activeTab === tab.id}
               className={`min-h-11 px-3.5 sm:px-5 py-2 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap border ${
                 activeTab === tab.id
-                  ? "bg-[#FFF4D6] text-[#9F3B0F] border-[#F9D2AE]"
+                  ? "bg-[#FFF4D6] text-[#0052A3] border-[#CFE4FA]"
                   : "text-[#51443A] border-transparent hover:bg-[#FFF8EA]"
               }`}
             >
@@ -390,7 +390,7 @@ export default function Settings() {
             <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5">
               <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
                 <Building
-                  className="w-5 h-5 text-[#C94F16]"
+                  className="w-5 h-5 text-[#0066CC]"
                   aria-hidden="true"
                 />
                 ข้อมูลทั่วไปของคริสตจักร
@@ -519,7 +519,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving || !isDirty}
-                className="min-h-11 px-8 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="min-h-11 px-8 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" aria-hidden="true" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>
@@ -551,7 +551,7 @@ export default function Settings() {
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-5 py-2.5 text-sm font-bold text-[#51443A] transition-colors hover:bg-[#FFF8EA]"
                 >
                   <UserCheck
-                    className="h-4 w-4 text-[#C94F16]"
+                    className="h-4 w-4 text-[#0066CC]"
                     aria-hidden="true"
                   />
                   ดูโปรไฟล์เต็ม
@@ -577,7 +577,7 @@ export default function Settings() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7DCC8]/60 pb-5">
                 <div>
                   <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-                    <Users className="w-5 h-5 text-[#C94F16]" />
+                    <Users className="w-5 h-5 text-[#0066CC]" />
                     จัดการบทบาทและสิทธิ์ผู้ใช้งานในระบบ
                   </h3>
                   <p className="text-xs text-[#807266] mt-1">
@@ -623,7 +623,7 @@ export default function Settings() {
                     aria-label="กรองตามบทบาท"
                     value={roleFilter}
                     onChange={e => setRoleFilter(e.target.value)}
-                    className="font-semibold focus:ring-2 focus:ring-[#C94F16]/20"
+                    className="font-semibold focus:ring-2 focus:ring-[#0066CC]/20"
                   >
                     <option value="ALL">บทบาททั้งหมด</option>
                     {ROLE_OPTIONS.map(r => (
@@ -637,7 +637,7 @@ export default function Settings() {
 
               {usersQuery.isLoading ? (
                 <div className="py-12 flex flex-col items-center justify-center text-sm text-[#807266] gap-3">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#C94F16]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-[#0066CC]" />
                   <span>กำลังโหลดรายชื่อผู้ใช้งาน...</span>
                 </div>
               ) : usersQuery.isError ? (
@@ -715,7 +715,7 @@ export default function Settings() {
                                 <div className="font-bold text-[#171311] flex items-center gap-2">
                                   <span>{u.name || "ไม่ระบุชื่อ"}</span>
                                   {isMe && (
-                                    <span className="text-xs bg-[#FFF4D6] text-[#9F3B0F] font-semibold px-2 py-0.5 rounded-full border border-[#F9D2AE]">
+                                    <span className="text-xs bg-[#FFF4D6] text-[#0052A3] font-semibold px-2 py-0.5 rounded-full border border-[#CFE4FA]">
                                       คุณ
                                     </span>
                                   )}
@@ -746,7 +746,7 @@ export default function Settings() {
                                 {canEdit ? (
                                   <div className="inline-flex items-center gap-2">
                                     {isUpdating && (
-                                      <Loader2 className="w-4 h-4 animate-spin text-[#C94F16]" />
+                                      <Loader2 className="w-4 h-4 animate-spin text-[#0066CC]" />
                                     )}
                                     <NativeSelect
                                       aria-label={`บทบาทของ ${u.name || u.email || "ผู้ใช้งาน"}`}
@@ -755,7 +755,7 @@ export default function Settings() {
                                       onChange={e =>
                                         handleRoleChange(u.id, e.target.value)
                                       }
-                                      className="font-semibold shadow-sm hover:border-[#C94F16] focus:ring-2 focus:ring-[#C94F16]/20 transition-all"
+                                      className="font-semibold shadow-sm hover:border-[#0066CC] focus:ring-2 focus:ring-[#0066CC]/20 transition-all"
                                     >
                                       {ROLE_OPTIONS.map(r => (
                                         <option key={r.role} value={r.role}>
@@ -785,7 +785,7 @@ export default function Settings() {
               <div>
                 <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
                   <Shield
-                    className="w-5 h-5 text-[#C94F16]"
+                    className="w-5 h-5 text-[#0066CC]"
                     aria-hidden="true"
                   />
                   โครงสร้างสิทธิ์การใช้งาน
@@ -812,7 +812,7 @@ export default function Settings() {
                       </div>
                       <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-white text-[#171311] border-[#E7DCC8] self-start sm:self-auto">
                         ผู้ใช้ในบทบาทนี้:{" "}
-                        <span className="text-[#9F3B0F] font-bold">
+                        <span className="text-[#0052A3] font-bold">
                           {usersQuery.isLoading
                             ? "กำลังโหลด…"
                             : usersQuery.isError
@@ -839,7 +839,7 @@ export default function Settings() {
                         {r.duties.map((duty, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
                             <span
-                              className="text-[#9F3B0F] font-bold"
+                              className="text-[#0052A3] font-bold"
                               aria-hidden="true"
                             >
                               •
@@ -860,7 +860,7 @@ export default function Settings() {
         {activeTab === "categories" && (
           <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5">
             <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
-              <Banknote className="w-5 h-5 text-[#C94F16]" aria-hidden="true" />
+              <Banknote className="w-5 h-5 text-[#0066CC]" aria-hidden="true" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
             </h3>
 
@@ -918,7 +918,7 @@ export default function Settings() {
             <div>
               <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
                 <CreditCard
-                  className="w-5 h-5 text-[#C94F16]"
+                  className="w-5 h-5 text-[#0066CC]"
                   aria-hidden="true"
                 />
                 บัญชีรับเงินถวาย
@@ -986,7 +986,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving || !isDirty}
-                className="min-h-11 px-8 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="min-h-11 px-8 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" aria-hidden="true" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกบัญชีธนาคาร"}</span>
@@ -1002,7 +1002,7 @@ export default function Settings() {
               <div>
                 <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
                   <FileText
-                    className="w-5 h-5 text-[#C94F16]"
+                    className="w-5 h-5 text-[#0066CC]"
                     aria-hidden="true"
                   />
                   บันทึกประวัติการดำเนินงาน
@@ -1020,7 +1020,7 @@ export default function Settings() {
               >
                 <RefreshCw
                   className={`w-3.5 h-3.5 ${
-                    auditQuery.isFetching ? "animate-spin text-[#C94F16]" : ""
+                    auditQuery.isFetching ? "animate-spin text-[#0066CC]" : ""
                   }`}
                 />
                 <span>รีเฟรชข้อมูล</span>
@@ -1052,7 +1052,7 @@ export default function Settings() {
                   aria-label="กรองตามกิจกรรม"
                   value={auditActionFilter}
                   onChange={e => setAuditActionFilter(e.target.value)}
-                  className="font-semibold focus:ring-2 focus:ring-[#C94F16]/20"
+                  className="font-semibold focus:ring-2 focus:ring-[#0066CC]/20"
                 >
                   <option value="ALL">กิจกรรมทั้งหมด</option>
                   {Object.entries(AUDIT_ACTION_LABELS).map(([id, label]) => (
@@ -1066,7 +1066,7 @@ export default function Settings() {
 
             {auditQuery.isLoading ? (
               <div className="py-12 flex flex-col items-center justify-center text-sm text-[#807266] gap-3">
-                <Loader2 className="w-6 h-6 animate-spin text-[#C94F16]" />
+                <Loader2 className="w-6 h-6 animate-spin text-[#0066CC]" />
                 <span>กำลังโหลด Audit Log...</span>
               </div>
             ) : auditQuery.isError ? (

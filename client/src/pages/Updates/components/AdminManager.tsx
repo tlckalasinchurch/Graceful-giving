@@ -250,7 +250,7 @@ export function AdminManager() {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <Settings2 className="size-5 text-[#9F3B0F]" />
+            <Settings2 className="size-5 text-[#0052A3]" />
             <h2 className="font-display text-xl font-bold tracking-tight text-[#3F3833]">
               จัดการเนื้อหา
             </h2>
@@ -262,13 +262,13 @@ export function AdminManager() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={openNewNews}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#9F3B0F] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#C94F16] shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#0052A3] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#0066CC] shadow-sm active:scale-95 transition"
           >
             <Plus className="size-4" /> ข่าวสารใหม่
           </button>
           <button
             onClick={openNewEvent}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[#E7DCC8] bg-white px-4 py-2.5 text-xs font-bold text-[#9F3B0F] hover:bg-[#FAF8F5] shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[#E7DCC8] bg-white px-4 py-2.5 text-xs font-bold text-[#0052A3] hover:bg-[#FAF8F5] shadow-sm active:scale-95 transition"
           >
             <CalendarDays className="size-4" /> กิจกรรมใหม่
           </button>
@@ -282,7 +282,7 @@ export function AdminManager() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="ค้นหาชื่อข่าวสารหรือกิจกรรม..."
-          className="w-full rounded-2xl border border-[#E7DCC8] bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+          className="w-full rounded-2xl border border-[#E7DCC8] bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-[#3F3833] focus:border-[#0052A3] focus:outline-none"
         />
       </div>
 
@@ -313,7 +313,7 @@ export function AdminManager() {
                     className="flex flex-wrap items-center justify-between gap-2 py-3"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#FFF8EA] text-[#9F3B0F]">
+                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#FFF8EA] text-[#0052A3]">
                         <Megaphone className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -328,7 +328,7 @@ export function AdminManager() {
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         aria-label={`แก้ไขข่าวสาร ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#9F3B0F] hover:bg-[#FAF8F5]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#0052A3] hover:bg-[#FAF8F5]"
                         onClick={() => beginNewsEdit(item)}
                       >
                         <PencilLine className="size-4" />

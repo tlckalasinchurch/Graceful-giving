@@ -234,7 +234,7 @@ export default function TransactionDetail() {
               onClick={() => setShowVoucher(true)}
               className="min-h-11 px-3.5 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#51443A] text-xs font-bold border border-[#E7DCC8] flex items-center gap-1.5 transition-colors"
             >
-              <Printer className="w-4 h-4 text-[#C94F16]" aria-hidden="true" />
+              <Printer className="w-4 h-4 text-[#0066CC]" aria-hidden="true" />
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
             </button>
           )}
@@ -250,7 +250,7 @@ export default function TransactionDetail() {
               aria-expanded={isEditing}
               className="min-h-11 px-3.5 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#51443A] text-xs font-bold border border-[#E7DCC8] flex items-center gap-1.5 transition-colors"
             >
-              <Pencil className="w-4 h-4 text-[#C94F16]" aria-hidden="true" />
+              <Pencil className="w-4 h-4 text-[#0066CC]" aria-hidden="true" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
             </button>
           )}
@@ -324,7 +324,7 @@ export default function TransactionDetail() {
                     step="0.01"
                     value={editAmount}
                     onChange={event => setEditAmount(event.target.value)}
-                    className="mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm text-[#171311] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
+                    className="mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm text-[#171311] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30"
                   />
                 </label>
                 <label className="text-xs font-semibold text-[#51443A]">
@@ -332,14 +332,14 @@ export default function TransactionDetail() {
                   <input
                     value={editText}
                     onChange={event => setEditText(event.target.value)}
-                    className="mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm text-[#171311] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
+                    className="mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm text-[#171311] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30"
                   />
                 </label>
               </div>
               <button
                 type="submit"
                 disabled={updateOffering.isPending || updateExpense.isPending}
-                className="min-h-11 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+                className="min-h-11 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
               >
                 {updateOffering.isPending || updateExpense.isPending
                   ? "กำลังบันทึก…"
@@ -360,7 +360,7 @@ export default function TransactionDetail() {
               </h2>
               <p className="text-xs text-[#807266] flex items-center gap-1.5">
                 <Calendar
-                  className="w-3.5 h-3.5 text-[#C94F16]"
+                  className="w-3.5 h-3.5 text-[#0066CC]"
                   aria-hidden="true"
                 />
                 {formatThaiDateTime(transaction.date)}
@@ -383,7 +383,7 @@ export default function TransactionDetail() {
               value={transaction.fund}
               icon={
                 <Landmark
-                  className="w-4 h-4 text-[#C94F16]"
+                  className="w-4 h-4 text-[#0066CC]"
                   aria-hidden="true"
                 />
               }
@@ -394,7 +394,7 @@ export default function TransactionDetail() {
               value={transaction.paymentMethod}
               icon={
                 <CreditCard
-                  className="w-4 h-4 text-[#C94F16]"
+                  className="w-4 h-4 text-[#0066CC]"
                   aria-hidden="true"
                 />
               }
@@ -407,7 +407,7 @@ export default function TransactionDetail() {
               }
               value={transaction.donorOrPayee}
               icon={
-                <User className="w-4 h-4 text-[#C94F16]" aria-hidden="true" />
+                <User className="w-4 h-4 text-[#0066CC]" aria-hidden="true" />
               }
             />
             <Detail label="เลขอ้างอิง" value={transaction.refCode} />
@@ -425,7 +425,7 @@ export default function TransactionDetail() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#51443A] flex items-center gap-1.5">
                   <Paperclip
-                    className="w-4 h-4 text-[#C94F16]"
+                    className="w-4 h-4 text-[#0066CC]"
                     aria-hidden="true"
                   />
                   หลักฐานสลิป / ใบเสร็จแนบ
@@ -436,7 +436,7 @@ export default function TransactionDetail() {
                   className="min-h-11 inline-flex items-center gap-1.5 text-xs font-bold text-[#51443A] bg-white hover:bg-[#FFF8EA] px-3 rounded-xl border border-[#E7DCC8] transition-colors"
                 >
                   <ExternalLink
-                    className="w-3.5 h-3.5 text-[#C94F16]"
+                    className="w-3.5 h-3.5 text-[#0066CC]"
                     aria-hidden="true"
                   />
                   <span>เปิดดูหลักฐานเต็มจอ</span>
@@ -447,12 +447,12 @@ export default function TransactionDetail() {
                 type="button"
                 onClick={() => setShowReceiptModal(true)}
                 aria-label={`เปิดดูหลักฐานของ ${transaction.title}`}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-[#E7DCC8] bg-[#FFF8EA] flex items-center justify-center hover:opacity-90 transition-opacity group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-[#E7DCC8] bg-[#FFF8EA] flex items-center justify-center hover:opacity-90 transition-opacity group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC]"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <span className="block text-center p-4">
                     <FileText
-                      className="w-12 h-12 text-[#C94F16] mx-auto mb-2"
+                      className="w-12 h-12 text-[#0066CC] mx-auto mb-2"
                       aria-hidden="true"
                     />
                     <span className="text-xs font-bold text-[#51443A]">

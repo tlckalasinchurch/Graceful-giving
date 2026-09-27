@@ -274,7 +274,7 @@ export default function CountingDetail() {
       {
         icon: "question",
         confirmButtonText: "ล้างเพื่อนับใหม่",
-        confirmButtonColor: "#C94F16",
+        confirmButtonColor: "#0066CC",
         cancelButtonText: "ยกเลิก",
       }
     );
@@ -301,10 +301,10 @@ export default function CountingDetail() {
                 aria-label="ล้างข้อมูลเพื่อนับใหม่"
                 onClick={handleResetThisSession}
                 disabled={resetSession.isPending}
-                className="min-h-11 min-w-11 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2 text-xs font-bold text-[#9F3B0F] hover:bg-[#FFF8EA] transition-colors disabled:opacity-50"
+                className="min-h-11 min-w-11 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2 text-xs font-bold text-[#0052A3] hover:bg-[#FFF8EA] transition-colors disabled:opacity-50"
               >
                 <RotateCcw
-                  className="h-4 w-4 text-[#9F3B0F]"
+                  className="h-4 w-4 text-[#0052A3]"
                   aria-hidden="true"
                 />
                 <span className="hidden sm:inline">นับใหม่</span>
@@ -367,7 +367,7 @@ export default function CountingDetail() {
               aria-pressed={tab === id}
               className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                 tab === id
-                  ? "bg-[#C94F16] text-white"
+                  ? "bg-[#0066CC] text-white"
                   : "border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FFF8EA]"
               }`}
             >
@@ -378,7 +378,7 @@ export default function CountingDetail() {
         </div>
 
         {!editable && tab !== "summary" && tab !== "bank" && (
-          <p className="rounded-2xl border border-[#F9D2AE] bg-[#FFF8EA] p-4 text-sm text-[#9F3B0F]">
+          <p className="rounded-2xl border border-[#CFE4FA] bg-[#FFF8EA] p-4 text-sm text-[#0052A3]">
             รอบนี้ส่งนับแล้ว จึงแก้ไขซองและผลนับไม่ได้ ถ้าต้องแก้ ให้เหรัญญิกกด
             “ส่งกลับไปนับใหม่” ในแท็บสรุป
           </p>

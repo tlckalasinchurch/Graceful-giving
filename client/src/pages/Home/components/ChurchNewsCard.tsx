@@ -10,7 +10,7 @@ export function ChurchNewsCard({ onOpenNews }: ChurchNewsCardProps) {
     <section aria-label="ข่าวสารจากคริสตจักร" className="w-full">
       <div
         onClick={onOpenNews}
-        className="cursor-pointer bg-gradient-to-r from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] border-2 border-[#E7DCC8] rounded-2xl sm:rounded-2xl p-5 sm:p-7 flex items-center justify-between gap-4 hover:border-[#C94F16] transition-all shadow-xs"
+        className="cursor-pointer bg-gradient-to-r from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] border-2 border-[#E7DCC8] rounded-2xl sm:rounded-2xl p-5 sm:p-7 flex items-center justify-between gap-4 hover:border-[#0066CC] transition-all shadow-xs"
         role="button"
         tabIndex={0}
         onKeyDown={e => {

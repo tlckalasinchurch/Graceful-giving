@@ -71,7 +71,7 @@ function MobileTab({
       aria-label={tab.ariaLabel}
       aria-current={active ? "page" : undefined}
       className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl ${
-        active ? "text-[#FC6C26]" : "text-[#FFF4D6] hover:text-white"
+        active ? "text-[#2997FF]" : "text-[#FFF4D6] hover:text-white"
       }`}
     >
       <Icon className="size-[22px]" />
@@ -122,12 +122,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             href="/"
             className="flex items-center gap-3 px-2 mb-5 cursor-pointer select-none"
           >
-            <div className="size-10 rounded-xl bg-[#C94F16] flex items-center justify-center shrink-0">
+            <div className="size-10 rounded-xl bg-[#0066CC] flex items-center justify-center shrink-0">
               <Sprout className="size-5 text-white" aria-hidden="true" />
             </div>
             <div className="min-w-0">
               <p className="text-lg font-bold leading-tight tracking-tight text-[#FFF4D6]">
-                Grace <span className="text-[#FC6C26]">Ledger</span>
+                Grace <span className="text-[#2997FF]">Ledger</span>
               </p>
               <p className="text-xs text-[#807266] leading-tight">
                 การเงินเชื่อมใจ เพื่อคริสตจักร
@@ -138,7 +138,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {/* Quick Offering Action Button */}
           <button
             onClick={() => navigate("/offerings/new")}
-            className="w-full mb-5 min-h-11 px-4 rounded-xl bg-[#FC6C26] hover:bg-[#C94F16] text-[#171311] font-bold text-sm flex items-center justify-center gap-2 button-elevation focus-visible:ring-2 focus-visible:ring-[#FC6C26]"
+            className="w-full mb-5 min-h-11 px-4 rounded-xl bg-[#2997FF] hover:bg-[#0066CC] text-[#171311] font-bold text-sm flex items-center justify-center gap-2 button-elevation focus-visible:ring-2 focus-visible:ring-[#2997FF]"
             aria-label="บันทึกการถวายใหม่"
           >
             <Plus className="size-4 stroke-[2.5]" />
@@ -166,11 +166,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   aria-current={isActive ? "page" : undefined}
                   className={`w-full flex min-h-10 items-center gap-3 px-3 rounded-lg text-sm transition-colors ${
                     isActive
-                      ? "bg-[#FC6C26] text-[#171311] font-semibold"
+                      ? "bg-[#2997FF] text-[#171311] font-semibold"
                       : "text-[#FFF4D6] font-medium hover:bg-[#2A211C] hover:text-white"
                   }`}
                 >
-                  <Icon className={`size-[18px] shrink-0 ${isActive ? "text-[#171311]" : "text-[#FC6C26]"}`} aria-hidden="true" />
+                  <Icon className={`size-[18px] shrink-0 ${isActive ? "text-[#171311]" : "text-[#2997FF]"}`} aria-hidden="true" />
                   <span className="truncate">{item.label}</span>
                 </GuardedLink>
               );
@@ -184,7 +184,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               href="/profile"
               className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-[#2A211C] transition-colors"
             >
-              <div className="size-9 rounded-full bg-[#FC6C26] flex items-center justify-center text-[#171311] font-semibold text-sm shrink-0">
+              <div className="size-9 rounded-full bg-[#2997FF] flex items-center justify-center text-[#171311] font-semibold text-sm shrink-0">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </div>
               <div className="flex-1 min-w-0">
@@ -245,7 +245,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
               <button
                 onClick={() => navigate("/notifications")}
-                className="hidden lg:flex size-11 shrink-0 rounded-xl bg-white border border-[#E7DCC8] items-center justify-center text-[#3F3833] hover:bg-[#FFF8EA] transition-colors relative focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                className="hidden lg:flex size-11 shrink-0 rounded-xl bg-white border border-[#E7DCC8] items-center justify-center text-[#3F3833] hover:bg-[#FFF8EA] transition-colors relative focus-visible:ring-2 focus-visible:ring-[#0066CC]"
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="w-5 h-5" />
@@ -277,7 +277,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           <div className="flex flex-col items-center">
             <button
               onClick={() => navigate("/offerings/new")}
-              className="-mt-5 size-13 rounded-2xl bg-[#FC6C26] hover:bg-[#C94F16] text-[#171311] flex items-center justify-center shadow-lg shadow-[#FC6C26]/25 ring-4 ring-[#FFF4D6] focus-visible:ring-2 focus-visible:ring-[#FC6C26]"
+              className="-mt-5 size-13 rounded-2xl bg-[#2997FF] hover:bg-[#0066CC] text-[#171311] flex items-center justify-center shadow-lg shadow-[#2997FF]/25 ring-4 ring-[#FFF4D6] focus-visible:ring-2 focus-visible:ring-[#2997FF]"
               aria-label="บันทึกการถวายใหม่"
             >
               <Plus className="size-6 stroke-[2.5]" />

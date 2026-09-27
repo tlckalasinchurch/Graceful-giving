@@ -98,7 +98,7 @@ export default function Budgets() {
           type="button"
           onClick={() => (showCreate ? closeCreateForm() : setShowCreate(true))}
           aria-expanded={showCreate}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#9F3B0F]"
+          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#0066CC] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#0052A3]"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           ตั้งงบประมาณ
@@ -115,7 +115,7 @@ export default function Budgets() {
             <button
               type="button"
               onClick={() => setYear(y => y - 1)}
-              className="flex size-11 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="flex size-11 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#0066CC]"
               aria-label="ปีก่อนหน้า"
             >
               <ChevronLeft className="size-5" />
@@ -126,7 +126,7 @@ export default function Budgets() {
             <button
               type="button"
               onClick={() => setYear(y => y + 1)}
-              className="flex size-11 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="flex size-11 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#0066CC]"
               aria-label="ปีถัดไป"
             >
               <ChevronRight className="size-5" />
@@ -150,7 +150,7 @@ export default function Budgets() {
               <button
                 type="button"
                 onClick={closeCreateForm}
-                className="flex h-11 w-11 items-center justify-center rounded-lg text-[#807266] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                className="flex h-11 w-11 items-center justify-center rounded-lg text-[#807266] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#0066CC]"
                 aria-label="ปิดแบบฟอร์ม"
               >
                 <X className="h-5 w-5" />
@@ -160,7 +160,7 @@ export default function Budgets() {
             <button
               type="submit"
               disabled={createPlan.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-[#C94F16] px-5 py-2 text-sm font-bold text-white hover:bg-[#9F3B0F] disabled:opacity-50"
+              className="mt-5 min-h-11 rounded-xl bg-[#0066CC] px-5 py-2 text-sm font-bold text-white hover:bg-[#0052A3] disabled:opacity-50"
             >
               {createPlan.isPending ? "กำลังบันทึก…" : "บันทึกงบประมาณ"}
             </button>
@@ -193,7 +193,7 @@ export default function Budgets() {
               <SummaryCard
                 label="ใกล้เต็มงบ"
                 value={counts.warn}
-                className="text-[#9F3B0F]"
+                className="text-[#0052A3]"
               />
               <SummaryCard
                 label="เกินงบ"
@@ -207,7 +207,7 @@ export default function Budgets() {
                 <Link
                   key={plan.id}
                   href={`/budgets/${plan.id}`}
-                  className="block rounded-2xl border border-[#E7DCC8] bg-white p-5 text-left transition-colors hover:border-[#C94F16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                  className="block rounded-2xl border border-[#E7DCC8] bg-white p-5 text-left transition-colors hover:border-[#0066CC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">

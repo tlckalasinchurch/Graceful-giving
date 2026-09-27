@@ -230,7 +230,7 @@ export default function BudgetDetail() {
               <button
                 type="submit"
                 disabled={update.isPending || !isDirty}
-                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-5 py-2 text-sm font-bold text-white hover:bg-[#9F3B0F] disabled:opacity-50"
+                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#0066CC] px-5 py-2 text-sm font-bold text-white hover:bg-[#0052A3] disabled:opacity-50"
               >
                 <Save className="h-4 w-4" aria-hidden="true" />
                 {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
@@ -255,7 +255,7 @@ export default function BudgetDetail() {
                       <div className="min-w-0">
                         <Link
                           href={`/transactions/expense-${expense.id}`}
-                          className="flex min-h-11 items-center rounded-md text-sm font-semibold text-[#171311] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                          className="flex min-h-11 items-center rounded-md text-sm font-semibold text-[#171311] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC]"
                         >
                           <span className="truncate">
                             {expense.description}

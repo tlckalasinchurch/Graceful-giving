@@ -188,11 +188,11 @@ export function AppMenu({ children }: { children?: ReactNode }) {
                   onFocus={e => e.currentTarget.scrollIntoView({ block: "nearest" })}
                   className={`flex min-h-11 items-center gap-3 rounded-lg px-3.5 text-[15px] ${
                     active
-                      ? "bg-[#FC6C26] font-semibold text-[#171311]"
+                      ? "bg-[#2997FF] font-semibold text-[#171311]"
                       : "font-medium text-[#FFF4D6] hover:bg-[#2A211C]"
                   }`}
                 >
-                  <Icon className={`size-5 shrink-0 ${active ? "text-[#171311]" : "text-[#FC6C26]"}`} aria-hidden="true" />
+                  <Icon className={`size-5 shrink-0 ${active ? "text-[#171311]" : "text-[#2997FF]"}`} aria-hidden="true" />
                   <span>{item.label}</span>
                 </GuardedLink>
               </SheetClose>

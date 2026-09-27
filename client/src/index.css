@@ -42,7 +42,7 @@
   --color-brand-sage: #e4c98f;
   --color-brand-lightsage: #fff8ea;
   --color-brand-peach: #f6c09b;
-  --color-brand-orange: #fc6c26;
+  --color-brand-orange: #2997ff;
   --color-brand-sky: #d9c7ed;
   --color-brand-brown: #51443a;
   --color-brand-dark: var(--foreground);
@@ -76,11 +76,12 @@
      them, which is unreadable. The sidebar sits outside this width. */
   --content-max: 88rem;
 
-  /* Warm-grey ramp (neutral surfaces and text) and burnt-orange primary.
-     Text pairs are chosen for at least 4.5:1 on white: #171311 primary text,
-     #51443A secondary, #807266 tertiary. #C94F16 carries white button text
-     at 4.9:1; #9F3B0F is its hover and the orange used for text. */
-  --primary: #c94f16;
+  /* Warm-grey ramp (neutral surfaces and text) and Action Blue primary
+     (Apple-style single accent). Text pairs are chosen for at least 4.5:1
+     on white: #171311 primary text, #51443A secondary, #807266 tertiary.
+     #0066CC carries white button text at 5.1:1; #0052A3 is its hover and
+     the blue used for text. */
+  --primary: #0066cc;
   --primary-foreground: #ffffff;
   /* The page surface, not the dark sidebar (which sets its own colour).
      Dialogs, sheets, tabs and switches paint with this token, so it must
@@ -96,12 +97,12 @@
   --muted: #fff8ea;
   --muted-foreground: #807266;
   --accent: #fff4d6;
-  --accent-foreground: #9f3b0f;
+  --accent-foreground: #0052a3;
   --destructive: #c8372d;
   --destructive-foreground: #ffffff;
   --border: #e7dcc8;
   --input: #e7dcc8;
-  --ring: #c94f16;
+  --ring: #0066cc;
   --radius: 0.75rem;
 }
 
@@ -126,7 +127,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 3px solid rgba(185, 83, 15, 0.35);
+  outline: 3px solid rgba(0, 102, 204, 0.35);
   outline-offset: 2px;
 }
 

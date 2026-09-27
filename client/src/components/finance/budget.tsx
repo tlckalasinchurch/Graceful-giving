@@ -44,7 +44,7 @@ export function budgetUsage(planned: number, actual: number) {
 
 const TONE_STYLES = {
   ok: { bar: "bg-[#2F7A45]", text: "text-[#1F5C33]", label: "อยู่ในงบ" },
-  warn: { bar: "bg-[#C94F16]", text: "text-[#9F3B0F]", label: "ใกล้เต็มงบ" },
+  warn: { bar: "bg-[#0066CC]", text: "text-[#0052A3]", label: "ใกล้เต็มงบ" },
   over: { bar: "bg-[#C7382D]", text: "text-[#C7382D]", label: "เกินงบ" },
 } as const;
 

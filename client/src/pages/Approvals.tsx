@@ -168,7 +168,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0066CC] px-4 text-sm font-semibold text-white hover:bg-[#0052A3]"
         >
           <Banknote className="size-4" aria-hidden="true" />
           ยื่นคำขอเบิกเงิน
@@ -189,7 +189,7 @@ export default function Approvals() {
               aria-pressed={activeTab === id}
               className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 border ${
                 activeTab === id
-                  ? "bg-[#FFF4D6] text-[#9F3B0F] border-[#F9D2AE] font-semibold"
+                  ? "bg-[#FFF4D6] text-[#0052A3] border-[#CFE4FA] font-semibold"
                   : "bg-white text-[#51443A] border-[#E7DCC8] hover:bg-[#FFF8EA]"
               }`}
             >
@@ -269,7 +269,7 @@ export default function Approvals() {
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#807266] pt-1">
                     <span className="flex items-center gap-1">
                       <User
-                        className="w-3.5 h-3.5 text-[#C94F16]"
+                        className="w-3.5 h-3.5 text-[#0066CC]"
                         aria-hidden="true"
                       />
                       รหัสผู้ยื่น #{req.requesterId}
@@ -305,7 +305,7 @@ export default function Approvals() {
                         type="button"
                         onClick={() => handleApprove(req)}
                         disabled={approveMutation.isPending}
-                        className="min-h-11 whitespace-nowrap px-5 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                        className="min-h-11 whitespace-nowrap px-5 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-sm font-semibold transition-colors disabled:opacity-50"
                       >
                         {pendingId === req.id ? "กำลังบันทึก…" : "อนุมัติคำขอ"}
                       </button>
@@ -343,7 +343,7 @@ export default function Approvals() {
                 placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้..."
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
-                className="w-full p-3 rounded-xl border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
+                className="w-full p-3 rounded-xl border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30"
               />
               <p className="text-xs text-[#807266]">
                 ผู้ยื่นคำขอจะได้รับแจ้งพร้อมเหตุผลนี้

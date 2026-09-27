@@ -59,7 +59,7 @@ export function BalanceCard({
             </h2>
             <button
               onClick={() => setShowBalance(!showBalance)}
-              className="size-11 shrink-0 inline-flex items-center justify-center text-[#3F3833] hover:text-[#171311] transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="size-11 shrink-0 inline-flex items-center justify-center text-[#3F3833] hover:text-[#171311] transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-[#0066CC]"
               aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
               aria-pressed={!showBalance}
             >
@@ -78,7 +78,7 @@ export function BalanceCard({
               </span>
             )}
             {isDataUnavailable && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFF8EA] border border-dashed border-[#F9D2AE] text-[#7F3A0D] text-xs sm:text-sm font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFF8EA] border border-dashed border-[#CFE4FA] text-[#7F3A0D] text-xs sm:text-sm font-bold">
                 <Info className="w-4 h-4" />
                 {summaryError
                   ? "เชื่อมต่อข้อมูลไม่สำเร็จ"
@@ -134,7 +134,7 @@ export function BalanceCard({
               {Boolean(summaryError) && (
                 <button
                   onClick={onRetry}
-                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm sm:text-base font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-sm sm:text-base font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC] focus-visible:ring-offset-2"
                 >
                   <RotateCw className="w-4 h-4" aria-hidden="true" />
                   <span>โหลดข้อมูลอีกครั้ง</span>
@@ -143,9 +143,9 @@ export function BalanceCard({
               {canOpenReports && (
                 <button
                   onClick={onOpenReports}
-                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] hover:border-[#C94F16]"
+                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC] hover:border-[#0066CC]"
                 >
-                  <BarChart3 className="w-4 h-4 text-[#C94F16]" />
+                  <BarChart3 className="w-4 h-4 text-[#0066CC]" />
                   <span>ดูรายละเอียด</span>
                   <ChevronRight className="w-4 h-4 text-[#3F3833]" />
                 </button>

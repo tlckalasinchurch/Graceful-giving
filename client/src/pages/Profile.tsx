@@ -296,7 +296,7 @@ export default function Profile() {
       <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6">
         {/* ── PROFILE HERO: Logged-in User's Actual Profile & ID Card Action ──── */}
         <section className="bg-white rounded-2xl sm:rounded-2xl border border-[#E7DCC8] p-4 sm:p-6 md:p-8 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-[#C94F16]/10 via-[#9BCBA5]/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-[#0066CC]/10 via-[#9BCBA5]/10 to-transparent rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left relative z-10">
             {/* Large Circular Avatar */}
@@ -308,7 +308,7 @@ export default function Profile() {
                   className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white shadow-md"
                 />
               ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#FFF4D6] to-[#C94F16]/25 border-4 border-white shadow-md flex items-center justify-center text-[#51443A] font-bold text-2xl sm:text-3xl md:text-4xl select-none">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#FFF4D6] to-[#0066CC]/25 border-4 border-white shadow-md flex items-center justify-center text-[#51443A] font-bold text-2xl sm:text-3xl md:text-4xl select-none">
                   {user?.name ? user.name.slice(0, 1) : "ศ"}
                 </div>
               )}
@@ -326,7 +326,7 @@ export default function Profile() {
                   </h2>
                 </div>
                 <p className="text-xs sm:text-sm font-semibold text-[#51443A] flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
-                  <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C94F16] shrink-0" />
+                  <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0066CC] shrink-0" />
                   <span>
                     {(user as any)?.department || "สมาชิกครอบครัวของพระเจ้า"}
                   </span>
@@ -370,14 +370,14 @@ export default function Profile() {
               onClick={() => setShowIdCardModal(true)}
               className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-2xl bg-[#FFF8EA] hover:bg-[#FFF4D6] text-[#51443A] font-bold text-xs sm:text-sm border border-[#E7DCC8] shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
             >
-              <QrCode className="w-4 h-4 text-[#C94F16] shrink-0" />
+              <QrCode className="w-4 h-4 text-[#0066CC] shrink-0" />
               <span className="truncate">
                 ดูโปรไฟล์ / บัตรประจำตัวคริสตจักร
               </span>
             </button>
             <button
               onClick={() => setShowEditProfileModal(true)}
-              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
             >
               <Edit3 className="w-4 h-4 stroke-[2.5] shrink-0" />
               <span>แก้ไขโปรไฟล์และรูปภาพ</span>
@@ -404,7 +404,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setLocation("/counting")}
-              className="min-h-11 px-5 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center gap-2 shrink-0 transition-transform active:scale-95"
+              className="min-h-11 px-5 py-2.5 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center gap-2 shrink-0 transition-transform active:scale-95"
             >
               <span>เข้าสู่ห้องนับเงิน</span>
               <ChevronRight className="w-4 h-4" />
@@ -442,7 +442,7 @@ export default function Profile() {
         <section className="bg-white rounded-2xl sm:rounded-2xl border border-[#E7DCC8] p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-xs">
           <div className="border-b border-[#E7DCC8]/60 pb-3 sm:pb-4">
             <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-[#FFF8EA] text-[#51443A] border border-[#E7DCC8] mb-2">
-              <Award className="w-3.5 h-3.5 text-[#C94F16]" />
+              <Award className="w-3.5 h-3.5 text-[#0066CC]" />
               มติคริสตจักรอย่างเป็นทางการ
             </span>
             <h3 className="text-lg sm:text-xl font-bold text-[#171311]">
@@ -587,10 +587,10 @@ export default function Profile() {
                 <img
                   src={effectiveAvatar}
                   alt={user?.name || "Member Avatar"}
-                  className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover shadow-md border-3 border-[#C94F16]"
+                  className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover shadow-md border-3 border-[#0066CC]"
                 />
               ) : (
-                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-white shadow-md border-3 border-[#C94F16] flex items-center justify-center text-2xl sm:text-3xl font-bold text-[#51443A]">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-white shadow-md border-3 border-[#0066CC] flex items-center justify-center text-2xl sm:text-3xl font-bold text-[#51443A]">
                   {user?.name ? user.name.slice(0, 1) : "ศ"}
                 </div>
               )}
@@ -682,7 +682,7 @@ export default function Profile() {
                   required
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl border border-[#E7DCC8] text-xs sm:text-sm font-semibold text-[#171311] focus:border-[#C94F16] focus:outline-none focus:ring-2 focus:ring-[#C94F16]/20 transition-all"
+                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl border border-[#E7DCC8] text-xs sm:text-sm font-semibold text-[#171311] focus:border-[#0066CC] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 transition-all"
                   placeholder="เช่น สมชาย ใจดี"
                 />
               </div>
@@ -695,7 +695,7 @@ export default function Profile() {
                   type="url"
                   value={editAvatarUrl}
                   onChange={e => setEditAvatarUrl(e.target.value)}
-                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl border border-[#E7DCC8] text-xs sm:text-sm font-semibold text-[#171311] focus:border-[#C94F16] focus:outline-none focus:ring-2 focus:ring-[#C94F16]/20 transition-all"
+                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl border border-[#E7DCC8] text-xs sm:text-sm font-semibold text-[#171311] focus:border-[#0066CC] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 transition-all"
                   placeholder="https://..."
                 />
                 <div className="flex items-center gap-2 pt-1">
@@ -710,7 +710,7 @@ export default function Profile() {
                         onClick={() => setEditAvatarUrl(p)}
                         className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all ${
                           editAvatarUrl === p
-                            ? "border-[#C94F16] scale-110 shadow-xs"
+                            ? "border-[#0066CC] scale-110 shadow-xs"
                             : "border-transparent"
                         }`}
                       >
@@ -734,7 +734,7 @@ export default function Profile() {
                     type="tel"
                     value={editPhone}
                     onChange={e => setEditPhone(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E7DCC8] text-xs font-semibold text-[#171311] focus:border-[#C94F16] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E7DCC8] text-xs font-semibold text-[#171311] focus:border-[#0066CC] focus:outline-none"
                     placeholder="08X-XXX-XXXX"
                   />
                 </div>
@@ -746,7 +746,7 @@ export default function Profile() {
                     type="text"
                     value={editDepartment}
                     onChange={e => setEditDepartment(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E7DCC8] text-xs font-semibold text-[#171311] focus:border-[#C94F16] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E7DCC8] text-xs font-semibold text-[#171311] focus:border-[#0066CC] focus:outline-none"
                     placeholder="เช่น ฝ่ายการเงิน, ฝ่ายดนตรี"
                   />
                 </div>
@@ -760,7 +760,7 @@ export default function Profile() {
                   rows={2}
                   value={editBio}
                   onChange={e => setEditBio(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E7DCC8] text-xs font-semibold text-[#171311] focus:border-[#C94F16] focus:outline-none resize-none"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E7DCC8] text-xs font-semibold text-[#171311] focus:border-[#0066CC] focus:outline-none resize-none"
                   placeholder="เช่น ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก (2 โครินธ์ 9:7)"
                 />
               </div>
@@ -788,7 +788,7 @@ export default function Profile() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 min-h-11 py-2.5 sm:py-3 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs sm:text-sm font-bold shadow-xs transition-all disabled:opacity-50 active:scale-[0.98]"
+                  className="flex-1 min-h-11 py-2.5 sm:py-3 rounded-2xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs sm:text-sm font-bold shadow-xs transition-all disabled:opacity-50 active:scale-[0.98]"
                 >
                   {isSaving ? "กำลังบันทึก..." : "บันทึกโปรไฟล์"}
                 </button>

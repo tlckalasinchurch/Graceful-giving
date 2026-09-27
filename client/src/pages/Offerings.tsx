@@ -118,7 +118,7 @@ export default function Offerings() {
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold button-elevation transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold button-elevation transition-colors flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
             <span>บันทึกถวายใหม่</span>
@@ -194,7 +194,7 @@ export default function Offerings() {
             <li key={o.id} className="flex items-center gap-2 pr-3 sm:pr-4">
               <Link
                 href={`/transactions/offering-${o.id}`}
-                className="flex-1 min-w-0 p-4 sm:p-5 flex items-center gap-4 hover:bg-[#FFF8EA]/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C94F16]"
+                className="flex-1 min-w-0 p-4 sm:p-5 flex items-center gap-4 hover:bg-[#FFF8EA]/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0066CC]"
               >
                 <div className="flex items-center gap-3.5 min-w-0 flex-1">
                   <div className="w-11 h-11 rounded-xl bg-[#E4F3E7] text-[#1F5C33] flex items-center justify-center shrink-0">
@@ -241,7 +241,7 @@ export default function Offerings() {
                 }
                 aria-label={`พิมพ์ใบเสร็จ ${o.title} ${formatThaiDateTime(o.date)}`}
                 title="พิมพ์ใบเสร็จเงินถวาย"
-                className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-white hover:bg-[#FFF8EA] hover:border-[#C94F16] text-[#C94F16] border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-white hover:bg-[#FFF8EA] hover:border-[#0066CC] text-[#0066CC] border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC]"
               >
                 <Printer className="w-4 h-4" aria-hidden="true" />
               </button>

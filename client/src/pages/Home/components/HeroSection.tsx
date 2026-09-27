@@ -17,13 +17,13 @@ export function HeroSection() {
             className="size-5 sm:size-6 text-[#1F5C33] stroke-[2.5]"
             aria-hidden="true"
           />
-          <span className="text-[#C94F16]">Ledger</span>
+          <span className="text-[#0066CC]">Ledger</span>
         </h1>
         <p className="text-sm sm:text-base text-[#51443A] leading-relaxed">
           การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
         </p>
         <p className="flex flex-wrap gap-x-2 text-xs sm:text-sm leading-relaxed">
-          <span className="whitespace-nowrap font-semibold text-[#9F3B0F]">
+          <span className="whitespace-nowrap font-semibold text-[#0052A3]">
             2 โครินธ์ 9:7
           </span>
           <span className="text-[#51443A]">

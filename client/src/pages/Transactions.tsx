@@ -208,7 +208,7 @@ export default function Transactions() {
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-primary hover:bg-[#9F3B0F] text-white text-xs font-bold button-elevation transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-primary hover:bg-[#0052A3] text-white text-xs font-bold button-elevation transition-colors flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
             <span>บันทึกการถวาย</span>
@@ -350,7 +350,7 @@ export default function Transactions() {
                     <th scope="row" className="px-4 py-1.5 font-bold text-[#171311]">
                       <Link
                         href={`/transactions/${tx.id}`}
-                        className="flex min-h-11 items-center rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                        className="flex min-h-11 items-center rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC] focus-visible:ring-offset-2"
                       >
                         {tx.title}
                       </Link>
@@ -386,7 +386,7 @@ export default function Transactions() {
                   key={tx.id}
                   href={`/transactions/${tx.id}`}
                   aria-label={`ดูรายละเอียด ${tx.title} วันที่ ${formatThaiDate(tx.date)} ${tx.type === "income" ? "รายรับ" : "รายจ่าย"} ${formatAmount(tx.amount)} บาท`}
-                  className="p-4 flex items-center justify-between gap-3 active:bg-[#FAF8F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C94F16]"
+                  className="p-4 flex items-center justify-between gap-3 active:bg-[#FAF8F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0066CC]"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div

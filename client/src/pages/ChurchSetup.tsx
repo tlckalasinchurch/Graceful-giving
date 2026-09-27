@@ -144,7 +144,7 @@ export default function ChurchSetup() {
           >
             <X className="size-4" />
           </button>
-          <p className="text-xs font-bold text-[#9F3B0F]">
+          <p className="text-xs font-bold text-[#0052A3]">
             GRACE-GIVING · ตั้งค่าคริสตจักร
           </p>
           <h1 className="font-display mt-2 text-2xl font-bold leading-tight tracking-tight text-[#2C2622]">
@@ -170,7 +170,7 @@ export default function ChurchSetup() {
               className="h-2 overflow-hidden rounded-full bg-[#EDE8E3]"
             >
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#9F3B0F] to-[#C94F16] transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-[#0052A3] to-[#0066CC] transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -185,9 +185,9 @@ export default function ChurchSetup() {
                 aria-label={`ขั้นตอน ${s.id}`}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   s.id === step
-                    ? "w-6 bg-[#9F3B0F]"
+                    ? "w-6 bg-[#0052A3]"
                     : s.id < step
-                      ? "w-3 bg-[#9F3B0F]/50"
+                      ? "w-3 bg-[#0052A3]/50"
                       : "w-3 bg-[#E7DCC8]"
                 }`}
               />
@@ -206,7 +206,7 @@ export default function ChurchSetup() {
                 <StepIcon className={`size-6 ${currentStepConfig.color}`} />
               </span>
               <div>
-                <p className="text-xs font-bold text-[#9F3B0F]">
+                <p className="text-xs font-bold text-[#0052A3]">
                   ขั้นตอนที่ {step}
                 </p>
                 <h2 className="font-display text-lg font-bold leading-tight text-[#2C2622]">
@@ -235,7 +235,7 @@ export default function ChurchSetup() {
           <details className="group rounded-2xl border border-[#EDE8E3] bg-white overflow-hidden">
             <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-xs font-bold text-[#51443A] select-none">
               <span className="flex items-center gap-2">
-                <Settings2 className="size-4 text-[#9F3B0F]" />
+                <Settings2 className="size-4 text-[#0052A3]" />
                 ขั้นตอนทั้งหมด
               </span>
               <ChevronRight className="size-4 transition-transform duration-200 group-open:rotate-90" />
@@ -258,7 +258,7 @@ export default function ChurchSetup() {
                         done
                           ? "bg-[#3F9156] text-white"
                           : active
-                            ? "bg-[#9F3B0F] text-white"
+                            ? "bg-[#0052A3] text-white"
                             : "bg-[#EDE8E3] text-[#807266]"
                       }`}
                     >
@@ -266,7 +266,7 @@ export default function ChurchSetup() {
                     </span>
                     <div className="min-w-0">
                       <p
-                        className={`font-bold ${active ? "text-[#9F3B0F]" : done ? "text-[#3F3833]" : "text-[#807266]"}`}
+                        className={`font-bold ${active ? "text-[#0052A3]" : done ? "text-[#3F3833]" : "text-[#807266]"}`}
                       >
                         {s.title}
                       </p>
@@ -298,7 +298,7 @@ export default function ChurchSetup() {
             {step < totalSteps ? (
               <button
                 onClick={next}
-                className="min-h-[48px] flex-[2] rounded-2xl bg-gradient-to-r from-[#9F3B0F] to-[#C94F16] text-sm font-bold text-white shadow-[0_4px_14px_rgba(161,100,48,0.3)] hover:opacity-95 active:scale-[0.98] transition"
+                className="min-h-[48px] flex-[2] rounded-2xl bg-gradient-to-r from-[#0052A3] to-[#0066CC] text-sm font-bold text-white shadow-[0_4px_14px_rgba(161,100,48,0.3)] hover:opacity-95 active:scale-[0.98] transition"
               >
                 ถัดไป →
               </button>

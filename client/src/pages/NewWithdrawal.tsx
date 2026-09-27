@@ -29,7 +29,7 @@ const DETAILS_MAX_LENGTH = 1000 - URGENT_PREFIX.length;
 const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
 
 const FIELD_CLASS =
-  "min-h-11 w-full px-4 py-3 rounded-xl border border-[#E7DCC8] bg-white text-base md:text-sm text-[#171311] placeholder:text-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30";
+  "min-h-11 w-full px-4 py-3 rounded-xl border border-[#E7DCC8] bg-white text-base md:text-sm text-[#171311] placeholder:text-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
 const LABEL_CLASS = "text-sm font-semibold text-[#171311]";
 const REQUIRED = (
   <span className="text-[#C8372D]" aria-hidden="true">
@@ -259,7 +259,7 @@ export default function NewWithdrawal() {
             <button
               type="submit"
               disabled={isSubmitting || funds.length === 0}
-              className="min-h-11 px-8 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="min-h-11 px-8 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Banknote className="w-4 h-4" aria-hidden="true" />
               <span>
@@ -294,7 +294,7 @@ export default function NewWithdrawal() {
               <button
                 type="button"
                 onClick={() => setShowSuccessModal(false)}
-                className="w-full min-h-11 rounded-xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-colors"
+                className="w-full min-h-11 rounded-xl bg-[#0066CC] text-white font-medium text-sm hover:bg-[#0052A3] transition-colors"
               >
                 ส่งคำขออีกรายการ
               </button>

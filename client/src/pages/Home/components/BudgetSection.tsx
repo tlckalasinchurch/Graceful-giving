@@ -25,7 +25,7 @@ export function BudgetSection({
         {canOpenReports && (
           <button
             onClick={onOpenReports}
-            className="min-h-11 -mr-2 px-2 text-sm sm:text-base font-bold text-[#9F3B0F] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+            className="min-h-11 -mr-2 px-2 text-sm sm:text-base font-bold text-[#0052A3] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#0066CC]"
           >
             <span>ดูรายงาน</span>
             <ChevronRight className="w-5 h-5" />
@@ -39,7 +39,7 @@ export function BudgetSection({
         {canOpenBudgets && (
           <button
             onClick={onOpenBudgets}
-            className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] hover:border-[#C94F16] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+            className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] hover:border-[#0066CC] transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC]"
           >
             <span>จัดการงบประมาณ</span>
             <ChevronRight className="w-4 h-4 text-[#3F3833]" />

@@ -202,7 +202,7 @@ export default function Expenses() {
           </button>
           <button
             onClick={() => setLocation("/expenses/new")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0066CC] px-4 text-sm font-semibold text-white hover:bg-[#0052A3]"
           >
             <Plus className="size-4" />
             บันทึกรายจ่าย
@@ -338,7 +338,7 @@ export default function Expenses() {
                         <th scope="row" className="w-full max-w-0 py-2 px-5 text-left">
                           <Link
                             href={`/transactions/expense-${e.id}`}
-                            className="flex min-h-11 items-center rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                            className="flex min-h-11 items-center rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC] focus-visible:ring-offset-2"
                           >
                             <span className="truncate">{e.description}</span>
                           </Link>
@@ -384,7 +384,7 @@ export default function Expenses() {
                                     title: e.description,
                                   })
                                 }
-                                className="inline-flex size-11 items-center justify-center rounded-lg text-[#1F5C33] hover:bg-[#E4F3E7] focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                                className="inline-flex size-11 items-center justify-center rounded-lg text-[#1F5C33] hover:bg-[#E4F3E7] focus-visible:ring-2 focus-visible:ring-[#0066CC]"
                                 title="ดูสลิป/ใบเสร็จ"
                                 aria-label={`ดูสลิปของ ${e.description}`}
                               >
@@ -393,7 +393,7 @@ export default function Expenses() {
                             )}
                             <button
                               onClick={() => setSelectedVoucher(toVoucher(e))}
-                              className="inline-flex size-11 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                              className="inline-flex size-11 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#0066CC]"
                               title="พิมพ์ใบสำคัญจ่าย"
                               aria-label={`พิมพ์ใบสำคัญจ่ายของ ${e.description}`}
                             >
@@ -435,7 +435,7 @@ export default function Expenses() {
                         </div>
                         <Link
                           href={`/transactions/expense-${e.id}`}
-                          className="flex min-h-11 items-center rounded-md font-medium text-[#171311] text-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                          className="flex min-h-11 items-center rounded-md font-medium text-[#171311] text-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC] focus-visible:ring-offset-2"
                         >
                           <span className="truncate">{e.description}</span>
                         </Link>
@@ -472,7 +472,7 @@ export default function Expenses() {
                           className="min-h-11 inline-flex items-center gap-1.5 px-3 rounded-lg bg-white text-[#51443A] border border-[#E7DCC8] text-xs font-medium hover:bg-[#FFF8EA]"
                         >
                           <Paperclip
-                            className="w-3.5 h-3.5 text-[#C94F16]"
+                            className="w-3.5 h-3.5 text-[#0066CC]"
                             aria-hidden="true"
                           />
                           <span>ดูสลิป</span>
@@ -483,7 +483,7 @@ export default function Expenses() {
                         className="min-h-11 inline-flex items-center gap-1.5 px-3 rounded-lg bg-white text-[#51443A] border border-[#E7DCC8] text-xs font-medium hover:bg-[#FFF8EA]"
                       >
                         <Printer
-                          className="w-3.5 h-3.5 text-[#C94F16]"
+                          className="w-3.5 h-3.5 text-[#0066CC]"
                           aria-hidden="true"
                         />
                         <span>พิมพ์ใบสำคัญ</span>

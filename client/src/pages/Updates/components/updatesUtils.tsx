@@ -101,7 +101,7 @@ export function downloadICS(event: {
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
     <div className="rounded-2xl border border-dashed border-[#E7DCC8] bg-white/65 px-6 py-12 text-center">
-      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#FFF8EA] text-[#C94F16]">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#FFF8EA] text-[#0066CC]">
         {type === "news" ? (
           <Megaphone className="size-7" strokeWidth={1.5} />
         ) : (
@@ -128,7 +128,7 @@ export function StatusPill({ status }: { status: string }) {
       ? "bg-[#e6f4e8] text-[#2c7244]"
       : status === "cancelled" || status === "archived"
         ? "bg-[#f9e5e2] text-[#aa4e46]"
-        : "bg-[#FFF4D6] text-[#C94F16]";
+        : "bg-[#FFF4D6] text-[#0066CC]";
   const label =
     status === "published"
       ? "เผยแพร่แล้ว"
@@ -182,7 +182,7 @@ export function SubmitButtons({
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#9F3B0F] py-3 text-sm font-bold text-white hover:bg-[#C94F16] disabled:opacity-60 shadow-sm"
+        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#0052A3] py-3 text-sm font-bold text-white hover:bg-[#0066CC] disabled:opacity-60 shadow-sm"
       >
         {pending ? (
           <Clock3 className="size-4 animate-spin" />

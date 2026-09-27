@@ -117,7 +117,7 @@ export default function FundDetail() {
           </div>
           <Link
             href="/transactions"
-            className="min-h-11 shrink-0 inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-white border border-[#E7DCC8] text-sm font-semibold text-[#171311] hover:bg-[#FFF8EA] hover:border-[#C94F16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+            className="min-h-11 shrink-0 inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-white border border-[#E7DCC8] text-sm font-semibold text-[#171311] hover:bg-[#FFF8EA] hover:border-[#0066CC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC]"
           >
             ไปที่รายการธุรกรรม
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

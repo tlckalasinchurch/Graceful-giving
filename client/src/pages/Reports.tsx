@@ -165,7 +165,7 @@ export default function Reports() {
                 aria-pressed={tab === id}
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                   tab === id
-                    ? "bg-[#C94F16] text-white"
+                    ? "bg-[#0066CC] text-white"
                     : "border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FFF8EA]"
                 }`}
               >
@@ -221,7 +221,7 @@ export default function Reports() {
                     >
                       <div className="flex items-center gap-3">
                         <Wallet
-                          className="h-5 w-5 shrink-0 text-[#C94F16]"
+                          className="h-5 w-5 shrink-0 text-[#0066CC]"
                           aria-hidden="true"
                         />
                         <span className="font-bold text-[#171311]">
@@ -435,7 +435,7 @@ export default function Reports() {
                     ))}
                   </div>
                   <details className="group mt-4 text-sm">
-                    <summary className="min-h-11 flex items-center cursor-pointer font-semibold text-[#51443A] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]">
+                    <summary className="min-h-11 flex items-center cursor-pointer font-semibold text-[#51443A] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC]">
                       ดูตัวเลขรายเดือน
                       <ChevronDown
                         className="ml-1 h-4 w-4 transition-transform group-open:rotate-180"

@@ -76,7 +76,7 @@ export const EmptyState: React.FC<{
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="min-h-11 mt-2 px-5 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+          className="min-h-11 mt-2 px-5 py-2.5 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC]"
         >
           {actionText}
         </button>
@@ -180,7 +180,7 @@ export const StatusBadge: React.FC<{
         };
       case "needs_review":
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-[#EAF3FC] text-[#0052A3] border-[#CFE4FA]",
           defaultLabel: "ต้องตรวจสอบ",
         };
       case "unknown":
@@ -195,7 +195,7 @@ export const StatusBadge: React.FC<{
         };
       case "counting":
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-[#EAF3FC] text-[#0052A3] border-[#CFE4FA]",
           defaultLabel: "กำลังนับ",
         };
       case "counted":
@@ -221,7 +221,7 @@ export const StatusBadge: React.FC<{
       case "pending":
       default:
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-[#EAF3FC] text-[#0052A3] border-[#CFE4FA]",
           defaultLabel: "รอดำเนินการ",
         };
     }
@@ -358,7 +358,7 @@ export const Chip: React.FC<
     aria-pressed={active}
     className={`min-h-11 shrink-0 whitespace-nowrap rounded-xl border px-3.5 py-2 text-[13px] transition-colors ${
       active
-        ? "border-[#F9D2AE] bg-[#FFF4D6] font-semibold text-[#9F3B0F]"
+        ? "border-[#CFE4FA] bg-[#FFF4D6] font-semibold text-[#0052A3]"
         : "border-[#E7DCC8] bg-white font-medium text-[#51443A] hover:bg-[#FFF8EA]"
     } ${className}`}
     {...props}
@@ -403,7 +403,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
+          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30"
         />
       </div>
 
@@ -520,7 +520,7 @@ export const ConfirmDialog: React.FC<{
             className={`flex-1 py-2.5 rounded-xl text-white font-bold text-xs button-elevation transition-all ${
               variant === "danger"
                 ? "bg-[#C8372D] hover:bg-[#B3322A]"
-                : "bg-[#C94F16] hover:bg-[#9F3B0F]"
+                : "bg-[#0066CC] hover:bg-[#0052A3]"
             }`}
           >
             {isLoading ? "กำลังดำเนินการ..." : confirmText}

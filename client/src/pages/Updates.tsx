@@ -42,13 +42,13 @@ export default function Updates() {
         <div className="mx-auto max-w-lg">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-bold text-[#9F3B0F] hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-bold text-[#0052A3] hover:underline"
           >
             <ArrowLeft className="size-4" />
             กลับหน้าหลัก
           </Link>
           <div className="mt-16 rounded-2xl border border-[#E7DCC8] bg-white p-8 text-center shadow-[0_12px_30px_rgba(94,70,42,0.07)]">
-            <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#FFF8EA] text-[#9F3B0F]">
+            <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#FFF8EA] text-[#0052A3]">
               <Bell className="size-8" />
             </div>
             <h1 className="mt-5 font-display text-2xl font-bold text-[#3F3833]">
@@ -59,7 +59,7 @@ export default function Updates() {
             </p>
             <button
               onClick={startLogin}
-              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#9F3B0F] px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] active:scale-95 transition"
+              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#0052A3] px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#0066CC] active:scale-95 transition"
             >
               <UsersRound className="size-4" />
               เข้าสู่ระบบ
@@ -77,7 +77,7 @@ export default function Updates() {
           <div>
             <Link
               href="/"
-              className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-[#9F3B0F] hover:underline"
+              className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-[#0052A3] hover:underline"
             >
               <ArrowLeft className="size-4" />
               กลับหน้าหลัก
@@ -97,7 +97,7 @@ export default function Updates() {
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-[#EDE8E3] bg-white/75 px-3.5 py-2 text-xs text-[#51443A]">
-            <Sparkles className="size-4 text-[#9F3B0F]" />
+            <Sparkles className="size-4 text-[#0052A3]" />
             <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
           </div>
         </header>
@@ -107,7 +107,7 @@ export default function Updates() {
             onClick={() => setActiveTab("feed")}
             className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
               activeTab === "feed"
-                ? "bg-white text-[#9F3B0F] shadow-sm"
+                ? "bg-white text-[#0052A3] shadow-sm"
                 : "text-[#807266] hover:text-[#3F3833]"
             }`}
           >
@@ -118,7 +118,7 @@ export default function Updates() {
               onClick={() => setActiveTab("manage")}
               className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
                 activeTab === "manage"
-                  ? "bg-white text-[#9F3B0F] shadow-sm"
+                  ? "bg-white text-[#0052A3] shadow-sm"
                   : "text-[#807266] hover:text-[#3F3833]"
               }`}
             >

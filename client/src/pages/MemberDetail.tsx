@@ -10,7 +10,7 @@ import {
 import { memberStatusLabel } from "@shared/categories";
 
 const FIELD_CLASS =
-  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm font-normal text-[#171311] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30";
+  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm font-normal text-[#171311] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
 import { trpc } from "@/lib/trpc";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
@@ -209,7 +209,7 @@ export default function MemberDetail() {
             <button
               type="submit"
               disabled={update.isPending || !isDirty}
-              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
             >
               <Save className="h-4 w-4" aria-hidden="true" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}

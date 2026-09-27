@@ -46,7 +46,7 @@ function localToday(): string {
 const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
 
 const FIELD_CLASS =
-  "min-h-11 w-full px-4 py-3 rounded-xl border bg-white text-base md:text-sm text-[#171311] placeholder:text-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30";
+  "min-h-11 w-full px-4 py-3 rounded-xl border bg-white text-base md:text-sm text-[#171311] placeholder:text-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
 
 interface SavedExpense {
   description: string;
@@ -284,7 +284,7 @@ export default function NewExpense() {
           {/* Section 1: Amount & Presets */}
           <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 space-y-5">
             <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-[#C94F16]" aria-hidden="true" />
+              <Receipt className="w-5 h-5 text-[#0066CC]" aria-hidden="true" />
               1. จำนวนเงินและหมวดหมู่
             </h2>
 
@@ -314,7 +314,7 @@ export default function NewExpense() {
                     setAmount(e.target.value);
                     if (errors.amount) setErrors(current => ({ ...current, amount: undefined }));
                   }}
-                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:border-[#C94F16] focus:outline-none bg-white text-3xl font-bold tabular-nums text-[#171311] placeholder:text-[#807266] ${errors.amount ? "border-[#C8372D]" : "border-[#E7DCC8]"}`}
+                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:border-[#0066CC] focus:outline-none bg-white text-3xl font-bold tabular-nums text-[#171311] placeholder:text-[#807266] ${errors.amount ? "border-[#C8372D]" : "border-[#E7DCC8]"}`}
                 />
               </div>
               <p id="expense-amount-hint" className="text-xs text-[#807266]">
@@ -364,7 +364,7 @@ export default function NewExpense() {
                       aria-pressed={isSelected}
                       className={`p-3.5 rounded-xl border text-left transition-colors flex flex-col justify-between ${
                         isSelected
-                          ? "border-[#C94F16] bg-[#FFF8EA] ring-2 ring-[#C94F16]/20"
+                          ? "border-[#0066CC] bg-[#FFF8EA] ring-2 ring-[#0066CC]/20"
                           : "border-[#E7DCC8] hover:bg-[#FFF8EA] bg-white"
                       }`}
                     >
@@ -372,7 +372,7 @@ export default function NewExpense() {
                         <div
                           className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                             isSelected
-                              ? "bg-[#C94F16] text-white"
+                              ? "bg-[#0066CC] text-white"
                               : "bg-[#FFF8EA] text-[#51443A]"
                           }`}
                         >
@@ -380,7 +380,7 @@ export default function NewExpense() {
                         </div>
                         {isSelected && (
                           <CheckCircle2
-                            className="w-4 h-4 text-[#C94F16]"
+                            className="w-4 h-4 text-[#0066CC]"
                             aria-hidden="true"
                           />
                         )}
@@ -403,7 +403,7 @@ export default function NewExpense() {
           {/* Section 2: Expense Details & Fund Allocation */}
           <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 space-y-5">
             <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <Building className="w-5 h-5 text-[#C94F16]" aria-hidden="true" />
+              <Building className="w-5 h-5 text-[#0066CC]" aria-hidden="true" />
               2. ข้อมูลรายการและกองทุนที่จัดสรร
             </h2>
 
@@ -543,7 +543,7 @@ export default function NewExpense() {
           <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 space-y-4">
             <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
               <UploadCloud
-                className="w-5 h-5 text-[#C94F16]"
+                className="w-5 h-5 text-[#0066CC]"
                 aria-hidden="true"
               />
               3. แนบหลักฐานใบเสร็จ / สลิปโอนเงิน
@@ -551,7 +551,7 @@ export default function NewExpense() {
 
             {isUploading ? (
               <div className="p-6 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] flex items-center gap-4">
-                <div className="w-8 h-8 border-4 border-[#C94F16] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                <div className="w-8 h-8 border-4 border-[#0066CC] border-t-transparent rounded-full animate-spin flex-shrink-0" />
                 <div>
                   <p className="text-sm font-semibold text-[#171311]">
                     กำลังอัปโหลดไฟล์...
@@ -572,7 +572,7 @@ export default function NewExpense() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-[#C94F16]" />
+                          <FileText className="w-6 h-6 text-[#0066CC]" />
                         </div>
                       )}
                     </div>
@@ -613,7 +613,7 @@ export default function NewExpense() {
                     href={receiptUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-[#9F3B0F] hover:underline"
+                    className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-[#0052A3] hover:underline"
                   >
                     <ImageIcon className="w-4 h-4" aria-hidden="true" />
                     ดูใบเสร็จต้นฉบับ
@@ -621,8 +621,8 @@ export default function NewExpense() {
                 )}
               </div>
             ) : (
-              <label className="border-2 border-dashed border-[#E7DCC8] hover:border-[#C94F16] has-[:focus-visible]:border-[#C94F16] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#C94F16]/30 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-white hover:bg-[#FFF8EA] transition-colors">
-                <div className="w-12 h-12 rounded-full bg-[#FFF8EA] flex items-center justify-center text-[#C94F16] mb-3">
+              <label className="border-2 border-dashed border-[#E7DCC8] hover:border-[#0066CC] has-[:focus-visible]:border-[#0066CC] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#0066CC]/30 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-white hover:bg-[#FFF8EA] transition-colors">
+                <div className="w-12 h-12 rounded-full bg-[#FFF8EA] flex items-center justify-center text-[#0066CC] mb-3">
                   <ImageIcon className="w-6 h-6" aria-hidden="true" />
                 </div>
                 <p className="text-sm font-semibold text-[#171311]">
@@ -654,7 +654,7 @@ export default function NewExpense() {
             <button
               type="submit"
               disabled={isSubmitting || isUploading}
-              className="min-h-11 px-8 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="min-h-11 px-8 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               <Plus className="w-4 h-4" aria-hidden="true" />
               <span>
@@ -721,7 +721,7 @@ export default function NewExpense() {
               <button
                 type="button"
                 onClick={() => setSaved(null)}
-                className="w-full min-h-11 rounded-xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-colors"
+                className="w-full min-h-11 rounded-xl bg-[#0066CC] text-white font-medium text-sm hover:bg-[#0052A3] transition-colors"
               >
                 บันทึกรายจ่ายรายการถัดไป
               </button>

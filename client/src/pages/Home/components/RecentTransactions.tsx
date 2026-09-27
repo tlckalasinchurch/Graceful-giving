@@ -37,7 +37,7 @@ export function RecentTransactions({
         </h2>
         <button
           onClick={onViewAll}
-          className="min-h-11 -mr-2 px-2 text-sm font-bold text-[#9F3B0F] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+          className="min-h-11 -mr-2 px-2 text-sm font-bold text-[#0052A3] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#0066CC]"
         >
           <span>ดูทั้งหมด</span>
           <ChevronRight className="w-4 h-4" />

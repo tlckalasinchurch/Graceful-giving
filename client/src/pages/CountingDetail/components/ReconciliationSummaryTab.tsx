@@ -14,7 +14,7 @@ async function confirmStep(title: string, text: string, confirm: string) {
 }
 
 const PRIMARY_ACTION =
-  "min-h-11 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-5 py-2.5 text-sm font-bold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  "min-h-11 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] px-5 py-2.5 text-sm font-bold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 interface ReconciliationSummaryTabProps {
   sessionId: number;
@@ -154,9 +154,9 @@ export function ReconciliationSummaryTab({
       </div>
 
       {!r.isBalanced && (
-        <div className="rounded-2xl border border-[#F9D2AE] bg-[#FFF8EA] p-5">
-          <h3 className="font-bold text-[#9F3B0F]">ยอดยังไม่ตรงกัน</h3>
-          <p className="mt-1 text-sm text-[#9F3B0F]">
+        <div className="rounded-2xl border border-[#CFE4FA] bg-[#FFF8EA] p-5">
+          <h3 className="font-bold text-[#0052A3]">ยอดยังไม่ตรงกัน</h3>
+          <p className="mt-1 text-sm text-[#0052A3]">
             ปิดรอบได้เมื่อยอดตรง หรือบันทึกคำอธิบายผลต่างไว้เป็นหลักฐาน
           </p>
           <textarea
@@ -165,7 +165,7 @@ export function ReconciliationSummaryTab({
             onChange={e => setVarianceNote(e.target.value)}
             placeholder="เช่น เงินสดขาด 20 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมมัคนายกวันที่…"
             aria-label="คำอธิบายผลต่าง"
-            className="mt-3 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm text-foreground focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
+            className="mt-3 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm text-foreground focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30"
           />
           {sessionVarianceNote && (
             <p className="mt-2 text-sm text-[#51443A]">
@@ -284,7 +284,7 @@ export function ReconciliationSummaryTab({
       {isUnposted && (
         <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5">
           <div className="flex items-center gap-2 mb-1.5">
-            <RotateCcw className="h-4 w-4 text-[#9F3B0F]" aria-hidden="true" />
+            <RotateCcw className="h-4 w-4 text-[#0052A3]" aria-hidden="true" />
             <h4 className="font-bold text-foreground">
               การจัดการรอบนับเงิน (งานค้าง / เริ่มนับใหม่)
             </h4>
@@ -298,10 +298,10 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleResetThisSession}
               disabled={resetSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[#E7DCC8] bg-white px-4 py-2 text-sm font-bold text-[#9F3B0F] hover:bg-[#FFF8EA] transition-colors disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[#E7DCC8] bg-white px-4 py-2 text-sm font-bold text-[#0052A3] hover:bg-[#FFF8EA] transition-colors disabled:opacity-50"
             >
               <RotateCcw
-                className="h-4 w-4 text-[#9F3B0F]"
+                className="h-4 w-4 text-[#0052A3]"
                 aria-hidden="true"
               />
               <span>ล้างข้อมูลเพื่อนับใหม่</span>

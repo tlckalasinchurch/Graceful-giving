@@ -49,7 +49,7 @@ export function AdminNewsDialog({
         <form onSubmit={onSubmit}>
           <DialogHeader className="text-left">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-2xl bg-[#FFF8EA] text-[#9F3B0F]">
+              <span className="grid size-11 place-items-center rounded-2xl bg-[#FFF8EA] text-[#0052A3]">
                 <Megaphone className="size-5" />
               </span>
               <div>
@@ -72,7 +72,7 @@ export function AdminNewsDialog({
                   setNewsForm({ ...newsForm, title: event.target.value })
                 }
                 placeholder="เช่น เชิญร่วมอธิษฐานประจำสัปดาห์"
-                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#0052A3] focus:outline-none"
               />
             </Field>
             <Field label="สรุปสั้น ๆ">
@@ -84,7 +84,7 @@ export function AdminNewsDialog({
                   setNewsForm({ ...newsForm, summary: event.target.value })
                 }
                 placeholder="ข้อความที่จะแสดงในการ์ดข่าวสาร"
-                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#0052A3] focus:outline-none"
               />
             </Field>
             <Field label="รายละเอียด">
@@ -96,7 +96,7 @@ export function AdminNewsDialog({
                   setNewsForm({ ...newsForm, body: event.target.value })
                 }
                 placeholder="เขียนรายละเอียดข่าวสาร..."
-                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#0052A3] focus:outline-none"
               />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">

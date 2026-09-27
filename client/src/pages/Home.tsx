@@ -204,10 +204,10 @@ export default function Home() {
           <div
             role="region"
             aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#F9D2AE] text-[#51443A] shadow-2xs"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#CFE4FA] text-[#51443A] shadow-2xs"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#CFE4FA] flex items-center justify-center text-[#0066CC] shrink-0">
                 <Inbox className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -221,7 +221,7 @@ export default function Home() {
             </div>
             <button
               onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="min-h-11 px-4 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC]"
             >
               <span>ตรวจสอบสลิป</span>
               <ArrowRight className="w-4 h-4" />

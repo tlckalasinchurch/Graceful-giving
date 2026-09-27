@@ -49,7 +49,7 @@ export const STEPS: StepConfig[] = [
     title: "ข้อมูลพื้นฐาน",
     subtitle: "ชื่อและที่ตั้งคริสตจักร",
     icon: Church,
-    color: "text-[#9F3B0F]",
+    color: "text-[#0052A3]",
     bgColor: "bg-[#FFF8EA]",
   },
   {
@@ -89,7 +89,7 @@ export const STEPS: StepConfig[] = [
     title: "ปีงบประมาณ",
     subtitle: "รอบปีการเงินและงบประมาณ",
     icon: Landmark,
-    color: "text-[#C94F16]",
+    color: "text-[#0066CC]",
     bgColor: "bg-[#FFF4D6]",
   },
   {

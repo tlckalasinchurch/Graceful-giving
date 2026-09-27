@@ -16,7 +16,7 @@ import {
 import { memberStatusLabel } from "@shared/categories";
 
 const FIELD_CLASS =
-  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm font-normal text-[#171311] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30";
+  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm font-normal text-[#171311] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
 
 export default function Members() {
   const [showCreate, setShowCreate] = useState(false);
@@ -79,7 +79,7 @@ export default function Members() {
             }
           }}
           aria-expanded={showCreate}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-4 py-2 text-sm font-bold text-white transition-colors"
+          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] px-4 py-2 text-sm font-bold text-white transition-colors"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           เพิ่มสมาชิก
@@ -151,7 +151,7 @@ export default function Members() {
             <button
               type="submit"
               disabled={createMember.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 min-h-11 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
             >
               {createMember.isPending ? "กำลังบันทึก…" : "บันทึกสมาชิก"}
             </button>
@@ -178,7 +178,7 @@ export default function Members() {
               <Link
                 key={member.id}
                 href={`/members/${member.id}`}
-                className="block rounded-2xl border border-[#E7DCC8] bg-white p-5 text-left transition-colors hover:border-[#C94F16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                className="block rounded-2xl border border-[#E7DCC8] bg-white p-5 text-left transition-colors hover:border-[#0066CC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC]"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-[#171311]">{member.name}</h2>
