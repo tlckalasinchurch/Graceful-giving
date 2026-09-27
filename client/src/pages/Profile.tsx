@@ -58,9 +58,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     role: "SUPER_ADMIN",
     title: "ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)",
     badgeStyle: {
-      bg: "bg-amber-100",
-      text: "text-amber-900",
-      border: "border-amber-300",
+      bg: "bg-[#F3E6C4]",
+      text: "text-[#6B5015]",
+      border: "border-[#DEC98B]",
       icon: "👑",
     },
     summary:
@@ -77,9 +77,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     role: "TREASURER",
     title: "เหรัญญิกคริสตจักร (TREASURER)",
     badgeStyle: {
-      bg: "bg-emerald-100",
-      text: "text-emerald-900",
-      border: "border-emerald-300",
+      bg: "bg-[#E4F3E7]",
+      text: "text-[#1F5C33]",
+      border: "border-[#C3E4B8]",
       icon: "💰",
     },
     summary:
@@ -98,9 +98,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     role: "PASTOR",
     title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ (PASTOR)",
     badgeStyle: {
-      bg: "bg-blue-100",
-      text: "text-blue-900",
-      border: "border-blue-300",
+      bg: "bg-[#CFE4FA]",
+      text: "text-[#0052A3]",
+      border: "border-[#9CC7EC]",
       icon: "✝️",
     },
     summary:
@@ -118,9 +118,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     role: "DEACON",
     title: "มัคนายก / คณะกรรมการ (DEACON)",
     badgeStyle: {
-      bg: "bg-purple-100",
-      text: "text-purple-900",
-      border: "border-purple-300",
+      bg: "bg-[#E9DEE7]",
+      text: "text-[#5C3A5C]",
+      border: "border-[#CDB2CB]",
       icon: "🤝",
     },
     summary:
@@ -138,9 +138,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     role: "COUNTER",
     title: "กรรมการนับเงิน / ทีมนับเงินถวาย (COUNTER)",
     badgeStyle: {
-      bg: "bg-orange-100",
-      text: "text-orange-900",
-      border: "border-orange-300",
+      bg: "bg-[#FEECEB]",
+      text: "text-[#8A2E14]",
+      border: "border-[#F8C8C5]",
       icon: "📝",
     },
     summary:
@@ -157,9 +157,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     role: "MEMBER",
     title: "สมาชิกคริสตจักร (MEMBER)",
     badgeStyle: {
-      bg: "bg-stone-100",
-      text: "text-stone-800",
-      border: "border-stone-300",
+      bg: "bg-[#FFF8EA]",
+      text: "text-[#51443A]",
+      border: "border-[#E7DCC8]",
       icon: "👤",
     },
     summary:
