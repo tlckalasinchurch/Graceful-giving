@@ -923,6 +923,11 @@ var TABLE_STATEMENTS = [
     "updatedAt" timestamp DEFAULT now() NOT NULL
   );`,
   `ALTER TABLE "expenses" ADD COLUMN IF NOT EXISTS "receiptUrl" text;`,
+  // Void actor tracking (drizzle/0003_void_actor_tracking.sql). Kept here
+  // too so a deploy that reaches the database before the migration is run
+  // by hand still finds every column Drizzle selects.
+  `ALTER TABLE "expenses" ADD COLUMN IF NOT EXISTS "voidedAt" timestamp;`,
+  `ALTER TABLE "expenses" ADD COLUMN IF NOT EXISTS "voidedBy" integer;`,
   `CREATE TABLE IF NOT EXISTS "offerings" (
     "id" serial PRIMARY KEY NOT NULL,
     "churchId" varchar(64) NOT NULL,
@@ -942,6 +947,7 @@ var TABLE_STATEMENTS = [
     "createdAt" timestamp DEFAULT now() NOT NULL,
     "updatedAt" timestamp DEFAULT now() NOT NULL
   );`,
+  `ALTER TABLE "offerings" ADD COLUMN IF NOT EXISTS "voidedBy" integer;`,
   `CREATE TABLE IF NOT EXISTS "withdrawal_requests" (
     "id" serial PRIMARY KEY NOT NULL,
     "churchId" varchar(64) NOT NULL,
