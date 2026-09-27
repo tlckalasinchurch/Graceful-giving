@@ -7,6 +7,13 @@ import {
 } from "lucide-react";
 import { AppMenu } from "@/components/layout/AppNavigation";
 
+// One grammar for every shortcut: colour marks "this is clickable", not which
+// tile it is. The label already says which tile it is.
+const TILE =
+  "flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-[#FFFFFF] border border-[#E5E1D8] hover:border-[#F97316]/50 hover:bg-[#F1EFE9] transition-colors focus-visible:ring-2 focus-visible:ring-[#F97316]";
+const ICON = "w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#F97316] mb-1.5";
+const LABEL = "text-xs sm:text-sm font-bold text-white tracking-tight text-center";
+
 interface SecondaryMenuProps {
   canOpenReports: boolean;
   canOpenMembers: boolean;
@@ -33,13 +40,9 @@ export function SecondaryMenu({
     >
       {/* รายงาน */}
       {canOpenReports && (
-        <button
-          onClick={onOpenReports}
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#8E44AD] hover:bg-[#FAF5FC] transition-colors focus-visible:ring-2 focus-visible:ring-[#8E44AD] shadow-2xs"
-          aria-label="รายงาน"
-        >
-          <FileBarChart className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#8E44AD] mb-1.5" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+        <button onClick={onOpenReports} className={TILE} aria-label="รายงาน">
+          <FileBarChart className={ICON} aria-hidden="true" />
+          <span className={LABEL}>
             รายงาน
           </span>
         </button>
@@ -47,26 +50,18 @@ export function SecondaryMenu({
 
       {/* สมาชิก */}
       {canOpenMembers && (
-        <button
-          onClick={onOpenMembers}
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C94F16] hover:bg-[#FAF8F5] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs"
-          aria-label="สมาชิก"
-        >
-          <UsersRound className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C94F16] mb-1.5" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+        <button onClick={onOpenMembers} className={TILE} aria-label="สมาชิก">
+          <UsersRound className={ICON} aria-hidden="true" />
+          <span className={LABEL}>
             สมาชิก
           </span>
         </button>
       )}
 
       {/* กิจกรรม */}
-      <button
-        onClick={onOpenNews}
-        className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C9503B] hover:bg-[#FFF5F3] transition-colors focus-visible:ring-2 focus-visible:ring-[#C9503B] shadow-2xs"
-        aria-label="กิจกรรม"
-      >
-        <CalendarDays className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C9503B] mb-1.5" />
-        <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+      <button onClick={onOpenNews} className={TILE} aria-label="กิจกรรม">
+        <CalendarDays className={ICON} aria-hidden="true" />
+        <span className={LABEL}>
           กิจกรรม
         </span>
       </button>
@@ -74,11 +69,11 @@ export function SecondaryMenu({
       {/* ขอเบิกเงิน */}
       <button
         onClick={onOpenWithdrawals}
-        className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C94F16] hover:bg-[#FAF8F5] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs"
+        className={TILE}
         aria-label="ยื่นคำขอเบิกเงิน"
       >
-        <Banknote className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C94F16] mb-1.5" />
-        <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+        <Banknote className={ICON} aria-hidden="true" />
+        <span className={LABEL}>
           ขอเบิกเงิน
         </span>
       </button>
@@ -87,11 +82,11 @@ export function SecondaryMenu({
       <AppMenu>
         <button
           type="button"
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 w-full rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#2A75A0] hover:bg-[#F2F8FC] transition-colors focus-visible:ring-2 focus-visible:ring-[#2A75A0] shadow-2xs"
+          className={`${TILE} w-full`}
           aria-label="เพิ่มเติม"
         >
-          <MoreHorizontal className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#2A75A0] mb-1.5" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+          <MoreHorizontal className={ICON} aria-hidden="true" />
+          <span className={LABEL}>
             เพิ่มเติม
           </span>
         </button>

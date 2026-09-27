@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { ArrowRight, Heart, Inbox, Landmark } from "lucide-react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canAccessRoute } from "@/lib/routeAccess";
-import { offeringCategoryLabel } from "@shared/categories";
+import {
+  expenseCategoryLabel,
+  offeringCategoryLabel,
+} from "@shared/categories";
 import { HeroSection } from "./Home/components/HeroSection";
 import { BalanceCard } from "./Home/components/BalanceCard";
 import { FinancialSummaryRow } from "./Home/components/FinancialSummaryRow";
@@ -40,36 +43,6 @@ function trendValue(trend: string) {
 
 const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
 
-// ─── Balance count-up (snappy and instant) ───────────────────────────────────
-function useCountUp(target: number, durationMs = 200): number {
-  const [value, setValue] = useState(target);
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setValue(target);
-      return;
-    }
-    const start = performance.now();
-    let frameId: number;
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / durationMs, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(target * eased);
-      if (progress < 1) {
-        frameId = requestAnimationFrame(tick);
-      }
-    };
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, durationMs, prefersReducedMotion]);
-
-  return value;
-}
-
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -86,6 +59,7 @@ export default function Home() {
   const canOpenMembers = canAccessRoute("/members", user);
   const canRecordExpense = canAccessRoute("/expenses", user);
   const canAccessInbox = canAccessRoute("/giving/inbox", user);
+  const canOpenBudgets = canAccessRoute("/budgets", user);
 
   // Three tiles always show (กิจกรรม, ขอเบิกเงิน, เพิ่มเติม); the two gated
   // ones change the count, so match the column count to what is actually
@@ -104,6 +78,7 @@ export default function Home() {
     data: summaryData,
     isLoading: summaryLoading,
     isError: summaryError,
+    refetch: refetchSummary,
   } = trpc.finance.summary.useQuery(undefined, {
     retry: false,
     staleTime: 30_000,
@@ -144,7 +119,6 @@ export default function Home() {
   const isDataUnavailable = !summaryLoading && (summaryError || !summaryData);
   const isPositiveBalance = (totalBalance ?? 0) >= 0;
   const isPositiveNet = (netMonthly ?? 0) >= 0;
-  const animatedBalance = useCountUp(totalBalance ?? 0);
 
   // Combined transactions
   const allTransactions = useMemo<TransactionItem[]>(() => {
@@ -160,9 +134,9 @@ export default function Home() {
           date: o.receiptDate,
           type: "income",
           category: o.category,
-          subCategory: "อาคารคริสตจักร",
+          subCategory: "เงินถวาย",
           amount: Number(o.amount),
-          tone: "bg-[#FDECEA] text-[#E06250]",
+          tone: "bg-[#F1EFE9] text-[#20C997]",
           icon: Heart,
         });
       });
@@ -176,9 +150,9 @@ export default function Home() {
           date: e.expenseDate,
           type: "expense",
           category: e.category,
-          subCategory: "พันธกิจนมัสการ",
+          subCategory: expenseCategoryLabel(e.category),
           amount: Number(e.amount),
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
+          tone: "bg-[#F1EFE9] text-[#FF6B5B]",
           icon: Landmark,
         });
       });
@@ -191,41 +165,10 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-6 sm:space-y-8 md:space-y-10">
-        {/* 1. Hero Section */}
         <HeroSection />
 
-        {/* Action Needed Banner: High-priority inbox alerts */}
-        {canAccessInbox && pendingSlipCount > 0 && (
-          <div
-            role="region"
-            aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#F9D2AE] text-[#51443A] shadow-2xs"
-          >
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0">
-                <Inbox className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-sm sm:text-base text-[#171311]">
-                  มีสลิปถวายรอตรวจสอบ {pendingSlipCount} รายการ
-                </h3>
-                <p className="text-xs text-[#51443A] truncate">
-                  สลิปจาก LINE Official Account รอดำเนินการตรวจสอบและบันทึกบัญชี
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
-            >
-              <span>ตรวจสอบสลิป</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
         <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ดูภาพรวม
           </h2>
           <BalanceCard
@@ -236,10 +179,11 @@ export default function Home() {
             isDataUnavailable={isDataUnavailable}
             summaryError={summaryError}
             hasSummaryData={!!summaryData}
-            animatedBalance={animatedBalance}
+            balance={totalBalance ?? 0}
             canOpenReports={canOpenReports}
             onOpenReports={() => setLocation("/reports")}
             fmtBaht={fmtBaht}
+            onRetry={() => void refetchSummary()}
           />
           <FinancialSummaryRow
             isBalanceLoading={isBalanceLoading}
@@ -256,8 +200,37 @@ export default function Home() {
           />
         </section>
 
+        {canAccessInbox && pendingSlipCount > 0 && (
+          <div
+            role="region"
+            aria-label="รายการที่ต้องดำเนินการ"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5E1D8] text-[#5F5B55]"
+          >
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-[#F1EFE9] border border-[#E5E1D8] flex items-center justify-center text-[#F97316] shrink-0">
+                <Inbox className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-bold text-sm sm:text-base text-white">
+                  มีสลิปถวายรอตรวจสอบ {pendingSlipCount} รายการ
+                </h3>
+                <p className="text-xs text-[#5F5B55] truncate">
+                  สลิปจาก LINE Official Account รอดำเนินการตรวจสอบและบันทึกบัญชี
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setLocation("/giving/inbox")}
+              className="min-h-11 px-4 py-2 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#F97316]"
+            >
+              <span>ตรวจสอบสลิป</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ทำรายการ
           </h2>
           <PrimaryActions
@@ -277,12 +250,14 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ติดตาม
           </h2>
           <BudgetSection
             canOpenReports={canOpenReports}
             onOpenReports={() => setLocation("/reports")}
+            canOpenBudgets={canOpenBudgets}
+            onOpenBudgets={() => setLocation("/budgets")}
           />
           <RecentTransactions
             allTransactions={allTransactions}

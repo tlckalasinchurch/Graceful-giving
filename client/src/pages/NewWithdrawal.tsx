@@ -12,11 +12,30 @@ import { Banknote, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink } from "@/components/common/CommonUI";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // withdrawals.create caps details at 1000 chars, and an urgent request spends
 // part of that budget on the prefix below, so the field stops short of both.
 const URGENT_PREFIX = "[เร่งด่วน] ";
 const DETAILS_MAX_LENGTH = 1000 - URGENT_PREFIX.length;
+
+/** Baht with optional thousands commas and at most two decimals. */
+const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
+
+const FIELD_CLASS =
+  "min-h-11 w-full px-4 py-3 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-base md:text-sm text-[#171717] placeholder:text-[#7A766F] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30";
+const LABEL_CLASS = "text-sm font-semibold text-[#171717]";
+const REQUIRED = (
+  <span className="text-[#FF5B5B]" aria-hidden="true">
+    *
+  </span>
+);
 
 export default function NewWithdrawal() {
   const [, setLocation] = useLocation();
@@ -38,8 +57,9 @@ export default function NewWithdrawal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const isDirty =
-    !showSuccessModal && Boolean(purpose || amount || fundId || details);
+  const isDirty = Boolean(
+    purpose || amount || fundId || details || urgency !== "normal"
+  );
   useUnsavedChanges(isDirty);
   const goBack = async () => {
     if (await confirmDiscardChanges(isDirty)) setLocation(returnPath);
@@ -53,6 +73,13 @@ export default function NewWithdrawal() {
   const createWithdrawalMutation = trpc.withdrawals.create.useMutation({
     onSuccess: () => {
       setIsSubmitting(false);
+      // Clear before showing the result, so closing the dialog cannot leave
+      // the same request ready to be filed twice.
+      setPurpose("");
+      setAmount("");
+      setFundId(null);
+      setDetails("");
+      setUrgency("normal");
       setShowSuccessModal(true);
       void utils.withdrawals.list.invalidate();
       toast.success("ยื่นคำขอเบิกเงินเรียบร้อยแล้ว รอการอนุมัติ");
@@ -65,9 +92,13 @@ export default function NewWithdrawal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const numAmount = parseFloat(amount.replace(/,/g, ""));
-    if (isNaN(numAmount) || numAmount <= 0) {
-      toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
+    if (isSubmitting) return;
+    const raw = amount.replace(/,/g, "").trim();
+    const numAmount = Number(raw);
+    if (!AMOUNT_PATTERN.test(raw) || numAmount <= 0) {
+      toast.error(
+        "กรุณาระบุจำนวนเงินเป็นตัวเลขมากกว่า 0 ทศนิยมไม่เกิน 2 ตำแหน่ง"
+      );
       return;
     }
     if (purpose.trim().length < 5) {
@@ -103,51 +134,60 @@ export default function NewWithdrawal() {
         <BackLink label={`กลับ${returnLabel}`} onClick={goBack} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
+          <div className="bg-[#FFFFFF] border border-[#E5E1D8] rounded-2xl p-6 md:p-8 space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#171311]">
-                วัตถุประสงค์การเบิก <span className="text-red-500">*</span>
+              <label htmlFor="wd-purpose" className={LABEL_CLASS}>
+                วัตถุประสงค์การเบิก {REQUIRED}
               </label>
               <input
+                id="wd-purpose"
                 type="text"
                 required
+                minLength={5}
+                maxLength={280}
                 value={purpose}
                 onChange={e => setPurpose(e.target.value)}
                 placeholder="เช่น ค่าจัดค่ายอนุชน, ค่าซ่อมแซมห้องน้ำ"
-                className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm font-medium text-[#171311]"
+                className={`${FIELD_CLASS} font-medium`}
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
-                  จำนวนเงิน (บาท) <span className="text-red-500">*</span>
+                <label htmlFor="wd-amount" className={LABEL_CLASS}>
+                  จำนวนเงิน (บาท) {REQUIRED}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-[#807266]">
+                  <span
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-[#7A766F]"
+                    aria-hidden="true"
+                  >
                     ฿
                   </span>
                   <input
+                    id="wd-amount"
                     type="text"
+                    inputMode="decimal"
                     required
                     placeholder="0.00"
                     value={amount}
                     onChange={e => setAmount(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-lg font-bold text-[#171311]"
+                    className={`${FIELD_CLASS} pl-10 !text-lg font-bold tabular-nums`}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label htmlFor="wd-urgency" className={LABEL_CLASS}>
                   ความเร่งด่วน
                 </label>
                 <NativeSelect
+                  id="wd-urgency"
                   value={urgency}
                   onChange={e =>
                     setUrgency(e.target.value as "normal" | "urgent")
                   }
-                  className="bg-[#FAF8F5]/20 font-medium"
+                  className="font-medium"
                 >
                   <option value="normal">ปกติ (ตามรอบ)</option>
                   <option value="urgent">เร่งด่วน</option>
@@ -156,14 +196,15 @@ export default function NewWithdrawal() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#171311]">
-                เบิกจากกองทุน <span className="text-red-500">*</span>
+              <label htmlFor="wd-fund" className={LABEL_CLASS}>
+                เบิกจากกองทุน {REQUIRED}
               </label>
               <NativeSelect
+                id="wd-fund"
                 required
                 value={fundId ?? ""}
                 onChange={e => setFundId(Number(e.target.value))}
-                className="bg-[#FAF8F5]/20 font-medium"
+                className="font-medium"
               >
                 <option value="" disabled>
                   — เลือกกองทุน —
@@ -174,24 +215,35 @@ export default function NewWithdrawal() {
                   </option>
                 ))}
               </NativeSelect>
-              {funds.length === 0 && (
-                <p className="text-sm font-bold text-[#C8372D] mt-2">
-                  ยังไม่มีกองทุนในระบบ กรุณาเพิ่มกองทุนก่อนยื่นคำขอเบิกเงิน
+              {fundsQuery.isLoading ? (
+                <p className="text-sm text-[#7A766F] mt-2">
+                  กำลังโหลดรายชื่อกองทุน…
                 </p>
+              ) : fundsQuery.isError ? (
+                <p className="text-sm font-bold text-[#FF5B5B] mt-2">
+                  โหลดรายชื่อกองทุนไม่สำเร็จ กรุณาโหลดหน้านี้ใหม่
+                </p>
+              ) : (
+                funds.length === 0 && (
+                  <p className="text-sm font-bold text-[#FF5B5B] mt-2">
+                    ยังไม่มีกองทุนในระบบ กรุณาเพิ่มกองทุนก่อนยื่นคำขอเบิกเงิน
+                  </p>
+                )
               )}
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#171311]">
+              <label htmlFor="wd-details" className={LABEL_CLASS}>
                 หมายเหตุเพิ่มเติม
               </label>
               <textarea
+                id="wd-details"
                 rows={2}
                 maxLength={DETAILS_MAX_LENGTH}
                 placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับผู้อนุมัติ..."
                 value={details}
                 onChange={e => setDetails(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                className={FIELD_CLASS}
               />
             </div>
           </div>
@@ -200,16 +252,16 @@ export default function NewWithdrawal() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FFF8EA]/50 font-medium text-sm transition-colors"
+              className="min-h-11 px-6 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-[#5F5B55] hover:bg-[#FFFFFF] font-medium text-sm transition-colors"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={isSubmitting || funds.length === 0}
-              className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="min-h-11 px-8 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Banknote className="w-4 h-4" />
+              <Banknote className="w-4 h-4" aria-hidden="true" />
               <span>
                 {isSubmitting ? "กำลังส่งคำขอ..." : "ยื่นคำขอเบิกเงิน"}
               </span>
@@ -217,47 +269,48 @@ export default function NewWithdrawal() {
           </div>
         </form>
 
-        {showSuccessModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl">
-              <div className="w-16 h-16 rounded-full bg-[#E4F3E7] flex items-center justify-center text-[#51443A] mx-auto">
-                <CheckCircle2 className="w-8 h-8 text-[#51443A]" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-[#171311]">
-                  ส่งคำขอเบิกเงินสำเร็จ!
-                </h3>
-                <p className="text-sm text-[#807266]">
-                  คำขอของคุณถูกส่งให้ผู้มีสิทธิ์อนุมัติพิจารณาแล้ว
-                </p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    setPurpose("");
-                    setAmount("");
-                    setFundId(null);
-                    setDetails("");
-                    setUrgency("normal");
-                  }}
-                  className="w-full py-3 rounded-2xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-colors shadow-sm"
-                >
-                  ส่งคำขออีกรายการ
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    setLocation(returnPath);
-                  }}
-                  className="w-full py-2.5 rounded-2xl border border-[#E7DCC8] text-[#51443A] font-medium text-sm hover:bg-[#FFF8EA]/50 transition-colors"
-                >
-                  กลับสู่{returnLabel}
-                </button>
-              </div>
+        <Dialog
+          open={showSuccessModal}
+          onOpenChange={open => {
+            if (!open) setShowSuccessModal(false);
+          }}
+        >
+          <DialogContent className="sm:max-w-md text-center space-y-5">
+            <div className="w-16 h-16 rounded-full bg-[#E3F8F1] flex items-center justify-center mx-auto">
+              <CheckCircle2
+                className="w-8 h-8 text-[#20C997]"
+                aria-hidden="true"
+              />
             </div>
-          </div>
-        )}
+            <DialogHeader className="text-center sm:text-center">
+              <DialogTitle className="text-2xl">
+                ส่งคำขอเบิกเงินสำเร็จ
+              </DialogTitle>
+              <DialogDescription>
+                คำขอของคุณถูกส่งให้ผู้มีสิทธิ์อนุมัติพิจารณาแล้ว
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full min-h-11 rounded-xl bg-[#F97316] text-[#171717] font-medium text-sm hover:bg-[#D95E0B] transition-colors"
+              >
+                ส่งคำขออีกรายการ
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  setLocation(returnPath);
+                }}
+                className="w-full min-h-11 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-[#5F5B55] font-medium text-sm hover:bg-[#FFFFFF] transition-colors"
+              >
+                กลับสู่{returnLabel}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );

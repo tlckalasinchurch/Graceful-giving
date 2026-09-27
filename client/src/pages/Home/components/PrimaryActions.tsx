@@ -14,14 +14,13 @@ export function PrimaryActions({
   return (
     <section
       aria-label="การดำเนินการหลัก"
-      style={{ animationDelay: "230ms" }}
-      className={`animate-fade-up grid gap-4 sm:gap-6 w-full ${
+      className={`grid gap-4 sm:gap-6 w-full ${
         canRecordExpense ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
       }`}
     >
       <button
         onClick={onNewOffering}
-        className="flex items-center justify-center gap-3.5 py-4 sm:py-5 min-h-[68px] sm:min-h-[76px] rounded-2xl sm:rounded-2xl bg-[#2D6A2E] hover:bg-[#235324] text-white font-bold text-lg sm:text-2xl button-elevation transition-transform active:scale-95 focus-visible:ring-2 focus-visible:ring-[#2D6A2E] focus-visible:ring-offset-2 shadow-md"
+        className="flex items-center justify-center gap-3.5 py-4 sm:py-5 min-h-[68px] sm:min-h-[76px] rounded-2xl sm:rounded-2xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-bold text-lg sm:text-2xl transition-colors focus-visible:ring-2 focus-visible:ring-[#F97316] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F5F3EE]"
         aria-label="บันทึกการถวาย"
       >
         <HandCoins className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
@@ -31,10 +30,10 @@ export function PrimaryActions({
       {canRecordExpense && (
         <button
           onClick={onNewExpense}
-          className="flex items-center justify-center gap-3.5 py-4 sm:py-5 min-h-[68px] sm:min-h-[76px] rounded-2xl sm:rounded-2xl bg-[#B54A1E] hover:bg-[#963C15] text-white font-bold text-lg sm:text-2xl button-elevation transition-transform active:scale-95 focus-visible:ring-2 focus-visible:ring-[#B54A1E] focus-visible:ring-offset-2 shadow-md"
+          className="flex items-center justify-center gap-3.5 py-4 sm:py-5 min-h-[68px] sm:min-h-[76px] rounded-2xl sm:rounded-2xl bg-[#F1EFE9] hover:bg-[#242529] border border-[#E5E1D8] text-white font-bold text-lg sm:text-2xl transition-colors focus-visible:ring-2 focus-visible:ring-[#FF6B5B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F5F3EE]"
           aria-label="บันทึกรายจ่าย"
         >
-          <ReceiptText className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
+          <ReceiptText className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-[#FF6B5B]" />
           <span>บันทึกรายจ่าย</span>
         </button>
       )}

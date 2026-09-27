@@ -7,28 +7,53 @@ import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
-import {
-  Calendar,
-  CheckCircle2,
-  FileUp,
-  HandCoins,
-  Sparkles,
-} from "lucide-react";
+import { HandCoins } from "lucide-react";
 import { toast } from "sonner";
 import {
   OFFERING_CATEGORIES,
   offeringCategoryLabel,
   type OfferingCategory,
+  type PaymentMethod,
 } from "@shared/categories";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
 import { formatBaht } from "@/lib/format";
+
+// QR PromptPay is a transfer to the church account; the stored enum has no
+// separate value for it, so both buttons submit "transfer".
+const METHOD_OPTIONS: Array<{ label: string; id: PaymentMethod }> = [
+  { label: "เงินสด", id: "cash" },
+  { label: "โอนเงิน", id: "transfer" },
+  { label: "QR พร้อมเพย์", id: "transfer" },
+  { label: "เช็ค", id: "check" },
+];
+
+const QUICK_AMOUNTS = [100, 300, 500, 1000, 2000, 5000];
+
+/** Today in the device's timezone; toISOString() would give the UTC day. */
+function localToday(): string {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 10);
+}
+
+const FIELD_CLASS =
+  "min-h-11 w-full p-3 rounded-xl bg-[#FFFFFF] border border-[#E5E1D8] text-base md:text-sm text-[#171717] placeholder-[#7A766F] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30 disabled:opacity-50";
+const LABEL_CLASS = "text-sm font-bold text-[#5F5B55] block";
+
+interface SavedOffering {
+  category: OfferingCategory;
+  amount: number;
+  methodLabel: string;
+}
 
 export default function NewOffering() {
   const [, setLocation] = useLocation();
@@ -39,27 +64,26 @@ export default function NewOffering() {
   });
   const funds = fundsQuery.data ?? [];
 
-  // Form State
   const [category, setCategory] = useState<OfferingCategory>("general");
   const [amount, setAmount] = useState("");
   const [fundId, setFundId] = useState("");
-  const [method, setMethod] = useState("เงินสด");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [methodLabel, setMethodLabel] = useState(METHOD_OPTIONS[0].label);
+  const [date, setDate] = useState(localToday);
   const [notes, setNotes] = useState("");
   const [donorName, setDonorName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
-  const isDirty =
-    !isSuccessOpen &&
-    Boolean(
-      amount ||
-        notes ||
-        donorName ||
-        isAnonymous ||
-        fundId ||
-        category !== "general" ||
-        method !== "เงินสด"
-    );
+  const [saved, setSaved] = useState<SavedOffering | null>(null);
+
+  const isDirty = Boolean(
+    amount ||
+      notes ||
+      donorName ||
+      isAnonymous ||
+      fundId ||
+      category !== "general" ||
+      methodLabel !== METHOD_OPTIONS[0].label ||
+      date !== localToday()
+  );
   useUnsavedChanges(isDirty);
   const goBack = async () => {
     if (await confirmDiscardChanges(isDirty)) {
@@ -67,9 +91,27 @@ export default function NewOffering() {
     }
   };
 
+  const resetForm = () => {
+    setCategory("general");
+    setAmount("");
+    setMethodLabel(METHOD_OPTIONS[0].label);
+    setDate(localToday());
+    setNotes("");
+    setDonorName("");
+    setIsAnonymous(false);
+    // The fund is kept: consecutive offerings usually go to the same one.
+  };
+
   const createMutation = trpc.offerings.create.useMutation({
-    onSuccess: () => {
-      setIsSuccessOpen(true);
+    onSuccess: (_result, variables) => {
+      // Clear the form before showing the result, so closing the dialog
+      // cannot leave the same offering ready to be saved a second time.
+      setSaved({
+        category: variables.category ?? "general",
+        amount: variables.amount,
+        methodLabel,
+      });
+      resetForm();
       void Promise.all([
         utils.offerings.list.invalidate(),
         utils.finance.summary.invalidate(),
@@ -84,7 +126,9 @@ export default function NewOffering() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || Number(amount) <= 0) {
+    if (createMutation.isPending) return;
+    const value = Number(amount);
+    if (!amount || !Number.isFinite(value) || value <= 0) {
       toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
       return;
     }
@@ -92,26 +136,19 @@ export default function NewOffering() {
       toast.error("กรุณาเลือกกองทุนก่อนบันทึก");
       return;
     }
+    const method =
+      METHOD_OPTIONS.find(m => m.label === methodLabel)?.id ?? "cash";
 
     createMutation.mutate({
       category,
-      amount: Number(amount),
+      amount: value,
       fundId: Number(fundId),
-      method:
-        method === "โอน" || method === "QR"
-          ? "transfer"
-          : method === "เช็ค"
-            ? "check"
-            : "cash",
-      notes: notes || undefined,
+      method,
+      receiptDate: new Date(`${date}T00:00:00`),
+      donorName: isAnonymous ? undefined : donorName.trim() || undefined,
+      notes: notes.trim() || undefined,
     });
   };
-
-  const categories = OFFERING_CATEGORIES;
-
-  const quickAmounts = [100, 300, 500, 1000, 2000, 5000];
-
-  const paymentMethods = ["เงินสด", "โอนเงิน", "QR พร้อมเพย์", "เช็ค"];
 
   return (
     <AppLayout
@@ -120,97 +157,76 @@ export default function NewOffering() {
       subtitle="บันทึกรายการเงินถวายเข้าสู่บัญชีและกองทุนคริสตจักร"
       action={<BackLink label="ดูรายการทั้งหมด" onClick={goBack} />}
     >
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Hero Card with offering_box.jpg */}
-        <div className="bg-gradient-to-r from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] rounded-2xl p-6 border border-[#E7DCC8] shadow-xs flex items-center gap-5">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-white p-1 border border-[#E7DCC8] shadow-xs shrink-0">
-            <Illustration
-              src="/illustrations/offering_box.jpg"
-              alt="กล่องถวาย"
-              className="w-full h-full object-cover rounded-2xl"
-              width={96}
-              height={96}
-            />
-          </div>
-          <div className="space-y-1">
-            <h2 className="text-lg sm:text-xl font-bold text-[#51443A]">
-              การถวายด้วยความยินดี
-            </h2>
-            <p className="text-xs text-[#807266] leading-relaxed">
-              "พระเจ้าทรงรักผู้ที่ให้ด้วยใจยินดี" —
-              ทุกยอดการถวายจะถูกบันทึกอย่างถูกต้องและโปร่งใสเพื่อการงานของพระเจ้า
-            </p>
-          </div>
-        </div>
-
-        {/* Main Step Form Card */}
+      <div className="max-w-2xl mx-auto">
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E7DCC8] card-elevation-sm space-y-6"
+          className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-8 border border-[#E5E1D8] space-y-6"
         >
-          {/* 1. ประเภทถวาย */}
-          <div className="space-y-2.5">
-            <label className="text-xs font-bold text-[#51443A] block">
+          <fieldset className="space-y-2.5">
+            <legend className={`${LABEL_CLASS} mb-2.5`}>
               1. เลือกประเภทการถวาย
-            </label>
+            </legend>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              {categories.map(cat => (
-                <button
+              {OFFERING_CATEGORIES.map(cat => (
+                <Chip
                   key={cat.id}
-                  type="button"
+                  active={category === cat.id}
                   onClick={() => setCategory(cat.id)}
-                  className={`p-3 rounded-2xl border text-xs font-bold text-center transition-all ${
-                    category === cat.id
-                      ? "bg-[#FFF8EA] border-[#C94F16] text-[#51443A] shadow-2xs"
-                      : "bg-white border-[#E7DCC8] text-[#807266] hover:bg-[#FAF8F5]"
-                  }`}
+                  className="w-full !whitespace-normal leading-snug"
                 >
                   {cat.label}
-                </button>
+                </Chip>
               ))}
             </div>
-          </div>
+          </fieldset>
 
-          {/* 2. จำนวนเงิน + Shortcuts */}
           <div className="space-y-2.5">
-            <label className="text-xs font-bold text-[#51443A] block">
+            <label htmlFor="offering-amount" className={LABEL_CLASS}>
               2. ระบุจำนวนเงิน (บาท)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#1F5C33]">
+              <span
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#20C997]"
+                aria-hidden="true"
+              >
                 ฿
               </span>
               <input
+                id="offering-amount"
                 type="number"
+                inputMode="decimal"
                 required
-                min="1"
+                min="0.01"
+                step="0.01"
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-2xl font-bold text-[#1F5C33] focus:outline-none focus:border-[#C94F16]"
+                className="w-full min-h-14 pl-12 pr-4 py-3 rounded-xl bg-[#FFFFFF] border border-[#E5E1D8] text-2xl font-bold tabular-nums text-[#20C997] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30"
               />
             </div>
-
-            {/* Shortcut Chips */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              {quickAmounts.map(q => (
+            <div
+              role="group"
+              aria-label="จำนวนเงินที่ใช้บ่อย"
+              className="flex flex-wrap gap-2 pt-1"
+            >
+              {QUICK_AMOUNTS.map(q => (
                 <Chip
                   key={q}
-                  type="button"
+                  active={Number(amount) === q}
                   onClick={() => setAmount(String(q))}
                 >
-                  +{formatBaht(q, 0)}
+                  {formatBaht(q, 0)}
                 </Chip>
               ))}
             </div>
           </div>
 
-          {/* 3. กองทุน */}
           <div className="space-y-2.5">
-            <label className="text-xs font-bold text-[#51443A] block">
+            <label htmlFor="offering-fund" className={LABEL_CLASS}>
               3. เข้ากองทุน
             </label>
             <NativeSelect
+              id="offering-fund"
               required
               value={fundId}
               onChange={e => setFundId(e.target.value)}
@@ -224,56 +240,61 @@ export default function NewOffering() {
                 </option>
               ))}
             </NativeSelect>
-            {funds.length === 0 && (
-              <p className="text-xs text-[#C8372D]">
-                ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย
+            {fundsQuery.isError ? (
+              <p className="text-sm text-[#FF5B5B]">
+                โหลดรายชื่อกองทุนไม่สำเร็จ กรุณาโหลดหน้านี้ใหม่
               </p>
+            ) : (
+              !fundsQuery.isLoading &&
+              funds.length === 0 && (
+                <p className="text-sm text-[#FF5B5B]">
+                  ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย
+                </p>
+              )
             )}
           </div>
 
-          {/* 4. วิธีรับเงิน */}
-          <div className="space-y-2.5">
-            <label className="text-xs font-bold text-[#51443A] block">
+          <fieldset className="space-y-2.5">
+            <legend className={`${LABEL_CLASS} mb-2.5`}>
               4. วิธีการรับเงิน
-            </label>
+            </legend>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {paymentMethods.map(m => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setMethod(m)}
-                  className={`min-h-11 py-2.5 px-3 rounded-2xl border text-xs font-bold transition-all ${
-                    method === m
-                      ? "bg-[#E4F3E7] border-[#9BCBA5] text-[#2F7A45] shadow-2xs"
-                      : "bg-white border-[#E7DCC8] text-[#807266] hover:bg-[#FAF8F5]"
-                  }`}
+              {METHOD_OPTIONS.map(m => (
+                <Chip
+                  key={m.label}
+                  active={methodLabel === m.label}
+                  onClick={() => setMethodLabel(m.label)}
+                  className="w-full"
                 >
-                  {m}
-                </button>
+                  {m.label}
+                </Chip>
               ))}
             </div>
-          </div>
+          </fieldset>
 
-          {/* 5. วันที่ & รายละเอียดเพิ่มเติม */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#51443A] block">
+              <label htmlFor="offering-date" className={LABEL_CLASS}>
                 วันที่รับเงิน
               </label>
               <input
+                id="offering-date"
                 type="date"
+                required
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311]"
+                className={FIELD_CLASS}
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#51443A] block">
+              <label htmlFor="offering-donor" className={LABEL_CLASS}>
                 ชื่อผู้ถวาย (ถ้ามี)
               </label>
               <input
+                id="offering-donor"
                 type="text"
+                maxLength={120}
                 disabled={isAnonymous}
                 value={donorName}
                 onChange={e => setDonorName(e.target.value)}
@@ -282,12 +303,15 @@ export default function NewOffering() {
                     ? "ถวายโดยไม่เปิดเผยนาม"
                     : "ชื่อ-นามสกุล หรือครอบครัว"
                 }
-                className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311] disabled:opacity-50"
+                className={FIELD_CLASS}
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <label
+            htmlFor="anon"
+            className="flex min-h-11 items-center gap-3 text-sm text-[#5F5B55] cursor-pointer"
+          >
             <input
               type="checkbox"
               id="anon"
@@ -296,36 +320,32 @@ export default function NewOffering() {
                 setIsAnonymous(e.target.checked);
                 if (e.target.checked) setDonorName("");
               }}
-              className="rounded text-[#C94F16] focus:ring-[#C94F16] w-4 h-4 border-[#E7DCC8]"
+              className="size-5 rounded border-[#E5E1D8] accent-[#F97316]"
             />
-            <label
-              htmlFor="anon"
-              className="text-xs text-[#51443A] cursor-pointer"
-            >
-              ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
-            </label>
-          </div>
+            ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
+          </label>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#51443A] block">
+            <label htmlFor="offering-notes" className={LABEL_CLASS}>
               หมายเหตุ / คำอธิษฐานขอบพระคุณ
             </label>
             <textarea
+              id="offering-notes"
               rows={2}
+              maxLength={500}
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="เช่น ถวายขอบพระคุณสำหรับวันเกิด, พันธกิจเด็ก"
-              className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311]"
+              className={FIELD_CLASS}
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full py-4 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm button-elevation transition-all flex items-center justify-center gap-2"
+            className="w-full min-h-12 py-3.5 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-bold text-base button-elevation transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <HandCoins className="w-5 h-5" />
+            <HandCoins className="w-5 h-5" aria-hidden="true" />
             <span>
               {createMutation.isPending
                 ? "กำลังบันทึก..."
@@ -335,55 +355,73 @@ export default function NewOffering() {
         </form>
       </div>
 
-      {/* Success Celebration Dialog */}
-      <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
-        <DialogContent className="max-w-sm bg-[#FFFFFF] border-[#E7DCC8] rounded-2xl p-6 text-center text-[#171311] space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-[#E7DCC8] shadow-xs p-1 bg-[#E4F3E7]">
+      <Dialog
+        open={saved !== null}
+        onOpenChange={open => {
+          if (!open) setSaved(null);
+        }}
+      >
+        <DialogContent className="max-w-sm text-center space-y-4">
+          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-[#E5E1D8] bg-[#E3F8F1]">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
-              alt="ถวายสำเร็จ"
-              className="w-full h-full object-cover rounded-2xl"
+              alt=""
+              className="w-full h-full object-cover"
               width={80}
               height={80}
             />
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-[#51443A]">
+          <DialogHeader className="text-center sm:text-center">
+            <DialogTitle className="text-xl">
               บันทึกการถวายเรียบร้อยแล้ว
-            </h3>
-            <p className="text-xs text-[#807266] mt-1">
-              "ขอพระเจ้าทรงอวยพระพรและตอบแทนทุกน้ำใจที่ท่านได้มอบให้เพื่อพันธกิจของพระองค์"
-            </p>
-          </div>
+            </DialogTitle>
+            <DialogDescription>
+              ขอพระเจ้าทรงอวยพระพรและตอบแทนทุกน้ำใจที่มอบให้เพื่อพันธกิจของพระองค์
+            </DialogDescription>
+          </DialogHeader>
 
-          <div className="p-4 rounded-2xl bg-[#FFF8EA] border border-[#E7DCC8] text-xs text-left space-y-1.5">
-            <p className="flex justify-between">
-              <span className="text-[#807266]">ประเภท:</span>
-              <span className="font-bold text-[#51443A]">
-                {offeringCategoryLabel(category)}
-              </span>
-            </p>
-            <p className="flex justify-between">
-              <span className="text-[#807266]">จำนวนเงิน:</span>
-              <span className="font-bold text-[#1F5C33]">
-                {formatBaht(Number(amount))}
-              </span>
-            </p>
-            <p className="flex justify-between">
-              <span className="text-[#807266]">ช่องทาง:</span>
-              <span className="font-medium text-[#51443A]">{method}</span>
-            </p>
-          </div>
+          {saved && (
+            <dl className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E5E1D8] text-sm text-left space-y-1.5">
+              <div className="flex justify-between gap-3">
+                <dt className="text-[#7A766F]">ประเภท</dt>
+                <dd className="font-bold text-[#5F5B55]">
+                  {offeringCategoryLabel(saved.category)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt className="text-[#7A766F]">จำนวนเงิน</dt>
+                <dd className="font-bold tabular-nums text-[#20C997]">
+                  {formatBaht(saved.amount)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt className="text-[#7A766F]">ช่องทาง</dt>
+                <dd className="font-medium text-[#5F5B55]">
+                  {saved.methodLabel}
+                </dd>
+              </div>
+            </dl>
+          )}
 
-          <button
-            onClick={() => {
-              setIsSuccessOpen(false);
-              setLocation("/offerings");
-            }}
-            className="w-full py-3.5 rounded-2xl bg-[#9BCBA5] hover:bg-[#96C764] text-white font-bold text-sm button-elevation transition-all"
-          >
-            ดูรายการถวายทั้งหมด
-          </button>
+          <div className="grid gap-2">
+            <button
+              type="button"
+              onClick={() => setSaved(null)}
+              className="w-full min-h-11 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-bold text-sm transition-colors"
+            >
+              บันทึกรายการถัดไป
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSaved(null);
+                setLocation("/offerings");
+              }}
+              className="w-full min-h-11 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] hover:bg-[#FFFFFF] text-[#5F5B55] font-bold text-sm transition-colors"
+            >
+              ดูรายการถวายทั้งหมด
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </AppLayout>

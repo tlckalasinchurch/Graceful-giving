@@ -60,13 +60,13 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-[#FFFFFF] print:static print:overflow-visible">
       {/* Container */}
-      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E7DCC8] overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
+      <div className="bg-[#FFFFFF] w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E5E1D8] overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Modal Action Bar (Hidden in print) */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#FAF8F5] border-b border-[#E7DCC8] print:hidden">
-          <div className="flex items-center gap-2 text-[#51443A]">
-            <Building2 className="w-5 h-5 text-[#C94F16]" />
+        <div className="flex items-center justify-between px-6 py-4 bg-[#FFFFFF] border-b border-[#E5E1D8] print:hidden">
+          <div className="flex items-center gap-2 text-[#5F5B55]">
+            <Building2 className="w-5 h-5 text-[#F97316]" />
             <span className="font-bold text-sm">
               เอกสารทางการคริสตจักร (A4 Printable)
             </span>
@@ -74,14 +74,14 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-medium text-xs shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-medium text-xs shadow-xs transition-colors"
             >
               <Printer className="w-4 h-4" />
               <span>พิมพ์เอกสาร (Print / PDF)</span>
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-[#807266] hover:text-[#171311] hover:bg-black/5 rounded-xl transition-colors"
+              className="p-2 text-[#7A766F] hover:text-[#171717] hover:bg-black/5 rounded-xl transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -93,12 +93,12 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           {/* Printable Voucher Card */}
           <div
             ref={printAreaRef}
-            className="voucher-print-area max-w-2xl mx-auto bg-white border border-stone-300 print:border-none p-8 sm:p-10 rounded-2xl text-stone-900 font-sans"
+            className="voucher-print-area max-w-2xl mx-auto bg-[#FFFFFF] border border-stone-300 print:border-none p-8 sm:p-10 rounded-2xl text-stone-900 font-sans"
           >
             {/* Header / Church Info */}
             <div className="border-b-2 border-stone-800 pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-semibold text-stone-900 tracking-tight">
                   {church?.name || "คริสตจักร"}
                 </h1>
                 <p className="text-xs text-stone-600 mt-1 max-w-md">

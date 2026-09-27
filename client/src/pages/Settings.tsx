@@ -7,14 +7,9 @@ import {
   Building,
   CheckCircle2,
   CreditCard,
-  Globe,
   Loader2,
   Lock,
-  Mail,
-  Phone,
-  QrCode,
   Save,
-  Settings as SettingsIcon,
   Shield,
   UserCheck,
   Users,
@@ -30,6 +25,56 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { LogOut } from "lucide-react";
 import { EXPENSE_CATEGORIES, OFFERING_CATEGORIES } from "@shared/categories";
 import { isSuperAdmin, getChurchRoleInfo, CHURCH_ROLES } from "@shared/roles";
+import { ErrorState, LoadingSkeleton } from "@/components/common/CommonUI";
+
+const ROLE_OPTIONS = Object.values(CHURCH_ROLES);
+
+const FIELD_CLASS =
+  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-base md:text-sm text-[#171717] placeholder:text-[#7A766F] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30";
+
+type ProfileFields = {
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  website: string;
+  pastorName: string;
+  assistantPastorName: string;
+  treasurerName: string;
+  bankName: string;
+  bankAccount: string;
+  bankAccountName: string;
+  motto: string;
+};
+
+const EMPTY_PROFILE: ProfileFields = {
+  name: "",
+  address: "",
+  phone: "",
+  email: "",
+  website: "",
+  pastorName: "",
+  assistantPastorName: "",
+  treasurerName: "",
+  bankName: "",
+  bankAccount: "",
+  bankAccountName: "",
+  motto: "",
+};
+
+const AUDIT_ACTION_LABELS: Record<string, string> = {
+  AUTH_SET_CHURCH_ROLE: "เปลี่ยนบทบาทผู้ใช้",
+  AUTH_UPDATE_PROFILE: "แก้ไขโปรไฟล์",
+  CHURCH_UPDATE_PROFILE: "แก้ไขข้อมูลคริสตจักร",
+};
+
+const TABS = [
+  { id: "church", label: "ข้อมูลคริสตจักร" },
+  { id: "roles", label: "บทบาทและสิทธิ์" },
+  { id: "categories", label: "หมวดหมู่บัญชี" },
+  { id: "payment", label: "บัญชีธนาคาร" },
+  { id: "audit", label: "ประวัติการใช้งาน" },
+] as const;
 import { NativeSelect } from "@/components/ui/native-select";
 
 export default function Settings() {
@@ -42,6 +87,7 @@ export default function Settings() {
   const {
     data: churchProfile,
     isLoading,
+    isError: profileError,
     refetch,
   } = trpc.church.getProfile.useQuery(undefined, { retry: false });
 
@@ -85,7 +131,7 @@ export default function Settings() {
 
     const isConfirmed = await Swal.confirm(
       "ยืนยันการเปลี่ยนบทบาท?",
-      `คุณต้องการปรับบทบาทของ "${targetUser?.name || targetUser?.email || "ผู้ใช้งาน"}" เป็น "${targetRoleInfo.badgeLabel}" หรือไม่? ผู้ใช้จะได้รับสิทธิ์และเมนูตามบทบาทนี้ทันที`,
+      `คุณต้องการปรับบทบาทของ "${targetUser?.name || targetUser?.email || "ผู้ใช้งาน"}" เป็น "${targetRoleInfo.label}" หรือไม่? ผู้ใช้จะได้รับสิทธิ์และเมนูตามบทบาทนี้ทันที`,
       {
         confirmButtonText: "ยืนยันเปลี่ยนบทบาท",
         cancelButtonText: "ยกเลิก",
@@ -100,9 +146,8 @@ export default function Settings() {
         userId,
         churchRole: newRole as any,
       });
-      await Swal.success(
-        "เปลี่ยนบทบาทสำเร็จ!",
-        `ได้เปลี่ยนบทบาทของ ${targetUser?.name || "ผู้ใช้งาน"} เป็น ${targetRoleInfo.badgeLabel} เรียบร้อยแล้ว`
+      toast.success(
+        `เปลี่ยนบทบาทของ ${targetUser?.name || "ผู้ใช้งาน"} เป็น ${targetRoleInfo.label} แล้ว`
       );
     } catch (err: any) {
       await Swal.error(
@@ -114,62 +159,52 @@ export default function Settings() {
     }
   };
 
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [website, setWebsite] = useState("");
-  const [pastorName, setPastorName] = useState("");
-  const [assistantPastorName, setAssistantPastorName] = useState("");
-  const [treasurerName, setTreasurerName] = useState("");
-  const [bankName, setBankName] = useState("");
-  const [bankAccount, setBankAccount] = useState("");
-  const [bankAccountName, setBankAccountName] = useState("");
-  const [motto, setMotto] = useState("");
+  // Every editable field is tracked. The old baseline left out website,
+  // assistant pastor and all three bank fields, so leaving the page after
+  // editing the bank account gave no unsaved-changes warning.
+  const [form, setForm] = useState<ProfileFields>(EMPTY_PROFILE);
+  const [baseline, setBaseline] = useState<ProfileFields>(EMPTY_PROFILE);
   const [isSaving, setIsSaving] = useState(false);
-  const [baseline, setBaseline] = useState({
-    name: "",
-    address: "",
-    phone: "",
-    email: "",
-    pastorName: "",
-    treasurerName: "",
-    motto: "",
-  });
+  const setField = (key: keyof ProfileFields) => (value: string) =>
+    setForm(current => ({ ...current, [key]: value }));
+  const {
+    name,
+    address,
+    phone,
+    email,
+    website,
+    pastorName,
+    assistantPastorName,
+    treasurerName,
+    bankName,
+    bankAccount,
+    bankAccountName,
+    motto,
+  } = form;
 
   useEffect(() => {
-    const loaded = {
-      name: churchProfile?.name || "",
-      address: churchProfile?.address || "",
-      phone: churchProfile?.phone || "",
-      email: churchProfile?.email || "",
-      pastorName: churchProfile?.pastorName || "",
-      treasurerName: churchProfile?.treasurerName || "",
-      motto: churchProfile?.motto || "",
+    if (!churchProfile) return;
+    const loaded: ProfileFields = {
+      name: churchProfile.name || "",
+      address: churchProfile.address || "",
+      phone: churchProfile.phone || "",
+      email: churchProfile.email || "",
+      website: churchProfile.website || "",
+      pastorName: churchProfile.pastorName || "",
+      assistantPastorName: churchProfile.assistantPastorName || "",
+      treasurerName: churchProfile.treasurerName || "",
+      bankName: churchProfile.bankName || "",
+      bankAccount: churchProfile.bankAccount || "",
+      bankAccountName: churchProfile.bankAccountName || "",
+      motto: churchProfile.motto || "",
     };
-    setName(loaded.name);
-    setAddress(loaded.address);
-    setPhone(loaded.phone);
-    setEmail(loaded.email);
-    setWebsite(churchProfile?.website || "");
-    setPastorName(loaded.pastorName);
-    setAssistantPastorName(churchProfile?.assistantPastorName || "");
-    setTreasurerName(loaded.treasurerName);
-    setBankName(churchProfile?.bankName || "");
-    setBankAccount(churchProfile?.bankAccount || "");
-    setBankAccountName(churchProfile?.bankAccountName || "");
-    setMotto(loaded.motto);
+    setForm(loaded);
     setBaseline(loaded);
   }, [churchProfile]);
 
-  const isDirty =
-    name !== baseline.name ||
-    address !== baseline.address ||
-    phone !== baseline.phone ||
-    email !== baseline.email ||
-    pastorName !== baseline.pastorName ||
-    treasurerName !== baseline.treasurerName ||
-    motto !== baseline.motto;
+  const isDirty = (Object.keys(form) as Array<keyof ProfileFields>).some(
+    key => form[key] !== baseline[key]
+  );
   useUnsavedChanges(isDirty);
 
   const updateProfileMutation = trpc.church.updateProfile.useMutation({
@@ -177,10 +212,7 @@ export default function Settings() {
       setIsSaving(false);
       void utils.church.getProfile.invalidate();
       refetch();
-      await Swal.success(
-        "บันทึกข้อมูลสำเร็จ!",
-        "บันทึกการตั้งค่าข้อมูลคริสตจักรเรียบร้อยแล้ว"
-      );
+      toast.success("บันทึกการตั้งค่าข้อมูลคริสตจักรเรียบร้อยแล้ว");
     },
     onError: async error => {
       setIsSaving(false);
@@ -193,6 +225,9 @@ export default function Settings() {
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    // Saving a form that never loaded would overwrite stored values with
+    // the empty defaults.
+    if (isSaving || !churchProfile) return;
     setIsSaving(true);
     updateProfileMutation.mutate({
       name,
@@ -215,7 +250,6 @@ export default function Settings() {
     {
       role: "SUPER_ADMIN",
       title: "ผู้ดูแลระบบสูงสุด",
-      appointee: "พณ.ท่านหม่อมหลวงราชวงศ์สุริยงค์ บาลเพ็ชร",
       desc: "ดูแลระบบและโครงสร้างทั้งหมด จัดการผู้ใช้งานและสิทธิ์ ตั้งค่าคริสตจักร และตรวจสอบ Audit Log (สิทธิ์สูงสุดของระบบ)",
       duties: [
         "ดูแลระบบและโครงสร้างทั้งหมด",
@@ -228,7 +262,6 @@ export default function Settings() {
     {
       role: "TREASURER",
       title: "เหรัญญิกคริสตจักร",
-      appointee: "สุดารัตน์ จิณเซ่ง, อาจารย์ทัศนา ดวงจิตร",
       desc: "บันทึกรายรับ-รายจ่าย ตรวจสอบเงินถวายและบัญชี จัดการเบิกจ่าย ติดตามงบประมาณ ออกใบเสร็จ และจัดทำรายงานการเงิน",
       duties: [
         "บันทึกรายรับและรายจ่าย",
@@ -243,7 +276,6 @@ export default function Settings() {
     {
       role: "PASTOR",
       title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ",
-      appointee: "ศบ.อาจารย์สรรเสริญ ดวงจิตร",
       desc: "กำกับทิศทางและงานของคริสตจักร พิจารณาและอนุมัติโครงการ ตรวจสอบภาพรวมการเงิน และดูแลด้านอภิบาลสมาชิก",
       duties: [
         "กำกับทิศทางและงานของคริสตจักร",
@@ -257,7 +289,6 @@ export default function Settings() {
     {
       role: "DEACON",
       title: "มัคนายก / คณะกรรมการ",
-      appointee: "อาจารย์ทัศนา ดวงจิตร",
       desc: "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ ตรวจรับงานและติดตามโครงการ เสนอคำของบประมาณและรายการเบิกจ่าย",
       duties: [
         "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ",
@@ -271,7 +302,6 @@ export default function Settings() {
     {
       role: "MEMBER",
       title: "สมาชิกคริสตจักร",
-      appointee: "สมาชิกคริสตจักรทั่วไป",
       desc: "ดูข่าวสาร ประกาศ ตารางกิจกรรม ตารางรับใช้ และดูประวัติการถวายส่วนบุคคลอย่างปลอดภัย",
       duties: [
         "ดูข่าวสารและประกาศ",
@@ -287,14 +317,14 @@ export default function Settings() {
   if (!isSuperAdmin(user)) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto my-12 bg-white rounded-2xl p-8 border-2 border-[#E7DCC8] text-center space-y-4 shadow-sm">
+        <div className="max-w-xl mx-auto my-12 bg-[#FFFFFF] rounded-2xl p-8 border-2 border-[#E5E1D8] text-center space-y-4 shadow-sm">
           <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
             <Lock className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-[#171311]">
+          <h2 className="text-xl font-semibold tracking-tight text-[#171717]">
             สิทธิ์การเข้าถึงถูกจำกัด
           </h2>
-          <p className="text-sm text-[#807266]">
+          <p className="text-sm text-[#7A766F]">
             หน้านี้สงวนไว้สำหรับ{" "}
             <strong className="text-amber-800 font-bold">
               ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
@@ -305,7 +335,7 @@ export default function Settings() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#C94F16] text-white font-bold text-sm hover:bg-[#9F3B0F] transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#F97316] text-[#171717] font-bold text-sm hover:bg-[#D95E0B] transition-all shadow-xs"
             >
               กลับสู่หน้าหลัก
             </Link>
@@ -321,157 +351,171 @@ export default function Settings() {
       subtitle="ข้อมูลพื้นฐาน สิทธิ์ผู้ใช้งาน หมวดหมู่บัญชี และช่องทางรับเงินถวาย"
     >
       <div className="max-w-4xl space-y-6">
-        {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[#E7DCC8] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x">
-          <button
-            onClick={() => setActiveTab("church")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "church"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
-            }`}
+        <div className="relative">
+          <div
+            role="group"
+            aria-label="หมวดการตั้งค่า"
+            className="flex items-center gap-1.5 sm:gap-2 border-b border-[#E5E1D8] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x"
           >
-            <Building className="w-4 h-4 text-[#C94F16] shrink-0" />
-            <span>ข้อมูลคริสตจักร</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("roles")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "roles"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
-            }`}
-          >
-            <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>บทบาทและสิทธิ์</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("categories")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "categories"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
-            }`}
-          >
-            <Banknote className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>หมวดหมู่บัญชี</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("payment")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "payment"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
-            }`}
-          >
-            <QrCode className="w-4 h-4 text-sky-600 shrink-0" />
-            <span>บัญชีธนาคาร & พร้อมเพย์</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("audit")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "audit"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
-            }`}
-          >
-            <FileText className="w-4 h-4 text-purple-600 shrink-0" />
-            <span>ประวัติการใช้งาน</span>
-          </button>
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                aria-pressed={activeTab === tab.id}
+                className={`min-h-11 px-3.5 sm:px-5 py-2 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap border ${
+                  activeTab === tab.id
+                    ? "bg-[#FFF0DD] text-[#D95E0B] border-[#FFE0C2]"
+                    : "text-[#5F5B55] border-transparent hover:bg-[#FFFFFF]"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-[#F5F3EE] to-transparent"
+          />
         </div>
 
+        {(activeTab === "church" || activeTab === "payment") &&
+          (isLoading ? (
+            <LoadingSkeleton count={2} />
+          ) : profileError || !churchProfile ? (
+            <ErrorState
+              title="โหลดข้อมูลคริสตจักรไม่สำเร็จ"
+              description="แก้ไขได้หลังโหลดข้อมูลสำเร็จ เพื่อไม่ให้ค่าที่บันทึกไว้ถูกเขียนทับด้วยช่องว่าง"
+              onRetry={() => void refetch()}
+            />
+          ) : null)}
+
         {/* Tab 1: Church Profile Form */}
-        {activeTab === "church" && (
+        {activeTab === "church" && churchProfile && (
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
-              <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
-                <Building className="w-5 h-5 text-[#C94F16]" />
+            <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-5">
+              <h3 className="text-base font-semibold tracking-tight text-[#171717] flex items-center gap-2">
+                <Building
+                  className="w-5 h-5 text-[#F97316]"
+                  aria-hidden="true"
+                />
                 ข้อมูลทั่วไปของคริสตจักร
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="font-semibold text-[#171311]">
-                    ชื่อคริสตจักร <span className="text-red-500">*</span>
+                  <label
+                    htmlFor="church-name"
+                    className="font-semibold text-[#171717]"
+                  >
+                    ชื่อคริสตจักร{" "}
+                    <span className="text-[#FF5B5B]" aria-hidden="true">
+                      *
+                    </span>
                   </label>
                   <input
+                    id="church-name"
                     type="text"
                     required
                     value={name}
-                    onChange={e => setName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm font-semibold text-[#171311]"
+                    onChange={e => setField("name")(e.target.value)}
+                    className={`${FIELD_CLASS} font-semibold`}
                   />
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="font-semibold text-[#171311]">
+                  <label
+                    htmlFor="church-motto"
+                    className="font-semibold text-[#171717]"
+                  >
                     คำขวัญ / นิมิตคริสตจักร
                   </label>
                   <input
+                    id="church-motto"
                     type="text"
                     value={motto}
-                    onChange={e => setMotto(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm text-[#171311]"
+                    onChange={e => setField("motto")(e.target.value)}
+                    className={FIELD_CLASS}
                   />
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="font-semibold text-[#171311]">
+                  <label
+                    htmlFor="church-address"
+                    className="font-semibold text-[#171717]"
+                  >
                     ที่อยู่คริสตจักร
                   </label>
                   <textarea
+                    id="church-address"
                     rows={2}
                     value={address}
-                    onChange={e => setAddress(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm text-[#171311]"
+                    onChange={e => setField("address")(e.target.value)}
+                    className={FIELD_CLASS}
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#171311]">
+                  <label
+                    htmlFor="church-phone"
+                    className="font-semibold text-[#171717]"
+                  >
                     เบอร์โทรศัพท์
                   </label>
                   <input
+                    id="church-phone"
                     type="text"
                     value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm text-[#171311]"
+                    onChange={e => setField("phone")(e.target.value)}
+                    className={FIELD_CLASS}
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#171311]">
+                  <label
+                    htmlFor="church-email"
+                    className="font-semibold text-[#171717]"
+                  >
                     อีเมลทางการ
                   </label>
                   <input
+                    id="church-email"
                     type="email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm text-[#171311]"
+                    onChange={e => setField("email")(e.target.value)}
+                    className={FIELD_CLASS}
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#171311]">
+                  <label
+                    htmlFor="church-pastorName"
+                    className="font-semibold text-[#171717]"
+                  >
                     ศิษยาภิบาลอาวุโส
                   </label>
                   <input
+                    id="church-pastorName"
                     type="text"
                     value={pastorName}
-                    onChange={e => setPastorName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm text-[#171311]"
+                    onChange={e => setField("pastorName")(e.target.value)}
+                    className={FIELD_CLASS}
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#171311]">
+                  <label
+                    htmlFor="church-treasurerName"
+                    className="font-semibold text-[#171717]"
+                  >
                     เหรัญญิกคริสตจักร
                   </label>
                   <input
+                    id="church-treasurerName"
                     type="text"
                     value={treasurerName}
-                    onChange={e => setTreasurerName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm text-[#171311]"
+                    onChange={e => setField("treasurerName")(e.target.value)}
+                    className={FIELD_CLASS}
                   />
                 </div>
               </div>
@@ -480,10 +524,10 @@ export default function Settings() {
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                disabled={isSaving || !isDirty}
+                className="min-h-11 px-8 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-4 h-4" aria-hidden="true" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>
               </button>
             </div>
@@ -492,35 +536,38 @@ export default function Settings() {
 
         {/* Account and sign out */}
         {activeTab === "church" && (
-          <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8">
-            <h3 className="text-base font-bold text-[#171311]">บัญชีผู้ใช้</h3>
+          <section className="rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-6 md:p-8">
+            <h3 className="text-base font-semibold tracking-tight text-[#171717]">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-sm text-[#51443A]">
-                <p className="font-bold text-[#171311]">
+              <div className="text-sm text-[#5F5B55]">
+                <p className="font-bold text-[#171717]">
                   {user?.name || "ผู้ใช้งาน"}
                 </p>
                 <p>{user?.email || "ไม่ระบุอีเมล"}</p>
                 <p className="mt-1">
                   บทบาทในระบบ:{" "}
-                  <span className="font-bold text-emerald-700">
-                    {getChurchRoleInfo(user?.churchRole).badgeLabel}
+                  <span className="font-bold text-[#171717]">
+                    {getChurchRoleInfo(user?.churchRole).label}
                   </span>
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <Link
                   href="/profile"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E7DCC8] bg-[#FFF8EA] px-5 py-2.5 text-sm font-bold text-[#51443A] transition-colors hover:bg-[#FFF4D6]"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] px-5 py-2.5 text-sm font-bold text-[#5F5B55] transition-colors hover:bg-[#FFFFFF]"
                 >
-                  <UserCheck className="h-4 w-4 text-[#C94F16]" />
+                  <UserCheck
+                    className="h-4 w-4 text-[#F97316]"
+                    aria-hidden="true"
+                  />
                   ดูโปรไฟล์เต็ม
                 </Link>
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-colors hover:bg-rose-100"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#FFD0D0] bg-[#FFFFFF] px-5 py-2.5 text-sm font-bold text-[#FF5B5B] transition-colors hover:bg-[#FFF0F0]"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
                   ออกจากระบบ
                 </button>
               </div>
@@ -532,14 +579,14 @@ export default function Settings() {
         {activeTab === "roles" && (
           <div className="space-y-6">
             {/* User Management Table */}
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7DCC8]/60 pb-5">
+            <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E1D8]/60 pb-5">
                 <div>
-                  <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-                    <Users className="w-5 h-5 text-[#C94F16]" />
+                  <h3 className="text-lg font-semibold tracking-tight text-[#171717] flex items-center gap-2">
+                    <Users className="w-5 h-5 text-[#F97316]" />
                     จัดการบทบาทและสิทธิ์ผู้ใช้งานในระบบ
                   </h3>
-                  <p className="text-xs text-[#807266] mt-1">
+                  <p className="text-xs text-[#7A766F] mt-1">
                     กำหนดบทบาทให้ผู้ที่เข้าสู่ระบบ
                     เพื่อให้ได้รับสิทธิ์การใช้งานตรงตามตำแหน่งหน้าที่จริง
                   </p>
@@ -560,54 +607,71 @@ export default function Settings() {
               {/* Search & Filter Bar */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#807266]" />
+                  <Search
+                    className="pointer-events-none w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A766F]"
+                    aria-hidden="true"
+                  />
                   <input
-                    type="text"
+                    type="search"
+                    aria-label="ค้นหาชื่อผู้ใช้งาน หรือ อีเมล"
                     placeholder="ค้นหาชื่อผู้ใช้งาน หรือ อีเมล..."
                     value={roleSearch}
                     onChange={e => setRoleSearch(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#E7DCC8] bg-[#FAF8F5]/40 text-xs font-semibold text-[#171311] focus:outline-none focus:ring-2 focus:ring-[#C94F16]/20"
+                    className={`${FIELD_CLASS} pl-9`}
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-[#807266] shrink-0" />
+                  <Filter
+                    className="w-4 h-4 text-[#7A766F] shrink-0"
+                    aria-hidden="true"
+                  />
                   <NativeSelect
+                    aria-label="กรองตามบทบาท"
                     value={roleFilter}
                     onChange={e => setRoleFilter(e.target.value)}
-                    className="font-semibold focus:ring-2 focus:ring-[#C94F16]/20"
+                    className="font-semibold focus:ring-2 focus:ring-[#F97316]/20"
                   >
                     <option value="ALL">บทบาททั้งหมด</option>
-                    <option value="SUPER_ADMIN">👑 ผู้ดูแลระบบสูงสุด</option>
-                    <option value="PASTOR">✝️ ศิษยาภิบาล</option>
-                    <option value="TREASURER">💰 เหรัญญิก</option>
-                    <option value="DEACON">🤝 มัคนายก</option>
-                    <option value="COUNTER">📝 ทีมนับเงิน</option>
-                    <option value="MEMBER">👤 สมาชิกทั่วไป</option>
+                    {ROLE_OPTIONS.map(r => (
+                      <option key={r.role} value={r.role}>
+                        {r.label}
+                      </option>
+                    ))}
                   </NativeSelect>
                 </div>
               </div>
 
               {usersQuery.isLoading ? (
-                <div className="py-12 flex flex-col items-center justify-center text-sm text-[#807266] gap-3">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#C94F16]" />
+                <div className="py-12 flex flex-col items-center justify-center text-sm text-[#7A766F] gap-3">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#F97316]" />
                   <span>กำลังโหลดรายชื่อผู้ใช้งาน...</span>
                 </div>
+              ) : usersQuery.isError ? (
+                <ErrorState
+                  title="โหลดรายชื่อผู้ใช้งานไม่สำเร็จ"
+                  description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+                  onRetry={() => void usersQuery.refetch()}
+                />
               ) : !usersQuery.data || usersQuery.data.length === 0 ? (
-                <div className="py-8 text-center text-sm text-[#807266] bg-[#FAF8F5] rounded-2xl border border-[#E7DCC8]/60">
+                <div className="py-8 text-center text-sm text-[#7A766F] bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8]/60">
                   ยังไม่พบข้อมูลผู้ใช้งานในระบบ
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-[#E7DCC8]/70 text-xs font-bold text-[#807266] uppercase">
+                      <tr className="border-b border-[#E5E1D8]/70 text-xs font-bold text-[#7A766F] uppercase">
                         <th className="pb-3 px-3">ผู้ใช้งาน</th>
-                        <th className="pb-3 px-3">อีเมล</th>
-                        <th className="pb-3 px-3">เข้าใช้ล่าสุด</th>
+                        <th className="pb-3 px-3 hidden sm:table-cell">
+                          อีเมล
+                        </th>
+                        <th className="pb-3 px-3 hidden md:table-cell">
+                          เข้าใช้ล่าสุด
+                        </th>
                         <th className="pb-3 px-3 text-right">บทบาทในระบบ</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E7DCC8]/40">
+                    <tbody className="divide-y divide-[#E5E1D8]/40">
                       {(() => {
                         const filteredUsers = (usersQuery.data || []).filter(
                           u => {
@@ -633,7 +697,7 @@ export default function Settings() {
                             <tr>
                               <td
                                 colSpan={4}
-                                className="py-8 text-center text-xs text-[#807266] bg-[#FAF8F5]/30"
+                                className="py-8 text-center text-xs text-[#7A766F] bg-[#FFFFFF]/30"
                               >
                                 ไม่พบผู้ใช้งานที่ตรงกับเงื่อนไขการค้นหา
                               </td>
@@ -651,22 +715,26 @@ export default function Settings() {
                           return (
                             <tr
                               key={u.id}
-                              className="hover:bg-[#FAF8F5]/50 transition-colors"
+                              className="hover:bg-[#FFFFFF]/50 transition-colors"
                             >
                               <td className="py-3.5 px-3">
-                                <div className="font-bold text-[#171311] flex items-center gap-2">
+                                <div className="font-bold text-[#171717] flex items-center gap-2">
                                   <span>{u.name || "ไม่ระบุชื่อ"}</span>
                                   {isMe && (
-                                    <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full border border-amber-300">
+                                    <span className="text-xs bg-[#F5F3EE] text-[#D95E0B] font-semibold px-2 py-0.5 rounded-full border border-[#FFF0DD]">
                                       คุณ
                                     </span>
                                   )}
                                 </div>
+
+                                <div className="sm:hidden text-xs font-normal text-[#7A766F] break-all">
+                                  {u.email || "-"}
+                                </div>
                               </td>
-                              <td className="py-3.5 px-3 text-[#51443A]">
+                              <td className="py-3.5 px-3 text-[#5F5B55] hidden sm:table-cell">
                                 {u.email || "-"}
                               </td>
-                              <td className="py-3.5 px-3 text-xs text-[#807266]">
+                              <td className="py-3.5 px-3 text-xs text-[#7A766F] hidden md:table-cell">
                                 {u.lastSignedIn
                                   ? new Date(u.lastSignedIn).toLocaleDateString(
                                       "th-TH",
@@ -684,39 +752,27 @@ export default function Settings() {
                                 {canEdit ? (
                                   <div className="inline-flex items-center gap-2">
                                     {isUpdating && (
-                                      <Loader2 className="w-4 h-4 animate-spin text-[#C94F16]" />
+                                      <Loader2 className="w-4 h-4 animate-spin text-[#F97316]" />
                                     )}
                                     <NativeSelect
+                                      aria-label={`บทบาทของ ${u.name || u.email || "ผู้ใช้งาน"}`}
                                       value={u.churchRole || "MEMBER"}
                                       disabled={isUpdating}
                                       onChange={e =>
                                         handleRoleChange(u.id, e.target.value)
                                       }
-                                      className="font-semibold shadow-sm hover:border-[#C94F16] focus:ring-2 focus:ring-[#C94F16]/20 transition-all"
+                                      className="font-semibold shadow-sm hover:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 transition-all"
                                     >
-                                      <option value="SUPER_ADMIN">
-                                        👑 ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
-                                      </option>
-                                      <option value="PASTOR">
-                                        ✝️ ศิษยาภิบาล (PASTOR)
-                                      </option>
-                                      <option value="TREASURER">
-                                        💰 เหรัญญิกคริสตจักร (TREASURER)
-                                      </option>
-                                      <option value="DEACON">
-                                        🤝 มัคนายก / คณะกรรมการ (DEACON)
-                                      </option>
-                                      <option value="COUNTER">
-                                        📝 ทีมนับเงินถวาย (COUNTER)
-                                      </option>
-                                      <option value="MEMBER">
-                                        👤 สมาชิกคริสตจักร (MEMBER)
-                                      </option>
+                                      {ROLE_OPTIONS.map(r => (
+                                        <option key={r.role} value={r.role}>
+                                          {r.label}
+                                        </option>
+                                      ))}
                                     </NativeSelect>
                                   </div>
                                 ) : (
-                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FFF8EA] text-[#51443A] border border-[#E7DCC8]">
-                                    {u.churchRole || "MEMBER"}
+                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FFFFFF] text-[#5F5B55] border border-[#E5E1D8]">
+                                    {getChurchRoleInfo(u.churchRole).label}
                                   </span>
                                 )}
                               </td>
@@ -731,15 +787,17 @@ export default function Settings() {
             </div>
 
             {/* Structure and Appointed Roles Reference */}
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-6">
               <div>
-                <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-emerald-600" />
-                  โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ
+                <h3 className="text-lg font-semibold tracking-tight text-[#171717] flex items-center gap-2">
+                  <Shield
+                    className="w-5 h-5 text-[#F97316]"
+                    aria-hidden="true"
+                  />
+                  โครงสร้างสิทธิ์การใช้งาน
                 </h3>
-                <p className="text-xs text-[#807266] mt-1">
-                  กำหนดบทบาท หน้าที่ความรับผิดชอบ
-                  และรายนามผู้ได้รับมอบหมายตามมติคริสตจักร
+                <p className="text-sm text-[#7A766F] mt-1">
+                  หน้าที่ของแต่ละบทบาท และผู้ใช้ที่มีบทบาทนั้นในระบบขณะนี้
                 </p>
               </div>
 
@@ -747,37 +805,49 @@ export default function Settings() {
                 {churchRoles.map(r => (
                   <div
                     key={r.role}
-                    className="p-5 rounded-2xl bg-[#FAF8F5] border border-[#E7DCC8]/70 space-y-3"
+                    className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5E1D8] space-y-3"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E7DCC8]/50 pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E5E1D8]/50 pb-3">
                       <div>
-                        <span className="font-bold text-base text-[#171311]">
+                        <span className="font-bold text-base text-[#171717]">
                           {r.title}
                         </span>
-                        <span className="ml-2.5 font-mono text-xs text-[#807266] bg-white px-2.5 py-0.5 rounded-md border border-[#E7DCC8]">
+                        <span className="ml-2.5 font-mono text-xs text-[#7A766F] bg-[#FFFFFF] px-2.5 py-0.5 rounded-md border border-[#E5E1D8]">
                           {r.role}
                         </span>
                       </div>
-                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-white text-[#171311] border-[#E7DCC8] self-start sm:self-auto">
-                        ผู้รับผิดชอบ:{" "}
-                        <span className="text-[#C94F16] font-bold">
-                          {r.appointee}
+                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-[#FFFFFF] text-[#171717] border-[#E5E1D8] self-start sm:self-auto">
+                        ผู้ใช้ในบทบาทนี้:{" "}
+                        <span className="text-[#D95E0B] font-bold">
+                          {usersQuery.isLoading
+                            ? "กำลังโหลด…"
+                            : usersQuery.isError
+                              ? "โหลดไม่สำเร็จ"
+                              : (usersQuery.data ?? [])
+                                  .filter(
+                                    u => (u.churchRole || "MEMBER") === r.role
+                                  )
+                                  .map(u => u.name || u.email || "ไม่ระบุชื่อ")
+                                  .join(", ") || "ยังไม่มี"}
                         </span>
                       </div>
                     </div>
 
-                    <p className="text-xs text-[#807266] leading-relaxed font-medium">
+                    <p className="text-xs text-[#7A766F] leading-relaxed font-medium">
                       {r.desc}
                     </p>
 
                     <div className="pt-1">
-                      <p className="text-xs font-bold text-[#171311] mb-1.5">
+                      <p className="text-xs font-bold text-[#171717] mb-1.5">
                         ขอบเขตหน้าที่ในระบบ:
                       </p>
-                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-[#51443A]">
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-[#5F5B55]">
                         {r.duties.map((duty, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
-                            <span className="text-emerald-600 font-bold">
+                            <span
+                              className="text-[#D95E0B] font-bold"
+                              aria-hidden="true"
+                            >
                               •
                             </span>
                             <span>{duty}</span>
@@ -794,45 +864,45 @@ export default function Settings() {
 
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
-          <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
-            <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
-              <Banknote className="w-5 h-5 text-amber-600" />
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-5">
+            <h3 className="text-base font-semibold tracking-tight text-[#171717] flex items-center gap-2">
+              <Banknote className="w-5 h-5 text-[#F97316]" aria-hidden="true" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
             </h3>
 
-            <p className="text-sm text-[#51443A]">
+            <p className="text-sm text-[#5F5B55]">
               หมวดหมู่เหล่านี้คือค่าที่ระบบใช้จริงทั้งในฐานข้อมูล แบบฟอร์ม
               และรายงาน
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-[#E7DCC8]/60 bg-[#FAF8F5] p-4">
-                <p className="font-bold text-[#171311]">
+              <div className="rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-4">
+                <p className="font-bold text-[#171717]">
                   หมวดรายรับ (เงินถวาย)
                 </p>
                 <ul className="mt-2 space-y-1">
                   {OFFERING_CATEGORIES.map(c => (
                     <li
                       key={c.id}
-                      className="flex items-center justify-between gap-3 text-sm text-[#51443A]"
+                      className="flex items-center justify-between gap-3 text-sm text-[#5F5B55]"
                     >
                       <span>{c.label}</span>
-                      <span className="font-mono text-xs text-[#807266]">
+                      <span className="font-mono text-xs text-[#7A766F]">
                         {c.id}
                       </span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="rounded-2xl border border-[#E7DCC8]/60 bg-[#FAF8F5] p-4">
-                <p className="font-bold text-[#171311]">หมวดรายจ่าย</p>
+              <div className="rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-4">
+                <p className="font-bold text-[#171717]">หมวดรายจ่าย</p>
                 <ul className="mt-2 space-y-1">
                   {EXPENSE_CATEGORIES.map(c => (
                     <li
                       key={c.id}
-                      className="flex items-center justify-between gap-3 text-sm text-[#51443A]"
+                      className="flex items-center justify-between gap-3 text-sm text-[#5F5B55]"
                     >
                       <span>{c.label}</span>
-                      <span className="font-mono text-xs text-[#807266]">
+                      <span className="font-mono text-xs text-[#7A766F]">
                         {c.id}
                       </span>
                     </li>
@@ -843,54 +913,107 @@ export default function Settings() {
           </div>
         )}
 
-        {/* Tab 4: Payment */}
-        {activeTab === "payment" && (
-          <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
-            <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
-              <QrCode className="w-5 h-5 text-sky-600" />
-              บัญชีรับเงินถวายและ QR พร้อมเพย์
-            </h3>
-
-            <div className="p-4 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-32 h-32 bg-white p-2 rounded-2xl border border-[#E7DCC8] shadow-inner flex items-center justify-center">
-                <QrCode className="w-24 h-24 text-[#171311]" />
+        {/* Tab 4: Bank account. The fields were saved by updateProfile but
+            had no inputs, and the tab showed a generic QR icon as if it were
+            the church's scannable PromptPay code. */}
+        {activeTab === "payment" && churchProfile && (
+          <form
+            onSubmit={handleSaveProfile}
+            className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-5"
+          >
+            <div>
+              <h3 className="text-base font-semibold tracking-tight text-[#171717] flex items-center gap-2">
+                <CreditCard
+                  className="w-5 h-5 text-[#F97316]"
+                  aria-hidden="true"
+                />
+                บัญชีรับเงินถวาย
+              </h3>
+              <p className="text-sm text-[#7A766F] mt-1">
+                ตรวจเลขที่บัญชีให้ถูกต้องก่อนบันทึก
+                สมาชิกจะใช้ข้อมูลนี้ในการโอนเงินถวาย
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="bank-name"
+                  className="text-sm font-semibold text-[#171717]"
+                >
+                  ธนาคาร
+                </label>
+                <input
+                  id="bank-name"
+                  type="text"
+                  maxLength={120}
+                  value={bankName}
+                  onChange={e => setField("bankName")(e.target.value)}
+                  placeholder="เช่น ธนาคารกสิกรไทย"
+                  className={FIELD_CLASS}
+                />
               </div>
-
-              <div className="space-y-2 text-center sm:text-left text-xs">
-                <p className="font-bold text-base text-[#171311]">
-                  {bankAccountName}
-                </p>
-                <p className="text-[#51443A]">
-                  ธนาคาร:{" "}
-                  <span className="font-semibold text-[#171311]">
-                    {bankName}
-                  </span>
-                </p>
-                <p className="text-[#51443A]">
-                  เลขที่บัญชี:{" "}
-                  <span className="font-mono font-bold text-sm text-[#171311]">
-                    {bankAccount}
-                  </span>
-                </p>
-                <p className="text-xs text-[#807266]">
-                  QR Code นี้จะแสดงในแบบฟอร์มถวายทรัพย์
-                  เพื่อให้สมาชิกสแกนโอนได้สะดวก
-                </p>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="bank-account"
+                  className="text-sm font-semibold text-[#171717]"
+                >
+                  เลขที่บัญชี
+                </label>
+                <input
+                  id="bank-account"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={30}
+                  value={bankAccount}
+                  onChange={e => setField("bankAccount")(e.target.value)}
+                  placeholder="เช่น 123-4-56789-0"
+                  className={`${FIELD_CLASS} font-mono`}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label
+                  htmlFor="bank-account-name"
+                  className="text-sm font-semibold text-[#171717]"
+                >
+                  ชื่อบัญชี
+                </label>
+                <input
+                  id="bank-account-name"
+                  type="text"
+                  maxLength={120}
+                  value={bankAccountName}
+                  onChange={e => setField("bankAccountName")(e.target.value)}
+                  placeholder="เช่น คริสตจักร... (บัญชีพันธกิจ)"
+                  className={FIELD_CLASS}
+                />
               </div>
             </div>
-          </div>
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isSaving || !isDirty}
+                className="min-h-11 px-8 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" aria-hidden="true" />
+                <span>{isSaving ? "กำลังบันทึก..." : "บันทึกบัญชีธนาคาร"}</span>
+              </button>
+            </div>
+          </form>
         )}
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (
-          <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7DCC8]/60 pb-5">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E1D8]/60 pb-5">
               <div>
-                <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-purple-600" />
+                <h3 className="text-lg font-semibold tracking-tight text-[#171717] flex items-center gap-2">
+                  <FileText
+                    className="w-5 h-5 text-[#F97316]"
+                    aria-hidden="true"
+                  />
                   บันทึกประวัติการดำเนินงาน
                 </h3>
-                <p className="text-xs text-[#807266] mt-1">
+                <p className="text-xs text-[#7A766F] mt-1">
                   ตรวจสอบความปลอดภัย การปรับเปลี่ยนบทบาทผู้ใช้
                   และการแก้ไขข้อมูลสำคัญทั้งหมดในระบบ
                 </p>
@@ -899,11 +1022,11 @@ export default function Settings() {
                 type="button"
                 onClick={() => void auditQuery.refetch()}
                 disabled={auditQuery.isFetching}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#E7DCC8] bg-[#FAF8F5] hover:bg-[#FFF8EA] text-xs font-semibold text-[#51443A] transition-all disabled:opacity-50 self-start sm:self-auto"
+                className="min-h-11 inline-flex items-center gap-1.5 px-4 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] hover:bg-[#FFFFFF] text-sm font-semibold text-[#5F5B55] transition-colors disabled:opacity-50 self-start sm:self-auto"
               >
                 <RefreshCw
                   className={`w-3.5 h-3.5 ${
-                    auditQuery.isFetching ? "animate-spin text-[#C94F16]" : ""
+                    auditQuery.isFetching ? "animate-spin text-[#F97316]" : ""
                   }`}
                 />
                 <span>รีเฟรชข้อมูล</span>
@@ -913,41 +1036,51 @@ export default function Settings() {
             {/* Search & Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#807266]" />
+                <Search
+                  className="pointer-events-none w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A766F]"
+                  aria-hidden="true"
+                />
                 <input
-                  type="text"
+                  type="search"
+                  aria-label="ค้นหาชื่อผู้ดำเนินการ อีเมล หรือกิจกรรม"
                   placeholder="ค้นหาชื่อผู้ดำเนินการ, อีเมล หรือกิจกรรม..."
                   value={auditSearch}
                   onChange={e => setAuditSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#E7DCC8] bg-[#FAF8F5]/40 text-xs font-semibold text-[#171311] focus:outline-none focus:ring-2 focus:ring-[#C94F16]/20"
+                  className={`${FIELD_CLASS} pl-9`}
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-[#807266] shrink-0" />
+                <Filter
+                  className="w-4 h-4 text-[#7A766F] shrink-0"
+                  aria-hidden="true"
+                />
                 <NativeSelect
+                  aria-label="กรองตามกิจกรรม"
                   value={auditActionFilter}
                   onChange={e => setAuditActionFilter(e.target.value)}
-                  className="font-semibold focus:ring-2 focus:ring-[#C94F16]/20"
+                  className="font-semibold focus:ring-2 focus:ring-[#F97316]/20"
                 >
                   <option value="ALL">กิจกรรมทั้งหมด</option>
-                  <option value="AUTH_SET_CHURCH_ROLE">
-                    👑 เปลี่ยนบทบาทผู้ใช้ (AUTH_SET_CHURCH_ROLE)
-                  </option>
-                  <option value="AUTH_UPDATE_PROFILE">
-                    👤 แก้ไขโปรไฟล์ (AUTH_UPDATE_PROFILE)
-                  </option>
-                  <option value="CHURCH_UPDATE_PROFILE">
-                    🏛️ แก้ไขข้อมูลคริสตจักร (CHURCH_UPDATE_PROFILE)
-                  </option>
+                  {Object.entries(AUDIT_ACTION_LABELS).map(([id, label]) => (
+                    <option key={id} value={id}>
+                      {label}
+                    </option>
+                  ))}
                 </NativeSelect>
               </div>
             </div>
 
             {auditQuery.isLoading ? (
-              <div className="py-12 flex flex-col items-center justify-center text-sm text-[#807266] gap-3">
-                <Loader2 className="w-6 h-6 animate-spin text-[#C94F16]" />
+              <div className="py-12 flex flex-col items-center justify-center text-sm text-[#7A766F] gap-3">
+                <Loader2 className="w-6 h-6 animate-spin text-[#F97316]" />
                 <span>กำลังโหลด Audit Log...</span>
               </div>
+            ) : auditQuery.isError ? (
+              <ErrorState
+                title="โหลดประวัติการใช้งานไม่สำเร็จ"
+                description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+                onRetry={() => void auditQuery.refetch()}
+              />
             ) : (
               (() => {
                 const logs = (auditQuery.data || []).filter(log => {
@@ -972,7 +1105,7 @@ export default function Settings() {
 
                 if (logs.length === 0) {
                   return (
-                    <div className="py-10 text-center text-sm text-[#807266] bg-[#FAF8F5] rounded-2xl border border-[#E7DCC8]/60">
+                    <div className="py-10 text-center text-sm text-[#7A766F] bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8]/60">
                       ยังไม่พบบันทึกประวัติ หรือไม่ตรงกับเงื่อนไขการค้นหา
                     </div>
                   );
@@ -982,7 +1115,7 @@ export default function Settings() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-[#E7DCC8]/70 font-bold text-[#807266] uppercase">
+                        <tr className="border-b border-[#E5E1D8]/70 font-bold text-[#7A766F] uppercase">
                           <th className="pb-3 px-3">วัน-เวลา</th>
                           <th className="pb-3 px-3">ผู้ดำเนินการ (Actor)</th>
                           <th className="pb-3 px-3">กิจกรรม (Action)</th>
@@ -990,7 +1123,7 @@ export default function Settings() {
                           <th className="pb-3 px-3">รายละเอียด (Details)</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#E7DCC8]/40">
+                      <tbody className="divide-y divide-[#E5E1D8]/40">
                         {logs.map(log => {
                           const dateStr = new Date(
                             log.createdAt
@@ -1003,37 +1136,24 @@ export default function Settings() {
                             second: "2-digit",
                           });
 
-                          let actionBadge = (
-                            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-300">
-                              {log.action}
+                          const actionBadge = (
+                            <span className="px-2.5 py-1 rounded-full bg-[#FFFFFF] text-[#5F5B55] font-semibold text-xs border border-[#E5E1D8]">
+                              {AUDIT_ACTION_LABELS[log.action] ?? log.action}
                             </span>
                           );
-                          if (log.action === "AUTH_SET_CHURCH_ROLE") {
-                            actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] border border-emerald-300">
-                                👑 เปลี่ยนบทบาทผู้ใช้
-                              </span>
-                            );
-                          } else if (log.action === "AUTH_UPDATE_PROFILE") {
-                            actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-[11px] border border-blue-300">
-                                👤 แก้ไขโปรไฟล์
-                              </span>
-                            );
-                          }
 
                           return (
                             <tr
                               key={log.id}
-                              className="hover:bg-[#FAF8F5]/50 transition-colors"
+                              className="hover:bg-[#FFFFFF]/50 transition-colors"
                             >
-                              <td className="py-3.5 px-3 text-[#807266] font-mono whitespace-nowrap">
+                              <td className="py-3.5 px-3 text-[#7A766F] font-mono whitespace-nowrap">
                                 {dateStr}
                               </td>
-                              <td className="py-3.5 px-3 font-semibold text-[#171311]">
+                              <td className="py-3.5 px-3 font-semibold text-[#171717]">
                                 <div>{log.userName || "ไม่ระบุชื่อ"}</div>
                                 {log.userEmail && (
-                                  <div className="text-[11px] text-[#807266] font-normal">
+                                  <div className="text-[11px] text-[#7A766F] font-normal">
                                     {log.userEmail}
                                   </div>
                                 )}
@@ -1041,13 +1161,13 @@ export default function Settings() {
                               <td className="py-3.5 px-3 whitespace-nowrap">
                                 {actionBadge}
                               </td>
-                              <td className="py-3.5 px-3 text-[#51443A]">
-                                <span className="font-mono text-[11px] bg-[#FFF8EA] px-2 py-0.5 rounded-md border border-[#E7DCC8]">
+                              <td className="py-3.5 px-3 text-[#5F5B55]">
+                                <span className="font-mono text-[11px] bg-[#FFFFFF] px-2 py-0.5 rounded-md border border-[#E5E1D8]">
                                   {log.entity}
                                   {log.entityId ? ` #${log.entityId}` : ""}
                                 </span>
                               </td>
-                              <td className="py-3.5 px-3 text-[#51443A] max-w-sm">
+                              <td className="py-3.5 px-3 text-[#5F5B55] max-w-sm">
                                 {log.metadata ? (
                                   <div
                                     className="font-mono text-[11px] bg-slate-50 p-1.5 rounded-lg border border-slate-200 truncate max-w-[280px]"

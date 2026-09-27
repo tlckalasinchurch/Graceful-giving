@@ -112,3 +112,31 @@ export function paymentMethodLabel(value: string): string {
   if (value === "promptpay") return "QR พร้อมเพย์";
   return PAYMENT_METHODS.find(m => m.id === value)?.label ?? value;
 }
+
+/**
+ * Fund (finance account) types, mirroring the `type` enum accepted by
+ * finance.createAccount. The detail page used to print the raw id ("mission").
+ */
+export const FUND_TYPE_LABELS: Record<string, string> = {
+  general: "ดำเนินงานทั่วไป",
+  tithe: "สิบลด",
+  mission: "พันธกิจและประกาศ",
+  building: "อาคารและบูรณะ",
+  welfare: "สงเคราะห์และสวัสดิการ",
+  special: "กองทุนโครงการพิเศษ",
+};
+
+export function fundTypeLabel(type: string | null | undefined): string {
+  return (type && FUND_TYPE_LABELS[type]) || type || "—";
+}
+
+/** Member status, mirroring the Postgres enum `member_status`. */
+export const MEMBER_STATUS_LABELS: Record<string, string> = {
+  active: "ใช้งาน",
+  inactive: "ไม่ใช้งาน",
+  pending: "รอยืนยัน",
+};
+
+export function memberStatusLabel(status: string): string {
+  return MEMBER_STATUS_LABELS[status] ?? status;
+}

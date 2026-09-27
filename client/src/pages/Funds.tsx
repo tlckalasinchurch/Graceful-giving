@@ -1,32 +1,33 @@
 import React, { useMemo, useState } from "react";
 import { formatBaht } from "@/lib/format";
-import { useLocation } from "wouter";
+import { Link } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Building,
-  CheckCircle2,
-  Cross,
-  DollarSign,
-  GraduationCap,
-  HeartHandshake,
-  Music,
-  Plus,
-  TrendingDown,
-  TrendingUp,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { ArrowRight, Building, Cross, Plus, Wallet } from "lucide-react";
 import { toast } from "sonner";
-import { MoneyDisplay } from "@/components/common/CommonUI";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingSkeleton,
+  MoneyDisplay,
+} from "@/components/common/CommonUI";
 import { NativeSelect } from "@/components/ui/native-select";
+import { FUND_TYPE_LABELS } from "@shared/categories";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type AccountItem = RouterOutputs["finance"]["accounts"][number];
 
+const INPUT_CLASS =
+  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#E5E1D8] text-base md:text-sm text-[#171717] placeholder-[#7A766F] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30";
+
 export default function Funds() {
-  const [, setLocation] = useLocation();
   const [showNewFundModal, setShowNewFundModal] = useState(false);
   const [newFundName, setNewFundName] = useState("");
   const [newFundType, setNewFundType] = useState<
@@ -37,6 +38,7 @@ export default function Funds() {
   const {
     data: accountsData,
     isLoading,
+    isError,
     refetch,
   } = trpc.finance.accounts.useQuery(undefined, { retry: false });
 
@@ -63,7 +65,6 @@ export default function Funds() {
           : account.type === "mission"
             ? Cross
             : Wallet,
-      description: account.description || "รายละเอียดกองทุนยังไม่มีในระบบ",
       balance: Number(account.balance),
     }));
   }, [accountsData]);
@@ -74,6 +75,7 @@ export default function Funds() {
 
   const handleCreateFund = (e: React.FormEvent) => {
     e.preventDefault();
+    if (createAccountMutation.isPending) return;
     if (!newFundName.trim()) {
       toast.error("กรุณาระบุชื่อกองทุน");
       return;
@@ -92,183 +94,218 @@ export default function Funds() {
       action={
         <button
           onClick={() => setShowNewFundModal(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#F97316] px-4 text-sm font-semibold text-[#171717] hover:bg-[#D95E0B]"
         >
-          <Plus className="size-4" />
+          <Plus className="size-4" aria-hidden="true" />
           สร้างกองทุนใหม่
         </button>
       }
     >
       <div className="space-y-6">
-        {/* Overview */}
-        <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5">
-          <p className="text-sm font-medium text-[#807266]">
+        <section
+          aria-label="ยอดเงินรวมทุกกองทุน"
+          className="rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-5"
+        >
+          <p className="text-sm font-medium text-[#7A766F]">
             ยอดเงินรวมทุกกองทุน
           </p>
           <div className="mt-1">
-            <MoneyDisplay amount={totalFundsBalance} size="xl" />
+            {isLoading || isError ? (
+              <span className="text-3xl sm:text-4xl font-bold text-[#7A766F]">
+                —
+              </span>
+            ) : (
+              <MoneyDisplay amount={totalFundsBalance} size="xl" />
+            )}
           </div>
-          <p className="mt-1 text-xs text-[#807266]">
-            จาก {fundsList.length} กองทุนที่เปิดใช้งาน
-          </p>
-        </div>
-
-        {/* Funds Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {fundsList.length === 0 && (
-            <p className="md:col-span-2 lg:col-span-3 py-12 text-center text-sm text-[#807266] bg-white rounded-2xl border border-dashed border-[#E7DCC8]">
-              ยังไม่มีข้อมูลกองทุนจากระบบ
+          {!isLoading && !isError && (
+            <p className="mt-1 text-xs text-[#7A766F]">
+              จาก {fundsList.length} กองทุนที่เปิดใช้งาน
             </p>
           )}
-          {fundsList.map(f => {
-            const Icon = f.icon;
-            const percentage = null;
+        </section>
 
-            return (
-              <div
-                key={f.id}
-                className="bg-white rounded-2xl border border-[#E7DCC8] p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
-                onClick={() => setLocation(`/funds/${f.id}`)}
-              >
-                <div className="space-y-4">
-                  {/* Top Bar */}
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-[#FFF8EA] flex items-center justify-center text-[#51443A] group-hover:scale-105 transition-transform">
-                      <Icon className="w-6 h-6 text-primary" />
+        {isLoading ? (
+          <LoadingSkeleton count={3} />
+        ) : isError ? (
+          <ErrorState
+            title="โหลดข้อมูลกองทุนไม่สำเร็จ"
+            description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+            onRetry={() => void refetch()}
+          />
+        ) : fundsList.length === 0 ? (
+          <EmptyState
+            title="ยังไม่มีกองทุนในระบบ"
+            description="สร้างกองทุนเพื่อแยกเงินถวายตามวัตถุประสงค์ เช่น พันธกิจ หรือสร้างอาคาร"
+            illustrationSrc="/illustrations/balance_wallet.jpg"
+            illustrationAlt="กระเป๋าสตางค์"
+            actionText="สร้างกองทุนใหม่"
+            onAction={() => setShowNewFundModal(true)}
+          />
+        ) : (
+          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {fundsList.map(f => {
+              const Icon = f.icon;
+              return (
+                <li key={f.id}>
+                  <Link
+                    href={`/funds/${f.id}`}
+                    className="h-full bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 hover:border-[#F97316] transition-colors flex flex-col justify-between group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]"
+                  >
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="w-11 h-11 rounded-xl bg-[#FFFFFF] flex items-center justify-center">
+                          <Icon
+                            className="w-5 h-5 text-[#F97316]"
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <span className="text-xs font-mono text-[#7A766F] px-2.5 py-1 rounded-full border border-[#E5E1D8]">
+                          {f.code}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h3 className="text-base font-bold text-[#171717]">
+                          {f.name}
+                        </h3>
+                        {f.description && (
+                          <p className="text-xs text-[#7A766F] line-clamp-2 mt-1 leading-relaxed">
+                            {f.description}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-[#7A766F]">
+                          ยอดคงเหลือสุทธิ
+                        </p>
+                        <div
+                          className={`text-2xl font-bold tabular-nums whitespace-nowrap ${f.balance < 0 ? "text-[#FF5B5B]" : "text-[#171717]"}`}
+                        >
+                          {formatBaht(f.balance)}
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-xs font-mono text-[#807266] bg-background px-2.5 py-1 rounded-full border border-[#E7DCC8]">
-                      {f.code}
-                    </span>
-                  </div>
 
-                  {/* Title & Desc */}
-                  <div>
-                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
-                      {f.name}
-                    </h3>
-                    <p className="text-xs text-[#807266] line-clamp-2 mt-1 leading-relaxed">
-                      {f.description}
-                    </p>
-                  </div>
-
-                  {/* Balance Display */}
-                  <div className="pt-2">
-                    <p className="text-xs text-[#807266]">ยอดคงเหลือสุทธิ</p>
-                    <div
-                      className={`text-2xl font-bold tabular-nums ${f.balance < 0 ? "text-[#C8372D]" : "text-[#171311]"}`}
-                    >
-                      {formatBaht(f.balance)}
+                    <div className="pt-4 mt-4 border-t border-[#E5E1D8] flex items-center justify-between text-xs font-semibold text-[#5F5B55] group-hover:text-[#D95E0B]">
+                      <span>ดูสเตทเมนต์และรายละเอียด</span>
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </div>
-                  </div>
-
-                  {/* Progress towards target */}
-                  <div className="pt-1 text-xs text-[#807266]">
-                    ยังไม่มีข้อมูลเป้าหมายสำรองสำหรับกองทุนนี้
-                  </div>
-
-                  {/* Monthly Inflow/Outflow */}
-                  <div className="pt-2 border-t border-[#E7DCC8]/40 text-xs text-[#807266]">
-                    กิจกรรมล่าสุดจะแสดงเมื่อมีข้อมูลจากระบบ
-                  </div>
-                </div>
-
-                {/* Bottom Action */}
-                <div className="pt-5 mt-4 border-t border-[#E7DCC8]/50 flex items-center justify-between text-xs font-semibold text-[#51443A] group-hover:text-primary">
-                  <span>ดูสเตทเมนต์และรายละเอียด</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Create Fund Modal */}
-        {showNewFundModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b border-[#E7DCC8] pb-3">
-                <h3 className="text-lg font-bold text-foreground">
-                  สร้างกองทุนใหม่
-                </h3>
-                <button
-                  onClick={() => setShowNewFundModal(false)}
-                  type="button"
-                  aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-[#807266] hover:bg-[#FFF8EA] hover:text-foreground"
-                >
-                  ×
-                </button>
-              </div>
-
-              <form onSubmit={handleCreateFund} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    ชื่อกองทุน <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="เช่น กองทุนทุนการศึกษาบุตรศิษยาภิบาล"
-                    value={newFundName}
-                    onChange={e => setNewFundName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm focus:border-primary focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    ประเภทกองทุน
-                  </label>
-                  <NativeSelect
-                    value={newFundType}
-                    onChange={e =>
-                      setNewFundType(e.target.value as typeof newFundType)
-                    }
-                  >
-                    <option value="mission">พันธกิจและประกาศ (Mission)</option>
-                    <option value="building">อาคารและบูรณะ (Building)</option>
-                    <option value="welfare">
-                      สงเคราะห์และสวัสดิการ (Welfare)
-                    </option>
-                    <option value="special">
-                      กองทุนโครงการพิเศษ (Special)
-                    </option>
-                    <option value="general">ดำเนินงานทั่วไป (General)</option>
-                  </NativeSelect>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    คำอธิบายและวัตถุประสงค์
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้..."
-                    value={newFundDesc}
-                    onChange={e => setNewFundDesc(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm focus:border-primary focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowNewFundModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-xs font-medium text-[#51443A]"
-                  >
-                    ยกเลิก
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-[#9F3B0F]"
-                  >
-                    สร้างกองทุน
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         )}
+
+        <Dialog
+          open={showNewFundModal}
+          onOpenChange={open => {
+            if (!createAccountMutation.isPending) setShowNewFundModal(open);
+          }}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>สร้างกองทุนใหม่</DialogTitle>
+              <DialogDescription>
+                กองทุนใช้แยกเงินถวายตามวัตถุประสงค์ของการรับและจ่าย
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleCreateFund} className="space-y-4">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="fund-name"
+                  className="text-sm font-semibold text-[#171717]"
+                >
+                  ชื่อกองทุน{" "}
+                  <span className="text-[#FF5B5B]" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <input
+                  id="fund-name"
+                  type="text"
+                  required
+                  minLength={2}
+                  maxLength={120}
+                  placeholder="เช่น กองทุนทุนการศึกษาบุตรศิษยาภิบาล"
+                  value={newFundName}
+                  onChange={e => setNewFundName(e.target.value)}
+                  className={INPUT_CLASS}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="fund-type"
+                  className="text-sm font-semibold text-[#171717]"
+                >
+                  ประเภทกองทุน
+                </label>
+                <NativeSelect
+                  id="fund-type"
+                  value={newFundType}
+                  onChange={e =>
+                    setNewFundType(e.target.value as typeof newFundType)
+                  }
+                >
+                  {(
+                    [
+                      "mission",
+                      "building",
+                      "welfare",
+                      "special",
+                      "general",
+                    ] as const
+                  ).map(t => (
+                    <option key={t} value={t}>
+                      {FUND_TYPE_LABELS[t]}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="fund-desc"
+                  className="text-sm font-semibold text-[#171717]"
+                >
+                  คำอธิบายและวัตถุประสงค์
+                </label>
+                <textarea
+                  id="fund-desc"
+                  rows={3}
+                  placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้..."
+                  value={newFundDesc}
+                  onChange={e => setNewFundDesc(e.target.value)}
+                  className={INPUT_CLASS}
+                />
+              </div>
+
+              <DialogFooter className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNewFundModal(false)}
+                  disabled={createAccountMutation.isPending}
+                  className="min-h-11 px-4 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-sm font-medium text-[#5F5B55] hover:bg-[#FFFFFF] disabled:opacity-50"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={createAccountMutation.isPending}
+                  className="min-h-11 px-6 rounded-xl bg-[#F97316] text-[#171717] text-sm font-semibold hover:bg-[#D95E0B] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {createAccountMutation.isPending
+                    ? "กำลังสร้าง…"
+                    : "สร้างกองทุน"}
+                </button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );

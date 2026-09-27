@@ -25,7 +25,35 @@ import { toast } from "sonner";
 import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/categories";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
-import { formatBaht } from "@/lib/format";
+import { formatBaht, formatThaiDate } from "@/lib/format";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+/** Today in the device's timezone; toISOString() would give the UTC day. */
+function localToday(): string {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 10);
+}
+
+/** Baht with optional thousands commas and at most two decimals. */
+const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
+
+const FIELD_CLASS =
+  "min-h-11 w-full px-4 py-3 rounded-xl border bg-[#FFFFFF] text-base md:text-sm text-[#171717] placeholder:text-[#7A766F] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30";
+
+interface SavedExpense {
+  description: string;
+  amount: number;
+  payee: string;
+  date: string;
+}
 
 export default function NewExpense() {
   const [, setLocation] = useLocation();
@@ -36,9 +64,7 @@ export default function NewExpense() {
   const [description, setDescription] = useState("");
   const [payee, setPayee] = useState("");
   const [fundId, setFundId] = useState<number | null>(null);
-  const [expenseDate, setExpenseDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [expenseDate, setExpenseDate] = useState(localToday);
   const [receiptRef, setReceiptRef] = useState("");
   const [details, setDetails] = useState("");
   const [receiptFile, setReceiptFile] = useState<string | null>(null);
@@ -47,8 +73,7 @@ export default function NewExpense() {
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [createdExpenseId, setCreatedExpenseId] = useState<number | null>(null);
+  const [saved, setSaved] = useState<SavedExpense | null>(null);
   const [errors, setErrors] = useState<{
     amount?: string;
     description?: string;
@@ -57,18 +82,17 @@ export default function NewExpense() {
   const amountRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const fundRef = useRef<HTMLSelectElement>(null);
-  const isDirty =
-    !showSuccessModal &&
-    Boolean(
-      amount ||
-        description ||
-        payee ||
-        receiptRef ||
-        details ||
-        receiptFile ||
-        fundId ||
-        category !== "utilities"
-    );
+  const isDirty = Boolean(
+    amount ||
+      description ||
+      payee ||
+      receiptRef ||
+      details ||
+      receiptFile ||
+      fundId ||
+      category !== "utilities" ||
+      expenseDate !== localToday()
+  );
   useUnsavedChanges(isDirty);
   const goBack = async () => {
     if (await confirmDiscardChanges(isDirty)) setLocation("/expenses");
@@ -86,11 +110,34 @@ export default function NewExpense() {
     },
   });
 
+  // Every field is cleared after a save. The old "next" button kept
+  // receiptUrl, so the following expense silently carried this receipt.
+  const resetForm = () => {
+    setAmount("");
+    setCategory("utilities");
+    setDescription("");
+    setPayee("");
+    setExpenseDate(localToday());
+    setReceiptRef("");
+    setDetails("");
+    setReceiptFile(null);
+    setReceiptFileName("");
+    setReceiptContentType("");
+    setReceiptUrl(null);
+    setErrors({});
+    // The fund is kept: consecutive expenses usually come from the same one.
+  };
+
   const createExpenseMutation = trpc.expenses.create.useMutation({
-    onSuccess: data => {
+    onSuccess: (_data, variables) => {
       setIsSubmitting(false);
-      setCreatedExpenseId(data.id);
-      setShowSuccessModal(true);
+      setSaved({
+        description: variables.description,
+        amount: variables.amount,
+        payee: variables.payee ?? "",
+        date: expenseDate,
+      });
+      resetForm();
       void Promise.all([
         utils.expenses.list.invalidate(),
         utils.finance.summary.invalidate(),
@@ -100,7 +147,6 @@ export default function NewExpense() {
     },
     onError: err => {
       setIsSubmitting(false);
-      setShowSuccessModal(false);
       toast.error(
         err.message || "บันทึกรายการรายจ่ายไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
       );
@@ -109,8 +155,12 @@ export default function NewExpense() {
 
   const validateForm = () => {
     const nextErrors: typeof errors = {};
-    const numAmount = parseFloat(amount.replace(/,/g, ""));
-    if (isNaN(numAmount) || numAmount <= 0) {
+    const raw = amount.replace(/,/g, "").trim();
+    const numAmount = Number(raw);
+    if (!AMOUNT_PATTERN.test(raw)) {
+      nextErrors.amount =
+        "กรุณาระบุจำนวนเงินเป็นตัวเลข ทศนิยมไม่เกิน 2 ตำแหน่ง เช่น 1500 หรือ 1,500.50";
+    } else if (numAmount <= 0) {
       nextErrors.amount = "กรุณาระบุจำนวนเงินที่มากกว่า 0 บาท";
     }
     if (!description.trim()) {
@@ -129,6 +179,7 @@ export default function NewExpense() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     const { valid, numAmount } = validateForm();
     if (!valid) {
       toast.error("กรุณาตรวจสอบข้อมูลที่ไฮไลต์ก่อนบันทึก");
@@ -145,7 +196,7 @@ export default function NewExpense() {
       payee: payee.trim() || undefined,
       receiptRef: receiptRef.trim() || undefined,
       receiptUrl: receiptUrl ?? undefined,
-      expenseDate: new Date(expenseDate),
+      expenseDate: new Date(`${expenseDate}T00:00:00`),
     });
   };
 
@@ -231,19 +282,22 @@ export default function NewExpense() {
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Amount & Presets */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-[#C94F16]" />
+          <div className="bg-[#FFFFFF] border border-[#E5E1D8] rounded-2xl p-6 md:p-8 space-y-5">
+            <h2 className="text-lg font-bold text-[#171717] flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-[#F97316]" aria-hidden="true" />
               1. จำนวนเงินและหมวดหมู่
             </h2>
 
             {/* Amount Input */}
             <div className="space-y-2">
-              <label htmlFor="expense-amount" className="text-sm font-semibold text-[#171311]">
-                จำนวนเงิน (บาท) <span className="text-red-500">*</span>
+              <label htmlFor="expense-amount" className="text-sm font-semibold text-[#171717]">
+                จำนวนเงิน (บาท) <span className="text-[#FF5B5B]" aria-hidden="true">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#807266]">
+                <span
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#7A766F]"
+                  aria-hidden="true"
+                >
                   ฿
                 </span>
                 <input
@@ -260,36 +314,44 @@ export default function NewExpense() {
                     setAmount(e.target.value);
                     if (errors.amount) setErrors(current => ({ ...current, amount: undefined }));
                   }}
-                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/30 text-3xl font-bold text-[#171311] placeholder:text-[#807266] ${errors.amount ? "border-[#C8372D]" : "border-[#E7DCC8]"}`}
+                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:border-[#F97316] focus:outline-none bg-[#FFFFFF] text-3xl font-bold tabular-nums text-[#171717] placeholder:text-[#7A766F] ${errors.amount ? "border-[#FF5B5B]" : "border-[#E5E1D8]"}`}
                 />
               </div>
-              <p id="expense-amount-hint" className="text-xs text-[#807266]">
+              <p id="expense-amount-hint" className="text-xs text-[#7A766F]">
                 ระบุจำนวนเงินบาทได้ไม่เกิน 2 ตำแหน่งทศนิยม
               </p>
               {errors.amount && (
-                <p id="expense-amount-error" className="text-sm text-[#C8372D]" role="alert">
+                <p id="expense-amount-error" className="text-sm text-[#FF5B5B]" role="alert">
                   {errors.amount}
                 </p>
               )}
 
               {/* Amount Quick Presets */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                <span className="text-xs text-[#807266] py-1">
-                  จำนวนเงินแนะนำ:
-                </span>
+              <div
+                role="group"
+                aria-label="จำนวนเงินที่ใช้บ่อย"
+                className="flex flex-wrap items-center gap-2 pt-1"
+              >
                 {amountPresets.map(val => (
-                  <Chip key={val} onClick={() => handlePreset(val)}>
-                    +{formatBaht(val, 0)}
+                  <Chip
+                    key={val}
+                    active={amount === val.toLocaleString("th-TH")}
+                    onClick={() => handlePreset(val)}
+                  >
+                    {formatBaht(val, 0)}
                   </Chip>
                 ))}
               </div>
             </div>
 
             {/* Category Grid */}
-            <div className="space-y-2 pt-2">
-              <label className="text-sm font-semibold text-[#171311]">
-                หมวดหมู่รายจ่าย <span className="text-red-500">*</span>
-              </label>
+            <fieldset className="space-y-2 pt-2">
+              <legend className="text-sm font-semibold text-[#171717] mb-2">
+                หมวดหมู่รายจ่าย{" "}
+                <span className="text-[#FF5B5B]" aria-hidden="true">
+                  *
+                </span>
+              </legend>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {categories.map(cat => {
                   const Icon = cat.icon;
@@ -298,32 +360,36 @@ export default function NewExpense() {
                     <button
                       key={cat.id}
                       type="button"
-                      onClick={() => setCategory(cat.id as any)}
-                      className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                      onClick={() => setCategory(cat.id)}
+                      aria-pressed={isSelected}
+                      className={`p-3.5 rounded-xl border text-left transition-colors flex flex-col justify-between ${
                         isSelected
-                          ? "border-[#C94F16] bg-[#FFF8EA] shadow-sm ring-2 ring-[#C94F16]/20"
-                          : "border-[#E7DCC8] hover:bg-[#FAF8F5]/50 bg-white"
+                          ? "border-[#F97316] bg-[#FFFFFF] ring-2 ring-[#F97316]/20"
+                          : "border-[#E5E1D8] hover:bg-[#FFFFFF] bg-[#FFFFFF]"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div
                           className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                             isSelected
-                              ? "bg-[#C94F16] text-white"
-                              : "bg-[#FFF8EA] text-[#51443A]"
+                              ? "bg-[#F97316] text-[#171717]"
+                              : "bg-[#FFFFFF] text-[#5F5B55]"
                           }`}
                         >
-                          <Icon className="w-4 h-4" />
+                          <Icon className="w-4 h-4" aria-hidden="true" />
                         </div>
                         {isSelected && (
-                          <CheckCircle2 className="w-4 h-4 text-[#C94F16]" />
+                          <CheckCircle2
+                            className="w-4 h-4 text-[#F97316]"
+                            aria-hidden="true"
+                          />
                         )}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[#171311]">
+                        <p className="text-xs font-bold text-[#171717]">
                           {cat.label}
                         </p>
-                        <p className="text-[10px] text-[#807266] line-clamp-1">
+                        <p className="text-xs text-[#7A766F] line-clamp-1">
                           {cat.desc}
                         </p>
                       </div>
@@ -331,21 +397,21 @@ export default function NewExpense() {
                   );
                 })}
               </div>
-            </div>
+            </fieldset>
           </div>
 
           {/* Section 2: Expense Details & Fund Allocation */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <Building className="w-5 h-5 text-[#9BCBA5]" />
+          <div className="bg-[#FFFFFF] border border-[#E5E1D8] rounded-2xl p-6 md:p-8 space-y-5">
+            <h2 className="text-lg font-bold text-[#171717] flex items-center gap-2">
+              <Building className="w-5 h-5 text-[#F97316]" aria-hidden="true" />
               2. ข้อมูลรายการและกองทุนที่จัดสรร
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2 sm:col-span-2">
-                <label htmlFor="expense-description" className="text-sm font-semibold text-[#171311]">
+                <label htmlFor="expense-description" className="text-sm font-semibold text-[#171717]">
                   ชื่อรายการ / คำอธิบายรายจ่าย{" "}
-                  <span className="text-red-500">*</span>
+                  <span className="text-[#FF5B5B]" aria-hidden="true">*</span>
                 </label>
                 <input
                   id="expense-description"
@@ -360,31 +426,36 @@ export default function NewExpense() {
                     setDescription(e.target.value);
                     if (errors.description) setErrors(current => ({ ...current, description: undefined }));
                   }}
-                  className={`w-full px-4 py-3 rounded-2xl border focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm font-medium text-[#171311] ${errors.description ? "border-[#C8372D]" : "border-[#E7DCC8]"}`}
+                  maxLength={280}
+                  className={`${FIELD_CLASS} font-medium ${errors.description ? "border-[#FF5B5B]" : "border-[#E5E1D8]"}`}
                 />
                 {errors.description && (
-                  <p id="expense-description-error" className="text-sm text-[#C8372D]" role="alert">
+                  <p id="expense-description-error" className="text-sm text-[#FF5B5B]" role="alert">
                     {errors.description}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label
+                  htmlFor="expense-payee"
+                  className="text-sm font-semibold text-[#171717]"
+                >
                   ผู้รับเงิน / ร้านค้า / องค์กร
                 </label>
                 <input
+                  id="expense-payee"
                   type="text"
                   placeholder="เช่น การไฟฟ้านครหลวง, บจก. ซาวด์..."
                   value={payee}
                   onChange={e => setPayee(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                  className={`${FIELD_CLASS} border-[#E5E1D8]`}
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="expense-fund" className="text-sm font-semibold text-[#171311]">
-                  ตัดจ่ายจากกองทุน <span className="text-red-500">*</span>
+                <label htmlFor="expense-fund" className="text-sm font-semibold text-[#171717]">
+                  ตัดจ่ายจากกองทุน <span className="text-[#FF5B5B]" aria-hidden="true">*</span>
                 </label>
                 <NativeSelect
                   id="expense-fund"
@@ -397,7 +468,7 @@ export default function NewExpense() {
                     setFundId(Number(e.target.value));
                     if (errors.fundId) setErrors(current => ({ ...current, fundId: undefined }));
                   }}
-                  className="bg-[#FAF8F5]/20 font-medium"
+                  className="font-medium"
                 >
                   <option value="" disabled>
                     — เลือกกองทุน —
@@ -409,93 +480,117 @@ export default function NewExpense() {
                   ))}
                 </NativeSelect>
                 {errors.fundId && (
-                  <p id="expense-fund-error" className="text-sm text-[#C8372D]" role="alert">
+                  <p id="expense-fund-error" className="text-sm text-[#FF5B5B]" role="alert">
                     {errors.fundId}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label
+                  htmlFor="expense-date"
+                  className="text-sm font-semibold text-[#171717]"
+                >
                   วันที่ทำรายการ
                 </label>
                 <input
+                  id="expense-date"
                   type="date"
+                  required
                   value={expenseDate}
                   onChange={e => setExpenseDate(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                  className={`${FIELD_CLASS} border-[#E5E1D8]`}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label
+                  htmlFor="expense-receipt-ref"
+                  className="text-sm font-semibold text-[#171717]"
+                >
                   เลขที่ใบเสร็จ / ใบแจ้งหนี้ (ถ้ามี)
                 </label>
                 <input
+                  id="expense-receipt-ref"
                   type="text"
                   placeholder="เช่น INV-2026-0911, RCP-4412"
                   value={receiptRef}
                   onChange={e => setReceiptRef(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm font-mono text-[#171311]"
+                  className={`${FIELD_CLASS} border-[#E5E1D8] font-mono`}
                 />
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label
+                  htmlFor="expense-details"
+                  className="text-sm font-semibold text-[#171717]"
+                >
                   หมายเหตุเพิ่มเติม / วัตถุประสงค์
                 </label>
                 <textarea
+                  id="expense-details"
                   rows={2}
                   placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับการตรวจสอบบัญชี..."
                   value={details}
                   onChange={e => setDetails(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                  className={`${FIELD_CLASS} border-[#E5E1D8]`}
                 />
               </div>
             </div>
           </div>
 
           {/* Section 3: Receipt Attachment */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-4">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-[#A9D4ED]" />
+          <div className="bg-[#FFFFFF] border border-[#E5E1D8] rounded-2xl p-6 md:p-8 space-y-4">
+            <h2 className="text-lg font-bold text-[#171717] flex items-center gap-2">
+              <UploadCloud
+                className="w-5 h-5 text-[#F97316]"
+                aria-hidden="true"
+              />
               3. แนบหลักฐานใบเสร็จ / สลิปโอนเงิน
             </h2>
 
             {isUploading ? (
-              <div className="p-6 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] flex items-center gap-4">
-                <div className="w-8 h-8 border-4 border-[#C94F16] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+              <div className="p-6 rounded-2xl bg-[#FFFFFF]/50 border border-[#E5E1D8] flex items-center gap-4">
+                <div className="w-8 h-8 border-4 border-[#F97316] border-t-transparent rounded-full animate-spin flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-semibold text-[#171311]">
+                  <p className="text-sm font-semibold text-[#171717]">
                     กำลังอัปโหลดไฟล์...
                   </p>
-                  <p className="text-xs text-[#807266]">{receiptFileName}</p>
+                  <p className="text-xs text-[#7A766F]">{receiptFileName}</p>
                 </div>
               </div>
             ) : receiptFile ? (
-              <div className="p-4 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] space-y-3">
+              <div className="p-4 rounded-2xl bg-[#FFFFFF]/50 border border-[#E5E1D8] space-y-3">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-[#E7DCC8] overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-[#FFFFFF] border border-[#E5E1D8] overflow-hidden flex-shrink-0">
                       {receiptContentType.startsWith("image/") ? (
                         <img
                           src={receiptFile}
-                          alt="Receipt preview"
+                          alt=""
                           className="w-full h-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-[#C94F16]" />
+                          <FileText className="w-6 h-6 text-[#F97316]" />
                         </div>
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#171311]">
-                        {receiptUrl
-                          ? "✅ อัปโหลดสำเร็จแล้ว"
-                          : "แนบไฟล์เรียบร้อย"}
+                      <p className="text-sm font-semibold text-[#171717]">
+                        {receiptUrl ? (
+                          <span className="inline-flex items-center gap-1.5 text-[#20C997]">
+                            <CheckCircle2
+                              className="w-4 h-4"
+                              aria-hidden="true"
+                            />
+                            อัปโหลดสำเร็จแล้ว
+                          </span>
+                        ) : (
+                          "แนบไฟล์เรียบร้อย"
+                        )}
                       </p>
-                      <p className="text-xs text-[#807266] truncate max-w-[160px]">
+                      <p className="text-xs text-[#7A766F] truncate max-w-[160px]">
                         {receiptFileName}
                       </p>
                     </div>
@@ -506,8 +601,9 @@ export default function NewExpense() {
                       setReceiptFile(null);
                       setReceiptUrl(null);
                       setReceiptFileName("");
+                      setReceiptContentType("");
                     }}
-                    className="text-xs text-red-600 hover:underline font-medium px-3 py-1.5"
+                    className="min-h-11 shrink-0 rounded-xl px-3 text-sm font-medium text-[#FF5B5B] hover:bg-[#FFF0F0]"
                   >
                     ลบไฟล์
                   </button>
@@ -517,22 +613,22 @@ export default function NewExpense() {
                     href={receiptUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                    className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-[#D95E0B] hover:underline"
                   >
-                    <ImageIcon className="w-3 h-3" />
-                    ดูใบเสร็จต้นฉบับ →
+                    <ImageIcon className="w-4 h-4" aria-hidden="true" />
+                    ดูใบเสร็จต้นฉบับ
                   </a>
                 )}
               </div>
             ) : (
-              <label className="border-2 border-dashed border-[#E7DCC8] hover:border-[#C94F16] rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-[#FAF8F5]/30 hover:bg-[#FFF8EA]/30 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-[#FFF8EA] flex items-center justify-center text-[#C94F16] mb-3">
-                  <ImageIcon className="w-6 h-6" />
+              <label className="border-2 border-dashed border-[#E5E1D8] hover:border-[#F97316] has-[:focus-visible]:border-[#F97316] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#F97316]/30 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-[#FFFFFF] hover:bg-[#FFFFFF] transition-colors">
+                <div className="w-12 h-12 rounded-full bg-[#FFFFFF] flex items-center justify-center text-[#F97316] mb-3">
+                  <ImageIcon className="w-6 h-6" aria-hidden="true" />
                 </div>
-                <p className="text-sm font-semibold text-[#171311]">
-                  คลิกเพื่ออัปโหลด หรือลากไฟล์มาวางที่นี่
+                <p className="text-sm font-semibold text-[#171717]">
+                  แตะเพื่อเลือกไฟล์ใบเสร็จ
                 </p>
-                <p className="text-xs text-[#807266] mt-1">
+                <p className="text-xs text-[#7A766F] mt-1">
                   รองรับไฟล์ภาพ JPG, PNG, WEBP หรือเอกสาร PDF (ขนาดไม่เกิน 10
                   MB)
                 </p>
@@ -540,7 +636,7 @@ export default function NewExpense() {
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
                   onChange={handleUpload}
-                  className="hidden"
+                  className="sr-only"
                 />
               </label>
             )}
@@ -551,16 +647,16 @@ export default function NewExpense() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FFF8EA]/50 font-medium text-sm transition-colors"
+              className="min-h-11 px-6 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-[#5F5B55] hover:bg-[#FFFFFF] font-medium text-sm transition-colors"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={isSubmitting || isUploading}
-              className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="min-h-11 px-8 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4" aria-hidden="true" />
               <span>
                 {isSubmitting
                   ? "กำลังบันทึก..."
@@ -572,77 +668,76 @@ export default function NewExpense() {
           </div>
         </form>
 
-        {/* Success Modal */}
-        {showSuccessModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 rounded-full bg-[#E4F3E7] flex items-center justify-center text-[#51443A] mx-auto">
-                <CheckCircle2 className="w-8 h-8 text-[#51443A]" />
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-[#171311]">
-                  บันทึกรายจ่ายสำเร็จ!
-                </h3>
-                <p className="text-sm text-[#807266]">
-                  รายการรายจ่ายถูกบันทึกลงสมุดบัญชีคริสตจักรเรียบร้อยแล้ว
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#FFF8EA]/60 border border-[#E7DCC8] text-left space-y-2 text-xs text-[#51443A]">
-                <div className="flex justify-between">
-                  <span className="text-[#807266]">รายการ:</span>
-                  <span className="font-semibold text-[#171311]">
-                    {description}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#807266]">จำนวนเงิน:</span>
-                  <span className="font-bold text-red-600 text-sm">
-                    {formatBaht(-parseFloat(amount.replace(/,/g, "") || "0"))}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#807266]">ผู้รับเงิน:</span>
-                  <span className="font-medium text-[#171311]">
-                    {payee || "ทั่วไป"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#807266]">วันที่:</span>
-                  <span className="text-[#171311]">
-                    {new Date(expenseDate).toLocaleDateString("th-TH")}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    setAmount("");
-                    setDescription("");
-                    setPayee("");
-                    setReceiptRef("");
-                    setReceiptFile(null);
-                  }}
-                  className="w-full py-3 rounded-2xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-colors shadow-sm"
-                >
-                  บันทึกรายจ่ายรายการถัดไป
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    setLocation("/expenses");
-                  }}
-                  className="w-full py-2.5 rounded-2xl border border-[#E7DCC8] text-[#51443A] font-medium text-sm hover:bg-[#FFF8EA]/50 transition-colors"
-                >
-                  กลับสู่หน้ารายการรายจ่าย
-                </button>
-              </div>
+        <Dialog
+          open={saved !== null}
+          onOpenChange={open => {
+            if (!open) setSaved(null);
+          }}
+        >
+          <DialogContent className="sm:max-w-md text-center space-y-5">
+            <div className="w-16 h-16 rounded-full bg-[#E3F8F1] flex items-center justify-center mx-auto">
+              <CheckCircle2
+                className="w-8 h-8 text-[#20C997]"
+                aria-hidden="true"
+              />
             </div>
-          </div>
-        )}
+            <DialogHeader className="text-center sm:text-center">
+              <DialogTitle className="text-2xl">บันทึกรายจ่ายสำเร็จ</DialogTitle>
+              <DialogDescription>
+                รายการรายจ่ายถูกบันทึกลงสมุดบัญชีคริสตจักรเรียบร้อยแล้ว
+              </DialogDescription>
+            </DialogHeader>
+
+            {saved && (
+              <dl className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E5E1D8] text-left space-y-2 text-sm text-[#5F5B55]">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[#7A766F] shrink-0">รายการ</dt>
+                  <dd className="font-semibold text-[#171717] text-right break-words">
+                    {saved.description}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[#7A766F]">จำนวนเงิน</dt>
+                  <dd className="font-bold tabular-nums text-[#FF5B5B]">
+                    {formatBaht(-saved.amount)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[#7A766F]">ผู้รับเงิน</dt>
+                  <dd className="font-medium text-[#171717]">
+                    {saved.payee || "ไม่ระบุ"}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[#7A766F]">วันที่</dt>
+                  <dd className="text-[#171717]">
+                    {formatThaiDate(`${saved.date}T00:00:00`)}
+                  </dd>
+                </div>
+              </dl>
+            )}
+
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setSaved(null)}
+                className="w-full min-h-11 rounded-xl bg-[#F97316] text-[#171717] font-medium text-sm hover:bg-[#D95E0B] transition-colors"
+              >
+                บันทึกรายจ่ายรายการถัดไป
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSaved(null);
+                  setLocation("/expenses");
+                }}
+                className="w-full min-h-11 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-[#5F5B55] font-medium text-sm hover:bg-[#FFFFFF] transition-colors"
+              >
+                กลับสู่หน้ารายการรายจ่าย
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );
