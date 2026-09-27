@@ -117,9 +117,10 @@ describe("the expense list links to a detail route the router understands", () =
 });
 
 describe("authentication is real", () => {
-  it("the login page starts the OAuth flow instead of faking success", () => {
+  it("the login page renders the real Clerk sign-in instead of faking success", () => {
     const source = read("client/src/pages/Login.tsx");
-    expect(source).toContain("startLogin");
+    expect(source).toContain("@clerk/clerk-react");
+    expect(source).toContain("<SignIn");
     expect(source).not.toContain("setTimeout");
     expect(source).not.toContain("เข้าสู่ระบบเรียบร้อยแล้ว");
   });

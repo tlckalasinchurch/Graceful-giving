@@ -49,21 +49,21 @@ export default function FundDetail() {
             label="กลับหน้ารายการกองทุน"
             onClick={() => setLocation("/funds")}
           />
-          <span className="font-mono text-xs text-[#807266] bg-[#FFF8EA] px-3 py-1 rounded-full border border-[#E7DCC8]">
+          <span className="font-mono text-xs text-muted-foreground bg-surface-subtle px-3 py-1 rounded-full border border-hairline">
             FD-{String(fund.id).padStart(3, "0")}
           </span>
         </div>
-        <section className="bg-[#FFF8EA] border border-[#E7DCC8] rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
+        <section className="bg-surface-subtle border border-hairline rounded-2xl p-6 md:p-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-2">
               <StatusBadge
                 status={fund.isActive ? "active" : "inactive"}
                 label={fund.isActive ? "กำลังใช้งาน" : "ปิดใช้งาน"}
               />
-              <h1 className="text-2xl md:text-3xl font-bold text-[#171311]">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {fund.name}
               </h1>
-              <p className="text-sm text-[#807266] max-w-xl">
+              <p className="text-sm text-muted-foreground max-w-xl">
                 {fund.description || "ยังไม่มีคำอธิบายกองทุนในระบบ"}
               </p>
             </div>
@@ -74,16 +74,16 @@ export default function FundDetail() {
                     "ฟังก์ชันโอนเงินจะเปิดใช้เมื่อมี workflow จากระบบรองรับ"
                   )
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-[#E7DCC8] text-[#51443A] text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-hairline text-secondary-foreground text-sm font-medium"
               >
-                <ArrowRightLeft className="w-4 h-4 text-[#C94F16]" />
+                <ArrowRightLeft className="w-4 h-4 text-primary" />
                 โอนเงินระหว่างกองทุน
               </button>
               <button
                 onClick={() =>
                   toast.info("ยังไม่มีข้อมูล statement สำหรับกองทุนนี้")
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C94F16] text-white text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium"
               >
                 <Download className="w-4 h-4" />
                 ดาวน์โหลด Statement
@@ -91,30 +91,30 @@ export default function FundDetail() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-2xl border border-[#E7DCC8]/80">
-              <p className="text-xs text-[#807266] font-medium">
+            <div className="bg-white p-4 rounded-2xl border border-hairline/80">
+              <p className="text-xs text-muted-foreground font-medium">
                 ยอดคงเหลือสุทธิ
               </p>
               <MoneyDisplay amount={balance} size="xl" />
-              <p className="text-[11px] text-[#807266] mt-1">
+              <p className="text-[11px] text-muted-foreground mt-1">
                 ยอดจริงจากบัญชีกองทุน
               </p>
             </div>
-            <div className="bg-white p-4 rounded-2xl border border-[#E7DCC8]/80">
-              <p className="text-xs text-[#807266] font-medium">ประเภทกองทุน</p>
-              <p className="text-2xl font-bold text-[#171311] mt-1">
+            <div className="bg-white p-4 rounded-2xl border border-hairline/80">
+              <p className="text-xs text-muted-foreground font-medium">ประเภทกองทุน</p>
+              <p className="text-2xl font-bold text-foreground mt-1">
                 {fund.type}
               </p>
-              <p className="text-[11px] text-[#807266] mt-1">
+              <p className="text-[11px] text-muted-foreground mt-1">
                 ไม่มีข้อมูลกิจกรรมรายเดือนใน API ปัจจุบัน
               </p>
             </div>
           </div>
         </section>
-        <section className="bg-white rounded-2xl border border-[#E7DCC8] p-6 shadow-sm">
+        <section className="bg-white rounded-2xl border border-hairline p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Wallet className="w-5 h-5 text-[#C94F16]" />
-            <h2 className="text-base font-bold text-[#171311]">
+            <Wallet className="w-5 h-5 text-primary" />
+            <h2 className="text-base font-bold text-foreground">
               กิจกรรมล่าสุด
             </h2>
           </div>

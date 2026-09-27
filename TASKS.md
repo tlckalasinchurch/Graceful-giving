@@ -126,15 +126,15 @@ Notes:
 - Global palette was shifted to a quiet ledger palette: ink, slate, teal, and cool neutral surfaces.
 - Browser screenshot review at every route remains NOT VERIFIED in this session.
 
-### TASK-011 — Burnt orange and vanilla visual direction
+### TASK-011 — Quiet Financial System visual direction
 Status: COMPLETED
 Type: REFINEMENT
 Objective:
-Align the global frontend tone with the supplied reference: dark chrome, burnt orange accents, and vanilla surfaces.
+Align the global frontend tone on a single accessible accent, implemented in `client/src/index.css` as the "Quiet Financial System": an ink/grey surface hierarchy with Action Blue (`#0066CC`) as the sole accent color. An earlier burnt-orange/vanilla direction was superseded during implementation and is retired (see the `index.css` comment repointing legacy clay/orange token aliases on-system).
 Acceptance Criteria:
-- Teal/cool-grey UI accents are replaced by the requested orange/vanilla direction.
+- Teal/cool-grey UI accents are replaced by the single Action Blue accent.
 - Navigation chrome uses dark ink with high-contrast active states.
-- Action text remains readable on orange buttons by using a darker accessible action shade where needed.
+- Action text remains readable on Action Blue buttons (`#0066CC`, 5.0:1 contrast on white per the `index.css` comment); `#0071E3` is the focus/pressed ring.
 - All routes compile and existing behavior remains unchanged.
 Verification:
 - `pnpm check`: PASS

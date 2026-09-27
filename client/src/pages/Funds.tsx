@@ -92,7 +92,7 @@ export default function Funds() {
       action={
         <button
           onClick={() => setShowNewFundModal(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white hover:bg-[#0071e3]"
         >
           <Plus className="size-4" />
           สร้างกองทุนใหม่
@@ -101,14 +101,14 @@ export default function Funds() {
     >
       <div className="space-y-6">
         {/* Overview */}
-        <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5">
-          <p className="text-sm font-medium text-[#807266]">
+        <div className="rounded-2xl border border-hairline bg-white p-5">
+          <p className="text-sm font-medium text-muted-foreground">
             ยอดเงินรวมทุกกองทุน
           </p>
           <div className="mt-1">
             <MoneyDisplay amount={totalFundsBalance} size="xl" />
           </div>
-          <p className="mt-1 text-xs text-[#807266]">
+          <p className="mt-1 text-xs text-muted-foreground">
             จาก {fundsList.length} กองทุนที่เปิดใช้งาน
           </p>
         </div>
@@ -116,7 +116,7 @@ export default function Funds() {
         {/* Funds Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {fundsList.length === 0 && (
-            <p className="md:col-span-2 lg:col-span-3 py-12 text-center text-sm text-[#807266] bg-white rounded-2xl border border-dashed border-[#E7DCC8]">
+            <p className="md:col-span-2 lg:col-span-3 py-12 text-center text-sm text-muted-foreground bg-white rounded-2xl border border-dashed border-hairline">
               ยังไม่มีข้อมูลกองทุนจากระบบ
             </p>
           )}
@@ -127,16 +127,16 @@ export default function Funds() {
             return (
               <div
                 key={f.id}
-                className="bg-white rounded-2xl border border-[#E7DCC8] p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+                className="bg-white rounded-2xl border border-hairline p-6 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
                 onClick={() => setLocation(`/funds/${f.id}`)}
               >
                 <div className="space-y-4">
                   {/* Top Bar */}
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-[#FFF8EA] flex items-center justify-center text-[#51443A] group-hover:scale-105 transition-transform">
+                    <div className="w-12 h-12 rounded-2xl bg-surface-subtle flex items-center justify-center text-secondary-foreground group-hover:scale-105 transition-transform">
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
-                    <span className="text-xs font-mono text-[#807266] bg-background px-2.5 py-1 rounded-full border border-[#E7DCC8]">
+                    <span className="text-xs font-mono text-muted-foreground bg-background px-2.5 py-1 rounded-full border border-hairline">
                       {f.code}
                     </span>
                   </div>
@@ -146,34 +146,34 @@ export default function Funds() {
                     <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
                       {f.name}
                     </h3>
-                    <p className="text-xs text-[#807266] line-clamp-2 mt-1 leading-relaxed">
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
                       {f.description}
                     </p>
                   </div>
 
                   {/* Balance Display */}
                   <div className="pt-2">
-                    <p className="text-xs text-[#807266]">ยอดคงเหลือสุทธิ</p>
+                    <p className="text-xs text-muted-foreground">ยอดคงเหลือสุทธิ</p>
                     <div
-                      className={`text-2xl font-bold tabular-nums ${f.balance < 0 ? "text-[#C8372D]" : "text-[#171311]"}`}
+                      className={`text-2xl font-bold tabular-nums ${f.balance < 0 ? "text-error" : "text-foreground"}`}
                     >
                       {formatBaht(f.balance)}
                     </div>
                   </div>
 
                   {/* Progress towards target */}
-                  <div className="pt-1 text-xs text-[#807266]">
+                  <div className="pt-1 text-xs text-muted-foreground">
                     ยังไม่มีข้อมูลเป้าหมายสำรองสำหรับกองทุนนี้
                   </div>
 
                   {/* Monthly Inflow/Outflow */}
-                  <div className="pt-2 border-t border-[#E7DCC8]/40 text-xs text-[#807266]">
+                  <div className="pt-2 border-t border-hairline/40 text-xs text-muted-foreground">
                     กิจกรรมล่าสุดจะแสดงเมื่อมีข้อมูลจากระบบ
                   </div>
                 </div>
 
                 {/* Bottom Action */}
-                <div className="pt-5 mt-4 border-t border-[#E7DCC8]/50 flex items-center justify-between text-xs font-semibold text-[#51443A] group-hover:text-primary">
+                <div className="pt-5 mt-4 border-t border-hairline/50 flex items-center justify-between text-xs font-semibold text-secondary-foreground group-hover:text-primary">
                   <span>ดูสเตทเมนต์และรายละเอียด</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -185,8 +185,8 @@ export default function Funds() {
         {/* Create Fund Modal */}
         {showNewFundModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b border-[#E7DCC8] pb-3">
+            <div className="bg-white rounded-2xl border border-hairline max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between border-b border-hairline pb-3">
                 <h3 className="text-lg font-bold text-foreground">
                   สร้างกองทุนใหม่
                 </h3>
@@ -194,7 +194,7 @@ export default function Funds() {
                   onClick={() => setShowNewFundModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-[#807266] hover:bg-[#FFF8EA] hover:text-foreground"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
                   ×
                 </button>
@@ -211,7 +211,7 @@ export default function Funds() {
                     placeholder="เช่น กองทุนทุนการศึกษาบุตรศิษยาภิบาล"
                     value={newFundName}
                     onChange={e => setNewFundName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm focus:border-primary focus:outline-none"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-hairline text-sm focus:border-primary focus:outline-none"
                   />
                 </div>
 
@@ -246,7 +246,7 @@ export default function Funds() {
                     placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้..."
                     value={newFundDesc}
                     onChange={e => setNewFundDesc(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#E7DCC8] text-sm focus:border-primary focus:outline-none"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-hairline text-sm focus:border-primary focus:outline-none"
                   />
                 </div>
 
@@ -254,13 +254,13 @@ export default function Funds() {
                   <button
                     type="button"
                     onClick={() => setShowNewFundModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-xs font-medium text-[#51443A]"
+                    className="px-4 py-2.5 rounded-xl border border-hairline text-xs font-medium text-secondary-foreground"
                   >
                     ยกเลิก
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-[#9F3B0F]"
+                    className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-[#0071e3]"
                   >
                     สร้างกองทุน
                   </button>

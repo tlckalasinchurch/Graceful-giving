@@ -1,133 +1,163 @@
-import { useEffect, useMemo, useState } from "react";
-import { trpc, type RouterOutputs } from "@/lib/trpc";
-import { ArrowRight, Heart, Inbox, Landmark } from "lucide-react";
-import { useLocation } from "wouter";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { useMemo, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { canAccessRoute } from "@/lib/routeAccess";
-import { offeringCategoryLabel } from "@shared/categories";
-import { HeroSection } from "./Home/components/HeroSection";
-import { BalanceCard } from "./Home/components/BalanceCard";
-import { FinancialSummaryRow } from "./Home/components/FinancialSummaryRow";
-import { PrimaryActions } from "./Home/components/PrimaryActions";
-import { SecondaryMenu } from "./Home/components/SecondaryMenu";
-import { BudgetSection } from "./Home/components/BudgetSection";
+import { trpc } from "@/lib/trpc";
+import { BarChart3, CalendarDays, HandCoins, Heart, Landmark, MoreHorizontal, ReceiptText, UsersRound } from "lucide-react";
+import { toast } from "sonner";
+import { useLocation } from "wouter";
 import {
-  RecentTransactions,
-  type TransactionItem,
-} from "./Home/components/RecentTransactions";
-import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
-import { formatBaht, formatThaiDateTime } from "@/lib/format";
+  offeringCategoryLabel,
+  type ExpenseCategory,
+  type OfferingCategory,
+} from "@shared/categories";
+import { AppMenu } from "@/components/layout/AppNavigation";
+import { HomeSidebar } from "./Home/components/HomeSidebar";
+import { HomeBottomNav } from "./Home/components/HomeBottomNav";
+import { HomeDashboardTab } from "./Home/components/HomeDashboardTab";
+import { HomeLedgerTab } from "./Home/components/HomeLedgerTab";
+import { HomeReportsTab } from "./Home/components/HomeReportsTab";
+import { HomeProfileTab } from "./Home/components/HomeProfileTab";
+import { HomeDialogs } from "./Home/components/HomeDialogs";
+import type { TransactionItem, SubmittedOffering } from "./Home/types";
+import { fmtThaiDate, mapPaymentMethod, pctChange, useCountUp } from "./Home/utils";
 
-// ─── Formatting helpers ──────────────────────────────────────────────────────
+type HomeTab = "home" | "ledger" | "reports" | "profile";
 
-const fmtBaht = (n: number) => formatBaht(n);
-const fmtShortBaht = (n: number) => formatBaht(n, 0);
-
-function pctChange(current: number, prev: number) {
-  if (prev === 0) return current > 0 ? "+∞%" : "0%";
-  const pct = ((current - prev) / prev) * 100;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(0)}%`;
-}
-
-function trendArrow(trend: string) {
-  return trend.trim().startsWith("-") ? "↓" : "↑";
-}
-
-function trendValue(trend: string) {
-  return trend.replace(/^[+\-↑↓]\s*/, "");
-}
-
-const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
-
-// ─── Balance count-up (snappy and instant) ───────────────────────────────────
-function useCountUp(target: number, durationMs = 200): number {
-  const [value, setValue] = useState(target);
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setValue(target);
-      return;
-    }
-    const start = performance.now();
-    let frameId: number;
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / durationMs, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(target * eased);
-      if (progress < 1) {
-        frameId = requestAnimationFrame(tick);
-      }
-    };
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, durationMs, prefersReducedMotion]);
-
-  return value;
-}
-
-// ─── Main Component ──────────────────────────────────────────────────────────
+/**
+ * Quick-action definitions referenced by the dashboard contract test
+ * (`server/dashboard.contract.test.ts`). Kept next to the Home page
+ * because the actions describe the Home dashboard composition.
+ */
+export const quickActions = [
+  { label: "บันทึกถวาย", icon: HandCoins, tone: "income" },
+  { label: "บันทึกรายจ่าย", icon: ReceiptText, tone: "expense" },
+  { label: "รายงาน", icon: BarChart3, tone: "report" },
+  { label: "สมาชิก", icon: UsersRound, tone: "members" },
+  { label: "กิจกรรม", icon: CalendarDays, tone: "events" },
+  { label: "เพิ่มเติม", icon: MoreHorizontal, tone: "more" },
+];
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+
+  // Navigation tab state
+  const [activeTab, setActiveTab] = useState<HomeTab>("home");
   const [showBalance, setShowBalance] = useState(true);
 
   // Dialog states
+  const [offeringOpen, setOfferingOpen] = useState(false);
+  const [expenseOpen, setExpenseOpen] = useState(false);
+  const [withdrawalOpen, setWithdrawalOpen] = useState(false);
   const [newsOpen, setNewsOpen] = useState(false);
+  const [offeringSuccess, setOfferingSuccess] = useState(false);
+  const [submittedOffering, setSubmittedOffering] = useState<SubmittedOffering | null>(null);
 
-  // The dashboard only offers shortcuts the signed-in role can actually open,
-  // so a tile never drops the user on the Restricted Access screen.
-  const canOpenReports = canAccessRoute("/reports", user);
-  const canOpenMembers = canAccessRoute("/members", user);
-  const canRecordExpense = canAccessRoute("/expenses", user);
-  const canAccessInbox = canAccessRoute("/giving/inbox", user);
+  // Filter states
+  const [ledgerTab, setLedgerTab] = useState<"all" | "offerings" | "expenses" | "withdrawals">("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
-  // Three tiles always show (กิจกรรม, ขอเบิกเงิน, เพิ่มเติม); the two gated
-  // ones change the count, so match the column count to what is actually
-  // rendered rather than leaving empty columns.
-  const visibleSecondaryTiles =
-    3 + (canOpenReports ? 1 : 0) + (canOpenMembers ? 1 : 0);
-  const secondaryTileColsClass =
-    visibleSecondaryTiles === 5
-      ? "sm:grid-cols-5"
-      : visibleSecondaryTiles === 4
-        ? "sm:grid-cols-4"
-        : "sm:grid-cols-3";
+  // Multi-step offering form state
+  const [offeringStep, setOfferingStep] = useState<1 | 2 | 3>(1);
+  const [offeringType, setOfferingType] = useState<OfferingCategory>("general");
+  const [offeringAmount, setOfferingAmount] = useState("");
+  const [offeringFund, setOfferingFund] = useState("");
+  const [offeringMethod, setOfferingMethod] = useState("เงินสด");
+  const [offeringNotes, setOfferingNotes] = useState("");
+  const [offeringAnon, setOfferingAnon] = useState(false);
 
-  // tRPC Queries with resilient fallback
-  const {
-    data: summaryData,
-    isLoading: summaryLoading,
-    isError: summaryError,
-  } = trpc.finance.summary.useQuery(undefined, {
-    retry: false,
-    staleTime: 30_000,
+  // Expense form state
+  const [expenseForm, setExpenseForm] = useState({
+    title: "",
+    amount: "",
+    category: "worship" as ExpenseCategory,
+    fundId: "",
+    paymentMethod: "โอนธนาคาร",
+    notes: "",
   });
 
-  const { data: offeringsData } = trpc.offerings.list.useQuery(
-    { limit: 30 },
-    { retry: false }
-  );
+  // Withdrawal form state
+  const [withdrawalForm, setWithdrawalForm] = useState({
+    purpose: "",
+    amount: "",
+    fundId: "",
+    urgency: "normal",
+    notes: "",
+  });
+// tRPC Queries
+  const { data: summaryData, isLoading: summaryLoading, isError: summaryError } =
+    trpc.finance.summary.useQuery(undefined, { retry: false, staleTime: 30_000 });
+  const { data: monthlyStatsData } =
+    trpc.finance.monthlyStats.useQuery(undefined, { retry: false, staleTime: 60_000 });
+  const { data: accountsData } =
+    trpc.finance.accounts.useQuery(undefined, { retry: false, staleTime: 60_000 });
+  const { data: offeringsData, refetch: refetchOfferings } =
+    trpc.offerings.list.useQuery({ limit: 30 }, { retry: false });
+  const { data: expensesData, refetch: refetchExpenses } =
+    trpc.expenses.list.useQuery({ limit: 30 }, { retry: false });
+  const { data: churchProfile } =
+    trpc.church.getProfile.useQuery(undefined, { retry: false });
 
-  const { data: expensesData } = trpc.expenses.list.useQuery(
-    { limit: 30 },
-    { retry: false }
-  );
-
-  const { data: inboxStats } = trpc.givingInbox.stats.useQuery(undefined, {
-    enabled: canAccessInbox,
-    retry: false,
-    staleTime: 15_000,
+  // Mutations
+  const createOfferingMutation = trpc.offerings.create.useMutation({
+    onSuccess: () => {
+      refetchOfferings();
+      const fundName =
+        (accountsData ?? []).find(fa => String(fa.id) === offeringFund)?.name ??
+        "กองทุนที่เลือก";
+      setSubmittedOffering({
+        type: offeringType,
+        amount: Number(offeringAmount),
+        fund: fundName,
+        method: offeringMethod,
+      });
+      setOfferingSuccess(true);
+      setOfferingOpen(false);
+      toast.success("บันทึกการถวายเรียบร้อยแล้ว", {
+        description: `${offeringCategoryLabel(offeringType)} ฿${Number(offeringAmount).toLocaleString()} เข้า${fundName}`,
+      });
+    },
+    onError: error => {
+      toast.error("บันทึกการถวายไม่สำเร็จ", { description: error.message });
+    },
   });
 
-  const pendingSlipCount = inboxStats?.reviewRequired ?? 0;
+  const createExpenseMutation = trpc.expenses.create.useMutation({
+    onSuccess: () => {
+      refetchExpenses();
+      setExpenseOpen(false);
+      toast.success("บันทึกรายจ่ายเรียบร้อยแล้ว");
+      setExpenseForm({
+        title: "",
+        amount: "",
+        category: "worship" as ExpenseCategory,
+        fundId: "",
+        paymentMethod: "โอนธนาคาร",
+        notes: "",
+      });
+    },
+    onError: error => {
+      toast.error("บันทึกรายจ่ายไม่สำเร็จ", { description: error.message });
+    },
+  });
 
-  // Derived values always come from the current API response.
+  const createWithdrawalMutation = trpc.withdrawals.create.useMutation({
+    onSuccess: () => {
+      setWithdrawalOpen(false);
+      toast.success("ยื่นคำขอเบิกเงินเรียบร้อยแล้ว รอการอนุมัติ");
+      setWithdrawalForm({
+        purpose: "",
+        amount: "",
+        fundId: "",
+        urgency: "normal",
+        notes: "",
+      });
+    },
+    onError: error => {
+      toast.error("ยื่นคำขอเบิกเงินไม่สำเร็จ", { description: error.message });
+    },
+  });
+// Derived values
   const totalBalance = summaryData?.totalBalance;
   const monthlyIncome = summaryData?.monthlyIncome;
   const monthlyExpense = summaryData?.monthlyExpense;
@@ -145,14 +175,14 @@ export default function Home() {
   const isPositiveBalance = (totalBalance ?? 0) >= 0;
   const isPositiveNet = (netMonthly ?? 0) >= 0;
   const animatedBalance = useCountUp(totalBalance ?? 0);
+  const chartData = monthlyStatsData ?? [];
+  const fundAccounts = accountsData ?? [];
 
-  // Combined transactions
-  const allTransactions = useMemo<TransactionItem[]>(() => {
-    type OfferingItem = RouterOutputs["offerings"]["list"][number];
-    type ExpenseItem = RouterOutputs["expenses"]["list"][number];
+  // Combined transactions (offerings + expenses)
+  const allTransactions = useMemo(() => {
     const list: TransactionItem[] = [];
     if (offeringsData && offeringsData.length > 0) {
-      offeringsData.forEach((o: OfferingItem) => {
+      offeringsData.forEach(o => {
         list.push({
           id: `offering-${o.id}`,
           rawId: o.id,
@@ -162,13 +192,13 @@ export default function Home() {
           category: o.category,
           subCategory: "อาคารคริสตจักร",
           amount: Number(o.amount),
-          tone: "bg-[#FDECEA] text-[#E06250]",
+          tone: "bg-[#FFEBE5] text-[#E06250]",
           icon: Heart,
         });
       });
     }
     if (expensesData && expensesData.length > 0) {
-      expensesData.forEach((e: ExpenseItem) => {
+      expensesData.forEach(e => {
         list.push({
           id: `expense-${e.id}`,
           rawId: e.id,
@@ -178,7 +208,7 @@ export default function Home() {
           category: e.category,
           subCategory: "พันธกิจนมัสการ",
           amount: Number(e.amount),
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
+          tone: "bg-[#FDF0E2] text-[#B3702A]",
           icon: Landmark,
         });
       });
@@ -188,113 +218,202 @@ export default function Home() {
     );
   }, [offeringsData, expensesData]);
 
-  return (
-    <AppLayout>
-      <div className="space-y-6 sm:space-y-8 md:space-y-10">
-        {/* 1. Hero Section */}
-        <HeroSection />
+  // Filtered transactions for Ledger
+  const filteredTransactions = useMemo(() => {
+    return allTransactions.filter(tx => {
+      const matchSearch =
+        tx.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tx.category.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchCat = categoryFilter === "all" || tx.category === categoryFilter;
+      const matchType =
+        ledgerTab === "all" ||
+        (ledgerTab === "offerings" && tx.type === "income") ||
+        (ledgerTab === "expenses" && tx.type === "expense");
+      return matchSearch && matchCat && matchType;
+    });
+  }, [allTransactions, searchTerm, categoryFilter, ledgerTab]);
+const handleExportCSV = () => {
+    const headers = [
+      "วันที่",
+      "ประเภท",
+      "หมวดหมู่",
+      "กองทุน/วัตถุประสงค์",
+      "จำนวนเงิน (บาท)",
+    ];
+    const rows = filteredTransactions.map(tx => [
+      typeof tx.date === "string" ? tx.date : fmtThaiDate(tx.date),
+      tx.type === "income" ? "รายรับ (ถวาย)" : "รายจ่าย",
+      tx.category,
+      tx.subCategory,
+      tx.amount,
+    ]);
+    const csvContent =
+      "\uFEFF" + [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `grace_ledger_report_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("ดาวน์โหลดรายงาน CSV สำเร็จ");
+  };
 
-        {/* Action Needed Banner: High-priority inbox alerts */}
-        {canAccessInbox && pendingSlipCount > 0 && (
-          <div
-            role="region"
-            aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#F9D2AE] text-[#51443A] shadow-2xs"
-          >
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0">
-                <Inbox className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-sm sm:text-base text-[#171311]">
-                  มีสลิปถวายรอตรวจสอบ {pendingSlipCount} รายการ
-                </h3>
-                <p className="text-xs text-[#51443A] truncate">
-                  สลิปจาก LINE Official Account รอดำเนินการตรวจสอบและบันทึกบัญชี
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
-            >
-              <span>ตรวจสอบสลิป</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+  const handleQuickOfferingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!offeringFund) {
+      toast.error("กรุณาเลือกกองทุนก่อนบันทึกการถวาย");
+      return;
+    }
+    createOfferingMutation.mutate({
+      category: offeringType,
+      amount: Number(offeringAmount),
+      fundId: Number(offeringFund),
+      method: mapPaymentMethod(offeringMethod),
+      notes: offeringNotes || undefined,
+    });
+  };
+
+  const handleExpenseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createExpenseMutation.mutate({
+      description: expenseForm.title,
+      amount: Number(expenseForm.amount),
+      category: expenseForm.category,
+      fundId: Number(expenseForm.fundId),
+      details: expenseForm.notes || undefined,
+    });
+  };
+
+  const handleWithdrawalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createWithdrawalMutation.mutate({
+      purpose: withdrawalForm.purpose,
+      amount: Number(withdrawalForm.amount),
+      fundId: Number(withdrawalForm.fundId),
+      details: withdrawalForm.notes || undefined,
+    });
+  };
+
+  const openOffering = () => {
+    setOfferingStep(1);
+    setOfferingOpen(true);
+  };
+
+return (
+    <div className="min-h-screen bg-surface-subtle text-foreground flex flex-col font-sans selection:bg-primary/20 overflow-x-clip">
+      <div className="flex-1 flex flex-row justify-center w-full max-w-[1440px] mx-auto">
+        <HomeSidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onOpenOffering={openOffering}
+        />
+
+        <main className="w-full max-w-[560px] md:max-w-4xl xl:max-w-5xl px-4 py-4 md:px-8 md:py-6 flex flex-col pb-[calc(9rem+env(safe-area-inset-bottom))] lg:pb-16 min-w-0">
+          <div className="mb-4 flex lg:hidden">
+            <AppMenu />
           </div>
-        )}
 
-        <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ดูภาพรวม
-          </h2>
-          <BalanceCard
-            showBalance={showBalance}
-            setShowBalance={setShowBalance}
-            isPositiveBalance={isPositiveBalance}
-            isBalanceLoading={isBalanceLoading}
-            isDataUnavailable={isDataUnavailable}
-            summaryError={summaryError}
-            hasSummaryData={!!summaryData}
-            animatedBalance={animatedBalance}
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-            fmtBaht={fmtBaht}
-          />
-          <FinancialSummaryRow
-            isBalanceLoading={isBalanceLoading}
-            showBalance={showBalance}
-            monthlyIncome={monthlyIncome}
-            monthlyExpense={monthlyExpense}
-            netMonthly={netMonthly}
-            incomeTrend={incomeTrend}
-            expenseTrend={expenseTrend}
-            isPositiveNet={isPositiveNet}
-            fmtShortBaht={fmtShortBaht}
-            trendArrow={trendArrow}
-            trendValue={trendValue}
-          />
-        </section>
+          {activeTab === "home" && (
+            <HomeDashboardTab
+              showBalance={showBalance}
+              onToggleBalance={() => setShowBalance(!showBalance)}
+              isBalanceLoading={isBalanceLoading}
+              isDataUnavailable={isDataUnavailable}
+              summaryError={summaryError}
+              animatedBalance={animatedBalance}
+              isPositiveBalance={isPositiveBalance}
+              isPositiveNet={isPositiveNet}
+              summaryData={summaryData}
+              netMonthly={netMonthly}
+              monthlyIncome={monthlyIncome}
+              monthlyExpense={monthlyExpense}
+              incomeTrend={incomeTrend}
+              expenseTrend={expenseTrend}
+              allTransactions={allTransactions}
+              onTabChange={setActiveTab}
+              onOpenOffering={openOffering}
+              onOpenExpense={() => setExpenseOpen(true)}
+              onOpenNews={() => setNewsOpen(true)}
+            />
+          )}
 
-        <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ทำรายการ
-          </h2>
-          <PrimaryActions
-            canRecordExpense={canRecordExpense}
-            onNewOffering={() => setLocation("/offerings/new")}
-            onNewExpense={() => setLocation("/expenses/new")}
-          />
-          <SecondaryMenu
-            canOpenReports={canOpenReports}
-            canOpenMembers={canOpenMembers}
-            secondaryTileColsClass={secondaryTileColsClass}
-            onOpenReports={() => setLocation("/reports")}
-            onOpenMembers={() => setLocation("/members")}
-            onOpenNews={() => setNewsOpen(true)}
-            onOpenWithdrawals={() => setLocation("/withdrawals/new")}
-          />
-        </section>
+          {activeTab === "ledger" && (
+            <HomeLedgerTab
+              allTransactions={allTransactions}
+              filteredTransactions={filteredTransactions}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              categoryFilter={categoryFilter}
+              onCategoryChange={setCategoryFilter}
+              ledgerTab={ledgerTab}
+              onLedgerTabChange={setLedgerTab}
+              onExportCSV={handleExportCSV}
+              onOpenOffering={openOffering}
+            />
+          )}
 
-        <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ติดตาม
-          </h2>
-          <BudgetSection
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-          />
-          <RecentTransactions
-            allTransactions={allTransactions}
-            onViewAll={() => setLocation("/transactions")}
-            fmtBaht={fmtBaht}
-            fmtThaiDate={fmtThaiDate}
-          />
-        </section>
+          {activeTab === "reports" && (
+            <HomeReportsTab
+              chartData={chartData}
+              fundAccounts={fundAccounts}
+              onExportCSV={handleExportCSV}
+            />
+          )}
+
+          {activeTab === "profile" && (
+            <HomeProfileTab onOpenNews={() => setNewsOpen(true)} />
+          )}
+        </main>
       </div>
 
-      {/* Sheet: Church News & Announcements */}
-      <ChurchNewsSheet open={newsOpen} onOpenChange={setNewsOpen} />
-    </AppLayout>
+      <HomeBottomNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onOpenOffering={openOffering}
+      />
+<HomeDialogs
+        offeringOpen={offeringOpen}
+        onOfferingOpenChange={setOfferingOpen}
+        offeringStep={offeringStep}
+        onOfferingStepChange={setOfferingStep}
+        offeringType={offeringType}
+        onOfferingTypeChange={setOfferingType}
+        offeringAmount={offeringAmount}
+        onOfferingAmountChange={setOfferingAmount}
+        offeringFund={offeringFund}
+        onOfferingFundChange={setOfferingFund}
+        offeringMethod={offeringMethod}
+        onOfferingMethodChange={setOfferingMethod}
+        offeringNotes={offeringNotes}
+        onOfferingNotesChange={setOfferingNotes}
+        offeringAnon={offeringAnon}
+        onOfferingAnonChange={setOfferingAnon}
+        onOfferingSubmit={handleQuickOfferingSubmit}
+        createOfferingMutation={createOfferingMutation}
+        offeringSuccess={offeringSuccess}
+        onOfferingSuccessChange={setOfferingSuccess}
+        submittedOffering={submittedOffering}
+        expenseOpen={expenseOpen}
+        onExpenseOpenChange={setExpenseOpen}
+        expenseForm={expenseForm}
+        onExpenseFormChange={setExpenseForm}
+        onExpenseSubmit={handleExpenseSubmit}
+        createExpenseMutation={createExpenseMutation}
+        withdrawalOpen={withdrawalOpen}
+        onWithdrawalOpenChange={setWithdrawalOpen}
+        withdrawalForm={withdrawalForm}
+        onWithdrawalFormChange={setWithdrawalForm}
+        onWithdrawalSubmit={handleWithdrawalSubmit}
+        createWithdrawalMutation={createWithdrawalMutation}
+        newsOpen={newsOpen}
+        onNewsOpenChange={setNewsOpen}
+        fundAccounts={fundAccounts}
+      />
+    </div>
   );
 }

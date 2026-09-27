@@ -2,30 +2,27 @@ import React, { useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { Illustration } from "@/components/Illustration";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 import {
+  ArrowLeft,
   Building,
   CheckCircle2,
   Cross,
   FileText,
   GraduationCap,
   HeartHandshake,
-  Image as ImageIcon,
   Plus,
   Receipt,
   Sparkles,
-  UploadCloud,
   Users,
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/categories";
-import { NativeSelect } from "@/components/ui/native-select";
-import { BackLink, Chip } from "@/components/common/CommonUI";
-import { formatBaht } from "@/lib/format";
 
 export default function NewExpense() {
   const [, setLocation] = useLocation();
@@ -39,33 +36,24 @@ export default function NewExpense() {
   const [expenseDate, setExpenseDate] = useState(
     new Date().toISOString().slice(0, 10)
   );
-  const [receiptRef, setReceiptRef] = useState("");
   const [details, setDetails] = useState("");
-  const [receiptFile, setReceiptFile] = useState<string | null>(null);
-  const [receiptFileName, setReceiptFileName] = useState<string>("");
-  const [receiptContentType, setReceiptContentType] = useState<string>("");
-  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [createdExpenseId, setCreatedExpenseId] = useState<number | null>(null);
   const [errors, setErrors] = useState<{
     amount?: string;
     description?: string;
     fundId?: string;
   }>({});
-  const amountRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLInputElement>(null);
-  const fundRef = useRef<HTMLSelectElement>(null);
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const descriptionInputRef = useRef<HTMLInputElement>(null);
+  const fundSelectRef = useRef<HTMLSelectElement>(null);
   const isDirty =
     !showSuccessModal &&
     Boolean(
       amount ||
         description ||
         payee ||
-        receiptRef ||
         details ||
-        receiptFile ||
         fundId ||
         category !== "utilities"
     );
@@ -74,22 +62,9 @@ export default function NewExpense() {
     if (await confirmDiscardChanges(isDirty)) setLocation("/expenses");
   };
 
-  const uploadReceiptMutation = trpc.expenses.uploadReceipt.useMutation({
-    onSuccess: data => {
-      setReceiptUrl(data.url);
-      setIsUploading(false);
-      toast.success("อัปโหลดใบเสร็จเรียบร้อยแล้ว ✓");
-    },
-    onError: err => {
-      setIsUploading(false);
-      toast.error(err.message || "อัปโหลดไฟล์ไม่สำเร็จ กรุณาลองใหม่");
-    },
-  });
-
   const createExpenseMutation = trpc.expenses.create.useMutation({
-    onSuccess: data => {
+    onSuccess: () => {
       setIsSubmitting(false);
-      setCreatedExpenseId(data.id);
       setShowSuccessModal(true);
       void Promise.all([
         utils.expenses.list.invalidate(),
@@ -107,11 +82,12 @@ export default function NewExpense() {
     },
   });
 
-  const validateForm = () => {
-    const nextErrors: typeof errors = {};
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     const numAmount = parseFloat(amount.replace(/,/g, ""));
+    const nextErrors: typeof errors = {};
     if (isNaN(numAmount) || numAmount <= 0) {
-      nextErrors.amount = "กรุณาระบุจำนวนเงินที่มากกว่า 0 บาท";
+      nextErrors.amount = "กรุณาระบุจำนวนเงินที่ถูกต้อง (มากกว่า 0 บาท)";
     }
     if (!description.trim()) {
       nextErrors.description = "กรุณาระบุชื่อรายการหรือคำอธิบายรายจ่าย";
@@ -120,20 +96,20 @@ export default function NewExpense() {
       nextErrors.fundId = "กรุณาเลือกกองทุนก่อนบันทึก";
     }
     setErrors(nextErrors);
-    const firstError = Object.keys(nextErrors)[0];
-    if (firstError === "amount") amountRef.current?.focus();
-    if (firstError === "description") descriptionRef.current?.focus();
-    if (firstError === "fundId") fundRef.current?.focus();
-    return { valid: Object.keys(nextErrors).length === 0, numAmount };
-  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const { valid, numAmount } = validateForm();
-    if (!valid) {
-      toast.error("กรุณาตรวจสอบข้อมูลที่ไฮไลต์ก่อนบันทึก");
+    if (nextErrors.amount) {
+      amountInputRef.current?.focus();
       return;
     }
+    if (nextErrors.description) {
+      descriptionInputRef.current?.focus();
+      return;
+    }
+    if (nextErrors.fundId) {
+      fundSelectRef.current?.focus();
+      return;
+    }
+    if (!fundId) return; // narrows fundId: number below, mirrors the check above
 
     setIsSubmitting(true);
     createExpenseMutation.mutate({
@@ -141,10 +117,8 @@ export default function NewExpense() {
       category,
       description: description.trim(),
       details: details.trim() || undefined,
-      fundId: fundId ?? undefined,
+      fundId,
       payee: payee.trim() || undefined,
-      receiptRef: receiptRef.trim() || undefined,
-      receiptUrl: receiptUrl ?? undefined,
       expenseDate: new Date(expenseDate),
     });
   };
@@ -166,11 +140,11 @@ export default function NewExpense() {
     other: { icon: FileText, desc: "เบ็ดเตล็ดและอื่น ๆ" },
   };
 
-  const categories = EXPENSE_CATEGORIES.map(c => ({
-    id: c.id,
-    label: c.label,
-    icon: categoryIcons[c.id]?.icon ?? FileText,
-    desc: categoryIcons[c.id]?.desc ?? "",
+  const categories = EXPENSE_CATEGORIES.map(categoryOption => ({
+    id: categoryOption.id,
+    label: categoryOption.label,
+    icon: categoryIcons[categoryOption.id]?.icon ?? FileText,
+    desc: categoryIcons[categoryOption.id]?.desc ?? "",
   }));
 
   // Real funds from the database; no balances are invented here.
@@ -179,115 +153,126 @@ export default function NewExpense() {
   });
   const funds = fundsQuery.data ?? [];
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-      "application/pdf",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("รองรับเฉพาะไฟล์ JPG, PNG, WEBP, GIF หรือ PDF เท่านั้น");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("ไฟล์ต้องมีขนาดไม่เกิน 10 MB");
-      return;
-    }
-
-    setReceiptFileName(file.name);
-    setReceiptContentType(file.type);
-    setIsUploading(true);
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      // Show preview immediately
-      setReceiptFile(dataUrl);
-      // Extract pure base64 (remove "data:...;base64," prefix)
-      const base64Data = dataUrl.split(",")[1];
-      uploadReceiptMutation.mutate({
-        fileName: file.name,
-        contentType: file.type,
-        base64Data,
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-
   return (
-    <AppLayout
-      title="บันทึกรายจ่ายใหม่"
-      subtitle="บันทึกค่าใช้จ่ายหรือการเบิกจ่ายงบประมาณ พร้อมแนบหลักฐาน"
-    >
-      <div className="max-w-4xl space-y-6">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Navigation & Header */}
-        <BackLink label="กลับหน้ารายการรายจ่าย" onClick={goBack} />
+        <div className="flex items-center justify-between">
+          <button
+            onClick={goBack}
+            className="inline-flex items-center gap-2 text-sm font-medium text-secondary-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับหน้ารายการรายจ่าย</span>
+          </button>
+          <span className="text-xs text-secondary-foreground/60 bg-surface-subtle border border-hairline px-3 py-1 rounded-full font-medium">
+            ใบเบิกจ่าย / ใบสำคัญจ่าย
+          </span>
+        </div>
+
+        {/* Hero Visual Card */}
+        <div className="bg-surface-subtle border border-hairline rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-accent text-secondary-foreground">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              บันทึกการใช้จ่ายคริสตจักร
+            </span>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              บันทึกรายจ่ายใหม่
+            </h1>
+            <p className="text-sm text-secondary-foreground/80 max-w-lg">
+              บันทึกใบเสร็จ ค่าใช้จ่ายโครงการ หรือการเบิกจ่ายงบประมาณ
+              พร้อมแนบหลักฐานเพื่อความโปร่งใสของคริสตจักร
+            </p>
+          </div>
+          <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden shadow-inner flex-shrink-0 bg-white/60 p-1">
+            <Illustration
+              src="/illustrations/expense_hand_coin.jpg"
+              alt="Record expense"
+              className="w-full h-full object-cover rounded-xl"
+            />
+          </div>
+        </div>
 
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Amount & Presets */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-[#C94F16]" />
+          <div className="bg-white border border-hairline rounded-3xl p-6 md:p-8 space-y-5">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-primary" />
               1. จำนวนเงินและหมวดหมู่
             </h2>
 
             {/* Amount Input */}
             <div className="space-y-2">
-              <label htmlFor="expense-amount" className="text-sm font-semibold text-[#171311]">
+              <label
+                htmlFor="expense-amount"
+                className="text-sm font-semibold text-foreground"
+              >
                 จำนวนเงิน (บาท) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#807266]">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-secondary-foreground/50">
                   ฿
                 </span>
                 <input
                   id="expense-amount"
-                  ref={amountRef}
+                  ref={amountInputRef}
                   type="text"
                   required
                   placeholder="0.00"
                   value={amount}
-                  inputMode="decimal"
-                  aria-invalid={Boolean(errors.amount)}
-                  aria-describedby={errors.amount ? "expense-amount-error" : "expense-amount-hint"}
                   onChange={e => {
                     setAmount(e.target.value);
-                    if (errors.amount) setErrors(current => ({ ...current, amount: undefined }));
+                    if (errors.amount)
+                      setErrors(prev => ({ ...prev, amount: undefined }));
                   }}
-                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/30 text-3xl font-bold text-[#171311] placeholder:text-[#807266] ${errors.amount ? "border-[#C8372D]" : "border-[#E7DCC8]"}`}
+                  aria-invalid={Boolean(errors.amount)}
+                  aria-describedby="expense-amount-help expense-amount-error"
+                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:outline-none bg-surface-subtle text-3xl font-bold text-foreground placeholder:text-secondary-foreground/30 ${
+                    errors.amount
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-hairline focus:border-[#0071e3]"
+                  }`}
                 />
               </div>
-              <p id="expense-amount-hint" className="text-xs text-[#807266]">
-                ระบุจำนวนเงินบาทได้ไม่เกิน 2 ตำแหน่งทศนิยม
+              <p
+                id="expense-amount-help"
+                className="text-xs text-secondary-foreground/60"
+              >
+                ระบุจำนวนเงินเป็นบาท ทศนิยมได้สูงสุด 2 ตำแหน่ง เช่น 1500.50
               </p>
               {errors.amount && (
-                <p id="expense-amount-error" className="text-sm text-[#C8372D]" role="alert">
+                <p
+                  id="expense-amount-error"
+                  role="alert"
+                  className="text-xs font-medium text-red-600"
+                >
                   {errors.amount}
                 </p>
               )}
 
               {/* Amount Quick Presets */}
               <div className="flex flex-wrap gap-2 pt-1">
-                <span className="text-xs text-[#807266] py-1">
+                <span className="text-xs text-secondary-foreground/70 py-1">
                   จำนวนเงินแนะนำ:
                 </span>
                 {amountPresets.map(val => (
-                  <Chip key={val} onClick={() => handlePreset(val)}>
-                    +{formatBaht(val, 0)}
-                  </Chip>
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => handlePreset(val)}
+                    className="px-3 py-1 rounded-xl bg-surface-subtle hover:bg-success-bg border border-hairline text-xs font-semibold text-secondary-foreground transition-colors"
+                  >
+                    +฿{val.toLocaleString()}
+                  </button>
                 ))}
               </div>
             </div>
 
             {/* Category Grid */}
             <div className="space-y-2 pt-2">
-              <label className="text-sm font-semibold text-[#171311]">
+              <label className="text-sm font-semibold text-foreground">
                 หมวดหมู่รายจ่าย <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -298,32 +283,32 @@ export default function NewExpense() {
                     <button
                       key={cat.id}
                       type="button"
-                      onClick={() => setCategory(cat.id as any)}
+                      onClick={() => setCategory(cat.id)}
                       className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
                         isSelected
-                          ? "border-[#C94F16] bg-[#FFF8EA] shadow-sm ring-2 ring-[#C94F16]/20"
-                          : "border-[#E7DCC8] hover:bg-[#FAF8F5]/50 bg-white"
+                          ? "border-primary bg-surface-subtle ring-2 ring-primary/20"
+                          : "border-hairline hover:bg-surface-subtle/50 bg-white"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div
                           className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                             isSelected
-                              ? "bg-[#C94F16] text-white"
-                              : "bg-[#FFF8EA] text-[#51443A]"
+                              ? "bg-primary text-white"
+                              : "bg-surface-subtle text-secondary-foreground"
                           }`}
                         >
                           <Icon className="w-4 h-4" />
                         </div>
                         {isSelected && (
-                          <CheckCircle2 className="w-4 h-4 text-[#C94F16]" />
+                          <CheckCircle2 className="w-4 h-4 text-primary" />
                         )}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[#171311]">
+                        <p className="text-xs font-bold text-foreground">
                           {cat.label}
                         </p>
-                        <p className="text-[10px] text-[#807266] line-clamp-1">
+                        <p className="text-[10px] text-secondary-foreground/70 line-clamp-1">
                           {cat.desc}
                         </p>
                       </div>
@@ -335,42 +320,56 @@ export default function NewExpense() {
           </div>
 
           {/* Section 2: Expense Details & Fund Allocation */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <Building className="w-5 h-5 text-[#9BCBA5]" />
+          <div className="bg-white border border-hairline rounded-3xl p-6 md:p-8 space-y-5">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Building className="w-5 h-5 text-success" />
               2. ข้อมูลรายการและกองทุนที่จัดสรร
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2 sm:col-span-2">
-                <label htmlFor="expense-description" className="text-sm font-semibold text-[#171311]">
+                <label
+                  htmlFor="expense-description"
+                  className="text-sm font-semibold text-foreground"
+                >
                   ชื่อรายการ / คำอธิบายรายจ่าย{" "}
                   <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="expense-description"
-                  ref={descriptionRef}
+                  ref={descriptionInputRef}
                   type="text"
                   required
                   placeholder="เช่น ค่าไฟฟ้าประจำเดือน, อุปกรณ์รวีวารศึกษา..."
                   value={description}
-                  aria-invalid={Boolean(errors.description)}
-                  aria-describedby={errors.description ? "expense-description-error" : undefined}
                   onChange={e => {
                     setDescription(e.target.value);
-                    if (errors.description) setErrors(current => ({ ...current, description: undefined }));
+                    if (errors.description)
+                      setErrors(prev => ({ ...prev, description: undefined }));
                   }}
-                  className={`w-full px-4 py-3 rounded-2xl border focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm font-medium text-[#171311] ${errors.description ? "border-[#C8372D]" : "border-[#E7DCC8]"}`}
+                  aria-invalid={Boolean(errors.description)}
+                  aria-describedby={
+                    errors.description ? "expense-description-error" : undefined
+                  }
+                  className={`w-full px-4 py-3 rounded-2xl border focus:outline-none bg-surface-subtle text-sm font-medium text-foreground ${
+                    errors.description
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-hairline focus:border-[#0071e3]"
+                  }`}
                 />
                 {errors.description && (
-                  <p id="expense-description-error" className="text-sm text-[#C8372D]" role="alert">
+                  <p
+                    id="expense-description-error"
+                    role="alert"
+                    className="text-xs font-medium text-red-600"
+                  >
                     {errors.description}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label className="text-sm font-semibold text-foreground">
                   ผู้รับเงิน / ร้านค้า / องค์กร
                 </label>
                 <input
@@ -378,26 +377,36 @@ export default function NewExpense() {
                   placeholder="เช่น การไฟฟ้านครหลวง, บจก. ซาวด์..."
                   value={payee}
                   onChange={e => setPayee(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                  className="w-full px-4 py-3 rounded-2xl border border-hairline focus:border-[#0071e3] focus:outline-none bg-surface-subtle text-sm text-foreground"
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="expense-fund" className="text-sm font-semibold text-[#171311]">
+                <label
+                  htmlFor="expense-fund"
+                  className="text-sm font-semibold text-foreground"
+                >
                   ตัดจ่ายจากกองทุน <span className="text-red-500">*</span>
                 </label>
-                <NativeSelect
+                <select
                   id="expense-fund"
-                  ref={fundRef}
+                  ref={fundSelectRef}
                   required
-                  invalid={Boolean(errors.fundId)}
-                  aria-describedby={errors.fundId ? "expense-fund-error" : undefined}
                   value={fundId ?? ""}
                   onChange={e => {
                     setFundId(Number(e.target.value));
-                    if (errors.fundId) setErrors(current => ({ ...current, fundId: undefined }));
+                    if (errors.fundId)
+                      setErrors(prev => ({ ...prev, fundId: undefined }));
                   }}
-                  className="bg-[#FAF8F5]/20 font-medium"
+                  aria-invalid={Boolean(errors.fundId)}
+                  aria-describedby={
+                    errors.fundId ? "expense-fund-error" : undefined
+                  }
+                  className={`w-full px-4 py-3 rounded-2xl border focus:outline-none bg-surface-subtle text-sm font-medium text-foreground ${
+                    errors.fundId
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-hairline focus:border-[#0071e3]"
+                  }`}
                 >
                   <option value="" disabled>
                     — เลือกกองทุน —
@@ -407,41 +416,32 @@ export default function NewExpense() {
                       {f.name}
                     </option>
                   ))}
-                </NativeSelect>
+                </select>
                 {errors.fundId && (
-                  <p id="expense-fund-error" className="text-sm text-[#C8372D]" role="alert">
+                  <p
+                    id="expense-fund-error"
+                    role="alert"
+                    className="text-xs font-medium text-red-600"
+                  >
                     {errors.fundId}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label className="text-sm font-semibold text-foreground">
                   วันที่ทำรายการ
                 </label>
                 <input
                   type="date"
                   value={expenseDate}
                   onChange={e => setExpenseDate(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
-                  เลขที่ใบเสร็จ / ใบแจ้งหนี้ (ถ้ามี)
-                </label>
-                <input
-                  type="text"
-                  placeholder="เช่น INV-2026-0911, RCP-4412"
-                  value={receiptRef}
-                  onChange={e => setReceiptRef(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm font-mono text-[#171311]"
+                  className="w-full px-4 py-3 rounded-2xl border border-hairline focus:border-[#0071e3] focus:outline-none bg-surface-subtle text-sm text-foreground"
                 />
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label className="text-sm font-semibold text-foreground">
                   หมายเหตุเพิ่มเติม / วัตถุประสงค์
                 </label>
                 <textarea
@@ -449,101 +449,15 @@ export default function NewExpense() {
                   placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับการตรวจสอบบัญชี..."
                   value={details}
                   onChange={e => setDetails(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                  className="w-full px-4 py-3 rounded-2xl border border-hairline focus:border-[#0071e3] focus:outline-none bg-surface-subtle text-sm text-foreground"
                 />
               </div>
             </div>
           </div>
 
-          {/* Section 3: Receipt Attachment */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-4">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-[#A9D4ED]" />
-              3. แนบหลักฐานใบเสร็จ / สลิปโอนเงิน
-            </h2>
-
-            {isUploading ? (
-              <div className="p-6 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] flex items-center gap-4">
-                <div className="w-8 h-8 border-4 border-[#C94F16] border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-[#171311]">
-                    กำลังอัปโหลดไฟล์...
-                  </p>
-                  <p className="text-xs text-[#807266]">{receiptFileName}</p>
-                </div>
-              </div>
-            ) : receiptFile ? (
-              <div className="p-4 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] space-y-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-[#E7DCC8] overflow-hidden flex-shrink-0">
-                      {receiptContentType.startsWith("image/") ? (
-                        <img
-                          src={receiptFile}
-                          alt="Receipt preview"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-[#C94F16]" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#171311]">
-                        {receiptUrl
-                          ? "✅ อัปโหลดสำเร็จแล้ว"
-                          : "แนบไฟล์เรียบร้อย"}
-                      </p>
-                      <p className="text-xs text-[#807266] truncate max-w-[160px]">
-                        {receiptFileName}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setReceiptFile(null);
-                      setReceiptUrl(null);
-                      setReceiptFileName("");
-                    }}
-                    className="text-xs text-red-600 hover:underline font-medium px-3 py-1.5"
-                  >
-                    ลบไฟล์
-                  </button>
-                </div>
-                {receiptUrl && (
-                  <a
-                    href={receiptUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                  >
-                    <ImageIcon className="w-3 h-3" />
-                    ดูใบเสร็จต้นฉบับ →
-                  </a>
-                )}
-              </div>
-            ) : (
-              <label className="border-2 border-dashed border-[#E7DCC8] hover:border-[#C94F16] rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-[#FAF8F5]/30 hover:bg-[#FFF8EA]/30 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-[#FFF8EA] flex items-center justify-center text-[#C94F16] mb-3">
-                  <ImageIcon className="w-6 h-6" />
-                </div>
-                <p className="text-sm font-semibold text-[#171311]">
-                  คลิกเพื่ออัปโหลด หรือลากไฟล์มาวางที่นี่
-                </p>
-                <p className="text-xs text-[#807266] mt-1">
-                  รองรับไฟล์ภาพ JPG, PNG, WEBP หรือเอกสาร PDF (ขนาดไม่เกิน 10
-                  MB)
-                </p>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
-                  onChange={handleUpload}
-                  className="hidden"
-                />
-              </label>
-            )}
+          <div className="bg-surface-subtle border border-hairline rounded-2xl p-4 text-sm text-secondary-foreground">
+            การแนบไฟล์หลักฐานยังไม่เปิดใช้งานในระบบนี้
+            กรุณาบันทึกเลขที่ใบเสร็จหรือใบแจ้งหนี้ในช่องด้านบน
           </div>
 
           {/* Form Actions */}
@@ -551,23 +465,17 @@ export default function NewExpense() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FFF8EA]/50 font-medium text-sm transition-colors"
+              className="px-6 py-3 rounded-2xl border border-hairline bg-white text-secondary-foreground hover:bg-surface-subtle/50 font-medium text-sm transition-colors"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || isUploading}
-              className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              disabled={isSubmitting}
+              className="px-8 py-3 rounded-2xl bg-primary hover:bg-[#d88939] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
-              <span>
-                {isSubmitting
-                  ? "กำลังบันทึก..."
-                  : isUploading
-                    ? "กำลังอัปโหลด..."
-                    : "บันทึกรายจ่าย"}
-              </span>
+              <span>{isSubmitting ? "กำลังบันทึก..." : "บันทึกรายจ่าย"}</span>
             </button>
           </div>
         </form>
@@ -575,42 +483,46 @@ export default function NewExpense() {
         {/* Success Modal */}
         {showSuccessModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 rounded-full bg-[#E4F3E7] flex items-center justify-center text-[#51443A] mx-auto">
-                <CheckCircle2 className="w-8 h-8 text-[#51443A]" />
+            <div className="bg-white rounded-3xl border border-hairline max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-16 h-16 rounded-full bg-success-bg flex items-center justify-center text-secondary-foreground mx-auto">
+                <CheckCircle2 className="w-8 h-8 text-secondary-foreground" />
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-[#171311]">
+                <h3 className="text-2xl font-bold text-foreground">
                   บันทึกรายจ่ายสำเร็จ!
                 </h3>
-                <p className="text-sm text-[#807266]">
+                <p className="text-sm text-secondary-foreground/80">
                   รายการรายจ่ายถูกบันทึกลงสมุดบัญชีคริสตจักรเรียบร้อยแล้ว
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#FFF8EA]/60 border border-[#E7DCC8] text-left space-y-2 text-xs text-[#51443A]">
+              <div className="p-4 rounded-2xl bg-surface-subtle/60 border border-hairline text-left space-y-2 text-xs text-secondary-foreground">
                 <div className="flex justify-between">
-                  <span className="text-[#807266]">รายการ:</span>
-                  <span className="font-semibold text-[#171311]">
+                  <span className="text-secondary-foreground/70">รายการ:</span>
+                  <span className="font-semibold text-foreground">
                     {description}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#807266]">จำนวนเงิน:</span>
+                  <span className="text-secondary-foreground/70">จำนวนเงิน:</span>
                   <span className="font-bold text-red-600 text-sm">
-                    {formatBaht(-parseFloat(amount.replace(/,/g, "") || "0"))}
+                    -฿
+                    {parseFloat(amount.replace(/,/g, "") || "0").toLocaleString(
+                      "th-TH",
+                      { minimumFractionDigits: 2 }
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#807266]">ผู้รับเงิน:</span>
-                  <span className="font-medium text-[#171311]">
+                  <span className="text-secondary-foreground/70">ผู้รับเงิน:</span>
+                  <span className="font-medium text-foreground">
                     {payee || "ทั่วไป"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#807266]">วันที่:</span>
-                  <span className="text-[#171311]">
+                  <span className="text-secondary-foreground/70">วันที่:</span>
+                  <span className="text-foreground">
                     {new Date(expenseDate).toLocaleDateString("th-TH")}
                   </span>
                 </div>
@@ -623,10 +535,8 @@ export default function NewExpense() {
                     setAmount("");
                     setDescription("");
                     setPayee("");
-                    setReceiptRef("");
-                    setReceiptFile(null);
                   }}
-                  className="w-full py-3 rounded-2xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-colors shadow-sm"
+                  className="w-full py-3 rounded-2xl bg-primary text-white font-medium text-sm hover:bg-[#d88939] transition-colors"
                 >
                   บันทึกรายจ่ายรายการถัดไป
                 </button>
@@ -635,7 +545,7 @@ export default function NewExpense() {
                     setShowSuccessModal(false);
                     setLocation("/expenses");
                   }}
-                  className="w-full py-2.5 rounded-2xl border border-[#E7DCC8] text-[#51443A] font-medium text-sm hover:bg-[#FFF8EA]/50 transition-colors"
+                  className="w-full py-2.5 rounded-2xl border border-hairline text-secondary-foreground font-medium text-sm hover:bg-surface-subtle/50 transition-colors"
                 >
                   กลับสู่หน้ารายการรายจ่าย
                 </button>

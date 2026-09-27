@@ -2,11 +2,11 @@
 
 ## Conclusion
 
-The current GRACE frontend already has a credible visual foundation. The largest usability opportunity is not adding more decoration. It is making financial work easier to understand and safer to complete. The visual direction now uses a **dark ink frame, burnt orange accent, and vanilla workspace** inspired by the supplied reference, while the interaction layer prioritizes a clearer dashboard sequence, keyboard-operable financial records, and inline validation for high-risk expense fields.
+The current GRACE frontend already has a credible visual foundation. The largest usability opportunity is not adding more decoration. It is making financial work easier to understand and safer to complete. The visual direction is the **Quiet Financial System** implemented in `client/src/index.css`: an ink/grey surface hierarchy with **Action Blue (`#0066CC`)** as the single accent, chosen and documented there for its 5.0:1 contrast on white (an earlier "burnt orange" direction was superseded during implementation and is retired — see the `index.css` comment repointing legacy clay/orange token aliases on-system). The interaction layer prioritizes a clearer dashboard sequence, keyboard-operable financial records, and inline validation for high-risk expense fields.
 
 ## Current flow assessment
 
-The dashboard currently combines a hero, an urgent LINE-slip banner, balance information, monthly metrics, record actions, secondary shortcuts, budgets, and recent transactions. The underlying content is useful, but the user has to infer the relationship between overview data, actions, and follow-up work. The implemented change now labels these zones as **ดูภาพรวม**, **ทำรายการ**, and **ติดตาม** while retaining the existing role-gated routes and components.
+The dashboard currently combines a hero, an urgent LINE-slip banner, balance information, monthly metrics, record actions, secondary shortcuts, budgets, and recent transactions. The underlying content is useful, but the user has to infer the relationship between overview data, actions, and follow-up work. The implemented change groups the record-actions zone under an explicit `aria-label="การดำเนินการหลัก"` (`HomeDashboardTab.tsx`, `PrimaryActions.tsx`) while retaining the existing role-gated routes and components; the overview/tracking zones are visually separated but do not yet carry the same explicit landmark labeling.
 
 The transaction and expense screens use a desktop table and mobile cards. Previously, rows and cards were activated through `onClick` handlers on non-interactive elements. This created a keyboard and assistive-technology gap. The implementation now exposes native route links, visible focus rings, table captions, column scopes, and row headers. Financial rows remain visually compact while their detail destination becomes discoverable and operable.
 
@@ -37,7 +37,7 @@ A financial table must preserve the relationship between its headers, records, a
 | Expenses | Native detail links, table caption, `scope`, row header, unknown status | Implemented |
 | Expense form | Inline amount/description/fund errors, first-error focus, ARIA state, amount helper text | Implemented |
 | Shared status badge | Explicit active, inactive, draft, submitted, needs-review, unknown labels | Implemented |
-| Global visual language | Dark ink navigation chrome, `#FC6C26` display accent, accessible `#C94F16` action color, `#FFF4D6` vanilla surfaces | Implemented |
+| Global visual language | Quiet Financial System: ink/grey surface ramp, `#0066CC` Action Blue as the single accent (5.0:1 on white), `#0071E3` focus/pressed ring | Implemented |
 
 ## Recommended next UX tasks
 

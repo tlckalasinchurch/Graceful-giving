@@ -1,43 +1,24 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
-  BackLink,
   EmptyState,
   ErrorState,
   LoadingSkeleton,
-  MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
 import { THB_DENOMINATIONS, reconcile } from "@shared/counting";
-import {
-  Banknote,
-  BookCheck,
-  Calculator,
-  Landmark,
-  RotateCcw,
-  Scissors,
-  Trash2,
-} from "lucide-react";
-import { Swal } from "@/lib/sweetalert";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { Variance } from "./CountingDetail/components/countingUtils";
-import { EnvelopesTab } from "./CountingDetail/components/EnvelopesTab";
-import { CashCountTab } from "./CountingDetail/components/CashCountTab";
-import { BankRecordsTab } from "./CountingDetail/components/BankRecordsTab";
+import { BankTab } from "./CountingDetail/components/BankTab";
+import { CashTab } from "./CountingDetail/components/CashTab";
 import { DeductionsTab } from "./CountingDetail/components/DeductionsTab";
-import { ReconciliationSummaryTab } from "./CountingDetail/components/ReconciliationSummaryTab";
-
-type TabId = "envelopes" | "cash" | "bank" | "deductions" | "summary";
-
-const TABS: Array<{ id: TabId; label: string; icon: typeof Banknote }> = [
-  { id: "envelopes", label: "ซองถวาย", icon: Banknote },
-  { id: "cash", label: "นับเงินสด", icon: Calculator },
-  { id: "bank", label: "เงินโอน / นำฝาก", icon: Landmark },
-  { id: "deductions", label: "หักเบิก", icon: Scissors },
-  { id: "summary", label: "สรุป & ปิดรอบ", icon: BookCheck },
-];
+import { EnvelopesTab } from "./CountingDetail/components/EnvelopesTab";
+import { SummaryTab } from "./CountingDetail/components/SummaryTab";
+import { TabBar } from "./CountingDetail/components/TabBar";
+import { TotalsBar } from "./CountingDetail/components/TotalsBar";
+import type { TabId } from "./CountingDetail/utils";
 
 export default function CountingDetail() {
   const params = useParams();
@@ -58,6 +39,7 @@ export default function CountingDetail() {
   const funds = fundsQuery.data ?? [];
   const members = membersQuery.data ?? [];
 
+  /** Every write refreshes the ledger figures this session feeds. */
   const refreshAll = async () => {
     await Promise.all([
       utils.counting.get.invalidate({ id: sessionId }),
@@ -142,24 +124,38 @@ export default function CountingDetail() {
     },
     onError: onError("ปิดรอบ"),
   });
-  const deleteSession = trpc.counting.deleteSession.useMutation({
-    onSuccess: async () => {
-      await utils.counting.list.invalidate();
-      toast.success("ลบรอบนับเงินถวายเรียบร้อยแล้ว");
-      setLocation("/counting");
-    },
-    onError: onError("ลบรอบ"),
-  });
-  const resetSession = trpc.counting.resetSession.useMutation({
-    onSuccess: async () => {
-      await refreshAll();
-      setDraftCounts({});
-      toast.success("รีเซ็ตรอบเพื่อนับใหม่เรียบร้อยแล้ว");
-    },
-    onError: onError("รีเซ็ตรอบ"),
-  });
 
+  // ── Envelope entry form ──────────────────────────────────────────────────
+  const [envelopeNo, setEnvelopeNo] = useState("");
+  const [memberId, setMemberId] = useState("");
+  const [donorName, setDonorName] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [category, setCategory] = useState<string>("general");
+  const [fundId, setFundId] = useState("");
+  const [method, setMethod] = useState<"cash" | "transfer" | "check">("cash");
+  const [amount, setAmount] = useState("");
+  const amountRef = useRef<HTMLInputElement>(null);
+
+  // ── Deduction form ───────────────────────────────────────────────────────
+  const [dPurpose, setDPurpose] = useState("");
+  const [dReason, setDReason] = useState("");
+  const [dPaidTo, setDPaidTo] = useState("");
+  const [dAmount, setDAmount] = useState("");
+  const [dCategory, setDCategory] = useState<string>("other");
+  const [dFundId, setDFundId] = useState("");
+
+  // ── Bank form ────────────────────────────────────────────────────────────
+  const [bType, setBType] = useState<"transfer_in" | "cash_deposit">(
+    "cash_deposit"
+  );
+  const [bAmount, setBAmount] = useState("");
+  const [bName, setBName] = useState("");
+  const [bRef, setBRef] = useState("");
+
+  // ── Variance note ────────────────────────────────────────────────────────
   const [varianceNote, setVarianceNote] = useState("");
+
+  /** Live totals while the counters type, from the same function the server uses. */
   const [draftCounts, setDraftCounts] = useState<Record<string, string>>({});
 
   const detail = detailQuery.data;
@@ -246,41 +242,41 @@ export default function CountingDetail() {
     year: "numeric",
   }).format(new Date(detail.session.serviceDate));
 
-  const isUnposted =
-    detail.session.status === "counting" ||
-    detail.session.status === "counted" ||
-    detail.session.status === "verified";
-
-  const handleDeleteThisSession = async () => {
-    const confirmed = await Swal.confirm(
-      "ยืนยันการลบรอบนับเงินนี้?",
-      `คุณต้องการลบรอบนับเงินถวายประจำ "${serviceDate}" หรือไม่?\n\nข้อมูลซองถวายและผลนับในรอบนี้จะถูกลบออกจากระบบอย่างถาวร (ไม่มีผลกระทบต่อยอดเงินในบัญชี)`,
+  const submitEnvelope = (event: React.FormEvent) => {
+    event.preventDefault();
+    const value = Number(amount);
+    if (!Number.isFinite(value) || value <= 0) {
+      toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
+      return;
+    }
+    if (!fundId) {
+      toast.error("กรุณาเลือกกองทุน");
+      return;
+    }
+    addEnvelope.mutate(
       {
-        icon: "warning",
-        confirmButtonText: "ลบรอบนี้",
-        confirmButtonColor: "#C8372D",
-        cancelButtonText: "ยกเลิก",
+        sessionId,
+        envelopeNo: envelopeNo.trim() || undefined,
+        memberId: memberId ? Number(memberId) : undefined,
+        donorName: donorName.trim() || undefined,
+        isAnonymous,
+        category: category as "general",
+        fundId: Number(fundId),
+        method,
+        amount: value,
+      },
+      {
+        onSuccess: () => {
+          // Keep fund, category and method for the next envelope in the stack.
+          setEnvelopeNo("");
+          setMemberId("");
+          setDonorName("");
+          setIsAnonymous(false);
+          setAmount("");
+          amountRef.current?.focus();
+        },
       }
     );
-    if (confirmed) {
-      deleteSession.mutate({ id: sessionId });
-    }
-  };
-
-  const handleResetThisSession = async () => {
-    const confirmed = await Swal.confirm(
-      "ล้างข้อมูลเพื่อนับใหม่?",
-      `ต้องการล้างรายการซองถวายและผลนับทั้งหมดของรอบ "${serviceDate}" เพื่อเริ่มนับใหม่ใช่หรือไม่?\n\nระบบจะปรับสถานะกลับมาเป็น "กำลังนับ" และล้างรายการซองและผลนับที่เคยบันทึกไว้ในรอบนี้`,
-      {
-        icon: "question",
-        confirmButtonText: "ล้างเพื่อนับใหม่",
-        confirmButtonColor: "#C94F16",
-        cancelButtonText: "ยกเลิก",
-      }
-    );
-    if (confirmed) {
-      resetSession.mutate({ id: sessionId });
-    }
   };
 
   const unapprovedDeductions = detail.deductions.filter(d => !d.approvedBy);
@@ -291,163 +287,131 @@ export default function CountingDetail() {
       title="รอบนับเงินถวาย"
       subtitle={serviceDate}
       action={
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <StatusBadge status={detail.session.status} />
-          {isUnposted && (
-            <>
-              <button
-                type="button"
-                title="ล้างข้อมูลเพื่อนับใหม่"
-                onClick={handleResetThisSession}
-                disabled={resetSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-[#E7DCC8] bg-[#FFF8EA] px-3.5 py-2 text-xs font-bold text-[#9F3B0F] hover:bg-[#FFF4D6] transition-colors disabled:opacity-50"
-              >
-                <RotateCcw className="h-4 w-4 text-[#9F3B0F]" />
-                <span className="hidden sm:inline">นับใหม่</span>
-              </button>
-              <button
-                type="button"
-                title="ลบรอบนับเงินนี้"
-                onClick={handleDeleteThisSession}
-                disabled={deleteSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-[#C8372D] hover:bg-rose-100 transition-colors disabled:opacity-50"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span className="hidden sm:inline">ลบรอบนี้</span>
-              </button>
-            </>
-          )}
-          <BackLink label="ทุกรอบ" onClick={() => setLocation("/counting")} />
+          <button
+            type="button"
+            onClick={() => setLocation("/counting")}
+            className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-hairline bg-surface-subtle px-3.5 py-2 text-xs font-bold text-secondary-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            ทุกรอบ
+          </button>
         </div>
       }
     >
       <div className="space-y-6">
         {/* Running totals stay visible on every tab. */}
-        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4 shadow-2xs">
-            <p className="text-sm text-[#51443A]">ยอดถวายตามซอง</p>
-            <MoneyDisplay amount={r.offeringTotal} type="income" size="lg" />
-          </div>
-          <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4 shadow-2xs">
-            <p className="text-sm text-[#51443A]">นับเงินสดได้</p>
-            <MoneyDisplay amount={r.countedCashTotal} size="lg" />
-            <div className="mt-1 text-sm">
-              <Variance amount={r.cashVariance} />
-            </div>
-          </div>
-          <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4 shadow-2xs">
-            <p className="text-sm text-[#51443A]">หักเบิก</p>
-            <MoneyDisplay amount={r.deductionTotal} type="expense" size="lg" />
-          </div>
-          <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4 shadow-2xs">
-            <p className="text-sm text-[#51443A]">ต้องนำฝาก</p>
-            <MoneyDisplay amount={r.expectedDeposit} size="lg" />
-            <div className="mt-1 text-sm">
-              <Variance amount={r.depositVariance} />
-            </div>
-          </div>
-        </section>
+        <TotalsBar r={r} />
 
         {/* Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {TABS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
-                tab === id
-                  ? "bg-primary text-white shadow-sm"
-                  : "border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-background"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
-          ))}
-        </div>
+        <TabBar tab={tab} onTabChange={setTab} status={status} />
 
-        {!editable && tab !== "summary" && tab !== "bank" && (
-          <p className="rounded-2xl border border-[#F9D2AE] bg-[#FFF8EA] p-4 text-sm text-[#9F3B0F]">
-            รอบนี้ส่งนับแล้ว จึงแก้ไขซองและผลนับไม่ได้ ถ้าต้องแก้ ให้เหรัญญิกกด
-            “ส่งกลับไปนับใหม่” ในแท็บสรุป
-          </p>
-        )}
-
+        {/* Tab: envelopes */}
         {tab === "envelopes" && (
           <EnvelopesTab
+            detail={detail}
             sessionId={sessionId}
             editable={editable}
-            envelopes={detail.envelopes}
+            r={r}
             funds={funds}
             members={members}
-            offeringTotal={r.offeringTotal}
+            onSubmitEnvelope={submitEnvelope}
+            amountRef={amountRef}
+            envelopeNo={envelopeNo}
+            setEnvelopeNo={setEnvelopeNo}
+            memberId={memberId}
+            setMemberId={setMemberId}
+            donorName={donorName}
+            setDonorName={setDonorName}
+            isAnonymous={isAnonymous}
+            setIsAnonymous={setIsAnonymous}
+            category={category}
+            setCategory={setCategory}
+            fundId={fundId}
+            setFundId={setFundId}
+            method={method}
+            setMethod={setMethod}
+            amount={amount}
+            setAmount={setAmount}
             addEnvelope={addEnvelope}
             removeEnvelope={removeEnvelope}
           />
         )}
 
+        {/* Tab: cash count */}
         {tab === "cash" && (
-          <CashCountTab
+          <CashTab
+            detail={detail}
             sessionId={sessionId}
             editable={editable}
-            cashCounts={detail.cashCounts}
+            r={r}
             draftCounts={draftCounts}
             setDraftCounts={setDraftCounts}
-            envelopeCashTotal={r.envelopeCashTotal}
-            countedCashTotal={r.countedCashTotal}
-            cashVariance={r.cashVariance}
             setCashCount={setCashCount}
           />
         )}
 
+        {/* Tab: bank */}
         {tab === "bank" && (
-          <BankRecordsTab
+          <BankTab
+            detail={detail}
             sessionId={sessionId}
-            bankRecords={detail.bankRecords}
-            actualTransferIn={r.actualTransferIn}
-            envelopeTransferTotal={r.envelopeTransferTotal}
-            transferVariance={r.transferVariance}
-            actualCashDeposit={r.actualCashDeposit}
-            expectedDeposit={r.expectedDeposit}
-            depositVariance={r.depositVariance}
+            r={r}
+            bType={bType}
+            setBType={setBType}
+            bAmount={bAmount}
+            setBAmount={setBAmount}
+            bName={bName}
+            setBName={setBName}
+            bRef={bRef}
+            setBRef={setBRef}
             addBankRecord={addBankRecord}
             matchPassbook={matchPassbook}
           />
         )}
 
+        {/* Tab: deductions */}
         {tab === "deductions" && (
           <DeductionsTab
+            detail={detail}
             sessionId={sessionId}
             editable={editable}
-            deductions={detail.deductions}
+            r={r}
             funds={funds}
-            deductionTotal={r.deductionTotal}
+            dPurpose={dPurpose}
+            setDPurpose={setDPurpose}
+            dReason={dReason}
+            setDReason={setDReason}
+            dPaidTo={dPaidTo}
+            setDPaidTo={setDPaidTo}
+            dAmount={dAmount}
+            setDAmount={setDAmount}
+            dCategory={dCategory}
+            setDCategory={setDCategory}
+            dFundId={dFundId}
+            setDFundId={setDFundId}
             addDeduction={addDeduction}
-            removeDeduction={removeDeduction}
             approveDeduction={approveDeduction}
+            removeDeduction={removeDeduction}
           />
         )}
 
+        {/* Tab: summary */}
         {tab === "summary" && (
-          <ReconciliationSummaryTab
+          <SummaryTab
+            detail={detail}
             sessionId={sessionId}
             status={status}
+            r={r}
             varianceNote={varianceNote}
             setVarianceNote={setVarianceNote}
-            sessionVarianceNote={detail.session.varianceNote}
-            r={r}
-            unapprovedDeductions={unapprovedDeductions}
-            isUnposted={isUnposted}
+            unapproved={unapprovedDeductions}
             submitCount={submitCount}
             reopenCount={reopenCount}
             verify={verify}
             post={post}
             close={close}
-            handleResetThisSession={handleResetThisSession}
-            handleDeleteThisSession={handleDeleteThisSession}
-            resetSessionPending={resetSession.isPending}
-            deleteSessionPending={deleteSession.isPending}
           />
         )}
       </div>

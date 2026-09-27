@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { AlertTriangle, RotateCcw } from "lucide-react";
-import React, { Component, ReactNode } from "react";
+import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -12,6 +12,8 @@ interface State {
 }
 
 class ErrorBoundary extends Component<Props, State> {
+  private errorRegion = createRef<HTMLDivElement>();
+
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -21,55 +23,72 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error(
-      "Uncaught error captured by ErrorBoundary:",
-      error,
-      errorInfo
-    );
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    if (import.meta.env.DEV) {
+      console.error("เกิดข้อผิดพลาดในแอปพลิเคชัน", error, info);
+    }
   }
+
+  componentDidUpdate() {
+    if (this.state.hasError) this.errorRegion.current?.focus();
+  }
+
+  private reset = () => {
+    this.setState({ hasError: false, error: null });
+  };
 
   render() {
     if (this.state.hasError) {
-      const isDev = Boolean(import.meta.env?.DEV);
-
       return (
-        <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
+        <main className="flex min-h-screen items-center justify-center bg-background p-8">
+          <div
+            ref={this.errorRegion}
+            role="alert"
+            aria-labelledby="error-title"
+            aria-describedby="error-description"
+            tabIndex={-1}
+            className="flex w-full max-w-2xl flex-col items-center rounded-3xl border border-destructive/30 bg-background p-8 text-center focus:outline-none"
+          >
             <AlertTriangle
               size={48}
-              className="text-destructive mb-6 flex-shrink-0"
+              className="mb-6 shrink-0 text-destructive"
             />
-
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            {isDev && this.state.error?.stack && (
-              <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-                <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                  {this.state.error.stack}
-                </pre>
-              </div>
-            )}
-
-            {!isDev && (
-              <p className="text-sm text-muted-foreground mb-6 text-center">
-                ระบบเกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองโหลดหน้าใหม่อีกครั้ง
+            <h1 id="error-title" className="mb-4 text-xl font-semibold">
+              เกิดข้อผิดพลาดที่ไม่คาดคิด
+            </h1>
+            <p
+              id="error-description"
+              className="mb-6 max-w-lg text-sm text-muted-foreground"
+            >
+              ระบบไม่สามารถแสดงหน้านี้ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง
+              หากยังพบปัญหาโปรดติดต่อผู้ดูแลระบบ
+            </p>
+            {import.meta.env.DEV && this.state.error?.message && (
+              <p className="mb-6 max-w-lg break-words text-xs text-muted-foreground">
+                ข้อมูลสำหรับผู้พัฒนา: {this.state.error.message}
               </p>
             )}
-
-            <button
-              onClick={() => window.location.reload()}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg",
-                "bg-primary text-primary-foreground",
-                "hover:opacity-90 cursor-pointer"
-              )}
-            >
-              <RotateCcw size={16} />
-              Reload Page
-            </button>
+            <div className="flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={this.reset}
+                className={cn(
+                  "flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 py-2 text-primary-foreground hover:opacity-90"
+                )}
+              >
+                <RotateCcw size={16} />
+                ลองใหม่
+              </button>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="rounded-lg border border-border px-4 py-2 hover:bg-muted"
+              >
+                โหลดหน้าใหม่
+              </button>
+            </div>
           </div>
-        </div>
+        </main>
       );
     }
 
