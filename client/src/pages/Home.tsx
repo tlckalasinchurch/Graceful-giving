@@ -162,7 +162,7 @@ export default function Home() {
           category: o.category,
           subCategory: "อาคารคริสตจักร",
           amount: Number(o.amount),
-          tone: "bg-[#FDECEA] text-[#E06250]",
+          tone: "bg-[#FFF0F0] text-[#E06250]",
           icon: Heart,
         });
       });
@@ -178,7 +178,7 @@ export default function Home() {
           category: e.category,
           subCategory: "พันธกิจนมัสการ",
           amount: Number(e.amount),
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
+          tone: "bg-[#F1EFE9] text-[#F97316]",
           icon: Landmark,
         });
       });
@@ -199,24 +199,24 @@ export default function Home() {
           <div
             role="region"
             aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#F9D2AE] text-[#51443A] shadow-2xs"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#F5F3EE] border border-[#FFE0C2] text-[#5F5B55] shadow-2xs"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#F1EFE9] border border-[#FFE0C2] flex items-center justify-center text-[#F97316] shrink-0">
                 <Inbox className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <h3 className="font-bold text-sm sm:text-base text-[#171311]">
+                <h3 className="font-bold text-sm sm:text-base text-[#171717]">
                   มีสลิปถวายรอตรวจสอบ {pendingSlipCount} รายการ
                 </h3>
-                <p className="text-xs text-[#51443A] truncate">
+                <p className="text-xs text-[#5F5B55] truncate">
                   สลิปจาก LINE Official Account รอดำเนินการตรวจสอบและบันทึกบัญชี
                 </p>
               </div>
             </div>
             <button
               onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="min-h-11 px-4 py-2 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#F97316]"
             >
               <span>ตรวจสอบสลิป</span>
               <ArrowRight className="w-4 h-4" />
@@ -225,7 +225,7 @@ export default function Home() {
         )}
 
         <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ดูภาพรวม
           </h2>
           <BalanceCard
@@ -257,7 +257,7 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ทำรายการ
           </h2>
           <PrimaryActions
@@ -277,7 +277,7 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ติดตาม
           </h2>
           <BudgetSection

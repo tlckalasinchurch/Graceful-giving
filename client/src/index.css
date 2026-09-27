@@ -36,18 +36,23 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Custom Grace-giving Brand Colors (Semantic Tokens) */
+  /* Grace Giving warm premium semantic tokens. */
   --color-brand-bg: var(--background);
-  --color-brand-cream: #fff4d6;
-  --color-brand-sage: #e4c98f;
-  --color-brand-lightsage: #fff8ea;
-  --color-brand-peach: #f6c09b;
-  --color-brand-orange: #fc6c26;
-  --color-brand-sky: #d9c7ed;
-  --color-brand-brown: #51443a;
-  --color-brand-dark: var(--foreground);
-  --color-brand-muted: #807266;
-  --color-brand-border: #e7dcc8;
+  --color-brand-surface: var(--card);
+  --color-brand-surface-secondary: var(--secondary);
+  --color-brand-ink: var(--foreground);
+  --color-brand-charcoal: #292929;
+  --color-brand-muted: #7A766F;
+  --color-brand-border: #E5E1D8;
+  --color-brand-orange: #F97316;
+  --color-brand-soft: #FFE0C2;
+  --color-brand-income: #20C997;
+  --color-brand-expense: #FF5B5B;
+  --color-brand-warning: #D99A25;
+  --color-brand-info: #527A9E;
+  --color-brand-cream: #FFF0DD;
+  --color-brand-brown: #5F5B55;
+  --color-brand-dark: #171717;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -76,29 +81,28 @@
      them, which is unreadable. The sidebar sits outside this width. */
   --content-max: 88rem;
 
-  /* Warm-grey ramp (neutral surfaces and text) and burnt-orange primary.
-     Text pairs are chosen for at least 4.5:1 on white: #171311 primary text,
-     #51443A secondary, #807266 tertiary. #C94F16 carries white button text
-     at 4.9:1; #9F3B0F is its hover and the orange used for text. */
-  --primary: #c94f16;
-  --primary-foreground: #ffffff;
-  --background: #171311;
-  --foreground: #171311;
-  --card: #fff4d6;
-  --card-foreground: #171311;
-  --popover: #fff4d6;
-  --popover-foreground: #171311;
-  --secondary: #fff8ea;
-  --secondary-foreground: #51443a;
-  --muted: #fff8ea;
-  --muted-foreground: #807266;
-  --accent: #fff4d6;
-  --accent-foreground: #9f3b0f;
-  --destructive: #c8372d;
-  --destructive-foreground: #ffffff;
-  --border: #e7dcc8;
-  --input: #e7dcc8;
-  --ring: #c94f16;
+  /* Warm premium financial OS palette.
+     Text pairs are chosen for at least 4.5:1 on white: #171717 primary text,
+     #5F5B55 secondary, #7A766F tertiary. #F97316 is the signature action accent; button text uses #171717. #D95E0B is its hover and the orange used for text. */
+  --primary: #F97316;
+  --primary-foreground: #171717;
+  --background: #F5F3EE;
+  --foreground: #171717;
+  --card: #FFFFFF;
+  --card-foreground: #171717;
+  --popover: #FFFFFF;
+  --popover-foreground: #171717;
+  --secondary: #F1EFE9;
+  --secondary-foreground: #5F5B55;
+  --muted: #F1EFE9;
+  --muted-foreground: #7A766F;
+  --accent: #FFF0DD;
+  --accent-foreground: #D95E0B;
+  --destructive: #FF5B5B;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E1D8;
+  --input: #E5E1D8;
+  --ring: #F97316;
   --radius: 0.75rem;
 }
 
@@ -123,7 +127,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 3px solid rgba(185, 83, 15, 0.35);
+  outline: 3px solid rgba(249, 115, 22, 0.35);
   outline-offset: 2px;
 }
 
@@ -191,7 +195,7 @@ select:focus-visible {
 
 @layer base {
   * {
-    border-color: #e4ded7;
+    border-color: #E5E1D8;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -225,11 +229,11 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cfc7bf;
+  background: #D6D1C8;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a89e96;
+  background: #B8B1A7;
 }
 
 /* ============================================

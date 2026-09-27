@@ -184,14 +184,14 @@ export default function Expenses() {
         <>
           <button
             onClick={exportCSV}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-4 text-sm font-medium text-[#3F3833] hover:bg-[#FFF8EA]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#E5E1D8] bg-white px-4 text-sm font-medium text-[#292929] hover:bg-[#F1EFE9]"
           >
             <Download className="size-4" />
             ส่งออก CSV
           </button>
           <button
             onClick={() => setLocation("/expenses/new")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#F97316] px-4 text-sm font-semibold text-white hover:bg-[#D95E0B]"
           >
             <Plus className="size-4" />
             บันทึกรายจ่าย
@@ -218,7 +218,7 @@ export default function Expenses() {
                 : "ยังไม่มีข้อมูล"
             }
           >
-            <p className="text-xl font-bold text-[#171311]">
+            <p className="text-xl font-bold text-[#171717]">
               {topCategory?.label ?? "—"}
             </p>
           </MetricCard>
@@ -227,9 +227,9 @@ export default function Expenses() {
             icon={Paperclip}
             note="มีเลขที่ใบเสร็จหรือไฟล์แนบ"
           >
-            <p className="text-xl font-bold tabular-nums text-[#171311]">
+            <p className="text-xl font-bold tabular-nums text-[#171717]">
               {withReceipt} / {expenses.length}{" "}
-              <span className="text-sm font-medium text-[#807266]">รายการ</span>
+              <span className="text-sm font-medium text-[#7A766F]">รายการ</span>
             </p>
           </MetricCard>
         </div>
@@ -268,14 +268,14 @@ export default function Expenses() {
             onAction={() => setLocation("/expenses/new")}
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
+          <div className="overflow-hidden rounded-2xl border border-[#E5E1D8] bg-white">
             {/* Desktop Table View */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left text-sm text-[#171311]">
+              <table className="w-full text-left text-sm text-[#171717]">
                 <caption className="sr-only">
                   รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
                 </caption>
-                <thead className="border-b border-[#E7DCC8] bg-[#FAF8F5] text-xs font-medium text-[#807266]">
+                <thead className="border-b border-[#E5E1D8] bg-[#F5F3EE] text-xs font-medium text-[#7A766F]">
                   <tr>
                     <th scope="col" className="py-3 px-5 font-medium">วันที่</th>
                     <th scope="col" className="py-3 px-5 font-medium">รายการ</th>
@@ -289,26 +289,26 @@ export default function Expenses() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EDE8E3]">
+                <tbody className="divide-y divide-[#E5E1D8]">
                   {filteredExpenses.map(e => {
                     const cat = getCategoryIcon(e.category);
                     const CatIcon = cat.icon;
                     return (
                       <tr
                         key={e.id}
-                        className="transition-colors hover:bg-[#FAF8F5]"
+                        className="transition-colors hover:bg-[#F5F3EE]"
                       >
-                        <td className="whitespace-nowrap py-3.5 px-5 text-[#51443A]">
+                        <td className="whitespace-nowrap py-3.5 px-5 text-[#5F5B55]">
                           {formatThaiDate(e.date)}
                         </td>
                         <th scope="row" className="max-w-sm py-3.5 px-5 text-left">
                           <Link
                             href={`/transactions/expense-${e.id}`}
-                            className="block truncate rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                            className="block truncate rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] focus-visible:ring-offset-2"
                           >
                             {e.description}
                           </Link>
-                          <p className="truncate text-xs text-[#807266]">
+                          <p className="truncate text-xs text-[#7A766F]">
                             {e.payee} · {fundName(e.fundId)}
                             {e.receiptRef !== "-" && (
                               <span className="font-mono">
@@ -350,7 +350,7 @@ export default function Expenses() {
                                     title: e.description,
                                   })
                                 }
-                                className="inline-flex size-10 items-center justify-center rounded-lg text-[#2F7A45] hover:bg-[#E4F3E7]"
+                                className="inline-flex size-10 items-center justify-center rounded-lg text-[#20C997] hover:bg-[#E3F8F1]"
                                 title="ดูสลิป/ใบเสร็จ"
                                 aria-label={`ดูสลิปของ ${e.description}`}
                               >
@@ -359,7 +359,7 @@ export default function Expenses() {
                             )}
                             <button
                               onClick={() => setSelectedVoucher(toVoucher(e))}
-                              className="inline-flex size-10 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA]"
+                              className="inline-flex size-10 items-center justify-center rounded-lg text-[#5F5B55] hover:bg-[#F1EFE9]"
                               title="พิมพ์ใบสำคัญจ่าย"
                               aria-label={`พิมพ์ใบสำคัญจ่ายของ ${e.description}`}
                             >
@@ -375,14 +375,14 @@ export default function Expenses() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-[#E7DCC8]/40">
+            <div className="md:hidden divide-y divide-[#E5E1D8]/40">
               {filteredExpenses.map(e => {
                 const cat = getCategoryIcon(e.category);
                 const CatIcon = cat.icon;
                 return (
                   <div
                     key={e.id}
-                    className="p-4 space-y-2.5 active:bg-[#FFF8EA]/40"
+                    className="p-4 space-y-2.5 active:bg-[#F1EFE9]/40"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1 min-w-0 flex-1">
@@ -393,17 +393,17 @@ export default function Expenses() {
                             <CatIcon className="w-3 h-3" />
                             {expenseCategoryLabel(e.category)}
                           </span>
-                          <span className="text-xs text-[#807266] font-mono">
+                          <span className="text-xs text-[#7A766F] font-mono">
                             {e.receiptRef}
                           </span>
                         </div>
                         <Link
                           href={`/transactions/expense-${e.id}`}
-                          className="block rounded-md font-medium text-foreground text-sm truncate underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                          className="block rounded-md font-medium text-foreground text-sm truncate underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] focus-visible:ring-offset-2"
                         >
                           {e.description}
                         </Link>
-                        <p className="text-xs text-[#807266]">
+                        <p className="text-xs text-[#7A766F]">
                           {e.payee} •{" "}
                           {new Date(e.date).toLocaleDateString("th-TH")}
                         </p>
@@ -422,7 +422,7 @@ export default function Expenses() {
 
                     {/* Mobile Action Bar */}
                     <div
-                      className="flex items-center justify-end gap-2 pt-1 border-t border-[#E7DCC8]/30"
+                      className="flex items-center justify-end gap-2 pt-1 border-t border-[#E5E1D8]/30"
                       onClick={ev => ev.stopPropagation()}
                     >
                       {e.receiptUrl && (
@@ -442,7 +442,7 @@ export default function Expenses() {
                       )}
                       <button
                         onClick={() => setSelectedVoucher(toVoucher(e))}
-                        className="min-h-11 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-[#51443A] border border-stone-200 text-xs font-medium"
+                        className="min-h-11 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-[#5F5B55] border border-stone-200 text-xs font-medium"
                       >
                         <Printer className="w-3 h-3 text-primary" />
                         <span>พิมพ์ใบสำคัญ</span>
@@ -488,13 +488,13 @@ function MetricCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5">
-      <div className="mb-2 flex items-center justify-between text-[#807266]">
+    <div className="rounded-2xl border border-[#E5E1D8] bg-white p-5">
+      <div className="mb-2 flex items-center justify-between text-[#7A766F]">
         <span className="text-sm font-medium">{label}</span>
         <Icon className="size-4" />
       </div>
       {children}
-      <p className="mt-1 text-xs text-[#807266]">{note}</p>
+      <p className="mt-1 text-xs text-[#7A766F]">{note}</p>
     </div>
   );
 }
