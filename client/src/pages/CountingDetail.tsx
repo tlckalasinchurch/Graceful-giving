@@ -174,10 +174,10 @@ export default function CountingDetail() {
       const saved = detail.cashCounts.find(
         row => row.denomination === d.value && row.kind === d.kind
       );
+      // An emptied field counts as 0: that is what the sheet shows and
+      // what blur saves, so the live total must agree with both.
       const quantity =
-        draft !== undefined && draft !== ""
-          ? Number(draft)
-          : (saved?.quantity ?? 0);
+        draft !== undefined ? Number(draft || 0) : (saved?.quantity ?? 0);
       return {
         denomination: d.value,
         kind: d.kind,

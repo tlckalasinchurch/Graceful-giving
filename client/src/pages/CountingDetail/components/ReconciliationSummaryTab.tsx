@@ -1,6 +1,16 @@
 import React from "react";
-import { RotateCcw, Trash2 } from "lucide-react";
-import { fmtBaht, Variance } from "./countingUtils";
+import {
+  BadgeCheck,
+  BookCheck,
+  CheckCircle2,
+  Lock,
+  RotateCcw,
+  Scale,
+  Send,
+  Trash2,
+} from "lucide-react";
+import { ActionButton, fieldClass } from "@/components/common/CommonUI";
+import { ComparisonCard, fmtBaht } from "./countingUtils";
 
 interface ReconciliationSummaryTabProps {
   sessionId: number;
@@ -17,6 +27,8 @@ interface ReconciliationSummaryTabProps {
     transferVariance: number;
     depositVariance: number;
     countedCashTotal: number;
+    actualCashDeposit: number;
+    actualTransferIn: number;
     deductionTotal: number;
     expectedDeposit: number;
     isBalanced: boolean;
@@ -70,68 +82,107 @@ export function ReconciliationSummaryTab({
 }: ReconciliationSummaryTabProps) {
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-sm">
-        <h2 className="border-b border-[#E7DCC8] p-4 font-bold text-foreground">
-          ตารางกระทบยอด
+      {/* Overall result */}
+      {r.isBalanced ? (
+        <div
+          role="status"
+          className="flex items-center gap-3 rounded-2xl border border-[#C8E6C9] bg-[#E8F5E9] p-4 text-[#1B5E20]"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#2E7D32] text-white">
+            <CheckCircle2 className="size-5" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="font-bold">ยอดตรงกันทุกช่องทาง</p>
+            <p className="text-sm">เงินสด เงินโอน และยอดนำฝาก ตรงกับซองถวาย</p>
+          </div>
+        </div>
+      ) : (
+        <div
+          role="alert"
+          className="flex items-center gap-3 rounded-2xl border border-[#FDE68A] bg-[#FEF3C7] p-4 text-[#92400E]"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#F59E0B] text-white">
+            <Scale className="size-5" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="font-bold">
+              พบผลต่าง{" "}
+              {
+                [r.cashVariance, r.transferVariance, r.depositVariance].filter(
+                  v => v !== 0
+                ).length
+              }{" "}
+              รายการ
+            </p>
+            <p className="text-sm">
+              ตรวจรายการที่ไฮไลต์ด้านล่าง แล้วแก้ไขหรือบันทึกคำอธิบายก่อนลงบัญชี
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Actual vs expected, one card per check */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <ComparisonCard
+          title="เงินสด"
+          actualLabel="ยอดที่นับได้จริง"
+          actual={r.countedCashTotal}
+          expectedLabel="ยอดตามซองเงินสด"
+          expected={r.envelopeCashTotal}
+          hint="นับธนบัตรและเหรียญซ้ำอีกครั้ง และตรวจว่ากรอกซองเงินสดครบทุกซอง"
+        />
+        <ComparisonCard
+          title="เงินโอน"
+          actualLabel="ยอดเข้าบัญชีจริง"
+          actual={r.actualTransferIn}
+          expectedLabel="ยอดตามซอง/สลิปโอน"
+          expected={r.envelopeTransferTotal}
+          hint="เทียบรายการเงินเข้าในสมุดบัญชีกับสลิปโอนของแต่ละซอง"
+        />
+        <ComparisonCard
+          title="ยอดนำฝาก"
+          actualLabel="ฝากเข้าธนาคารจริง"
+          actual={r.actualCashDeposit}
+          expectedLabel="ยอดที่ต้องนำฝาก"
+          expected={r.expectedDeposit}
+          hint="ยอดที่ต้องนำฝาก = เงินสดที่นับได้ − รายการหักเบิก ตรวจใบนำฝากและรายการหักเบิก"
+        />
+      </div>
+
+      {/* Breakdown */}
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-xs">
+        <h2 className="border-b border-[#E7DCC8] px-5 py-4 font-bold text-[#171311]">
+          รายละเอียดยอดตามซอง
         </h2>
         <dl className="divide-y divide-[#EFE5D3]">
           {[
-            {
-              label: "ยอดถวายตามซอง (ทุกช่องทาง)",
-              value: fmtBaht(r.offeringTotal),
-            },
-            {
-              label: "— ซองเงินสด",
-              value: fmtBaht(r.envelopeCashTotal),
-            },
-            {
-              label: "— ซองเงินโอน",
-              value: fmtBaht(r.envelopeTransferTotal),
-            },
-            {
-              label: "— ซองเช็ค",
-              value: fmtBaht(r.envelopeCheckTotal),
-            },
+            { label: "ซองเงินสด", value: r.envelopeCashTotal },
+            { label: "ซองเงินโอน", value: r.envelopeTransferTotal },
+            { label: "ซองเช็ค", value: r.envelopeCheckTotal },
           ].map(row => (
             <div
               key={row.label}
-              className="flex items-center justify-between gap-4 p-4"
+              className="flex items-center justify-between gap-4 px-5 py-3"
             >
               <dt className="text-sm text-[#51443A]">{row.label}</dt>
-              <dd className="text-sm font-bold tabular-nums text-foreground">
-                {row.value}
+              <dd className="text-sm font-semibold tabular-nums text-[#171311]">
+                {fmtBaht(row.value)}
               </dd>
             </div>
           ))}
-          <div className="flex items-center justify-between gap-4 bg-background p-4">
-            <dt className="text-sm font-bold text-foreground">
-              ผลต่างเงินสด (นับได้ − ซองเงินสด)
+          <div className="flex items-center justify-between gap-4 bg-[#FFF4D6]/60 px-5 py-3">
+            <dt className="text-sm font-bold text-[#171311]">
+              ยอดถวายรวมทุกช่องทาง
             </dt>
-            <dd>
-              <Variance amount={r.cashVariance} />
+            <dd className="font-bold tabular-nums text-[#171311]">
+              {fmtBaht(r.offeringTotal)}
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4 bg-background p-4">
-            <dt className="text-sm font-bold text-foreground">
-              ผลต่างเงินโอน (เข้าบัญชี − ซองโอน)
+          <div className="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <dt className="text-sm text-[#51443A]">
+              นับได้ − หักเบิก = ยอดที่ต้องนำฝาก
             </dt>
-            <dd>
-              <Variance amount={r.transferVariance} />
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4 bg-background p-4">
-            <dt className="text-sm font-bold text-foreground">
-              ผลต่างการฝาก (ฝากจริง − ที่ต้องนำฝาก)
-            </dt>
-            <dd>
-              <Variance amount={r.depositVariance} />
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4 border-t-2 border-[#E7DCC8] p-4">
-            <dt className="font-bold text-foreground">
-              นับเงินสดได้ − หักเบิก = ยอดนำฝาก
-            </dt>
-            <dd className="text-sm font-bold tabular-nums text-foreground">
+            <dd className="text-sm font-semibold tabular-nums text-[#171311]">
               {fmtBaht(r.countedCashTotal)} − {fmtBaht(r.deductionTotal)} ={" "}
               {fmtBaht(r.expectedDeposit)}
             </dd>
@@ -140,17 +191,23 @@ export function ReconciliationSummaryTab({
       </div>
 
       {!r.isBalanced && (
-        <div className="rounded-2xl border border-[#F9D2AE] bg-[#FFF4D6] p-5">
-          <h3 className="font-bold text-[#9F3B0F]">ยอดยังไม่ตรงกัน</h3>
-          <p className="mt-1 text-sm text-[#9F3B0F]">
-            ปิดรอบได้เมื่อยอดตรง หรือบันทึกคำอธิบายผลต่างไว้เป็นหลักฐาน
+        <div className="rounded-2xl border border-[#FDE68A] bg-[#FFFBEB] p-5">
+          <label
+            htmlFor="variance-note"
+            className="block font-bold text-[#92400E]"
+          >
+            คำอธิบายผลต่าง
+          </label>
+          <p className="mt-1 text-sm text-[#92400E]">
+            ลงบัญชีได้เมื่อยอดตรง หรือบันทึกคำอธิบายผลต่างไว้เป็นหลักฐาน
           </p>
           <textarea
-            rows={2}
+            id="variance-note"
+            rows={3}
             value={varianceNote}
             onChange={e => setVarianceNote(e.target.value)}
             placeholder="เช่น เงินสดขาด 20 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมมัคนายกวันที่…"
-            className="mt-3 w-full rounded-xl border border-[#E7DCC8] bg-card p-3 text-sm text-foreground"
+            className={`mt-3 ${fieldClass}`}
           />
           {sessionVarianceNote && (
             <p className="mt-2 text-sm text-[#51443A]">
@@ -167,46 +224,53 @@ export function ReconciliationSummaryTab({
         </p>
       )}
 
-      <div className="rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-sm">
-        <h3 className="font-bold text-foreground">ดำเนินการกับรอบนี้</h3>
+      <div className="rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-xs">
+        <h3 className="font-bold text-[#171311]">ดำเนินการกับรอบนี้</h3>
         <p className="mt-1 text-sm text-[#51443A]">
           ลำดับงาน: นับ → ส่งตรวจ → ตรวจสอบ → ลงบัญชี → ปิดรอบ
           (ผู้นับไม่สามารถตรวจสอบรอบของตัวเองได้)
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {status === "counting" && (
-            <button
-              type="button"
+            <ActionButton
+              variant="primary"
+              icon={Send}
               onClick={() => submitCount.mutate({ id: sessionId })}
-              disabled={submitCount.isPending}
-              className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
+              disabled={false}
+              loading={submitCount.isPending}
+              loadingText="กำลังดำเนินการ..."
             >
               ส่งนับให้ตรวจสอบ
-            </button>
+            </ActionButton>
           )}
           {(status === "counted" || status === "verified") && (
-            <button
-              type="button"
+            <ActionButton
+              variant="secondary"
+              icon={RotateCcw}
               onClick={() => reopenCount.mutate({ id: sessionId })}
-              disabled={reopenCount.isPending}
-              className="min-h-11 rounded-xl border border-[#E7DCC8] bg-[#FFF4D6] px-5 py-2.5 text-sm font-bold text-[#51443A] disabled:opacity-50 transition-all duration-200 ease-in-out"
+              disabled={false}
+              loading={reopenCount.isPending}
+              loadingText="กำลังดำเนินการ..."
             >
               ส่งกลับไปนับใหม่
-            </button>
+            </ActionButton>
           )}
           {status === "counted" && (
-            <button
-              type="button"
+            <ActionButton
+              variant="success"
+              icon={BadgeCheck}
               onClick={() => verify.mutate({ id: sessionId })}
-              disabled={verify.isPending}
-              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
+              disabled={false}
+              loading={verify.isPending}
+              loadingText="กำลังดำเนินการ..."
             >
               ตรวจสอบและรับรองยอด
-            </button>
+            </ActionButton>
           )}
           {status === "verified" && (
-            <button
-              type="button"
+            <ActionButton
+              variant="success"
+              icon={BookCheck}
               onClick={() =>
                 post.mutate({
                   id: sessionId,
@@ -214,24 +278,26 @@ export function ReconciliationSummaryTab({
                 })
               }
               disabled={
-                post.isPending ||
                 unapprovedDeductions.length > 0 ||
                 (!r.isBalanced && !varianceNote.trim() && !sessionVarianceNote)
               }
-              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
+              loading={post.isPending}
+              loadingText="กำลังดำเนินการ..."
             >
               ลงบัญชีเข้าระบบ
-            </button>
+            </ActionButton>
           )}
           {status === "posted" && (
-            <button
-              type="button"
+            <ActionButton
+              variant="secondary"
+              icon={Lock}
               onClick={() => close.mutate({ id: sessionId })}
-              disabled={close.isPending}
-              className="min-h-11 rounded-xl bg-[#51443A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 transition-all duration-200 ease-in-out"
+              disabled={false}
+              loading={close.isPending}
+              loadingText="กำลังดำเนินการ..."
             >
               ปิดรอบถาวร
-            </button>
+            </ActionButton>
           )}
           {status === "closed" && (
             <p className="text-sm font-bold text-[#2D6A2E]">
