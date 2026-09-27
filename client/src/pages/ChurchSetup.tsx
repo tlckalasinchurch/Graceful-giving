@@ -147,7 +147,7 @@ export default function ChurchSetup() {
           <p className="text-xs font-bold text-[#0052A3]">
             GRACE-GIVING · ตั้งค่าคริสตจักร
           </p>
-          <h1 className="font-display mt-2 text-2xl font-bold leading-tight tracking-tight text-[#2C2622]">
+          <h1 className="font-display mt-2 text-2xl font-semibold leading-tight tracking-tight text-[#2C2622]">
             ยินดีต้อนรับ 👋
             <br />
             มาเริ่มต้นด้วยกัน
@@ -209,7 +209,7 @@ export default function ChurchSetup() {
                 <p className="text-xs font-bold text-[#0052A3]">
                   ขั้นตอนที่ {step}
                 </p>
-                <h2 className="font-display text-lg font-bold leading-tight text-[#2C2622]">
+                <h2 className="font-display text-lg font-semibold tracking-tight leading-tight text-[#2C2622]">
                   {currentStepConfig.title}
                 </h2>
                 <p className="text-xs text-[#51443A]">

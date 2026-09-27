@@ -54,7 +54,7 @@ export function BalanceCard({
         {/* Left: Prominent financial figures */}
         <div className="min-w-0 flex-1 space-y-2 sm:space-y-3 z-10">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#171311]">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight text-[#171311]">
               ยอดเงินคงเหลือรวม
             </h2>
             <button

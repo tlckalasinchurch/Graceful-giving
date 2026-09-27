@@ -85,7 +85,7 @@ export const Swal = {
             ${iconHtml}
             ${
               options.title
-                ? `<h3 class="mt-5 text-2xl sm:text-3xl font-black text-[#171311] tracking-tight leading-snug">${options.title}</h3>`
+                ? `<h3 class="mt-5 text-2xl sm:text-3xl font-semibold text-[#171311] tracking-tight leading-snug">${options.title}</h3>`
                 : ""
             }
             ${
@@ -103,7 +103,7 @@ export const Swal = {
                     </button>`
                   : ""
               }
-              <button id="swal-confirm-btn" type="button" class="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-2xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-black text-sm sm:text-base shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-4 focus:ring-[#0066CC]/30 active:scale-95 cursor-pointer">
+              <button id="swal-confirm-btn" type="button" class="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-2xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-sm sm:text-base shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-4 focus:ring-[#0066CC]/30 active:scale-95 cursor-pointer">
                 ${confirmText}
               </button>
             </div>

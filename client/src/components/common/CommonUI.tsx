@@ -70,7 +70,7 @@ export const EmptyState: React.FC<{
         />
       </div>
       <div className="space-y-1 max-w-sm">
-        <h3 className="text-base font-semibold text-[#171311]">{title}</h3>
+        <h3 className="text-base font-semibold tracking-tight text-[#171311]">{title}</h3>
         <p className="text-sm text-[#807266] leading-relaxed">{description}</p>
       </div>
       {actionText && onAction && (
@@ -104,7 +104,7 @@ export const ErrorState: React.FC<{
       !
     </div>
     <div className="space-y-1 max-w-sm">
-      <h3 className="text-base font-bold text-[#7C2A1E]">{title}</h3>
+      <h3 className="text-base font-semibold tracking-tight text-[#7C2A1E]">{title}</h3>
       <p className="text-sm text-[#51443A] leading-relaxed">{description}</p>
     </div>
     {onRetry && (
@@ -318,7 +318,7 @@ export const PageHeader: React.FC<{
       className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl p-5 md:p-6 border border-[#E7DCC8] card-elevation-sm ${className}`}
     >
       <div className="min-w-0">
-        <h1 className="text-xl md:text-2xl font-bold text-[#51443A] tracking-tight break-words">
+        <h1 className="text-xl md:text-2xl font-semibold text-[#51443A] tracking-tight break-words">
           {title}
         </h1>
         {subtitle && (

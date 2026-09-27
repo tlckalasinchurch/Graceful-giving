@@ -11,7 +11,7 @@ export function HeroSection() {
       className="flex items-center justify-between gap-6 w-full"
     >
       <div className="min-w-0 space-y-2">
-        <h1 className="flex flex-wrap items-center gap-x-2 text-2xl sm:text-3xl font-bold tracking-tight leading-tight font-display">
+        <h1 className="flex flex-wrap items-center gap-x-2 text-2xl sm:text-3xl font-semibold tracking-tight leading-tight font-display">
           <span className="text-[#171311]">Grace</span>
           <Sprout
             className="size-5 sm:size-6 text-[#1F5C33] stroke-[2.5]"

@@ -31,7 +31,7 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary text-white inline-block">
               ประกาศสำคัญ
             </span>
-            <h4 className="text-lg sm:text-xl font-bold text-[#51443A]">
+            <h4 className="text-lg sm:text-xl font-semibold tracking-tight text-[#51443A]">
               ค่ายสามัคคีธรรมประจำปี 2026
             </h4>
             <p className="text-sm sm:text-base text-foreground leading-relaxed font-medium">
@@ -44,7 +44,7 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#9BCBA5] text-white inline-block">
               รายงานพันธกิจ
             </span>
-            <h4 className="text-lg sm:text-xl font-bold text-[#2F7A45]">
+            <h4 className="text-lg sm:text-xl font-semibold tracking-tight text-[#2F7A45]">
               โครงการแจกถุงยังชีพสู่ชุมชนรอบโบสถ์
             </h4>
             <p className="text-sm sm:text-base text-foreground leading-relaxed font-medium">

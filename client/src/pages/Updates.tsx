@@ -51,7 +51,7 @@ export default function Updates() {
             <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#FFF8EA] text-[#0052A3]">
               <Bell className="size-8" />
             </div>
-            <h1 className="mt-5 font-display text-2xl font-bold text-[#3F3833]">
+            <h1 className="mt-5 font-display text-2xl font-semibold tracking-tight text-[#3F3833]">
               ติดตามข่าวสารคริสตจักร
             </h1>
             <p className="mt-2 text-sm leading-6 text-[#51443A]">
@@ -87,7 +87,7 @@ export default function Updates() {
                 <Megaphone className="size-6" />
               </div>
               <div>
-                <h1 className="font-display text-3xl font-bold tracking-tight text-[#3F3833]">
+                <h1 className="font-display text-3xl font-semibold tracking-tight text-[#3F3833]">
                   ข่าวสาร & กิจกรรม
                 </h1>
                 <p className="mt-1 text-sm text-[#51443A]">

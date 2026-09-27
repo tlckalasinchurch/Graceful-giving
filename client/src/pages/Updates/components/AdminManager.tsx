@@ -251,7 +251,7 @@ export function AdminManager() {
         <div>
           <div className="flex items-center gap-2">
             <Settings2 className="size-5 text-[#0052A3]" />
-            <h2 className="font-display text-xl font-bold tracking-tight text-[#3F3833]">
+            <h2 className="font-display text-xl font-semibold tracking-tight text-[#3F3833]">
               จัดการเนื้อหา
             </h2>
           </div>

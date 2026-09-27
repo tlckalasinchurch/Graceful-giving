@@ -24,7 +24,7 @@ export default function Login() {
               <span className="text-[11px] font-bold text-white">✝</span>
             </div>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#171311]">
+          <h1 className="text-2xl font-semibold tracking-tight text-[#171311]">
             Grace <span className="text-[#0066CC]">Ledger</span>
           </h1>
           <p className="text-sm text-[#51443A]">ระบบบัญชีการเงินคริสตจักร</p>

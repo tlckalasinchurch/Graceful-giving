@@ -321,7 +321,7 @@ export default function Settings() {
           <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
             <Lock className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-[#171311]">
+          <h2 className="text-xl font-semibold tracking-tight text-[#171311]">
             สิทธิ์การเข้าถึงถูกจำกัด
           </h2>
           <p className="text-sm text-[#807266]">
@@ -388,7 +388,7 @@ export default function Settings() {
         {activeTab === "church" && churchProfile && (
           <form onSubmit={handleSaveProfile} className="space-y-6">
             <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5">
-              <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
+              <h3 className="text-base font-semibold tracking-tight text-[#171311] flex items-center gap-2">
                 <Building
                   className="w-5 h-5 text-[#0066CC]"
                   aria-hidden="true"
@@ -531,7 +531,7 @@ export default function Settings() {
         {/* Account and sign out */}
         {activeTab === "church" && (
           <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8">
-            <h3 className="text-base font-bold text-[#171311]">บัญชีผู้ใช้</h3>
+            <h3 className="text-base font-semibold tracking-tight text-[#171311]">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-[#51443A]">
                 <p className="font-bold text-[#171311]">
@@ -576,7 +576,7 @@ export default function Settings() {
             <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7DCC8]/60 pb-5">
                 <div>
-                  <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
+                  <h3 className="text-lg font-semibold tracking-tight text-[#171311] flex items-center gap-2">
                     <Users className="w-5 h-5 text-[#0066CC]" />
                     จัดการบทบาทและสิทธิ์ผู้ใช้งานในระบบ
                   </h3>
@@ -783,7 +783,7 @@ export default function Settings() {
             {/* Structure and Appointed Roles Reference */}
             <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6">
               <div>
-                <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
+                <h3 className="text-lg font-semibold tracking-tight text-[#171311] flex items-center gap-2">
                   <Shield
                     className="w-5 h-5 text-[#0066CC]"
                     aria-hidden="true"
@@ -859,7 +859,7 @@ export default function Settings() {
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
           <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5">
-            <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
+            <h3 className="text-base font-semibold tracking-tight text-[#171311] flex items-center gap-2">
               <Banknote className="w-5 h-5 text-[#0066CC]" aria-hidden="true" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
             </h3>
@@ -916,7 +916,7 @@ export default function Settings() {
             className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5"
           >
             <div>
-              <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
+              <h3 className="text-base font-semibold tracking-tight text-[#171311] flex items-center gap-2">
                 <CreditCard
                   className="w-5 h-5 text-[#0066CC]"
                   aria-hidden="true"
@@ -1000,7 +1000,7 @@ export default function Settings() {
           <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7DCC8]/60 pb-5">
               <div>
-                <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
+                <h3 className="text-lg font-semibold tracking-tight text-[#171311] flex items-center gap-2">
                   <FileText
                     className="w-5 h-5 text-[#0066CC]"
                     aria-hidden="true"

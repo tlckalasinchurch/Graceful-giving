@@ -355,7 +355,7 @@ export default function TransactionDetail() {
                 </span>
                 <StatusBadge status={transaction.status} />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#171311]">
+              <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#171311]">
                 {transaction.title}
               </h2>
               <p className="text-xs text-[#807266] flex items-center gap-1.5">

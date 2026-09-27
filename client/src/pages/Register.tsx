@@ -10,7 +10,7 @@ export default function Register() {
           <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-[#0066CC]/30 bg-[#0066CC]/15 shadow-xs">
             <Sprout className="size-9 text-[#51443A]" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#171311]">
+          <h1 className="text-2xl font-semibold tracking-tight text-[#171311]">
             Grace <span className="text-[#0066CC]">Ledger</span>
           </h1>
           <p className="text-sm text-[#51443A]">สมัครบัญชีใหม่</p>

@@ -321,7 +321,7 @@ export default function Profile() {
             <div className="flex-1 min-w-0 space-y-2">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#171311] tracking-tight break-words">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#171311] tracking-tight break-words">
                     {user?.name || "ผู้ใช้งานระบบ"}
                   </h2>
                 </div>
@@ -393,7 +393,7 @@ export default function Profile() {
                 <Coins className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-[#171311]">
+                <h3 className="text-base font-semibold tracking-tight text-[#171311]">
                   ระบบนับเงินถวาย
                 </h3>
                 <p className="text-xs text-[#807266]">
@@ -419,7 +419,7 @@ export default function Profile() {
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-amber-950">
+                <h3 className="text-base font-semibold tracking-tight text-amber-950">
                   แผงควบคุมผู้ดูแลระบบ
                 </h3>
                 <p className="text-xs text-amber-800/80">
@@ -445,7 +445,7 @@ export default function Profile() {
               <Award className="w-3.5 h-3.5 text-[#0066CC]" />
               มติคริสตจักรอย่างเป็นทางการ
             </span>
-            <h3 className="text-lg sm:text-xl font-bold text-[#171311]">
+            <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-[#171311]">
               โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ
             </h3>
             <p className="text-xs sm:text-sm text-[#807266] mt-1">
@@ -521,7 +521,7 @@ export default function Profile() {
 
         {/* ── SECTION: ข้อมูลบัญชีและทางเลือกความปลอดภัย ─────────────────────── */}
         <section className="rounded-2xl sm:rounded-2xl border border-[#E7DCC8] bg-white p-4 sm:p-6 md:p-8 shadow-xs space-y-4">
-          <h3 className="text-base font-bold text-[#171311]">
+          <h3 className="text-base font-semibold tracking-tight text-[#171311]">
             บัญชีผู้ใช้และความปลอดภัย
           </h3>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -575,7 +575,7 @@ export default function Profile() {
               <span className="px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-[#E4F3E7] text-[#4F6E28] uppercase tracking-wider">
                 Digital Church Member Card
               </span>
-              <h3 className="text-lg sm:text-xl font-bold text-[#171311] pt-1">
+              <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-[#171311] pt-1">
                 บัตรประจำตัวคริสตจักร
               </h3>
               <p className="text-xs text-[#51443A]">{churchName}</p>
@@ -595,7 +595,7 @@ export default function Profile() {
                 </div>
               )}
               <div className="space-y-0.5 sm:space-y-1">
-                <h4 className="text-base sm:text-lg font-bold text-[#171311] break-words">
+                <h4 className="text-base sm:text-lg font-semibold tracking-tight text-[#171311] break-words">
                   {user?.name || "สมาชิกคริสตจักร"}
                 </h4>
                 <div className="inline-block">
@@ -658,7 +658,7 @@ export default function Profile() {
             </button>
 
             <div className="space-y-1">
-              <h3 className="text-lg sm:text-xl font-bold text-[#171311]">
+              <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-[#171311]">
                 แก้ไขโปรไฟล์ผู้ใช้งาน
               </h3>
               <p className="text-xs text-[#807266]">

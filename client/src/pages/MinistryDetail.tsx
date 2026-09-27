@@ -136,7 +136,7 @@ export default function MinistryDetail() {
           >
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-[#171311]">
+                <h2 className="text-2xl font-semibold tracking-tight text-[#171311]">
                   แก้ไขข้อมูลฝ่ายงาน
                 </h2>
                 <p className="mt-1 text-sm text-[#807266]">
@@ -238,7 +238,7 @@ export default function MinistryDetail() {
         ) : (
           <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-2xl font-bold text-[#171311]">
+              <h2 className="text-2xl font-semibold tracking-tight text-[#171311]">
                 {query.data.name}
               </h2>
               <span

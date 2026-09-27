@@ -174,7 +174,7 @@ function RoleGuard({
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-[#171311]">{title}</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-[#171311]">{title}</h2>
           <p className="text-sm text-[#807266] leading-relaxed">{message}</p>
           <div className="pt-2">
             <a

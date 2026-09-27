@@ -73,7 +73,7 @@ export default function FundDetail() {
               status={fund.isActive ? "active" : "inactive"}
               label={fund.isActive ? "กำลังใช้งาน" : "ปิดใช้งาน"}
             />
-            <h2 className="text-2xl md:text-3xl font-bold text-[#171311]">
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#171311]">
               {fund.name}
             </h2>
             {fund.description && (
@@ -107,7 +107,7 @@ export default function FundDetail() {
             shows the fund of every row, so point there instead. */}
         <section className="bg-white rounded-2xl border border-[#E7DCC8] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-bold text-[#171311]">
+            <h2 className="text-base font-semibold tracking-tight text-[#171311]">
               รายการเคลื่อนไหว
             </h2>
             <p className="text-sm text-[#807266] mt-1">

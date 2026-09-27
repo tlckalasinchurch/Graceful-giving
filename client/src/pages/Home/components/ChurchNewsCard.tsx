@@ -32,7 +32,7 @@ export function ChurchNewsCard({ onOpenNews }: ChurchNewsCardProps) {
             />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#171311]">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#171311]">
               ข่าวสารจากคริสตจักร
             </h2>
             <p className="text-sm sm:text-base text-[#3F3833] font-bold mt-0.5">

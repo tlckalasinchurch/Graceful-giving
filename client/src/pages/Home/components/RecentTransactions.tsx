@@ -32,7 +32,7 @@ export function RecentTransactions({
       className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E7DCC8] space-y-4 w-full"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-lg sm:text-xl font-bold text-[#171311]">
+        <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[#171311]">
           รายการล่าสุด
         </h2>
         <button

@@ -98,7 +98,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             {/* Header / Church Info */}
             <div className="border-b-2 border-stone-800 pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-semibold text-stone-900 tracking-tight">
                   {church?.name || "คริสตจักร"}
                 </h1>
                 <p className="text-xs text-stone-600 mt-1 max-w-md">

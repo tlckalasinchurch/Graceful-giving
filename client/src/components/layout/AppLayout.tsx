@@ -219,7 +219,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             {/* Left: Page Title */}
             {title && (
               <div className="min-w-0 flex-1 basis-full sm:basis-0">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#171311] tracking-tight break-words">
+                <h1 className="text-2xl md:text-3xl font-semibold text-[#171311] tracking-tight break-words">
                   {title}
                 </h1>
                 {subtitle && (

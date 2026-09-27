@@ -640,7 +640,7 @@ export default function GivingInbox() {
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#171311]">
+                  <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#171311]">
                     ยินดีต้อนรับสู่ระบบ LINE Slip AI 🌿
                   </h3>
                   <p className="text-sm text-[#807266] mt-1">
@@ -656,7 +656,7 @@ export default function GivingInbox() {
                   <div className="w-8 h-8 rounded-xl bg-[#0066CC]/20 text-[#0066CC] font-bold text-sm flex items-center justify-center">
                     1
                   </div>
-                  <h4 className="font-bold text-sm text-[#171311]">
+                  <h4 className="font-semibold tracking-tight text-sm text-[#171311]">
                     สมาชิกส่งสลิปทาง LINE
                   </h4>
                   <p className="text-xs text-[#807266] leading-relaxed">
@@ -669,7 +669,7 @@ export default function GivingInbox() {
                   <div className="w-8 h-8 rounded-xl bg-[#2F7A45]/20 text-[#2F7A45] font-bold text-sm flex items-center justify-center">
                     2
                   </div>
-                  <h4 className="font-bold text-sm text-[#171311]">
+                  <h4 className="font-semibold tracking-tight text-sm text-[#171311]">
                     AI อ่านข้อมูลอัตโนมัติ
                   </h4>
                   <p className="text-xs text-[#807266] leading-relaxed">
@@ -682,7 +682,7 @@ export default function GivingInbox() {
                   <div className="w-8 h-8 rounded-xl bg-[#0066CC]/20 text-[#0066CC] font-bold text-sm flex items-center justify-center">
                     3
                   </div>
-                  <h4 className="font-bold text-sm text-[#171311]">
+                  <h4 className="font-semibold tracking-tight text-sm text-[#171311]">
                     เหรัญญิกกดอนุมัติ
                   </h4>
                   <p className="text-xs text-[#807266] leading-relaxed">
@@ -900,7 +900,7 @@ export default function GivingInbox() {
                 <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#E7DCC8]">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-lg sm:text-xl font-bold text-[#171311]">
+                      <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[#171311]">
                         ตรวจสอบสลิป #{currentSlip.id}
                       </h2>
                       <span
@@ -960,7 +960,7 @@ export default function GivingInbox() {
                 {/* ── 1. หลักฐาน (Evidence) ── */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold text-[#51443A] uppercase tracking-wider">
+                    <h3 className="text-xs font-semibold text-[#51443A] uppercase tracking-wider">
                       1. หลักฐานการโอน (สลิป)
                     </h3>
                     {currentSlip.signedImageUrl && (
@@ -1088,7 +1088,7 @@ export default function GivingInbox() {
                 {/* ── 3. ข้อมูลที่จะบันทึกบัญชี (Ledger Record) ── */}
                 <div className="space-y-4 pt-2 border-t border-[#E7DCC8]">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold text-[#51443A] uppercase tracking-wider">
+                    <h3 className="text-xs font-semibold text-[#51443A] uppercase tracking-wider">
                       3. ข้อมูลที่จะบันทึกบัญชีจริง
                     </h3>
                     <span className="text-[11px] text-stone-500">
@@ -1338,7 +1338,7 @@ export default function GivingInbox() {
                 <UploadCloud className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-[#171311]">
+                <h3 className="text-lg font-semibold tracking-tight text-[#171311]">
                   อัปโหลดสลิปทดสอบ / ด้วยตนเอง
                 </h3>
                 <p className="text-xs text-[#807266]">
@@ -1446,7 +1446,7 @@ export default function GivingInbox() {
                 <QrCode className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-[#171311]">
+                <h3 className="text-lg font-semibold tracking-tight text-[#171311]">
                   ข้อมูลการเชื่อมต่อ LINE Official Account
                 </h3>
                 <p className="text-xs text-[#807266]">

@@ -130,7 +130,7 @@ export default function MemberDetail() {
           >
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-[#171311]">
+                <h2 className="text-2xl font-semibold tracking-tight text-[#171311]">
                   แก้ไขข้อมูลสมาชิก
                 </h2>
                 <p className="mt-1 text-sm text-[#807266]">
