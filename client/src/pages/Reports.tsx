@@ -285,12 +285,13 @@ export default function Reports() {
               <h2 className="border-b border-[#E7DCC8] p-4 font-bold text-[#171311]">
                 สรุปตามหมวดหมู่
               </h2>
+              <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-[#E7DCC8] bg-[#FAF8F5] text-sm font-bold text-[#51443A]">
+                <thead className="border-b border-[#E7DCC8] bg-[#FAF8F5] text-xs sm:text-sm font-bold text-[#51443A]">
                   <tr>
-                    <th className="p-4">รายการ</th>
-                    <th className="p-4 text-right">จำนวนรายการ</th>
-                    <th className="p-4 text-right">ยอดเงิน</th>
+                    <th className="px-2 py-3 sm:p-4 whitespace-nowrap">รายการ</th>
+                    <th className="px-2 py-3 sm:p-4 text-right whitespace-nowrap">จำนวนรายการ</th>
+                    <th className="px-2 py-3 sm:p-4 text-right whitespace-nowrap">ยอดเงิน</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EDE8E3]">
@@ -301,20 +302,20 @@ export default function Reports() {
                   </tr>
                   {summary!.income.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="p-4 text-[#51443A]">
+                      <td colSpan={3} className="px-2 py-3 sm:p-4 text-[#51443A]">
                         ไม่มีรายรับในช่วงเวลานี้
                       </td>
                     </tr>
                   ) : (
                     summary!.income.map(row => (
                       <tr key={`income-${row.category}`}>
-                        <td className="py-3 pl-8 pr-4 text-[#51443A]">
+                        <td className="py-3 pl-5 pr-2 sm:pl-8 sm:pr-4 text-[#51443A]">
                           {offeringCategoryLabel(row.category)}
                         </td>
-                        <td className="p-4 text-right tabular-nums text-[#51443A]">
+                        <td className="px-2 py-3 sm:p-4 text-right tabular-nums text-[#51443A]">
                           {row.count}
                         </td>
-                        <td className="p-4 text-right font-bold tabular-nums text-[#1F5C33]">
+                        <td className="px-2 py-3 sm:p-4 text-right font-bold tabular-nums text-[#1F5C33]">
                           {fmtBaht(row.total)}
                         </td>
                       </tr>
@@ -328,20 +329,20 @@ export default function Reports() {
                   </tr>
                   {summary!.expense.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="p-4 text-[#51443A]">
+                      <td colSpan={3} className="px-2 py-3 sm:p-4 text-[#51443A]">
                         ไม่มีรายจ่ายในช่วงเวลานี้
                       </td>
                     </tr>
                   ) : (
                     summary!.expense.map(row => (
                       <tr key={`expense-${row.category}`}>
-                        <td className="py-3 pl-8 pr-4 text-[#51443A]">
+                        <td className="py-3 pl-5 pr-2 sm:pl-8 sm:pr-4 text-[#51443A]">
                           {expenseCategoryLabel(row.category)}
                         </td>
-                        <td className="p-4 text-right tabular-nums text-[#51443A]">
+                        <td className="px-2 py-3 sm:p-4 text-right tabular-nums text-[#51443A]">
                           {row.count}
                         </td>
-                        <td className="p-4 text-right font-bold tabular-nums text-[#c7382d]">
+                        <td className="px-2 py-3 sm:p-4 text-right font-bold tabular-nums text-[#c7382d]">
                           {fmtBaht(row.total)}
                         </td>
                       </tr>
@@ -349,18 +350,19 @@ export default function Reports() {
                   )}
 
                   <tr className="border-t-2 border-[#E7DCC8] bg-[#FFF8EA]">
-                    <td className="p-4 font-bold text-[#171311]">
+                    <td className="px-2 py-3 sm:p-4 font-bold text-[#171311]">
                       คงเหลือสุทธิ
                     </td>
-                    <td className="p-4" />
+                    <td className="px-2 py-3 sm:p-4" />
                     <td
-                      className={`p-4 text-right font-bold tabular-nums ${summary!.net < 0 ? "text-[#c7382d]" : "text-[#1F5C33]"}`}
+                      className={`px-2 py-3 sm:p-4 text-right font-bold tabular-nums ${summary!.net < 0 ? "text-[#c7382d]" : "text-[#1F5C33]"}`}
                     >
                       {fmtBaht(summary!.net)}
                     </td>
                   </tr>
                 </tbody>
               </table>
+              </div>
             </section>
 
             {/* Six month trend */}

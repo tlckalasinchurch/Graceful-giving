@@ -358,7 +358,7 @@ export const Chip: React.FC<
     aria-pressed={active}
     className={`min-h-11 shrink-0 whitespace-nowrap rounded-xl border px-3.5 py-2 text-[13px] transition-colors ${
       active
-        ? "border-[#CFE4FA] bg-[#FFF4D6] font-semibold text-[#0052A3]"
+        ? "border-[#9CC7EC] bg-[#CFE4FA] font-semibold text-[#0052A3]"
         : "border-[#E7DCC8] bg-white font-medium text-[#51443A] hover:bg-[#FFF8EA]"
     } ${className}`}
     {...props}

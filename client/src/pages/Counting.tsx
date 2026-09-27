@@ -300,10 +300,11 @@ export default function Counting() {
         {/* Filter Controls & Search */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Tabs */}
+          <div className="relative min-w-0">
           <div
             role="group"
             aria-label="สถานะรอบ"
-            className="flex items-center gap-1.5 rounded-2xl bg-[#FFF8EA] p-1.5 border border-[#E7DCC8] overflow-x-auto"
+            className="flex items-center gap-1.5 rounded-2xl bg-[#FFF8EA] p-1.5 border border-[#E7DCC8] overflow-x-auto no-scrollbar"
           >
             <button
               type="button"
@@ -362,6 +363,11 @@ export default function Counting() {
                 {completedCount}
               </span>
             </button>
+          </div>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-1.5 top-1.5 bottom-1.5 w-8 rounded-r-xl bg-gradient-to-l from-[#FFF8EA] to-transparent"
+          />
           </div>
 
           {/* Search bar */}

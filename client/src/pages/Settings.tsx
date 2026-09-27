@@ -351,26 +351,32 @@ export default function Settings() {
       subtitle="ข้อมูลพื้นฐาน สิทธิ์ผู้ใช้งาน หมวดหมู่บัญชี และช่องทางรับเงินถวาย"
     >
       <div className="max-w-4xl space-y-6">
-        <div
-          role="group"
-          aria-label="หมวดการตั้งค่า"
-          className="flex items-center gap-1.5 sm:gap-2 border-b border-[#E7DCC8] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x"
-        >
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              aria-pressed={activeTab === tab.id}
-              className={`min-h-11 px-3.5 sm:px-5 py-2 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap border ${
-                activeTab === tab.id
-                  ? "bg-[#FFF4D6] text-[#0052A3] border-[#CFE4FA]"
-                  : "text-[#51443A] border-transparent hover:bg-[#FFF8EA]"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="relative">
+          <div
+            role="group"
+            aria-label="หมวดการตั้งค่า"
+            className="flex items-center gap-1.5 sm:gap-2 border-b border-[#E7DCC8] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x"
+          >
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                aria-pressed={activeTab === tab.id}
+                className={`min-h-11 px-3.5 sm:px-5 py-2 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap border ${
+                  activeTab === tab.id
+                    ? "bg-[#CFE4FA] text-[#0052A3] border-[#9CC7EC]"
+                    : "text-[#51443A] border-transparent hover:bg-[#FFF8EA]"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-[#FFF4D6] to-transparent"
+          />
         </div>
 
         {(activeTab === "church" || activeTab === "payment") &&

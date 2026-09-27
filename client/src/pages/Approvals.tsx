@@ -176,32 +176,38 @@ export default function Approvals() {
       }
     >
       <div className="space-y-6">
-        <div
-          role="group"
-          aria-label="สถานะคำขอ"
-          className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 no-scrollbar"
-        >
-          {TABS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActiveTab(id)}
-              aria-pressed={activeTab === id}
-              className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 border ${
-                activeTab === id
-                  ? "bg-[#FFF4D6] text-[#0052A3] border-[#CFE4FA] font-semibold"
-                  : "bg-white text-[#51443A] border-[#E7DCC8] hover:bg-[#FFF8EA]"
-              }`}
-            >
-              <Icon className="w-4 h-4" aria-hidden="true" />
-              <span>
-                {label}
-                {!isLoading && !isError && (
-                  <span className="ml-1 tabular-nums">({countByTab(id)})</span>
-                )}
-              </span>
-            </button>
-          ))}
+        <div className="relative">
+          <div
+            role="group"
+            aria-label="สถานะคำขอ"
+            className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 no-scrollbar"
+          >
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
+                aria-pressed={activeTab === id}
+                className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 border ${
+                  activeTab === id
+                    ? "bg-[#CFE4FA] text-[#0052A3] border-[#9CC7EC] font-semibold"
+                    : "bg-white text-[#51443A] border-[#E7DCC8] hover:bg-[#FFF8EA]"
+                }`}
+              >
+                <Icon className="w-4 h-4" aria-hidden="true" />
+                <span>
+                  {label}
+                  {!isLoading && !isError && (
+                    <span className="ml-1 tabular-nums">({countByTab(id)})</span>
+                  )}
+                </span>
+              </button>
+            ))}
+          </div>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-[#FFF4D6] to-transparent"
+          />
         </div>
 
         {isLoading ? (
