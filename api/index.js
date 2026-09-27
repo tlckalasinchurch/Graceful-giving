@@ -436,6 +436,7 @@ var offerings = pgTable("offerings", {
   notes: text("notes"),
   status: offeringStatusEnum("status").default("active").notNull(),
   voidedAt: timestamp("voidedAt"),
+  voidedBy: integer("voidedBy"),
   recordedBy: integer("recordedBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
@@ -454,6 +455,8 @@ var expenses = pgTable("expenses", {
   receiptUrl: text("receiptUrl"),
   status: expenseStatusEnum("status").default("approved").notNull(),
   approvedBy: integer("approvedBy"),
+  voidedAt: timestamp("voidedAt"),
+  voidedBy: integer("voidedBy"),
   recordedBy: integer("recordedBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
@@ -1721,7 +1724,7 @@ async function updateExpense(id, input, churchId = DEFAULT_CHURCH_ID) {
     return id;
   });
 }
-async function voidOffering(id, churchId = DEFAULT_CHURCH_ID) {
+async function voidOffering(id, voidedBy, churchId = DEFAULT_CHURCH_ID) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.transaction(async (tx) => {
@@ -1737,7 +1740,7 @@ async function voidOffering(id, churchId = DEFAULT_CHURCH_ID) {
       )
     ).limit(1);
     if (!existing[0] || existing[0].status === "voided") return false;
-    const updatedRows = await tx.update(offerings).set({ status: "voided", voidedAt: /* @__PURE__ */ new Date() }).where(
+    const updatedRows = await tx.update(offerings).set({ status: "voided", voidedAt: /* @__PURE__ */ new Date(), voidedBy }).where(
       and(
         eq(offerings.id, id),
         eq(offerings.churchId, churchId),
@@ -1752,7 +1755,7 @@ async function voidOffering(id, churchId = DEFAULT_CHURCH_ID) {
     return true;
   });
 }
-async function voidExpense(id, churchId = DEFAULT_CHURCH_ID) {
+async function voidExpense(id, voidedBy, churchId = DEFAULT_CHURCH_ID) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.transaction(async (tx) => {
@@ -1768,7 +1771,7 @@ async function voidExpense(id, churchId = DEFAULT_CHURCH_ID) {
       )
     ).limit(1);
     if (!existing[0] || existing[0].status === "voided") return false;
-    const updatedRows = await tx.update(expenses).set({ status: "voided" }).where(
+    const updatedRows = await tx.update(expenses).set({ status: "voided", voidedAt: /* @__PURE__ */ new Date(), voidedBy }).where(
       and(
         eq(expenses.id, id),
         eq(expenses.churchId, churchId),
@@ -4524,7 +4527,7 @@ var appRouter = router({
       return { id: updated };
     }),
     delete: financeProcedure.input(z2.object({ id: z2.number().int().positive() })).mutation(async ({ ctx, input }) => {
-      const deleted = await voidOffering(input.id);
+      const deleted = await voidOffering(input.id, ctx.user.id);
       if (!deleted)
         throw new TRPCError3({
           code: "NOT_FOUND",
@@ -4535,7 +4538,8 @@ var appRouter = router({
         userId: ctx.user.id,
         action: "VOID",
         entity: "offering",
-        entityId: input.id
+        entityId: input.id,
+        metadata: { voidedBy: ctx.user.id, voidedAt: /* @__PURE__ */ new Date() }
       });
       return { id: input.id };
     })
@@ -4653,7 +4657,7 @@ var appRouter = router({
       return { id: updated };
     }),
     delete: financeProcedure.input(z2.object({ id: z2.number().int().positive() })).mutation(async ({ ctx, input }) => {
-      const deleted = await voidExpense(input.id);
+      const deleted = await voidExpense(input.id, ctx.user.id);
       if (!deleted)
         throw new TRPCError3({
           code: "NOT_FOUND",
@@ -4664,7 +4668,8 @@ var appRouter = router({
         userId: ctx.user.id,
         action: "VOID",
         entity: "expense",
-        entityId: input.id
+        entityId: input.id,
+        metadata: { voidedBy: ctx.user.id, voidedAt: /* @__PURE__ */ new Date() }
       });
       return { id: input.id };
     })
