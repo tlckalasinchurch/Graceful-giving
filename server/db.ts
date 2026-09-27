@@ -914,10 +914,12 @@ export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
       )
       .returning({ id: offerings.id });
     if (!updatedRows[0]) return false;
-    if (existing[0].fundId)
-      await tx.execute(
+    if (existing[0].fundId) {
+      const result = await tx.execute(
         sql`UPDATE finance_accounts SET balance = balance - ${Number(existing[0].amount)} WHERE id = ${existing[0].fundId} AND "churchId" = ${churchId}`
       );
+      assertFundBalanceUpdated(result, existing[0].fundId, churchId);
+    }
     return true;
   });
 }
@@ -954,10 +956,12 @@ export async function voidExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
       )
       .returning({ id: expenses.id });
     if (!updatedRows[0]) return false;
-    if (existing[0].fundId)
-      await tx.execute(
+    if (existing[0].fundId) {
+      const result = await tx.execute(
         sql`UPDATE finance_accounts SET balance = balance + ${Number(existing[0].amount)} WHERE id = ${existing[0].fundId} AND "churchId" = ${churchId}`
       );
+      assertFundBalanceUpdated(result, existing[0].fundId, churchId);
+    }
     return true;
   });
 }
@@ -2086,9 +2090,10 @@ export async function postCountingSession(
         recordedBy: envelope.recordedBy,
       });
       if (envelope.fundId) {
-        await tx.execute(
+        const result = await tx.execute(
           sql`UPDATE finance_accounts SET balance = balance + ${envelope.amount} WHERE id = ${envelope.fundId} AND "churchId" = ${churchId}`
         );
+        assertFundBalanceUpdated(result, envelope.fundId, churchId);
       }
       offeringCount += 1;
     }
@@ -2120,9 +2125,10 @@ export async function postCountingSession(
         .set({ expenseId: inserted[0].id })
         .where(eq(sessionDeductions.id, deduction.id));
       if (deduction.fundId) {
-        await tx.execute(
+        const result = await tx.execute(
           sql`UPDATE finance_accounts SET balance = balance - ${deduction.amount} WHERE id = ${deduction.fundId} AND "churchId" = ${churchId}`
         );
+        assertFundBalanceUpdated(result, deduction.fundId, churchId);
       }
       deductionCount += 1;
     }
@@ -2593,9 +2599,10 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
       .returning({ id: offerings.id });
 
     // 5. Update fund balance in finance_accounts
-    await tx.execute(
+    const fundBalanceResult = await tx.execute(
       sql`UPDATE finance_accounts SET balance = balance + ${input.amount} WHERE id = ${input.fundId} AND "churchId" = ${churchId}`
     );
+    assertFundBalanceUpdated(fundBalanceResult, input.fundId, churchId);
 
     // 6. Update line_slips
     await tx
