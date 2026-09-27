@@ -1413,7 +1413,7 @@ export default function ComponentsShowcase() {
                   </div>
                   <div className="rounded-2xl border bg-card p-6 text-center">
                     <FlipText
-                      className="text-3xl font-bold text-clay-brown"
+                      className="text-3xl font-bold text-foreground-soft"
                       loop={false}
                     >
                       Graceful Giving

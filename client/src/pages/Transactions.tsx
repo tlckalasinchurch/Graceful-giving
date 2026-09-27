@@ -9,6 +9,7 @@ import {
   LoadingSkeleton,
   MoneyDisplay,
   StatusBadge,
+  TransactionFeed,
 } from "@/components/common/CommonUI";
 import {
   Download,
@@ -20,7 +21,9 @@ import {
   Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
-import { formatThaiDate } from "@/lib/format";
+import { formatThaiDate, toDate } from "@/lib/format";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageFinance } from "@shared/roles";
 import {
   expenseCategoryLabel,
   offeringCategoryLabel,
@@ -50,6 +53,8 @@ export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [fundFilter, setFundFilter] = useState("all");
+  const { user } = useAuth();
+  const canRecord = canManageFinance(user);
 
   const {
     data: offeringsData,
@@ -100,7 +105,7 @@ export default function Transactions() {
           // explicit rather than presenting a legacy record as approved.
           status: "unknown",
           icon: Heart,
-          tone: "bg-[#FDECEA] text-[#E06250]",
+          tone: "bg-destructive-soft text-destructive",
         });
       });
     }
@@ -119,7 +124,7 @@ export default function Transactions() {
           amount: Number(e.amount),
           status: e.status || "unknown",
           icon: Landmark,
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
+          tone: "bg-muted text-primary",
         });
       });
     }
@@ -161,8 +166,36 @@ export default function Transactions() {
   );
   const netTotal = totalIncome - totalExpense;
 
+  // Exports exactly the rows on screen (after search and filters). Amounts
+  // are plain numbers so a spreadsheet can sum them; the BOM makes Excel read
+  // the Thai text as UTF-8.
   const handleExport = () => {
-    toast.success("ดาวน์โหลดรายงานธุรกรรมสำเร็จ (CSV)");
+    if (filtered.length === 0) {
+      toast.error("ไม่มีรายการให้ส่งออก");
+      return;
+    }
+    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    const header = ["วันที่", "ประเภท", "รายการ", "หมวด", "กองทุน", "จำนวนเงิน", "สถานะ"];
+    const rows = filtered.map(t => [
+      toDate(t.date)?.toISOString().slice(0, 10) ?? "",
+      t.type === "income" ? "รายรับ" : "รายจ่าย",
+      t.title,
+      t.categoryLabel,
+      t.fund,
+      (t.type === "income" ? t.amount : -t.amount).toFixed(2),
+      t.status,
+    ]);
+    const csv = [header, ...rows]
+      .map(r => r.map(c => escape(String(c))).join(","))
+      .join("\r\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`ส่งออก ${filtered.length} รายการเป็นไฟล์ CSV แล้ว`);
   };
 
   const isLoading = loadingOfferings || loadingExpenses;
@@ -176,65 +209,58 @@ export default function Transactions() {
       action={
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={handleExport}
-            className="px-3.5 py-2 rounded-2xl bg-[#FFF8EA] hover:bg-[#FFF4D6] text-[#51443A] text-xs font-bold border border-[#E7DCC8] flex items-center gap-1.5 transition-all"
+            aria-label="ส่งออกรายการที่แสดงเป็น CSV"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 text-sm font-semibold text-foreground-soft hover:bg-muted"
           >
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">ส่งออก CSV</span>
+            <Download className="size-4" aria-hidden="true" />
+            <span>ส่งออก CSV</span>
           </button>
-          <button
-            onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-primary hover:bg-[#9F3B0F] text-white text-xs font-bold button-elevation transition-all flex items-center gap-1.5"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>บันทึกใหม่</span>
-          </button>
+          {canRecord && (
+            <button
+              type="button"
+              onClick={() => setLocation("/offerings/new")}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary-strong"
+            >
+              <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
+              <span>บันทึกรายรับ</span>
+            </button>
+          )}
         </div>
       }
     >
-      {/* 1. Summary Cards (รายรับ, รายจ่าย, ยอดสุทธิ) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">
-            รายรับทั้งหมด
-          </span>
-          <div>
-            <MoneyDisplay amount={totalIncome} type="income" size="lg" />
+      {/* 1. Summary of the rows currently shown */}
+      <section
+        aria-label="สรุปรายการที่แสดง"
+        className="rounded-2xl border border-border bg-card p-4 sm:p-5"
+      >
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-muted-foreground">
+              รายรับ · {filtered.filter(t => t.type === "income").length} รายการ
+            </p>
+            <MoneyDisplay amount={totalIncome} type="income" size="md" />
           </div>
-          <p className="text-xs text-[#807266]">
-            {filtered.filter(t => t.type === "income").length} รายการ
-          </p>
-        </div>
-
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">
-            รายจ่ายทั้งหมด
-          </span>
-          <div>
-            <MoneyDisplay amount={totalExpense} type="expense" size="lg" />
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-muted-foreground">
+              รายจ่าย · {filtered.filter(t => t.type === "expense").length} รายการ
+            </p>
+            <MoneyDisplay amount={totalExpense} type="expense" size="md" />
           </div>
-          <p className="text-xs text-[#807266]">
-            {filtered.filter(t => t.type === "expense").length} รายการ
-          </p>
-        </div>
-
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">ยอดสุทธิ</span>
-          <div>
-            <MoneyDisplay
-              amount={netTotal}
-              type={netTotal >= 0 ? "income" : "expense"}
-              size="lg"
-            />
+          <div className="col-span-2 min-w-0 border-t border-divider pt-3 sm:col-span-1 sm:border-t-0 sm:border-l sm:pl-4 sm:pt-0">
+            <p className="text-xs font-medium text-muted-foreground">
+              ยอดสุทธิของรายการที่แสดง
+            </p>
+            <MoneyDisplay amount={netTotal} size="md" />
           </div>
-          <p className="text-xs text-[#807266]">คงเหลือในรอบที่เลือก</p>
         </div>
-      </div>
+      </section>
 
       {/* 2. Filter Bar */}
-      <div className="bg-white rounded-2xl p-4 md:p-5 border border-[#E7DCC8] card-elevation-sm space-y-3">
+      <div>
         <FilterBar
-          searchPlaceholder="ค้นหารายการ, หมวดหมู่, หรือพันธกิจ..."
+          searchPlaceholder="ค้นหารายการ หมวด หรือกองทุน"
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           filters={[
@@ -269,20 +295,41 @@ export default function Transactions() {
         />
       ) : filtered.length === 0 ? (
         <EmptyState
-          title="ไม่พบรายการธุรกรรม"
-          description="ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา ลองเปลี่ยนคำค้นหาหรือเลือกหมวดหมู่อื่น"
-          actionText="บันทึกการถวายใหม่"
-          onAction={() => setLocation("/offerings/new")}
+          title={
+            transactions.length === 0
+              ? "ยังไม่มีรายการเงิน"
+              : "ไม่พบรายการที่ตรงกับการค้นหา"
+          }
+          description={
+            transactions.length === 0
+              ? "เริ่มบันทึกรายการแรกเพื่อดูข้อมูลในหน้านี้"
+              : "ลองเปลี่ยนคำค้นหา หรือเลือก \"ทั้งหมด\" เพื่อดูทุกรายการ"
+          }
+          actionText={
+            transactions.length === 0
+              ? canRecord
+                ? "บันทึกรายรับ"
+                : undefined
+              : "ล้างการค้นหา"
+          }
+          onAction={
+            transactions.length === 0
+              ? () => setLocation("/offerings/new")
+              : () => {
+                  setSearchTerm("");
+                  setTypeFilter("all");
+                }
+          }
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-[#E7DCC8] card-elevation-sm overflow-hidden">
+        <div className="bg-card rounded-2xl border border-border overflow-clip">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="relative hidden lg:block overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="bg-[#FFFFFF] border-b border-[#E7DCC8] text-[#51443A] font-bold">
+              <thead className="bg-muted border-b border-border text-xs text-muted-foreground font-semibold">
                 <tr>
                   <th scope="col" className="p-4">วันที่</th>
                   <th scope="col" className="p-4">รายการ</th>
@@ -292,26 +339,26 @@ export default function Transactions() {
                   <th scope="col" className="p-4 text-center">สถานะ</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EDE8E3]/60">
+              <tbody className="divide-y divide-divider/60">
                 {filtered.map(tx => (
-                  <tr key={tx.id} className="transition-colors hover:bg-[#FAF8F5]/70">
-                    <td className="p-4 text-[#807266] whitespace-nowrap font-medium">
+                  <tr key={tx.id} className="transition-colors hover:bg-background/70">
+                    <td className="p-4 text-muted-foreground whitespace-nowrap font-medium">
                       {formatThaiDate(tx.date)}
                     </td>
-                    <th scope="row" className="p-4 font-bold text-[#171311]">
+                    <th scope="row" className="p-4 font-bold text-foreground">
                       <Link
                         href={`/transactions/${tx.id}`}
-                        className="rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+                        className="rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       >
                         {tx.title}
                       </Link>
                     </th>
                     <td className="p-4">
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#FFF8EA] text-[#51443A] text-xs font-medium">
+                      <span className="px-2.5 py-0.5 rounded-full bg-muted text-foreground-soft text-xs font-medium">
                         {tx.categoryLabel}
                       </span>
                     </td>
-                    <td className="p-4 text-[#51443A]">{tx.fund}</td>
+                    <td className="p-4 text-foreground-soft">{tx.fund}</td>
                     <td className="p-4 text-right font-bold">
                       <MoneyDisplay
                         amount={tx.amount}
@@ -328,43 +375,29 @@ export default function Transactions() {
             </table>
           </div>
 
-          {/* MOBILE CARDS VIEW (Visible on Mobile) */}
-          <div className="md:hidden divide-y divide-[#EDE8E3]/60">
-            {filtered.map(tx => {
-              const Icon = tx.icon || ReceiptText;
-              return (
-                <Link
-                  key={tx.id}
-                  href={`/transactions/${tx.id}`}
-                  aria-label={`ดูรายละเอียด ${tx.title} วันที่ ${formatThaiDate(tx.date)} จำนวนเงิน ${tx.amount} บาท`}
-                  className="p-4 flex items-center justify-between gap-3 active:bg-[#FAF8F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C94F16]"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className={`w-11 h-11 rounded-2xl ${tx.tone} flex items-center justify-center shrink-0 shadow-2xs`}
-                    >
-                      <Icon className="w-5 h-5 stroke-[2.2]" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-[#171311] truncate">
-                        {tx.title}
-                      </p>
-                      <p className="text-sm text-[#51443A] pt-0.5">
-                        {formatThaiDate(tx.date)} · {tx.fund}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-right shrink-0 space-y-1">
-                    <MoneyDisplay amount={tx.amount} type={tx.type} size="sm" />
-                    <div>
-                      <StatusBadge status={tx.status} />
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          {/* PHONE AND TABLET: feed grouped by day, headers stick below the
+              top bar while their day scrolls past. */}
+          <TransactionFeed
+            sticky
+            className="lg:hidden rounded-none border-0"
+            items={filtered.map(tx => ({
+              id: tx.id,
+              href: `/transactions/${tx.id}`,
+              title: tx.title,
+              meta:
+                tx.type === "income"
+                  ? tx.fund
+                  : `${tx.categoryLabel} · ${tx.fund}`,
+              amount: tx.amount,
+              type: tx.type,
+              category: tx.category,
+              date: tx.date,
+              trailing:
+                tx.type === "expense" && tx.status !== "approved" ? (
+                  <StatusBadge status={tx.status} />
+                ) : undefined,
+            }))}
+          />
         </div>
       )}
     </AppLayout>

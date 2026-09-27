@@ -1,299 +1,320 @@
-import { useEffect, useMemo, useState } from "react";
-import { trpc, type RouterOutputs } from "@/lib/trpc";
-import { ArrowRight, Heart, Inbox, Landmark } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
+import {
+  ArrowRight,
+  Banknote,
+  CalendarDays,
+  CheckCircle2,
+  Coins,
+  CreditCard,
+  FileBarChart,
+  HandCoins,
+  Inbox,
+  ReceiptText,
+  UsersRound,
+} from "lucide-react";
+import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canAccessRoute } from "@/lib/routeAccess";
-import { offeringCategoryLabel } from "@shared/categories";
+import { canManageFinance } from "@shared/roles";
+import {
+  expenseCategoryLabel,
+  offeringCategoryLabel,
+} from "@shared/categories";
 import { HeroSection } from "./Home/components/HeroSection";
 import { BalanceCard } from "./Home/components/BalanceCard";
-import { FinancialSummaryRow } from "./Home/components/FinancialSummaryRow";
-import { PrimaryActions } from "./Home/components/PrimaryActions";
-import { SecondaryMenu } from "./Home/components/SecondaryMenu";
+import { MonthSummary } from "./Home/components/MonthSummary";
+import { QuickActions, type QuickAction } from "./Home/components/QuickActions";
 import { BudgetSection } from "./Home/components/BudgetSection";
 import {
   RecentTransactions,
   type TransactionItem,
 } from "./Home/components/RecentTransactions";
 import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
-import { formatBaht, formatThaiDateTime } from "@/lib/format";
 
-// ─── Formatting helpers ──────────────────────────────────────────────────────
+/** Upper bound for the "this month" count queries; more reads as "200+". */
+const MONTH_COUNT_LIMIT = 200;
+const RECENT_COUNT = 5;
 
-const fmtBaht = (n: number) => formatBaht(n);
-const fmtShortBaht = (n: number) => formatBaht(n, 0);
-
-function pctChange(current: number, prev: number) {
-  if (prev === 0) return current > 0 ? "+∞%" : "0%";
-  const pct = ((current - prev) / prev) * 100;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(0)}%`;
+function AttentionItem({
+  icon: Icon,
+  title,
+  description,
+  actionText,
+  onAction,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  actionText: string;
+  onAction: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-accent-border bg-accent p-3 pl-4">
+      <Icon
+        className="size-5 shrink-0 text-primary-strong"
+        aria-hidden="true"
+      />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-foreground">{title}</p>
+        <p className="truncate text-xs text-foreground-soft">{description}</p>
+      </div>
+      <button
+        type="button"
+        onClick={onAction}
+        className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-xl bg-card px-3 text-sm font-semibold text-primary-strong border border-accent-border hover:bg-muted"
+      >
+        {actionText}
+        <ArrowRight className="size-4" aria-hidden="true" />
+      </button>
+    </div>
+  );
 }
-
-function trendArrow(trend: string) {
-  return trend.trim().startsWith("-") ? "↓" : "↑";
-}
-
-function trendValue(trend: string) {
-  return trend.replace(/^[+\-↑↓]\s*/, "");
-}
-
-const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
-
-// ─── Balance count-up (snappy and instant) ───────────────────────────────────
-function useCountUp(target: number, durationMs = 200): number {
-  const [value, setValue] = useState(target);
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setValue(target);
-      return;
-    }
-    const start = performance.now();
-    let frameId: number;
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / durationMs, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(target * eased);
-      if (progress < 1) {
-        frameId = requestAnimationFrame(tick);
-      }
-    };
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, durationMs, prefersReducedMotion]);
-
-  return value;
-}
-
-// ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const [showBalance, setShowBalance] = useState(true);
-
-  // Dialog states
   const [newsOpen, setNewsOpen] = useState(false);
 
-  // The dashboard only offers shortcuts the signed-in role can actually open,
-  // so a tile never drops the user on the Restricted Access screen.
+  // The dashboard only offers what the signed-in role can open, so a shortcut
+  // never lands on the "access restricted" screen.
+  const canRecordOffering = canManageFinance(user);
+  const canRecordExpense = canAccessRoute("/expenses", user);
+  const canCount = canAccessRoute("/counting", user);
   const canOpenReports = canAccessRoute("/reports", user);
   const canOpenMembers = canAccessRoute("/members", user);
-  const canRecordExpense = canAccessRoute("/expenses", user);
+  const canOpenBudgets = canAccessRoute("/budgets", user);
+  const canApprove = canAccessRoute("/approvals", user);
   const canAccessInbox = canAccessRoute("/giving/inbox", user);
 
-  // Three tiles always show (กิจกรรม, ขอเบิกเงิน, เพิ่มเติม); the two gated
-  // ones change the count, so match the column count to what is actually
-  // rendered rather than leaving empty columns.
-  const visibleSecondaryTiles =
-    3 + (canOpenReports ? 1 : 0) + (canOpenMembers ? 1 : 0);
-  const secondaryTileColsClass =
-    visibleSecondaryTiles === 5
-      ? "sm:grid-cols-5"
-      : visibleSecondaryTiles === 4
-        ? "sm:grid-cols-4"
-        : "sm:grid-cols-3";
+  const monthStart = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }, []);
 
-  // tRPC Queries with resilient fallback
-  const {
-    data: summaryData,
-    isLoading: summaryLoading,
-    isError: summaryError,
-  } = trpc.finance.summary.useQuery(undefined, {
+  const summaryQuery = trpc.finance.summary.useQuery(undefined, {
     retry: false,
     staleTime: 30_000,
   });
-
-  const { data: offeringsData } = trpc.offerings.list.useQuery(
-    { limit: 30 },
+  const recentOfferings = trpc.offerings.list.useQuery(
+    { limit: RECENT_COUNT },
     { retry: false }
   );
-
-  const { data: expensesData } = trpc.expenses.list.useQuery(
-    { limit: 30 },
+  const recentExpenses = trpc.expenses.list.useQuery(
+    { limit: RECENT_COUNT },
     { retry: false }
   );
-
+  const monthOfferings = trpc.offerings.list.useQuery(
+    { limit: MONTH_COUNT_LIMIT, fromDate: monthStart },
+    { retry: false, staleTime: 30_000 }
+  );
+  const monthExpenses = trpc.expenses.list.useQuery(
+    { limit: MONTH_COUNT_LIMIT, fromDate: monthStart },
+    { retry: false, staleTime: 30_000 }
+  );
+  const { data: monthlyFlow } = trpc.finance.monthlyStats.useQuery(
+    { months: 6 },
+    { retry: false, staleTime: 60_000 }
+  );
   const { data: inboxStats } = trpc.givingInbox.stats.useQuery(undefined, {
     enabled: canAccessInbox,
     retry: false,
     staleTime: 15_000,
   });
+  const { data: withdrawals } = trpc.withdrawals.list.useQuery(undefined, {
+    enabled: canApprove,
+    retry: false,
+    staleTime: 15_000,
+  });
 
+  const summary = summaryQuery.data;
   const pendingSlipCount = inboxStats?.reviewRequired ?? 0;
+  const pendingApprovalCount =
+    withdrawals?.filter(w => w.status === "pending").length ?? 0;
 
-  // Derived values always come from the current API response.
-  const totalBalance = summaryData?.totalBalance;
-  const monthlyIncome = summaryData?.monthlyIncome;
-  const monthlyExpense = summaryData?.monthlyExpense;
-  const netMonthly = summaryData
-    ? summaryData.monthlyIncome - summaryData.monthlyExpense
-    : undefined;
-  const incomeTrend = summaryData
-    ? pctChange(summaryData.monthlyIncome, summaryData.prevMonthIncome)
-    : "";
-  const expenseTrend = summaryData
-    ? pctChange(summaryData.monthlyExpense, summaryData.prevMonthExpense)
-    : "";
-  const isBalanceLoading = summaryLoading;
-  const isDataUnavailable = !summaryLoading && (summaryError || !summaryData);
-  const isPositiveBalance = (totalBalance ?? 0) >= 0;
-  const isPositiveNet = (netMonthly ?? 0) >= 0;
-  const animatedBalance = useCountUp(totalBalance ?? 0);
+  const fundNames = useMemo(
+    () => new Map((summary?.accounts ?? []).map(a => [a.id, a.name])),
+    [summary]
+  );
 
-  // Combined transactions
-  const allTransactions = useMemo<TransactionItem[]>(() => {
-    type OfferingItem = RouterOutputs["offerings"]["list"][number];
-    type ExpenseItem = RouterOutputs["expenses"]["list"][number];
+  const recentItems = useMemo<TransactionItem[]>(() => {
     const list: TransactionItem[] = [];
-    if (offeringsData && offeringsData.length > 0) {
-      offeringsData.forEach((o: OfferingItem) => {
-        list.push({
-          id: `offering-${o.id}`,
-          rawId: o.id,
-          title: offeringCategoryLabel(o.category),
-          date: o.receiptDate,
-          type: "income",
-          category: o.category,
-          subCategory: "อาคารคริสตจักร",
-          amount: Number(o.amount),
-          tone: "bg-[#FDECEA] text-[#E06250]",
-          icon: Heart,
-        });
+    for (const o of recentOfferings.data ?? []) {
+      list.push({
+        id: `offering-${o.id}`,
+        href: `/transactions/offering-${o.id}`,
+        title: offeringCategoryLabel(o.category),
+        date: o.receiptDate,
+        type: "income",
+        context: (o.fundId && fundNames.get(o.fundId)) || "รายรับ",
+        category: o.category,
+        amount: Number(o.amount),
       });
     }
-    if (expensesData && expensesData.length > 0) {
-      expensesData.forEach((e: ExpenseItem) => {
-        list.push({
-          id: `expense-${e.id}`,
-          rawId: e.id,
-          title: e.description,
-          date: e.expenseDate,
-          type: "expense",
-          category: e.category,
-          subCategory: "พันธกิจนมัสการ",
-          amount: Number(e.amount),
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
-          icon: Landmark,
-        });
+    for (const e of recentExpenses.data ?? []) {
+      list.push({
+        id: `expense-${e.id}`,
+        href: `/transactions/expense-${e.id}`,
+        title: e.description,
+        date: e.expenseDate,
+        type: "expense",
+        context: expenseCategoryLabel(e.category),
+        category: e.category,
+        amount: Number(e.amount),
       });
     }
-    return list.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-  }, [offeringsData, expensesData]);
+    return list
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, RECENT_COUNT);
+  }, [recentOfferings.data, recentExpenses.data, fundNames]);
+
+  const monthCountReady = monthOfferings.data && monthExpenses.data;
+  const monthCount = monthCountReady
+    ? monthOfferings.data!.length + monthExpenses.data!.length
+    : undefined;
+  const monthCountCapped =
+    !!monthCountReady &&
+    (monthOfferings.data!.length >= MONTH_COUNT_LIMIT ||
+      monthExpenses.data!.length >= MONTH_COUNT_LIMIT);
+
+  const actions: QuickAction[] = [
+    canRecordOffering && {
+      label: "บันทึกรายรับ",
+      icon: HandCoins,
+      primary: true,
+      onSelect: () => setLocation("/offerings/new"),
+    },
+    canRecordExpense && {
+      label: "บันทึกรายจ่าย",
+      icon: CreditCard,
+      onSelect: () => setLocation("/expenses/new"),
+    },
+    canCount && {
+      label: "นับเงินถวาย",
+      icon: Coins,
+      onSelect: () => setLocation("/counting"),
+    },
+    {
+      label: "ดูรายการ",
+      icon: ReceiptText,
+      onSelect: () => setLocation("/transactions"),
+    },
+    {
+      label: "ขอเบิกเงิน",
+      icon: Banknote,
+      onSelect: () => setLocation("/withdrawals/new"),
+    },
+    canOpenReports && {
+      label: "รายงาน",
+      icon: FileBarChart,
+      onSelect: () => setLocation("/reports"),
+    },
+    canOpenMembers && {
+      label: "สมาชิก",
+      icon: UsersRound,
+      onSelect: () => setLocation("/members"),
+    },
+    {
+      label: "ข่าวสาร",
+      icon: CalendarDays,
+      onSelect: () => setNewsOpen(true),
+    },
+  ].filter(Boolean) as QuickAction[];
+
+  const isSummaryUnavailable =
+    !summaryQuery.isLoading && (summaryQuery.isError || !summary);
 
   return (
     <AppLayout>
-      <div className="space-y-6 sm:space-y-8 md:space-y-10">
-        {/* 1. Hero Section */}
-        <HeroSection />
+      <div className="space-y-6 lg:space-y-8">
+        {/* Desktop keeps the welcome banner; on a phone it would push the
+            balance below the first screen. */}
+        <div className="hidden lg:block">
+          <HeroSection />
+        </div>
 
-        {/* Action Needed Banner: High-priority inbox alerts */}
-        {canAccessInbox && pendingSlipCount > 0 && (
-          <div
-            role="region"
-            aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#F9D2AE] text-[#51443A] shadow-2xs"
-          >
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0">
-                <Inbox className="w-5 h-5" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+          <div className="space-y-6">
+            <BalanceCard
+              showBalance={showBalance}
+              onToggleBalance={() => setShowBalance(v => !v)}
+              isLoading={summaryQuery.isLoading}
+              isUnavailable={isSummaryUnavailable}
+              totalBalance={summary?.totalBalance}
+              netMonthly={
+                summary
+                  ? summary.monthlyIncome - summary.monthlyExpense
+                  : undefined
+              }
+              monthlyFlow={monthlyFlow}
+              prevNetMonthly={
+                summary
+                  ? summary.prevMonthIncome - summary.prevMonthExpense
+                  : undefined
+              }
+            />
+
+            {(pendingSlipCount > 0 || pendingApprovalCount > 0) && (
+              <div
+                role="region"
+                aria-label="รายการที่ต้องดำเนินการ"
+                className="space-y-2"
+              >
+                {pendingApprovalCount > 0 && (
+                  <AttentionItem
+                    icon={CheckCircle2}
+                    title={`คำขอเบิกรออนุมัติ ${pendingApprovalCount} รายการ`}
+                    description="ตรวจสอบวัตถุประสงค์และยอดเงินก่อนอนุมัติ"
+                    actionText="ตรวจสอบ"
+                    onAction={() => setLocation("/approvals")}
+                  />
+                )}
+                {pendingSlipCount > 0 && (
+                  <AttentionItem
+                    icon={Inbox}
+                    title={`สลิปรอตรวจสอบ ${pendingSlipCount} รายการ`}
+                    description="สลิปจาก LINE Official Account รอตรวจสอบและบันทึกบัญชี"
+                    actionText="ตรวจสอบ"
+                    onAction={() => setLocation("/giving/inbox")}
+                  />
+                )}
               </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-sm sm:text-base text-[#171311]">
-                  มีสลิปถวายรอตรวจสอบ {pendingSlipCount} รายการ
-                </h3>
-                <p className="text-xs text-[#51443A] truncate">
-                  สลิปจาก LINE Official Account รอดำเนินการตรวจสอบและบันทึกบัญชี
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
-            >
-              <span>ตรวจสอบสลิป</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            )}
+
+            <QuickActions actions={actions} />
+
+            <MonthSummary
+              isLoading={summaryQuery.isLoading}
+              showAmounts={showBalance}
+              monthlyIncome={summary?.monthlyIncome}
+              monthlyExpense={summary?.monthlyExpense}
+              prevMonthIncome={summary?.prevMonthIncome}
+              prevMonthExpense={summary?.prevMonthExpense}
+              transactionCount={monthCount}
+              countIsCapped={monthCountCapped}
+            />
           </div>
-        )}
 
-        <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ดูภาพรวม
-          </h2>
-          <BalanceCard
-            showBalance={showBalance}
-            setShowBalance={setShowBalance}
-            isPositiveBalance={isPositiveBalance}
-            isBalanceLoading={isBalanceLoading}
-            isDataUnavailable={isDataUnavailable}
-            summaryError={summaryError}
-            hasSummaryData={!!summaryData}
-            animatedBalance={animatedBalance}
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-            fmtBaht={fmtBaht}
-          />
-          <FinancialSummaryRow
-            isBalanceLoading={isBalanceLoading}
-            showBalance={showBalance}
-            monthlyIncome={monthlyIncome}
-            monthlyExpense={monthlyExpense}
-            netMonthly={netMonthly}
-            incomeTrend={incomeTrend}
-            expenseTrend={expenseTrend}
-            isPositiveNet={isPositiveNet}
-            fmtShortBaht={fmtShortBaht}
-            trendArrow={trendArrow}
-            trendValue={trendValue}
-          />
-        </section>
-
-        <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ทำรายการ
-          </h2>
-          <PrimaryActions
-            canRecordExpense={canRecordExpense}
-            onNewOffering={() => setLocation("/offerings/new")}
-            onNewExpense={() => setLocation("/expenses/new")}
-          />
-          <SecondaryMenu
-            canOpenReports={canOpenReports}
-            canOpenMembers={canOpenMembers}
-            secondaryTileColsClass={secondaryTileColsClass}
-            onOpenReports={() => setLocation("/reports")}
-            onOpenMembers={() => setLocation("/members")}
-            onOpenNews={() => setNewsOpen(true)}
-            onOpenWithdrawals={() => setLocation("/withdrawals/new")}
-          />
-        </section>
-
-        <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ติดตาม
-          </h2>
-          <BudgetSection
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-          />
-          <RecentTransactions
-            allTransactions={allTransactions}
-            onViewAll={() => setLocation("/transactions")}
-            fmtBaht={fmtBaht}
-            fmtThaiDate={fmtThaiDate}
-          />
-        </section>
+          <div className="space-y-6">
+            <RecentTransactions
+              items={recentItems}
+              isLoading={recentOfferings.isLoading || recentExpenses.isLoading}
+              onViewAll={() => setLocation("/transactions")}
+              onAddFirst={
+                canRecordOffering
+                  ? () => setLocation("/offerings/new")
+                  : undefined
+              }
+            />
+            {canOpenBudgets && (
+              <BudgetSection onOpenBudgets={() => setLocation("/budgets")} />
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Sheet: Church News & Announcements */}
       <ChurchNewsSheet open={newsOpen} onOpenChange={setNewsOpen} />
     </AppLayout>
   );

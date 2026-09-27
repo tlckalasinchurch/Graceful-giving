@@ -4,16 +4,16 @@ import { Sprout } from "lucide-react";
 
 export default function Register() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-card p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 space-y-2 text-center">
-          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-[#C94F16]/30 bg-[#C94F16]/15 shadow-xs">
-            <Sprout className="size-9 text-[#51443A]" />
+          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-primary/15">
+            <Sprout className="size-9 text-foreground-soft" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#171311]">
-            Grace <span className="text-[#C94F16]">Ledger</span>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Grace <span className="text-primary">Ledger</span>
           </h1>
-          <p className="text-sm text-[#51443A]">สมัครบัญชีใหม่</p>
+          <p className="text-sm text-foreground-soft">สมัครบัญชีใหม่</p>
         </div>
 
         <SignUp

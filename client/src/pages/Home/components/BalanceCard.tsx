@@ -1,145 +1,214 @@
-import {
-  BarChart3,
-  ChevronRight,
-  Eye,
-  EyeOff,
-  Info,
-  Loader2,
-} from "lucide-react";
-import { Illustration } from "@/components/Illustration";
+import { Eye, EyeOff } from "lucide-react";
+import { MoneyDisplay } from "@/components/common/CommonUI";
+import { formatThaiDate } from "@/lib/format";
 
 interface BalanceCardProps {
   showBalance: boolean;
-  setShowBalance: (show: boolean) => void;
-  isPositiveBalance: boolean;
-  isBalanceLoading: boolean;
-  isDataUnavailable: boolean;
-  summaryError: unknown;
-  hasSummaryData: boolean;
-  animatedBalance: number;
-  canOpenReports: boolean;
-  onOpenReports: () => void;
-  fmtBaht: (n: number) => string;
+  onToggleBalance: () => void;
+  isLoading: boolean;
+  isUnavailable: boolean;
+  totalBalance?: number;
+  /** This month's net (income − expense) and last month's, for the trend. */
+  netMonthly?: number;
+  prevNetMonthly?: number;
+  /** Last months, oldest first; the final entry is the current month. */
+  monthlyFlow?: { month: string; income: number; expense: number }[];
 }
 
+/**
+ * Six bars of monthly net (income − expense). Bars above the baseline are a
+ * surplus, below it a deficit; the current month is the solid bar. The
+ * figures are repeated in a visually hidden list for screen readers.
+ */
+function NetTrend({
+  data,
+}: {
+  data: { month: string; income: number; expense: number }[];
+}) {
+  const nets = data.map(d => d.income - d.expense);
+  const max = Math.max(1, ...nets.map(Math.abs));
+  const hasNegative = nets.some(n => n < 0);
+  const H = 48;
+  const base = hasNegative ? H / 2 : H;
+  return (
+    <figure className="mt-4">
+      <figcaption className="mb-2 text-xs text-muted-foreground">
+        สุทธิรายเดือน {data.length} เดือน
+      </figcaption>
+      <div className="grid grid-cols-6 items-end gap-2" aria-hidden="true">
+        {data.map((d, i) => {
+          const n = nets[i];
+          const h = Math.max(
+            2,
+            (Math.abs(n) / max) * (hasNegative ? H / 2 : H)
+          );
+          const current = i === data.length - 1;
+          const tone =
+            n < 0
+              ? current
+                ? "bg-destructive"
+                : "bg-destructive-border"
+              : current
+                ? "bg-primary"
+                : "bg-accent-border";
+          return (
+            <div
+              key={d.month + i}
+              className="flex flex-col items-center gap-1.5"
+            >
+              <div className="relative w-full" style={{ height: H }}>
+                <div
+                  className={`absolute inset-x-1 rounded-sm ${tone}`}
+                  style={
+                    n >= 0
+                      ? { bottom: H - base, height: h }
+                      : { top: base, height: h }
+                  }
+                />
+                {hasNegative && (
+                  <div
+                    className="absolute inset-x-0 border-t border-divider"
+                    style={{ top: base }}
+                  />
+                )}
+              </div>
+              <span
+                className={`text-[11px] ${current ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+              >
+                {d.month}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <ul className="sr-only">
+        {data.map((d, i) => (
+          <li key={d.month + i}>
+            {d.month}: สุทธิ {nets[i].toLocaleString("th-TH")} บาท
+          </li>
+        ))}
+      </ul>
+    </figure>
+  );
+}
+
+const HIDDEN = "฿ ••••••";
+
+/**
+ * The first thing on the dashboard: how much money the church holds now.
+ * Loading and "no data" keep the same height so the page does not jump.
+ */
 export function BalanceCard({
   showBalance,
-  setShowBalance,
-  isPositiveBalance,
-  isBalanceLoading,
-  isDataUnavailable,
-  summaryError,
-  hasSummaryData,
-  animatedBalance,
-  canOpenReports,
-  onOpenReports,
-  fmtBaht,
+  onToggleBalance,
+  isLoading,
+  isUnavailable,
+  totalBalance,
+  netMonthly,
+  prevNetMonthly,
+  monthlyFlow,
 }: BalanceCardProps) {
+  const hasTrend =
+    netMonthly !== undefined && prevNetMonthly !== undefined && !isUnavailable;
+  const delta = hasTrend ? netMonthly - prevNetMonthly : 0;
+
   return (
     <section
-      aria-label="ยอดเงินคงเหลือรวม"
-      style={{ animationDelay: "90ms" }}
-      className={`animate-fade-up bg-white rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${isPositiveBalance ? "border-[#A8D59D] card-elevation-focus" : "border-[#F2C9BE] card-elevation-sm"}`}
+      aria-labelledby="balance-heading"
+      className="rounded-2xl border border-border bg-card p-4 sm:p-6"
     >
-      <div className="flex items-center justify-between gap-6">
-        {/* Left: Prominent financial figures */}
-        <div className="min-w-0 flex-1 space-y-2 sm:space-y-3 z-10">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#171311]">
-              ยอดเงินคงเหลือรวม
-            </h2>
-            <button
-              onClick={() => setShowBalance(!showBalance)}
-              className="size-11 shrink-0 inline-flex items-center justify-center text-[#3F3833] hover:text-[#171311] transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-[#C94F16]"
-              aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
-              aria-pressed={!showBalance}
-            >
-              {showBalance ? (
-                <Eye className="w-5 h-5 sm:w-6 sm:h-6" />
-              ) : (
-                <EyeOff className="w-5 h-5 sm:w-6 sm:h-6" />
-              )}
-            </button>
-
-            {/* Data-source status */}
-            {isBalanceLoading && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#F0EAF8] text-[#7D3C98] text-xs sm:text-sm font-bold">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                กำลังโหลดข้อมูล
-              </span>
-            )}
-            {isDataUnavailable && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFF8EA] border border-dashed border-[#F9D2AE] text-[#7F3A0D] text-xs sm:text-sm font-bold">
-                <Info className="w-4 h-4" />
-                {summaryError
-                  ? "เชื่อมต่อข้อมูลไม่สำเร็จ"
-                  : "ยังไม่มีข้อมูลการเงิน"}
-              </span>
-            )}
-          </div>
-
-          {isBalanceLoading ? (
-            <div
-              className="h-12 sm:h-16 md:h-20 w-56 sm:w-80 rounded-2xl bg-[#EDE8E3] animate-pulse"
-              aria-hidden="true"
-            />
-          ) : (
-            <div
-              /* Fluid, and never wrapping. The old fixed steps reached 96px,
-                 which a seven-figure balance cannot fit beside the card's
-                 illustration, and `break-words` then split the figure across
-                 two lines mid-digit — "4,182,671." over "50" reads as two
-                 different numbers. Scaling down is the only safe way for an
-                 amount to lose an argument with its container. */
-              className={`whitespace-nowrap text-[clamp(1.75rem,5.5vw,4.5rem)] font-bold tracking-tight tabular-nums ${isPositiveBalance ? "text-[#155724]" : "text-[#9E2D12]"}`}
-            >
-              {showBalance && hasSummaryData ? fmtBaht(animatedBalance) : "—"}
-            </div>
-          )}
-
-          <p className="text-sm sm:text-base md:text-lg text-[#3F3833] font-bold flex items-center gap-2 pt-1">
-            {isBalanceLoading ? (
-              <span>กำลังตรวจสอบยอดเงินล่าสุด…</span>
-            ) : isPositiveBalance ? (
-              <>
-                <span>ขอบคุณพระเจ้าสำหรับทุกการถวาย</span>
-                <span className="text-[#1F5C33] text-lg">♥</span>
-              </>
-            ) : (
-              <span className="text-[#9E2D12] font-bold">
-                ยอดคงเหลือติดลบ — ควรตรวจสอบรายจ่าย
-              </span>
-            )}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2
+            id="balance-heading"
+            className="text-sm font-medium text-muted-foreground"
+          >
+            ยอดเงินคงเหลือรวม
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            ทุกกองทุน · ณ {formatThaiDate(new Date())}
           </p>
-
-          {canOpenReports && (
-            <div className="pt-3">
-              <button
-                onClick={onOpenReports}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs hover:border-[#C94F16]"
-              >
-                <BarChart3 className="w-4 h-4 text-[#C94F16]" />
-                <span>ดูรายละเอียด</span>
-                <ChevronRight className="w-4 h-4 text-[#3F3833]" />
-              </button>
-            </div>
+        </div>
+        <button
+          type="button"
+          onClick={onToggleBalance}
+          aria-pressed={!showBalance}
+          aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
+          className="-mr-2 -mt-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          {showBalance ? (
+            <Eye className="size-5" aria-hidden="true" />
+          ) : (
+            <EyeOff className="size-5" aria-hidden="true" />
           )}
-        </div>
-
-        {/* Right: Balance illustration tucked cleanly in corner */}
-        <div className="hidden sm:block shrink-0 z-10">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#E7DCC8] bg-[#FAF8F5] p-1.5 shadow-2xs">
-            <Illustration
-              src="/illustrations/balance_wallet.jpg"
-              alt="กระเป๋าสตางค์ยอดคงเหลือ"
-              className="w-full h-full object-cover rounded-xl"
-              width={176}
-              height={176}
-              aria-hidden="true"
-            />
-          </div>
-        </div>
+        </button>
       </div>
+
+      <div className="mt-3 min-h-11" aria-live="polite">
+        {isLoading ? (
+          <div
+            className="h-10 w-56 max-w-full animate-pulse rounded-lg bg-muted"
+            role="status"
+            aria-label="กำลังโหลดยอดเงิน"
+          />
+        ) : isUnavailable ? (
+          <p className="text-sm leading-relaxed text-foreground-soft">
+            ยังไม่มีข้อมูลยอดเงิน
+            บันทึกรายการแรกหรือตรวจสอบการเชื่อมต่อฐานข้อมูล
+          </p>
+        ) : showBalance ? (
+          <MoneyDisplay amount={totalBalance ?? 0} size="xl" />
+        ) : (
+          <span className="text-[2rem] font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
+            {HIDDEN}
+          </span>
+        )}
+      </div>
+
+      {showBalance &&
+        !isUnavailable &&
+        monthlyFlow &&
+        monthlyFlow.length > 1 &&
+        monthlyFlow.some(m => m.income || m.expense) && (
+          <NetTrend data={monthlyFlow} />
+        )}
+
+      {hasTrend && showBalance && (
+        <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-divider pt-4 text-sm">
+          <div className="min-w-0">
+            <dt className="text-xs text-muted-foreground">สุทธิเดือนนี้</dt>
+            <dd className="mt-0.5">
+              <MoneyDisplay amount={netMonthly} size="sm" />
+            </dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs text-muted-foreground">เทียบเดือนก่อน</dt>
+            <dd
+              className={`mt-0.5 text-sm font-semibold tabular-nums ${
+                delta > 0
+                  ? "text-success-strong"
+                  : delta < 0
+                    ? "text-destructive"
+                    : "text-foreground-soft"
+              }`}
+            >
+              {delta === 0 ? (
+                "เท่ากับเดือนก่อน"
+              ) : (
+                <>
+                  {delta > 0 ? "▲ เพิ่มขึ้น" : "▼ ลดลง"}{" "}
+                  <span className="whitespace-nowrap">
+                    ฿
+                    {Math.abs(delta).toLocaleString("th-TH", {
+                      maximumFractionDigits: 0,
+                    })}
+                  </span>
+                </>
+              )}
+            </dd>
+          </div>
+        </dl>
+      )}
     </section>
   );
 }

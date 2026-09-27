@@ -15,6 +15,7 @@ import {
   Banknote,
   BookCheck,
   Calculator,
+  ChevronRight,
   Landmark,
   RotateCcw,
   Scissors,
@@ -45,6 +46,7 @@ export default function CountingDetail() {
   const sessionId = Number(params.id);
   const utils = trpc.useUtils();
   const [tab, setTab] = useState<TabId>("envelopes");
+  const tabIndex = TABS.findIndex(t => t.id === tab);
 
   const detailQuery = trpc.counting.get.useQuery(
     { id: sessionId },
@@ -290,6 +292,7 @@ export default function CountingDetail() {
       activeRoute="/counting"
       title="รอบนับเงินถวาย"
       subtitle={serviceDate}
+      subtitleOnMobile
       action={
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={detail.session.status} />
@@ -300,9 +303,9 @@ export default function CountingDetail() {
                 title="ล้างข้อมูลเพื่อนับใหม่"
                 onClick={handleResetThisSession}
                 disabled={resetSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-[#E7DCC8] bg-[#FFF8EA] px-3.5 py-2 text-xs font-bold text-[#9F3B0F] hover:bg-[#FFF4D6] transition-colors disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-border bg-muted px-3.5 py-2 text-xs font-bold text-primary-strong hover:bg-accent transition-colors disabled:opacity-50"
               >
-                <RotateCcw className="h-4 w-4 text-[#9F3B0F]" />
+                <RotateCcw className="h-4 w-4 text-primary-strong" />
                 <span className="hidden sm:inline">นับใหม่</span>
               </button>
               <button
@@ -310,7 +313,7 @@ export default function CountingDetail() {
                 title="ลบรอบนับเงินนี้"
                 onClick={handleDeleteThisSession}
                 disabled={deleteSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-[#C8372D] hover:bg-rose-100 transition-colors disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-destructive-border bg-destructive-soft px-3.5 py-2 text-xs font-bold text-destructive hover:bg-destructive-soft transition-colors disabled:opacity-50"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="hidden sm:inline">ลบรอบนี้</span>
@@ -324,51 +327,74 @@ export default function CountingDetail() {
       <div className="space-y-6">
         {/* Running totals stay visible on every tab. */}
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4 shadow-2xs">
-            <p className="text-sm text-[#51443A]">ยอดถวายตามซอง</p>
-            <MoneyDisplay amount={r.offeringTotal} type="income" size="lg" />
+          <div className="min-w-0 rounded-2xl border border-border bg-card p-4">
+            <p className="text-sm text-foreground-soft">ยอดถวายตามซอง</p>
+            <MoneyDisplay amount={r.offeringTotal} type="income" size="md" />
           </div>
-          <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4 shadow-2xs">
-            <p className="text-sm text-[#51443A]">นับเงินสดได้</p>
-            <MoneyDisplay amount={r.countedCashTotal} size="lg" />
+          <div className="min-w-0 rounded-2xl border border-border bg-card p-4">
+            <p className="text-sm text-foreground-soft">นับเงินสดได้</p>
+            <MoneyDisplay amount={r.countedCashTotal} size="md" />
             <div className="mt-1 text-sm">
               <Variance amount={r.cashVariance} />
             </div>
           </div>
-          <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4 shadow-2xs">
-            <p className="text-sm text-[#51443A]">หักเบิก</p>
-            <MoneyDisplay amount={r.deductionTotal} type="expense" size="lg" />
+          <div className="min-w-0 rounded-2xl border border-border bg-card p-4">
+            <p className="text-sm text-foreground-soft">หักเบิก</p>
+            <MoneyDisplay amount={r.deductionTotal} type="expense" size="md" />
           </div>
-          <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4 shadow-2xs">
-            <p className="text-sm text-[#51443A]">ต้องนำฝาก</p>
-            <MoneyDisplay amount={r.expectedDeposit} size="lg" />
+          <div className="min-w-0 rounded-2xl border border-border bg-card p-4">
+            <p className="text-sm text-foreground-soft">ต้องนำฝาก</p>
+            <MoneyDisplay amount={r.expectedDeposit} size="md" />
             <div className="mt-1 text-sm">
               <Variance amount={r.depositVariance} />
             </div>
           </div>
         </section>
 
-        {/* Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {TABS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
-                tab === id
-                  ? "bg-primary text-white shadow-sm"
-                  : "border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-background"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
-          ))}
-        </div>
+        {/* Steps. Counting runs in this order, so each tab carries its
+            number and the page ends with a button to the next step. */}
+        <nav aria-label="ขั้นตอนการนับเงิน">
+          <ol className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 no-scrollbar sm:mx-0 sm:px-0">
+            {TABS.map(({ id, label }, index) => {
+              const active = tab === id;
+              return (
+                <li key={id} className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setTab(id)}
+                    aria-current={active ? "step" : undefined}
+                    onFocus={e =>
+                      e.currentTarget.scrollIntoView({
+                        block: "nearest",
+                        inline: "nearest",
+                      })
+                    }
+                    className={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-3 text-sm transition-colors ${
+                      active
+                        ? "border-primary bg-primary font-semibold text-primary-foreground"
+                        : "border-border bg-card font-medium text-foreground-soft hover:bg-muted"
+                    }`}
+                  >
+                    <span
+                      className={`flex size-6 items-center justify-center rounded-full text-xs font-bold tabular-nums ${
+                        active
+                          ? "bg-primary-foreground/20"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {index + 1}
+                    </span>
+                    {label}
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
 
         {!editable && tab !== "summary" && tab !== "bank" && (
-          <p className="rounded-2xl border border-[#F9D2AE] bg-[#FFF8EA] p-4 text-sm text-[#9F3B0F]">
+          <p className="rounded-2xl border border-accent-border bg-muted p-4 text-sm text-primary-strong">
             รอบนี้ส่งนับแล้ว จึงแก้ไขซองและผลนับไม่ได้ ถ้าต้องแก้ ให้เหรัญญิกกด
             “ส่งกลับไปนับใหม่” ในแท็บสรุป
           </p>
@@ -449,6 +475,22 @@ export default function CountingDetail() {
             resetSessionPending={resetSession.isPending}
             deleteSessionPending={deleteSession.isPending}
           />
+        )}
+
+        {tabIndex < TABS.length - 1 && (
+          <div className="flex justify-end border-t border-divider pt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setTab(TABS[tabIndex + 1].id);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted sm:w-auto"
+            >
+              ขั้นถัดไป: {TABS[tabIndex + 1].label}
+              <ChevronRight className="size-4" aria-hidden="true" />
+            </button>
+          </div>
         )}
       </div>
     </AppLayout>

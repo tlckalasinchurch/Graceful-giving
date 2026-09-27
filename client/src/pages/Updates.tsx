@@ -6,10 +6,10 @@ import {
   Bell,
   Megaphone,
   Settings2,
-  Sparkles,
   UsersRound,
 } from "lucide-react";
 import { Link } from "wouter";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { MemberFeed } from "./Updates/components/MemberFeed";
 import { AdminManager } from "./Updates/components/AdminManager";
 
@@ -20,7 +20,7 @@ export default function Updates() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] p-6 text-center text-sm text-[#807266]">
+      <div className="min-h-screen bg-background p-6 text-center text-sm text-muted-foreground">
         กำลังตรวจสอบบัญชีผู้ใช้...
       </div>
     );
@@ -28,28 +28,28 @@ export default function Updates() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] px-5 py-8">
+      <div className="min-h-screen bg-background px-5 py-8">
         <div className="mx-auto max-w-lg">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-bold text-[#9F3B0F] hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-bold text-primary-strong hover:underline"
           >
             <ArrowLeft className="size-4" />
             กลับหน้าหลัก
           </Link>
-          <div className="mt-16 rounded-2xl border border-[#E7DCC8] bg-white p-8 text-center shadow-[0_12px_30px_rgba(94,70,42,0.07)]">
-            <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#FFF8EA] text-[#9F3B0F]">
+          <div className="mt-16 rounded-2xl border border-border bg-card p-8 text-center shadow-[0_12px_30px_rgba(94,70,42,0.07)]">
+            <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-muted text-primary-strong">
               <Bell className="size-8" />
             </div>
-            <h1 className="mt-5 font-display text-2xl font-bold text-[#3F3833]">
+            <h1 className="mt-5 font-display text-2xl font-bold text-foreground-soft">
               ติดตามข่าวสารคริสตจักร
             </h1>
-            <p className="mt-2 text-sm leading-6 text-[#51443A]">
+            <p className="mt-2 text-sm leading-6 text-foreground-soft">
               เข้าสู่ระบบเพื่อดูประกาศ กิจกรรม และข้อมูลอัปเดตสำหรับสมาชิก
             </p>
             <button
               onClick={startLogin}
-              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#9F3B0F] px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] active:scale-95 transition"
+              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-primary-strong px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-primary active:scale-95 transition"
             >
               <UsersRound className="size-4" />
               เข้าสู่ระบบ
@@ -61,71 +61,45 @@ export default function Updates() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] pb-16 text-[#2C2622]">
-      <div className="mx-auto max-w-[var(--content-max)] px-5 py-6 sm:px-8 lg:py-10">
-        <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
-          <div>
-            <Link
-              href="/"
-              className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-[#9F3B0F] hover:underline"
-            >
-              <ArrowLeft className="size-4" />
-              กลับหน้าหลัก
-            </Link>
-            <div className="mt-4 flex items-center gap-3">
-              <div className="grid size-12 place-items-center rounded-2xl bg-[#e7f1fb] text-[#3c6f9e]">
-                <Megaphone className="size-6" />
-              </div>
-              <div>
-                <h1 className="font-display text-3xl font-bold tracking-tight text-[#3F3833]">
-                  ข่าวสาร & กิจกรรม
-                </h1>
-                <p className="mt-1 text-sm text-[#51443A]">
-                  ติดตามสิ่งที่เกิดขึ้นในคริสตจักรบ้านแห่งพระคุณ
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 rounded-full border border-[#EDE8E3] bg-white/75 px-3.5 py-2 text-xs text-[#51443A]">
-            <Sparkles className="size-4 text-[#9F3B0F]" />
-            <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
-          </div>
-        </header>
-
-        <div className="mt-8 flex gap-2 rounded-2xl bg-[#EDE8E3] p-1.5 sm:w-fit">
-          <button
-            onClick={() => setActiveTab("feed")}
-            className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
-              activeTab === "feed"
-                ? "bg-white text-[#9F3B0F] shadow-sm"
-                : "text-[#807266] hover:text-[#3F3833]"
-            }`}
-          >
-            สำหรับสมาชิก
-          </button>
-          {canManage && (
-            <button
-              onClick={() => setActiveTab("manage")}
-              className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
-                activeTab === "manage"
-                  ? "bg-white text-[#9F3B0F] shadow-sm"
-                  : "text-[#807266] hover:text-[#3F3833]"
-              }`}
-            >
-              <Settings2 className="mr-1.5 inline size-4" />
-              จัดการเนื้อหา
-            </button>
-          )}
+    <AppLayout
+      title="ข่าวสารและกิจกรรม"
+      subtitle="ประกาศ ข่าวสาร และกิจกรรมที่กำลังจะมาถึงของคริสตจักร"
+    >
+      {canManage && (
+        <div
+          role="tablist"
+          aria-label="มุมมองข่าวสาร"
+          className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted p-1 sm:w-fit"
+        >
+          {(
+            [
+              ["feed", "สำหรับสมาชิก", Megaphone],
+              ["manage", "จัดการเนื้อหา", Settings2],
+            ] as const
+          ).map(([id, label, Icon]) => {
+            const active = activeTab === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setActiveTab(id)}
+                className={`inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-4 text-sm transition-colors ${
+                  active
+                    ? "bg-card font-semibold text-foreground shadow-xs"
+                    : "font-medium text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Icon className="size-4" aria-hidden="true" />
+                {label}
+              </button>
+            );
+          })}
         </div>
+      )}
 
-        {activeTab === "feed" ? (
-          <div className="mt-8">
-            <MemberFeed />
-          </div>
-        ) : (
-          <AdminManager />
-        )}
-      </div>
-    </div>
+      {activeTab === "feed" || !canManage ? <MemberFeed /> : <AdminManager />}
+    </AppLayout>
   );
 }

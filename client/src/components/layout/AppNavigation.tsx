@@ -2,6 +2,8 @@ import { type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canAccessRoute } from "@/lib/routeAccess";
+import { useIsMobile } from "@/hooks/useMobile";
+import { getChurchRoleInfo } from "@shared/roles";
 import { GuardedLink } from "./GuardedLink";
 import {
   CalendarDays,
@@ -32,7 +34,7 @@ import {
 } from "@/components/ui/sheet";
 
 export const navItems = [
-  { label: "หน้าหลัก", path: "/", icon: Home },
+  { label: "ภาพรวม", path: "/", icon: Home },
   {
     label: "รายการ",
     path: "/transactions",
@@ -69,6 +71,16 @@ export const navItems = [
     icon: PieChart,
   },
   {
+    label: "การอนุมัติ",
+    path: "/approvals",
+    icon: CheckCircle2,
+  },
+  {
+    label: "รายงาน",
+    path: "/reports",
+    icon: FileBarChart,
+  },
+  {
     label: "พันธกิจ",
     path: "/ministries",
     icon: Sprout,
@@ -77,16 +89,6 @@ export const navItems = [
     label: "สมาชิก",
     path: "/members",
     icon: UsersRound,
-  },
-  {
-    label: "รายงาน",
-    path: "/reports",
-    icon: FileBarChart,
-  },
-  {
-    label: "การอนุมัติ",
-    path: "/approvals",
-    icon: CheckCircle2,
   },
   {
     label: "ข่าวสารและกิจกรรม",
@@ -115,16 +117,25 @@ const NAV_GROUPS = [
   { label: "ภาพรวม", paths: ["/"] },
   {
     label: "การเงิน",
-    paths: ["/transactions", "/counting", "/offerings", "/giving/inbox", "/expenses"],
+    paths: [
+      "/transactions",
+      "/counting",
+      "/offerings",
+      "/giving/inbox",
+      "/expenses",
+    ],
   },
   { label: "วางแผนและควบคุม", paths: ["/funds", "/budgets", "/approvals"] },
-  { label: "คริสตจักร", paths: ["/ministries", "/members", "/updates"] },
   { label: "วิเคราะห์", paths: ["/reports"] },
+  { label: "คริสตจักร", paths: ["/ministries", "/members", "/updates"] },
   { label: "บัญชีผู้ใช้", paths: ["/profile", "/settings"] },
 ] as const;
 
 export function getNavGroup(path: string) {
-  return NAV_GROUPS.find(group => group.paths.some(item => item === path))?.label ?? "เมนู";
+  return (
+    NAV_GROUPS.find(group => group.paths.some(item => item === path))?.label ??
+    "เมนู"
+  );
 }
 
 export function isActiveRoute(currentPath: string, path: string) {
@@ -136,7 +147,11 @@ export function isActiveRoute(currentPath: string, path: string) {
 export function AppMenu({ children }: { children?: ReactNode }) {
   const [location] = useLocation();
   const { user } = useAuth();
-  const authorizedNavItems = getAuthorizedNavItems(user);
+  const isMobile = useIsMobile();
+  // The tabs already cover the overview; the sheet lists everything else.
+  const authorizedNavItems = getAuthorizedNavItems(user).filter(
+    item => item.path !== "/"
+  );
 
   return (
     <Sheet>
@@ -144,38 +159,47 @@ export function AppMenu({ children }: { children?: ReactNode }) {
         {children || (
           <button
             type="button"
-            className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-3.5 text-sm font-semibold text-[#171311] hover:bg-[#FFF8EA]"
+            className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-border bg-card px-3.5 text-sm font-semibold text-foreground hover:bg-muted"
           >
             <Menu className="size-5" aria-hidden="true" />
             <span>เมนูทั้งหมด</span>
           </button>
         )}
       </SheetTrigger>
+      {/* A bottom sheet on phones keeps every entry within thumb reach; on a
+          tablet the same list opens from the left edge. */}
       <SheetContent
-        side="left"
-        className="w-[calc(100%-2rem)] max-w-sm gap-0 bg-[#171311] text-[#FFF4D6]"
+        side={isMobile ? "bottom" : "left"}
+        className={`gap-0 ${isMobile ? "h-[85dvh]" : "w-[calc(100%-2rem)] max-w-sm"}`}
       >
-        <SheetHeader className="border-b border-[#51443A] p-5 pr-16">
-          <SheetTitle className="text-lg font-bold text-[#FFF4D6]">
+        <SheetHeader className="border-b border-divider px-5 pb-4 pt-5 pr-16">
+          <SheetTitle className="text-lg font-bold text-foreground">
             เมนูทั้งหมด
           </SheetTitle>
-          <SheetDescription className="text-sm text-[#F6C09B] mt-0.5">
-            จัดการการเงินและพันธกิจคริสตจักร
+          <SheetDescription className="text-sm text-muted-foreground">
+            {user?.name
+              ? `${user.name} · ${getChurchRoleInfo(user.churchRole).label}`
+              : "จัดการการเงินและพันธกิจคริสตจักร"}
           </SheetDescription>
         </SheetHeader>
         <nav
           aria-label="เมนูทุกหมวด"
-          className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2"
         >
           {authorizedNavItems.reduce<ReactNode[]>((content, item, index) => {
             const previous = authorizedNavItems[index - 1];
             const group = getNavGroup(item.path);
-            const previousGroup = previous ? getNavGroup(previous.path) : undefined;
+            const previousGroup = previous
+              ? getNavGroup(previous.path)
+              : undefined;
             const active = isActiveRoute(location, item.path);
             const Icon = item.icon;
             if (group !== previousGroup) {
               content.push(
-                <p key={`group-${group}`} className="px-3.5 pb-1 pt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#807266] first:pt-0">
+                <p
+                  key={`group-${group}`}
+                  className="px-3 pb-1 pt-4 text-xs font-semibold text-muted-foreground"
+                >
                   {group}
                 </p>
               );
@@ -185,14 +209,19 @@ export function AppMenu({ children }: { children?: ReactNode }) {
                 <GuardedLink
                   href={item.path}
                   aria-current={active ? "page" : undefined}
-                  onFocus={e => e.currentTarget.scrollIntoView({ block: "nearest" })}
-                  className={`flex min-h-11 items-center gap-3 rounded-lg px-3.5 text-[15px] ${
+                  onFocus={e =>
+                    e.currentTarget.scrollIntoView({ block: "nearest" })
+                  }
+                  className={`flex min-h-12 items-center gap-3 rounded-xl px-3 text-[15px] ${
                     active
-                      ? "bg-[#FC6C26] font-semibold text-[#171311]"
-                      : "font-medium text-[#FFF4D6] hover:bg-[#2A211C]"
+                      ? "bg-accent font-semibold text-primary-strong"
+                      : "font-medium text-foreground hover:bg-muted"
                   }`}
                 >
-                  <Icon className={`size-5 shrink-0 ${active ? "text-[#171311]" : "text-[#FC6C26]"}`} aria-hidden="true" />
+                  <Icon
+                    className={`size-5 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`}
+                    aria-hidden="true"
+                  />
                   <span>{item.label}</span>
                 </GuardedLink>
               </SheetClose>

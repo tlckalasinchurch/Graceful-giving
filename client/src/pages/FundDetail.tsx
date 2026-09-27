@@ -1,36 +1,116 @@
-import React from "react";
+import { useMemo } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   BackLink,
   EmptyState,
+  ErrorState,
   LoadingSkeleton,
   MoneyDisplay,
   StatusBadge,
+  TransactionFeed,
+  type FeedItem,
 } from "@/components/common/CommonUI";
-import { ArrowRightLeft, Download, Wallet } from "lucide-react";
-import { toast } from "sonner";
+import {
+  expenseCategoryLabel,
+  offeringCategoryLabel,
+  paymentMethodLabel,
+} from "@shared/categories";
+import { fundTypeLabel } from "@/lib/fundTypes";
+
+/** Rows read per list; the movement list says when it may be incomplete. */
+const LIST_LIMIT = 200;
 
 export default function FundDetail() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const fundId = Number(params.id);
-  const { data: accounts, isLoading } = trpc.finance.accounts.useQuery(
-    undefined,
-    { retry: false }
-  );
+  const {
+    data: accounts,
+    isLoading,
+    isError,
+    refetch,
+  } = trpc.finance.accounts.useQuery(undefined, { retry: false });
   const fund = accounts?.find(account => account.id === fundId);
+
+  // The API has no per-fund statement, so the movements come from the latest
+  // offerings and expenses, filtered to this fund.
+  const offerings = trpc.offerings.list.useQuery(
+    { limit: LIST_LIMIT },
+    { retry: false, enabled: !!fund }
+  );
+  const expenses = trpc.expenses.list.useQuery(
+    { limit: LIST_LIMIT },
+    { retry: false, enabled: !!fund }
+  );
+
+  const movements = useMemo<FeedItem[]>(() => {
+    const list: FeedItem[] = [];
+    for (const o of offerings.data ?? []) {
+      if (o.fundId !== fundId) continue;
+      list.push({
+        id: `offering-${o.id}`,
+        href: `/transactions/offering-${o.id}`,
+        title: offeringCategoryLabel(o.category),
+        meta: paymentMethodLabel(o.method || "cash"),
+        amount: Number(o.amount),
+        type: "income",
+        category: o.category,
+        date: o.receiptDate,
+      });
+    }
+    for (const e of expenses.data ?? []) {
+      if (e.fundId !== fundId) continue;
+      list.push({
+        id: `expense-${e.id}`,
+        href: `/transactions/expense-${e.id}`,
+        title: e.description,
+        meta: expenseCategoryLabel(e.category),
+        amount: Number(e.amount),
+        type: "expense",
+        category: e.category,
+        date: e.expenseDate,
+      });
+    }
+    return list.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  }, [offerings.data, expenses.data, fundId]);
+
+  const listsCapped =
+    (offerings.data?.length ?? 0) >= LIST_LIMIT ||
+    (expenses.data?.length ?? 0) >= LIST_LIMIT;
+  const totalIn = movements
+    .filter(m => m.type === "income")
+    .reduce((t, m) => t + m.amount, 0);
+  const totalOut = movements
+    .filter(m => m.type === "expense")
+    .reduce((t, m) => t + m.amount, 0);
+
+  const back = (
+    <BackLink label="กองทุนทั้งหมด" onClick={() => setLocation("/funds")} />
+  );
 
   if (isLoading)
     return (
-      <AppLayout title="รายละเอียดกองทุน">
+      <AppLayout title="รายละเอียดกองทุน" action={back}>
         <LoadingSkeleton count={3} />
+      </AppLayout>
+    );
+  if (isError)
+    return (
+      <AppLayout title="รายละเอียดกองทุน" action={back}>
+        <ErrorState
+          title="โหลดข้อมูลกองทุนไม่สำเร็จ"
+          description="ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง"
+          onRetry={() => void refetch()}
+        />
       </AppLayout>
     );
   if (!fund)
     return (
-      <AppLayout title="ไม่พบกองทุน">
+      <AppLayout title="ไม่พบกองทุน" action={back}>
         <EmptyState
           title="ไม่พบข้อมูลกองทุน"
           description="กองทุนนี้ไม่มีอยู่ในข้อมูลที่คุณมีสิทธิ์เข้าถึง หรืออาจถูกปิดใช้งาน"
@@ -40,89 +120,93 @@ export default function FundDetail() {
       </AppLayout>
     );
 
-  const balance = Number(fund.balance);
+  const movementsLoading = offerings.isLoading || expenses.isLoading;
+
   return (
-    <AppLayout title="รายละเอียดกองทุน" subtitle={fund.name}>
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <BackLink
-            label="กลับหน้ารายการกองทุน"
-            onClick={() => setLocation("/funds")}
-          />
-          <span className="font-mono text-xs text-[#807266] bg-[#FFF8EA] px-3 py-1 rounded-full border border-[#E7DCC8]">
-            FD-{String(fund.id).padStart(3, "0")}
-          </span>
-        </div>
-        <section className="bg-[#FFF8EA] border border-[#E7DCC8] rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-            <div className="space-y-2">
-              <StatusBadge
-                status={fund.isActive ? "active" : "inactive"}
-                label={fund.isActive ? "กำลังใช้งาน" : "ปิดใช้งาน"}
-              />
-              <h1 className="text-2xl md:text-3xl font-bold text-[#171311]">
-                {fund.name}
-              </h1>
-              <p className="text-sm text-[#807266] max-w-xl">
-                {fund.description || "ยังไม่มีคำอธิบายกองทุนในระบบ"}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() =>
-                  toast.info(
-                    "ฟังก์ชันโอนเงินจะเปิดใช้เมื่อมี workflow จากระบบรองรับ"
-                  )
-                }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-[#E7DCC8] text-[#51443A] text-sm font-medium"
-              >
-                <ArrowRightLeft className="w-4 h-4 text-[#C94F16]" />
-                โอนเงินระหว่างกองทุน
-              </button>
-              <button
-                onClick={() =>
-                  toast.info("ยังไม่มีข้อมูล statement สำหรับกองทุนนี้")
-                }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C94F16] text-white text-sm font-medium"
-              >
-                <Download className="w-4 h-4" />
-                ดาวน์โหลด Statement
-              </button>
-            </div>
+    <AppLayout
+      title={fund.name}
+      subtitle={fundTypeLabel(fund.type)}
+      subtitleOnMobile
+      action={back}
+    >
+      <div className="mx-auto max-w-3xl space-y-6">
+        <section
+          aria-label="ยอดคงเหลือของกองทุน"
+          className="rounded-2xl border border-border bg-card p-5 sm:p-6"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm font-medium text-muted-foreground">
+              ยอดคงเหลือ
+            </p>
+            <StatusBadge
+              status={fund.isActive ? "active" : "inactive"}
+              label={fund.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+            />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-2xl border border-[#E7DCC8]/80">
-              <p className="text-xs text-[#807266] font-medium">
-                ยอดคงเหลือสุทธิ
-              </p>
-              <MoneyDisplay amount={balance} size="xl" />
-              <p className="text-[11px] text-[#807266] mt-1">
-                ยอดจริงจากบัญชีกองทุน
-              </p>
-            </div>
-            <div className="bg-white p-4 rounded-2xl border border-[#E7DCC8]/80">
-              <p className="text-xs text-[#807266] font-medium">ประเภทกองทุน</p>
-              <p className="text-2xl font-bold text-[#171311] mt-1">
-                {fund.type}
-              </p>
-              <p className="text-[11px] text-[#807266] mt-1">
-                ไม่มีข้อมูลกิจกรรมรายเดือนใน API ปัจจุบัน
-              </p>
-            </div>
+          <div className="mt-2">
+            <MoneyDisplay amount={Number(fund.balance)} size="xl" />
           </div>
+          {fund.description && (
+            <p className="mt-3 text-sm leading-relaxed text-foreground-soft">
+              {fund.description}
+            </p>
+          )}
+          {movements.length > 0 && (
+            <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-divider pt-4">
+              <div className="min-w-0">
+                <dt className="text-xs text-muted-foreground">
+                  รับเข้าในรายการที่แสดง
+                </dt>
+                <dd>
+                  <MoneyDisplay amount={totalIn} type="income" size="sm" />
+                </dd>
+              </div>
+              <div className="min-w-0">
+                <dt className="text-xs text-muted-foreground">
+                  จ่ายออกในรายการที่แสดง
+                </dt>
+                <dd>
+                  <MoneyDisplay amount={totalOut} type="expense" size="sm" />
+                </dd>
+              </div>
+            </dl>
+          )}
         </section>
-        <section className="bg-white rounded-2xl border border-[#E7DCC8] p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Wallet className="w-5 h-5 text-[#C94F16]" />
-            <h2 className="text-base font-bold text-[#171311]">
-              กิจกรรมล่าสุด
-            </h2>
-          </div>
-          <EmptyState
-            title="ยังไม่มีข้อมูลกิจกรรม"
-            description="ระบบยังไม่มี endpoint สำหรับรายการเคลื่อนไหวของกองทุนนี้"
-            className="border-dashed shadow-none"
-          />
+
+        <section aria-labelledby="movements-heading" className="space-y-3">
+          <h2
+            id="movements-heading"
+            className="text-base font-semibold text-foreground"
+          >
+            ความเคลื่อนไหว
+          </h2>
+          {movementsLoading ? (
+            <LoadingSkeleton count={4} />
+          ) : offerings.isError || expenses.isError ? (
+            <ErrorState
+              title="โหลดความเคลื่อนไหวไม่สำเร็จ"
+              description="ลองอีกครั้ง หรือดูรายการทั้งหมดในหน้ารายการ"
+              onRetry={() => {
+                void offerings.refetch();
+                void expenses.refetch();
+              }}
+            />
+          ) : movements.length === 0 ? (
+            <EmptyState
+              title="ยังไม่มีความเคลื่อนไหว"
+              description="เมื่อบันทึกรายรับหรือรายจ่ายเข้ากองทุนนี้ รายการจะแสดงที่นี่"
+            />
+          ) : (
+            <>
+              <TransactionFeed items={movements} />
+              {listsCapped && (
+                <p className="text-xs text-muted-foreground">
+                  แสดงจากรายการล่าสุด {LIST_LIMIT} รายการของแต่ละประเภท
+                  รายการที่เก่ากว่านั้นดูได้ในหน้ารายงาน
+                </p>
+              )}
+            </>
+          )}
         </section>
       </div>
     </AppLayout>
