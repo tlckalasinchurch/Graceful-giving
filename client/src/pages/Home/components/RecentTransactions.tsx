@@ -29,7 +29,7 @@ export function RecentTransactions({
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="bg-[#262626] rounded-2xl p-5 sm:p-6 border border-[#3D3D3D] space-y-4 w-full"
+      className="bg-[#FFFFFF] rounded-2xl p-5 sm:p-6 border border-[#E5E1D8] space-y-4 w-full"
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-white">
@@ -37,16 +37,16 @@ export function RecentTransactions({
         </h2>
         <button
           onClick={onViewAll}
-          className="min-h-11 -mr-2 px-2 text-sm font-bold text-[#FC6E20] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
+          className="min-h-11 -mr-2 px-2 text-sm font-bold text-[#F97316] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#F97316]"
         >
           <span>ดูทั้งหมด</span>
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="divide-y divide-[#3D3D3D]">
+      <div className="divide-y divide-[#E5E1D8]">
         {allTransactions.length === 0 && (
-          <p className="py-8 text-center text-sm text-[#C9B8A8] font-medium">
+          <p className="py-8 text-center text-sm text-[#5F5B55] font-medium">
             ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
           </p>
         )}
@@ -68,7 +68,7 @@ export function RecentTransactions({
                   <p className="text-sm sm:text-base font-bold text-white leading-tight truncate">
                     {tx.title}
                   </p>
-                  <p className="text-xs text-[#8F8477] font-medium pt-0.5">
+                  <p className="text-xs text-[#7A766F] font-medium pt-0.5">
                     {fmtThaiDate(tx.date)}
                   </p>
                 </div>
@@ -76,12 +76,12 @@ export function RecentTransactions({
 
               <div className="text-right shrink-0">
                 <p
-                  className={`text-base sm:text-lg font-bold tabular-nums tracking-tight ${isIncome ? "text-[#34D399]" : "text-[#FF6B5B]"}`}
+                  className={`text-base sm:text-lg font-bold tabular-nums tracking-tight ${isIncome ? "text-[#20C997]" : "text-[#FF6B5B]"}`}
                 >
                   {isIncome ? "+" : "-"}
                   {fmtBaht(Math.abs(tx.amount))}
                 </p>
-                <p className="text-xs text-[#8F8477] font-medium">
+                <p className="text-xs text-[#7A766F] font-medium">
                   {tx.subCategory}
                 </p>
               </div>

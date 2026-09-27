@@ -232,9 +232,9 @@ export default function TransactionDetail() {
           {transaction && (
             <button
               onClick={() => setShowVoucher(true)}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#262626] hover:bg-[#262626] text-[#C9B8A8] text-xs font-bold border border-[#3D3D3D] flex items-center gap-1.5 transition-colors"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#FFFFFF] hover:bg-[#FFFFFF] text-[#5F5B55] text-xs font-bold border border-[#E5E1D8] flex items-center gap-1.5 transition-colors"
             >
-              <Printer className="w-4 h-4 text-[#FC6E20]" aria-hidden="true" />
+              <Printer className="w-4 h-4 text-[#F97316]" aria-hidden="true" />
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
             </button>
           )}
@@ -248,9 +248,9 @@ export default function TransactionDetail() {
                 setIsEditing(value => !value);
               }}
               aria-expanded={isEditing}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#262626] hover:bg-[#262626] text-[#C9B8A8] text-xs font-bold border border-[#3D3D3D] flex items-center gap-1.5 transition-colors"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#FFFFFF] hover:bg-[#FFFFFF] text-[#5F5B55] text-xs font-bold border border-[#E5E1D8] flex items-center gap-1.5 transition-colors"
             >
-              <Pencil className="w-4 h-4 text-[#FC6E20]" aria-hidden="true" />
+              <Pencil className="w-4 h-4 text-[#F97316]" aria-hidden="true" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
             </button>
           )}
@@ -271,7 +271,7 @@ export default function TransactionDetail() {
                 if (isExpense) deleteExpense.mutate({ id: recordId });
               }}
               disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#262626] hover:bg-[#3D1F1D] text-[#FF5C5C] text-xs font-bold border border-[#5C332F] flex items-center gap-1.5 transition-colors disabled:opacity-50"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#FFFFFF] hover:bg-[#FFF0F0] text-[#FF5B5B] text-xs font-bold border border-[#FFD0D0] flex items-center gap-1.5 transition-colors disabled:opacity-50"
             >
               <Ban className="w-4 h-4" aria-hidden="true" />
               <span>ยกเลิกรายการ</span>
@@ -306,17 +306,17 @@ export default function TransactionDetail() {
           onAction={() => setLocation("/transactions")}
         />
       ) : (
-        <div className="bg-[#262626] rounded-2xl p-6 sm:p-8 border border-[#3D3D3D] space-y-6">
+        <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-8 border border-[#E5E1D8] space-y-6">
           {isEditing && (
             <form
               onSubmit={submitEdit}
-              className="rounded-2xl bg-[#262626] border border-[#3D3D3D] p-4 space-y-3"
+              className="rounded-2xl bg-[#FFFFFF] border border-[#E5E1D8] p-4 space-y-3"
             >
-              <p className="text-sm font-bold text-[#FFE7D0]">
+              <p className="text-sm font-bold text-[#171717]">
                 แก้ไขข้อมูลรายการ
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-xs font-semibold text-[#C9B8A8]">
+                <label className="text-xs font-semibold text-[#5F5B55]">
                   จำนวนเงิน
                   <input
                     type="number"
@@ -324,22 +324,22 @@ export default function TransactionDetail() {
                     step="0.01"
                     value={editAmount}
                     onChange={event => setEditAmount(event.target.value)}
-                    className="mt-1 min-h-11 w-full rounded-xl border border-[#3D3D3D] bg-[#262626] p-3 text-base md:text-sm text-[#FFE7D0] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30"
+                    className="mt-1 min-h-11 w-full rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] p-3 text-base md:text-sm text-[#171717] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30"
                   />
                 </label>
-                <label className="text-xs font-semibold text-[#C9B8A8]">
+                <label className="text-xs font-semibold text-[#5F5B55]">
                   {isOffering ? "หมายเหตุ" : "รายละเอียดรายการ"}
                   <input
                     value={editText}
                     onChange={event => setEditText(event.target.value)}
-                    className="mt-1 min-h-11 w-full rounded-xl border border-[#3D3D3D] bg-[#262626] p-3 text-base md:text-sm text-[#FFE7D0] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30"
+                    className="mt-1 min-h-11 w-full rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] p-3 text-base md:text-sm text-[#171717] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30"
                   />
                 </label>
               </div>
               <button
                 type="submit"
                 disabled={updateOffering.isPending || updateExpense.isPending}
-                className="min-h-11 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] px-4 py-2 text-sm font-bold text-[#1B1B1B] disabled:opacity-50"
+                className="min-h-11 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] px-4 py-2 text-sm font-bold text-[#171717] disabled:opacity-50"
               >
                 {updateOffering.isPending || updateExpense.isPending
                   ? "กำลังบันทึก…"
@@ -347,27 +347,27 @@ export default function TransactionDetail() {
               </button>
             </form>
           )}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#3D3D3D]/60">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#E5E1D8]/60">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#8F8477]">
+                <span className="text-xs font-bold text-[#7A766F]">
                   {transaction.type === "income" ? "รายรับ (ถวาย)" : "รายจ่าย"}
                 </span>
                 <StatusBadge status={transaction.status} />
               </div>
-              <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#FFE7D0]">
+              <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#171717]">
                 {transaction.title}
               </h2>
-              <p className="text-xs text-[#8F8477] flex items-center gap-1.5">
+              <p className="text-xs text-[#7A766F] flex items-center gap-1.5">
                 <Calendar
-                  className="w-3.5 h-3.5 text-[#FC6E20]"
+                  className="w-3.5 h-3.5 text-[#F97316]"
                   aria-hidden="true"
                 />
                 {formatThaiDateTime(transaction.date)}
               </p>
             </div>
             <div className="text-left sm:text-right">
-              <span className="text-xs text-[#8F8477] block">
+              <span className="text-xs text-[#7A766F] block">
                 จำนวนเงินสุทธิ
               </span>
               <MoneyDisplay
@@ -383,7 +383,7 @@ export default function TransactionDetail() {
               value={transaction.fund}
               icon={
                 <Landmark
-                  className="w-4 h-4 text-[#FC6E20]"
+                  className="w-4 h-4 text-[#F97316]"
                   aria-hidden="true"
                 />
               }
@@ -394,7 +394,7 @@ export default function TransactionDetail() {
               value={transaction.paymentMethod}
               icon={
                 <CreditCard
-                  className="w-4 h-4 text-[#FC6E20]"
+                  className="w-4 h-4 text-[#F97316]"
                   aria-hidden="true"
                 />
               }
@@ -407,25 +407,25 @@ export default function TransactionDetail() {
               }
               value={transaction.donorOrPayee}
               icon={
-                <User className="w-4 h-4 text-[#FC6E20]" aria-hidden="true" />
+                <User className="w-4 h-4 text-[#F97316]" aria-hidden="true" />
               }
             />
             <Detail label="เลขอ้างอิง" value={transaction.refCode} />
           </div>
           {transaction.notes && (
-            <div className="rounded-2xl bg-[#262626] border border-[#3D3D3D]/70 p-4">
-              <p className="text-xs text-[#8F8477]">หมายเหตุ</p>
-              <p className="text-sm text-[#FFE7D0] mt-1">{transaction.notes}</p>
+            <div className="rounded-2xl bg-[#FFFFFF] border border-[#E5E1D8]/70 p-4">
+              <p className="text-xs text-[#7A766F]">หมายเหตุ</p>
+              <p className="text-sm text-[#171717] mt-1">{transaction.notes}</p>
             </div>
           )}
 
           {/* Receipt Attachment from Supabase Storage */}
           {transaction.receiptUrl && (
-            <div className="rounded-2xl bg-[#262626] border border-[#3D3D3D]/70 p-5 space-y-3">
+            <div className="rounded-2xl bg-[#FFFFFF] border border-[#E5E1D8]/70 p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#C9B8A8] flex items-center gap-1.5">
+                <span className="text-xs font-bold text-[#5F5B55] flex items-center gap-1.5">
                   <Paperclip
-                    className="w-4 h-4 text-[#FC6E20]"
+                    className="w-4 h-4 text-[#F97316]"
                     aria-hidden="true"
                   />
                   หลักฐานสลิป / ใบเสร็จแนบ
@@ -433,10 +433,10 @@ export default function TransactionDetail() {
                 <button
                   type="button"
                   onClick={() => setShowReceiptModal(true)}
-                  className="min-h-11 inline-flex items-center gap-1.5 text-xs font-bold text-[#C9B8A8] bg-[#262626] hover:bg-[#262626] px-3 rounded-xl border border-[#3D3D3D] transition-colors"
+                  className="min-h-11 inline-flex items-center gap-1.5 text-xs font-bold text-[#5F5B55] bg-[#FFFFFF] hover:bg-[#FFFFFF] px-3 rounded-xl border border-[#E5E1D8] transition-colors"
                 >
                   <ExternalLink
-                    className="w-3.5 h-3.5 text-[#FC6E20]"
+                    className="w-3.5 h-3.5 text-[#F97316]"
                     aria-hidden="true"
                   />
                   <span>เปิดดูหลักฐานเต็มจอ</span>
@@ -447,18 +447,18 @@ export default function TransactionDetail() {
                 type="button"
                 onClick={() => setShowReceiptModal(true)}
                 aria-label={`เปิดดูหลักฐานของ ${transaction.title}`}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-[#3D3D3D] bg-[#262626] flex items-center justify-center hover:opacity-90 transition-opacity group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
+                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-[#E5E1D8] bg-[#FFFFFF] flex items-center justify-center hover:opacity-90 transition-opacity group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <span className="block text-center p-4">
                     <FileText
-                      className="w-12 h-12 text-[#FC6E20] mx-auto mb-2"
+                      className="w-12 h-12 text-[#F97316] mx-auto mb-2"
                       aria-hidden="true"
                     />
-                    <span className="text-xs font-bold text-[#C9B8A8]">
+                    <span className="text-xs font-bold text-[#5F5B55]">
                       เอกสารแนบ PDF
                     </span>
-                    <span className="block text-xs text-[#8F8477] mt-1">
+                    <span className="block text-xs text-[#7A766F] mt-1">
                       แตะเพื่อเปิดดูไฟล์
                     </span>
                   </span>
@@ -527,9 +527,9 @@ function Detail({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="bg-[#262626] p-4 rounded-2xl border border-[#3D3D3D]/70 space-y-1">
-      <span className="text-xs text-[#8F8477] block">{label}</span>
-      <span className="text-sm font-bold text-[#C9B8A8] flex items-center gap-1.5">
+    <div className="bg-[#FFFFFF] p-4 rounded-2xl border border-[#E5E1D8]/70 space-y-1">
+      <span className="text-xs text-[#7A766F] block">{label}</span>
+      <span className="text-sm font-bold text-[#5F5B55] flex items-center gap-1.5">
         {icon}
         {value}
       </span>

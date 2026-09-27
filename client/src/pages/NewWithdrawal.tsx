@@ -29,10 +29,10 @@ const DETAILS_MAX_LENGTH = 1000 - URGENT_PREFIX.length;
 const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
 
 const FIELD_CLASS =
-  "min-h-11 w-full px-4 py-3 rounded-xl border border-[#3D3D3D] bg-[#262626] text-base md:text-sm text-[#FFE7D0] placeholder:text-[#8F8477] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30";
-const LABEL_CLASS = "text-sm font-semibold text-[#FFE7D0]";
+  "min-h-11 w-full px-4 py-3 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-base md:text-sm text-[#171717] placeholder:text-[#7A766F] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30";
+const LABEL_CLASS = "text-sm font-semibold text-[#171717]";
 const REQUIRED = (
-  <span className="text-[#FF5C5C]" aria-hidden="true">
+  <span className="text-[#FF5B5B]" aria-hidden="true">
     *
   </span>
 );
@@ -134,7 +134,7 @@ export default function NewWithdrawal() {
         <BackLink label={`กลับ${returnLabel}`} onClick={goBack} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-[#262626] border border-[#3D3D3D] rounded-2xl p-6 md:p-8 space-y-5">
+          <div className="bg-[#FFFFFF] border border-[#E5E1D8] rounded-2xl p-6 md:p-8 space-y-5">
             <div className="space-y-2">
               <label htmlFor="wd-purpose" className={LABEL_CLASS}>
                 วัตถุประสงค์การเบิก {REQUIRED}
@@ -159,7 +159,7 @@ export default function NewWithdrawal() {
                 </label>
                 <div className="relative">
                   <span
-                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-[#8F8477]"
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-[#7A766F]"
                     aria-hidden="true"
                   >
                     ฿
@@ -216,16 +216,16 @@ export default function NewWithdrawal() {
                 ))}
               </NativeSelect>
               {fundsQuery.isLoading ? (
-                <p className="text-sm text-[#8F8477] mt-2">
+                <p className="text-sm text-[#7A766F] mt-2">
                   กำลังโหลดรายชื่อกองทุน…
                 </p>
               ) : fundsQuery.isError ? (
-                <p className="text-sm font-bold text-[#FF5C5C] mt-2">
+                <p className="text-sm font-bold text-[#FF5B5B] mt-2">
                   โหลดรายชื่อกองทุนไม่สำเร็จ กรุณาโหลดหน้านี้ใหม่
                 </p>
               ) : (
                 funds.length === 0 && (
-                  <p className="text-sm font-bold text-[#FF5C5C] mt-2">
+                  <p className="text-sm font-bold text-[#FF5B5B] mt-2">
                     ยังไม่มีกองทุนในระบบ กรุณาเพิ่มกองทุนก่อนยื่นคำขอเบิกเงิน
                   </p>
                 )
@@ -252,14 +252,14 @@ export default function NewWithdrawal() {
             <button
               type="button"
               onClick={goBack}
-              className="min-h-11 px-6 rounded-xl border border-[#3D3D3D] bg-[#262626] text-[#C9B8A8] hover:bg-[#262626] font-medium text-sm transition-colors"
+              className="min-h-11 px-6 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-[#5F5B55] hover:bg-[#FFFFFF] font-medium text-sm transition-colors"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={isSubmitting || funds.length === 0}
-              className="min-h-11 px-8 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="min-h-11 px-8 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Banknote className="w-4 h-4" aria-hidden="true" />
               <span>
@@ -276,9 +276,9 @@ export default function NewWithdrawal() {
           }}
         >
           <DialogContent className="sm:max-w-md text-center space-y-5">
-            <div className="w-16 h-16 rounded-full bg-[#1A2E20] flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 rounded-full bg-[#E3F8F1] flex items-center justify-center mx-auto">
               <CheckCircle2
-                className="w-8 h-8 text-[#34D399]"
+                className="w-8 h-8 text-[#20C997]"
                 aria-hidden="true"
               />
             </div>
@@ -294,7 +294,7 @@ export default function NewWithdrawal() {
               <button
                 type="button"
                 onClick={() => setShowSuccessModal(false)}
-                className="w-full min-h-11 rounded-xl bg-[#FC6E20] text-[#1B1B1B] font-medium text-sm hover:bg-[#D9591A] transition-colors"
+                className="w-full min-h-11 rounded-xl bg-[#F97316] text-[#171717] font-medium text-sm hover:bg-[#D95E0B] transition-colors"
               >
                 ส่งคำขออีกรายการ
               </button>
@@ -304,7 +304,7 @@ export default function NewWithdrawal() {
                   setShowSuccessModal(false);
                   setLocation(returnPath);
                 }}
-                className="w-full min-h-11 rounded-xl border border-[#3D3D3D] bg-[#262626] text-[#C9B8A8] font-medium text-sm hover:bg-[#262626] transition-colors"
+                className="w-full min-h-11 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-[#5F5B55] font-medium text-sm hover:bg-[#FFFFFF] transition-colors"
               >
                 กลับสู่{returnLabel}
               </button>

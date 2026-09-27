@@ -30,7 +30,7 @@ import { ErrorState, LoadingSkeleton } from "@/components/common/CommonUI";
 const ROLE_OPTIONS = Object.values(CHURCH_ROLES);
 
 const FIELD_CLASS =
-  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#3D3D3D] bg-[#262626] text-base md:text-sm text-[#FFE7D0] placeholder:text-[#8F8477] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30";
+  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] text-base md:text-sm text-[#171717] placeholder:text-[#7A766F] focus:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/30";
 
 type ProfileFields = {
   name: string;
@@ -317,14 +317,14 @@ export default function Settings() {
   if (!isSuperAdmin(user)) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto my-12 bg-[#262626] rounded-2xl p-8 border-2 border-[#3D3D3D] text-center space-y-4 shadow-sm">
+        <div className="max-w-xl mx-auto my-12 bg-[#FFFFFF] rounded-2xl p-8 border-2 border-[#E5E1D8] text-center space-y-4 shadow-sm">
           <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
             <Lock className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-semibold tracking-tight text-[#FFE7D0]">
+          <h2 className="text-xl font-semibold tracking-tight text-[#171717]">
             สิทธิ์การเข้าถึงถูกจำกัด
           </h2>
-          <p className="text-sm text-[#8F8477]">
+          <p className="text-sm text-[#7A766F]">
             หน้านี้สงวนไว้สำหรับ{" "}
             <strong className="text-amber-800 font-bold">
               ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
@@ -335,7 +335,7 @@ export default function Settings() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#FC6E20] text-[#1B1B1B] font-bold text-sm hover:bg-[#D9591A] transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#F97316] text-[#171717] font-bold text-sm hover:bg-[#D95E0B] transition-all shadow-xs"
             >
               กลับสู่หน้าหลัก
             </Link>
@@ -355,7 +355,7 @@ export default function Settings() {
           <div
             role="group"
             aria-label="หมวดการตั้งค่า"
-            className="flex items-center gap-1.5 sm:gap-2 border-b border-[#3D3D3D] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x"
+            className="flex items-center gap-1.5 sm:gap-2 border-b border-[#E5E1D8] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x"
           >
             {TABS.map(tab => (
               <button
@@ -365,8 +365,8 @@ export default function Settings() {
                 aria-pressed={activeTab === tab.id}
                 className={`min-h-11 px-3.5 sm:px-5 py-2 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap border ${
                   activeTab === tab.id
-                    ? "bg-[#3D2A1A] text-[#D9591A] border-[#6B4426]"
-                    : "text-[#C9B8A8] border-transparent hover:bg-[#262626]"
+                    ? "bg-[#FFF0DD] text-[#D95E0B] border-[#FFE0C2]"
+                    : "text-[#5F5B55] border-transparent hover:bg-[#FFFFFF]"
                 }`}
               >
                 {tab.label}
@@ -375,7 +375,7 @@ export default function Settings() {
           </div>
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-[#1B1B1B] to-transparent"
+            className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-[#F5F3EE] to-transparent"
           />
         </div>
 
@@ -393,10 +393,10 @@ export default function Settings() {
         {/* Tab 1: Church Profile Form */}
         {activeTab === "church" && churchProfile && (
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            <div className="bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 md:p-8 space-y-5">
-              <h3 className="text-base font-semibold tracking-tight text-[#FFE7D0] flex items-center gap-2">
+            <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-5">
+              <h3 className="text-base font-semibold tracking-tight text-[#171717] flex items-center gap-2">
                 <Building
-                  className="w-5 h-5 text-[#FC6E20]"
+                  className="w-5 h-5 text-[#F97316]"
                   aria-hidden="true"
                 />
                 ข้อมูลทั่วไปของคริสตจักร
@@ -406,10 +406,10 @@ export default function Settings() {
                 <div className="space-y-1.5 sm:col-span-2">
                   <label
                     htmlFor="church-name"
-                    className="font-semibold text-[#FFE7D0]"
+                    className="font-semibold text-[#171717]"
                   >
                     ชื่อคริสตจักร{" "}
-                    <span className="text-[#FF5C5C]" aria-hidden="true">
+                    <span className="text-[#FF5B5B]" aria-hidden="true">
                       *
                     </span>
                   </label>
@@ -426,7 +426,7 @@ export default function Settings() {
                 <div className="space-y-1.5 sm:col-span-2">
                   <label
                     htmlFor="church-motto"
-                    className="font-semibold text-[#FFE7D0]"
+                    className="font-semibold text-[#171717]"
                   >
                     คำขวัญ / นิมิตคริสตจักร
                   </label>
@@ -442,7 +442,7 @@ export default function Settings() {
                 <div className="space-y-1.5 sm:col-span-2">
                   <label
                     htmlFor="church-address"
-                    className="font-semibold text-[#FFE7D0]"
+                    className="font-semibold text-[#171717]"
                   >
                     ที่อยู่คริสตจักร
                   </label>
@@ -458,7 +458,7 @@ export default function Settings() {
                 <div className="space-y-1.5">
                   <label
                     htmlFor="church-phone"
-                    className="font-semibold text-[#FFE7D0]"
+                    className="font-semibold text-[#171717]"
                   >
                     เบอร์โทรศัพท์
                   </label>
@@ -474,7 +474,7 @@ export default function Settings() {
                 <div className="space-y-1.5">
                   <label
                     htmlFor="church-email"
-                    className="font-semibold text-[#FFE7D0]"
+                    className="font-semibold text-[#171717]"
                   >
                     อีเมลทางการ
                   </label>
@@ -490,7 +490,7 @@ export default function Settings() {
                 <div className="space-y-1.5">
                   <label
                     htmlFor="church-pastorName"
-                    className="font-semibold text-[#FFE7D0]"
+                    className="font-semibold text-[#171717]"
                   >
                     ศิษยาภิบาลอาวุโส
                   </label>
@@ -506,7 +506,7 @@ export default function Settings() {
                 <div className="space-y-1.5">
                   <label
                     htmlFor="church-treasurerName"
-                    className="font-semibold text-[#FFE7D0]"
+                    className="font-semibold text-[#171717]"
                   >
                     เหรัญญิกคริสตจักร
                   </label>
@@ -525,7 +525,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving || !isDirty}
-                className="min-h-11 px-8 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="min-h-11 px-8 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" aria-hidden="true" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>
@@ -536,17 +536,17 @@ export default function Settings() {
 
         {/* Account and sign out */}
         {activeTab === "church" && (
-          <section className="rounded-2xl border border-[#3D3D3D] bg-[#262626] p-6 md:p-8">
-            <h3 className="text-base font-semibold tracking-tight text-[#FFE7D0]">บัญชีผู้ใช้</h3>
+          <section className="rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-6 md:p-8">
+            <h3 className="text-base font-semibold tracking-tight text-[#171717]">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-sm text-[#C9B8A8]">
-                <p className="font-bold text-[#FFE7D0]">
+              <div className="text-sm text-[#5F5B55]">
+                <p className="font-bold text-[#171717]">
                   {user?.name || "ผู้ใช้งาน"}
                 </p>
                 <p>{user?.email || "ไม่ระบุอีเมล"}</p>
                 <p className="mt-1">
                   บทบาทในระบบ:{" "}
-                  <span className="font-bold text-[#FFE7D0]">
+                  <span className="font-bold text-[#171717]">
                     {getChurchRoleInfo(user?.churchRole).label}
                   </span>
                 </p>
@@ -554,10 +554,10 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/profile"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#3D3D3D] bg-[#262626] px-5 py-2.5 text-sm font-bold text-[#C9B8A8] transition-colors hover:bg-[#262626]"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] px-5 py-2.5 text-sm font-bold text-[#5F5B55] transition-colors hover:bg-[#FFFFFF]"
                 >
                   <UserCheck
-                    className="h-4 w-4 text-[#FC6E20]"
+                    className="h-4 w-4 text-[#F97316]"
                     aria-hidden="true"
                   />
                   ดูโปรไฟล์เต็ม
@@ -565,7 +565,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#5C332F] bg-[#262626] px-5 py-2.5 text-sm font-bold text-[#FF5C5C] transition-colors hover:bg-[#3D1F1D]"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#FFD0D0] bg-[#FFFFFF] px-5 py-2.5 text-sm font-bold text-[#FF5B5B] transition-colors hover:bg-[#FFF0F0]"
                 >
                   <LogOut className="h-4 w-4" aria-hidden="true" />
                   ออกจากระบบ
@@ -579,14 +579,14 @@ export default function Settings() {
         {activeTab === "roles" && (
           <div className="space-y-6">
             {/* User Management Table */}
-            <div className="bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 md:p-8 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3D3D3D]/60 pb-5">
+            <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E1D8]/60 pb-5">
                 <div>
-                  <h3 className="text-lg font-semibold tracking-tight text-[#FFE7D0] flex items-center gap-2">
-                    <Users className="w-5 h-5 text-[#FC6E20]" />
+                  <h3 className="text-lg font-semibold tracking-tight text-[#171717] flex items-center gap-2">
+                    <Users className="w-5 h-5 text-[#F97316]" />
                     จัดการบทบาทและสิทธิ์ผู้ใช้งานในระบบ
                   </h3>
-                  <p className="text-xs text-[#8F8477] mt-1">
+                  <p className="text-xs text-[#7A766F] mt-1">
                     กำหนดบทบาทให้ผู้ที่เข้าสู่ระบบ
                     เพื่อให้ได้รับสิทธิ์การใช้งานตรงตามตำแหน่งหน้าที่จริง
                   </p>
@@ -608,7 +608,7 @@ export default function Settings() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <Search
-                    className="pointer-events-none w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8F8477]"
+                    className="pointer-events-none w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A766F]"
                     aria-hidden="true"
                   />
                   <input
@@ -622,14 +622,14 @@ export default function Settings() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Filter
-                    className="w-4 h-4 text-[#8F8477] shrink-0"
+                    className="w-4 h-4 text-[#7A766F] shrink-0"
                     aria-hidden="true"
                   />
                   <NativeSelect
                     aria-label="กรองตามบทบาท"
                     value={roleFilter}
                     onChange={e => setRoleFilter(e.target.value)}
-                    className="font-semibold focus:ring-2 focus:ring-[#FC6E20]/20"
+                    className="font-semibold focus:ring-2 focus:ring-[#F97316]/20"
                   >
                     <option value="ALL">บทบาททั้งหมด</option>
                     {ROLE_OPTIONS.map(r => (
@@ -642,8 +642,8 @@ export default function Settings() {
               </div>
 
               {usersQuery.isLoading ? (
-                <div className="py-12 flex flex-col items-center justify-center text-sm text-[#8F8477] gap-3">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#FC6E20]" />
+                <div className="py-12 flex flex-col items-center justify-center text-sm text-[#7A766F] gap-3">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#F97316]" />
                   <span>กำลังโหลดรายชื่อผู้ใช้งาน...</span>
                 </div>
               ) : usersQuery.isError ? (
@@ -653,14 +653,14 @@ export default function Settings() {
                   onRetry={() => void usersQuery.refetch()}
                 />
               ) : !usersQuery.data || usersQuery.data.length === 0 ? (
-                <div className="py-8 text-center text-sm text-[#8F8477] bg-[#262626] rounded-2xl border border-[#3D3D3D]/60">
+                <div className="py-8 text-center text-sm text-[#7A766F] bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8]/60">
                   ยังไม่พบข้อมูลผู้ใช้งานในระบบ
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-[#3D3D3D]/70 text-xs font-bold text-[#8F8477] uppercase">
+                      <tr className="border-b border-[#E5E1D8]/70 text-xs font-bold text-[#7A766F] uppercase">
                         <th className="pb-3 px-3">ผู้ใช้งาน</th>
                         <th className="pb-3 px-3 hidden sm:table-cell">
                           อีเมล
@@ -671,7 +671,7 @@ export default function Settings() {
                         <th className="pb-3 px-3 text-right">บทบาทในระบบ</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#3D3D3D]/40">
+                    <tbody className="divide-y divide-[#E5E1D8]/40">
                       {(() => {
                         const filteredUsers = (usersQuery.data || []).filter(
                           u => {
@@ -697,7 +697,7 @@ export default function Settings() {
                             <tr>
                               <td
                                 colSpan={4}
-                                className="py-8 text-center text-xs text-[#8F8477] bg-[#262626]/30"
+                                className="py-8 text-center text-xs text-[#7A766F] bg-[#FFFFFF]/30"
                               >
                                 ไม่พบผู้ใช้งานที่ตรงกับเงื่อนไขการค้นหา
                               </td>
@@ -715,26 +715,26 @@ export default function Settings() {
                           return (
                             <tr
                               key={u.id}
-                              className="hover:bg-[#262626]/50 transition-colors"
+                              className="hover:bg-[#FFFFFF]/50 transition-colors"
                             >
                               <td className="py-3.5 px-3">
-                                <div className="font-bold text-[#FFE7D0] flex items-center gap-2">
+                                <div className="font-bold text-[#171717] flex items-center gap-2">
                                   <span>{u.name || "ไม่ระบุชื่อ"}</span>
                                   {isMe && (
-                                    <span className="text-xs bg-[#1B1B1B] text-[#D9591A] font-semibold px-2 py-0.5 rounded-full border border-[#3D2A1A]">
+                                    <span className="text-xs bg-[#F5F3EE] text-[#D95E0B] font-semibold px-2 py-0.5 rounded-full border border-[#FFF0DD]">
                                       คุณ
                                     </span>
                                   )}
                                 </div>
 
-                                <div className="sm:hidden text-xs font-normal text-[#8F8477] break-all">
+                                <div className="sm:hidden text-xs font-normal text-[#7A766F] break-all">
                                   {u.email || "-"}
                                 </div>
                               </td>
-                              <td className="py-3.5 px-3 text-[#C9B8A8] hidden sm:table-cell">
+                              <td className="py-3.5 px-3 text-[#5F5B55] hidden sm:table-cell">
                                 {u.email || "-"}
                               </td>
-                              <td className="py-3.5 px-3 text-xs text-[#8F8477] hidden md:table-cell">
+                              <td className="py-3.5 px-3 text-xs text-[#7A766F] hidden md:table-cell">
                                 {u.lastSignedIn
                                   ? new Date(u.lastSignedIn).toLocaleDateString(
                                       "th-TH",
@@ -752,7 +752,7 @@ export default function Settings() {
                                 {canEdit ? (
                                   <div className="inline-flex items-center gap-2">
                                     {isUpdating && (
-                                      <Loader2 className="w-4 h-4 animate-spin text-[#FC6E20]" />
+                                      <Loader2 className="w-4 h-4 animate-spin text-[#F97316]" />
                                     )}
                                     <NativeSelect
                                       aria-label={`บทบาทของ ${u.name || u.email || "ผู้ใช้งาน"}`}
@@ -761,7 +761,7 @@ export default function Settings() {
                                       onChange={e =>
                                         handleRoleChange(u.id, e.target.value)
                                       }
-                                      className="font-semibold shadow-sm hover:border-[#FC6E20] focus:ring-2 focus:ring-[#FC6E20]/20 transition-all"
+                                      className="font-semibold shadow-sm hover:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 transition-all"
                                     >
                                       {ROLE_OPTIONS.map(r => (
                                         <option key={r.role} value={r.role}>
@@ -771,7 +771,7 @@ export default function Settings() {
                                     </NativeSelect>
                                   </div>
                                 ) : (
-                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#262626] text-[#C9B8A8] border border-[#3D3D3D]">
+                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FFFFFF] text-[#5F5B55] border border-[#E5E1D8]">
                                     {getChurchRoleInfo(u.churchRole).label}
                                   </span>
                                 )}
@@ -787,16 +787,16 @@ export default function Settings() {
             </div>
 
             {/* Structure and Appointed Roles Reference */}
-            <div className="bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 md:p-8 space-y-6">
+            <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-6">
               <div>
-                <h3 className="text-lg font-semibold tracking-tight text-[#FFE7D0] flex items-center gap-2">
+                <h3 className="text-lg font-semibold tracking-tight text-[#171717] flex items-center gap-2">
                   <Shield
-                    className="w-5 h-5 text-[#FC6E20]"
+                    className="w-5 h-5 text-[#F97316]"
                     aria-hidden="true"
                   />
                   โครงสร้างสิทธิ์การใช้งาน
                 </h3>
-                <p className="text-sm text-[#8F8477] mt-1">
+                <p className="text-sm text-[#7A766F] mt-1">
                   หน้าที่ของแต่ละบทบาท และผู้ใช้ที่มีบทบาทนั้นในระบบขณะนี้
                 </p>
               </div>
@@ -805,20 +805,20 @@ export default function Settings() {
                 {churchRoles.map(r => (
                   <div
                     key={r.role}
-                    className="p-5 rounded-2xl bg-[#262626] border border-[#3D3D3D] space-y-3"
+                    className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5E1D8] space-y-3"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#3D3D3D]/50 pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E5E1D8]/50 pb-3">
                       <div>
-                        <span className="font-bold text-base text-[#FFE7D0]">
+                        <span className="font-bold text-base text-[#171717]">
                           {r.title}
                         </span>
-                        <span className="ml-2.5 font-mono text-xs text-[#8F8477] bg-[#262626] px-2.5 py-0.5 rounded-md border border-[#3D3D3D]">
+                        <span className="ml-2.5 font-mono text-xs text-[#7A766F] bg-[#FFFFFF] px-2.5 py-0.5 rounded-md border border-[#E5E1D8]">
                           {r.role}
                         </span>
                       </div>
-                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-[#262626] text-[#FFE7D0] border-[#3D3D3D] self-start sm:self-auto">
+                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-[#FFFFFF] text-[#171717] border-[#E5E1D8] self-start sm:self-auto">
                         ผู้ใช้ในบทบาทนี้:{" "}
-                        <span className="text-[#D9591A] font-bold">
+                        <span className="text-[#D95E0B] font-bold">
                           {usersQuery.isLoading
                             ? "กำลังโหลด…"
                             : usersQuery.isError
@@ -833,19 +833,19 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-[#8F8477] leading-relaxed font-medium">
+                    <p className="text-xs text-[#7A766F] leading-relaxed font-medium">
                       {r.desc}
                     </p>
 
                     <div className="pt-1">
-                      <p className="text-xs font-bold text-[#FFE7D0] mb-1.5">
+                      <p className="text-xs font-bold text-[#171717] mb-1.5">
                         ขอบเขตหน้าที่ในระบบ:
                       </p>
-                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-[#C9B8A8]">
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-[#5F5B55]">
                         {r.duties.map((duty, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
                             <span
-                              className="text-[#D9591A] font-bold"
+                              className="text-[#D95E0B] font-bold"
                               aria-hidden="true"
                             >
                               •
@@ -864,45 +864,45 @@ export default function Settings() {
 
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
-          <div className="bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 md:p-8 space-y-5">
-            <h3 className="text-base font-semibold tracking-tight text-[#FFE7D0] flex items-center gap-2">
-              <Banknote className="w-5 h-5 text-[#FC6E20]" aria-hidden="true" />
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-5">
+            <h3 className="text-base font-semibold tracking-tight text-[#171717] flex items-center gap-2">
+              <Banknote className="w-5 h-5 text-[#F97316]" aria-hidden="true" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
             </h3>
 
-            <p className="text-sm text-[#C9B8A8]">
+            <p className="text-sm text-[#5F5B55]">
               หมวดหมู่เหล่านี้คือค่าที่ระบบใช้จริงทั้งในฐานข้อมูล แบบฟอร์ม
               และรายงาน
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-[#3D3D3D] bg-[#262626] p-4">
-                <p className="font-bold text-[#FFE7D0]">
+              <div className="rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-4">
+                <p className="font-bold text-[#171717]">
                   หมวดรายรับ (เงินถวาย)
                 </p>
                 <ul className="mt-2 space-y-1">
                   {OFFERING_CATEGORIES.map(c => (
                     <li
                       key={c.id}
-                      className="flex items-center justify-between gap-3 text-sm text-[#C9B8A8]"
+                      className="flex items-center justify-between gap-3 text-sm text-[#5F5B55]"
                     >
                       <span>{c.label}</span>
-                      <span className="font-mono text-xs text-[#8F8477]">
+                      <span className="font-mono text-xs text-[#7A766F]">
                         {c.id}
                       </span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="rounded-2xl border border-[#3D3D3D] bg-[#262626] p-4">
-                <p className="font-bold text-[#FFE7D0]">หมวดรายจ่าย</p>
+              <div className="rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-4">
+                <p className="font-bold text-[#171717]">หมวดรายจ่าย</p>
                 <ul className="mt-2 space-y-1">
                   {EXPENSE_CATEGORIES.map(c => (
                     <li
                       key={c.id}
-                      className="flex items-center justify-between gap-3 text-sm text-[#C9B8A8]"
+                      className="flex items-center justify-between gap-3 text-sm text-[#5F5B55]"
                     >
                       <span>{c.label}</span>
-                      <span className="font-mono text-xs text-[#8F8477]">
+                      <span className="font-mono text-xs text-[#7A766F]">
                         {c.id}
                       </span>
                     </li>
@@ -919,17 +919,17 @@ export default function Settings() {
         {activeTab === "payment" && churchProfile && (
           <form
             onSubmit={handleSaveProfile}
-            className="bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 md:p-8 space-y-5"
+            className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-5"
           >
             <div>
-              <h3 className="text-base font-semibold tracking-tight text-[#FFE7D0] flex items-center gap-2">
+              <h3 className="text-base font-semibold tracking-tight text-[#171717] flex items-center gap-2">
                 <CreditCard
-                  className="w-5 h-5 text-[#FC6E20]"
+                  className="w-5 h-5 text-[#F97316]"
                   aria-hidden="true"
                 />
                 บัญชีรับเงินถวาย
               </h3>
-              <p className="text-sm text-[#8F8477] mt-1">
+              <p className="text-sm text-[#7A766F] mt-1">
                 ตรวจเลขที่บัญชีให้ถูกต้องก่อนบันทึก
                 สมาชิกจะใช้ข้อมูลนี้ในการโอนเงินถวาย
               </p>
@@ -938,7 +938,7 @@ export default function Settings() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="bank-name"
-                  className="text-sm font-semibold text-[#FFE7D0]"
+                  className="text-sm font-semibold text-[#171717]"
                 >
                   ธนาคาร
                 </label>
@@ -955,7 +955,7 @@ export default function Settings() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="bank-account"
-                  className="text-sm font-semibold text-[#FFE7D0]"
+                  className="text-sm font-semibold text-[#171717]"
                 >
                   เลขที่บัญชี
                 </label>
@@ -973,7 +973,7 @@ export default function Settings() {
               <div className="space-y-1.5 sm:col-span-2">
                 <label
                   htmlFor="bank-account-name"
-                  className="text-sm font-semibold text-[#FFE7D0]"
+                  className="text-sm font-semibold text-[#171717]"
                 >
                   ชื่อบัญชี
                 </label>
@@ -992,7 +992,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving || !isDirty}
-                className="min-h-11 px-8 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="min-h-11 px-8 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm button-elevation transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" aria-hidden="true" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกบัญชีธนาคาร"}</span>
@@ -1003,17 +1003,17 @@ export default function Settings() {
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (
-          <div className="bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 md:p-8 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3D3D3D]/60 pb-5">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 md:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E1D8]/60 pb-5">
               <div>
-                <h3 className="text-lg font-semibold tracking-tight text-[#FFE7D0] flex items-center gap-2">
+                <h3 className="text-lg font-semibold tracking-tight text-[#171717] flex items-center gap-2">
                   <FileText
-                    className="w-5 h-5 text-[#FC6E20]"
+                    className="w-5 h-5 text-[#F97316]"
                     aria-hidden="true"
                   />
                   บันทึกประวัติการดำเนินงาน
                 </h3>
-                <p className="text-xs text-[#8F8477] mt-1">
+                <p className="text-xs text-[#7A766F] mt-1">
                   ตรวจสอบความปลอดภัย การปรับเปลี่ยนบทบาทผู้ใช้
                   และการแก้ไขข้อมูลสำคัญทั้งหมดในระบบ
                 </p>
@@ -1022,11 +1022,11 @@ export default function Settings() {
                 type="button"
                 onClick={() => void auditQuery.refetch()}
                 disabled={auditQuery.isFetching}
-                className="min-h-11 inline-flex items-center gap-1.5 px-4 rounded-xl border border-[#3D3D3D] bg-[#262626] hover:bg-[#262626] text-sm font-semibold text-[#C9B8A8] transition-colors disabled:opacity-50 self-start sm:self-auto"
+                className="min-h-11 inline-flex items-center gap-1.5 px-4 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] hover:bg-[#FFFFFF] text-sm font-semibold text-[#5F5B55] transition-colors disabled:opacity-50 self-start sm:self-auto"
               >
                 <RefreshCw
                   className={`w-3.5 h-3.5 ${
-                    auditQuery.isFetching ? "animate-spin text-[#FC6E20]" : ""
+                    auditQuery.isFetching ? "animate-spin text-[#F97316]" : ""
                   }`}
                 />
                 <span>รีเฟรชข้อมูล</span>
@@ -1037,7 +1037,7 @@ export default function Settings() {
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search
-                  className="pointer-events-none w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8F8477]"
+                  className="pointer-events-none w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A766F]"
                   aria-hidden="true"
                 />
                 <input
@@ -1051,14 +1051,14 @@ export default function Settings() {
               </div>
               <div className="flex items-center gap-2">
                 <Filter
-                  className="w-4 h-4 text-[#8F8477] shrink-0"
+                  className="w-4 h-4 text-[#7A766F] shrink-0"
                   aria-hidden="true"
                 />
                 <NativeSelect
                   aria-label="กรองตามกิจกรรม"
                   value={auditActionFilter}
                   onChange={e => setAuditActionFilter(e.target.value)}
-                  className="font-semibold focus:ring-2 focus:ring-[#FC6E20]/20"
+                  className="font-semibold focus:ring-2 focus:ring-[#F97316]/20"
                 >
                   <option value="ALL">กิจกรรมทั้งหมด</option>
                   {Object.entries(AUDIT_ACTION_LABELS).map(([id, label]) => (
@@ -1071,8 +1071,8 @@ export default function Settings() {
             </div>
 
             {auditQuery.isLoading ? (
-              <div className="py-12 flex flex-col items-center justify-center text-sm text-[#8F8477] gap-3">
-                <Loader2 className="w-6 h-6 animate-spin text-[#FC6E20]" />
+              <div className="py-12 flex flex-col items-center justify-center text-sm text-[#7A766F] gap-3">
+                <Loader2 className="w-6 h-6 animate-spin text-[#F97316]" />
                 <span>กำลังโหลด Audit Log...</span>
               </div>
             ) : auditQuery.isError ? (
@@ -1105,7 +1105,7 @@ export default function Settings() {
 
                 if (logs.length === 0) {
                   return (
-                    <div className="py-10 text-center text-sm text-[#8F8477] bg-[#262626] rounded-2xl border border-[#3D3D3D]/60">
+                    <div className="py-10 text-center text-sm text-[#7A766F] bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8]/60">
                       ยังไม่พบบันทึกประวัติ หรือไม่ตรงกับเงื่อนไขการค้นหา
                     </div>
                   );
@@ -1115,7 +1115,7 @@ export default function Settings() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-[#3D3D3D]/70 font-bold text-[#8F8477] uppercase">
+                        <tr className="border-b border-[#E5E1D8]/70 font-bold text-[#7A766F] uppercase">
                           <th className="pb-3 px-3">วัน-เวลา</th>
                           <th className="pb-3 px-3">ผู้ดำเนินการ (Actor)</th>
                           <th className="pb-3 px-3">กิจกรรม (Action)</th>
@@ -1123,7 +1123,7 @@ export default function Settings() {
                           <th className="pb-3 px-3">รายละเอียด (Details)</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#3D3D3D]/40">
+                      <tbody className="divide-y divide-[#E5E1D8]/40">
                         {logs.map(log => {
                           const dateStr = new Date(
                             log.createdAt
@@ -1137,7 +1137,7 @@ export default function Settings() {
                           });
 
                           const actionBadge = (
-                            <span className="px-2.5 py-1 rounded-full bg-[#262626] text-[#C9B8A8] font-semibold text-xs border border-[#3D3D3D]">
+                            <span className="px-2.5 py-1 rounded-full bg-[#FFFFFF] text-[#5F5B55] font-semibold text-xs border border-[#E5E1D8]">
                               {AUDIT_ACTION_LABELS[log.action] ?? log.action}
                             </span>
                           );
@@ -1145,15 +1145,15 @@ export default function Settings() {
                           return (
                             <tr
                               key={log.id}
-                              className="hover:bg-[#262626]/50 transition-colors"
+                              className="hover:bg-[#FFFFFF]/50 transition-colors"
                             >
-                              <td className="py-3.5 px-3 text-[#8F8477] font-mono whitespace-nowrap">
+                              <td className="py-3.5 px-3 text-[#7A766F] font-mono whitespace-nowrap">
                                 {dateStr}
                               </td>
-                              <td className="py-3.5 px-3 font-semibold text-[#FFE7D0]">
+                              <td className="py-3.5 px-3 font-semibold text-[#171717]">
                                 <div>{log.userName || "ไม่ระบุชื่อ"}</div>
                                 {log.userEmail && (
-                                  <div className="text-[11px] text-[#8F8477] font-normal">
+                                  <div className="text-[11px] text-[#7A766F] font-normal">
                                     {log.userEmail}
                                   </div>
                                 )}
@@ -1161,13 +1161,13 @@ export default function Settings() {
                               <td className="py-3.5 px-3 whitespace-nowrap">
                                 {actionBadge}
                               </td>
-                              <td className="py-3.5 px-3 text-[#C9B8A8]">
-                                <span className="font-mono text-[11px] bg-[#262626] px-2 py-0.5 rounded-md border border-[#3D3D3D]">
+                              <td className="py-3.5 px-3 text-[#5F5B55]">
+                                <span className="font-mono text-[11px] bg-[#FFFFFF] px-2 py-0.5 rounded-md border border-[#E5E1D8]">
                                   {log.entity}
                                   {log.entityId ? ` #${log.entityId}` : ""}
                                 </span>
                               </td>
-                              <td className="py-3.5 px-3 text-[#C9B8A8] max-w-sm">
+                              <td className="py-3.5 px-3 text-[#5F5B55] max-w-sm">
                                 {log.metadata ? (
                                   <div
                                     className="font-mono text-[11px] bg-slate-50 p-1.5 rounded-lg border border-slate-200 truncate max-w-[280px]"

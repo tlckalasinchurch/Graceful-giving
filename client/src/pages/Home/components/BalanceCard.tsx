@@ -48,7 +48,7 @@ export function BalanceCard({
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      className={`bg-[#262626] rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${tone === "positive" ? "border-[#FC6E20]/40 shadow-[0_0_40px_-12px_rgba(212,255,61,0.25)]" : tone === "negative" ? "border-[#FF6B5B]/40" : "border-[#3D3D3D]"}`}
+      className={`bg-[#FFFFFF] rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${tone === "positive" ? "border-[#F97316]/40 shadow-[0_0_40px_-12px_rgba(212,255,61,0.25)]" : tone === "negative" ? "border-[#FF6B5B]/40" : "border-[#E5E1D8]"}`}
     >
       <div className="flex items-center justify-between gap-6">
         {/* Left: Prominent financial figures */}
@@ -59,7 +59,7 @@ export function BalanceCard({
             </h2>
             <button
               onClick={() => setShowBalance(!showBalance)}
-              className="size-11 shrink-0 inline-flex items-center justify-center text-[#C9B8A8] hover:text-white transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
+              className="size-11 shrink-0 inline-flex items-center justify-center text-[#5F5B55] hover:text-white transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-[#F97316]"
               aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
               aria-pressed={!showBalance}
             >
@@ -72,13 +72,13 @@ export function BalanceCard({
 
             {/* Data-source status */}
             {isBalanceLoading && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#323232] text-[#C9B8A8] text-xs sm:text-sm font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#F1EFE9] text-[#5F5B55] text-xs sm:text-sm font-bold">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 กำลังโหลดข้อมูล
               </span>
             )}
             {isDataUnavailable && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#323232] border border-dashed border-[#454545] text-[#E8B84B] text-xs sm:text-sm font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#F1EFE9] border border-dashed border-[#292929] text-[#D99A25] text-xs sm:text-sm font-bold">
                 <Info className="w-4 h-4" />
                 {summaryError
                   ? "เชื่อมต่อข้อมูลไม่สำเร็จ"
@@ -89,7 +89,7 @@ export function BalanceCard({
 
           {isBalanceLoading ? (
             <div
-              className="h-12 sm:h-16 md:h-20 w-56 sm:w-80 rounded-2xl bg-[#323232] animate-pulse"
+              className="h-12 sm:h-16 md:h-20 w-56 sm:w-80 rounded-2xl bg-[#F1EFE9] animate-pulse"
               aria-hidden="true"
             />
           ) : (
@@ -100,13 +100,13 @@ export function BalanceCard({
                  two lines mid-digit — "4,182,671." over "50" reads as two
                  different numbers. Scaling down is the only safe way for an
                  amount to lose an argument with its container. */
-              className={`whitespace-nowrap text-[clamp(1.75rem,5.5vw,4.5rem)] font-bold tracking-tight tabular-nums ${tone === "positive" ? "text-[#FC6E20]" : tone === "negative" ? "text-[#FF6B5B]" : "text-[#8F8477]"}`}
+              className={`whitespace-nowrap text-[clamp(1.75rem,5.5vw,4.5rem)] font-bold tracking-tight tabular-nums ${tone === "positive" ? "text-[#F97316]" : tone === "negative" ? "text-[#FF6B5B]" : "text-[#7A766F]"}`}
             >
               {showBalance && hasSummaryData ? fmtBaht(balance) : "—"}
             </div>
           )}
 
-          <p className="text-sm sm:text-base text-[#C9B8A8] flex items-center gap-2 pt-1">
+          <p className="text-sm sm:text-base text-[#5F5B55] flex items-center gap-2 pt-1">
             {isBalanceLoading ? (
               <span>กำลังตรวจสอบยอดเงินล่าสุด…</span>
             ) : isDataUnavailable ? (
@@ -118,7 +118,7 @@ export function BalanceCard({
             ) : isPositiveBalance ? (
               <>
                 <span>ขอบคุณพระเจ้าสำหรับทุกการถวาย</span>
-                <span className="text-[#FC6E20]" aria-hidden="true">
+                <span className="text-[#F97316]" aria-hidden="true">
                   ♥
                 </span>
               </>
@@ -134,7 +134,7 @@ export function BalanceCard({
               {Boolean(summaryError) && (
                 <button
                   onClick={onRetry}
-                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] text-sm sm:text-base font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#FC6E20] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B1B1B]"
+                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] text-sm sm:text-base font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#F97316] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F5F3EE]"
                 >
                   <RotateCw className="w-4 h-4" aria-hidden="true" />
                   <span>โหลดข้อมูลอีกครั้ง</span>
@@ -143,11 +143,11 @@ export function BalanceCard({
               {canOpenReports && (
                 <button
                   onClick={onOpenReports}
-                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#323232] hover:bg-[#242529] text-white text-sm sm:text-base font-bold border border-[#3D3D3D] transition-colors focus-visible:ring-2 focus-visible:ring-[#FC6E20] hover:border-[#FC6E20]/50"
+                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#F1EFE9] hover:bg-[#242529] text-white text-sm sm:text-base font-bold border border-[#E5E1D8] transition-colors focus-visible:ring-2 focus-visible:ring-[#F97316] hover:border-[#F97316]/50"
                 >
-                  <BarChart3 className="w-4 h-4 text-[#FC6E20]" />
+                  <BarChart3 className="w-4 h-4 text-[#F97316]" />
                   <span>ดูรายละเอียด</span>
-                  <ChevronRight className="w-4 h-4 text-[#C9B8A8]" />
+                  <ChevronRight className="w-4 h-4 text-[#5F5B55]" />
                 </button>
               )}
             </div>
@@ -156,7 +156,7 @@ export function BalanceCard({
 
         {/* Right: Balance illustration tucked cleanly in corner */}
         <div className="hidden sm:block shrink-0 z-10">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#3D3D3D] bg-[#323232] p-1.5">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#E5E1D8] bg-[#F1EFE9] p-1.5">
             <Illustration
               src="/illustrations/balance_wallet.jpg"
               alt="กระเป๋าสตางค์ยอดคงเหลือ"

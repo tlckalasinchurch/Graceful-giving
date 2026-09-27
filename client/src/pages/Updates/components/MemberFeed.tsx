@@ -51,24 +51,24 @@ export function MemberFeed() {
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="h-44 animate-pulse rounded-2xl bg-[#262626]/70" />
-        <div className="h-44 animate-pulse rounded-2xl bg-[#262626]/70" />
+        <div className="h-44 animate-pulse rounded-2xl bg-[#FFFFFF]/70" />
+        <div className="h-44 animate-pulse rounded-2xl bg-[#FFFFFF]/70" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-[#5C332F] bg-[#3D1F1D] p-6 text-center text-sm text-[#FF5C5C]">
+      <div className="rounded-2xl border border-[#FFD0D0] bg-[#FFF0F0] p-6 text-center text-sm text-[#FF5B5B]">
         <p className="font-bold text-[#9e3825]">
           ไม่สามารถโหลดข้อมูลข่าวสารได้ในขณะนี้
         </p>
-        <p className="mt-1 text-xs text-[#8F8477]">
+        <p className="mt-1 text-xs text-[#7A766F]">
           {error.message || "เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย"}
         </p>
         <button
           onClick={() => refetch()}
-          className="mt-4 rounded-xl bg-[#FF5C5C] px-4 py-2 text-xs font-bold text-[#1B1B1B] shadow-sm hover:bg-[#E5443F]"
+          className="mt-4 rounded-xl bg-[#FF5B5B] px-4 py-2 text-xs font-bold text-[#F5F3EE] shadow-sm hover:bg-[#FF5B5B]"
         >
           ลองใหม่อีกครั้ง
         </button>
@@ -82,15 +82,15 @@ export function MemberFeed() {
       <section>
         <div className="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
-            <p className="font-display text-xl font-bold tracking-tight text-[#C9B8A8]">
+            <p className="font-display text-xl font-bold tracking-tight text-[#5F5B55]">
               ข่าวสารล่าสุด
             </p>
-            <p className="mt-1 text-xs text-[#C9B8A8]">
+            <p className="mt-1 text-xs text-[#5F5B55]">
               ประกาศและเรื่องราวพระคุณจากคริสตจักร
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-[#262626] px-3 py-1 text-[11px] font-bold text-[#D9591A]">
+            <span className="rounded-full bg-[#FFFFFF] px-3 py-1 text-[11px] font-bold text-[#D95E0B]">
               {filteredNews.length} รายการ
             </span>
           </div>
@@ -112,8 +112,8 @@ export function MemberFeed() {
               onClick={() => setNewsCategoryFilter(cat)}
               className={`min-h-11 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors ${
                 newsCategoryFilter === cat
-                  ? "border-[#6B4426] bg-[#3D2A1A] text-[#D9591A]"
-                  : "border-[#3D3D3D] bg-[#262626]/80 text-[#C9B8A8] hover:bg-[#262626] hover:text-[#C9B8A8]"
+                  ? "border-[#FFE0C2] bg-[#FFF0DD] text-[#D95E0B]"
+                  : "border-[#E5E1D8] bg-[#FFFFFF]/80 text-[#5F5B55] hover:bg-[#FFFFFF] hover:text-[#5F5B55]"
               }`}
             >
               {cat === "all" ? "ทั้งหมด" : categoryLabels[cat]}
@@ -138,24 +138,24 @@ export function MemberFeed() {
                     setSelectedNews(item);
                   }
                 }}
-                className="group cursor-pointer rounded-2xl border border-[#3D3D3D] bg-[#262626] p-5 shadow-[0_5px_15px_rgba(94,70,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(94,70,42,0.08)] focus:outline-none focus:ring-2 focus:ring-[#D9591A]"
+                className="group cursor-pointer rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-5 shadow-[0_5px_15px_rgba(94,70,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(94,70,42,0.08)] focus:outline-none focus:ring-2 focus:ring-[#D95E0B]"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#262626] px-2.5 py-1 text-[10px] font-bold text-[#D9591A]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFFFFF] px-2.5 py-1 text-[10px] font-bold text-[#D95E0B]">
                     <Tag className="size-3" />
                     {categoryLabels[item.category]}
                   </span>
-                  <span className="text-[10px] text-[#8F8477] font-medium">
+                  <span className="text-[10px] text-[#7A766F] font-medium">
                     {formatThaiDate(item.publishedAt ?? item.createdAt)}
                   </span>
                 </div>
-                <h3 className="mt-4 font-display text-lg font-bold leading-7 text-[#C9B8A8] group-hover:text-[#FC6E20] transition-colors">
+                <h3 className="mt-4 font-display text-lg font-bold leading-7 text-[#5F5B55] group-hover:text-[#F97316] transition-colors">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-[#C9B8A8] line-clamp-3">
+                <p className="mt-2 text-sm leading-6 text-[#5F5B55] line-clamp-3">
                   {item.summary}
                 </p>
-                <div className="mt-4 flex items-center gap-1 text-xs font-bold text-[#FC6E20]">
+                <div className="mt-4 flex items-center gap-1 text-xs font-bold text-[#F97316]">
                   อ่านรายละเอียด{" "}
                   <ChevronRight className="size-3.5 transition group-hover:translate-x-0.5" />
                 </div>
@@ -169,14 +169,14 @@ export function MemberFeed() {
       <section>
         <div className="mb-3 flex items-end justify-between">
           <div>
-            <p className="font-display text-xl font-bold tracking-tight text-[#C9B8A8]">
+            <p className="font-display text-xl font-bold tracking-tight text-[#5F5B55]">
               กิจกรรมที่กำลังจะมาถึง
             </p>
-            <p className="mt-1 text-xs text-[#C9B8A8]">
+            <p className="mt-1 text-xs text-[#5F5B55]">
               วางแผนร่วมรับใช้และสามัคคีธรรมด้วยกัน
             </p>
           </div>
-          <span className="rounded-full bg-[#3D2A1A] px-3 py-1 text-[11px] font-bold text-[#356792]">
+          <span className="rounded-full bg-[#FFF0DD] px-3 py-1 text-[11px] font-bold text-[#527A9E]">
             {events.length} กิจกรรม
           </span>
         </div>
@@ -197,32 +197,32 @@ export function MemberFeed() {
                     setSelectedEvent(event);
                   }
                 }}
-                className="group flex cursor-pointer gap-4 rounded-2xl border border-[#3D3D3D] bg-[#262626] p-4 shadow-[0_5px_15px_rgba(94,70,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(94,70,42,0.08)] focus:outline-none focus:ring-2 focus:ring-[#D9591A]"
+                className="group flex cursor-pointer gap-4 rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-4 shadow-[0_5px_15px_rgba(94,70,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(94,70,42,0.08)] focus:outline-none focus:ring-2 focus:ring-[#D95E0B]"
               >
-                <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#3D2A1A] text-[#FC6E20]">
+                <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#FFF0DD] text-[#F97316]">
                   <CalendarDays className="size-5" />
                   <span className="mt-0.5 text-[11px] font-bold">
                     {new Date(event.startsAt).getDate()}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold text-[#C9B8A8] group-hover:text-[#FC6E20] transition-colors">
+                  <h3 className="text-base font-bold text-[#5F5B55] group-hover:text-[#F97316] transition-colors">
                     {event.title}
                   </h3>
-                  <p className="mt-1 text-xs font-semibold text-[#C9B8A8]">
+                  <p className="mt-1 text-xs font-semibold text-[#5F5B55]">
                     {formatEventDate(event.startsAt)}
                   </p>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#C9B8A8]">
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#5F5B55]">
                     {event.summary}
                   </p>
                   {event.location && (
-                    <p className="mt-2 flex items-center gap-1 text-xs text-[#C9B8A8]">
-                      <MapPin className="size-3.5 text-[#D9591A]" />
+                    <p className="mt-2 flex items-center gap-1 text-xs text-[#5F5B55]">
+                      <MapPin className="size-3.5 text-[#D95E0B]" />
                       {event.location}
                     </p>
                   )}
                 </div>
-                <ChevronRight className="mt-1 size-5 shrink-0 text-[#8F8477] group-hover:text-[#FC6E20] transition-colors" />
+                <ChevronRight className="mt-1 size-5 shrink-0 text-[#7A766F] group-hover:text-[#F97316] transition-colors" />
               </article>
             ))}
           </div>
@@ -234,47 +234,47 @@ export function MemberFeed() {
         open={!!selectedNews}
         onOpenChange={open => !open && setSelectedNews(null)}
       >
-        <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-[#3D3D3D] bg-[#262626] p-6 shadow-2xl">
+        <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-[#E5E1D8] bg-[#FFFFFF] p-6 shadow-2xl">
           {selectedNews && (
             <>
               <DialogHeader className="space-y-2 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#262626] px-3 py-1 text-xs font-bold text-[#D9591A]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFFFFF] px-3 py-1 text-xs font-bold text-[#D95E0B]">
                     <Tag className="size-3.5" />
                     {categoryLabels[selectedNews.category]}
                   </span>
-                  <span className="text-xs font-medium text-[#8F8477]">
+                  <span className="text-xs font-medium text-[#7A766F]">
                     {formatThaiDate(
                       selectedNews.publishedAt ?? selectedNews.createdAt
                     )}
                   </span>
                 </div>
-                <DialogTitle className="font-display text-2xl font-bold leading-tight text-[#C9B8A8]">
+                <DialogTitle className="font-display text-2xl font-bold leading-tight text-[#5F5B55]">
                   {selectedNews.title}
                 </DialogTitle>
-                <DialogDescription className="text-xs text-[#C9B8A8]">
+                <DialogDescription className="text-xs text-[#5F5B55]">
                   รายละเอียดข่าวสารและประกาศคริสตจักร
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="mt-2 rounded-2xl border border-[#262626] bg-[#262626] p-4 text-sm font-medium leading-6 text-[#C9B8A8]">
-                <p className="mb-1 font-bold text-[#FC6E20]">สรุปสาระสำคัญ:</p>
+              <div className="mt-2 rounded-2xl border border-[#FFFFFF] bg-[#FFFFFF] p-4 text-sm font-medium leading-6 text-[#5F5B55]">
+                <p className="mb-1 font-bold text-[#F97316]">สรุปสาระสำคัญ:</p>
                 {selectedNews.summary}
               </div>
 
-              <div className="mt-4 border-t border-[#3D3D3D] pt-4">
-                <p className="mb-2 text-sm font-semibold text-[#C9B8A8]">
+              <div className="mt-4 border-t border-[#E5E1D8] pt-4">
+                <p className="mb-2 text-sm font-semibold text-[#5F5B55]">
                   เนื้อหาฉบับเต็ม:
                 </p>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed text-[#C9B8A8]">
+                <div className="whitespace-pre-wrap text-sm leading-relaxed text-[#5F5B55]">
                   {selectedNews.body}
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end border-t border-[#3D3D3D] pt-4">
+              <div className="mt-6 flex justify-end border-t border-[#E5E1D8] pt-4">
                 <button
                   onClick={() => setSelectedNews(null)}
-                  className="rounded-xl bg-[#D9591A] px-6 py-2.5 text-sm font-bold text-[#1B1B1B] shadow-sm hover:bg-[#FC6E20] focus:outline-none focus:ring-2 focus:ring-[#D9591A]"
+                  className="rounded-xl bg-[#D95E0B] px-6 py-2.5 text-sm font-bold text-[#171717] shadow-sm hover:bg-[#F97316] focus:outline-none focus:ring-2 focus:ring-[#D95E0B]"
                 >
                   ปิดหน้าต่าง
                 </button>
@@ -289,16 +289,16 @@ export function MemberFeed() {
         open={!!selectedEvent}
         onOpenChange={open => !open && setSelectedEvent(null)}
       >
-        <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-[#3D3D3D] bg-[#262626] p-6 shadow-2xl">
+        <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-[#E5E1D8] bg-[#FFFFFF] p-6 shadow-2xl">
           {selectedEvent && (
             <>
               <DialogHeader className="space-y-2 text-left">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-11 place-items-center rounded-2xl bg-[#3D2A1A] text-[#FC6E20]">
+                  <span className="grid size-11 place-items-center rounded-2xl bg-[#FFF0DD] text-[#F97316]">
                     <CalendarDays className="size-6" />
                   </span>
                   <div>
-                    <DialogTitle className="font-display text-xl font-bold text-[#C9B8A8]">
+                    <DialogTitle className="font-display text-xl font-bold text-[#5F5B55]">
                       {selectedEvent.title}
                     </DialogTitle>
                     <div className="mt-1 flex items-center gap-2">
@@ -306,27 +306,27 @@ export function MemberFeed() {
                     </div>
                   </div>
                 </div>
-                <DialogDescription className="text-xs text-[#C9B8A8]">
+                <DialogDescription className="text-xs text-[#5F5B55]">
                   ข้อมูลและกำหนดการกิจกรรมคริสตจักร
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="mt-3 space-y-2.5 rounded-2xl border border-[#3D3D3D] bg-[#262626] p-4 text-xs text-[#C9B8A8]">
+              <div className="mt-3 space-y-2.5 rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-4 text-xs text-[#5F5B55]">
                 <div className="flex items-center gap-2">
-                  <Clock3 className="size-4 text-[#D9591A]" />
+                  <Clock3 className="size-4 text-[#D95E0B]" />
                   <span className="font-bold">เริ่ม:</span>{" "}
                   {formatEventDate(selectedEvent.startsAt)}
                 </div>
                 {selectedEvent.endsAt && (
                   <div className="flex items-center gap-2">
-                    <Clock3 className="size-4 text-[#D9591A]" />
+                    <Clock3 className="size-4 text-[#D95E0B]" />
                     <span className="font-bold">สิ้นสุด:</span>{" "}
                     {formatEventDate(selectedEvent.endsAt)}
                   </div>
                 )}
                 {selectedEvent.location && (
                   <div className="flex items-center gap-2">
-                    <MapPin className="size-4 text-[#D9591A]" />
+                    <MapPin className="size-4 text-[#D95E0B]" />
                     <span className="font-bold">สถานที่:</span>{" "}
                     {selectedEvent.location}
                   </div>
@@ -334,33 +334,33 @@ export function MemberFeed() {
               </div>
 
               <div className="mt-4">
-                <p className="mb-1 text-sm font-semibold text-[#C9B8A8]">
+                <p className="mb-1 text-sm font-semibold text-[#5F5B55]">
                   สรุปกิจกรรม:
                 </p>
-                <p className="text-sm leading-6 text-[#C9B8A8]">
+                <p className="text-sm leading-6 text-[#5F5B55]">
                   {selectedEvent.summary}
                 </p>
               </div>
 
               {selectedEvent.description && (
-                <div className="mt-4 border-t border-[#3D3D3D] pt-4">
-                  <p className="mb-2 text-sm font-semibold text-[#C9B8A8]">
+                <div className="mt-4 border-t border-[#E5E1D8] pt-4">
+                  <p className="mb-2 text-sm font-semibold text-[#5F5B55]">
                     รายละเอียดเพิ่มเติม:
                   </p>
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed text-[#C9B8A8]">
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed text-[#5F5B55]">
                     {selectedEvent.description}
                   </div>
                 </div>
               )}
 
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#3D3D3D] pt-4">
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E1D8] pt-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() => downloadICS(selectedEvent)}
-                    className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[#3D3D3D] bg-[#262626] px-4 py-2.5 text-xs font-bold text-[#D9591A] shadow-sm hover:bg-[#262626] active:scale-95 transition"
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[#E5E1D8] bg-[#FFFFFF] px-4 py-2.5 text-xs font-bold text-[#D95E0B] shadow-sm hover:bg-[#FFFFFF] active:scale-95 transition"
                   >
-                    <CalendarPlus className="size-4 text-[#D9591A]" />
+                    <CalendarPlus className="size-4 text-[#D95E0B]" />
                     เพิ่มลงปฏิทิน (.ics)
                   </button>
                   {selectedEvent.registrationUrl && (
@@ -368,7 +368,7 @@ export function MemberFeed() {
                       href={selectedEvent.registrationUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#34D399] px-4 py-2.5 text-xs font-bold text-[#1B1B1B] hover:bg-[#256843]"
+                      className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#20C997] px-4 py-2.5 text-xs font-bold text-[#F5F3EE] hover:bg-[#18A97D]"
                     >
                       ลงทะเบียนเข้าร่วม <ExternalLink className="size-3.5" />
                     </a>
@@ -376,7 +376,7 @@ export function MemberFeed() {
                 </div>
                 <button
                   onClick={() => setSelectedEvent(null)}
-                  className="min-h-[44px] rounded-xl border border-[#3D3D3D] px-5 py-2.5 text-xs font-bold text-[#C9B8A8] hover:bg-[#262626]"
+                  className="min-h-[44px] rounded-xl border border-[#E5E1D8] px-5 py-2.5 text-xs font-bold text-[#5F5B55] hover:bg-[#FFFFFF]"
                 >
                   ปิดหน้าต่าง
                 </button>

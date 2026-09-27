@@ -136,7 +136,7 @@ export default function Home() {
           category: o.category,
           subCategory: "เงินถวาย",
           amount: Number(o.amount),
-          tone: "bg-[#323232] text-[#34D399]",
+          tone: "bg-[#F1EFE9] text-[#20C997]",
           icon: Heart,
         });
       });
@@ -152,7 +152,7 @@ export default function Home() {
           category: e.category,
           subCategory: expenseCategoryLabel(e.category),
           amount: Number(e.amount),
-          tone: "bg-[#323232] text-[#FF6B5B]",
+          tone: "bg-[#F1EFE9] text-[#FF6B5B]",
           icon: Landmark,
         });
       });
@@ -168,7 +168,7 @@ export default function Home() {
         <HeroSection />
 
         <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#8F8477]">
+          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ดูภาพรวม
           </h2>
           <BalanceCard
@@ -204,24 +204,24 @@ export default function Home() {
           <div
             role="region"
             aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#262626] border border-[#3D3D3D] text-[#C9B8A8]"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5E1D8] text-[#5F5B55]"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#323232] border border-[#3D3D3D] flex items-center justify-center text-[#FC6E20] shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#F1EFE9] border border-[#E5E1D8] flex items-center justify-center text-[#F97316] shrink-0">
                 <Inbox className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-sm sm:text-base text-white">
                   มีสลิปถวายรอตรวจสอบ {pendingSlipCount} รายการ
                 </h3>
-                <p className="text-xs text-[#C9B8A8] truncate">
+                <p className="text-xs text-[#5F5B55] truncate">
                   สลิปจาก LINE Official Account รอดำเนินการตรวจสอบและบันทึกบัญชี
                 </p>
               </div>
             </div>
             <button
               onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
+              className="min-h-11 px-4 py-2 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#F97316]"
             >
               <span>ตรวจสอบสลิป</span>
               <ArrowRight className="w-4 h-4" />
@@ -230,7 +230,7 @@ export default function Home() {
         )}
 
         <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#8F8477]">
+          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ทำรายการ
           </h2>
           <PrimaryActions
@@ -250,7 +250,7 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#8F8477]">
+          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#7A766F]">
             ติดตาม
           </h2>
           <BudgetSection

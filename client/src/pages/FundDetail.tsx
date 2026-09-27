@@ -62,41 +62,41 @@ export default function FundDetail() {
             label="กลับหน้ารายการกองทุน"
             onClick={() => setLocation("/funds")}
           />
-          <span className="font-mono text-xs text-[#8F8477] px-3 py-1 rounded-full border border-[#3D3D3D]">
+          <span className="font-mono text-xs text-[#7A766F] px-3 py-1 rounded-full border border-[#E5E1D8]">
             FD-{String(fund.id).padStart(3, "0")}
           </span>
         </div>
 
-        <section className="bg-[#262626] border border-[#3D3D3D] rounded-2xl p-6 md:p-8 space-y-6">
+        <section className="bg-[#FFFFFF] border border-[#E5E1D8] rounded-2xl p-6 md:p-8 space-y-6">
           <div className="space-y-2">
             <StatusBadge
               status={fund.isActive ? "active" : "inactive"}
               label={fund.isActive ? "กำลังใช้งาน" : "ปิดใช้งาน"}
             />
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#FFE7D0]">
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#171717]">
               {fund.name}
             </h2>
             {fund.description && (
-              <p className="text-sm text-[#8F8477] max-w-xl">
+              <p className="text-sm text-[#7A766F] max-w-xl">
                 {fund.description}
               </p>
             )}
           </div>
 
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl border border-[#3D3D3D]">
-              <dt className="text-xs text-[#8F8477] font-medium">
+            <div className="p-4 rounded-2xl border border-[#E5E1D8]">
+              <dt className="text-xs text-[#7A766F] font-medium">
                 ยอดคงเหลือสุทธิ
               </dt>
               <dd className="mt-1">
                 <MoneyDisplay amount={balance} size="xl" />
               </dd>
             </div>
-            <div className="p-4 rounded-2xl border border-[#3D3D3D]">
-              <dt className="text-xs text-[#8F8477] font-medium">
+            <div className="p-4 rounded-2xl border border-[#E5E1D8]">
+              <dt className="text-xs text-[#7A766F] font-medium">
                 ประเภทกองทุน
               </dt>
-              <dd className="text-2xl font-bold text-[#FFE7D0] mt-1">
+              <dd className="text-2xl font-bold text-[#171717] mt-1">
                 {fundTypeLabel(fund.type)}
               </dd>
             </div>
@@ -105,19 +105,19 @@ export default function FundDetail() {
 
         {/* There is no per-fund movement endpoint yet; the transaction list
             shows the fund of every row, so point there instead. */}
-        <section className="bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="bg-[#FFFFFF] rounded-2xl border border-[#E5E1D8] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-semibold tracking-tight text-[#FFE7D0]">
+            <h2 className="text-base font-semibold tracking-tight text-[#171717]">
               รายการเคลื่อนไหว
             </h2>
-            <p className="text-sm text-[#8F8477] mt-1">
+            <p className="text-sm text-[#7A766F] mt-1">
               ดูรายรับและรายจ่ายของกองทุนนี้ได้ในหน้ารายการธุรกรรม
               ซึ่งแสดงกองทุนของทุกรายการ
             </p>
           </div>
           <Link
             href="/transactions"
-            className="min-h-11 shrink-0 inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#262626] border border-[#3D3D3D] text-sm font-semibold text-[#FFE7D0] hover:bg-[#262626] hover:border-[#FC6E20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
+            className="min-h-11 shrink-0 inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#FFFFFF] border border-[#E5E1D8] text-sm font-semibold text-[#171717] hover:bg-[#FFFFFF] hover:border-[#F97316] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]"
           >
             ไปที่รายการธุรกรรม
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

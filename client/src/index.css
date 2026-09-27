@@ -36,18 +36,27 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Custom Grace-giving Brand Colors (Semantic Tokens) */
+  /* Grace Giving warm premium semantic tokens. */
   --color-brand-bg: var(--background);
-  --color-brand-cream: #1b1b1b;
-  --color-brand-sage: #323232;
-  --color-brand-lightsage: #262626;
-  --color-brand-peach: #ffe7d0;
-  --color-brand-orange: #fc6e20;
-  --color-brand-sky: #ff8a4c;
-  --color-brand-brown: #c9b8a8;
-  --color-brand-dark: var(--foreground);
-  --color-brand-muted: #8f8477;
-  --color-brand-border: #3d3d3d;
+  --color-brand-surface: var(--card);
+  --color-brand-surface-secondary: var(--secondary);
+  --color-brand-ink: var(--foreground);
+  --color-brand-charcoal: #292929;
+  --color-brand-muted: #7A766F;
+  --color-brand-border: #E5E1D8;
+  --color-brand-orange: #F97316;
+  --color-brand-soft: #FFE0C2;
+  --color-brand-income: #20C997;
+  --color-brand-expense: #FF5B5B;
+  --color-brand-warning: #D99A25;
+  --color-brand-info: #527A9E;
+  --color-brand-cream: #FFF0DD;
+  --color-brand-brown: #5F5B55;
+  --color-brand-dark: #171717;
+  --color-brand-sage: #E3F8F1;
+  --color-brand-lightsage: #F1EFE9;
+  --color-brand-peach: #FFE0C2;
+  --color-brand-sky: #EEF3F7;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -68,7 +77,7 @@
      keep page content clear of it below the lg: breakpoint. Any page that
      adds its own fixed/sticky bottom bar on mobile must clear this same
      value plus its own height, instead of guessing a pixel offset. */
-  --mobile-nav-clearance: 6rem;
+  --mobile-nav-clearance: 7.5rem;
 
   /* Widest the page content column is allowed to get (AppLayout.tsx). Without
      a ceiling, a ledger row on a 1920px monitor puts its date at the far left
@@ -76,34 +85,32 @@
      them, which is unreadable. The sidebar sits outside this width. */
   --content-max: 88rem;
 
-  /* Dark charcoal ramp (neutral surfaces and text) and a single Warm Orange
-     accent, per the "calculator app" reference palette the user picked
-     (#1B1B1B / #323232 / #FFE7D0 / #FC6E20). Text pairs are chosen for at
-     least 4.5:1 on #1B1B1B: #FFE7D0 primary text, #C9B8A8 secondary,
-     #8F8477 tertiary. #FC6E20 carries white button text at 4.6:1; #D9591A
-     is its hover and the orange used for text on dark surfaces. */
-  --primary: #fc6e20;
-  --primary-foreground: #ffffff;
+  /* Warm premium light canvas with charcoal text and a single Grace Orange
+     action color. Text pairs are chosen for readable contrast on #F5F3EE: #171717
+     primary text, #5F5B55 secondary, and #7A766F tertiary. Orange actions use
+     #171717 text; #D95E0B is the hover state and dark-surface accent. */
+  --primary: #F97316;
+  --primary-foreground: #171717;
   /* The page surface, not the dark sidebar (which sets its own colour).
      Dialogs, sheets, tabs and switches paint with this token, so it must
      stay dark enough for --foreground text to read on it. */
-  --background: #1b1b1b;
-  --foreground: #ffe7d0;
-  --card: #262626;
-  --card-foreground: #ffe7d0;
-  --popover: #262626;
-  --popover-foreground: #ffe7d0;
-  --secondary: #323232;
-  --secondary-foreground: #c9b8a8;
-  --muted: #323232;
-  --muted-foreground: #8f8477;
-  --accent: #323232;
-  --accent-foreground: #ff8a4c;
-  --destructive: #ff5c5c;
-  --destructive-foreground: #ffffff;
-  --border: #3d3d3d;
-  --input: #3d3d3d;
-  --ring: #fc6e20;
+  --background: #F5F3EE;
+  --foreground: #171717;
+  --card: #FFFFFF;
+  --card-foreground: #171717;
+  --popover: #FFFFFF;
+  --popover-foreground: #171717;
+  --secondary: #F1EFE9;
+  --secondary-foreground: #5F5B55;
+  --muted: #F1EFE9;
+  --muted-foreground: #7A766F;
+  --accent: #FFF0DD;
+  --accent-foreground: #D95E0B;
+  --destructive: #FF5B5B;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E1D8;
+  --input: #E5E1D8;
+  --ring: #F97316;
   --radius: 0.75rem;
 }
 
@@ -171,7 +178,7 @@ select:focus-visible {
 
 @layer base {
   * {
-    border-color: #3d3d3d;
+    border-color: #E5E1D8;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -205,7 +212,7 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #454545;
+  background: #292929;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {

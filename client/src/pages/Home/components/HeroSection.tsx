@@ -14,25 +14,25 @@ export function HeroSection() {
         <h1 className="flex flex-wrap items-center gap-x-2 text-2xl sm:text-3xl font-semibold tracking-tight leading-tight font-display">
           <span className="text-white">Grace</span>
           <Sprout
-            className="size-5 sm:size-6 text-[#FC6E20] stroke-[2.5]"
+            className="size-5 sm:size-6 text-[#F97316] stroke-[2.5]"
             aria-hidden="true"
           />
-          <span className="text-[#FC6E20]">Ledger</span>
+          <span className="text-[#F97316]">Ledger</span>
         </h1>
-        <p className="text-sm sm:text-base text-[#C9B8A8] leading-relaxed">
+        <p className="text-sm sm:text-base text-[#5F5B55] leading-relaxed">
           การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
         </p>
         <p className="flex flex-wrap gap-x-2 text-xs sm:text-sm leading-relaxed">
-          <span className="whitespace-nowrap font-semibold text-[#FC6E20]">
+          <span className="whitespace-nowrap font-semibold text-[#F97316]">
             2 โครินธ์ 9:7
           </span>
-          <span className="text-[#C9B8A8]">
+          <span className="text-[#5F5B55]">
             “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
           </span>
         </p>
       </div>
 
-      <div className="hidden sm:block shrink-0 size-24 md:size-28 rounded-2xl overflow-hidden border border-[#3D3D3D] bg-[#262626]">
+      <div className="hidden sm:block shrink-0 size-24 md:size-28 rounded-2xl overflow-hidden border border-[#E5E1D8] bg-[#FFFFFF]">
         <Illustration
           src="/illustrations/hero_jesus_shepherd.jpg"
           alt="พระเยซูคริสต์และลูกแกะ"

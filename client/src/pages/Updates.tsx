@@ -24,7 +24,7 @@ export default function Updates() {
   if (loading) {
     return (
       <AppLayout title="ข่าวสาร & กิจกรรม">
-        <p className="text-sm text-[#8F8477]">กำลังตรวจสอบบัญชีผู้ใช้...</p>
+        <p className="text-sm text-[#7A766F]">กำลังตรวจสอบบัญชีผู้ใช้...</p>
       </AppLayout>
     );
   }
@@ -32,19 +32,19 @@ export default function Updates() {
   if (!isAuthenticated) {
     return (
       <AppLayout title="ข่าวสาร & กิจกรรม">
-        <div className="mx-auto max-w-lg rounded-2xl border border-[#3D3D3D] bg-[#262626] p-8 text-center shadow-xs">
-          <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#3D2A1A] text-[#D9591A]">
+        <div className="mx-auto max-w-lg rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-8 text-center shadow-xs">
+          <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#FFF0DD] text-[#D95E0B]">
             <Bell className="size-8" aria-hidden="true" />
           </div>
-          <h2 className="mt-5 text-2xl font-semibold tracking-tight text-[#FFE7D0]">
+          <h2 className="mt-5 text-2xl font-semibold tracking-tight text-[#171717]">
             ติดตามข่าวสารคริสตจักร
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-[#C9B8A8]">
+          <p className="mt-2 text-sm leading-relaxed text-[#5F5B55]">
             เข้าสู่ระบบเพื่อดูประกาศ กิจกรรม และข้อมูลอัปเดตสำหรับสมาชิก
           </p>
           <button
             onClick={startLogin}
-            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#FC6E20] hover:bg-[#D9591A] px-6 py-3 text-sm font-bold text-[#1B1B1B] shadow-sm transition-colors active:scale-95"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#F97316] hover:bg-[#D95E0B] px-6 py-3 text-sm font-bold text-[#171717] shadow-sm transition-colors active:scale-95"
           >
             <UsersRound className="size-4" aria-hidden="true" />
             เข้าสู่ระบบ
@@ -59,15 +59,15 @@ export default function Updates() {
       title="ข่าวสาร & กิจกรรม"
       subtitle={`ติดตามสิ่งที่เกิดขึ้นใน${churchName}`}
     >
-      <div className="flex w-fit items-center gap-2 rounded-full border border-[#3D3D3D] bg-[#262626] px-3.5 py-2 text-xs text-[#C9B8A8]">
-        <Sparkles className="size-4 text-[#FC6E20]" aria-hidden="true" />
+      <div className="flex w-fit items-center gap-2 rounded-full border border-[#E5E1D8] bg-[#FFFFFF] px-3.5 py-2 text-xs text-[#5F5B55]">
+        <Sparkles className="size-4 text-[#F97316]" aria-hidden="true" />
         <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
       </div>
 
       <div
         role="group"
         aria-label="มุมมองข่าวสาร"
-        className="flex w-fit gap-2 rounded-2xl border border-[#3D3D3D] bg-[#262626] p-1.5"
+        className="flex w-fit gap-2 rounded-2xl border border-[#E5E1D8] bg-[#FFFFFF] p-1.5"
       >
         <button
           type="button"
@@ -75,8 +75,8 @@ export default function Updates() {
           aria-pressed={activeTab === "feed"}
           className={`min-h-11 rounded-xl border px-5 py-2 text-sm font-bold transition-colors ${
             activeTab === "feed"
-              ? "border-[#6B4426] bg-[#3D2A1A] text-[#D9591A]"
-              : "border-transparent text-[#8F8477] hover:text-[#C9B8A8]"
+              ? "border-[#FFE0C2] bg-[#FFF0DD] text-[#D95E0B]"
+              : "border-transparent text-[#7A766F] hover:text-[#5F5B55]"
           }`}
         >
           สำหรับสมาชิก
@@ -88,8 +88,8 @@ export default function Updates() {
             aria-pressed={activeTab === "manage"}
             className={`min-h-11 rounded-xl border px-5 py-2 text-sm font-bold transition-colors ${
               activeTab === "manage"
-                ? "border-[#6B4426] bg-[#3D2A1A] text-[#D9591A]"
-                : "border-transparent text-[#8F8477] hover:text-[#C9B8A8]"
+                ? "border-[#FFE0C2] bg-[#FFF0DD] text-[#D95E0B]"
+                : "border-transparent text-[#7A766F] hover:text-[#5F5B55]"
             }`}
           >
             <Settings2 className="mr-1.5 inline size-4" aria-hidden="true" />
