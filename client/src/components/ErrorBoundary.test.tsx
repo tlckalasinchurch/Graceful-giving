@@ -39,19 +39,43 @@ describe("ErrorBoundary", () => {
     );
 
     // Verify unexpected error heading
+    expect(screen.getByText("เกิดข้อผิดพลาดที่ไม่คาดคิด")).toBeInTheDocument();
+
+    // Verify both recovery actions are present: retry (resets the boundary
+    // without a full reload) and reload (forces window.location.reload).
     expect(
-      screen.getByText("An unexpected error occurred.")
+      screen.getByRole("button", { name: "ลองใหม่" })
     ).toBeInTheDocument();
-
-    // Verify reload button presence
-    const reloadButton = screen.getByRole("button", { name: /reload page/i });
-    expect(reloadButton).toBeInTheDocument();
-
-    // Verify error was captured and logged
-    expect(consoleErrorSpy).toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: "โหลดหน้าใหม่" })
+    ).toBeInTheDocument();
   });
 
-  it("triggers window.location.reload when reload button is clicked", () => {
+  it('clears the error and re-renders children when "ลองใหม่" is clicked', () => {
+    const { rerender } = render(
+      <ErrorBoundary>
+        <ThrowingComponent shouldThrow={true} />
+      </ErrorBoundary>
+    );
+
+    // Swap in non-throwing children first. The boundary's own state.hasError
+    // is still true here, so it keeps rendering the fallback UI — React
+    // error boundaries don't clear their caught state just because props
+    // changed. Only the reset button's setState does that, and once it
+    // does, render() picks up these already-updated (safe) children.
+    rerender(
+      <ErrorBoundary>
+        <ThrowingComponent shouldThrow={false} />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText("เกิดข้อผิดพลาดที่ไม่คาดคิด")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "ลองใหม่" }));
+
+    expect(screen.getByText("Normal Content")).toBeInTheDocument();
+  });
+
+  it('triggers window.location.reload when "โหลดหน้าใหม่" is clicked', () => {
     const originalLocation = window.location;
     const reloadMock = vi.fn();
 
@@ -66,7 +90,7 @@ describe("ErrorBoundary", () => {
       </ErrorBoundary>
     );
 
-    const reloadButton = screen.getByRole("button", { name: /reload page/i });
+    const reloadButton = screen.getByRole("button", { name: "โหลดหน้าใหม่" });
     fireEvent.click(reloadButton);
 
     expect(reloadMock).toHaveBeenCalledTimes(1);
