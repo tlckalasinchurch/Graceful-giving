@@ -127,8 +127,8 @@ export default function NewOffering() {
     >
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Hero Card with offering_box.jpg */}
-        <div className="hidden sm:flex bg-card rounded-2xl p-6 border border-border items-center gap-5">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-white p-1 border border-border shadow-xs shrink-0">
+        <div className="hidden sm:flex bg-card rounded-2xl p-4 sm:p-6 border border-border items-center gap-5">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-card p-1 border border-border shrink-0">
             <Illustration
               src="/illustrations/offering_box.jpg"
               alt="กล่องถวาย"
@@ -331,7 +331,7 @@ export default function NewOffering() {
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full py-4 rounded-2xl bg-primary hover:bg-primary-strong text-white font-bold text-sm button-elevation transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-2xl bg-primary hover:bg-primary-strong text-white font-bold text-sm transition-all flex items-center justify-center gap-2"
           >
             <HandCoins className="w-5 h-5" />
             <span>
@@ -345,8 +345,8 @@ export default function NewOffering() {
 
       {/* Success Celebration Dialog */}
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
-        <DialogContent className="max-w-sm bg-card border-border rounded-2xl p-6 text-center text-foreground space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-border shadow-xs p-1 bg-success-soft">
+        <DialogContent className="max-w-sm bg-card border-border rounded-2xl p-4 sm:p-6 text-center text-foreground space-y-4">
+          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-border p-1 bg-success-soft">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
               alt="ถวายสำเร็จ"
@@ -388,7 +388,7 @@ export default function NewOffering() {
               setIsSuccessOpen(false);
               setLocation("/offerings");
             }}
-            className="w-full py-3.5 rounded-2xl bg-success-border hover:bg-success-border text-white font-bold text-sm button-elevation transition-all"
+            className="w-full py-3.5 rounded-2xl bg-success-border hover:bg-success-border text-white font-bold text-sm transition-all"
           >
             ดูรายการถวายทั้งหมด
           </button>

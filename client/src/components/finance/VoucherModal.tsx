@@ -60,9 +60,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-card print:static print:overflow-visible">
       {/* Container */}
-      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
+      <div className="bg-card w-full max-w-3xl rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Modal Action Bar (Hidden in print) */}
         <div className="flex items-center justify-between px-6 py-4 bg-background border-b border-border print:hidden">
           <div className="flex items-center gap-2 text-foreground-soft">
@@ -93,7 +93,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           {/* Printable Voucher Card */}
           <div
             ref={printAreaRef}
-            className="voucher-print-area max-w-2xl mx-auto bg-white border border-border print:border-none p-8 sm:p-10 rounded-2xl text-foreground font-sans"
+            className="voucher-print-area max-w-2xl mx-auto bg-card border border-border print:border-none p-8 sm:p-10 rounded-2xl text-foreground font-sans"
           >
             {/* Header / Church Info */}
             <div className="border-b-2 border-foreground pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

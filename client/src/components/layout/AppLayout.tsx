@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -130,6 +130,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     retry: false,
     staleTime: 60_000,
   });
+
+  // Per-route document title, so browser tabs, history and shared links say
+  // which page they are. Pages without a title prop fall back to the section.
+  const pageTitle = title ?? (currentPath === "/" ? "ภาพรวมการเงิน" : undefined);
+  useEffect(() => {
+    document.title = pageTitle
+      ? `${pageTitle} · Grace-giving`
+      : "Grace-giving — ระบบบัญชีการเงินคริสตจักร";
+  }, [pageTitle]);
 
   const churchName =
     churchProfile?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";

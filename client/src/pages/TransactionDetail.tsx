@@ -232,7 +232,7 @@ export default function TransactionDetail() {
           {transaction && (
             <button
               onClick={() => setShowVoucher(true)}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-muted hover:bg-primary hover:text-white text-foreground-soft text-xs font-bold border border-border flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-muted hover:bg-primary hover:text-white text-foreground-soft text-xs font-bold border border-border flex items-center gap-1.5 transition-colors"
             >
               <Printer className="w-4 h-4" />
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
@@ -293,7 +293,7 @@ export default function TransactionDetail() {
           onAction={() => setLocation("/transactions")}
         />
       ) : (
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-border card-elevation-sm space-y-6">
+        <div className="bg-card rounded-2xl p-4 sm:p-6 lg:p-8 border border-border space-y-6">
           {isEditing && (
             <form
               onSubmit={submitEdit}
@@ -391,7 +391,7 @@ export default function TransactionDetail() {
 
           {/* Receipt Attachment from Supabase Storage */}
           {transaction.receiptUrl && (
-            <div className="rounded-2xl bg-card border border-border/70 p-5 space-y-3">
+            <div className="rounded-2xl bg-card border border-border/70 p-4 sm:p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground-soft flex items-center gap-1.5">
                   <Paperclip className="w-4 h-4 text-primary" />
@@ -408,7 +408,7 @@ export default function TransactionDetail() {
 
               <div
                 onClick={() => setShowReceiptModal(true)}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-border bg-muted flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity shadow-xs group relative"
+                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-border bg-muted flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity group relative"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">

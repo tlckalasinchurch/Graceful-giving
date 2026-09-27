@@ -71,6 +71,16 @@ export const navItems = [
     icon: PieChart,
   },
   {
+    label: "การอนุมัติ",
+    path: "/approvals",
+    icon: CheckCircle2,
+  },
+  {
+    label: "รายงาน",
+    path: "/reports",
+    icon: FileBarChart,
+  },
+  {
     label: "พันธกิจ",
     path: "/ministries",
     icon: Sprout,
@@ -79,16 +89,6 @@ export const navItems = [
     label: "สมาชิก",
     path: "/members",
     icon: UsersRound,
-  },
-  {
-    label: "รายงาน",
-    path: "/reports",
-    icon: FileBarChart,
-  },
-  {
-    label: "การอนุมัติ",
-    path: "/approvals",
-    icon: CheckCircle2,
   },
   {
     label: "ข่าวสารและกิจกรรม",
@@ -120,8 +120,8 @@ const NAV_GROUPS = [
     paths: ["/transactions", "/counting", "/offerings", "/giving/inbox", "/expenses"],
   },
   { label: "วางแผนและควบคุม", paths: ["/funds", "/budgets", "/approvals"] },
-  { label: "คริสตจักร", paths: ["/ministries", "/members", "/updates"] },
   { label: "วิเคราะห์", paths: ["/reports"] },
+  { label: "คริสตจักร", paths: ["/ministries", "/members", "/updates"] },
   { label: "บัญชีผู้ใช้", paths: ["/profile", "/settings"] },
 ] as const;
 

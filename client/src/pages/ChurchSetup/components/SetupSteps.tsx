@@ -47,7 +47,7 @@ export function TextField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-sm text-foreground-soft placeholder:text-muted-foreground focus:border-primary-strong focus:outline-none focus:ring-2 focus:ring-primary-strong/20 disabled:opacity-60"
+        className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground-soft placeholder:text-muted-foreground focus:border-primary-strong focus:outline-none focus:ring-2 focus:ring-primary-strong/20 disabled:opacity-60"
       />
     </div>
   );
@@ -76,7 +76,7 @@ export function Step1({
           onChange={e => set({ address: e.target.value })}
           placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
           rows={3}
-          className="w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-sm text-foreground-soft placeholder:text-muted-foreground focus:border-primary-strong focus:outline-none resize-none"
+          className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground-soft placeholder:text-muted-foreground focus:border-primary-strong focus:outline-none resize-none"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -141,7 +141,7 @@ export function Step2({
           onChange={e => set({ motto: e.target.value })}
           placeholder="เช่น 2 โครินธ์ 9:7 · ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก"
           rows={2}
-          className="w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-sm text-foreground-soft placeholder:text-muted-foreground focus:border-primary-strong focus:outline-none resize-none"
+          className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground-soft placeholder:text-muted-foreground focus:border-primary-strong focus:outline-none resize-none"
         />
       </div>
       <div className="rounded-2xl border border-info-soft bg-info-soft p-4">
@@ -246,7 +246,7 @@ export function Step4({
               className={`flex min-h-[48px] items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${
                 selected
                   ? "border-primary-strong bg-muted text-primary-strong"
-                  : "border-border bg-white text-foreground-soft hover:bg-background"
+                  : "border-border bg-card text-foreground-soft hover:bg-background"
               }`}
             >
               <span
@@ -283,7 +283,7 @@ export function Step5({ data }: { data: SetupData }) {
       {data.funds.map((fund, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-2xl border border-divider bg-white p-3.5"
+          className="flex items-center gap-3 rounded-2xl border border-divider bg-card p-3.5"
         >
           <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-primary-strong">
             <WalletCards className="size-5" />
@@ -343,7 +343,7 @@ export function Step6({
           onChange={e => set({ budgetYear: Number(e.target.value) })}
           min={2550}
           max={2600}
-          className="w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
+          className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
         />
       </div>
       <div className="rounded-2xl border border-accent bg-accent p-4 space-y-2">
@@ -396,7 +396,7 @@ export function Step7() {
       {roles.map(({ role, label, desc, color }) => (
         <div
           key={role}
-          className="flex items-start gap-3 rounded-2xl border border-divider bg-white p-3.5"
+          className="flex items-start gap-3 rounded-2xl border border-divider bg-card p-3.5"
         >
           <span
             className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-bold ${color}`}
@@ -438,7 +438,7 @@ export function Step8({ data }: { data: SetupData }) {
   ];
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-divider bg-white overflow-hidden">
+      <div className="rounded-2xl border border-divider bg-card overflow-hidden">
         {summaryItems.map(({ label, value }, i) => (
           <div
             key={label}

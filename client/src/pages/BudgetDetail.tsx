@@ -162,7 +162,7 @@ export default function BudgetDetail() {
           />
         ) : (
           <>
-            <section className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8">
+            <section className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-8">
               <h1 className="text-2xl font-bold text-foreground">
                 {budgetCategoryLabel(query.data.category)}
               </h1>
@@ -208,7 +208,7 @@ export default function BudgetDetail() {
 
             <form
               onSubmit={submit}
-              className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8"
+              className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-8"
             >
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-bold text-foreground">แก้ไขงบประมาณ</h2>
@@ -236,7 +236,7 @@ export default function BudgetDetail() {
               </button>
             </form>
 
-            <section className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8">
+            <section className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-8">
               <h2 className="font-bold text-foreground">
                 รายจ่ายที่นับในงบนี้ ({query.data.expenseCount} รายการ)
               </h2>

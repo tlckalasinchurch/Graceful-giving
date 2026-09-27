@@ -324,7 +324,7 @@ export default function Transactions() {
       ) : (
         <div className="bg-card rounded-2xl border border-border overflow-hidden">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
@@ -376,7 +376,7 @@ export default function Transactions() {
           </div>
 
           {/* MOBILE LIST: one row per movement, amount on the right. */}
-          <ul className="md:hidden divide-y divide-divider">
+          <ul className="lg:hidden divide-y divide-divider">
             {filtered.map(tx => (
               <li key={tx.id}>
                 <TransactionRow

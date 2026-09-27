@@ -266,7 +266,7 @@ export function AdminManager() {
           </button>
           <button
             onClick={openNewEvent}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-white px-4 py-2.5 text-xs font-bold text-primary-strong hover:bg-background shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-xs font-bold text-primary-strong hover:bg-background active:scale-95 transition"
           >
             <CalendarDays className="size-4" /> กิจกรรมใหม่
           </button>
@@ -280,7 +280,7 @@ export function AdminManager() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="ค้นหาชื่อข่าวสารหรือกิจกรรม..."
-          className="w-full rounded-2xl border border-border bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-foreground-soft focus:border-primary-strong focus:outline-none"
+          className="w-full rounded-2xl border border-border bg-card py-2.5 pl-10 pr-4 text-xs font-medium text-foreground-soft focus:border-primary-strong focus:outline-none"
         />
       </div>
 
@@ -289,7 +289,7 @@ export function AdminManager() {
       ) : (
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           {/* Admin News List */}
-          <div className="rounded-2xl border border-divider bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-divider bg-card p-4">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-bold text-foreground-soft">ข่าวสารทั้งหมด</p>
               <span className="text-xs font-semibold text-muted-foreground">
@@ -370,7 +370,7 @@ export function AdminManager() {
           </div>
 
           {/* Admin Events List */}
-          <div className="rounded-2xl border border-divider bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-divider bg-card p-4">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-bold text-foreground-soft">กิจกรรมทั้งหมด</p>
               <span className="text-xs font-semibold text-muted-foreground">
@@ -479,7 +479,7 @@ export function AdminManager() {
         open={!!deletingNews}
         onOpenChange={open => !open && setDeletingNews(null)}
       >
-        <DialogContent className="w-full max-w-sm rounded-2xl border-divider bg-card p-6 shadow-2xl">
+        <DialogContent className="w-full max-w-sm rounded-2xl border-divider bg-card p-4 sm:p-6 shadow-2xl">
           {deletingNews && (
             <>
               <DialogHeader className="text-left">
@@ -527,7 +527,7 @@ export function AdminManager() {
         open={!!deletingEvent}
         onOpenChange={open => !open && setDeletingEvent(null)}
       >
-        <DialogContent className="w-full max-w-sm rounded-2xl border-divider bg-card p-6 shadow-2xl">
+        <DialogContent className="w-full max-w-sm rounded-2xl border-divider bg-card p-4 sm:p-6 shadow-2xl">
           {deletingEvent && (
             <>
               <DialogHeader className="text-left">

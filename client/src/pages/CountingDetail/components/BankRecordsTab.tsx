@@ -77,7 +77,7 @@ export function BankRecordsTab({
             }
           );
         }}
-        className="rounded-2xl border border-border bg-white p-5 shadow-sm md:p-6"
+        className="rounded-2xl border border-border bg-card p-4 sm:p-5 md:p-6"
       >
         <h2 className="mb-4 font-bold text-foreground">บันทึกรายการธนาคาร</h2>
         <div className="grid gap-4 md:grid-cols-4">
@@ -133,7 +133,7 @@ export function BankRecordsTab({
       </form>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-white p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-sm text-foreground-soft">เงินโอนเข้าบัญชีจริง</p>
           <MoneyDisplay amount={actualTransferIn} type="income" size="lg" />
           <p className="mt-1 text-sm text-foreground-soft">
@@ -143,7 +143,7 @@ export function BankRecordsTab({
             <Variance amount={transferVariance} />
           </div>
         </div>
-        <div className="rounded-2xl border border-border bg-white p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-sm text-foreground-soft">นำเงินสดเข้าฝากจริง</p>
           <MoneyDisplay amount={actualCashDeposit} size="lg" />
           <p className="mt-1 text-sm text-foreground-soft">
@@ -155,7 +155,7 @@ export function BankRecordsTab({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <h2 className="border-b border-border p-4 font-bold text-foreground">
           รายการธนาคาร ({bankRecords.length})
         </h2>

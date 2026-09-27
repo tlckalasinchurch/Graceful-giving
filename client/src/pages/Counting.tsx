@@ -229,7 +229,7 @@ export default function Counting() {
                 notes: notes.trim() || undefined,
               });
             }}
-            className="rounded-2xl border border-border bg-white p-6 shadow-sm animate-in fade-in"
+            className="rounded-2xl border border-border bg-card p-4 sm:p-6 animate-in fade-in"
           >
             <div className="mb-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -301,7 +301,7 @@ export default function Counting() {
               onClick={() => setActiveTab("all")}
               className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all shrink-0 ${
                 activeTab === "all"
-                  ? "bg-white text-foreground shadow-xs"
+                  ? "bg-card text-foreground shadow-xs"
                   : "text-foreground-soft hover:text-foreground"
               }`}
             >
@@ -316,7 +316,7 @@ export default function Counting() {
               onClick={() => setActiveTab("pending")}
               className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all shrink-0 ${
                 activeTab === "pending"
-                  ? "bg-white text-primary-strong shadow-xs"
+                  ? "bg-card text-primary-strong shadow-xs"
                   : "text-foreground-soft hover:text-primary-strong"
               }`}
             >
@@ -334,7 +334,7 @@ export default function Counting() {
               onClick={() => setActiveTab("completed")}
               className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all shrink-0 ${
                 activeTab === "completed"
-                  ? "bg-white text-success shadow-xs"
+                  ? "bg-card text-success shadow-xs"
                   : "text-foreground-soft hover:text-success"
               }`}
             >
@@ -354,7 +354,7 @@ export default function Counting() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="ค้นหาวันที่, บันทึก..."
-              className="min-h-11 w-full rounded-2xl border border-border bg-white pl-9 pr-3 py-2 text-base md:text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="min-h-11 w-full rounded-2xl border border-border bg-card pl-9 pr-3 py-2 text-base md:text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
             {searchQuery && (
               <button
@@ -406,7 +406,7 @@ export default function Counting() {
                   setActiveTab("all");
                   setSearchQuery("");
                 }}
-                className="mt-4 rounded-xl border border-border bg-white px-4 py-2 text-xs font-bold text-foreground-soft hover:bg-background"
+                className="mt-4 rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-foreground-soft hover:bg-background"
               >
                 ดูทุกรอบทั้งหมด
               </button>
@@ -426,7 +426,7 @@ export default function Counting() {
                   className={`rounded-2xl border transition-all p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                     isUnposted
                       ? "border-border bg-card shadow-xs hover:border-primary/60"
-                      : "border-border/80 bg-white shadow-2xs"
+                      : "border-border/80 bg-card shadow-2xs"
                   }`}
                 >
                   {/* Left: Date & Status & Notes */}
@@ -514,7 +514,7 @@ export default function Counting() {
                       <button
                         type="button"
                         onClick={() => setLocation(`/counting/${session.id}`)}
-                        className="min-h-10 inline-flex items-center gap-1.5 rounded-xl border border-border bg-white px-4 py-2 text-xs font-bold text-foreground-soft hover:bg-background hover:text-foreground transition-colors"
+                        className="min-h-10 inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-foreground-soft hover:bg-background hover:text-foreground transition-colors"
                       >
                         <FileText className="h-3.5 w-3.5 text-success" />
                         <span>ดูสรุป & รายงาน</span>

@@ -99,7 +99,7 @@ export default function Ministries() {
         {canManage && showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-border bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-border bg-card p-4 sm:p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-foreground">เพิ่มฝ่ายงานใหม่</h2>
@@ -185,7 +185,7 @@ export default function Ministries() {
                 key={ministry.id}
                 type="button"
                 onClick={() => setLocation(`/ministries/${ministry.id}`)}
-                className="rounded-2xl border border-border bg-white p-5 text-left shadow-sm hover:bg-background"
+                className="rounded-2xl border border-border bg-card p-4 sm:p-5 text-left hover:bg-background"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-foreground">{ministry.name}</h2>

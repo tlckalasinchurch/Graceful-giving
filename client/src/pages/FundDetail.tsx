@@ -53,7 +53,7 @@ export default function FundDetail() {
             FD-{String(fund.id).padStart(3, "0")}
           </span>
         </div>
-        <section className="bg-muted border border-border rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
+        <section className="bg-muted border border-border rounded-2xl p-4 sm:p-6 md:p-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-2">
               <StatusBadge
@@ -74,7 +74,7 @@ export default function FundDetail() {
                     "ฟังก์ชันโอนเงินจะเปิดใช้เมื่อมี workflow จากระบบรองรับ"
                   )
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-border text-foreground-soft text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border text-foreground-soft text-sm font-medium"
               >
                 <ArrowRightLeft className="w-4 h-4 text-primary" />
                 โอนเงินระหว่างกองทุน
@@ -91,7 +91,7 @@ export default function FundDetail() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-2xl border border-border/80">
+            <div className="bg-card p-4 rounded-2xl border border-border/80">
               <p className="text-xs text-muted-foreground font-medium">
                 ยอดคงเหลือสุทธิ
               </p>
@@ -100,7 +100,7 @@ export default function FundDetail() {
                 ยอดจริงจากบัญชีกองทุน
               </p>
             </div>
-            <div className="bg-white p-4 rounded-2xl border border-border/80">
+            <div className="bg-card p-4 rounded-2xl border border-border/80">
               <p className="text-xs text-muted-foreground font-medium">ประเภทกองทุน</p>
               <p className="text-2xl font-bold text-foreground mt-1">
                 {fund.type}
@@ -111,7 +111,7 @@ export default function FundDetail() {
             </div>
           </div>
         </section>
-        <section className="bg-white rounded-2xl border border-border p-6 shadow-sm">
+        <section className="bg-card rounded-2xl border border-border p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Wallet className="w-5 h-5 text-primary" />
             <h2 className="text-base font-bold text-foreground">

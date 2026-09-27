@@ -136,11 +136,11 @@ export default function ChurchSetup() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto min-h-screen max-w-[560px] overflow-x-hidden bg-background pb-32 shadow-[0_0_40px_rgba(112,78,45,0.07)] lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border lg:border-border">
         {/* Header */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-accent via-muted to-background px-5 pb-6 pt-5 sm:px-8">
+        <div className="relative overflow-hidden bg-card px-5 pb-6 pt-5 sm:px-8">
           <button
             onClick={skipSetup}
             aria-label="กลับหน้าหลัก"
-            className="absolute right-5 top-5 grid size-9 place-items-center rounded-full bg-white/70 text-muted-foreground hover:bg-white transition"
+            className="absolute right-5 top-5 grid size-9 place-items-center rounded-full bg-white/70 text-muted-foreground hover:bg-card transition"
           >
             <X className="size-4" />
           </button>
@@ -170,7 +170,7 @@ export default function ChurchSetup() {
               className="h-2 overflow-hidden rounded-full bg-divider"
             >
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary-strong to-primary transition-all duration-500"
+                className="h-full rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -197,7 +197,7 @@ export default function ChurchSetup() {
 
         {/* Step Card */}
         <div className="px-4 pt-4 sm:px-6">
-          <div className="rounded-2xl border border-divider bg-white px-5 py-6 shadow-[0_8px_24px_rgba(94,70,42,0.06)] sm:px-7">
+          <div className="rounded-2xl border border-divider bg-card px-5 py-6 shadow-[0_8px_24px_rgba(94,70,42,0.06)] sm:px-7">
             {/* Step Header */}
             <div className="mb-5 flex items-center gap-3">
               <span
@@ -232,7 +232,7 @@ export default function ChurchSetup() {
 
         {/* All Steps Overview (collapsed) */}
         <div className="px-4 pt-3 sm:px-6">
-          <details className="group rounded-2xl border border-divider bg-white overflow-hidden">
+          <details className="group rounded-2xl border border-divider bg-card overflow-hidden">
             <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-xs font-bold text-foreground-soft select-none">
               <span className="flex items-center gap-2">
                 <Settings2 className="size-4 text-primary-strong" />
@@ -290,7 +290,7 @@ export default function ChurchSetup() {
             {step > 1 && (
               <button
                 onClick={back}
-                className="min-h-[48px] flex-1 rounded-2xl border border-border bg-white text-sm font-bold text-foreground-soft hover:bg-muted active:scale-[0.98] transition"
+                className="min-h-[48px] flex-1 rounded-2xl border border-border bg-card text-sm font-bold text-foreground-soft hover:bg-muted active:scale-[0.98] transition"
               >
                 ← ย้อนกลับ
               </button>
@@ -298,7 +298,7 @@ export default function ChurchSetup() {
             {step < totalSteps ? (
               <button
                 onClick={next}
-                className="min-h-[48px] flex-[2] rounded-2xl bg-gradient-to-r from-primary-strong to-primary text-sm font-bold text-white shadow-[0_4px_14px_rgba(161,100,48,0.3)] hover:opacity-95 active:scale-[0.98] transition"
+                className="min-h-[48px] flex-[2] rounded-2xl bg-primary text-sm font-bold text-white hover:opacity-95 active:scale-[0.98] transition"
               >
                 ถัดไป →
               </button>
@@ -306,7 +306,7 @@ export default function ChurchSetup() {
               <button
                 onClick={handleFinish}
                 disabled={saving}
-                className="min-h-[48px] flex-[2] rounded-2xl bg-gradient-to-r from-success to-success text-sm font-bold text-white shadow-[0_4px_14px_rgba(44,123,76,0.3)] hover:opacity-95 active:scale-[0.98] transition disabled:opacity-60"
+                className="min-h-[48px] flex-[2] rounded-2xl bg-success text-sm font-bold text-white hover:opacity-95 active:scale-[0.98] transition disabled:opacity-60"
               >
                 {saving ? "กำลังบันทึก..." : "✓ ยืนยันและเริ่มใช้งาน"}
               </button>

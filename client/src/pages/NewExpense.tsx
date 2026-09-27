@@ -231,7 +231,7 @@ export default function NewExpense() {
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Amount & Presets */}
-          <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
+          <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 md:p-8 space-y-5">
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <Receipt className="w-5 h-5 text-primary" />
               1. จำนวนเงินและหมวดหมู่
@@ -302,7 +302,7 @@ export default function NewExpense() {
                       className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
                         isSelected
                           ? "border-primary bg-muted shadow-sm ring-2 ring-primary/20"
-                          : "border-border hover:bg-background/50 bg-white"
+                          : "border-border hover:bg-background/50 bg-card"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
@@ -335,7 +335,7 @@ export default function NewExpense() {
           </div>
 
           {/* Section 2: Expense Details & Fund Allocation */}
-          <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
+          <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 md:p-8 space-y-5">
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <Building className="w-5 h-5 text-success-border" />
               2. ข้อมูลรายการและกองทุนที่จัดสรร
@@ -456,14 +456,14 @@ export default function NewExpense() {
           </div>
 
           {/* Section 3: Receipt Attachment */}
-          <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-4">
+          <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 md:p-8 space-y-4">
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <UploadCloud className="w-5 h-5 text-info-border" />
               3. แนบหลักฐานใบเสร็จ / สลิปโอนเงิน
             </h2>
 
             {isUploading ? (
-              <div className="p-6 rounded-2xl bg-muted/50 border border-border flex items-center gap-4">
+              <div className="p-4 sm:p-6 rounded-2xl bg-muted/50 border border-border flex items-center gap-4">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0" />
                 <div>
                   <p className="text-sm font-semibold text-foreground">
@@ -476,7 +476,7 @@ export default function NewExpense() {
               <div className="p-4 rounded-2xl bg-muted/50 border border-border space-y-3">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-border overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-card border border-border overflow-hidden flex-shrink-0">
                       {receiptContentType.startsWith("image/") ? (
                         <img
                           src={receiptFile}
@@ -551,7 +551,7 @@ export default function NewExpense() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-border bg-white text-foreground-soft hover:bg-muted/50 font-medium text-sm transition-colors"
+              className="px-6 py-3 rounded-2xl border border-border bg-card text-foreground-soft hover:bg-muted/50 font-medium text-sm transition-colors"
             >
               ยกเลิก
             </button>
@@ -575,7 +575,7 @@ export default function NewExpense() {
         {/* Success Modal */}
         {showSuccessModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-border max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-card rounded-2xl border border-border max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-4 sm:p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
               <div className="w-16 h-16 rounded-full bg-success-soft flex items-center justify-center text-foreground-soft mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-foreground-soft" />
               </div>

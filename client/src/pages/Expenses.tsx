@@ -186,7 +186,7 @@ export default function Expenses() {
         <>
           <button
             onClick={exportCSV}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-white px-4 text-sm font-medium text-foreground-soft hover:bg-muted"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground-soft hover:bg-muted"
           >
             <Download className="size-4" />
             ส่งออก CSV
@@ -272,7 +272,7 @@ export default function Expenses() {
         ) : (
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
             {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-left text-sm text-foreground">
                 <caption className="sr-only">
                   รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
@@ -377,7 +377,7 @@ export default function Expenses() {
             </div>
 
             {/* Mobile Card View */}
-            <ul className="md:hidden divide-y divide-divider">
+            <ul className="lg:hidden divide-y divide-divider">
               {filteredExpenses.map(e => (
                 <li key={e.id} className="flex items-center pr-2">
                   <div className="min-w-0 flex-1">

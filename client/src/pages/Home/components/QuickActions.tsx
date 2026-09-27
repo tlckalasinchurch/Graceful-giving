@@ -9,7 +9,7 @@ export interface QuickAction {
 }
 
 /**
- * Compact shortcut grid: four per row on a phone, one row on desktop. Each
+ * Compact shortcut grid: four per row on a phone, two rows at most. Each
  * target is at least 72×64px, so it is easy to hit with a thumb.
  */
 export function QuickActions({ actions }: { actions: QuickAction[] }) {
@@ -22,7 +22,7 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
       >
         ทำรายการ
       </h2>
-      <ul className="grid grid-cols-4 gap-2 sm:gap-3 lg:grid-cols-8">
+      <ul className="grid grid-cols-4 gap-2 sm:gap-3">
         {actions.map(action => {
           const Icon = action.icon;
           return (

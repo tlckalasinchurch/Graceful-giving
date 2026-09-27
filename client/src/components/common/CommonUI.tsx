@@ -505,7 +505,7 @@ export const Chip: React.FC<
     className={`min-h-11 shrink-0 whitespace-nowrap rounded-xl border px-3.5 py-2 text-[13px] transition-colors ${
       active
         ? "border-accent-border bg-accent font-semibold text-primary-strong"
-        : "border-border bg-white font-medium text-foreground-soft hover:bg-muted"
+        : "border-border bg-card font-medium text-foreground-soft hover:bg-muted"
     } ${className}`}
     {...props}
   >
@@ -549,7 +549,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-border text-base md:text-sm text-foreground placeholder-muted-foreground focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
+          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-card border border-border text-base md:text-sm text-foreground placeholder-muted-foreground focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
         />
       </div>
 
@@ -607,7 +607,7 @@ export const BackLink: React.FC<{
     onClick={onClick}
     className={`min-h-11 inline-flex items-center gap-1.5 text-sm font-medium transition-colors ${
       variant === "pill"
-        ? "rounded-xl border border-border bg-white px-3.5 py-2 text-foreground-soft hover:bg-muted"
+        ? "rounded-xl border border-border bg-card px-3.5 py-2 text-foreground-soft hover:bg-muted"
         : "text-foreground-soft hover:text-foreground"
     } ${className}`}
   >

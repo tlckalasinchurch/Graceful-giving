@@ -103,7 +103,7 @@ export default function NewWithdrawal() {
         <BackLink label={`กลับ${returnLabel}`} onClick={goBack} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
+          <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 md:p-8 space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">
                 วัตถุประสงค์การเบิก <span className="text-destructive">*</span>
@@ -201,7 +201,7 @@ export default function NewWithdrawal() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-border bg-white text-foreground-soft hover:bg-muted/50 font-medium text-sm transition-colors"
+              className="px-6 py-3 rounded-2xl border border-border bg-card text-foreground-soft hover:bg-muted/50 font-medium text-sm transition-colors"
             >
               ยกเลิก
             </button>
@@ -220,7 +220,7 @@ export default function NewWithdrawal() {
 
         {showSuccessModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-border max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl">
+            <div className="bg-card rounded-2xl border border-border max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-4 sm:p-6 md:p-8 text-center space-y-6 shadow-2xl">
               <div className="w-16 h-16 rounded-full bg-success-soft flex items-center justify-center text-foreground-soft mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-foreground-soft" />
               </div>

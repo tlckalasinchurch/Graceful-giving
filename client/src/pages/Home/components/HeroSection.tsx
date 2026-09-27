@@ -5,7 +5,7 @@ export function HeroSection() {
   return (
     <section
       aria-label="Grace-giving ส่วนต้อนรับ"
-      className="animate-fade-up relative rounded-2xl overflow-hidden bg-white border border-border card-elevation-sm p-6 sm:p-8 md:p-10 w-full"
+      className="animate-fade-up relative rounded-2xl overflow-hidden bg-card border border-border p-4 sm:p-6 lg:p-8 md:p-10 w-full"
     >
       {/* Hero Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 lg:gap-10 items-center relative z-10 w-full">
@@ -44,7 +44,7 @@ export function HeroSection() {
 
         {/* Right Column: Clean illustration card */}
         <div className="min-w-0 md:col-span-5 flex items-center justify-center md:justify-end w-full">
-          <div className="relative w-full max-w-sm sm:max-w-md md:max-w-none aspect-[16/10] rounded-2xl overflow-hidden border border-border bg-muted/50 shadow-xs">
+          <div className="relative w-full max-w-sm sm:max-w-md md:max-w-none aspect-[16/10] rounded-2xl overflow-hidden border border-border bg-muted/50">
             <Illustration
               src="/illustrations/hero_jesus_shepherd.jpg"
               alt="พระเยซูคริสต์และลูกแกะ"
@@ -54,7 +54,7 @@ export function HeroSection() {
               height={384}
             />
             <div className="absolute bottom-3 left-3 pointer-events-none">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/95 backdrop-blur-xs border border-border shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/95 backdrop-blur-xs border border-border">
                 <span className="text-xs font-bold text-foreground-soft">
                   พระเยซูผู้เลี้ยงที่ดี ♥
                 </span>

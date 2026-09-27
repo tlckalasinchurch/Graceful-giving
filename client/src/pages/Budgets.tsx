@@ -108,7 +108,7 @@ export default function Budgets() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div
-            className="flex items-center gap-1 rounded-xl border border-border bg-white p-1"
+            className="flex items-center gap-1 rounded-xl border border-border bg-card p-1"
             role="group"
             aria-label="เลือกปีงบประมาณ"
           >
@@ -141,7 +141,7 @@ export default function Budgets() {
         {showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-border bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-border bg-card p-4 sm:p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-foreground">
@@ -207,7 +207,7 @@ export default function Budgets() {
                   key={plan.id}
                   type="button"
                   onClick={() => setLocation(`/budgets/${plan.id}`)}
-                  className="rounded-2xl border border-border bg-white p-5 text-left shadow-sm hover:bg-background"
+                  className="rounded-2xl border border-border bg-card p-4 sm:p-5 text-left hover:bg-background"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -261,7 +261,7 @@ function SummaryCard({
   className: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-border bg-card p-4">
       <p className="text-xs font-semibold text-muted-foreground">{label}</p>
       <p
         className={`mt-1 text-xl font-bold tabular-nums md:text-2xl ${className}`}

@@ -91,7 +91,7 @@ export default function Members() {
         {showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-border bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-border bg-card p-4 sm:p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-foreground">เพิ่มสมาชิกใหม่</h2>
@@ -170,7 +170,7 @@ export default function Members() {
                 key={member.id}
                 type="button"
                 onClick={() => setLocation(`/members/${member.id}`)}
-                className="rounded-2xl border border-border bg-white p-5 text-left shadow-sm hover:bg-background"
+                className="rounded-2xl border border-border bg-card p-4 sm:p-5 text-left hover:bg-background"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-foreground">{member.name}</h2>

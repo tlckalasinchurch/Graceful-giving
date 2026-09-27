@@ -446,7 +446,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setLocation("/offerings")}
-            className="px-3.5 py-2 rounded-2xl bg-white border border-border text-foreground-soft hover:bg-muted text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+            className="px-3.5 py-2 rounded-2xl bg-card border border-border text-foreground-soft hover:bg-muted text-xs font-bold transition-all flex items-center gap-1.5"
             title="ดูสมุดบัญชีเงินถวายที่อนุมัติแล้ว"
           >
             <BookOpen className="w-3.5 h-3.5 text-primary" />
@@ -457,7 +457,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setShowLineInfoModal(true)}
-            className="px-3.5 py-2 rounded-2xl bg-white border border-border text-foreground-soft hover:bg-muted text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+            className="px-3.5 py-2 rounded-2xl bg-card border border-border text-foreground-soft hover:bg-muted text-xs font-bold transition-all flex items-center gap-1.5"
             title="ข้อมูลการเชื่อมต่อ LINE และ QR Code"
           >
             <QrCode className="w-3.5 h-3.5 text-success" />
@@ -468,7 +468,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setShowUploadModal(true)}
-            className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-strong text-white text-xs font-bold button-elevation transition-all flex items-center gap-1.5 shadow-xs"
+            className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-strong text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs"
           >
             <UploadCloud className="w-4 h-4" />
             <span>อัปโหลดสลิป</span>
@@ -479,7 +479,7 @@ export default function GivingInbox() {
             type="button"
             onClick={() => drainWorkerMutation.mutate()}
             disabled={drainWorkerMutation.isPending}
-            className="p-2 rounded-2xl bg-white border border-border text-foreground-soft hover:bg-muted transition-all shadow-2xs cursor-pointer"
+            className="p-2 rounded-2xl bg-card border border-border text-foreground-soft hover:bg-muted transition-all cursor-pointer"
             title="รีเฟรชข้อมูลและประมวลผลคิวสลิป"
           >
             <RefreshCw
@@ -497,7 +497,7 @@ export default function GivingInbox() {
             className={`min-h-11 p-3.5 rounded-xl border transition-all text-left ${
               selectedStatus === "needs_review"
                 ? "bg-warning-soft border-amber-400 shadow-2xs ring-2 ring-amber-400/20"
-                : "bg-white border-border hover:bg-card"
+                : "bg-card border-border hover:bg-card"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -516,7 +516,7 @@ export default function GivingInbox() {
             className={`min-h-11 p-3.5 rounded-xl border transition-all text-left ${
               selectedStatus === "matched"
                 ? "bg-success-soft border-emerald-400 shadow-2xs ring-2 ring-emerald-400/20"
-                : "bg-white border-border hover:bg-card"
+                : "bg-card border-border hover:bg-card"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -535,7 +535,7 @@ export default function GivingInbox() {
             className={`min-h-11 p-3.5 rounded-xl border transition-all text-left ${
               selectedStatus === "duplicate"
                 ? "bg-purple-50 border-purple-400 shadow-2xs ring-2 ring-purple-400/20"
-                : "bg-white border-border hover:bg-card"
+                : "bg-card border-border hover:bg-card"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -552,7 +552,7 @@ export default function GivingInbox() {
             className={`min-h-11 p-3.5 rounded-xl border transition-all text-left ${
               selectedStatus === "approved"
                 ? "bg-muted border-muted-foreground shadow-2xs ring-2 ring-muted-foreground/20"
-                : "bg-white border-border hover:bg-card"
+                : "bg-card border-border hover:bg-card"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -571,7 +571,7 @@ export default function GivingInbox() {
             className={`min-h-11 p-3.5 rounded-xl border transition-all text-left col-span-2 sm:col-span-1 ${
               selectedStatus === "all"
                 ? "bg-muted border-primary shadow-2xs ring-2 ring-primary/20"
-                : "bg-white border-border hover:bg-card"
+                : "bg-card border-border hover:bg-card"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -588,7 +588,7 @@ export default function GivingInbox() {
 
         {/* ── If Total Slips is 0: Show Warm Onboarding Guide Card ── */}
         {totalSlips === 0 && !slipsQuery.isLoading && (
-          <div className="bg-gradient-to-br from-white via-card to-muted rounded-2xl border-2 border-border p-6 sm:p-8 shadow-sm">
+          <div className="bg-card rounded-2xl border-2 border-border p-4 sm:p-6 lg:p-8">
             <div className="max-w-3xl mx-auto space-y-6 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row items-center gap-5">
                 <div className="w-16 h-16 rounded-2xl bg-success/15 border-2 border-success/30 flex items-center justify-center text-success shrink-0">
@@ -607,7 +607,7 @@ export default function GivingInbox() {
 
               {/* 3 Simple Steps */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                <div className="p-4 rounded-2xl bg-white border border-border space-y-2">
+                <div className="p-4 rounded-2xl bg-card border border-border space-y-2">
                   <div className="w-8 h-8 rounded-xl bg-primary/20 text-primary font-bold text-sm flex items-center justify-center">
                     1
                   </div>
@@ -620,7 +620,7 @@ export default function GivingInbox() {
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-border space-y-2">
+                <div className="p-4 rounded-2xl bg-card border border-border space-y-2">
                   <div className="w-8 h-8 rounded-xl bg-success/20 text-success font-bold text-sm flex items-center justify-center">
                     2
                   </div>
@@ -633,7 +633,7 @@ export default function GivingInbox() {
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-border space-y-2">
+                <div className="p-4 rounded-2xl bg-card border border-border space-y-2">
                   <div className="w-8 h-8 rounded-xl bg-primary/20 text-primary font-bold text-sm flex items-center justify-center">
                     3
                   </div>
@@ -660,7 +660,7 @@ export default function GivingInbox() {
                 <button
                   type="button"
                   onClick={() => setShowLineInfoModal(true)}
-                  className="px-5 py-3 rounded-2xl bg-white border border-border text-foreground-soft hover:bg-muted font-bold text-sm transition-all flex items-center gap-2"
+                  className="px-5 py-3 rounded-2xl bg-card border border-border text-foreground-soft hover:bg-muted font-bold text-sm transition-all flex items-center gap-2"
                 >
                   <QrCode className="w-4 h-4 text-success" /> ดูวิธีเชื่อมต่อ
                   LINE OA
@@ -675,7 +675,7 @@ export default function GivingInbox() {
           {/* Left Column: List (5 cols on lg) */}
           <div className="lg:col-span-5 space-y-4">
             {/* Search and Filters */}
-            <div className="bg-white rounded-2xl border border-border p-3 shadow-2xs flex items-center gap-2">
+            <div className="bg-card rounded-2xl border border-border p-3 flex items-center gap-2">
               <Search className="w-4 h-4 text-muted-foreground ml-2" />
               <input
                 type="text"
@@ -688,11 +688,11 @@ export default function GivingInbox() {
 
             {/* Slips Cards */}
             {slipsQuery.isLoading ? (
-              <div className="p-12 text-center text-sm text-muted-foreground bg-white rounded-2xl border border-border">
+              <div className="p-12 text-center text-sm text-muted-foreground bg-card rounded-2xl border border-border">
                 กำลังโหลดรายการสลิป...
               </div>
             ) : filteredSlips.length === 0 ? (
-              <div className="p-12 text-center text-muted-foreground bg-white rounded-2xl border border-border space-y-3">
+              <div className="p-12 text-center text-muted-foreground bg-card rounded-2xl border border-border space-y-3">
                 <CheckCircle2 className="w-10 h-10 text-success/50 mx-auto" />
                 <p className="font-bold">ไม่มีรายการสลิปในหมวดนี้</p>
                 <p className="text-xs text-muted-foreground max-w-xs mx-auto">
@@ -724,7 +724,7 @@ export default function GivingInbox() {
                       className={`p-4 rounded-2xl border cursor-pointer transition-all ${
                         isSelected
                           ? "bg-muted border-primary shadow-md ring-2 ring-primary/20"
-                          : "bg-white border-border hover:bg-card hover:border-primary/50 shadow-2xs"
+                          : "bg-card border-border hover:bg-card hover:border-primary/50 shadow-2xs"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -818,7 +818,7 @@ export default function GivingInbox() {
           {/* Right Column: Slip Detail & Review Form (7 cols on lg) */}
           <div className="lg:col-span-7">
             {!selectedSlipId || !currentSlip ? (
-              <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-border text-muted-foreground space-y-3 min-h-[420px] flex flex-col items-center justify-center">
+              <div className="p-12 text-center bg-card rounded-2xl border border-dashed border-border text-muted-foreground space-y-3 min-h-[420px] flex flex-col items-center justify-center">
                 <Inbox className="w-12 h-12 text-primary/50" />
                 <div className="font-bold text-base text-foreground">
                   เลือกสลิปจากรายการด้านซ้าย
@@ -829,7 +829,7 @@ export default function GivingInbox() {
                 </p>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl border border-border p-5 sm:p-6 shadow-xs space-y-6 animate-in fade-in duration-150">
+              <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 space-y-6 animate-in fade-in duration-150">
                 {/* Header of Detail */}
                 <div className="flex items-start justify-between gap-4 pb-4 border-b border-border">
                   <div>
@@ -861,7 +861,7 @@ export default function GivingInbox() {
                           type="button"
                           onClick={() => handleRescan(currentSlip.id)}
                           disabled={rescanMutation.isPending}
-                          className="min-h-11 px-3 py-1.5 rounded-xl border border-warning-border bg-warning-soft text-xs font-bold text-warning hover:bg-warning-soft inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                          className="min-h-11 px-3 py-1.5 rounded-xl border border-warning-border bg-warning-soft text-xs font-bold text-warning hover:bg-warning-soft inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                           title="ให้ AI สแกนอ่านข้อมูลสลิปนี้ใหม่"
                         >
                           <Sparkles
@@ -936,7 +936,7 @@ export default function GivingInbox() {
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-                    <div className="p-2.5 rounded-lg bg-white border border-border/60">
+                    <div className="p-2.5 rounded-lg bg-card border border-border/60">
                       <span className="text-muted-foreground block text-[11px]">
                         ยอดเงินที่ตรวจพบ
                       </span>
@@ -956,7 +956,7 @@ export default function GivingInbox() {
                       )}
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-white border border-border/60">
+                    <div className="p-2.5 rounded-lg bg-card border border-border/60">
                       <span className="text-muted-foreground block text-[11px]">
                         ชื่อผู้โอนในสลิป
                       </span>
@@ -965,7 +965,7 @@ export default function GivingInbox() {
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-white border border-border/60">
+                    <div className="p-2.5 rounded-lg bg-card border border-border/60">
                       <span className="text-muted-foreground block text-[11px]">
                         ธนาคาร
                       </span>
@@ -974,7 +974,7 @@ export default function GivingInbox() {
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-white border border-border/60">
+                    <div className="p-2.5 rounded-lg bg-card border border-border/60">
                       <span className="text-muted-foreground block text-[11px]">
                         วันที่โอน
                       </span>
@@ -1113,7 +1113,7 @@ export default function GivingInbox() {
                         value={editAmount}
                         onChange={e => setEditAmount(e.target.value)}
                         disabled={currentSlip.status === "approved"}
-                        className="min-h-11 w-full text-base font-bold tabular-nums text-primary rounded-xl border border-border bg-white p-2.5 focus:ring-2 focus:ring-primary focus:outline-none"
+                        className="min-h-11 w-full text-base font-bold tabular-nums text-primary rounded-xl border border-border bg-card p-2.5 focus:ring-2 focus:ring-primary focus:outline-none"
                       />
                     </div>
 
@@ -1150,7 +1150,7 @@ export default function GivingInbox() {
                       value={editReviewNote}
                       onChange={e => setEditReviewNote(e.target.value)}
                       disabled={currentSlip.status === "approved"}
-                      className="min-h-11 w-full text-sm rounded-xl border border-border bg-white p-2.5 focus:ring-2 focus:ring-primary focus:outline-none"
+                      className="min-h-11 w-full text-sm rounded-xl border border-border bg-card p-2.5 focus:ring-2 focus:ring-primary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1233,7 +1233,7 @@ export default function GivingInbox() {
       {/* ── Modal: Manual / Test Slip Upload ── */}
       {showUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-2xl border-2 border-border p-6 max-w-lg w-full space-y-5 shadow-2xl relative">
+          <div className="bg-card rounded-2xl border-2 border-border p-4 sm:p-6 max-w-lg w-full space-y-5 shadow-2xl relative">
             <button
               onClick={() => {
                 setShowUploadModal(false);
@@ -1344,7 +1344,7 @@ export default function GivingInbox() {
       {/* ── Modal: LINE Bot Setup & Info ── */}
       {showLineInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-2xl border-2 border-border p-6 max-w-lg w-full space-y-5 shadow-2xl relative">
+          <div className="bg-card rounded-2xl border-2 border-border p-4 sm:p-6 max-w-lg w-full space-y-5 shadow-2xl relative">
             <button
               onClick={() => setShowLineInfoModal(false)}
               className="absolute top-5 right-5 text-muted-foreground hover:text-foreground-soft p-1"
@@ -1383,7 +1383,7 @@ export default function GivingInbox() {
                   <Copy className="w-3.5 h-3.5" /> คัดลอก
                 </button>
               </div>
-              <div className="font-mono text-xs bg-white p-2 rounded-xl border border-border text-foreground break-all select-all">
+              <div className="font-mono text-xs bg-card p-2 rounded-xl border border-border text-foreground break-all select-all">
                 https://graceful-giving.vercel.app/api/line/webhook
               </div>
             </div>
@@ -1418,7 +1418,7 @@ export default function GivingInbox() {
 
       {/* ── Custom Reject Dialog (Phase 5) ── */}
       <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
-        <DialogContent className="max-w-md bg-white border border-border rounded-2xl p-6 text-foreground space-y-4 shadow-xl">
+        <DialogContent className="max-w-md bg-card border border-border rounded-2xl p-4 sm:p-6 text-foreground space-y-4 shadow-xl">
           <DialogHeader className="space-y-1 text-left">
             <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
               <XCircle className="w-5 h-5 text-destructive" />

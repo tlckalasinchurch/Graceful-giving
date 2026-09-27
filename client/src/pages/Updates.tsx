@@ -37,7 +37,7 @@ export default function Updates() {
             <ArrowLeft className="size-4" />
             กลับหน้าหลัก
           </Link>
-          <div className="mt-16 rounded-2xl border border-border bg-white p-8 text-center shadow-[0_12px_30px_rgba(94,70,42,0.07)]">
+          <div className="mt-16 rounded-2xl border border-border bg-card p-8 text-center shadow-[0_12px_30px_rgba(94,70,42,0.07)]">
             <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-muted text-primary-strong">
               <Bell className="size-8" />
             </div>
@@ -97,7 +97,7 @@ export default function Updates() {
             onClick={() => setActiveTab("feed")}
             className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
               activeTab === "feed"
-                ? "bg-white text-primary-strong shadow-sm"
+                ? "bg-card text-primary-strong shadow-sm"
                 : "text-muted-foreground hover:text-foreground-soft"
             }`}
           >
@@ -108,7 +108,7 @@ export default function Updates() {
               onClick={() => setActiveTab("manage")}
               className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
                 activeTab === "manage"
-                  ? "bg-white text-primary-strong shadow-sm"
+                  ? "bg-card text-primary-strong shadow-sm"
                   : "text-muted-foreground hover:text-foreground-soft"
               }`}
             >

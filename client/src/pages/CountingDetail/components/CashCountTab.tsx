@@ -39,7 +39,7 @@ export function CashCountTab({
 }: CashCountTabProps) {
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className="border-b border-border p-4">
           <h2 className="font-bold text-foreground">ใบนับธนบัตรและเหรียญ</h2>
           <p className="mt-1 text-sm text-foreground-soft">

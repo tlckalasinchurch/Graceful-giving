@@ -35,7 +35,7 @@ export function BalanceCard({
   return (
     <section
       aria-labelledby="balance-heading"
-      className="rounded-2xl border border-border bg-card p-5 sm:p-6"
+      className="rounded-2xl border border-border bg-card p-4 sm:p-6"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">

@@ -4,10 +4,10 @@ import { Sprout } from "lucide-react";
 
 export default function Register() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-card via-background to-muted p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-card p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 space-y-2 text-center">
-          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-primary/15 shadow-xs">
+          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-primary/15">
             <Sprout className="size-9 text-foreground-soft" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">

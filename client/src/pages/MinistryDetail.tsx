@@ -134,7 +134,7 @@ export default function MinistryDetail() {
         ) : canManage ? (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8"
+            className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-8"
           >
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -225,7 +225,7 @@ export default function MinistryDetail() {
             </button>
           </form>
         ) : (
-          <section className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h1 className="text-2xl font-bold text-foreground">
                 {query.data.name}

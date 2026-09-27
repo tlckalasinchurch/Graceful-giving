@@ -287,7 +287,7 @@ export default function Settings() {
   if (!isSuperAdmin(user)) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto my-12 bg-white rounded-2xl p-8 border-2 border-border text-center space-y-4 shadow-sm">
+        <div className="max-w-xl mx-auto my-12 bg-card rounded-2xl p-8 border-2 border-border text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-destructive-soft border-2 border-destructive-border mx-auto flex items-center justify-center text-destructive">
             <Lock className="w-8 h-8" />
           </div>
@@ -383,7 +383,7 @@ export default function Settings() {
         {/* Tab 1: Church Profile Form */}
         {activeTab === "church" && (
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            <div className="bg-white rounded-2xl border border-border p-6 md:p-8 space-y-5 shadow-sm">
+            <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 md:p-8 space-y-5">
               <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                 <Building className="w-5 h-5 text-primary" />
                 ข้อมูลทั่วไปของคริสตจักร
@@ -492,7 +492,7 @@ export default function Settings() {
 
         {/* Account and sign out */}
         {activeTab === "church" && (
-          <section className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-8">
             <h3 className="text-base font-bold text-foreground">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-foreground-soft">
@@ -532,7 +532,7 @@ export default function Settings() {
         {activeTab === "roles" && (
           <div className="space-y-6">
             {/* User Management Table */}
-            <div className="bg-white rounded-2xl border border-border p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 md:p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-5">
                 <div>
                   <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -692,7 +692,7 @@ export default function Settings() {
                                       onChange={e =>
                                         handleRoleChange(u.id, e.target.value)
                                       }
-                                      className="font-semibold shadow-sm hover:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                      className="font-semibold hover:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                     >
                                       <option value="SUPER_ADMIN">
                                         👑 ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
@@ -731,7 +731,7 @@ export default function Settings() {
             </div>
 
             {/* Structure and Appointed Roles Reference */}
-            <div className="bg-white rounded-2xl border border-border p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 md:p-8 space-y-6">
               <div>
                 <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                   <Shield className="w-5 h-5 text-success" />
@@ -747,18 +747,18 @@ export default function Settings() {
                 {churchRoles.map(r => (
                   <div
                     key={r.role}
-                    className="p-5 rounded-2xl bg-background border border-border/70 space-y-3"
+                    className="p-4 sm:p-5 rounded-2xl bg-background border border-border/70 space-y-3"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/50 pb-3">
                       <div>
                         <span className="font-bold text-base text-foreground">
                           {r.title}
                         </span>
-                        <span className="ml-2.5 font-mono text-xs text-muted-foreground bg-white px-2.5 py-0.5 rounded-md border border-border">
+                        <span className="ml-2.5 font-mono text-xs text-muted-foreground bg-card px-2.5 py-0.5 rounded-md border border-border">
                           {r.role}
                         </span>
                       </div>
-                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-white text-foreground border-border self-start sm:self-auto">
+                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-card text-foreground border-border self-start sm:self-auto">
                         ผู้รับผิดชอบ:{" "}
                         <span className="text-primary font-bold">
                           {r.appointee}
@@ -794,7 +794,7 @@ export default function Settings() {
 
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
-          <div className="bg-white rounded-2xl border border-border p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 md:p-8 space-y-5">
             <h3 className="text-base font-bold text-foreground flex items-center gap-2">
               <Banknote className="w-5 h-5 text-warning" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
@@ -845,14 +845,14 @@ export default function Settings() {
 
         {/* Tab 4: Payment */}
         {activeTab === "payment" && (
-          <div className="bg-white rounded-2xl border border-border p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 md:p-8 space-y-5">
             <h3 className="text-base font-bold text-foreground flex items-center gap-2">
               <QrCode className="w-5 h-5 text-sky-600" />
               บัญชีรับเงินถวายและ QR พร้อมเพย์
             </h3>
 
             <div className="p-4 rounded-2xl bg-muted/50 border border-border flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-32 h-32 bg-white p-2 rounded-2xl border border-border shadow-inner flex items-center justify-center">
+              <div className="w-32 h-32 bg-card p-2 rounded-2xl border border-border shadow-inner flex items-center justify-center">
                 <QrCode className="w-24 h-24 text-foreground" />
               </div>
 
@@ -883,7 +883,7 @@ export default function Settings() {
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (
-          <div className="bg-white rounded-2xl border border-border p-6 md:p-8 space-y-6 shadow-sm">
+          <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 md:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-5">
               <div>
                 <h3 className="text-lg font-bold text-foreground flex items-center gap-2">

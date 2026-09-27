@@ -132,7 +132,7 @@ export default function Funds() {
       <div className="space-y-6">
         <section
           aria-label="ยอดเงินรวมทุกกองทุน"
-          className="rounded-2xl border border-border bg-card p-5"
+          className="rounded-2xl border border-border bg-card p-4 sm:p-5"
         >
           <p className="text-sm font-medium text-muted-foreground">
             ยอดเงินรวมทุกกองทุน

@@ -22,7 +22,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-card w-full max-w-2xl rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-background border-b border-border">
           <div>
@@ -40,7 +40,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
               href={receiptUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-border text-foreground-soft hover:bg-muted text-xs font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border text-foreground-soft hover:bg-muted text-xs font-medium transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>เปิดลิงก์เต็ม</span>
@@ -57,7 +57,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
         {/* Body Preview */}
         <div className="p-4 sm:p-6 flex-1 overflow-y-auto flex items-center justify-center bg-muted min-h-[300px]">
           {isPdf ? (
-            <div className="text-center p-8 bg-white rounded-2xl border border-border shadow-xs max-w-sm">
+            <div className="text-center p-8 bg-card rounded-2xl border border-border max-w-sm">
               <FileText className="w-16 h-16 text-primary mx-auto mb-3" />
               <p className="font-bold text-sm text-foreground">
                 เอกสารแนบรูปแบบ PDF
@@ -76,7 +76,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
               </a>
             </div>
           ) : (
-            <div className="max-w-full max-h-[70vh] flex items-center justify-center overflow-hidden rounded-xl border border-border bg-white p-2">
+            <div className="max-w-full max-h-[70vh] flex items-center justify-center overflow-hidden rounded-xl border border-border bg-card p-2">
               <img
                 src={receiptUrl}
                 alt="Receipt Full Preview"

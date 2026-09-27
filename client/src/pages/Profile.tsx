@@ -290,7 +290,7 @@ export default function Profile() {
     >
       <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6">
         {/* ── PROFILE HERO: Logged-in User's Actual Profile & ID Card Action ──── */}
-        <section className="bg-white rounded-2xl sm:rounded-2xl border border-border p-4 sm:p-6 md:p-8 shadow-xs relative overflow-hidden">
+        <section className="bg-card rounded-2xl sm:rounded-2xl border border-border p-4 sm:p-4 sm:p-6 md:p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-primary/10 via-success-border/10 to-transparent rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left relative z-10">
@@ -300,10 +300,10 @@ export default function Profile() {
                 <img
                   src={effectiveAvatar}
                   alt={user?.name || "Profile"}
-                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white shadow-md"
+                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white"
                 />
               ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-accent to-primary/25 border-4 border-white shadow-md flex items-center justify-center text-foreground-soft font-bold text-2xl sm:text-3xl md:text-4xl select-none">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-card border-4 border-white flex items-center justify-center text-foreground-soft font-bold text-2xl sm:text-3xl md:text-4xl select-none">
                   {user?.name ? user.name.slice(0, 1) : "ศ"}
                 </div>
               )}
@@ -363,7 +363,7 @@ export default function Profile() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-border/60">
             <button
               onClick={() => setShowIdCardModal(true)}
-              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-2xl bg-muted hover:bg-accent text-foreground-soft font-bold text-xs sm:text-sm border border-border shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-2xl bg-muted hover:bg-accent text-foreground-soft font-bold text-xs sm:text-sm border border-border flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
             >
               <QrCode className="w-4 h-4 text-primary shrink-0" />
               <span className="truncate">
@@ -382,9 +382,9 @@ export default function Profile() {
 
         {/* ── ROLE-BASED QUICK WORKSPACE ACTIONS ────────────────────────────── */}
         {canCountOfferings(user) && (
-          <section className="bg-gradient-to-r from-background to-muted rounded-2xl sm:rounded-2xl border border-border p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <section className="bg-card rounded-2xl sm:rounded-2xl border border-border p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 border border-orange-200 text-orange-700 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-orange-100 border border-orange-200 text-orange-700 flex items-center justify-center shrink-0">
                 <Coins className="w-6 h-6" />
               </div>
               <div>
@@ -408,9 +408,9 @@ export default function Profile() {
         )}
 
         {isSuperAdmin(user) && (
-          <section className="bg-gradient-to-r from-warning-soft to-orange-50 rounded-2xl sm:rounded-2xl border border-warning-border p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <section className="bg-card rounded-2xl sm:rounded-2xl border border-warning-border p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-2xl bg-warning-soft border border-warning-border text-warning flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-warning-soft border border-warning-border text-warning flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
@@ -434,7 +434,7 @@ export default function Profile() {
         )}
 
         {/* ── SECTION: โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ ── */}
-        <section className="bg-white rounded-2xl sm:rounded-2xl border border-border p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-xs">
+        <section className="bg-card rounded-2xl sm:rounded-2xl border border-border p-4 sm:p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
           <div className="border-b border-border/60 pb-3 sm:pb-4">
             <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-muted text-foreground-soft border border-border mb-2">
               <Award className="w-3.5 h-3.5 text-primary" />
@@ -453,7 +453,7 @@ export default function Profile() {
             {OFFICIAL_CHURCH_ROSTER.map((roster, idx) => (
               <div
                 key={roster.role}
-                className="rounded-2xl border border-border bg-card hover:bg-white p-4 sm:p-5 space-y-3 transition-all hover:shadow-xs flex flex-col justify-between"
+                className="rounded-2xl border border-border bg-card hover:bg-card p-4 sm:p-5 space-y-3 transition-all flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
@@ -503,7 +503,7 @@ export default function Profile() {
         </section>
 
         {/* ── SECTION: ข้อมูลบัญชีและทางเลือกความปลอดภัย ─────────────────────── */}
-        <section className="rounded-2xl sm:rounded-2xl border border-border bg-white p-4 sm:p-6 md:p-8 shadow-xs space-y-4">
+        <section className="rounded-2xl sm:rounded-2xl border border-border bg-card p-4 sm:p-4 sm:p-6 md:p-8 space-y-4">
           <h3 className="text-base font-bold text-foreground">
             บัญชีผู้ใช้และความปลอดภัย
           </h3>
@@ -545,7 +545,7 @@ export default function Profile() {
       {/* ── MODAL 1: ดูโปรไฟล์ / บัตรประจำตัวคริสตจักร (Digital ID Card) ──────── */}
       {showIdCardModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl sm:rounded-2xl border border-border max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
+          <div className="bg-card rounded-2xl sm:rounded-2xl border border-border max-w-sm sm:max-w-md w-full p-4 sm:p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowIdCardModal(false)}
               className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-muted text-foreground-soft transition-colors min-h-10 min-w-10 flex items-center justify-center"
@@ -565,15 +565,15 @@ export default function Profile() {
             </div>
 
             {/* ID Card Box */}
-            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-2xl bg-gradient-to-br from-muted via-background to-accent border-2 border-border shadow-sm text-center space-y-3 sm:space-y-4">
+            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-2xl bg-card border-2 border-border text-center space-y-3 sm:space-y-4">
               {effectiveAvatar ? (
                 <img
                   src={effectiveAvatar}
                   alt={user?.name || "Member Avatar"}
-                  className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover shadow-md border-3 border-primary"
+                  className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border-3 border-primary"
                 />
               ) : (
-                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-white shadow-md border-3 border-primary flex items-center justify-center text-2xl sm:text-3xl font-bold text-foreground-soft">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-card border-3 border-primary flex items-center justify-center text-2xl sm:text-3xl font-bold text-foreground-soft">
                   {user?.name ? user.name.slice(0, 1) : "ศ"}
                 </div>
               )}
@@ -591,7 +591,7 @@ export default function Profile() {
               </div>
 
               {/* QR Code */}
-              <div className="p-3 sm:p-4 bg-white rounded-2xl border border-border inline-block shadow-2xs">
+              <div className="p-3 sm:p-4 bg-card rounded-2xl border border-border inline-block">
                 <QrCode className="w-24 h-24 sm:w-28 sm:h-28 text-foreground mx-auto" />
                 <p className="text-[10px] text-muted-foreground font-mono mt-1 font-bold">
                   ID: GL-
@@ -641,7 +641,7 @@ export default function Profile() {
       {/* ── MODAL 2: แก้ไขโปรไฟล์ (Edit Profile Dialog) ───────────────────── */}
       {showEditProfileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl sm:rounded-2xl border border-border max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
+          <div className="bg-card rounded-2xl sm:rounded-2xl border border-border max-w-sm sm:max-w-md w-full p-4 sm:p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowEditProfileModal(false)}
               className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-muted text-foreground-soft transition-colors min-h-10 min-w-10 flex items-center justify-center"

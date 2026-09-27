@@ -63,7 +63,7 @@ export function MonthSummary({
       >
         สรุปเดือน{monthName}
       </h2>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3">
         <SummaryMetric
           label="รายรับ"
           hint={changeText(monthlyIncome, prevMonthIncome)}
