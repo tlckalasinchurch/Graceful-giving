@@ -743,3 +743,134 @@ export const DetailSkeleton: React.FC<{
     {stats > 0 && <StatCardSkeleton count={stats} />}
   </div>
 );
+
+// ─── 13. Form building blocks ────────────────────────────────────────────────
+
+/** Class string for a plain <input>/<select>/<textarea> in an entry form. */
+export const fieldClass =
+  "w-full min-h-11 rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-base md:text-sm text-[#171311] placeholder:text-[#8C7B6B] shadow-xs transition-all duration-200 ease-in-out hover:border-[#D9C6A6] focus:border-[#C94F16] focus:outline-none focus-visible:ring-[3px] focus-visible:ring-[#C94F16]/20 disabled:cursor-not-allowed disabled:bg-[#F5EDE0] disabled:opacity-70";
+
+export const FieldLabel: React.FC<
+  React.LabelHTMLAttributes<HTMLLabelElement> & {
+    required?: boolean;
+    hint?: string;
+  }
+> = ({ required, hint, className = "", children, ...props }) => (
+  <label
+    className={`block text-sm font-semibold text-[#171311] ${className}`}
+    {...props}
+  >
+    {children}
+    {required && (
+      <span className="ml-0.5 text-[#C8372D]" aria-hidden="true">
+        *
+      </span>
+    )}
+    {hint && (
+      <span className="mt-0.5 block text-xs font-normal text-[#6E6155]">
+        {hint}
+      </span>
+    )}
+  </label>
+);
+
+/**
+ * One group of related fields in an entry form, shown as its own card.
+ * A numbered step keeps a long form readable as a short checklist.
+ */
+export const FormSection: React.FC<{
+  step?: number;
+  title: string;
+  description?: string;
+  icon?: LucideIcon;
+  className?: string;
+  children: React.ReactNode;
+}> = ({ step, title, description, icon: Icon, className = "", children }) => (
+  <section
+    className={`rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-xs sm:p-6 ${className}`}
+  >
+    <header className="mb-5 flex items-start gap-3">
+      {step !== undefined ? (
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#C94F16] text-sm font-bold text-white">
+          {step}
+        </span>
+      ) : (
+        Icon && (
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#F9D2AE] bg-[#FFF4D6] text-[#C94F16]">
+            <Icon className="size-[18px]" aria-hidden="true" />
+          </span>
+        )
+      )}
+      <div className="min-w-0 pt-1">
+        <h2 className="text-base font-bold leading-tight text-[#171311]">
+          {title}
+        </h2>
+        {description && (
+          <p className="mt-1 text-sm leading-relaxed text-[#51443A]">
+            {description}
+          </p>
+        )}
+      </div>
+    </header>
+    <div className="space-y-5">{children}</div>
+  </section>
+);
+
+/**
+ * The money field of an entry form: a large tabular figure with the baht
+ * sign in front and the unit "บาท" after it, so the amount is the most
+ * visible value on the screen and its unit is never ambiguous.
+ */
+export const AmountInput: React.FC<
+  Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "size"> & {
+    tone?: "income" | "expense" | "neutral";
+  }
+> = ({ tone = "neutral", className = "", ...props }) => {
+  const color =
+    tone === "income"
+      ? "text-[#2D6A2E]"
+      : tone === "expense"
+        ? "text-[#C8372D]"
+        : "text-[#171311]";
+  return (
+    <div
+      className={`group relative flex items-center rounded-2xl border-2 border-[#E7DCC8] bg-white shadow-xs transition-all duration-200 ease-in-out hover:border-[#D9C6A6] focus-within:border-[#C94F16] focus-within:ring-4 focus-within:ring-[#C94F16]/15 ${className}`}
+    >
+      <span
+        className={`pl-5 text-2xl font-bold sm:text-3xl ${color}`}
+        aria-hidden="true"
+      >
+        ฿
+      </span>
+      <input
+        type="number"
+        inputMode="decimal"
+        step="0.01"
+        className={`min-w-0 flex-1 bg-transparent px-3 py-4 text-3xl font-bold tabular-nums tracking-tight placeholder:text-[#D9C6A6] focus:outline-none sm:text-4xl ${color}`}
+        {...props}
+      />
+      <span className="pr-5 text-base font-semibold text-[#6E6155]">บาท</span>
+    </div>
+  );
+};
+
+/**
+ * Two- to four-way choice drawn as a row of tiles (category, payment method).
+ * The selected tile uses the primary colour so the choice reads at a glance.
+ */
+export const ChoiceTile: React.FC<
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { selected?: boolean }
+> = ({ selected = false, className = "", children, ...props }) => (
+  <button
+    type="button"
+    aria-pressed={selected}
+    className={`min-h-12 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2 ${
+      selected
+        ? "border-[#C94F16] bg-[#FFF4D6] text-[#9F3B0F] shadow-xs ring-1 ring-[#C94F16]"
+        : "border-[#E7DCC8] bg-white text-[#51443A] hover:border-[#C94F16]/40 hover:bg-[#FFF4D6]/60 hover:text-[#171311]"
+    } ${className}`}
+    {...props}
+  >
+    {children}
+  </button>
+);
