@@ -73,7 +73,8 @@ export function BalanceCard({
           />
         ) : isUnavailable ? (
           <p className="text-sm leading-relaxed text-foreground-soft">
-            ยังไม่มีข้อมูลยอดเงิน บันทึกรายการแรกหรือตรวจสอบการเชื่อมต่อฐานข้อมูล
+            ยังไม่มีข้อมูลยอดเงิน
+            บันทึกรายการแรกหรือตรวจสอบการเชื่อมต่อฐานข้อมูล
           </p>
         ) : showBalance ? (
           <MoneyDisplay amount={totalBalance ?? 0} size="xl" />
@@ -95,12 +96,27 @@ export function BalanceCard({
           <div className="min-w-0">
             <dt className="text-xs text-muted-foreground">เทียบเดือนก่อน</dt>
             <dd
-              className={`mt-0.5 text-sm font-semibold tabular-nums ${delta >= 0 ? "text-success-strong" : "text-destructive"}`}
+              className={`mt-0.5 text-sm font-semibold tabular-nums ${
+                delta > 0
+                  ? "text-success-strong"
+                  : delta < 0
+                    ? "text-destructive"
+                    : "text-foreground-soft"
+              }`}
             >
-              {delta >= 0 ? "▲ เพิ่มขึ้น" : "▼ ลดลง"}{" "}
-              <span className="whitespace-nowrap">
-                ฿{Math.abs(delta).toLocaleString("th-TH", { maximumFractionDigits: 0 })}
-              </span>
+              {delta === 0 ? (
+                "เท่ากับเดือนก่อน"
+              ) : (
+                <>
+                  {delta > 0 ? "▲ เพิ่มขึ้น" : "▼ ลดลง"}{" "}
+                  <span className="whitespace-nowrap">
+                    ฿
+                    {Math.abs(delta).toLocaleString("th-TH", {
+                      maximumFractionDigits: 0,
+                    })}
+                  </span>
+                </>
+              )}
             </dd>
           </div>
         </dl>

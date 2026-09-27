@@ -133,7 +133,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
   // Per-route document title, so browser tabs, history and shared links say
   // which page they are. Pages without a title prop fall back to the section.
-  const pageTitle = title ?? (currentPath === "/" ? "ภาพรวมการเงิน" : undefined);
+  const pageTitle =
+    title ?? (currentPath === "/" ? "ภาพรวมการเงิน" : undefined);
   useEffect(() => {
     document.title = pageTitle
       ? `${pageTitle} · Grace-giving`

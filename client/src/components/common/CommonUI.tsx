@@ -121,7 +121,9 @@ export const ErrorState: React.FC<{
     </div>
     <div className="space-y-1 max-w-sm">
       <h3 className="text-base font-bold text-destructive-strong">{title}</h3>
-      <p className="text-sm text-foreground-soft leading-relaxed">{description}</p>
+      <p className="text-sm text-foreground-soft leading-relaxed">
+        {description}
+      </p>
     </div>
     {onRetry && (
       <button
@@ -380,7 +382,9 @@ export const SummaryMetric: React.FC<{
   hint?: React.ReactNode;
   className?: string;
 }> = ({ label, children, hint, className = "" }) => (
-  <div className={`min-w-0 rounded-2xl border border-border bg-card p-4 ${className}`}>
+  <div
+    className={`min-w-0 rounded-2xl border border-border bg-card p-4 ${className}`}
+  >
     <p className="text-xs font-medium text-muted-foreground">{label}</p>
     {/* Never truncate: a cut-off amount reads as a different number. */}
     <div className="mt-1 min-w-0">{children}</div>
@@ -449,7 +453,12 @@ export const TransactionRow: React.FC<{
         </span>
       </span>
       <span className="flex shrink-0 flex-col items-end gap-1">
-        <MoneyDisplay amount={amount} type={type} size="sm" className="text-[15px]" />
+        <MoneyDisplay
+          amount={amount}
+          type={type}
+          size="sm"
+          className="text-[15px]"
+        />
         {trailing ?? (
           <span className="text-[11px] font-medium text-muted-foreground">
             {isIncome ? "รายรับ" : "รายจ่าย"}
@@ -625,7 +634,7 @@ export const ConfirmDialog: React.FC<{
   description: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: "danger" | "primary";
+  variant?: "danger" | "primary" | "success";
   onConfirm: () => void;
   isLoading?: boolean;
 }> = ({
@@ -666,7 +675,9 @@ export const ConfirmDialog: React.FC<{
             className={`min-h-11 flex-1 rounded-xl text-white font-semibold text-sm transition-colors ${
               variant === "danger"
                 ? "bg-destructive hover:bg-destructive-strong"
-                : "bg-primary hover:bg-primary-strong"
+                : variant === "success"
+                  ? "bg-success hover:bg-success-strong"
+                  : "bg-primary hover:bg-primary-strong"
             }`}
           >
             {isLoading ? "กำลังดำเนินการ..." : confirmText}

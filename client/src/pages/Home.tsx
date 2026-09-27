@@ -52,7 +52,10 @@ function AttentionItem({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-accent-border bg-accent p-3 pl-4">
-      <Icon className="size-5 shrink-0 text-primary-strong" aria-hidden="true" />
+      <Icon
+        className="size-5 shrink-0 text-primary-strong"
+        aria-hidden="true"
+      />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-foreground">{title}</p>
         <p className="truncate text-xs text-foreground-soft">{description}</p>
@@ -235,7 +238,9 @@ export default function Home() {
               isUnavailable={isSummaryUnavailable}
               totalBalance={summary?.totalBalance}
               netMonthly={
-                summary ? summary.monthlyIncome - summary.monthlyExpense : undefined
+                summary
+                  ? summary.monthlyIncome - summary.monthlyExpense
+                  : undefined
               }
               prevNetMonthly={
                 summary

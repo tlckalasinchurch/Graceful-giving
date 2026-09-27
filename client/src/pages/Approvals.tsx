@@ -52,9 +52,7 @@ export default function Approvals() {
   const [approveTarget, setApproveTarget] = useState<WithdrawalItem | null>(
     null
   );
-  const [rejectTarget, setRejectTarget] = useState<WithdrawalItem | null>(
-    null
-  );
+  const [rejectTarget, setRejectTarget] = useState<WithdrawalItem | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectError, setRejectError] = useState("");
 
@@ -252,6 +250,7 @@ export default function Approvals() {
             : ""
         }
         confirmText="อนุมัติ"
+        variant="success"
         isLoading={approveMutation.isPending}
         onConfirm={() =>
           approveTarget &&

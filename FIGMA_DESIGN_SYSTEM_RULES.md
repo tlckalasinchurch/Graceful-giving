@@ -3,6 +3,18 @@
 Audit date: 2026-09-16. Evidence-based only — every rule cites file paths. Confidence is marked
 where inference was required. This is audit + rule extraction, not a redesign; no code was changed.
 
+> **Update 2026-09-27: semantic tokens replace page hex values.** Pages and shared
+> components no longer use hex arbitrary classes (`bg-[#E7DCC8]`) or ad-hoc Tailwind
+> palettes (`text-stone-500`). Every colour is a token defined once in
+> `client/src/index.css`: `background`, `card`, `foreground`, `foreground-soft`,
+> `muted`, `muted-foreground`, `border`, `divider`, `primary`, `primary-strong`,
+> `accent`, `accent-border`, `brand`, and `success` / `destructive` / `warning` / `info`,
+> each with `-soft` (fill) and `-border` variants, plus `sidebar-*` for the desktop sidebar.
+> Change the palette in `index.css` only. Shared mobile patterns live in
+> `components/common/CommonUI.tsx` (`TransactionRow`, `SummaryMetric`, `SectionHeader`,
+> `MoneyDisplay`, `EmptyState`, `ErrorState`, `LoadingSkeleton`). `ui/dialog.tsx` renders
+> every dialog as a bottom sheet below 640px. The tables below describe earlier states.
+>
 > **Update 2026-09-24: palette, type and radius refresh.** The audit below describes the
 > design before this change. Its hex values are now out of date; the structural findings
 > (hard-coded hex in pages, tokens used mainly in `components/ui/*`) still apply.

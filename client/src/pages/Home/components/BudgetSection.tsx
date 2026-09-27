@@ -35,7 +35,11 @@ export function BudgetSection({ onOpenBudgets }: BudgetSectionProps) {
       />
       <div className="rounded-2xl border border-border bg-card">
         {isLoading ? (
-          <div className="space-y-3 p-4" role="status" aria-label="กำลังโหลดงบประมาณ">
+          <div
+            className="space-y-3 p-4"
+            role="status"
+            aria-label="กำลังโหลดงบประมาณ"
+          >
             <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
             <div className="h-2.5 w-full animate-pulse rounded-full bg-muted" />
           </div>

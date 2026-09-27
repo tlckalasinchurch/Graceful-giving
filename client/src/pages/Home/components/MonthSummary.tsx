@@ -38,7 +38,10 @@ export function MonthSummary({
       : undefined;
   const monthName = new Date().toLocaleDateString("th-TH", { month: "long" });
 
-  const value = (amount: number | undefined, type: "income" | "expense" | "neutral") => {
+  const value = (
+    amount: number | undefined,
+    type: "income" | "expense" | "neutral"
+  ) => {
     if (isLoading)
       return <span className="block h-6 w-24 animate-pulse rounded bg-muted" />;
     if (amount === undefined)
@@ -81,9 +84,11 @@ export function MonthSummary({
           hint={
             net === undefined
               ? null
-              : net >= 0
-                ? "รายรับมากกว่ารายจ่าย"
-                : "รายจ่ายมากกว่ารายรับ"
+              : monthlyIncome === 0 && monthlyExpense === 0
+                ? "ยังไม่มีรายการเดือนนี้"
+                : net >= 0
+                  ? "รายรับมากกว่ารายจ่าย"
+                  : "รายจ่ายมากกว่ารายรับ"
           }
         >
           {value(net, "neutral")}

@@ -117,7 +117,13 @@ const NAV_GROUPS = [
   { label: "ภาพรวม", paths: ["/"] },
   {
     label: "การเงิน",
-    paths: ["/transactions", "/counting", "/offerings", "/giving/inbox", "/expenses"],
+    paths: [
+      "/transactions",
+      "/counting",
+      "/offerings",
+      "/giving/inbox",
+      "/expenses",
+    ],
   },
   { label: "วางแผนและควบคุม", paths: ["/funds", "/budgets", "/approvals"] },
   { label: "วิเคราะห์", paths: ["/reports"] },
@@ -126,7 +132,10 @@ const NAV_GROUPS = [
 ] as const;
 
 export function getNavGroup(path: string) {
-  return NAV_GROUPS.find(group => group.paths.some(item => item === path))?.label ?? "เมนู";
+  return (
+    NAV_GROUPS.find(group => group.paths.some(item => item === path))?.label ??
+    "เมนู"
+  );
 }
 
 export function isActiveRoute(currentPath: string, path: string) {
