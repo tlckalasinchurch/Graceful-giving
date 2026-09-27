@@ -134,9 +134,9 @@ function RouteLoading() {
       aria-live="polite"
     >
       <div className="w-full max-w-md space-y-3">
-        <div className="h-8 w-40 rounded-xl bg-[#E7DCC8]/60 animate-pulse" />
-        <div className="h-24 w-full rounded-2xl bg-[#E7DCC8]/40 animate-pulse" />
-        <p className="text-center text-sm text-[#807266]">กำลังโหลดหน้า…</p>
+        <div className="h-8 w-40 rounded-xl bg-[#3D3D3D]/60 animate-pulse" />
+        <div className="h-24 w-full rounded-2xl bg-[#3D3D3D]/40 animate-pulse" />
+        <p className="text-center text-sm text-[#8F8477]">กำลังโหลดหน้า…</p>
       </div>
     </div>
   );
@@ -157,8 +157,8 @@ function RoleGuard({
   if (loading) return <RouteLoading />;
   if (!user || !canAccess(user)) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border-2 border-[#E7DCC8] text-center space-y-4 shadow-sm">
+      <div className="min-h-screen bg-[#262626] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[#262626] rounded-3xl p-8 border-2 border-[#3D3D3D] text-center space-y-4 shadow-sm">
           <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -174,12 +174,12 @@ function RoleGuard({
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold tracking-tight text-[#171311]">{title}</h2>
-          <p className="text-sm text-[#807266] leading-relaxed">{message}</p>
+          <h2 className="text-xl font-semibold tracking-tight text-[#FFE7D0]">{title}</h2>
+          <p className="text-sm text-[#8F8477] leading-relaxed">{message}</p>
           <div className="pt-2">
             <a
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#0066CC] text-white font-bold text-sm hover:bg-[#0052A3] transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#FC6E20] text-[#1B1B1B] font-bold text-sm hover:bg-[#D9591A] transition-all shadow-xs"
             >
               กลับสู่หน้าหลัก
             </a>

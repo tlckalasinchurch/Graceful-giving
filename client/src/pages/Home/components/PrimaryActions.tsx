@@ -20,7 +20,7 @@ export function PrimaryActions({
     >
       <button
         onClick={onNewOffering}
-        className="flex items-center justify-center gap-3.5 py-4 sm:py-5 min-h-[68px] sm:min-h-[76px] rounded-2xl sm:rounded-2xl bg-[#D4FF3D] hover:bg-[#C2EB2E] text-[#0B0B0D] font-bold text-lg sm:text-2xl transition-colors focus-visible:ring-2 focus-visible:ring-[#D4FF3D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0D]"
+        className="flex items-center justify-center gap-3.5 py-4 sm:py-5 min-h-[68px] sm:min-h-[76px] rounded-2xl sm:rounded-2xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] font-bold text-lg sm:text-2xl transition-colors focus-visible:ring-2 focus-visible:ring-[#FC6E20] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B1B1B]"
         aria-label="บันทึกการถวาย"
       >
         <HandCoins className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
@@ -30,7 +30,7 @@ export function PrimaryActions({
       {canRecordExpense && (
         <button
           onClick={onNewExpense}
-          className="flex items-center justify-center gap-3.5 py-4 sm:py-5 min-h-[68px] sm:min-h-[76px] rounded-2xl sm:rounded-2xl bg-[#1C1D20] hover:bg-[#242529] border border-[#2A2B2E] text-white font-bold text-lg sm:text-2xl transition-colors focus-visible:ring-2 focus-visible:ring-[#FF6B5B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0D]"
+          className="flex items-center justify-center gap-3.5 py-4 sm:py-5 min-h-[68px] sm:min-h-[76px] rounded-2xl sm:rounded-2xl bg-[#323232] hover:bg-[#242529] border border-[#3D3D3D] text-white font-bold text-lg sm:text-2xl transition-colors focus-visible:ring-2 focus-visible:ring-[#FF6B5B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B1B1B]"
           aria-label="บันทึกรายจ่าย"
         >
           <ReceiptText className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-[#FF6B5B]" />

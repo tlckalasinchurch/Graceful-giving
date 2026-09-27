@@ -111,14 +111,14 @@ export default function Offerings() {
           <button
             onClick={exportCSV}
             disabled={filtered.length === 0}
-            className="px-3.5 py-2 rounded-xl bg-white border border-[#E7DCC8] text-[#51443A] hover:bg-[#FFF8EA] text-xs font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3.5 py-2 rounded-xl bg-[#262626] border border-[#3D3D3D] text-[#C9B8A8] hover:bg-[#262626] text-xs font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download className="w-4 h-4" aria-hidden="true" />
             <span>ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold button-elevation transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] text-xs font-bold button-elevation transition-colors flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
             <span>บันทึกถวายใหม่</span>
@@ -128,12 +128,12 @@ export default function Offerings() {
     >
       <section
         aria-label="ยอดถวายของรายการที่แสดง"
-        className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E7DCC8] space-y-1"
+        className="bg-[#262626] rounded-2xl p-5 sm:p-6 border border-[#3D3D3D] space-y-1"
       >
-        <span className="text-sm font-medium text-[#807266]">ยอดถวายรวม</span>
+        <span className="text-sm font-medium text-[#8F8477]">ยอดถวายรวม</span>
         <div>
           {isLoading || isError ? (
-            <span className="text-3xl sm:text-4xl font-bold text-[#807266]">
+            <span className="text-3xl sm:text-4xl font-bold text-[#8F8477]">
               —
             </span>
           ) : (
@@ -142,7 +142,7 @@ export default function Offerings() {
         </div>
         {/* The list is fetched with limit 50 and has no date filter, so this
             is the sum of the rows on screen, not a monthly total. */}
-        <p className="text-xs text-[#807266]">
+        <p className="text-xs text-[#8F8477]">
           จาก {filtered.length} รายการที่แสดง (รายการล่าสุด สูงสุด 50 รายการ)
         </p>
       </section>
@@ -189,15 +189,15 @@ export default function Offerings() {
           }}
         />
       ) : (
-        <ul className="bg-white rounded-2xl border border-[#E7DCC8] divide-y divide-[#EDE8E3] overflow-hidden">
+        <ul className="bg-[#262626] rounded-2xl border border-[#3D3D3D] divide-y divide-[#3D3D3D] overflow-hidden">
           {filtered.map(o => (
             <li key={o.id} className="flex items-center gap-2 pr-3 sm:pr-4">
               <Link
                 href={`/transactions/offering-${o.id}`}
-                className="flex-1 min-w-0 p-4 sm:p-5 flex items-center gap-4 hover:bg-[#FFF8EA]/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0066CC]"
+                className="flex-1 min-w-0 p-4 sm:p-5 flex items-center gap-4 hover:bg-[#262626]/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FC6E20]"
               >
                 <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                  <div className="w-11 h-11 rounded-xl bg-[#E4F3E7] text-[#1F5C33] flex items-center justify-center shrink-0">
+                  <div className="w-11 h-11 rounded-xl bg-[#1A2E20] text-[#34D399] flex items-center justify-center shrink-0">
                     <HandCoins
                       className="w-5 h-5 stroke-[2.2]"
                       aria-hidden="true"
@@ -205,7 +205,7 @@ export default function Offerings() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-3">
-                      <h3 className="min-w-0 text-sm font-bold text-[#171311] break-words">
+                      <h3 className="min-w-0 text-sm font-bold text-[#FFE7D0] break-words">
                         {o.title}
                       </h3>
                       <MoneyDisplay
@@ -215,7 +215,7 @@ export default function Offerings() {
                         className="shrink-0"
                       />
                     </div>
-                    <p className="text-xs text-[#807266] pt-0.5">
+                    <p className="text-xs text-[#8F8477] pt-0.5">
                       {formatThaiDateTime(o.date)} · {o.method} · {o.fund}
                     </p>
                   </div>
@@ -241,7 +241,7 @@ export default function Offerings() {
                 }
                 aria-label={`พิมพ์ใบเสร็จ ${o.title} ${formatThaiDateTime(o.date)}`}
                 title="พิมพ์ใบเสร็จเงินถวาย"
-                className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-white hover:bg-[#FFF8EA] hover:border-[#0066CC] text-[#0066CC] border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC]"
+                className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-[#262626] hover:bg-[#262626] hover:border-[#FC6E20] text-[#FC6E20] border border-[#3D3D3D] transition-colors focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
               >
                 <Printer className="w-4 h-4" aria-hidden="true" />
               </button>

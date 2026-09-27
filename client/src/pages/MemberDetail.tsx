@@ -10,7 +10,7 @@ import {
 import { memberStatusLabel } from "@shared/categories";
 
 const FIELD_CLASS =
-  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm font-normal text-[#171311] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
+  "mt-1 min-h-11 w-full rounded-xl border border-[#3D3D3D] bg-[#262626] p-3 text-base md:text-sm font-normal text-[#FFE7D0] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30";
 import { trpc } from "@/lib/trpc";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
@@ -126,14 +126,14 @@ export default function MemberDetail() {
         ) : (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8"
+            className="rounded-2xl border border-[#3D3D3D] bg-[#262626] p-6 md:p-8"
           >
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-[#171311]">
+                <h2 className="text-2xl font-semibold tracking-tight text-[#FFE7D0]">
                   แก้ไขข้อมูลสมาชิก
                 </h2>
-                <p className="mt-1 text-sm text-[#807266]">
+                <p className="mt-1 text-sm text-[#8F8477]">
                   สถานะปัจจุบัน: {memberStatusLabel(query.data.status)}
                 </p>
               </div>
@@ -156,15 +156,15 @@ export default function MemberDetail() {
                     deactivate.mutate({ id });
                   }
                 }}
-                className="min-h-11 shrink-0 rounded-xl border border-[#F8C8C5] bg-white px-4 py-2 text-sm font-bold text-[#B92A20] hover:bg-[#FEECEB] transition-colors disabled:opacity-50"
+                className="min-h-11 shrink-0 rounded-xl border border-[#5C332F] bg-[#262626] px-4 py-2 text-sm font-bold text-[#FF5C5C] hover:bg-[#3D1F1D] transition-colors disabled:opacity-50"
               >
                 ปิดใช้งาน
               </button>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-semibold text-[#51443A]">
+              <label className="text-sm font-semibold text-[#C9B8A8]">
                 ชื่อ-นามสกุล{" "}
-                <span className="text-[#C8372D]" aria-hidden="true">
+                <span className="text-[#FF5C5C]" aria-hidden="true">
                   *
                 </span>
                 <input
@@ -176,7 +176,7 @@ export default function MemberDetail() {
                   className={FIELD_CLASS}
                 />
               </label>
-              <label className="text-sm font-semibold text-[#51443A]">
+              <label className="text-sm font-semibold text-[#C9B8A8]">
                 โทรศัพท์
                 <input
                   type="tel"
@@ -186,7 +186,7 @@ export default function MemberDetail() {
                   className={FIELD_CLASS}
                 />
               </label>
-              <label className="text-sm font-semibold text-[#51443A]">
+              <label className="text-sm font-semibold text-[#C9B8A8]">
                 อีเมล
                 <input
                   type="email"
@@ -196,7 +196,7 @@ export default function MemberDetail() {
                   className={FIELD_CLASS}
                 />
               </label>
-              <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
+              <label className="text-sm font-semibold text-[#C9B8A8] md:col-span-2">
                 หมายเหตุ
                 <textarea
                   value={notes}
@@ -209,7 +209,7 @@ export default function MemberDetail() {
             <button
               type="submit"
               disabled={update.isPending || !isDirty}
-              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] px-5 py-2 text-sm font-bold text-[#1B1B1B] disabled:opacity-50"
             >
               <Save className="h-4 w-4" aria-hidden="true" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}

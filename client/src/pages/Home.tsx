@@ -136,7 +136,7 @@ export default function Home() {
           category: o.category,
           subCategory: "เงินถวาย",
           amount: Number(o.amount),
-          tone: "bg-[#1C1D20] text-[#34D399]",
+          tone: "bg-[#323232] text-[#34D399]",
           icon: Heart,
         });
       });
@@ -152,7 +152,7 @@ export default function Home() {
           category: e.category,
           subCategory: expenseCategoryLabel(e.category),
           amount: Number(e.amount),
-          tone: "bg-[#1C1D20] text-[#FF6B5B]",
+          tone: "bg-[#323232] text-[#FF6B5B]",
           icon: Landmark,
         });
       });
@@ -163,12 +163,12 @@ export default function Home() {
   }, [offeringsData, expensesData]);
 
   return (
-    <AppLayout variant="dark">
+    <AppLayout>
       <div className="space-y-6 sm:space-y-8 md:space-y-10">
         <HeroSection />
 
         <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#6B7075]">
+          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#8F8477]">
             ดูภาพรวม
           </h2>
           <BalanceCard
@@ -204,24 +204,24 @@ export default function Home() {
           <div
             role="region"
             aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#141416] border border-[#2A2B2E] text-[#A8ACB0]"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#262626] border border-[#3D3D3D] text-[#C9B8A8]"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#1C1D20] border border-[#2A2B2E] flex items-center justify-center text-[#D4FF3D] shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#323232] border border-[#3D3D3D] flex items-center justify-center text-[#FC6E20] shrink-0">
                 <Inbox className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-sm sm:text-base text-white">
                   มีสลิปถวายรอตรวจสอบ {pendingSlipCount} รายการ
                 </h3>
-                <p className="text-xs text-[#A8ACB0] truncate">
+                <p className="text-xs text-[#C9B8A8] truncate">
                   สลิปจาก LINE Official Account รอดำเนินการตรวจสอบและบันทึกบัญชี
                 </p>
               </div>
             </div>
             <button
               onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#D4FF3D] hover:bg-[#C2EB2E] text-[#0B0B0D] text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#D4FF3D]"
+              className="min-h-11 px-4 py-2 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
             >
               <span>ตรวจสอบสลิป</span>
               <ArrowRight className="w-4 h-4" />
@@ -230,7 +230,7 @@ export default function Home() {
         )}
 
         <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#6B7075]">
+          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#8F8477]">
             ทำรายการ
           </h2>
           <PrimaryActions
@@ -250,7 +250,7 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#6B7075]">
+          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#8F8477]">
             ติดตาม
           </h2>
           <BudgetSection

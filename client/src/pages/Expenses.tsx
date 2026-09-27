@@ -143,7 +143,7 @@ export default function Expenses() {
 
   // Colour on this page means money in or out, so categories share one
   // neutral chip and are told apart by icon and label.
-  const CATEGORY_CHIP = "bg-[#FFF8EA] text-[#51443A]";
+  const CATEGORY_CHIP = "bg-[#262626] text-[#C9B8A8]";
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "utilities":
@@ -195,14 +195,14 @@ export default function Expenses() {
           <button
             onClick={exportCSV}
             disabled={filteredExpenses.length === 0}
-            className="disabled:opacity-50 disabled:cursor-not-allowed inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-4 text-sm font-medium text-[#3F3833] hover:bg-[#FFF8EA]"
+            className="disabled:opacity-50 disabled:cursor-not-allowed inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#3D3D3D] bg-[#262626] px-4 text-sm font-medium text-[#C9B8A8] hover:bg-[#262626]"
           >
             <Download className="size-4" />
             ส่งออก CSV
           </button>
           <button
             onClick={() => setLocation("/expenses/new")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0066CC] px-4 text-sm font-semibold text-white hover:bg-[#0052A3]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#FC6E20] px-4 text-sm font-semibold text-[#1B1B1B] hover:bg-[#D9591A]"
           >
             <Plus className="size-4" />
             บันทึกรายจ่าย
@@ -235,7 +235,7 @@ export default function Expenses() {
                   : "ยังไม่มีข้อมูล"
             }
           >
-            <p className="text-xl font-bold text-[#171311]">
+            <p className="text-xl font-bold text-[#FFE7D0]">
               {topCategory?.label ?? "—"}
             </p>
           </MetricCard>
@@ -247,9 +247,9 @@ export default function Expenses() {
             {metricsPending ? (
               <MetricPlaceholder />
             ) : (
-              <p className="text-xl font-bold tabular-nums text-[#171311]">
+              <p className="text-xl font-bold tabular-nums text-[#FFE7D0]">
                 {withReceipt} / {expenses.length}{" "}
-                <span className="text-sm font-medium text-[#807266]">
+                <span className="text-sm font-medium text-[#8F8477]">
                   รายการ
                 </span>
               </p>
@@ -300,16 +300,16 @@ export default function Expenses() {
             }}
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
+          <div className="overflow-hidden rounded-2xl border border-[#3D3D3D] bg-[#262626]">
             {/* The table needs about 900px; below xl the card list shows every
                 amount without a sideways scroll. `relative` keeps the sr-only
                 header inside the scroll box instead of widening the page. */}
             <div className="hidden xl:block overflow-x-auto relative">
-              <table className="w-full text-left text-sm text-[#171311]">
+              <table className="w-full text-left text-sm text-[#FFE7D0]">
                 <caption className="sr-only">
                   รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
                 </caption>
-                <thead className="border-b border-[#E7DCC8] bg-[#FAF8F5] text-xs font-medium text-[#807266]">
+                <thead className="border-b border-[#3D3D3D] bg-[#262626] text-xs font-medium text-[#8F8477]">
                   <tr>
                     <th scope="col" className="py-3 px-5 font-medium">วันที่</th>
                     <th scope="col" className="py-3 px-5 font-medium">รายการ</th>
@@ -323,26 +323,26 @@ export default function Expenses() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EDE8E3]">
+                <tbody className="divide-y divide-[#3D3D3D]">
                   {filteredExpenses.map(e => {
                     const cat = getCategoryIcon(e.category);
                     const CatIcon = cat.icon;
                     return (
                       <tr
                         key={e.id}
-                        className="transition-colors hover:bg-[#FAF8F5]"
+                        className="transition-colors hover:bg-[#262626]"
                       >
-                        <td className="whitespace-nowrap py-3.5 px-5 text-[#51443A]">
+                        <td className="whitespace-nowrap py-3.5 px-5 text-[#C9B8A8]">
                           {formatThaiDate(e.date)}
                         </td>
                         <th scope="row" className="w-full max-w-0 py-2 px-5 text-left">
                           <Link
                             href={`/transactions/expense-${e.id}`}
-                            className="flex min-h-11 items-center rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC] focus-visible:ring-offset-2"
+                            className="flex min-h-11 items-center rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC6E20] focus-visible:ring-offset-2"
                           >
                             <span className="truncate">{e.description}</span>
                           </Link>
-                          <p className="-mt-2 truncate text-xs text-[#807266]">
+                          <p className="-mt-2 truncate text-xs text-[#8F8477]">
                             {e.payee} · {fundName(e.fundId)}
                             {e.receiptRef !== "-" && (
                               <span className="font-mono">
@@ -384,7 +384,7 @@ export default function Expenses() {
                                     title: e.description,
                                   })
                                 }
-                                className="inline-flex size-11 items-center justify-center rounded-lg text-[#1F5C33] hover:bg-[#E4F3E7] focus-visible:ring-2 focus-visible:ring-[#0066CC]"
+                                className="inline-flex size-11 items-center justify-center rounded-lg text-[#34D399] hover:bg-[#1A2E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
                                 title="ดูสลิป/ใบเสร็จ"
                                 aria-label={`ดูสลิปของ ${e.description}`}
                               >
@@ -393,7 +393,7 @@ export default function Expenses() {
                             )}
                             <button
                               onClick={() => setSelectedVoucher(toVoucher(e))}
-                              className="inline-flex size-11 items-center justify-center rounded-lg text-[#51443A] hover:bg-[#FFF8EA] focus-visible:ring-2 focus-visible:ring-[#0066CC]"
+                              className="inline-flex size-11 items-center justify-center rounded-lg text-[#C9B8A8] hover:bg-[#262626] focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
                               title="พิมพ์ใบสำคัญจ่าย"
                               aria-label={`พิมพ์ใบสำคัญจ่ายของ ${e.description}`}
                             >
@@ -409,14 +409,14 @@ export default function Expenses() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="xl:hidden divide-y divide-[#E7DCC8]/40">
+            <div className="xl:hidden divide-y divide-[#3D3D3D]/40">
               {filteredExpenses.map(e => {
                 const cat = getCategoryIcon(e.category);
                 const CatIcon = cat.icon;
                 return (
                   <div
                     key={e.id}
-                    className="p-4 space-y-2.5 active:bg-[#FFF8EA]/40"
+                    className="p-4 space-y-2.5 active:bg-[#262626]/40"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1 min-w-0 flex-1">
@@ -428,18 +428,18 @@ export default function Expenses() {
                             {expenseCategoryLabel(e.category)}
                           </span>
                           {e.receiptRef !== "-" && (
-                            <span className="text-xs text-[#807266] font-mono">
+                            <span className="text-xs text-[#8F8477] font-mono">
                               {e.receiptRef}
                             </span>
                           )}
                         </div>
                         <Link
                           href={`/transactions/expense-${e.id}`}
-                          className="flex min-h-11 items-center rounded-md font-medium text-[#171311] text-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC] focus-visible:ring-offset-2"
+                          className="flex min-h-11 items-center rounded-md font-medium text-[#FFE7D0] text-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC6E20] focus-visible:ring-offset-2"
                         >
                           <span className="truncate">{e.description}</span>
                         </Link>
-                        <p className="-mt-2 text-xs text-[#807266]">
+                        <p className="-mt-2 text-xs text-[#8F8477]">
                           {e.payee} · {formatThaiDate(e.date)}
                         </p>
                       </div>
@@ -457,7 +457,7 @@ export default function Expenses() {
 
                     {/* Mobile Action Bar */}
                     <div
-                      className="flex items-center justify-end gap-2 pt-1 border-t border-[#E7DCC8]/30"
+                      className="flex items-center justify-end gap-2 pt-1 border-t border-[#3D3D3D]/30"
                       onClick={ev => ev.stopPropagation()}
                     >
                       {e.receiptUrl && (
@@ -469,10 +469,10 @@ export default function Expenses() {
                               title: e.description,
                             })
                           }
-                          className="min-h-11 inline-flex items-center gap-1.5 px-3 rounded-lg bg-white text-[#51443A] border border-[#E7DCC8] text-xs font-medium hover:bg-[#FFF8EA]"
+                          className="min-h-11 inline-flex items-center gap-1.5 px-3 rounded-lg bg-[#262626] text-[#C9B8A8] border border-[#3D3D3D] text-xs font-medium hover:bg-[#262626]"
                         >
                           <Paperclip
-                            className="w-3.5 h-3.5 text-[#0066CC]"
+                            className="w-3.5 h-3.5 text-[#FC6E20]"
                             aria-hidden="true"
                           />
                           <span>ดูสลิป</span>
@@ -480,10 +480,10 @@ export default function Expenses() {
                       )}
                       <button
                         onClick={() => setSelectedVoucher(toVoucher(e))}
-                        className="min-h-11 inline-flex items-center gap-1.5 px-3 rounded-lg bg-white text-[#51443A] border border-[#E7DCC8] text-xs font-medium hover:bg-[#FFF8EA]"
+                        className="min-h-11 inline-flex items-center gap-1.5 px-3 rounded-lg bg-[#262626] text-[#C9B8A8] border border-[#3D3D3D] text-xs font-medium hover:bg-[#262626]"
                       >
                         <Printer
-                          className="w-3.5 h-3.5 text-[#0066CC]"
+                          className="w-3.5 h-3.5 text-[#FC6E20]"
                           aria-hidden="true"
                         />
                         <span>พิมพ์ใบสำคัญ</span>
@@ -529,17 +529,17 @@ function MetricCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5">
-      <div className="mb-2 flex items-center justify-between text-[#807266]">
+    <div className="rounded-2xl border border-[#3D3D3D] bg-[#262626] p-5">
+      <div className="mb-2 flex items-center justify-between text-[#8F8477]">
         <span className="text-sm font-medium">{label}</span>
         <Icon className="size-4" />
       </div>
       {children}
-      <p className="mt-1 text-xs text-[#807266]">{note}</p>
+      <p className="mt-1 text-xs text-[#8F8477]">{note}</p>
     </div>
   );
 }
 
 function MetricPlaceholder() {
-  return <p className="text-2xl font-bold text-[#807266]">—</p>;
+  return <p className="text-2xl font-bold text-[#8F8477]">—</p>;
 }

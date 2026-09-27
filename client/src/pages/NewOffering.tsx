@@ -46,8 +46,8 @@ function localToday(): string {
 }
 
 const FIELD_CLASS =
-  "min-h-11 w-full p-3 rounded-xl bg-white border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30 disabled:opacity-50";
-const LABEL_CLASS = "text-sm font-bold text-[#51443A] block";
+  "min-h-11 w-full p-3 rounded-xl bg-[#262626] border border-[#3D3D3D] text-base md:text-sm text-[#FFE7D0] placeholder-[#8F8477] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30 disabled:opacity-50";
+const LABEL_CLASS = "text-sm font-bold text-[#C9B8A8] block";
 
 interface SavedOffering {
   category: OfferingCategory;
@@ -160,7 +160,7 @@ export default function NewOffering() {
       <div className="max-w-2xl mx-auto">
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E7DCC8] space-y-6"
+          className="bg-[#262626] rounded-2xl p-6 sm:p-8 border border-[#3D3D3D] space-y-6"
         >
           <fieldset className="space-y-2.5">
             <legend className={`${LABEL_CLASS} mb-2.5`}>
@@ -186,7 +186,7 @@ export default function NewOffering() {
             </label>
             <div className="relative">
               <span
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#1F5C33]"
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#34D399]"
                 aria-hidden="true"
               >
                 ฿
@@ -201,7 +201,7 @@ export default function NewOffering() {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full min-h-14 pl-12 pr-4 py-3 rounded-xl bg-white border border-[#E7DCC8] text-2xl font-bold tabular-nums text-[#1F5C33] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30"
+                className="w-full min-h-14 pl-12 pr-4 py-3 rounded-xl bg-[#262626] border border-[#3D3D3D] text-2xl font-bold tabular-nums text-[#34D399] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30"
               />
             </div>
             <div
@@ -241,13 +241,13 @@ export default function NewOffering() {
               ))}
             </NativeSelect>
             {fundsQuery.isError ? (
-              <p className="text-sm text-[#B92A20]">
+              <p className="text-sm text-[#FF5C5C]">
                 โหลดรายชื่อกองทุนไม่สำเร็จ กรุณาโหลดหน้านี้ใหม่
               </p>
             ) : (
               !fundsQuery.isLoading &&
               funds.length === 0 && (
-                <p className="text-sm text-[#B92A20]">
+                <p className="text-sm text-[#FF5C5C]">
                   ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย
                 </p>
               )
@@ -310,7 +310,7 @@ export default function NewOffering() {
 
           <label
             htmlFor="anon"
-            className="flex min-h-11 items-center gap-3 text-sm text-[#51443A] cursor-pointer"
+            className="flex min-h-11 items-center gap-3 text-sm text-[#C9B8A8] cursor-pointer"
           >
             <input
               type="checkbox"
@@ -320,7 +320,7 @@ export default function NewOffering() {
                 setIsAnonymous(e.target.checked);
                 if (e.target.checked) setDonorName("");
               }}
-              className="size-5 rounded border-[#E7DCC8] accent-[#0066CC]"
+              className="size-5 rounded border-[#3D3D3D] accent-[#FC6E20]"
             />
             ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
           </label>
@@ -343,7 +343,7 @@ export default function NewOffering() {
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full min-h-12 py-3.5 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-base button-elevation transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-12 py-3.5 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] font-bold text-base button-elevation transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <HandCoins className="w-5 h-5" aria-hidden="true" />
             <span>
@@ -362,7 +362,7 @@ export default function NewOffering() {
         }}
       >
         <DialogContent className="max-w-sm text-center space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-[#E7DCC8] bg-[#E4F3E7]">
+          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-[#3D3D3D] bg-[#1A2E20]">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
               alt=""
@@ -381,22 +381,22 @@ export default function NewOffering() {
           </DialogHeader>
 
           {saved && (
-            <dl className="p-4 rounded-xl bg-[#FFF8EA] border border-[#E7DCC8] text-sm text-left space-y-1.5">
+            <dl className="p-4 rounded-xl bg-[#262626] border border-[#3D3D3D] text-sm text-left space-y-1.5">
               <div className="flex justify-between gap-3">
-                <dt className="text-[#807266]">ประเภท</dt>
-                <dd className="font-bold text-[#51443A]">
+                <dt className="text-[#8F8477]">ประเภท</dt>
+                <dd className="font-bold text-[#C9B8A8]">
                   {offeringCategoryLabel(saved.category)}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-[#807266]">จำนวนเงิน</dt>
-                <dd className="font-bold tabular-nums text-[#1F5C33]">
+                <dt className="text-[#8F8477]">จำนวนเงิน</dt>
+                <dd className="font-bold tabular-nums text-[#34D399]">
                   {formatBaht(saved.amount)}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-[#807266]">ช่องทาง</dt>
-                <dd className="font-medium text-[#51443A]">
+                <dt className="text-[#8F8477]">ช่องทาง</dt>
+                <dd className="font-medium text-[#C9B8A8]">
                   {saved.methodLabel}
                 </dd>
               </div>
@@ -407,7 +407,7 @@ export default function NewOffering() {
             <button
               type="button"
               onClick={() => setSaved(null)}
-              className="w-full min-h-11 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-sm transition-colors"
+              className="w-full min-h-11 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] font-bold text-sm transition-colors"
             >
               บันทึกรายการถัดไป
             </button>
@@ -417,7 +417,7 @@ export default function NewOffering() {
                 setSaved(null);
                 setLocation("/offerings");
               }}
-              className="w-full min-h-11 rounded-xl border border-[#E7DCC8] bg-white hover:bg-[#FFF8EA] text-[#51443A] font-bold text-sm transition-colors"
+              className="w-full min-h-11 rounded-xl border border-[#3D3D3D] bg-[#262626] hover:bg-[#262626] text-[#C9B8A8] font-bold text-sm transition-colors"
             >
               ดูรายการถวายทั้งหมด
             </button>

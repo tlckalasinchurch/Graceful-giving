@@ -15,19 +15,19 @@ export default function Login() {
   }, [loading, isAuthenticated, setLocation]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#262626] via-[#262626] to-[#262626] p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 space-y-2 text-center">
-          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-[#0066CC]/30 bg-[#0066CC]/15 shadow-xs">
-            <Sprout className="size-9 text-[#51443A]" />
-            <div className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-[#9BCBA5]">
+          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-[#FC6E20]/30 bg-[#FC6E20]/15 shadow-xs">
+            <Sprout className="size-9 text-[#C9B8A8]" />
+            <div className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-[#34D399]">
               <span className="text-[11px] font-bold text-white">✝</span>
             </div>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-[#171311]">
-            Grace <span className="text-[#0066CC]">Ledger</span>
+          <h1 className="text-2xl font-semibold tracking-tight text-[#FFE7D0]">
+            Grace <span className="text-[#FC6E20]">Ledger</span>
           </h1>
-          <p className="text-sm text-[#51443A]">ระบบบัญชีการเงินคริสตจักร</p>
+          <p className="text-sm text-[#C9B8A8]">ระบบบัญชีการเงินคริสตจักร</p>
         </div>
 
         {/* Clerk Sign-In component — handles all auth providers */}
@@ -38,8 +38,8 @@ export default function Login() {
           forceRedirectUrl="/"
           appearance={{
             variables: {
-              colorPrimary: "#0066CC",
-              colorBackground: "#FFFFFF",
+              colorPrimary: "#FC6E20",
+              colorBackground: "#262626",
               borderRadius: "1rem",
             },
           }}

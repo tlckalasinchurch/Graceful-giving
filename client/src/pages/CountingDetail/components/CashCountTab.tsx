@@ -39,14 +39,14 @@ export function CashCountTab({
 }: CashCountTabProps) {
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white">
-        <div className="border-b border-[#E7DCC8] p-4">
+      <div className="overflow-hidden rounded-2xl border border-[#3D3D3D] bg-[#262626]">
+        <div className="border-b border-[#3D3D3D] p-4">
           <h2 className="font-bold text-foreground">ใบนับธนบัตรและเหรียญ</h2>
-          <p className="mt-1 text-sm text-[#51443A]">
+          <p className="mt-1 text-sm text-[#C9B8A8]">
             กรอกจำนวนใบหรือเหรียญ ระบบคูณและรวมยอดให้ทันที
           </p>
         </div>
-        <ul className="divide-y divide-[#EDE8E3]">
+        <ul className="divide-y divide-[#3D3D3D]">
           {THB_DENOMINATIONS.map(denomination => {
             const key = `${denomination.value}-${denomination.kind}`;
             const saved = cashCounts.find(
@@ -90,19 +90,19 @@ export function CashCountTab({
                   }}
                   placeholder="0"
                   aria-label={`จำนวน ${denomination.label}`}
-                  className="min-h-11 w-24 rounded-xl border border-[#E7DCC8] bg-white p-2.5 text-right text-base font-bold tabular-nums text-foreground focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30 disabled:opacity-60"
+                  className="min-h-11 w-24 rounded-xl border border-[#3D3D3D] bg-[#262626] p-2.5 text-right text-base font-bold tabular-nums text-foreground focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30 disabled:opacity-60"
                 />
-                <span className="ml-auto whitespace-nowrap text-right text-sm font-bold tabular-nums text-[#51443A]">
+                <span className="ml-auto whitespace-nowrap text-right text-sm font-bold tabular-nums text-[#C9B8A8]">
                   {fmtBaht(subtotal)}
                 </span>
               </li>
             );
           })}
         </ul>
-        <div className="flex items-center justify-between border-t-2 border-[#E7DCC8] bg-background p-4">
+        <div className="flex items-center justify-between border-t-2 border-[#3D3D3D] bg-background p-4">
           <div>
             <p className="font-bold text-foreground">รวมนับได้</p>
-            <p className="text-sm text-[#51443A]">
+            <p className="text-sm text-[#C9B8A8]">
               เทียบซองเงินสด {fmtBaht(envelopeCashTotal)}
             </p>
           </div>

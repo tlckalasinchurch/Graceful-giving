@@ -29,7 +29,7 @@ export function RecentTransactions({
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="bg-[#141416] rounded-2xl p-5 sm:p-6 border border-[#2A2B2E] space-y-4 w-full"
+      className="bg-[#262626] rounded-2xl p-5 sm:p-6 border border-[#3D3D3D] space-y-4 w-full"
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-white">
@@ -37,16 +37,16 @@ export function RecentTransactions({
         </h2>
         <button
           onClick={onViewAll}
-          className="min-h-11 -mr-2 px-2 text-sm font-bold text-[#D4FF3D] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#D4FF3D]"
+          className="min-h-11 -mr-2 px-2 text-sm font-bold text-[#FC6E20] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
         >
           <span>ดูทั้งหมด</span>
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="divide-y divide-[#2A2B2E]">
+      <div className="divide-y divide-[#3D3D3D]">
         {allTransactions.length === 0 && (
-          <p className="py-8 text-center text-sm text-[#A8ACB0] font-medium">
+          <p className="py-8 text-center text-sm text-[#C9B8A8] font-medium">
             ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
           </p>
         )}
@@ -68,7 +68,7 @@ export function RecentTransactions({
                   <p className="text-sm sm:text-base font-bold text-white leading-tight truncate">
                     {tx.title}
                   </p>
-                  <p className="text-xs text-[#6B7075] font-medium pt-0.5">
+                  <p className="text-xs text-[#8F8477] font-medium pt-0.5">
                     {fmtThaiDate(tx.date)}
                   </p>
                 </div>
@@ -81,7 +81,7 @@ export function RecentTransactions({
                   {isIncome ? "+" : "-"}
                   {fmtBaht(Math.abs(tx.amount))}
                 </p>
-                <p className="text-xs text-[#6B7075] font-medium">
+                <p className="text-xs text-[#8F8477] font-medium">
                   {tx.subCategory}
                 </p>
               </div>

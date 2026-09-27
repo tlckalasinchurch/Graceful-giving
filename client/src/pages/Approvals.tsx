@@ -168,7 +168,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0066CC] px-4 text-sm font-semibold text-white hover:bg-[#0052A3]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#FC6E20] px-4 text-sm font-semibold text-[#1B1B1B] hover:bg-[#D9591A]"
         >
           <Banknote className="size-4" aria-hidden="true" />
           ยื่นคำขอเบิกเงิน
@@ -190,8 +190,8 @@ export default function Approvals() {
                 aria-pressed={activeTab === id}
                 className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 border ${
                   activeTab === id
-                    ? "bg-[#CFE4FA] text-[#0052A3] border-[#9CC7EC] font-semibold"
-                    : "bg-white text-[#51443A] border-[#E7DCC8] hover:bg-[#FFF8EA]"
+                    ? "bg-[#3D2A1A] text-[#D9591A] border-[#6B4426] font-semibold"
+                    : "bg-[#262626] text-[#C9B8A8] border-[#3D3D3D] hover:bg-[#262626]"
                 }`}
               >
                 <Icon className="w-4 h-4" aria-hidden="true" />
@@ -206,7 +206,7 @@ export default function Approvals() {
           </div>
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-[#FFF4D6] to-transparent"
+            className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-[#1B1B1B] to-transparent"
           />
         </div>
 
@@ -232,14 +232,14 @@ export default function Approvals() {
             {filteredRequests.map(req => (
               <li
                 key={req.id}
-                className="bg-white rounded-2xl border border-[#E7DCC8] p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
+                className="bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
               >
                 <div className="space-y-2 flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-mono text-[#807266] px-2.5 py-0.5 rounded-full border border-[#E7DCC8]">
+                    <span className="text-xs font-mono text-[#8F8477] px-2.5 py-0.5 rounded-full border border-[#3D3D3D]">
                       {req.refCode}
                     </span>
-                    <span className="text-xs font-medium text-[#51443A] bg-[#FFF8EA] px-2.5 py-0.5 rounded-full border border-[#E7DCC8]">
+                    <span className="text-xs font-medium text-[#C9B8A8] bg-[#262626] px-2.5 py-0.5 rounded-full border border-[#3D3D3D]">
                       {req.fund}
                     </span>
                     <StatusBadge
@@ -256,26 +256,26 @@ export default function Approvals() {
                     />
                   </div>
 
-                  <h3 className="text-base font-bold text-[#171311] break-words">
+                  <h3 className="text-base font-bold text-[#FFE7D0] break-words">
                     {req.purpose}
                   </h3>
 
                   {req.details && (
-                    <p className="text-sm text-[#51443A] leading-relaxed">
+                    <p className="text-sm text-[#C9B8A8] leading-relaxed">
                       {req.details}
                     </p>
                   )}
 
                   {req.rejectionReason && (
-                    <p className="text-sm text-[#B92A20] leading-relaxed">
+                    <p className="text-sm text-[#FF5C5C] leading-relaxed">
                       เหตุผลที่ไม่อนุมัติ: {req.rejectionReason}
                     </p>
                   )}
 
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#807266] pt-1">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#8F8477] pt-1">
                     <span className="flex items-center gap-1">
                       <User
-                        className="w-3.5 h-3.5 text-[#0066CC]"
+                        className="w-3.5 h-3.5 text-[#FC6E20]"
                         aria-hidden="true"
                       />
                       รหัสผู้ยื่น #{req.requesterId}
@@ -284,9 +284,9 @@ export default function Approvals() {
                   </div>
                 </div>
 
-                <div className="flex flex-row flex-wrap md:flex-col items-center md:items-end justify-between gap-4 pt-4 md:pt-0 border-t md:border-t-0 border-[#E7DCC8] flex-shrink-0">
+                <div className="flex flex-row flex-wrap md:flex-col items-center md:items-end justify-between gap-4 pt-4 md:pt-0 border-t md:border-t-0 border-[#3D3D3D] flex-shrink-0">
                   <div className="text-left md:text-right">
-                    <p className="text-xs text-[#807266]">ยอดขอเบิก</p>
+                    <p className="text-xs text-[#8F8477]">ยอดขอเบิก</p>
                     <MoneyDisplay
                       amount={req.amount}
                       type="expense"
@@ -303,7 +303,7 @@ export default function Approvals() {
                           setRejectReason("");
                         }}
                         disabled={approveMutation.isPending}
-                        className="min-h-11 whitespace-nowrap px-4 py-2 rounded-xl border border-[#F8C8C5] bg-white hover:bg-[#FEECEB] text-[#B92A20] text-sm font-semibold transition-colors disabled:opacity-50"
+                        className="min-h-11 whitespace-nowrap px-4 py-2 rounded-xl border border-[#5C332F] bg-[#262626] hover:bg-[#3D1F1D] text-[#FF5C5C] text-sm font-semibold transition-colors disabled:opacity-50"
                       >
                         ไม่อนุมัติ
                       </button>
@@ -311,7 +311,7 @@ export default function Approvals() {
                         type="button"
                         onClick={() => handleApprove(req)}
                         disabled={approveMutation.isPending}
-                        className="min-h-11 whitespace-nowrap px-5 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                        className="min-h-11 whitespace-nowrap px-5 py-2 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] text-[#1B1B1B] text-sm font-semibold transition-colors disabled:opacity-50"
                       >
                         {pendingId === req.id ? "กำลังบันทึก…" : "อนุมัติคำขอ"}
                       </button>
@@ -349,9 +349,9 @@ export default function Approvals() {
                 placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้..."
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
-                className="w-full p-3 rounded-xl border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30"
+                className="w-full p-3 rounded-xl border border-[#3D3D3D] text-base md:text-sm text-[#FFE7D0] placeholder-[#8F8477] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30"
               />
-              <p className="text-xs text-[#807266]">
+              <p className="text-xs text-[#8F8477]">
                 ผู้ยื่นคำขอจะได้รับแจ้งพร้อมเหตุผลนี้
               </p>
               <DialogFooter>
@@ -359,14 +359,14 @@ export default function Approvals() {
                   type="button"
                   onClick={() => setSelectedReq(null)}
                   disabled={approveMutation.isPending}
-                  className="min-h-11 px-4 rounded-xl border border-[#E7DCC8] bg-white text-sm font-medium text-[#51443A] hover:bg-[#FFF8EA] disabled:opacity-50"
+                  className="min-h-11 px-4 rounded-xl border border-[#3D3D3D] bg-[#262626] text-sm font-medium text-[#C9B8A8] hover:bg-[#262626] disabled:opacity-50"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
                   disabled={approveMutation.isPending}
-                  className="min-h-11 px-5 rounded-xl bg-[#C8372D] text-white text-sm font-semibold hover:bg-[#B3322A] disabled:opacity-50"
+                  className="min-h-11 px-5 rounded-xl bg-[#FF5C5C] text-[#1B1B1B] text-sm font-semibold hover:bg-[#B3322A] disabled:opacity-50"
                 >
                   {approveMutation.isPending
                     ? "กำลังบันทึก…"

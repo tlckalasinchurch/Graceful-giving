@@ -25,7 +25,7 @@ import {
 type AccountItem = RouterOutputs["finance"]["accounts"][number];
 
 const INPUT_CLASS =
-  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
+  "min-h-11 w-full px-4 py-2.5 rounded-xl border border-[#3D3D3D] text-base md:text-sm text-[#FFE7D0] placeholder-[#8F8477] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30";
 
 export default function Funds() {
   const [showNewFundModal, setShowNewFundModal] = useState(false);
@@ -94,7 +94,7 @@ export default function Funds() {
       action={
         <button
           onClick={() => setShowNewFundModal(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0066CC] px-4 text-sm font-semibold text-white hover:bg-[#0052A3]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#FC6E20] px-4 text-sm font-semibold text-[#1B1B1B] hover:bg-[#D9591A]"
         >
           <Plus className="size-4" aria-hidden="true" />
           สร้างกองทุนใหม่
@@ -104,14 +104,14 @@ export default function Funds() {
       <div className="space-y-6">
         <section
           aria-label="ยอดเงินรวมทุกกองทุน"
-          className="rounded-2xl border border-[#E7DCC8] bg-white p-5"
+          className="rounded-2xl border border-[#3D3D3D] bg-[#262626] p-5"
         >
-          <p className="text-sm font-medium text-[#807266]">
+          <p className="text-sm font-medium text-[#8F8477]">
             ยอดเงินรวมทุกกองทุน
           </p>
           <div className="mt-1">
             {isLoading || isError ? (
-              <span className="text-3xl sm:text-4xl font-bold text-[#807266]">
+              <span className="text-3xl sm:text-4xl font-bold text-[#8F8477]">
                 —
               </span>
             ) : (
@@ -119,7 +119,7 @@ export default function Funds() {
             )}
           </div>
           {!isLoading && !isError && (
-            <p className="mt-1 text-xs text-[#807266]">
+            <p className="mt-1 text-xs text-[#8F8477]">
               จาก {fundsList.length} กองทุนที่เปิดใช้งาน
             </p>
           )}
@@ -150,45 +150,45 @@ export default function Funds() {
                 <li key={f.id}>
                   <Link
                     href={`/funds/${f.id}`}
-                    className="h-full bg-white rounded-2xl border border-[#E7DCC8] p-6 hover:border-[#0066CC] transition-colors flex flex-col justify-between group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC]"
+                    className="h-full bg-[#262626] rounded-2xl border border-[#3D3D3D] p-6 hover:border-[#FC6E20] transition-colors flex flex-col justify-between group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC6E20]"
                   >
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <div className="w-11 h-11 rounded-xl bg-[#FFF8EA] flex items-center justify-center">
+                        <div className="w-11 h-11 rounded-xl bg-[#262626] flex items-center justify-center">
                           <Icon
-                            className="w-5 h-5 text-[#0066CC]"
+                            className="w-5 h-5 text-[#FC6E20]"
                             aria-hidden="true"
                           />
                         </div>
-                        <span className="text-xs font-mono text-[#807266] px-2.5 py-1 rounded-full border border-[#E7DCC8]">
+                        <span className="text-xs font-mono text-[#8F8477] px-2.5 py-1 rounded-full border border-[#3D3D3D]">
                           {f.code}
                         </span>
                       </div>
 
                       <div>
-                        <h3 className="text-base font-bold text-[#171311]">
+                        <h3 className="text-base font-bold text-[#FFE7D0]">
                           {f.name}
                         </h3>
                         {f.description && (
-                          <p className="text-xs text-[#807266] line-clamp-2 mt-1 leading-relaxed">
+                          <p className="text-xs text-[#8F8477] line-clamp-2 mt-1 leading-relaxed">
                             {f.description}
                           </p>
                         )}
                       </div>
 
                       <div>
-                        <p className="text-xs text-[#807266]">
+                        <p className="text-xs text-[#8F8477]">
                           ยอดคงเหลือสุทธิ
                         </p>
                         <div
-                          className={`text-2xl font-bold tabular-nums whitespace-nowrap ${f.balance < 0 ? "text-[#C8372D]" : "text-[#171311]"}`}
+                          className={`text-2xl font-bold tabular-nums whitespace-nowrap ${f.balance < 0 ? "text-[#FF5C5C]" : "text-[#FFE7D0]"}`}
                         >
                           {formatBaht(f.balance)}
                         </div>
                       </div>
                     </div>
 
-                    <div className="pt-4 mt-4 border-t border-[#E7DCC8] flex items-center justify-between text-xs font-semibold text-[#51443A] group-hover:text-[#0052A3]">
+                    <div className="pt-4 mt-4 border-t border-[#3D3D3D] flex items-center justify-between text-xs font-semibold text-[#C9B8A8] group-hover:text-[#D9591A]">
                       <span>ดูสเตทเมนต์และรายละเอียด</span>
                       <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </div>
@@ -217,10 +217,10 @@ export default function Funds() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="fund-name"
-                  className="text-sm font-semibold text-[#171311]"
+                  className="text-sm font-semibold text-[#FFE7D0]"
                 >
                   ชื่อกองทุน{" "}
-                  <span className="text-[#C8372D]" aria-hidden="true">
+                  <span className="text-[#FF5C5C]" aria-hidden="true">
                     *
                   </span>
                 </label>
@@ -240,7 +240,7 @@ export default function Funds() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="fund-type"
-                  className="text-sm font-semibold text-[#171311]"
+                  className="text-sm font-semibold text-[#FFE7D0]"
                 >
                   ประเภทกองทุน
                 </label>
@@ -270,7 +270,7 @@ export default function Funds() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="fund-desc"
-                  className="text-sm font-semibold text-[#171311]"
+                  className="text-sm font-semibold text-[#FFE7D0]"
                 >
                   คำอธิบายและวัตถุประสงค์
                 </label>
@@ -289,14 +289,14 @@ export default function Funds() {
                   type="button"
                   onClick={() => setShowNewFundModal(false)}
                   disabled={createAccountMutation.isPending}
-                  className="min-h-11 px-4 rounded-xl border border-[#E7DCC8] bg-white text-sm font-medium text-[#51443A] hover:bg-[#FFF8EA] disabled:opacity-50"
+                  className="min-h-11 px-4 rounded-xl border border-[#3D3D3D] bg-[#262626] text-sm font-medium text-[#C9B8A8] hover:bg-[#262626] disabled:opacity-50"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
                   disabled={createAccountMutation.isPending}
-                  className="min-h-11 px-6 rounded-xl bg-[#0066CC] text-white text-sm font-semibold hover:bg-[#0052A3] disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="min-h-11 px-6 rounded-xl bg-[#FC6E20] text-[#1B1B1B] text-sm font-semibold hover:bg-[#D9591A] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {createAccountMutation.isPending
                     ? "กำลังสร้าง…"

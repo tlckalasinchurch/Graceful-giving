@@ -9,7 +9,7 @@ import {
 } from "@/components/common/CommonUI";
 
 const FIELD_CLASS =
-  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base md:text-sm font-normal text-[#171311] focus:border-[#0066CC] focus-visible:ring-2 focus-visible:ring-[#0066CC]/30";
+  "mt-1 min-h-11 w-full rounded-xl border border-[#3D3D3D] bg-[#262626] p-3 text-base md:text-sm font-normal text-[#FFE7D0] focus:border-[#FC6E20] focus-visible:ring-2 focus-visible:ring-[#FC6E20]/30";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageMinistries } from "@shared/roles";
@@ -132,14 +132,14 @@ export default function MinistryDetail() {
         ) : canManage ? (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8"
+            className="rounded-2xl border border-[#3D3D3D] bg-[#262626] p-6 md:p-8"
           >
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-[#171311]">
+                <h2 className="text-2xl font-semibold tracking-tight text-[#FFE7D0]">
                   แก้ไขข้อมูลฝ่ายงาน
                 </h2>
-                <p className="mt-1 text-sm text-[#807266]">
+                <p className="mt-1 text-sm text-[#8F8477]">
                   สถานะปัจจุบัน:{" "}
                   {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
                 </p>
@@ -157,7 +157,7 @@ export default function MinistryDetail() {
                     );
                     if (ok) update.mutate({ id, status: "active" });
                   }}
-                  className="min-h-11 rounded-xl border border-[#C3E4B8] bg-white hover:bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#1F5C33] transition-colors disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-[#2E4A34] bg-[#262626] hover:bg-[#1A2E20] px-4 py-2 text-sm font-bold text-[#34D399] transition-colors disabled:opacity-50"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -177,7 +177,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-xl border border-[#F8C8C5] bg-white hover:bg-[#FEECEB] px-4 py-2 text-sm font-bold text-[#B92A20] transition-colors disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-[#5C332F] bg-[#262626] hover:bg-[#3D1F1D] px-4 py-2 text-sm font-bold text-[#FF5C5C] transition-colors disabled:opacity-50"
                 >
                   พักงานฝ่าย
                 </button>
@@ -185,9 +185,9 @@ export default function MinistryDetail() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-semibold text-[#51443A]">
+              <label className="text-sm font-semibold text-[#C9B8A8]">
                 ชื่อฝ่ายงาน{" "}
-                <span className="text-[#C8372D]" aria-hidden="true">
+                <span className="text-[#FF5C5C]" aria-hidden="true">
                   *
                 </span>
                 <input
@@ -198,7 +198,7 @@ export default function MinistryDetail() {
                   className={FIELD_CLASS}
                 />
               </label>
-              <label className="text-sm font-semibold text-[#51443A]">
+              <label className="text-sm font-semibold text-[#C9B8A8]">
                 หัวหน้าฝ่าย
                 <input
                   value={leaderName}
@@ -206,7 +206,7 @@ export default function MinistryDetail() {
                   className={FIELD_CLASS}
                 />
               </label>
-              <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
+              <label className="text-sm font-semibold text-[#C9B8A8] md:col-span-2">
                 เวลานัดประชุม
                 <input
                   value={meetingSchedule}
@@ -215,7 +215,7 @@ export default function MinistryDetail() {
                   className={FIELD_CLASS}
                 />
               </label>
-              <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
+              <label className="text-sm font-semibold text-[#C9B8A8] md:col-span-2">
                 รายละเอียดพันธกิจ
                 <textarea
                   value={description}
@@ -229,37 +229,37 @@ export default function MinistryDetail() {
             <button
               type="submit"
               disabled={update.isPending || !isDirty}
-              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] px-5 py-2 text-sm font-bold text-white transition-colors disabled:opacity-50"
+              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#FC6E20] hover:bg-[#D9591A] px-5 py-2 text-sm font-bold text-[#1B1B1B] transition-colors disabled:opacity-50"
             >
               <Save className="h-4 w-4" aria-hidden="true" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
             </button>
           </form>
         ) : (
-          <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 md:p-8">
+          <section className="rounded-2xl border border-[#3D3D3D] bg-[#262626] p-6 md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-2xl font-semibold tracking-tight text-[#171311]">
+              <h2 className="text-2xl font-semibold tracking-tight text-[#FFE7D0]">
                 {query.data.name}
               </h2>
               <span
                 className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                   query.data.status === "active"
-                    ? "bg-[#E4F3E7] text-[#1F5C33]"
-                    : "bg-[#FFF8EA] text-[#51443A]"
+                    ? "bg-[#1A2E20] text-[#34D399]"
+                    : "bg-[#262626] text-[#C9B8A8]"
                 }`}
               >
                 {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
               </span>
             </div>
 
-            <dl className="mt-5 space-y-3 text-sm text-[#51443A]">
+            <dl className="mt-5 space-y-3 text-sm text-[#C9B8A8]">
               <div className="flex items-center gap-2">
-                <UserRound className="h-4 w-4 shrink-0 text-[#807266]" />
+                <UserRound className="h-4 w-4 shrink-0 text-[#8F8477]" />
                 <dt className="sr-only">หัวหน้าฝ่าย</dt>
                 <dd>{query.data.leaderName || "ยังไม่ระบุหัวหน้าฝ่าย"}</dd>
               </div>
               <div className="flex items-center gap-2">
-                <CalendarClock className="h-4 w-4 shrink-0 text-[#807266]" />
+                <CalendarClock className="h-4 w-4 shrink-0 text-[#8F8477]" />
                 <dt className="sr-only">เวลานัดประชุม</dt>
                 <dd>
                   {query.data.meetingSchedule || "ยังไม่ระบุเวลานัดประชุม"}
@@ -268,7 +268,7 @@ export default function MinistryDetail() {
             </dl>
 
             {query.data.description && (
-              <p className="mt-5 whitespace-pre-line border-t border-[#E7DCC8] pt-5 text-sm leading-relaxed text-[#171311]">
+              <p className="mt-5 whitespace-pre-line border-t border-[#3D3D3D] pt-5 text-sm leading-relaxed text-[#FFE7D0]">
                 {query.data.description}
               </p>
             )}

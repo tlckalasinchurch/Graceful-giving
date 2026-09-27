@@ -48,7 +48,7 @@ interface TransactionItem {
 
 function SummaryPlaceholder() {
   return (
-    <span className="text-2xl md:text-3xl font-bold text-[#807266]">—</span>
+    <span className="text-2xl md:text-3xl font-bold text-[#8F8477]">—</span>
   );
 }
 
@@ -107,7 +107,7 @@ export default function Transactions() {
           // explicit rather than presenting a legacy record as approved.
           status: "unknown",
           icon: Heart,
-          tone: "bg-[#E4F3E7] text-[#1F5C33]",
+          tone: "bg-[#1A2E20] text-[#34D399]",
         });
       });
     }
@@ -126,7 +126,7 @@ export default function Transactions() {
           amount: Number(e.amount),
           status: e.status || "unknown",
           icon: Landmark,
-          tone: "bg-[#FEECEB] text-[#8A2E14]",
+          tone: "bg-[#3D1F1D] text-[#FF5C5C]",
         });
       });
     }
@@ -201,14 +201,14 @@ export default function Transactions() {
             onClick={handleExport}
             disabled={filtered.length === 0}
             aria-label="ส่งออก CSV"
-            className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#51443A] text-xs font-bold border border-[#E7DCC8] flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3.5 py-2 rounded-xl bg-[#262626] hover:bg-[#262626] text-[#C9B8A8] text-xs font-bold border border-[#3D3D3D] flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download className="w-4 h-4" aria-hidden="true" />
             <span className="hidden sm:inline">ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-primary hover:bg-[#0052A3] text-white text-xs font-bold button-elevation transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-primary hover:bg-[#D9591A] text-[#1B1B1B] text-xs font-bold button-elevation transition-colors flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
             <span>บันทึกการถวาย</span>
@@ -218,8 +218,8 @@ export default function Transactions() {
     >
       {/* 1. Summary Cards (รายรับ, รายจ่าย, ยอดสุทธิ) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">
+        <div className="bg-[#262626] border border-[#3D3D3D] rounded-2xl p-4 md:p-5 space-y-1">
+          <span className="text-sm font-medium text-[#8F8477]">
             รายรับ
           </span>
           <div>
@@ -229,13 +229,13 @@ export default function Transactions() {
               <MoneyDisplay amount={totalIncome} type="income" size="lg" />
             )}
           </div>
-          <p className="text-xs text-[#807266]">
+          <p className="text-xs text-[#8F8477]">
             {filtered.filter(t => t.type === "income").length} รายการที่แสดง
           </p>
         </div>
 
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">
+        <div className="bg-[#262626] border border-[#3D3D3D] rounded-2xl p-4 md:p-5 space-y-1">
+          <span className="text-sm font-medium text-[#8F8477]">
             รายจ่าย
           </span>
           <div>
@@ -245,13 +245,13 @@ export default function Transactions() {
               <MoneyDisplay amount={totalExpense} type="expense" size="lg" />
             )}
           </div>
-          <p className="text-xs text-[#807266]">
+          <p className="text-xs text-[#8F8477]">
             {filtered.filter(t => t.type === "expense").length} รายการที่แสดง
           </p>
         </div>
 
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">ส่วนต่าง</span>
+        <div className="bg-[#262626] border border-[#3D3D3D] rounded-2xl p-4 md:p-5 space-y-1">
+          <span className="text-sm font-medium text-[#8F8477]">ส่วนต่าง</span>
           <div>
             {summaryPending ? (
               <SummaryPlaceholder />
@@ -263,11 +263,11 @@ export default function Transactions() {
               />
             )}
           </div>
-          <p className="text-xs text-[#807266]">รายรับหักรายจ่าย ของรายการที่แสดง</p>
+          <p className="text-xs text-[#8F8477]">รายรับหักรายจ่าย ของรายการที่แสดง</p>
         </div>
       </div>
       {/* Both lists are fetched with limit 50, so these are not all-time totals. */}
-      <p className="text-xs text-[#807266] -mt-3">
+      <p className="text-xs text-[#8F8477] -mt-3">
         สรุปจากรายการล่าสุดที่แสดง (สูงสุด 50 รายการต่อประเภท) ไม่ใช่ยอดรวมทั้งหมด
       </p>
 
@@ -324,14 +324,14 @@ export default function Transactions() {
           }}
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-[#E7DCC8] card-elevation-sm overflow-hidden">
+        <div className="bg-[#262626] rounded-2xl border border-[#3D3D3D] card-elevation-sm overflow-hidden">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="bg-[#FFFFFF] border-b border-[#E7DCC8] text-[#51443A] font-bold">
+              <thead className="bg-[#262626] border-b border-[#3D3D3D] text-[#C9B8A8] font-bold">
                 <tr>
                   <th scope="col" className="p-4">วันที่</th>
                   <th scope="col" className="p-4">รายการ</th>
@@ -341,26 +341,26 @@ export default function Transactions() {
                   <th scope="col" className="p-4 text-center">สถานะ</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EDE8E3]/60">
+              <tbody className="divide-y divide-[#3D3D3D]/60">
                 {filtered.map(tx => (
-                  <tr key={tx.id} className="transition-colors hover:bg-[#FAF8F5]/70">
-                    <td className="p-4 text-[#807266] whitespace-nowrap font-medium">
+                  <tr key={tx.id} className="transition-colors hover:bg-[#262626]/70">
+                    <td className="p-4 text-[#8F8477] whitespace-nowrap font-medium">
                       {formatThaiDate(tx.date)}
                     </td>
-                    <th scope="row" className="px-4 py-1.5 font-bold text-[#171311]">
+                    <th scope="row" className="px-4 py-1.5 font-bold text-[#FFE7D0]">
                       <Link
                         href={`/transactions/${tx.id}`}
-                        className="flex min-h-11 items-center rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC] focus-visible:ring-offset-2"
+                        className="flex min-h-11 items-center rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC6E20] focus-visible:ring-offset-2"
                       >
                         {tx.title}
                       </Link>
                     </th>
                     <td className="p-4">
-                      <span className="whitespace-nowrap px-2.5 py-0.5 rounded-full bg-[#FFF8EA] text-[#51443A] text-xs font-medium">
+                      <span className="whitespace-nowrap px-2.5 py-0.5 rounded-full bg-[#262626] text-[#C9B8A8] text-xs font-medium">
                         {tx.categoryLabel}
                       </span>
                     </td>
-                    <td className="p-4 text-[#51443A]">{tx.fund}</td>
+                    <td className="p-4 text-[#C9B8A8]">{tx.fund}</td>
                     <td className="p-4 text-right font-bold">
                       <MoneyDisplay
                         amount={tx.amount}
@@ -378,7 +378,7 @@ export default function Transactions() {
           </div>
 
           {/* MOBILE CARDS VIEW (Visible on Mobile) */}
-          <div className="md:hidden divide-y divide-[#EDE8E3]/60">
+          <div className="md:hidden divide-y divide-[#3D3D3D]/60">
             {filtered.map(tx => {
               const Icon = tx.icon || ReceiptText;
               return (
@@ -386,7 +386,7 @@ export default function Transactions() {
                   key={tx.id}
                   href={`/transactions/${tx.id}`}
                   aria-label={`ดูรายละเอียด ${tx.title} วันที่ ${formatThaiDate(tx.date)} ${tx.type === "income" ? "รายรับ" : "รายจ่าย"} ${formatAmount(tx.amount)} บาท`}
-                  className="p-4 flex items-center justify-between gap-3 active:bg-[#FAF8F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0066CC]"
+                  className="p-4 flex items-center justify-between gap-3 active:bg-[#262626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FC6E20]"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
@@ -395,10 +395,10 @@ export default function Transactions() {
                       <Icon className="w-5 h-5 stroke-[2.2]" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-[#171311] truncate">
+                      <p className="text-sm font-bold text-[#FFE7D0] truncate">
                         {tx.title}
                       </p>
-                      <p className="text-sm text-[#51443A] pt-0.5">
+                      <p className="text-sm text-[#C9B8A8] pt-0.5">
                         {formatThaiDate(tx.date)} · {tx.fund}
                       </p>
                     </div>
