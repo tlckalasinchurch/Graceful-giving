@@ -292,6 +292,7 @@ export default function CountingDetail() {
       activeRoute="/counting"
       title="รอบนับเงินถวาย"
       subtitle={serviceDate}
+      subtitleOnMobile
       action={
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={detail.session.status} />

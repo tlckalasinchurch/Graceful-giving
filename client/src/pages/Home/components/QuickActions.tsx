@@ -33,10 +33,10 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
                 className="flex min-h-[4.5rem] w-full flex-col items-center justify-start gap-1.5 rounded-xl px-1 py-2 text-center hover:bg-muted"
               >
                 <span
-                  className={`flex size-11 items-center justify-center rounded-xl border ${
+                  className={`flex size-12 items-center justify-center rounded-full ${
                     action.primary
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-primary-strong"
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-card text-primary-strong"
                   }`}
                   aria-hidden="true"
                 >

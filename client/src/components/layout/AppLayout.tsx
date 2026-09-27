@@ -111,6 +111,8 @@ interface AppLayoutProps {
   activeRoute?: string;
   title?: string;
   subtitle?: string;
+  /** Show the subtitle on phones too, when it carries data (a date, a name). */
+  subtitleOnMobile?: boolean;
   action?: React.ReactNode;
 }
 
@@ -119,6 +121,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   activeRoute,
   title,
   subtitle,
+  subtitleOnMobile = false,
   action,
 }) => {
   const [location] = useLocation();
@@ -293,7 +296,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                     {title}
                   </h1>
                   {subtitle && (
-                    <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                    // Phones skip a descriptive subtitle: it restates the
+                    // title and pushes the page's content further down.
+                    <p
+                      className={`mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground ${subtitleOnMobile ? "" : "hidden sm:block"}`}
+                    >
                       {subtitle}
                     </p>
                   )}

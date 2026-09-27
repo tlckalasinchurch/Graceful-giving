@@ -37,14 +37,7 @@ import {
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 
-const FUND_TYPE_LABELS: Record<string, string> = {
-  general: "ดำเนินงานทั่วไป",
-  tithe: "สิบลด",
-  mission: "พันธกิจและการประกาศ",
-  building: "อาคารและบูรณะ",
-  welfare: "สงเคราะห์และสวัสดิการ",
-  special: "โครงการพิเศษ",
-};
+import { FUND_TYPE_LABELS } from "@/lib/fundTypes";
 import { NativeSelect } from "@/components/ui/native-select";
 
 type AccountItem = RouterOutputs["finance"]["accounts"][number];
