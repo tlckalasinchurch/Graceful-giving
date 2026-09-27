@@ -110,10 +110,10 @@ export function MemberFeed() {
               role="tab"
               aria-selected={newsCategoryFilter === cat}
               onClick={() => setNewsCategoryFilter(cat)}
-              className={`min-h-11 rounded-full px-3.5 py-2 text-xs font-bold transition-all ${
+              className={`min-h-11 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors ${
                 newsCategoryFilter === cat
-                  ? "bg-[#0052A3] text-white shadow-sm"
-                  : "bg-white/80 text-[#51443A] hover:bg-white hover:text-[#3F3833] border border-[#E7DCC8]"
+                  ? "border-[#9CC7EC] bg-[#CFE4FA] text-[#0052A3]"
+                  : "border-[#E7DCC8] bg-white/80 text-[#51443A] hover:bg-white hover:text-[#3F3833]"
               }`}
             >
               {cat === "all" ? "ทั้งหมด" : categoryLabels[cat]}

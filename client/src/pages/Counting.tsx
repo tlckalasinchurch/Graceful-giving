@@ -312,7 +312,7 @@ export default function Counting() {
               aria-pressed={activeTab === "all"}
               className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-colors shrink-0 border border-transparent ${
                 activeTab === "all"
-                  ? "bg-white text-[#171311] border border-[#E7DCC8]"
+                  ? "bg-[#F0E4C7] text-[#171311] border border-[#DCC088]"
                   : "text-[#51443A] hover:text-[#171311]"
               }`}
             >
@@ -328,7 +328,7 @@ export default function Counting() {
               aria-pressed={activeTab === "pending"}
               className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-colors shrink-0 border border-transparent ${
                 activeTab === "pending"
-                  ? "bg-white text-[#0052A3] border border-[#CFE4FA]"
+                  ? "bg-[#CFE4FA] text-[#0052A3] border border-[#9CC7EC]"
                   : "text-[#51443A] hover:text-[#0052A3]"
               }`}
             >
@@ -338,7 +338,7 @@ export default function Counting() {
               />
               <span>กำลังดำเนินการ / ค้างอยู่</span>
               {openCount > 0 && (
-                <span className="rounded-md bg-[#FFF4D6] px-1.5 py-0.5 text-[11px] font-bold text-[#0052A3]">
+                <span className="rounded-md bg-white px-1.5 py-0.5 text-[11px] font-bold text-[#0052A3]">
                   {openCount}
                 </span>
               )}
@@ -350,7 +350,7 @@ export default function Counting() {
               aria-pressed={activeTab === "completed"}
               className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-colors shrink-0 border border-transparent ${
                 activeTab === "completed"
-                  ? "bg-white text-[#2F7A45] border border-[#C3E4B8]"
+                  ? "bg-[#E4F3E7] text-[#2F7A45] border border-[#C3E4B8]"
                   : "text-[#51443A] hover:text-[#2F7A45]"
               }`}
             >
