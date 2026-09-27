@@ -11,6 +11,7 @@ import {
   CircleUserRound,
   FileBarChart,
   Home as HomeIcon,
+  Menu,
   Plus,
   ReceiptText,
   Sprout,
@@ -90,6 +91,13 @@ interface AppLayoutProps {
   title?: string;
   subtitle?: string;
   action?: React.ReactNode;
+  /**
+   * "dark" is an experimental preview variant for one page at a time (see
+   * Home.tsx) — it only recolors this component's own main/header chrome,
+   * not the shared sidebar or the page content underneath, which each page
+   * must still style itself. Defaults to the app's standard light theme.
+   */
+  variant?: "light" | "dark";
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -98,7 +106,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   title,
   subtitle,
   action,
+  variant = "light",
 }) => {
+  const isDark = variant === "dark";
   const [location] = useLocation();
   const navigate = useGuardedNavigate();
   const { user } = useAuth();
@@ -203,14 +213,32 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         {/* The column is capped at --content-max and centred in whatever space
             is left beside the sidebar, so a row's date and its amount stay
             within reading distance of each other on a wide monitor. */}
-        <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto bg-[#FFF4D6] px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-6 md:py-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-16 min-w-0">
+        <main
+          className={`flex-1 w-full max-w-[var(--content-max)] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-6 md:py-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-16 min-w-0 ${
+            isDark ? "bg-[#0B0B0D]" : "bg-[#FFF4D6]"
+          }`}
+        >
           {/* Top Bar for Desktop and Mobile */}
           <header className="flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
             <div className="flex w-full items-center justify-between lg:hidden">
-              <AppMenu />
+              <AppMenu>
+                {isDark && (
+                  <button
+                    type="button"
+                    className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#2A2B2E] bg-[#141416] px-3.5 text-sm font-semibold text-white hover:bg-[#1C1D20]"
+                  >
+                    <Menu className="size-5" aria-hidden="true" />
+                    <span>เมนูทั้งหมด</span>
+                  </button>
+                )}
+              </AppMenu>
               <GuardedLink
                 href="/notifications"
-                className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#E7DCC8] bg-white text-[#3F3833] hover:bg-[#FFF8EA]"
+                className={`flex size-11 shrink-0 items-center justify-center rounded-xl border ${
+                  isDark
+                    ? "border-[#2A2B2E] bg-[#141416] text-white hover:bg-[#1C1D20]"
+                    : "border-[#E7DCC8] bg-white text-[#3F3833] hover:bg-[#FFF8EA]"
+                }`}
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="size-5" aria-hidden="true" />
@@ -219,11 +247,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             {/* Left: Page Title */}
             {title && (
               <div className="min-w-0 flex-1 basis-full sm:basis-0">
-                <h1 className="text-2xl md:text-3xl font-semibold text-[#171311] tracking-tight break-words">
+                <h1
+                  className={`text-2xl md:text-3xl font-semibold tracking-tight break-words ${isDark ? "text-white" : "text-[#171311]"}`}
+                >
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="text-sm leading-relaxed text-[#51443A] mt-1 max-w-2xl">
+                  <p
+                    className={`text-sm leading-relaxed mt-1 max-w-2xl ${isDark ? "text-[#A8ACB0]" : "text-[#51443A]"}`}
+                  >
                     {subtitle}
                   </p>
                 )}
@@ -245,7 +277,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
               <button
                 onClick={() => navigate("/notifications")}
-                className="hidden lg:flex size-11 shrink-0 rounded-xl bg-white border border-[#E7DCC8] items-center justify-center text-[#3F3833] hover:bg-[#FFF8EA] transition-colors relative focus-visible:ring-2 focus-visible:ring-[#0066CC]"
+                className={`hidden lg:flex size-11 shrink-0 rounded-xl border items-center justify-center transition-colors relative focus-visible:ring-2 focus-visible:ring-[#0066CC] ${
+                  isDark
+                    ? "bg-[#141416] border-[#2A2B2E] text-white hover:bg-[#1C1D20]"
+                    : "bg-white border-[#E7DCC8] text-[#3F3833] hover:bg-[#FFF8EA]"
+                }`}
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="w-5 h-5" />

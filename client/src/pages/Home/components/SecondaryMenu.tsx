@@ -10,8 +10,9 @@ import { AppMenu } from "@/components/layout/AppNavigation";
 // One grammar for every shortcut: colour marks "this is clickable", not which
 // tile it is. The label already says which tile it is.
 const TILE =
-  "flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#0066CC] hover:bg-[#FFF8EA] transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC]";
-const ICON = "w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#0066CC] mb-1.5";
+  "flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-[#141416] border border-[#2A2B2E] hover:border-[#D4FF3D]/50 hover:bg-[#1C1D20] transition-colors focus-visible:ring-2 focus-visible:ring-[#D4FF3D]";
+const ICON = "w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#D4FF3D] mb-1.5";
+const LABEL = "text-xs sm:text-sm font-bold text-white tracking-tight text-center";
 
 interface SecondaryMenuProps {
   canOpenReports: boolean;
@@ -41,7 +42,7 @@ export function SecondaryMenu({
       {canOpenReports && (
         <button onClick={onOpenReports} className={TILE} aria-label="รายงาน">
           <FileBarChart className={ICON} aria-hidden="true" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+          <span className={LABEL}>
             รายงาน
           </span>
         </button>
@@ -51,7 +52,7 @@ export function SecondaryMenu({
       {canOpenMembers && (
         <button onClick={onOpenMembers} className={TILE} aria-label="สมาชิก">
           <UsersRound className={ICON} aria-hidden="true" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+          <span className={LABEL}>
             สมาชิก
           </span>
         </button>
@@ -60,7 +61,7 @@ export function SecondaryMenu({
       {/* กิจกรรม */}
       <button onClick={onOpenNews} className={TILE} aria-label="กิจกรรม">
         <CalendarDays className={ICON} aria-hidden="true" />
-        <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+        <span className={LABEL}>
           กิจกรรม
         </span>
       </button>
@@ -72,7 +73,7 @@ export function SecondaryMenu({
         aria-label="ยื่นคำขอเบิกเงิน"
       >
         <Banknote className={ICON} aria-hidden="true" />
-        <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+        <span className={LABEL}>
           ขอเบิกเงิน
         </span>
       </button>
@@ -85,7 +86,7 @@ export function SecondaryMenu({
           aria-label="เพิ่มเติม"
         >
           <MoreHorizontal className={ICON} aria-hidden="true" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+          <span className={LABEL}>
             เพิ่มเติม
           </span>
         </button>

@@ -48,18 +48,18 @@ export function BalanceCard({
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      className={`bg-white rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${tone === "positive" ? "border-[#A8D59D] card-elevation-focus" : tone === "negative" ? "border-[#F2C9BE] card-elevation-sm" : "border-[#E7DCC8] card-elevation-sm"}`}
+      className={`bg-[#141416] rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${tone === "positive" ? "border-[#D4FF3D]/40 shadow-[0_0_40px_-12px_rgba(212,255,61,0.25)]" : tone === "negative" ? "border-[#FF6B5B]/40" : "border-[#2A2B2E]"}`}
     >
       <div className="flex items-center justify-between gap-6">
         {/* Left: Prominent financial figures */}
         <div className="min-w-0 flex-1 space-y-2 sm:space-y-3 z-10">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight text-[#171311]">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight text-white">
               ยอดเงินคงเหลือรวม
             </h2>
             <button
               onClick={() => setShowBalance(!showBalance)}
-              className="size-11 shrink-0 inline-flex items-center justify-center text-[#3F3833] hover:text-[#171311] transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-[#0066CC]"
+              className="size-11 shrink-0 inline-flex items-center justify-center text-[#A8ACB0] hover:text-white transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-[#D4FF3D]"
               aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
               aria-pressed={!showBalance}
             >
@@ -72,13 +72,13 @@ export function BalanceCard({
 
             {/* Data-source status */}
             {isBalanceLoading && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFF8EA] text-[#51443A] text-xs sm:text-sm font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#1C1D20] text-[#A8ACB0] text-xs sm:text-sm font-bold">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 กำลังโหลดข้อมูล
               </span>
             )}
             {isDataUnavailable && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFF8EA] border border-dashed border-[#CFE4FA] text-[#7F3A0D] text-xs sm:text-sm font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#1C1D20] border border-dashed border-[#3A3B3E] text-[#E8B84B] text-xs sm:text-sm font-bold">
                 <Info className="w-4 h-4" />
                 {summaryError
                   ? "เชื่อมต่อข้อมูลไม่สำเร็จ"
@@ -89,7 +89,7 @@ export function BalanceCard({
 
           {isBalanceLoading ? (
             <div
-              className="h-12 sm:h-16 md:h-20 w-56 sm:w-80 rounded-2xl bg-[#EDE8E3] animate-pulse"
+              className="h-12 sm:h-16 md:h-20 w-56 sm:w-80 rounded-2xl bg-[#1C1D20] animate-pulse"
               aria-hidden="true"
             />
           ) : (
@@ -100,13 +100,13 @@ export function BalanceCard({
                  two lines mid-digit — "4,182,671." over "50" reads as two
                  different numbers. Scaling down is the only safe way for an
                  amount to lose an argument with its container. */
-              className={`whitespace-nowrap text-[clamp(1.75rem,5.5vw,4.5rem)] font-bold tracking-tight tabular-nums ${tone === "positive" ? "text-[#155724]" : tone === "negative" ? "text-[#9E2D12]" : "text-[#807266]"}`}
+              className={`whitespace-nowrap text-[clamp(1.75rem,5.5vw,4.5rem)] font-bold tracking-tight tabular-nums ${tone === "positive" ? "text-[#D4FF3D]" : tone === "negative" ? "text-[#FF6B5B]" : "text-[#6B7075]"}`}
             >
               {showBalance && hasSummaryData ? fmtBaht(balance) : "—"}
             </div>
           )}
 
-          <p className="text-sm sm:text-base text-[#51443A] flex items-center gap-2 pt-1">
+          <p className="text-sm sm:text-base text-[#A8ACB0] flex items-center gap-2 pt-1">
             {isBalanceLoading ? (
               <span>กำลังตรวจสอบยอดเงินล่าสุด…</span>
             ) : isDataUnavailable ? (
@@ -118,12 +118,12 @@ export function BalanceCard({
             ) : isPositiveBalance ? (
               <>
                 <span>ขอบคุณพระเจ้าสำหรับทุกการถวาย</span>
-                <span className="text-[#1F5C33]" aria-hidden="true">
+                <span className="text-[#D4FF3D]" aria-hidden="true">
                   ♥
                 </span>
               </>
             ) : (
-              <span className="text-[#9E2D12] font-bold">
+              <span className="text-[#FF6B5B] font-bold">
                 ยอดคงเหลือติดลบ — ควรตรวจสอบรายจ่าย
               </span>
             )}
@@ -134,7 +134,7 @@ export function BalanceCard({
               {Boolean(summaryError) && (
                 <button
                   onClick={onRetry}
-                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-sm sm:text-base font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC] focus-visible:ring-offset-2"
+                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#D4FF3D] hover:bg-[#C2EB2E] text-[#0B0B0D] text-sm sm:text-base font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#D4FF3D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0D]"
                 >
                   <RotateCw className="w-4 h-4" aria-hidden="true" />
                   <span>โหลดข้อมูลอีกครั้ง</span>
@@ -143,11 +143,11 @@ export function BalanceCard({
               {canOpenReports && (
                 <button
                   onClick={onOpenReports}
-                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#0066CC] hover:border-[#0066CC]"
+                  className="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-[#1C1D20] hover:bg-[#242529] text-white text-sm sm:text-base font-bold border border-[#2A2B2E] transition-colors focus-visible:ring-2 focus-visible:ring-[#D4FF3D] hover:border-[#D4FF3D]/50"
                 >
-                  <BarChart3 className="w-4 h-4 text-[#0066CC]" />
+                  <BarChart3 className="w-4 h-4 text-[#D4FF3D]" />
                   <span>ดูรายละเอียด</span>
-                  <ChevronRight className="w-4 h-4 text-[#3F3833]" />
+                  <ChevronRight className="w-4 h-4 text-[#A8ACB0]" />
                 </button>
               )}
             </div>
@@ -156,7 +156,7 @@ export function BalanceCard({
 
         {/* Right: Balance illustration tucked cleanly in corner */}
         <div className="hidden sm:block shrink-0 z-10">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#E7DCC8] bg-[#FFF8EA] p-1.5">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#2A2B2E] bg-[#1C1D20] p-1.5">
             <Illustration
               src="/illustrations/balance_wallet.jpg"
               alt="กระเป๋าสตางค์ยอดคงเหลือ"

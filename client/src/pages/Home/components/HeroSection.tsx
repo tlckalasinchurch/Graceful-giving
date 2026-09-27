@@ -12,27 +12,27 @@ export function HeroSection() {
     >
       <div className="min-w-0 space-y-2">
         <h1 className="flex flex-wrap items-center gap-x-2 text-2xl sm:text-3xl font-semibold tracking-tight leading-tight font-display">
-          <span className="text-[#171311]">Grace</span>
+          <span className="text-white">Grace</span>
           <Sprout
-            className="size-5 sm:size-6 text-[#1F5C33] stroke-[2.5]"
+            className="size-5 sm:size-6 text-[#D4FF3D] stroke-[2.5]"
             aria-hidden="true"
           />
-          <span className="text-[#0066CC]">Ledger</span>
+          <span className="text-[#D4FF3D]">Ledger</span>
         </h1>
-        <p className="text-sm sm:text-base text-[#51443A] leading-relaxed">
+        <p className="text-sm sm:text-base text-[#A8ACB0] leading-relaxed">
           การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
         </p>
         <p className="flex flex-wrap gap-x-2 text-xs sm:text-sm leading-relaxed">
-          <span className="whitespace-nowrap font-semibold text-[#0052A3]">
+          <span className="whitespace-nowrap font-semibold text-[#D4FF3D]">
             2 โครินธ์ 9:7
           </span>
-          <span className="text-[#51443A]">
+          <span className="text-[#A8ACB0]">
             “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
           </span>
         </p>
       </div>
 
-      <div className="hidden sm:block shrink-0 size-24 md:size-28 rounded-2xl overflow-hidden border border-[#E7DCC8] bg-[#FFF8EA]">
+      <div className="hidden sm:block shrink-0 size-24 md:size-28 rounded-2xl overflow-hidden border border-[#2A2B2E] bg-[#141416]">
         <Illustration
           src="/illustrations/hero_jesus_shepherd.jpg"
           alt="พระเยซูคริสต์และลูกแกะ"
