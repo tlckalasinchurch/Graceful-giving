@@ -6,6 +6,7 @@ import {
   EmptyState,
   LoadingSkeleton,
   MoneyDisplay,
+  SegmentedControl,
   StatusBadge,
 } from "@/components/common/CommonUI";
 import {
@@ -111,7 +112,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F] hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F] enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
         >
           <Banknote className="size-4" />
           ยื่นคำขอเบิกเงิน
@@ -120,50 +121,31 @@ export default function Approvals() {
     >
       <div className="space-y-6">
         {/* Navigation Tabs */}
-        <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 no-scrollbar">
-          <button
-            onClick={() => setActiveTab("pending")}
-            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-medium transition-all duration-200 ease-in-out flex items-center gap-2 ${
-              activeTab === "pending"
-                ? "bg-[#FFF4D6] text-foreground border border-[#E7DCC8]"
-                : "text-[#6E6155] hover:text-foreground"
-            }`}
-          >
-            <Clock className="w-4 h-4 text-primary" />
-            <span>
-              รอดำเนินการ ({requests.filter(r => r.status === "pending").length}
-              )
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab("approved")}
-            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-medium transition-all duration-200 ease-in-out flex items-center gap-2 ${
-              activeTab === "approved"
-                ? "bg-[#FFF4D6] text-foreground border border-[#E7DCC8]"
-                : "text-[#6E6155] hover:text-foreground"
-            }`}
-          >
-            <CheckCircle2 className="w-4 h-4 text-[#2D6A2E]" />
-            <span>
-              อนุมัติแล้ว (
-              {requests.filter(r => r.status === "approved").length})
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab("rejected")}
-            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-medium transition-all duration-200 ease-in-out flex items-center gap-2 ${
-              activeTab === "rejected"
-                ? "bg-[#FFF4D6] text-foreground border border-[#E7DCC8]"
-                : "text-[#6E6155] hover:text-foreground"
-            }`}
-          >
-            <XCircle className="w-4 h-4 text-[#C8372D]" />
-            <span>
-              ไม่อนุมัติ ({requests.filter(r => r.status === "rejected").length}
-              )
-            </span>
-          </button>
-        </div>
+        <SegmentedControl
+          ariaLabel="สถานะคำขอ"
+          value={activeTab}
+          onChange={id => setActiveTab(id as typeof activeTab)}
+          options={[
+            {
+              id: "pending",
+              label: "รออนุมัติ",
+              icon: Clock,
+              count: requests.filter(r => r.status === "pending").length,
+            },
+            {
+              id: "approved",
+              label: "อนุมัติแล้ว",
+              icon: CheckCircle2,
+              count: requests.filter(r => r.status === "approved").length,
+            },
+            {
+              id: "rejected",
+              label: "ไม่อนุมัติ",
+              icon: XCircle,
+              count: requests.filter(r => r.status === "rejected").length,
+            },
+          ]}
+        />
 
         {/* Requests List */}
         {isLoading ? (

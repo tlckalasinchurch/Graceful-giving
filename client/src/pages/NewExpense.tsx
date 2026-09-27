@@ -159,6 +159,8 @@ export default function NewExpense() {
 
   const handlePreset = (val: number) => {
     setAmount(val.toLocaleString("th-TH"));
+    if (errors.amount)
+      setErrors(current => ({ ...current, amount: undefined }));
   };
 
   const categoryIcons: Record<string, { icon: typeof Zap; desc: string }> = {
@@ -307,7 +309,12 @@ export default function NewExpense() {
                   จำนวนเงินแนะนำ:
                 </span>
                 {amountPresets.map(val => (
-                  <Chip key={val} onClick={() => handlePreset(val)}>
+                  <Chip
+                    key={val}
+                    active={parseFloat(amount.replace(/,/g, "")) === val}
+                    aria-label={`ใส่จำนวนเงิน ${formatBaht(val, 0)}`}
+                    onClick={() => handlePreset(val)}
+                  >
                     {formatBaht(val, 0)}
                   </Chip>
                 ))}
@@ -684,7 +691,7 @@ export default function NewExpense() {
                     setReceiptRef("");
                     setReceiptFile(null);
                   }}
-                  className="w-full min-h-11 py-3 rounded-xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-all duration-200 ease-in-out shadow-sm hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
+                  className="w-full min-h-11 py-3 rounded-xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-all duration-200 ease-in-out shadow-sm enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
                 >
                   บันทึกรายจ่ายรายการถัดไป
                 </button>

@@ -198,6 +198,8 @@ export default function NewOffering() {
                   <Chip
                     key={q}
                     type="button"
+                    active={Number(amount) === q}
+                    aria-label={`ใส่จำนวนเงิน ${formatBaht(q, 0)}`}
                     onClick={() => setAmount(String(q))}
                   >
                     {formatBaht(q, 0)}

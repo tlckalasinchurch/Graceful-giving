@@ -10,7 +10,7 @@ interface PrimaryActionsProps {
 // down on tap. The offering tile carries the primary colour because it is
 // the most frequent task; the expense tile is the secondary style.
 const tileBase =
-  "group flex items-center gap-4 rounded-2xl border p-4 sm:p-5 min-h-[76px] text-left transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+  "group flex items-center gap-4 rounded-2xl border p-4 sm:p-5 min-h-[76px] text-left transition-all duration-200 ease-in-out hover:-translate-y-0.5  hover:shadow-md active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
 
 export function PrimaryActions({
   canRecordExpense,
@@ -20,8 +20,7 @@ export function PrimaryActions({
   return (
     <section
       aria-label="การดำเนินการหลัก"
-      style={{ animationDelay: "230ms" }}
-      className={`animate-fade-up grid gap-4 w-full ${
+      className={`grid gap-4 w-full ${
         canRecordExpense ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
       }`}
     >

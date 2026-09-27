@@ -325,7 +325,7 @@ export default function TransactionDetail() {
               </div>
               <button
                 disabled={updateOffering.isPending || updateExpense.isPending}
-                className="rounded-xl bg-[#2D6A2E] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
+                className="rounded-xl bg-[#2D6A2E] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
               >
                 บันทึกการแก้ไข
               </button>

@@ -1,4 +1,5 @@
 import { Illustration } from "@/components/Illustration";
+import { TrendBadge, tactileCard } from "@/components/common/CommonUI";
 
 interface FinancialSummaryRowProps {
   isBalanceLoading: boolean;
@@ -6,12 +7,11 @@ interface FinancialSummaryRowProps {
   monthlyIncome: number | undefined;
   monthlyExpense: number | undefined;
   netMonthly: number | undefined;
-  incomeTrend: string;
-  expenseTrend: string;
+  /** Percent change vs last month; undefined while loading. */
+  incomeChange: number | null | undefined;
+  expenseChange: number | null | undefined;
   isPositiveNet: boolean;
   fmtShortBaht: (n: number) => string;
-  trendArrow: (trend: string) => string;
-  trendValue: (trend: string) => string;
 }
 
 export function FinancialSummaryRow({
@@ -20,21 +20,20 @@ export function FinancialSummaryRow({
   monthlyIncome,
   monthlyExpense,
   netMonthly,
-  incomeTrend,
-  expenseTrend,
+  incomeChange,
+  expenseChange,
   isPositiveNet,
   fmtShortBaht,
-  trendArrow,
-  trendValue,
 }: FinancialSummaryRowProps) {
   return (
     <section
       aria-label="สรุปตัวเลขการเงินรายเดือน"
-      style={{ animationDelay: "160ms" }}
-      className="animate-fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"
     >
       {/* Card 1: รายรับ (Income) */}
-      <div className="min-w-0 bg-card border border-[#C3E4B8] rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs hover:shadow-sm hover:border-[#9BCBA5] transition-all duration-200 ease-in-out">
+      <div
+        className={`min-w-0 bg-card border border-[#C3E4B8] rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs ${tactileCard} hover:border-[#9BCBA5] transition-all duration-200 ease-in-out`}
+      >
         <div className="size-12 sm:size-14 rounded-xl overflow-hidden shrink-0 bg-[#E4F3E7] p-1 border border-[#C3E4B8]">
           <Illustration
             src="/illustrations/income_hand_heart.jpg"
@@ -58,19 +57,17 @@ export function FinancialSummaryRow({
                 : "—"}
             </div>
           )}
-          <span className="text-xs sm:text-sm font-semibold text-[#2D6A2E] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-            <span>
-              {trendArrow(incomeTrend)} {trendValue(incomeTrend)}
-            </span>
-            <span className="text-xs text-[#6E6155] font-normal">
-              จากเดือนที่แล้ว
-            </span>
+          <span className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs">
+            {incomeChange !== undefined && <TrendBadge change={incomeChange} />}
+            <span className="font-normal text-[#6E6155]">จากเดือนที่แล้ว</span>
           </span>
         </div>
       </div>
 
       {/* Card 2: รายจ่าย (Expenses) */}
-      <div className="min-w-0 bg-card border border-[#F8C8C5] rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs hover:shadow-sm hover:border-[#EFA39D] transition-all duration-200 ease-in-out">
+      <div
+        className={`min-w-0 bg-card border border-[#F8C8C5] rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs ${tactileCard} hover:border-[#EFA39D] transition-all duration-200 ease-in-out`}
+      >
         <div className="size-12 sm:size-14 rounded-xl overflow-hidden shrink-0 bg-[#FEECEB] p-1 border border-[#F8C8C5]">
           <Illustration
             src="/illustrations/expense_hand_coin.jpg"
@@ -94,20 +91,18 @@ export function FinancialSummaryRow({
                 : "—"}
             </div>
           )}
-          <span className="text-xs sm:text-sm font-semibold text-[#C8372D] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-            <span>
-              {trendArrow(expenseTrend)} {trendValue(expenseTrend)}
-            </span>
-            <span className="text-xs text-[#6E6155] font-normal">
-              จากเดือนที่แล้ว
-            </span>
+          <span className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs">
+            {expenseChange !== undefined && (
+              <TrendBadge change={expenseChange} positiveIsGood={false} />
+            )}
+            <span className="font-normal text-[#6E6155]">จากเดือนที่แล้ว</span>
           </span>
         </div>
       </div>
 
       {/* Card 3: คงเหลือ (Net) */}
       <div
-        className={`min-w-0 bg-card rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 border shadow-xs hover:shadow-sm sm:col-span-2 lg:col-span-1 transition-all duration-200 ease-in-out ${isPositiveNet ? "border-[#E7DCC8] hover:border-[#C94F16]" : "border-[#F8C8C5] hover:border-[#EFA39D]"}`}
+        className={`min-w-0 bg-card rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 border shadow-xs ${tactileCard} sm:col-span-2 lg:col-span-1 transition-all duration-200 ease-in-out ${isPositiveNet ? "border-[#E7DCC8] hover:border-[#C94F16]" : "border-[#F8C8C5] hover:border-[#EFA39D]"}`}
       >
         <div
           className={`size-12 sm:size-14 rounded-xl overflow-hidden shrink-0 bg-[#FFF4D6] p-1 border ${isPositiveNet ? "border-[#E7DCC8]" : "border-[#F8C8C5]"}`}

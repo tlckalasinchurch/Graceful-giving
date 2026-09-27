@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { LoadingSkeleton } from "@/components/common/CommonUI";
+import { LoadingSkeleton, StatusBadge } from "@/components/common/CommonUI";
 import {
   Inbox,
   CheckCircle2,
@@ -469,7 +469,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setShowUploadModal(true)}
-            className="px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm font-semibold shadow-xs transition-all duration-200 ease-in-out flex items-center gap-1.5 shadow-xs hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm font-semibold shadow-xs transition-all duration-200 ease-in-out flex items-center gap-1.5 shadow-xs enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
           >
             <UploadCloud className="w-4 h-4" />
             <span>อัปโหลดสลิป</span>
@@ -653,7 +653,7 @@ export default function GivingInbox() {
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(true)}
-                  className="px-6 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm shadow-sm transition-all duration-200 ease-in-out flex items-center gap-2 hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
+                  className="px-6 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm shadow-sm transition-all duration-200 ease-in-out flex items-center gap-2 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
                 >
                   <UploadCloud className="w-4 h-4" />{" "}
                   ทดลองอัปโหลดสลิปจากเครื่องเดี๋ยวนี้
@@ -768,11 +768,11 @@ export default function GivingInbox() {
                               ? formatBaht(Number(slip.extractedAmount))
                               : "—"}
                           </div>
-                          <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-bold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
-                          >
-                            {statusConf.text}
-                          </span>
+                          <StatusBadge
+                            status={slip.status}
+                            label={statusConf.text}
+                            className="mt-1"
+                          />
                         </div>
                       </div>
 
@@ -840,16 +840,13 @@ export default function GivingInbox() {
                       <h2 className="text-lg sm:text-xl font-bold text-[#171311]">
                         ตรวจสอบสลิป #{currentSlip.id}
                       </h2>
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                          STATUS_LABELS[currentSlip.status]?.bg
-                        } ${STATUS_LABELS[currentSlip.status]?.textCol} ${
-                          STATUS_LABELS[currentSlip.status]?.border
-                        }`}
-                      >
-                        {STATUS_LABELS[currentSlip.status]?.text ||
-                          currentSlip.status}
-                      </span>
+                      <StatusBadge
+                        status={currentSlip.status}
+                        label={
+                          STATUS_LABELS[currentSlip.status]?.text ||
+                          currentSlip.status
+                        }
+                      />
                     </div>
                     <p className="text-xs text-[#6E6155] mt-1">
                       ส่งเข้ามาเมื่อ:{" "}
@@ -1190,7 +1187,7 @@ export default function GivingInbox() {
                           rejectMutation.isPending ||
                           currentSlip.status === "duplicate"
                         }
-                        className="min-h-11 w-full sm:w-auto px-7 py-2.5 rounded-xl bg-[#2D6A2E] hover:bg-[#235324] text-white font-bold text-sm shadow-xs transition-all duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 hover:shadow-sm active:scale-[0.98]"
+                        className="min-h-11 w-full sm:w-auto px-7 py-2.5 rounded-xl bg-[#2D6A2E] hover:bg-[#235324] text-white font-bold text-sm shadow-xs transition-all duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98]"
                       >
                         {approveMutation.isPending ? (
                           <>
@@ -1332,7 +1329,7 @@ export default function GivingInbox() {
                 type="button"
                 onClick={handleUploadSubmit}
                 disabled={!uploadPreview || uploadSlipMutation.isPending}
-                className="px-6 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm shadow-sm disabled:opacity-50 flex items-center gap-2 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
+                className="px-6 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm shadow-sm disabled:opacity-50 flex items-center gap-2 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
               >
                 {uploadSlipMutation.isPending
                   ? "กำลังประมวลผล..."
@@ -1409,7 +1406,7 @@ export default function GivingInbox() {
               <button
                 type="button"
                 onClick={() => setShowLineInfoModal(false)}
-                className="px-6 py-2.5 rounded-xl bg-[#C94F16] text-white font-bold text-sm shadow-xs hover:bg-[#9F3B0F] hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
+                className="px-6 py-2.5 rounded-xl bg-[#C94F16] text-white font-bold text-sm shadow-xs hover:bg-[#9F3B0F] enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
               >
                 เข้าใจแล้ว
               </button>

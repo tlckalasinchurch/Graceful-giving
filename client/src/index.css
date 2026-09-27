@@ -198,8 +198,45 @@ select:focus-visible {
   animation: fade-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Staggered entrance: put .stagger-children on a container and each direct
+   child fades up 70ms after the one before it (up to 10 children). */
+.stagger-children > * {
+  animation: fade-slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.stagger-children > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger-children > *:nth-child(2) {
+  animation-delay: 70ms;
+}
+.stagger-children > *:nth-child(3) {
+  animation-delay: 140ms;
+}
+.stagger-children > *:nth-child(4) {
+  animation-delay: 210ms;
+}
+.stagger-children > *:nth-child(5) {
+  animation-delay: 280ms;
+}
+.stagger-children > *:nth-child(6) {
+  animation-delay: 350ms;
+}
+.stagger-children > *:nth-child(7) {
+  animation-delay: 420ms;
+}
+.stagger-children > *:nth-child(8) {
+  animation-delay: 490ms;
+}
+.stagger-children > *:nth-child(9) {
+  animation-delay: 560ms;
+}
+.stagger-children > *:nth-child(n + 10) {
+  animation-delay: 630ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up {
+  .animate-fade-up,
+  .stagger-children > * {
     animation: none;
   }
 }
@@ -217,19 +254,23 @@ select:focus-visible {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  button,
-  a {
-    transition:
-      transform 200ms ease-in-out,
-      background-color 200ms ease-in-out,
-      color 200ms ease-in-out,
-      box-shadow 200ms ease-in-out,
-      border-color 200ms ease-in-out,
-      opacity 200ms ease-in-out;
-  }
-  button:active:not(:disabled) {
-    transform: scale(0.97);
+/* Default motion for every button and link. It sits in the base layer so a
+   component's own transition-* or active:scale-* utility still wins.
+   Tailwind v4 moves elements with the separate translate and scale
+   properties, so both are listed; without them a hover lift would snap. */
+@layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    button,
+    a {
+      transition-property:
+        color, background-color, border-color, box-shadow, opacity, transform,
+        translate, scale;
+      transition-duration: 200ms;
+      transition-timing-function: ease-in-out;
+    }
+    button:active:not(:disabled) {
+      scale: 0.98;
+    }
   }
 }
 

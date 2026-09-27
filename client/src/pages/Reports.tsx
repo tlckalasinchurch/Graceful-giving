@@ -9,6 +9,7 @@ import {
   MoneyDisplay,
   StatCard,
   StatCardSkeleton,
+  SegmentedControl,
 } from "@/components/common/CommonUI";
 import {
   expenseCategoryLabel,
@@ -156,28 +157,15 @@ export default function Reports() {
 
         {/* Tabs and period */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {(
-              [
-                { id: "cashflow", label: "รายรับ-รายจ่าย", icon: BarChart3 },
-                { id: "funds", label: "ยอดคงเหลือกองทุน", icon: Landmark },
-              ] as const
-            ).map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setTab(id)}
-                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
-                  tab === id
-                    ? "bg-[#C94F16] text-white shadow-sm"
-                    : "border border-[#E7DCC8] bg-white text-[#51443A] hover:border-[#C94F16]/40 hover:bg-[#FFF4D6]"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            ariaLabel="ประเภทรายงาน"
+            value={tab}
+            onChange={id => setTab(id as ReportTab)}
+            options={[
+              { id: "cashflow", label: "รายรับ-รายจ่าย", icon: BarChart3 },
+              { id: "funds", label: "ยอดคงเหลือกองทุน", icon: Landmark },
+            ]}
+          />
 
           <label className="text-sm font-semibold text-[#51443A]">
             <span className="sr-only">ช่วงเวลา</span>

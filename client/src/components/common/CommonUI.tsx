@@ -1,10 +1,30 @@
 import React from "react";
 import { Illustration } from "@/components/Illustration";
 import {
+  AlertTriangle,
+  Archive,
+  ArrowDownRight,
   ArrowLeft,
+  ArrowUpRight,
+  BadgeCheck,
+  Ban,
+  BookCheck,
+  CheckCircle2,
+  Clock,
+  Copy,
+  Eye,
+  FileText,
+  HelpCircle,
   Loader2,
+  Lock,
+  Megaphone,
+  Minus,
+  MinusCircle,
+  PencilLine,
   Plus,
   Search,
+  Send,
+  XCircle,
   type LucideIcon,
 } from "lucide-react";
 import { formatAmount } from "@/lib/format";
@@ -16,6 +36,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+/**
+ * Hover and press physics shared by every raised card and button: the
+ * element lifts 2px with a softer, wider shadow on hover and presses in to
+ * 98% on tap. Disabled elements keep still.
+ */
+export const tactile =
+  "transition-all duration-200 ease-in-out enabled:hover:-translate-y-0.5 enabled:hover:shadow-md enabled:active:translate-y-0 enabled:active:scale-[0.98] motion-reduce:hover:translate-y-0";
+
+/** Hover lift for cards that show data but are not clickable. */
+export const tactileCard =
+  "transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-md motion-reduce:hover:translate-y-0";
+
+/** Lift and press for clickable cards and links (no disabled state). */
+export const tactileLink = `${tactileCard} active:translate-y-0 active:scale-[0.98]`;
 
 // ─── 1. Loading Skeleton ─────────────────────────────────────────────────────
 
@@ -162,104 +197,84 @@ export type StatusType =
   | "posted"
   | "closed";
 
+/**
+ * Four visual tones. Each tone pairs a tint, a border, a text colour and a
+ * dot, so two statuses in different tones never look alike even in a dense
+ * table. The dot of a live tone (success, pending) has a soft halo.
+ */
+const STATUS_TONES = {
+  success: {
+    pill: "bg-[#E8F5E9] border-[#C8E6C9] text-[#1B5E20]",
+    dot: "bg-[#2E7D32] shadow-[0_0_0_3px_rgba(46,125,50,0.18)]",
+  },
+  pending: {
+    pill: "bg-[#FEF3C7] border-[#FDE68A] text-[#92400E]",
+    dot: "bg-[#F59E0B] shadow-[0_0_0_3px_rgba(245,158,11,0.22)]",
+  },
+  draft: {
+    pill: "bg-[#F4F1ED] border-[#E4DED7] text-[#57504A]",
+    dot: "bg-[#A39A91]",
+  },
+  danger: {
+    pill: "bg-[#FEECEB] border-[#F8C8C5] text-[#C8372D]",
+    dot: "bg-[#C8372D]",
+  },
+} as const;
+
+type StatusTone = keyof typeof STATUS_TONES;
+
+const STATUS_MAP: Record<
+  string,
+  { tone: StatusTone; label: string; icon: LucideIcon }
+> = {
+  approved: { tone: "success", label: "อนุมัติแล้ว", icon: CheckCircle2 },
+  completed: { tone: "success", label: "อนุมัติแล้ว", icon: CheckCircle2 },
+  active: { tone: "success", label: "ใช้งานอยู่", icon: CheckCircle2 },
+  verified: { tone: "success", label: "ตรวจสอบแล้ว", icon: BadgeCheck },
+  posted: { tone: "success", label: "ลงบัญชีแล้ว", icon: BookCheck },
+  pending: { tone: "pending", label: "รอดำเนินการ", icon: Clock },
+  submitted: { tone: "pending", label: "ส่งตรวจสอบแล้ว", icon: Send },
+  needs_review: { tone: "pending", label: "ต้องตรวจสอบ", icon: Eye },
+  counting: { tone: "pending", label: "กำลังนับ", icon: Clock },
+  counted: { tone: "pending", label: "รอตรวจสอบ", icon: Eye },
+  draft: { tone: "draft", label: "ฉบับร่าง", icon: PencilLine },
+  inactive: { tone: "draft", label: "ปิดใช้งาน", icon: MinusCircle },
+  unknown: { tone: "draft", label: "ไม่ทราบสถานะ", icon: HelpCircle },
+  closed: { tone: "draft", label: "ปิดรอบแล้ว", icon: Lock },
+  rejected: { tone: "danger", label: "ปฏิเสธ / ยกเลิก", icon: XCircle },
+  voided: { tone: "danger", label: "ยกเลิกรายการ", icon: Ban },
+  // LINE slip inbox
+  processing: { tone: "pending", label: "กำลังอ่านสลิป", icon: Loader2 },
+  extracted: { tone: "draft", label: "อ่านข้อมูลแล้ว", icon: FileText },
+  matched: { tone: "success", label: "พร้อมอนุมัติ", icon: BadgeCheck },
+  duplicate: { tone: "draft", label: "สลิปซ้ำ", icon: Copy },
+  failed: { tone: "danger", label: "อ่านสลิปล้มเหลว", icon: AlertTriangle },
+  // News and events
+  published: { tone: "success", label: "เผยแพร่แล้ว", icon: Megaphone },
+  cancelled: { tone: "danger", label: "ยกเลิก", icon: XCircle },
+  archived: { tone: "draft", label: "เก็บถาวร", icon: Archive },
+};
+
 export const StatusBadge: React.FC<{
   status: StatusType | string;
   label?: string;
   className?: string;
 }> = ({ status, label, className = "" }) => {
-  const getStyle = () => {
-    switch (status) {
-      case "approved":
-      case "completed":
-        return {
-          bg: "bg-[#E4F3E7] text-[#2D6A2E] border-[#C3E4B8]",
-          defaultLabel: "อนุมัติแล้ว",
-        };
-      case "active":
-        return {
-          bg: "bg-[#E4F3E7] text-[#2D6A2E] border-[#C3E4B8]",
-          defaultLabel: "ใช้งานอยู่",
-        };
-      case "rejected":
-        return {
-          bg: "bg-[#FEECEB] text-[#C8372D] border-[#F8C8C5]",
-          defaultLabel: "ปฏิเสธ / ยกเลิก",
-        };
-      case "inactive":
-        return {
-          bg: "bg-[#F5EDE0] text-[#51443A] border-[#E7DCC8]",
-          defaultLabel: "ปิดใช้งาน",
-        };
-      case "draft":
-        return {
-          bg: "bg-[#F5EDE0] text-[#51443A] border-[#E7DCC8]",
-          defaultLabel: "ฉบับร่าง",
-        };
-      case "submitted":
-        return {
-          bg: "bg-[#F5EDE0] text-[#51443A] border-[#E7DCC8]",
-          defaultLabel: "ส่งตรวจสอบแล้ว",
-        };
-      case "needs_review":
-        return {
-          bg: "bg-[#FFF4D6] text-[#9F3B0F] border-[#F9D2AE]",
-          defaultLabel: "ต้องตรวจสอบ",
-        };
-      case "unknown":
-        return {
-          bg: "bg-[#F5EDE0] text-[#51443A] border-[#E7DCC8]",
-          defaultLabel: "ไม่ทราบสถานะ",
-        };
-      case "voided":
-        return {
-          bg: "bg-[#F5EDE0] text-[#51443A] border-[#E7DCC8]",
-          defaultLabel: "ยกเลิกรายการ",
-        };
-      case "counting":
-        return {
-          bg: "bg-[#FFF4D6] text-[#9F3B0F] border-[#F9D2AE]",
-          defaultLabel: "กำลังนับ",
-        };
-      case "counted":
-        return {
-          bg: "bg-[#F5EDE0] text-[#51443A] border-[#E7DCC8]",
-          defaultLabel: "รอตรวจสอบ",
-        };
-      case "verified":
-        return {
-          bg: "bg-[#E4F3E7] text-[#2D6A2E] border-[#C3E4B8]",
-          defaultLabel: "ตรวจสอบแล้ว",
-        };
-      case "posted":
-        return {
-          bg: "bg-[#2D6A2E] text-white border-[#2D6A2E]",
-          defaultLabel: "ลงบัญชีแล้ว",
-        };
-      case "closed":
-        return {
-          bg: "bg-[#EDE3D2] text-[#51443A] border-[#DCCDB4]",
-          defaultLabel: "ปิดรอบแล้ว",
-        };
-      case "pending":
-      default:
-        return {
-          bg: "bg-[#FFF4D6] text-[#9F3B0F] border-[#F9D2AE]",
-          defaultLabel: "รอดำเนินการ",
-        };
-    }
-  };
-
-  const style = getStyle();
+  const entry = STATUS_MAP[status] ?? STATUS_MAP.pending;
+  const tone = STATUS_TONES[entry.tone];
+  const Icon = entry.icon;
 
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-semibold border ${style.bg} ${className}`}
+      data-tone={entry.tone}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border py-0.5 pl-2 pr-2.5 text-xs font-semibold leading-5 ${tone.pill} ${className}`}
     >
       <span
-        className="w-1.5 h-1.5 shrink-0 rounded-full bg-current"
+        className={`size-1.5 shrink-0 rounded-full ${tone.dot}`}
         aria-hidden="true"
       />
-      <span>{label || style.defaultLabel}</span>
+      <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+      <span>{label || entry.label}</span>
     </span>
   );
 };
@@ -369,9 +384,9 @@ export const Chip: React.FC<
   <button
     type="button"
     aria-pressed={active}
-    className={`min-h-11 shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[13px] transition-all duration-200 ease-in-out active:scale-[0.98] ${
+    className={`min-h-11 shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[13px] tabular-nums ${tactile} ${
       active
-        ? "border-[#C94F16] bg-[#C94F16] font-semibold text-white shadow-xs"
+        ? "border-[#C94F16] bg-[#C94F16] font-semibold text-white shadow-sm ring-4 ring-[#C94F16]/15"
         : "border-[#E7DCC8] bg-white font-medium text-[#51443A] hover:border-[#C94F16]/40 hover:bg-[#FFF4D6] hover:text-[#171311]"
     } ${className}`}
     {...props}
@@ -382,6 +397,114 @@ export const Chip: React.FC<
     )}
   </button>
 );
+
+// ─── 6b. Segmented Control ───────────────────────────────────────────────────
+
+export type SegmentOption = {
+  id: string;
+  label: string;
+  count?: number;
+  icon?: LucideIcon;
+};
+
+/**
+ * Tabs drawn as one recessed cream track with a white "thumb" that slides
+ * under the selected option. The thumb is measured from the selected
+ * button, so labels of any length work, and the track scrolls sideways
+ * when the options do not fit (Expenses has nine categories).
+ */
+export function SegmentedControl({
+  options,
+  value,
+  onChange,
+  ariaLabel,
+  className = "",
+  size = "md",
+}: {
+  options: SegmentOption[];
+  value: string;
+  onChange: (id: string) => void;
+  ariaLabel: string;
+  className?: string;
+  size?: "md" | "sm";
+}) {
+  const trackRef = React.useRef<HTMLDivElement>(null);
+  const [thumb, setThumb] = React.useState<{ left: number; width: number }>();
+
+  React.useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const measure = () => {
+      const active = track.querySelector<HTMLElement>('[aria-selected="true"]');
+      if (active)
+        setThumb({ left: active.offsetLeft, width: active.offsetWidth });
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(track);
+    return () => ro.disconnect();
+  }, [value, options]);
+
+  return (
+    <div className={`-m-1 overflow-x-auto p-1 no-scrollbar ${className}`}>
+      <div
+        ref={trackRef}
+        role="tablist"
+        aria-label={ariaLabel}
+        className="relative inline-flex min-w-max items-center gap-1 rounded-xl border border-[#E7DCC8] bg-[#F3E9D6] p-1 shadow-[inset_0_1px_2px_rgba(81,68,58,0.08)]"
+      >
+        {thumb && (
+          <span
+            aria-hidden="true"
+            className="absolute top-1 bottom-1 rounded-lg bg-white shadow-sm ring-1 ring-[#E7DCC8] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+            style={{ left: thumb.left, width: thumb.width }}
+          />
+        )}
+        {options.map(option => {
+          const selected = option.id === value;
+          const Icon = option.icon;
+          return (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              onClick={() => onChange(option.id)}
+              onFocus={e =>
+                e.currentTarget.scrollIntoView({
+                  block: "nearest",
+                  inline: "nearest",
+                })
+              }
+              className={`relative z-10 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 text-sm transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] ${
+                size === "sm" ? "min-h-9" : "min-h-10"
+              } ${
+                selected
+                  ? "font-semibold text-[#9F3B0F]"
+                  : "font-medium text-[#6E6155] hover:text-[#171311]"
+              }`}
+            >
+              {Icon && <Icon className="size-4" aria-hidden="true" />}
+              {option.label}
+              {option.count !== undefined && (
+                <span
+                  className={`min-w-5 rounded-full px-1.5 text-center text-[11px] leading-5 tabular-nums ${
+                    selected
+                      ? "bg-[#FFF4D6] text-[#9F3B0F]"
+                      : "bg-white/60 text-[#6E6155]"
+                  }`}
+                >
+                  {option.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 // ─── 7. Search and Filter Bar ────────────────────────────────────────────────
 
@@ -420,33 +543,14 @@ export const FilterBar: React.FC<{
         />
       </div>
 
-      {/* Filter Tabs / Chips */}
+      {/* Filter tabs */}
       {filters && filters.length > 0 && onFilterChange && (
-        <div
-          role="group"
-          aria-label="กรองรายการ"
-          className="flex items-center gap-2 overflow-x-auto p-1 -m-1 no-scrollbar"
-        >
-          {filters.map(f => {
-            const isActive = activeFilter === f.id;
-            return (
-              <Chip
-                key={f.id}
-                active={isActive}
-                count={f.count}
-                onClick={() => onFilterChange(f.id)}
-                onFocus={e =>
-                  e.currentTarget.scrollIntoView({
-                    block: "nearest",
-                    inline: "nearest",
-                  })
-                }
-              >
-                {f.label}
-              </Chip>
-            );
-          })}
-        </div>
+        <SegmentedControl
+          ariaLabel="กรองรายการ"
+          options={filters}
+          value={activeFilter ?? filters[0].id}
+          onChange={onFilterChange}
+        />
       )}
     </div>
   );
@@ -587,12 +691,25 @@ export const StatCard: React.FC<{
   hint?: React.ReactNode;
   icon?: LucideIcon;
   tone?: StatTone;
+  /** Percent change against the previous period; see TrendBadge. */
+  trend?: number | null;
+  /** False when a rise is bad news (expenses). */
+  trendPositiveIsGood?: boolean;
   className?: string;
-}> = ({ label, value, hint, icon: Icon, tone = "neutral", className = "" }) => {
+}> = ({
+  label,
+  value,
+  hint,
+  icon: Icon,
+  tone = "neutral",
+  trend,
+  trendPositiveIsGood = true,
+  className = "",
+}) => {
   const t = STAT_TONES[tone];
   return (
     <div
-      className={`min-w-0 rounded-2xl border bg-card p-5 shadow-xs transition-all duration-200 ease-in-out hover:shadow-sm ${t.card} ${className}`}
+      className={`min-w-0 rounded-2xl border bg-card p-5 shadow-xs ${tactileCard} ${t.card} ${className}`}
     >
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-medium text-[#51443A]">{label}</p>
@@ -609,12 +726,59 @@ export const StatCard: React.FC<{
       >
         {value}
       </div>
-      {hint && (
-        <div className="mt-1 text-xs leading-relaxed text-[#6E6155]">
-          {hint}
+      {(trend !== undefined || hint) && (
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-relaxed text-[#6E6155]">
+          {trend !== undefined && (
+            <TrendBadge change={trend} positiveIsGood={trendPositiveIsGood} />
+          )}
+          {hint && <span>{hint}</span>}
         </div>
       )}
     </div>
+  );
+};
+
+/**
+ * Compact pill for a change against the previous period: an arrow and a
+ * percentage. Green means good news and red means bad news, so for
+ * expenses (positiveIsGood=false) a rise is red and a fall is green.
+ */
+export const TrendBadge: React.FC<{
+  /** Percent change, e.g. 12.5 for +12.5%. null when there is no base. */
+  change: number | null;
+  positiveIsGood?: boolean;
+  className?: string;
+}> = ({ change, positiveIsGood = true, className = "" }) => {
+  if (change === null || !Number.isFinite(change)) {
+    return (
+      <span
+        className={`inline-flex items-center gap-1 rounded-full border border-[#E4DED7] bg-[#F4F1ED] px-2 py-0.5 text-[11px] font-semibold text-[#57504A] ${className}`}
+      >
+        <Minus className="size-3" aria-hidden="true" />
+        ไม่มีข้อมูลเทียบ
+      </span>
+    );
+  }
+  const rounded = Math.round(change);
+  const flat = rounded === 0;
+  const up = rounded > 0;
+  const good = flat ? null : up === positiveIsGood;
+  const Icon = flat ? Minus : up ? ArrowUpRight : ArrowDownRight;
+  const style =
+    good === null
+      ? "border-[#E4DED7] bg-[#F4F1ED] text-[#57504A]"
+      : good
+        ? "border-[#C8E6C9] bg-[#E8F5E9] text-[#1B5E20]"
+        : "border-[#F8C8C5] bg-[#FEECEB] text-[#C8372D]";
+  return (
+    <span
+      className={`inline-flex items-center gap-0.5 rounded-full border px-2 py-0.5 text-[11px] font-bold tabular-nums ${style} ${className}`}
+      aria-label={`${up ? "เพิ่มขึ้น" : flat ? "คงที่" : "ลดลง"} ${Math.abs(rounded)}% จากเดือนก่อน`}
+    >
+      <Icon className="size-3.5" aria-hidden="true" />
+      {up ? "+" : flat ? "" : "−"}
+      {Math.abs(rounded)}%
+    </span>
   );
 };
 
@@ -649,7 +813,7 @@ export const StatCardSkeleton: React.FC<{
 
 const ACTION_VARIANTS = {
   primary:
-    "bg-[#C94F16] text-white border-[#C94F16] shadow-xs hover:bg-[#9F3B0F] hover:border-[#9F3B0F] hover:shadow-sm focus-visible:ring-[#C94F16]",
+    "bg-[#C94F16] text-white border-[#C94F16] shadow-xs hover:bg-[#9F3B0F] hover:border-[#9F3B0F] focus-visible:ring-[#C94F16]",
   secondary:
     "bg-white text-[#51443A] border-[#E7DCC8] shadow-xs hover:border-[#C94F16]/40 hover:bg-[#FFF4D6] hover:text-[#171311] focus-visible:ring-[#C94F16]",
   danger:
@@ -688,7 +852,7 @@ export const ActionButton: React.FC<
     type={type}
     disabled={disabled || loading}
     aria-busy={loading || undefined}
-    className={`inline-flex items-center justify-center gap-2 rounded-xl border font-semibold transition-all duration-200 ease-in-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none disabled:active:scale-100 ${
+    className={`inline-flex items-center justify-center gap-2 rounded-xl border font-semibold ${tactile} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none disabled:active:scale-100 ${
       size === "lg" ? "min-h-12 px-6 text-base" : "min-h-11 px-5 text-sm"
     } ${ACTION_VARIANTS[variant]} ${className}`}
     {...props}
@@ -864,7 +1028,7 @@ export const ChoiceTile: React.FC<
   <button
     type="button"
     aria-pressed={selected}
-    className={`min-h-12 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2 ${
+    className={`min-h-12 rounded-xl border px-3 py-2.5 text-sm font-semibold ${tactile} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2 ${
       selected
         ? "border-[#C94F16] bg-[#FFF4D6] text-[#9F3B0F] shadow-xs ring-1 ring-[#C94F16]"
         : "border-[#E7DCC8] bg-white text-[#51443A] hover:border-[#C94F16]/40 hover:bg-[#FFF4D6]/60 hover:text-[#171311]"

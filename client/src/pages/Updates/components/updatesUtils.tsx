@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/common/CommonUI";
 import React from "react";
 import { toast } from "sonner";
 import { CalendarDays, Clock3, Megaphone, Send } from "lucide-react";
@@ -123,27 +124,11 @@ export function EmptyPanel({ type }: { type: "news" | "events" }) {
 }
 
 export function StatusPill({ status }: { status: string }) {
-  const styles =
-    status === "published"
-      ? "bg-[#E4F3E7] text-[#2D6A2E]"
-      : status === "cancelled" || status === "archived"
-        ? "bg-[#FEECEB] text-[#C8372D]"
-        : "bg-[#FFF4D6] text-[#C94F16]";
-  const label =
-    status === "published"
-      ? "เผยแพร่แล้ว"
-      : status === "cancelled"
-        ? "ยกเลิก"
-        : status === "archived"
-          ? "เก็บถาวร"
-          : "ฉบับร่าง";
-  return (
-    <span
-      className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${styles}`}
-    >
-      {label}
-    </span>
-  );
+  // Any status other than published/cancelled/archived is a draft.
+  const key = ["published", "cancelled", "archived"].includes(status)
+    ? status
+    : "draft";
+  return <StatusBadge status={key} />;
 }
 
 export function Field({
@@ -182,7 +167,7 @@ export function SubmitButtons({
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#9F3B0F] py-3 text-sm font-bold text-white hover:bg-[#C94F16] disabled:opacity-60 shadow-sm hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
+        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#9F3B0F] py-3 text-sm font-bold text-white hover:bg-[#C94F16] disabled:opacity-60 shadow-sm enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
       >
         {pending ? (
           <Clock3 className="size-4 animate-spin" />

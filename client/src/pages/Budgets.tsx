@@ -98,7 +98,7 @@ export default function Budgets() {
         <button
           type="button"
           onClick={() => (showCreate ? closeCreateForm() : setShowCreate(true))}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-200 ease-in-out hover:bg-[#9F3B0F] hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
+          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-200 ease-in-out hover:bg-[#9F3B0F] enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
         >
           <Plus className="h-4 w-4" />
           ตั้งงบประมาณ
@@ -159,7 +159,7 @@ export default function Budgets() {
             <BudgetFormFields values={form} onChange={setForm} funds={funds} />
             <button
               disabled={createPlan.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
+              className="mt-5 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               {createPlan.isPending ? "กำลังบันทึก…" : "บันทึกงบประมาณ"}
             </button>

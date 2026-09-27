@@ -154,7 +154,7 @@ export function MemberFeed() {
                     setSelectedNews(item);
                   }
                 }}
-                className="group cursor-pointer rounded-2xl border border-[#EFE5D3] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
+                className="group cursor-pointer rounded-2xl border border-[#EFE5D3] bg-white p-5 shadow-sm transition hover:-translate-y-0.5  hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4D6] px-2.5 py-1 text-[10px] font-bold text-[#9F3B0F]">
@@ -213,7 +213,7 @@ export function MemberFeed() {
                     setSelectedEvent(event);
                   }
                 }}
-                className="group flex cursor-pointer gap-4 rounded-2xl border border-[#EFE5D3] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
+                className="group flex cursor-pointer gap-4 rounded-2xl border border-[#EFE5D3] bg-white p-4 shadow-sm transition hover:-translate-y-0.5  hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
               >
                 <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#F5EDE0] text-[#51443A]">
                   <CalendarDays className="size-5" />
@@ -290,7 +290,7 @@ export function MemberFeed() {
               <div className="mt-6 flex justify-end border-t border-[#EFE5D3] pt-4">
                 <button
                   onClick={() => setSelectedNews(null)}
-                  className="rounded-xl bg-[#9F3B0F] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F] hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
+                  className="rounded-xl bg-[#9F3B0F] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F] enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
                 >
                   ปิดหน้าต่าง
                 </button>

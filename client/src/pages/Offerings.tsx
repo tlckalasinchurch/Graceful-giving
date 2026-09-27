@@ -122,7 +122,7 @@ export default function Offerings() {
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm font-semibold shadow-xs transition-all duration-200 ease-in-out flex items-center gap-1.5 hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm font-semibold shadow-xs transition-all duration-200 ease-in-out flex items-center gap-1.5 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>บันทึกถวายใหม่</span>

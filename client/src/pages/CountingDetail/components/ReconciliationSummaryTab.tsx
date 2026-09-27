@@ -179,7 +179,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => submitCount.mutate({ id: sessionId })}
               disabled={submitCount.isPending}
-              className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
+              className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               ส่งนับให้ตรวจสอบ
             </button>
@@ -199,7 +199,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => verify.mutate({ id: sessionId })}
               disabled={verify.isPending}
-              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
+              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               ตรวจสอบและรับรองยอด
             </button>
@@ -218,7 +218,7 @@ export function ReconciliationSummaryTab({
                 unapprovedDeductions.length > 0 ||
                 (!r.isBalanced && !varianceNote.trim() && !sessionVarianceNote)
               }
-              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
+              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               ลงบัญชีเข้าระบบ
             </button>

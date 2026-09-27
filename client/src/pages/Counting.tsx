@@ -6,6 +6,7 @@ import {
   EmptyState,
   ErrorState,
   LoadingSkeleton,
+  SegmentedControl,
   StatusBadge,
 } from "@/components/common/CommonUI";
 import {
@@ -282,7 +283,7 @@ export default function Counting() {
               <button
                 type="submit"
                 disabled={createSession.isPending}
-                className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#2D6A2E] transition-all duration-200 ease-in-out disabled:opacity-50 hover:shadow-sm active:scale-[0.98]"
+                className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#2D6A2E] transition-all duration-200 ease-in-out disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98]"
               >
                 {createSession.isPending
                   ? "กำลังเปิดรอบ…"
@@ -295,56 +296,26 @@ export default function Counting() {
         {/* Filter Controls & Search */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Tabs */}
-          <div className="flex items-center gap-1.5 rounded-2xl bg-[#FFF4D6] p-1.5 border border-[#E7DCC8]/80 overflow-x-auto">
-            <button
-              type="button"
-              onClick={() => setActiveTab("all")}
-              className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all duration-200 ease-in-out shrink-0 ${
-                activeTab === "all"
-                  ? "bg-card text-[#171311] shadow-xs"
-                  : "text-[#51443A] hover:text-[#171311]"
-              }`}
-            >
-              <span>ทั้งหมด</span>
-              <span className="rounded-md bg-[#E7DCC8]/50 px-1.5 py-0.5 text-[11px] font-semibold text-[#51443A]">
-                {sessions.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("pending")}
-              className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all duration-200 ease-in-out shrink-0 ${
-                activeTab === "pending"
-                  ? "bg-card text-[#9F3B0F] shadow-xs"
-                  : "text-[#51443A] hover:text-[#9F3B0F]"
-              }`}
-            >
-              <Clock className="h-3.5 w-3.5 text-[#9F3B0F]" />
-              <span>กำลังดำเนินการ / ค้างอยู่</span>
-              {openCount > 0 && (
-                <span className="rounded-md bg-[#C94F16]/20 px-1.5 py-0.5 text-[11px] font-bold text-[#9F3B0F]">
-                  {openCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("completed")}
-              className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all duration-200 ease-in-out shrink-0 ${
-                activeTab === "completed"
-                  ? "bg-card text-[#2D6A2E] shadow-xs"
-                  : "text-[#51443A] hover:text-[#2D6A2E]"
-              }`}
-            >
-              <CheckCircle2 className="h-3.5 w-3.5 text-[#2D6A2E]" />
-              <span>ปิดรอบเสร็จสมบูรณ์</span>
-              <span className="rounded-md bg-[#2D6A2E]/15 px-1.5 py-0.5 text-[11px] font-semibold text-[#2D6A2E]">
-                {completedCount}
-              </span>
-            </button>
-          </div>
+          <SegmentedControl
+            ariaLabel="สถานะรอบนับเงิน"
+            value={activeTab}
+            onChange={id => setActiveTab(id as FilterTab)}
+            options={[
+              { id: "all", label: "ทั้งหมด", count: sessions.length },
+              {
+                id: "pending",
+                label: "กำลังดำเนินการ",
+                icon: Clock,
+                count: openCount,
+              },
+              {
+                id: "completed",
+                label: "ปิดรอบแล้ว",
+                icon: CheckCircle2,
+                count: completedCount,
+              },
+            ]}
+          />
 
           {/* Search bar */}
           <div className="relative min-w-[220px]">

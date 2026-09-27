@@ -1,60 +1,94 @@
-import { Sprout } from "lucide-react";
+import { BookOpen, Sprout } from "lucide-react";
 import { Illustration } from "@/components/Illustration";
+import { getDailyScripture, getGreeting } from "./dailyContent";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  /** First name or display name of the signed-in user. */
+  name?: string;
+  /** Injected for tests; the live page uses the current time. */
+  now?: Date;
+}
+
+export function HeroSection({ name, now = new Date() }: HeroSectionProps) {
+  const greeting = getGreeting(now);
+  const scripture = getDailyScripture(now);
+  const GreetingIcon = greeting.icon;
+
   return (
     <section
       aria-label="Grace-giving ส่วนต้อนรับ"
-      className="animate-fade-up relative rounded-2xl overflow-hidden bg-card border border-[#E7DCC8] shadow-xs p-5 sm:p-6 md:p-7 w-full"
+      className="relative w-full overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-xs sm:p-6 md:p-7"
     >
-      {/* Hero Content Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 lg:gap-10 items-center relative z-10 w-full">
-        {/* Left Column: Generous typography & clear hierarchy */}
-        <div className="min-w-0 md:col-span-7 space-y-4 w-full flex flex-col justify-center">
-          {/* Brand Title */}
-          <h1 className="flex flex-col">
-            <span className="flex items-center gap-2 sm:gap-3">
-              <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#171311] tracking-tight leading-none font-display">
-                Grace
-              </span>
-              <span className="text-[#2D6A2E]">
-                <Sprout className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 stroke-[2.5]" />
-              </span>
-            </span>
-            <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#C94F16] tracking-tight leading-none font-display mt-1">
-              Ledger
-            </span>
+      {/* Warm light in the corner. Decorative only. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-[#FFE7C2]/60 blur-3xl"
+      />
+
+      <div className="relative z-10 grid w-full grid-cols-1 items-center gap-6 md:grid-cols-12 md:gap-8">
+        <div className="flex min-w-0 flex-col justify-center gap-4 md:col-span-7">
+          {/* Brand */}
+          <h1 className="flex items-center gap-1.5 text-sm font-bold tracking-tight">
+            <Sprout className="size-4 text-[#2D6A2E]" aria-hidden="true" />
+            <span className="text-[#171311]">Grace</span>
+            <span className="text-[#C94F16]">Ledger</span>
           </h1>
 
-          {/* Tagline */}
-          <p className="text-base sm:text-lg font-semibold text-[#51443A] leading-relaxed">
-            การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
-          </p>
-
-          {/* Bible Scripture Badge */}
-          <div className="inline-flex flex-wrap items-center gap-2 sm:gap-3 px-3.5 py-2 rounded-full bg-[#FFF4D6] border border-[#F9D2AE] text-xs sm:text-sm text-[#171311] max-w-full">
-            <span className="whitespace-nowrap font-bold text-[#9F3B0F] shrink-0">
-              2 โครินธ์ 9:7
-            </span>
-            <span className="text-[#51443A] font-medium">
-              “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
-            </span>
+          {/* Greeting for the time of day */}
+          <div>
+            <p className="flex items-center gap-2 font-script text-3xl leading-none text-[#C94F16] sm:text-4xl">
+              <GreetingIcon
+                className="size-6 shrink-0 text-[#E08A3C]"
+                aria-hidden="true"
+              />
+              {greeting.script}
+            </p>
+            <h2 className="mt-2 text-2xl font-bold leading-tight tracking-tight text-[#171311] sm:text-3xl">
+              {greeting.thai}
+              {name ? `, ${name}` : ""}
+            </h2>
+            <p className="mt-1 text-base font-medium leading-relaxed text-[#51443A]">
+              การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
+            </p>
           </div>
+
+          {/* Daily scripture */}
+          <figure className="relative rounded-2xl border border-[#F9D2AE] bg-[#FFF4D6]/70 p-4 pl-5 sm:p-5 sm:pl-6">
+            <span
+              aria-hidden="true"
+              className="absolute inset-y-4 left-0 w-1 rounded-full bg-[#C94F16]"
+            />
+            <figcaption className="mb-2 flex items-center justify-between gap-3">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#9F3B0F]">
+                <BookOpen className="size-3.5" aria-hidden="true" />
+                ข้อพระคัมภีร์ประจำวัน
+              </span>
+              <span className="font-script text-xl leading-none text-[#C94F16]/80">
+                Verse of the Day
+              </span>
+            </figcaption>
+            <blockquote className="text-lg font-semibold leading-relaxed text-[#171311] sm:text-xl">
+              “{scripture.text}”
+            </blockquote>
+            <p className="mt-2 text-sm font-bold text-[#9F3B0F]">
+              {scripture.reference}
+            </p>
+          </figure>
         </div>
 
-        {/* Right Column: Clean illustration card */}
-        <div className="min-w-0 md:col-span-5 flex items-center justify-center md:justify-end w-full">
-          <div className="relative w-full max-w-sm sm:max-w-md md:max-w-none aspect-[16/9] rounded-2xl overflow-hidden border border-[#E7DCC8] bg-[#FFF4D6]/50 shadow-xs">
+        {/* Illustration */}
+        <div className="flex w-full min-w-0 items-center justify-center md:col-span-5 md:justify-end">
+          <div className="relative aspect-[16/9] w-full max-w-sm overflow-hidden rounded-2xl border border-[#E7DCC8] bg-[#FFF4D6]/50 shadow-xs sm:max-w-md md:aspect-[4/5] md:max-w-none lg:aspect-[16/11]">
             <Illustration
               src="/illustrations/hero_jesus_shepherd.jpg"
               alt="พระเยซูคริสต์และลูกแกะ"
-              className="w-full h-full object-cover object-[center_20%]"
+              className="h-full w-full object-cover object-[center_20%]"
               priority
               width={512}
               height={384}
             />
-            <div className="absolute bottom-3 left-3 pointer-events-none">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs border border-[#E7DCC8] shadow-2xs">
+            <div className="pointer-events-none absolute bottom-3 left-3">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E7DCC8] bg-white/95 px-3 py-1 shadow-2xs backdrop-blur-xs">
                 <span className="text-xs font-bold text-[#51443A]">
                   พระเยซูผู้เลี้ยงที่ดี ♥
                 </span>

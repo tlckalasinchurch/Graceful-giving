@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { ArrowRight, Heart, Inbox, Landmark } from "lucide-react";
 import { useLocation } from "wouter";
@@ -24,18 +24,25 @@ import { formatBaht, formatThaiDateTime } from "@/lib/format";
 const fmtBaht = (n: number) => formatBaht(n);
 const fmtShortBaht = (n: number) => formatBaht(n, 0);
 
-function pctChange(current: number, prev: number) {
-  if (prev === 0) return current > 0 ? "+∞%" : "0%";
-  const pct = ((current - prev) / prev) * 100;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(0)}%`;
+/** Percent change against last month; null when last month was zero. */
+function pctChange(current: number, prev: number): number | null {
+  if (prev === 0) return current === 0 ? 0 : null;
+  return ((current - prev) / prev) * 100;
 }
 
-function trendArrow(trend: string) {
-  return trend.trim().startsWith("-") ? "↓" : "↑";
-}
-
-function trendValue(trend: string) {
-  return trend.replace(/^[+\-↑↓]\s*/, "");
+/** Wraps one dashboard block in the staggered fade-up entrance. */
+function Reveal({
+  delay,
+  children,
+}: {
+  delay: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="animate-fade-up" style={{ animationDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
 }
 
 const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
@@ -130,12 +137,12 @@ export default function Home() {
   const netMonthly = summaryData
     ? summaryData.monthlyIncome - summaryData.monthlyExpense
     : undefined;
-  const incomeTrend = summaryData
+  const incomeChange = summaryData
     ? pctChange(summaryData.monthlyIncome, summaryData.prevMonthIncome)
-    : "";
-  const expenseTrend = summaryData
+    : undefined;
+  const expenseChange = summaryData
     ? pctChange(summaryData.monthlyExpense, summaryData.prevMonthExpense)
-    : "";
+    : undefined;
   const isBalanceLoading = summaryLoading;
   const isDataUnavailable = !summaryLoading && (summaryError || !summaryData);
   const isPositiveBalance = (totalBalance ?? 0) >= 0;
@@ -188,14 +195,17 @@ export default function Home() {
     <AppLayout>
       <div className="space-y-6 sm:space-y-8">
         {/* 1. Hero Section */}
-        <HeroSection />
+        <Reveal delay={0}>
+          <HeroSection name={user?.name?.split(" ")[0]} />
+        </Reveal>
 
         {/* Action Needed Banner: High-priority inbox alerts */}
         {canAccessInbox && pendingSlipCount > 0 && (
           <div
+            style={{ animationDelay: "60ms" }}
             role="region"
             aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FFF4D6] border border-[#F9D2AE] text-[#51443A] shadow-xs"
+            className="animate-fade-up flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FFF4D6] border border-[#F9D2AE] text-[#51443A] shadow-xs"
           >
             <div className="flex items-center gap-3.5 min-w-0">
               <div className="size-11 rounded-xl bg-[#C94F16] flex items-center justify-center text-white shrink-0">
@@ -227,32 +237,34 @@ export default function Home() {
           >
             ดูภาพรวม
           </h2>
-          <BalanceCard
-            showBalance={showBalance}
-            setShowBalance={setShowBalance}
-            isPositiveBalance={isPositiveBalance}
-            isBalanceLoading={isBalanceLoading}
-            isDataUnavailable={isDataUnavailable}
-            summaryError={summaryError}
-            hasSummaryData={!!summaryData}
-            animatedBalance={animatedBalance}
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-            fmtBaht={fmtBaht}
-          />
-          <FinancialSummaryRow
-            isBalanceLoading={isBalanceLoading}
-            showBalance={showBalance}
-            monthlyIncome={monthlyIncome}
-            monthlyExpense={monthlyExpense}
-            netMonthly={netMonthly}
-            incomeTrend={incomeTrend}
-            expenseTrend={expenseTrend}
-            isPositiveNet={isPositiveNet}
-            fmtShortBaht={fmtShortBaht}
-            trendArrow={trendArrow}
-            trendValue={trendValue}
-          />
+          <Reveal delay={120}>
+            <BalanceCard
+              showBalance={showBalance}
+              setShowBalance={setShowBalance}
+              isPositiveBalance={isPositiveBalance}
+              isBalanceLoading={isBalanceLoading}
+              isDataUnavailable={isDataUnavailable}
+              summaryError={summaryError}
+              hasSummaryData={!!summaryData}
+              animatedBalance={animatedBalance}
+              canOpenReports={canOpenReports}
+              onOpenReports={() => setLocation("/reports")}
+              fmtBaht={fmtBaht}
+            />
+          </Reveal>
+          <Reveal delay={200}>
+            <FinancialSummaryRow
+              isBalanceLoading={isBalanceLoading}
+              showBalance={showBalance}
+              monthlyIncome={monthlyIncome}
+              monthlyExpense={monthlyExpense}
+              netMonthly={netMonthly}
+              incomeChange={incomeChange}
+              expenseChange={expenseChange}
+              isPositiveNet={isPositiveNet}
+              fmtShortBaht={fmtShortBaht}
+            />
+          </Reveal>
         </section>
 
         <section aria-labelledby="dashboard-actions" className="space-y-4">
@@ -262,20 +274,24 @@ export default function Home() {
           >
             ทำรายการ
           </h2>
-          <PrimaryActions
-            canRecordExpense={canRecordExpense}
-            onNewOffering={() => setLocation("/offerings/new")}
-            onNewExpense={() => setLocation("/expenses/new")}
-          />
-          <SecondaryMenu
-            canOpenReports={canOpenReports}
-            canOpenMembers={canOpenMembers}
-            secondaryTileColsClass={secondaryTileColsClass}
-            onOpenReports={() => setLocation("/reports")}
-            onOpenMembers={() => setLocation("/members")}
-            onOpenNews={() => setNewsOpen(true)}
-            onOpenWithdrawals={() => setLocation("/withdrawals/new")}
-          />
+          <Reveal delay={280}>
+            <PrimaryActions
+              canRecordExpense={canRecordExpense}
+              onNewOffering={() => setLocation("/offerings/new")}
+              onNewExpense={() => setLocation("/expenses/new")}
+            />
+          </Reveal>
+          <Reveal delay={340}>
+            <SecondaryMenu
+              canOpenReports={canOpenReports}
+              canOpenMembers={canOpenMembers}
+              secondaryTileColsClass={secondaryTileColsClass}
+              onOpenReports={() => setLocation("/reports")}
+              onOpenMembers={() => setLocation("/members")}
+              onOpenNews={() => setNewsOpen(true)}
+              onOpenWithdrawals={() => setLocation("/withdrawals/new")}
+            />
+          </Reveal>
         </section>
 
         <section aria-labelledby="dashboard-tracking" className="space-y-4">
@@ -285,18 +301,22 @@ export default function Home() {
           >
             ติดตาม
           </h2>
-          <BudgetSection
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-          />
-          <RecentTransactions
-            allTransactions={allTransactions}
-            isLoading={offeringsLoading || expensesLoading}
-            onAdd={() => setLocation("/offerings/new")}
-            onViewAll={() => setLocation("/transactions")}
-            fmtBaht={fmtBaht}
-            fmtThaiDate={fmtThaiDate}
-          />
+          <Reveal delay={420}>
+            <BudgetSection
+              canOpenReports={canOpenReports}
+              onOpenReports={() => setLocation("/reports")}
+            />
+          </Reveal>
+          <Reveal delay={500}>
+            <RecentTransactions
+              allTransactions={allTransactions}
+              isLoading={offeringsLoading || expensesLoading}
+              onAdd={() => setLocation("/offerings/new")}
+              onViewAll={() => setLocation("/transactions")}
+              fmtBaht={fmtBaht}
+              fmtThaiDate={fmtThaiDate}
+            />
+          </Reveal>
         </section>
       </div>
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { EmptyState } from "@/components/common/CommonUI";
+import { EmptyState, SegmentedControl } from "@/components/common/CommonUI";
 import {
   Banknote,
   Building,
@@ -323,63 +323,18 @@ export default function Settings() {
     >
       <div className="max-w-4xl space-y-6">
         {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[#E7DCC8] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x">
-          <button
-            onClick={() => setActiveTab("church")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "church"
-                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#6E6155] hover:text-[#171311]"
-            }`}
-          >
-            <Building className="w-4 h-4 text-[#C94F16] shrink-0" />
-            <span>ข้อมูลคริสตจักร</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("roles")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "roles"
-                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#6E6155] hover:text-[#171311]"
-            }`}
-          >
-            <Shield className="w-4 h-4 text-[#2D6A2E] shrink-0" />
-            <span>บทบาทและสิทธิ์</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("categories")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "categories"
-                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#6E6155] hover:text-[#171311]"
-            }`}
-          >
-            <Banknote className="w-4 h-4 text-[#9F3B0F] shrink-0" />
-            <span>หมวดหมู่บัญชี</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("payment")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "payment"
-                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#6E6155] hover:text-[#171311]"
-            }`}
-          >
-            <QrCode className="w-4 h-4 text-[#51443A] shrink-0" />
-            <span>บัญชีธนาคาร & พร้อมเพย์</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("audit")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
-              activeTab === "audit"
-                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#6E6155] hover:text-[#171311]"
-            }`}
-          >
-            <FileText className="w-4 h-4 text-[#51443A] shrink-0" />
-            <span>ประวัติการใช้งาน</span>
-          </button>
-        </div>
+        <SegmentedControl
+          ariaLabel="หมวดการตั้งค่า"
+          value={activeTab}
+          onChange={id => setActiveTab(id as typeof activeTab)}
+          options={[
+            { id: "church", label: "ข้อมูลคริสตจักร", icon: Building },
+            { id: "roles", label: "บทบาทและสิทธิ์", icon: Shield },
+            { id: "categories", label: "หมวดหมู่บัญชี", icon: Banknote },
+            { id: "payment", label: "บัญชีธนาคาร & พร้อมเพย์", icon: QrCode },
+            { id: "audit", label: "ประวัติการใช้งาน", icon: FileText },
+          ]}
+        />
 
         {/* Tab 1: Church Profile Form */}
         {activeTab === "church" && (
@@ -482,7 +437,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-sm transition-all duration-200 ease-in-out flex items-center gap-2 disabled:opacity-50 hover:shadow-sm active:scale-[0.98]"
+                className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-sm transition-all duration-200 ease-in-out flex items-center gap-2 disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98]"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>

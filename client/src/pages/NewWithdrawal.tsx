@@ -257,7 +257,7 @@ export default function NewWithdrawal() {
                     setDetails("");
                     setUrgency("normal");
                   }}
-                  className="w-full min-h-11 py-3 rounded-xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-all duration-200 ease-in-out shadow-sm hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
+                  className="w-full min-h-11 py-3 rounded-xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-all duration-200 ease-in-out shadow-sm enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
                 >
                   ส่งคำขออีกรายการ
                 </button>

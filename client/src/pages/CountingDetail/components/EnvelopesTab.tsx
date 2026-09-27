@@ -214,7 +214,7 @@ export function EnvelopesTab({
               <button
                 type="submit"
                 disabled={addEnvelope.isPending || !fundId}
-                className="min-h-11 w-full rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
+                className="min-h-11 w-full rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
               >
                 {addEnvelope.isPending ? "กำลังบันทึก…" : "เพิ่มซอง"}
               </button>

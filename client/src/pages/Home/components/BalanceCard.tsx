@@ -46,8 +46,7 @@ export function BalanceCard({
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      style={{ animationDelay: "90ms" }}
-      className="animate-fade-up relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#9F3B0F] via-[#C94F16] to-[#D9581B] p-6 sm:p-8 md:p-10 text-white shadow-sm"
+      className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#9F3B0F] via-[#C94F16] to-[#D9581B] p-6 sm:p-8 md:p-10 text-white shadow-sm"
     >
       {/* Soft light shapes. Decorative only. */}
       <div
