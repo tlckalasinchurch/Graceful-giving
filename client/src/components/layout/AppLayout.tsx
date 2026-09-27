@@ -71,7 +71,7 @@ function MobileTab({
       aria-label={tab.ariaLabel}
       aria-current={active ? "page" : undefined}
       className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl ${
-        active ? "text-[#F97316]" : "text-[#FFF0DD] hover:text-white"
+        active ? "text-[#F97316]" : "text-[#F1EFE9] hover:text-white"
       }`}
     >
       <Icon className="size-[22px]" />
@@ -261,7 +261,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {/* MOBILE FIXED BOTTOM NAVIGATION BAR */}
       <nav
         aria-label="เมนูนำทางหลักบนมือถือ"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#171717]/95 backdrop-blur-md border-t border-[#5F5B55] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#292929]/98 backdrop-blur-md border-t border-[#5F5B55] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
       >
         <div className="max-w-md mx-auto grid grid-cols-5 items-end">
           {MOBILE_TABS.slice(0, 2).map(tab => (
@@ -282,7 +282,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             >
               <Plus className="size-6 stroke-[2.5]" />
             </button>
-            <span className="mt-1 text-[11px] font-medium text-[#FFF0DD]">
+            <span className="mt-1 text-[11px] font-medium text-[#F1EFE9]">
               ถวาย
             </span>
           </div>
