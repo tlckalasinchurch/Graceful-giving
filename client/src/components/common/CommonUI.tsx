@@ -404,12 +404,27 @@ export const TransactionRow: React.FC<{
   onClick?: () => void;
   trailing?: React.ReactNode;
   icon?: React.ComponentType<{ className?: string }>;
-}> = ({ title, meta, amount, type, href, onClick, trailing, icon: Icon }) => {
+  /** Drop the leading icon below 640px when the row also carries an action. */
+  hideIconOnMobile?: boolean;
+  /** Accessible name when the visible text alone is ambiguous. */
+  ariaLabel?: string;
+}> = ({
+  title,
+  meta,
+  amount,
+  type,
+  href,
+  onClick,
+  trailing,
+  icon: Icon,
+  hideIconOnMobile = false,
+  ariaLabel,
+}) => {
   const isIncome = type === "income";
   const content = (
     <>
       <span
-        className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
+        className={`${hideIconOnMobile ? "hidden sm:flex" : "flex"} size-10 shrink-0 items-center justify-center rounded-full ${
           isIncome
             ? "bg-success-soft text-success-strong"
             : "bg-destructive-soft text-destructive"
@@ -446,14 +461,19 @@ export const TransactionRow: React.FC<{
     "flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted focus-visible:bg-muted";
   if (href) {
     return (
-      <Link href={href} className={rowClass}>
+      <Link href={href} className={rowClass} aria-label={ariaLabel}>
         {content}
       </Link>
     );
   }
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={rowClass}>
+      <button
+        type="button"
+        onClick={onClick}
+        className={rowClass}
+        aria-label={ariaLabel}
+      >
         {content}
       </button>
     );

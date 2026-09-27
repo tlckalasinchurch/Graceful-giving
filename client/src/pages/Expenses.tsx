@@ -4,10 +4,12 @@ import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
+  ErrorState,
   FilterBar,
   LoadingSkeleton,
   MoneyDisplay,
   StatusBadge,
+  TransactionRow,
 } from "@/components/common/CommonUI";
 import { formatThaiDate } from "@/lib/format";
 import {
@@ -201,8 +203,9 @@ export default function Expenses() {
     >
       <div className="space-y-6">
         {/* Metric Cards */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <MetricCard
+            className="col-span-2 sm:col-span-1"
             label="รวมรายจ่ายตามตัวกรอง"
             icon={TrendingDown}
             note={`${filteredExpenses.length} รายการที่แสดง`}
@@ -218,7 +221,7 @@ export default function Expenses() {
                 : "ยังไม่มีข้อมูล"
             }
           >
-            <p className="text-xl font-bold text-foreground">
+            <p className="text-base font-bold leading-snug text-foreground sm:text-xl">
               {topCategory?.label ?? "—"}
             </p>
           </MetricCard>
@@ -227,7 +230,7 @@ export default function Expenses() {
             icon={Paperclip}
             note="มีเลขที่ใบเสร็จหรือไฟล์แนบ"
           >
-            <p className="text-xl font-bold tabular-nums text-foreground">
+            <p className="text-base font-bold tabular-nums text-foreground sm:text-xl">
               {withReceipt} / {expenses.length}{" "}
               <span className="text-sm font-medium text-muted-foreground">รายการ</span>
             </p>
@@ -254,11 +257,10 @@ export default function Expenses() {
         {isLoading ? (
           <LoadingSkeleton count={5} />
         ) : isError ? (
-          <EmptyState
+          <ErrorState
             title="โหลดรายการรายจ่ายไม่สำเร็จ"
             description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
-            actionText="ลองใหม่"
-            onAction={() => refetch()}
+            onRetry={() => void refetch()}
           />
         ) : filteredExpenses.length === 0 ? (
           <EmptyState
@@ -268,7 +270,7 @@ export default function Expenses() {
             onAction={() => setLocation("/expenses/new")}
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-border bg-white">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
             {/* Desktop Table View */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-sm text-foreground">
@@ -375,83 +377,53 @@ export default function Expenses() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-border/40">
-              {filteredExpenses.map(e => {
-                const cat = getCategoryIcon(e.category);
-                const CatIcon = cat.icon;
-                return (
-                  <div
-                    key={e.id}
-                    className="p-4 space-y-2.5 active:bg-muted/40"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-1 min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium ${cat.color}`}
-                          >
-                            <CatIcon className="w-3 h-3" />
-                            {expenseCategoryLabel(e.category)}
-                          </span>
-                          <span className="text-xs text-muted-foreground font-mono">
-                            {e.receiptRef}
-                          </span>
-                        </div>
-                        <Link
-                          href={`/transactions/expense-${e.id}`}
-                          className="block rounded-md font-medium text-foreground text-sm truncate underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                        >
-                          {e.description}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          {e.payee} •{" "}
-                          {new Date(e.date).toLocaleDateString("th-TH")}
-                        </p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <MoneyDisplay
-                          amount={e.amount}
-                          type="expense"
-                          size="sm"
-                        />
-                        <div className="mt-1">
+            <ul className="md:hidden divide-y divide-divider">
+              {filteredExpenses.map(e => (
+                <li key={e.id} className="flex items-center pr-2">
+                  <div className="min-w-0 flex-1">
+                    <TransactionRow
+                      href={`/transactions/expense-${e.id}`}
+                      title={e.description}
+                      meta={`${formatThaiDate(e.date)} · ${expenseCategoryLabel(e.category)}${e.payee ? ` · ${e.payee}` : ""}`}
+                      amount={e.amount}
+                      type="expense"
+                      hideIconOnMobile
+                      trailing={
+                        e.status !== "approved" ? (
                           <StatusBadge status={e.status} />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Mobile Action Bar */}
-                    <div
-                      className="flex items-center justify-end gap-2 pt-1 border-t border-border/30"
-                      onClick={ev => ev.stopPropagation()}
-                    >
-                      {e.receiptUrl && (
-                        <button
-                          onClick={() =>
-                            setPreviewReceipt({
-                              url: e.receiptUrl!,
-                              ref: e.receiptRef || `EXP-${e.id}`,
-                              title: e.description,
-                            })
-                          }
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-success-soft text-success-strong border border-success-border text-xs font-medium"
-                        >
-                          <Paperclip className="w-3 h-3" />
-                          <span>ดูสลิป</span>
-                        </button>
-                      )}
-                      <button
-                        onClick={() => setSelectedVoucher(toVoucher(e))}
-                        className="min-h-11 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-muted text-foreground-soft border border-border text-xs font-medium"
-                      >
-                        <Printer className="w-3 h-3 text-primary" />
-                        <span>พิมพ์ใบสำคัญ</span>
-                      </button>
-                    </div>
+                        ) : (
+                          <span className="sr-only">รายจ่าย</span>
+                        )
+                      }
+                    />
                   </div>
-                );
-              })}
-            </div>
+                  {e.receiptUrl && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPreviewReceipt({
+                          url: e.receiptUrl!,
+                          ref: e.receiptRef || `EXP-${e.id}`,
+                          title: e.description,
+                        })
+                      }
+                      className="flex size-11 shrink-0 items-center justify-center rounded-xl text-success-strong hover:bg-success-soft"
+                      aria-label={`ดูหลักฐานการจ่ายของ ${e.description}`}
+                    >
+                      <Paperclip className="size-[18px]" aria-hidden="true" />
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedVoucher(toVoucher(e))}
+                    className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-primary-strong"
+                    aria-label={`พิมพ์ใบสำคัญจ่ายของ ${e.description}`}
+                  >
+                    <Printer className="size-[18px]" aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -481,17 +453,19 @@ function MetricCard({
   icon: Icon,
   note,
   children,
+  className = "",
 }: {
+  className?: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   note: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-white p-5">
-      <div className="mb-2 flex items-center justify-between text-muted-foreground">
-        <span className="text-sm font-medium">{label}</span>
-        <Icon className="size-4" />
+    <div className={`min-w-0 rounded-2xl border border-border bg-card p-4 sm:p-5 ${className}`}>
+      <div className="mb-1.5 flex items-center justify-between gap-2 text-muted-foreground">
+        <span className="text-xs font-medium sm:text-sm">{label}</span>
+        <Icon className="size-4 shrink-0" aria-hidden="true" />
       </div>
       {children}
       <p className="mt-1 text-xs text-muted-foreground">{note}</p>
