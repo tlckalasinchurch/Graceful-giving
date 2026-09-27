@@ -327,6 +327,7 @@ export const offerings = pgTable("offerings", {
   notes: text("notes"),
   status: offeringStatusEnum("status").default("active").notNull(),
   voidedAt: timestamp("voidedAt"),
+  voidedBy: integer("voidedBy"),
   recordedBy: integer("recordedBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
@@ -355,6 +356,8 @@ export const expenses = pgTable("expenses", {
   receiptUrl: text("receiptUrl"),
   status: expenseStatusEnum("status").default("approved").notNull(),
   approvedBy: integer("approvedBy"),
+  voidedAt: timestamp("voidedAt"),
+  voidedBy: integer("voidedBy"),
   recordedBy: integer("recordedBy").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
