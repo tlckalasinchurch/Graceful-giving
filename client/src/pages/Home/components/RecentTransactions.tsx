@@ -1,94 +1,86 @@
-import { ChevronRight, Heart } from "lucide-react";
+import {
+  LoadingSkeleton,
+  SectionHeader,
+  TransactionRow,
+} from "@/components/common/CommonUI";
+import { formatThaiDate } from "@/lib/format";
 
 export interface TransactionItem {
   id: string;
-  rawId: number;
+  href: string;
   title: string;
-  date: string | Date;
+  date: Date | string;
   type: "income" | "expense";
-  category: string;
-  subCategory: string;
+  /** Category or fund, shown after the date. */
+  context: string;
   amount: number;
-  tone: string;
-  icon: typeof Heart;
 }
 
 interface RecentTransactionsProps {
-  allTransactions: TransactionItem[];
+  items: TransactionItem[];
+  isLoading: boolean;
   onViewAll: () => void;
-  fmtBaht: (n: number) => string;
-  fmtThaiDate: (d: Date | string) => string;
+  onAddFirst?: () => void;
 }
 
 export function RecentTransactions({
-  allTransactions,
+  items,
+  isLoading,
   onViewAll,
-  fmtBaht,
-  fmtThaiDate,
+  onAddFirst,
 }: RecentTransactionsProps) {
   return (
-    <section
-      aria-label="รายการธุรกรรมล่าสุด"
-      className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E7DCC8] shadow-xs space-y-4 w-full"
-    >
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg sm:text-xl font-bold text-[#171311]">
-          รายการล่าสุด
-        </h2>
-        <button
-          onClick={onViewAll}
-          className="min-h-11 -mr-2 px-2 text-sm font-bold text-[#9F3B0F] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
-        >
-          <span>ดูทั้งหมด</span>
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-
-      <div className="divide-y divide-[#EDE8E3]">
-        {allTransactions.length === 0 && (
-          <p className="py-8 text-center text-sm text-[#3F3833] font-medium">
-            ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
+    <section aria-labelledby="recent-heading" className="space-y-3">
+      <SectionHeader
+        id="recent-heading"
+        title="รายการล่าสุด"
+        actionText={items.length > 0 ? "ดูทั้งหมด" : undefined}
+        onAction={onViewAll}
+      />
+      {isLoading ? (
+        <LoadingSkeleton count={4} />
+      ) : items.length === 0 ? (
+        <div className="rounded-2xl border border-border bg-card px-5 py-8 text-center">
+          <p className="text-[15px] font-semibold text-foreground">
+            ยังไม่มีรายการเงิน
           </p>
-        )}
-        {allTransactions.slice(0, 4).map(tx => {
-          const IconComponent = tx.icon || Heart;
-          const isIncome = tx.type === "income";
-          return (
-            <div
-              key={tx.id}
-              className="py-3.5 flex items-center justify-between gap-4"
+          <p className="mt-1 text-sm text-muted-foreground">
+            เริ่มบันทึกรายการแรกเพื่อดูความเคลื่อนไหวในหน้านี้
+          </p>
+          {onAddFirst && (
+            <button
+              type="button"
+              onClick={onAddFirst}
+              className="mt-4 min-h-11 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary-strong"
             >
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div
-                  className={`w-10 h-10 rounded-xl ${tx.tone} flex items-center justify-center shrink-0`}
-                >
-                  <IconComponent className="w-5 h-5 stroke-[2]" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm sm:text-base font-bold text-[#171311] leading-tight truncate">
-                    {tx.title}
-                  </p>
-                  <p className="text-xs text-stone-500 font-medium pt-0.5">
-                    {fmtThaiDate(tx.date)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-right shrink-0">
-                <p
-                  className={`text-base sm:text-lg font-bold tabular-nums tracking-tight ${isIncome ? "text-[#155724]" : "text-[#9E2D12]"}`}
-                >
-                  {isIncome ? "+" : "-"}
-                  {fmtBaht(Math.abs(tx.amount))}
-                </p>
-                <p className="text-xs text-stone-500 font-medium">
-                  {tx.subCategory}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              บันทึกรายการแรก
+            </button>
+          )}
+        </div>
+      ) : (
+        <>
+          <ul className="divide-y divide-divider overflow-hidden rounded-2xl border border-border bg-card">
+            {items.map(tx => (
+              <li key={tx.id}>
+                <TransactionRow
+                  href={tx.href}
+                  title={tx.title}
+                  meta={`${formatThaiDate(tx.date)} · ${tx.context}`}
+                  amount={tx.amount}
+                  type={tx.type}
+                />
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={onViewAll}
+            className="min-h-11 w-full rounded-xl border border-border bg-card text-sm font-semibold text-foreground hover:bg-muted"
+          >
+            ดูรายการทั้งหมด
+          </button>
+        </>
+      )}
     </section>
   );
 }

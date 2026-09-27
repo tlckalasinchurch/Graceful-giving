@@ -1,6 +1,13 @@
 import React from "react";
 import { Illustration } from "@/components/Illustration";
-import { ArrowLeft, Search } from "lucide-react";
+import { Link } from "wouter";
+import {
+  ArrowDownLeft,
+  ArrowLeft,
+  ArrowUpRight,
+  ChevronRight,
+  Search,
+} from "lucide-react";
 import { formatAmount } from "@/lib/format";
 import {
   Dialog,
@@ -17,20 +24,26 @@ export const LoadingSkeleton: React.FC<{
   count?: number;
   height?: string;
   className?: string;
-}> = ({ count = 3, height = "h-24", className = "" }) => {
+}> = ({ count = 3, height = "h-16", className = "" }) => {
+  // Shaped like a list row (icon, two text lines, amount) so the layout does
+  // not jump when the real rows arrive.
   return (
-    <div className={`space-y-3.5 w-full ${className}`}>
+    <div
+      className={`w-full divide-y divide-divider overflow-hidden rounded-2xl border border-border bg-card ${className}`}
+      role="status"
+      aria-label="กำลังโหลดข้อมูล"
+    >
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className={`w-full ${height} rounded-2xl bg-[#FFF8EA]/60 animate-pulse border border-[#E7DCC8]/50 p-4 flex items-center gap-4`}
+          className={`w-full ${height} animate-pulse px-4 flex items-center gap-3`}
         >
-          <div className="w-14 h-14 rounded-2xl bg-[#E7DCC8]/40 shrink-0" />
+          <div className="size-10 rounded-full bg-muted shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="w-1/3 h-4 rounded-md bg-[#E7DCC8]/40" />
-            <div className="w-1/2 h-3 rounded-md bg-[#E7DCC8]/30" />
+            <div className="w-2/5 h-3.5 rounded bg-muted" />
+            <div className="w-3/5 h-3 rounded bg-muted" />
           </div>
-          <div className="w-20 h-6 rounded-md bg-[#E7DCC8]/40" />
+          <div className="w-16 h-4 rounded bg-muted" />
         </div>
       ))}
     </div>
@@ -58,25 +71,28 @@ export const EmptyState: React.FC<{
 }) => {
   return (
     <div
-      className={`py-12 px-6 rounded-2xl bg-white border border-[#E7DCC8] card-elevation-sm flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+      className={`py-10 px-6 rounded-2xl bg-card border border-border flex flex-col items-center justify-center text-center gap-4 ${className}`}
     >
-      <div className="size-20 rounded-2xl overflow-hidden bg-[#FFF8EA] shrink-0">
+      <div className="size-16 rounded-2xl overflow-hidden bg-muted shrink-0">
         <Illustration
           src={illustrationSrc}
           alt={illustrationAlt}
-          className="w-full h-full object-cover rounded-xl"
-          width={80}
-          height={80}
+          className="w-full h-full object-cover"
+          width={64}
+          height={64}
         />
       </div>
       <div className="space-y-1 max-w-sm">
-        <h3 className="text-base font-semibold text-[#171311]">{title}</h3>
-        <p className="text-sm text-[#807266] leading-relaxed">{description}</p>
+        <h3 className="text-base font-semibold text-foreground">{title}</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {description}
+        </p>
       </div>
       {actionText && onAction && (
         <button
+          type="button"
           onClick={onAction}
-          className="min-h-11 mt-2 px-5 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+          className="min-h-11 px-5 rounded-xl bg-primary hover:bg-primary-strong text-primary-foreground text-sm font-semibold transition-colors"
         >
           {actionText}
         </button>
@@ -97,21 +113,21 @@ export const ErrorState: React.FC<{
   className = "",
 }) => (
   <div
-    className={`py-12 px-6 rounded-2xl bg-[#FFF8F6] border border-[#F7D5CD] flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+    className={`py-10 px-6 rounded-2xl bg-destructive-soft border border-destructive-border flex flex-col items-center justify-center text-center gap-4 ${className}`}
     role="alert"
   >
-    <div className="w-12 h-12 rounded-full bg-[#FDECEA] text-[#C8372D] flex items-center justify-center text-xl font-bold">
+    <div className="w-12 h-12 rounded-full bg-destructive-soft text-destructive flex items-center justify-center text-xl font-bold">
       !
     </div>
     <div className="space-y-1 max-w-sm">
-      <h3 className="text-base font-bold text-[#7C2A1E]">{title}</h3>
-      <p className="text-sm text-[#51443A] leading-relaxed">{description}</p>
+      <h3 className="text-base font-bold text-destructive-strong">{title}</h3>
+      <p className="text-sm text-foreground-soft leading-relaxed">{description}</p>
     </div>
     {onRetry && (
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-11 rounded-xl bg-[#C8372D] hover:bg-[#B3322A] px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+        className="min-h-11 rounded-xl bg-destructive hover:bg-destructive-strong px-5 py-2.5 text-sm font-semibold text-white transition-colors"
       >
         ลองใหม่
       </button>
@@ -150,78 +166,78 @@ export const StatusBadge: React.FC<{
       case "approved":
       case "completed":
         return {
-          bg: "bg-[#E4F3E7] text-[#2D6622] border-[#C3E4B8]",
+          bg: "bg-success-soft text-success-strong border-success-border",
           defaultLabel: "อนุมัติแล้ว",
         };
       case "active":
         return {
-          bg: "bg-[#E4F3E7] text-[#2D6622] border-[#C3E4B8]",
+          bg: "bg-success-soft text-success-strong border-success-border",
           defaultLabel: "ใช้งานอยู่",
         };
       case "rejected":
         return {
-          bg: "bg-[#FEECEB] text-[#B92A20] border-[#F8C8C5]",
+          bg: "bg-destructive-soft text-destructive-strong border-destructive-border",
           defaultLabel: "ปฏิเสธ / ยกเลิก",
         };
       case "inactive":
         return {
-          bg: "bg-stone-100 text-stone-600 border-stone-200",
+          bg: "bg-muted text-foreground-soft border-border",
           defaultLabel: "ปิดใช้งาน",
         };
       case "draft":
         return {
-          bg: "bg-stone-100 text-stone-700 border-stone-200",
+          bg: "bg-muted text-foreground-soft border-border",
           defaultLabel: "ฉบับร่าง",
         };
       case "submitted":
         return {
-          bg: "bg-[#EAF2FB] text-[#1E5282] border-[#C7DCF3]",
+          bg: "bg-info-soft text-info border-info-border",
           defaultLabel: "ส่งตรวจสอบแล้ว",
         };
       case "needs_review":
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-accent text-primary-strong border-accent-border",
           defaultLabel: "ต้องตรวจสอบ",
         };
       case "unknown":
         return {
-          bg: "bg-stone-100 text-stone-600 border-stone-200",
+          bg: "bg-muted text-foreground-soft border-border",
           defaultLabel: "ไม่ทราบสถานะ",
         };
       case "voided":
         return {
-          bg: "bg-stone-100 text-stone-600 border-stone-200",
+          bg: "bg-muted text-foreground-soft border-border",
           defaultLabel: "ยกเลิกรายการ",
         };
       case "counting":
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-accent text-primary-strong border-accent-border",
           defaultLabel: "กำลังนับ",
         };
       case "counted":
         return {
-          bg: "bg-[#EAF2FB] text-[#1E5282] border-[#C7DCF3]",
+          bg: "bg-info-soft text-info border-info-border",
           defaultLabel: "รอตรวจสอบ",
         };
       case "verified":
         return {
-          bg: "bg-[#E4F3E7] text-[#2D6622] border-[#C3E4B8]",
+          bg: "bg-success-soft text-success-strong border-success-border",
           defaultLabel: "ตรวจสอบแล้ว",
         };
       case "posted":
         return {
-          bg: "bg-[#1F5C33] text-white border-[#1F5C33]",
+          bg: "bg-success-strong text-white border-success-strong",
           defaultLabel: "ลงบัญชีแล้ว",
         };
       case "closed":
         return {
-          bg: "bg-stone-200 text-stone-700 border-stone-300",
+          bg: "bg-border text-foreground-soft border-border",
           defaultLabel: "ปิดรอบแล้ว",
         };
       case "pending":
       default:
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-accent text-primary-strong border-accent-border",
           defaultLabel: "รอดำเนินการ",
         };
     }
@@ -250,47 +266,48 @@ export const MoneyDisplay: React.FC<{
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }> = ({ amount, type = "neutral", size = "md", className = "" }) => {
-  const isPositive = type === "income" || (type === "neutral" && amount > 0);
-  const isNegative = type === "expense" || (type === "neutral" && amount < 0);
-
   const getColor = () => {
-    if (type === "income") return "text-[#1F5C33]";
-    if (type === "expense") return "text-[#c7382d]";
-    return "text-[#171311]";
+    if (type === "income") return "text-success-strong";
+    if (type === "expense") return "text-destructive";
+    return "text-foreground";
   };
 
-  // Each size carries its own weight. The base class used to set font-bold
-  // as well, so two font-weight utilities landed on the same element and the
-  // winner depended on Tailwind's output order rather than on this switch.
   const getSize = () => {
     switch (size) {
       case "sm":
-        return "text-sm font-bold";
+        return "text-sm font-semibold";
       case "lg":
         return "text-2xl md:text-3xl font-bold";
       case "xl":
-        return "text-3xl sm:text-4xl md:text-5xl font-bold";
+        return "text-[2rem] leading-tight sm:text-4xl md:text-5xl font-bold";
       case "md":
       default:
         return "text-lg md:text-xl font-bold";
     }
   };
 
-  // Neutral amounts keep their own sign: a negative balance must read as
-  // negative, not as its absolute value.
+  // The sign always shows, so income and expense differ without colour. A
+  // true minus (U+2212) is as wide as "+", which keeps a column aligned.
+  // Neutral amounts keep their own sign: a negative balance reads negative.
   const prefix =
-    type === "income" ? "+" : type === "expense" ? "-" : amount < 0 ? "-" : "";
+    type === "income"
+      ? "+"
+      : type === "expense"
+        ? "\u2212"
+        : amount < 0
+          ? "\u2212"
+          : "";
   const formatted = formatAmount(Math.abs(amount));
 
   // The "฿" is its own element with a small gap. Run together with the
-  // digits, the glyph's ink overlaps the first numeral, and separating it
-  // also keeps the digits themselves aligned down a table column.
+  // digits, the glyph's ink overlaps the first numeral.
   return (
     <span
-      className={`tracking-tight tabular-nums font-sans ${getColor()} ${getSize()} ${className}`}
+      data-amount
+      className={`whitespace-nowrap tracking-tight tabular-nums font-sans ${getColor()} ${getSize()} ${className}`}
     >
       {prefix}
-      <span className="mr-1">฿</span>
+      <span className="mx-0.5">฿</span>
       {formatted}
     </span>
   );
@@ -306,14 +323,14 @@ export const PageHeader: React.FC<{
 }> = ({ title, subtitle, action, className = "" }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl p-5 md:p-6 border border-[#E7DCC8] card-elevation-sm ${className}`}
+      className={`flex flex-col sm:flex-row sm:items-end justify-between gap-3 ${className}`}
     >
       <div className="min-w-0">
-        <h1 className="text-xl md:text-2xl font-bold text-[#51443A] tracking-tight break-words">
+        <h1 className="text-[22px] md:text-2xl font-bold text-foreground tracking-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs text-[#807266] mt-1 leading-relaxed">
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
             {subtitle}
           </p>
         )}
@@ -325,6 +342,123 @@ export const PageHeader: React.FC<{
       )}
     </div>
   );
+};
+
+// ─── 5b. Section Header ──────────────────────────────────────────────────────
+
+/** Heading for a block inside a page, with an optional "see all" link. */
+export const SectionHeader: React.FC<{
+  title: string;
+  id?: string;
+  actionText?: string;
+  onAction?: () => void;
+  className?: string;
+}> = ({ title, id, actionText, onAction, className = "" }) => (
+  <div className={`flex items-center justify-between gap-3 ${className}`}>
+    <h2 id={id} className="text-base font-semibold text-foreground">
+      {title}
+    </h2>
+    {actionText && onAction && (
+      <button
+        type="button"
+        onClick={onAction}
+        className="-mr-2 inline-flex min-h-11 items-center gap-0.5 rounded-xl px-2 text-sm font-semibold text-primary-strong hover:bg-accent"
+      >
+        {actionText}
+        <ChevronRight className="size-4" aria-hidden="true" />
+      </button>
+    )}
+  </div>
+);
+
+// ─── 5c. Summary Metric ──────────────────────────────────────────────────────
+
+/** One labelled figure in a summary grid (income, expense, net, count). */
+export const SummaryMetric: React.FC<{
+  label: string;
+  children: React.ReactNode;
+  hint?: React.ReactNode;
+  className?: string;
+}> = ({ label, children, hint, className = "" }) => (
+  <div className={`min-w-0 rounded-2xl border border-border bg-card p-4 ${className}`}>
+    <p className="text-xs font-medium text-muted-foreground">{label}</p>
+    <div className="mt-1 min-w-0 truncate">{children}</div>
+    {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
+  </div>
+);
+
+// ─── 5d. Transaction Row ─────────────────────────────────────────────────────
+
+/**
+ * One money movement in a list: what, when and where on the left, the signed
+ * amount on the right. Used by the dashboard and the transaction list so a
+ * row reads the same on every screen. Direction is carried by the sign and
+ * the "รับ"/"จ่าย" label as well as by colour.
+ */
+export const TransactionRow: React.FC<{
+  title: string;
+  meta: React.ReactNode;
+  amount: number;
+  type: "income" | "expense";
+  href?: string;
+  onClick?: () => void;
+  trailing?: React.ReactNode;
+  icon?: React.ComponentType<{ className?: string }>;
+}> = ({ title, meta, amount, type, href, onClick, trailing, icon: Icon }) => {
+  const isIncome = type === "income";
+  const content = (
+    <>
+      <span
+        className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
+          isIncome
+            ? "bg-success-soft text-success-strong"
+            : "bg-destructive-soft text-destructive"
+        }`}
+        aria-hidden="true"
+      >
+        {Icon ? (
+          <Icon className="size-[18px]" />
+        ) : isIncome ? (
+          <ArrowDownLeft className="size-[18px]" />
+        ) : (
+          <ArrowUpRight className="size-[18px]" />
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[15px] font-semibold text-foreground">
+          {title}
+        </span>
+        <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+          {meta}
+        </span>
+      </span>
+      <span className="flex shrink-0 flex-col items-end gap-1">
+        <MoneyDisplay amount={amount} type={type} size="sm" className="text-[15px]" />
+        {trailing ?? (
+          <span className="text-[11px] font-medium text-muted-foreground">
+            {isIncome ? "รายรับ" : "รายจ่าย"}
+          </span>
+        )}
+      </span>
+    </>
+  );
+  const rowClass =
+    "flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted focus-visible:bg-muted";
+  if (href) {
+    return (
+      <Link href={href} className={rowClass}>
+        {content}
+      </Link>
+    );
+  }
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={rowClass}>
+        {content}
+      </button>
+    );
+  }
+  return <div className={rowClass}>{content}</div>;
 };
 
 // ─── 6. Chip ─────────────────────────────────────────────────────────────────
@@ -349,8 +483,8 @@ export const Chip: React.FC<
     aria-pressed={active}
     className={`min-h-11 shrink-0 whitespace-nowrap rounded-xl border px-3.5 py-2 text-[13px] transition-colors ${
       active
-        ? "border-[#F9D2AE] bg-[#FFF4D6] font-semibold text-[#9F3B0F]"
-        : "border-[#E7DCC8] bg-white font-medium text-[#51443A] hover:bg-[#FFF8EA]"
+        ? "border-accent-border bg-accent font-semibold text-primary-strong"
+        : "border-border bg-white font-medium text-foreground-soft hover:bg-muted"
     } ${className}`}
     {...props}
   >
@@ -385,7 +519,7 @@ export const FilterBar: React.FC<{
       {/* Search Input */}
       <div className="relative w-full">
         <Search
-          className="pointer-events-none w-4 h-4 text-[#807266] absolute left-3.5 top-1/2 -translate-y-1/2"
+          className="pointer-events-none w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2"
           aria-hidden="true"
         />
         <input
@@ -394,7 +528,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
+          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-border text-base md:text-sm text-foreground placeholder-muted-foreground focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
         />
       </div>
 
@@ -452,8 +586,8 @@ export const BackLink: React.FC<{
     onClick={onClick}
     className={`min-h-11 inline-flex items-center gap-1.5 text-sm font-medium transition-colors ${
       variant === "pill"
-        ? "rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2 text-[#3F3833] hover:bg-[#FFF8EA]"
-        : "text-[#51443A] hover:text-[#171311]"
+        ? "rounded-xl border border-border bg-white px-3.5 py-2 text-foreground-soft hover:bg-muted"
+        : "text-foreground-soft hover:text-foreground"
     } ${className}`}
   >
     <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -486,12 +620,12 @@ export const ConfirmDialog: React.FC<{
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm bg-[#FFFFFF] border-[#E7DCC8] rounded-2xl p-6 text-[#171311]">
+      <DialogContent className="max-w-sm bg-card border-border rounded-2xl p-6 text-foreground">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-[#51443A]">
+          <DialogTitle className="text-lg font-bold text-foreground-soft">
             {title}
           </DialogTitle>
-          <DialogDescription className="text-sm text-[#51443A] leading-relaxed">
+          <DialogDescription className="text-sm text-foreground-soft leading-relaxed">
             {description}
           </DialogDescription>
         </DialogHeader>
@@ -500,7 +634,7 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="flex-1 py-2.5 rounded-xl bg-[#FFF8EA] text-[#51443A] font-bold text-xs border border-[#E7DCC8]"
+            className="min-h-11 flex-1 rounded-xl bg-card text-foreground font-semibold text-sm border border-border hover:bg-muted"
           >
             {cancelText}
           </button>
@@ -508,10 +642,10 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`flex-1 py-2.5 rounded-xl text-white font-bold text-xs button-elevation transition-all ${
+            className={`min-h-11 flex-1 rounded-xl text-white font-semibold text-sm transition-colors ${
               variant === "danger"
-                ? "bg-[#C8372D] hover:bg-[#B3322A]"
-                : "bg-[#C94F16] hover:bg-[#9F3B0F]"
+                ? "bg-destructive hover:bg-destructive-strong"
+                : "bg-primary hover:bg-primary-strong"
             }`}
           >
             {isLoading ? "กำลังดำเนินการ..." : confirmText}

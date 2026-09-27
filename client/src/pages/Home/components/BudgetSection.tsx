@@ -1,36 +1,86 @@
-import { ChevronRight } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { MoneyDisplay, SectionHeader } from "@/components/common/CommonUI";
+import {
+  BudgetProgress,
+  budgetCategoryLabel,
+  budgetPeriodLabel,
+} from "@/components/finance/budget";
 
 interface BudgetSectionProps {
-  canOpenReports: boolean;
-  onOpenReports: () => void;
+  onOpenBudgets: () => void;
 }
 
-export function BudgetSection({
-  canOpenReports,
-  onOpenReports,
-}: BudgetSectionProps) {
+/**
+ * This year's budget plans with how much of each is used. Only rendered for
+ * roles that can open budgets (budgets.list is budgetProcedure).
+ */
+export function BudgetSection({ onOpenBudgets }: BudgetSectionProps) {
+  const year = new Date().getFullYear();
+  const { data, isLoading, isError } = trpc.budgets.list.useQuery(
+    { year },
+    { retry: false, staleTime: 60_000 }
+  );
+  const plans = (data ?? [])
+    .slice()
+    .sort((a, b) => b.plannedAmount - a.plannedAmount)
+    .slice(0, 3);
+
   return (
-    <section
-      aria-label="แผนการใช้จ่ายงบประมาณ"
-      className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E7DCC8] shadow-xs space-y-4 w-full"
-    >
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg sm:text-xl font-bold text-[#171311]">
-          แผนการใช้จ่าย
-        </h2>
-        {canOpenReports && (
-          <button
-            onClick={onOpenReports}
-            className="min-h-11 -mr-2 px-2 text-sm sm:text-base font-bold text-[#9F3B0F] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
-          >
-            <span>ดูรายงาน</span>
-            <ChevronRight className="w-5 h-5" />
-          </button>
+    <section aria-labelledby="budget-heading" className="space-y-3">
+      <SectionHeader
+        id="budget-heading"
+        title="งบประมาณปีนี้"
+        actionText="ดูทั้งหมด"
+        onAction={onOpenBudgets}
+      />
+      <div className="rounded-2xl border border-border bg-card">
+        {isLoading ? (
+          <div className="space-y-3 p-4" role="status" aria-label="กำลังโหลดงบประมาณ">
+            <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+            <div className="h-2.5 w-full animate-pulse rounded-full bg-muted" />
+          </div>
+        ) : isError ? (
+          <p className="p-4 text-sm text-foreground-soft">
+            โหลดข้อมูลงบประมาณไม่สำเร็จ ลองเปิดหน้างบประมาณอีกครั้ง
+          </p>
+        ) : plans.length === 0 ? (
+          <div className="p-4">
+            <p className="text-sm font-semibold text-foreground">
+              ยังไม่มีแผนงบประมาณของปีนี้
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              ตั้งงบประมาณเพื่อติดตามการใช้จ่ายเทียบกับแผน
+            </p>
+          </div>
+        ) : (
+          <ul className="divide-y divide-divider">
+            {plans.map(plan => (
+              <li key={plan.id} className="space-y-2 p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {budgetCategoryLabel(plan.category)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {budgetPeriodLabel(plan.year, plan.month)}
+                    </p>
+                  </div>
+                  <p className="shrink-0 text-right text-xs text-muted-foreground">
+                    <MoneyDisplay amount={plan.actualAmount} size="sm" />
+                    <span className="block">
+                      จาก {plan.plannedAmount.toLocaleString("th-TH")} บาท
+                    </span>
+                  </p>
+                </div>
+                <BudgetProgress
+                  planned={plan.plannedAmount}
+                  actual={plan.actualAmount}
+                />
+              </li>
+            ))}
+          </ul>
         )}
       </div>
-      <p className="py-6 text-sm sm:text-base text-[#3F3833] font-bold">
-        ยังไม่มีข้อมูลแผนการใช้จ่ายจากระบบ จึงยังไม่แสดงตัวเลขประมาณการ
-      </p>
     </section>
   );
 }

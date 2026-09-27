@@ -51,18 +51,18 @@ export function AdminEventDialog({
 }: AdminEventDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border-[#EDE8E3] bg-[#FFFFFF] p-6 shadow-2xl">
+      <DialogContent className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border-divider bg-card p-6 shadow-2xl">
         <form onSubmit={onSubmit}>
           <DialogHeader className="text-left">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-2xl bg-[#e7f1fb] text-[#3c6f9e]">
+              <span className="grid size-11 place-items-center rounded-2xl bg-info-soft text-info">
                 <CalendarDays className="size-5" />
               </span>
               <div>
-                <DialogTitle className="font-display text-xl font-bold text-[#3F3833]">
+                <DialogTitle className="font-display text-xl font-bold text-foreground-soft">
                   {editingEventId ? "แก้ไขกิจกรรม" : "สร้างกิจกรรมใหม่"}
                 </DialogTitle>
-                <DialogDescription className="text-xs text-[#51443A]">
+                <DialogDescription className="text-xs text-foreground-soft">
                   กิจกรรมจะปรากฏในปฏิทินของสมาชิก
                 </DialogDescription>
               </div>
@@ -78,7 +78,7 @@ export function AdminEventDialog({
                   setEventForm({ ...eventForm, title: event.target.value })
                 }
                 placeholder="เช่น ค่ายครอบครัวบ้านแห่งพระคุณ"
-                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
               />
             </Field>
             <Field label="สรุปสั้น ๆ">
@@ -90,7 +90,7 @@ export function AdminEventDialog({
                   setEventForm({ ...eventForm, summary: event.target.value })
                 }
                 placeholder="ข้อความสั้นสำหรับการ์ดกิจกรรม"
-                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
               />
             </Field>
             <Field label="รายละเอียด">
@@ -105,7 +105,7 @@ export function AdminEventDialog({
                   })
                 }
                 placeholder="รายละเอียดกิจกรรม..."
-                className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
               />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -117,7 +117,7 @@ export function AdminEventDialog({
                   onChange={event =>
                     setEventForm({ ...eventForm, startsAt: event.target.value })
                   }
-                  className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                  className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
                 />
               </Field>
               <Field label="สิ้นสุด (ถ้ามี)">
@@ -127,7 +127,7 @@ export function AdminEventDialog({
                   onChange={event =>
                     setEventForm({ ...eventForm, endsAt: event.target.value })
                   }
-                  className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                  className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
                 />
               </Field>
             </div>
@@ -139,7 +139,7 @@ export function AdminEventDialog({
                     setEventForm({ ...eventForm, location: event.target.value })
                   }
                   placeholder="เช่น อาคารคริสตจักร"
-                  className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                  className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
                 />
               </Field>
               <Field label="ลิงก์ลงทะเบียน">
@@ -153,7 +153,7 @@ export function AdminEventDialog({
                     })
                   }
                   placeholder="https://..."
-                  className="w-full rounded-xl border border-[#E7DCC8] px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+                  className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm text-foreground-soft focus:border-primary-strong focus:outline-none"
                 />
               </Field>
             </div>
@@ -166,7 +166,7 @@ export function AdminEventDialog({
                     status: event.target.value as typeof eventForm.status,
                   })
                 }
-                className="border-[#E7DCC8] text-[#3F3833]"
+                className="border-border text-foreground-soft"
               >
                 <option value="draft">ฉบับร่าง</option>
                 <option value="published">เผยแพร่ทันที</option>

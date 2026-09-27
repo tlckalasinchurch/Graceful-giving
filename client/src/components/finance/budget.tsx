@@ -43,9 +43,9 @@ export function budgetUsage(planned: number, actual: number) {
 }
 
 const TONE_STYLES = {
-  ok: { bar: "bg-[#2F7A45]", text: "text-[#1F5C33]", label: "อยู่ในงบ" },
-  warn: { bar: "bg-[#C94F16]", text: "text-[#9F3B0F]", label: "ใกล้เต็มงบ" },
-  over: { bar: "bg-[#C7382D]", text: "text-[#C7382D]", label: "เกินงบ" },
+  ok: { bar: "bg-success", text: "text-success-strong", label: "อยู่ในงบ" },
+  warn: { bar: "bg-primary", text: "text-primary-strong", label: "ใกล้เต็มงบ" },
+  over: { bar: "bg-destructive", text: "text-destructive", label: "เกินงบ" },
 } as const;
 
 export const BudgetProgress: React.FC<{
@@ -58,7 +58,7 @@ export const BudgetProgress: React.FC<{
   return (
     <div className={className}>
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-[#EDE8E3]"
+        className="h-2.5 w-full overflow-hidden rounded-full bg-divider"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -72,7 +72,7 @@ export const BudgetProgress: React.FC<{
       </div>
       <div className="mt-1.5 flex items-center justify-between text-xs tabular-nums">
         <span className={`font-semibold ${style.text}`}>{style.label}</span>
-        <span className="text-[#807266]">ใช้ไป {percent.toFixed(0)}%</span>
+        <span className="text-muted-foreground">ใช้ไป {percent.toFixed(0)}%</span>
       </div>
     </div>
   );
@@ -124,7 +124,7 @@ export function parseBudgetForm(values: BudgetFormValues):
 }
 
 const inputClass =
-  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base font-normal text-[#171311] md:text-sm";
+  "mt-1 min-h-11 w-full rounded-xl border border-border bg-white p-3 text-base font-normal text-foreground md:text-sm";
 
 export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;
@@ -142,7 +142,7 @@ export const BudgetFormFields: React.FC<{
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <label className="text-sm font-semibold text-[#51443A]">
+      <label className="text-sm font-semibold text-foreground-soft">
         ช่วงเวลา
         <select
           value={values.month}
@@ -157,7 +157,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-[#51443A]">
+      <label className="text-sm font-semibold text-foreground-soft">
         หมวดรายจ่าย
         <select
           value={values.category}
@@ -172,7 +172,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-[#51443A]">
+      <label className="text-sm font-semibold text-foreground-soft">
         กองทุน
         <select
           value={values.fundId}
@@ -187,7 +187,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-[#51443A]">
+      <label className="text-sm font-semibold text-foreground-soft">
         วงเงินงบประมาณ (บาท) *
         <input
           required
@@ -198,7 +198,7 @@ export const BudgetFormFields: React.FC<{
           className={`${inputClass} tabular-nums`}
         />
       </label>
-      <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
+      <label className="text-sm font-semibold text-foreground-soft md:col-span-2">
         หมายเหตุ
         <textarea
           value={values.notes}

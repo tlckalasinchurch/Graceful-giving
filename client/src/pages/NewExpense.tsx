@@ -231,19 +231,19 @@ export default function NewExpense() {
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Amount & Presets */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-[#C94F16]" />
+          <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-primary" />
               1. จำนวนเงินและหมวดหมู่
             </h2>
 
             {/* Amount Input */}
             <div className="space-y-2">
-              <label htmlFor="expense-amount" className="text-sm font-semibold text-[#171311]">
-                จำนวนเงิน (บาท) <span className="text-red-500">*</span>
+              <label htmlFor="expense-amount" className="text-sm font-semibold text-foreground">
+                จำนวนเงิน (บาท) <span className="text-destructive">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#807266]">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-muted-foreground">
                   ฿
                 </span>
                 <input
@@ -260,21 +260,21 @@ export default function NewExpense() {
                     setAmount(e.target.value);
                     if (errors.amount) setErrors(current => ({ ...current, amount: undefined }));
                   }}
-                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/30 text-3xl font-bold text-[#171311] placeholder:text-[#807266] ${errors.amount ? "border-[#C8372D]" : "border-[#E7DCC8]"}`}
+                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:border-primary focus:outline-none bg-background/30 text-3xl font-bold text-foreground placeholder:text-muted-foreground ${errors.amount ? "border-destructive" : "border-border"}`}
                 />
               </div>
-              <p id="expense-amount-hint" className="text-xs text-[#807266]">
+              <p id="expense-amount-hint" className="text-xs text-muted-foreground">
                 ระบุจำนวนเงินบาทได้ไม่เกิน 2 ตำแหน่งทศนิยม
               </p>
               {errors.amount && (
-                <p id="expense-amount-error" className="text-sm text-[#C8372D]" role="alert">
+                <p id="expense-amount-error" className="text-sm text-destructive" role="alert">
                   {errors.amount}
                 </p>
               )}
 
               {/* Amount Quick Presets */}
               <div className="flex flex-wrap gap-2 pt-1">
-                <span className="text-xs text-[#807266] py-1">
+                <span className="text-xs text-muted-foreground py-1">
                   จำนวนเงินแนะนำ:
                 </span>
                 {amountPresets.map(val => (
@@ -287,8 +287,8 @@ export default function NewExpense() {
 
             {/* Category Grid */}
             <div className="space-y-2 pt-2">
-              <label className="text-sm font-semibold text-[#171311]">
-                หมวดหมู่รายจ่าย <span className="text-red-500">*</span>
+              <label className="text-sm font-semibold text-foreground">
+                หมวดหมู่รายจ่าย <span className="text-destructive">*</span>
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {categories.map(cat => {
@@ -301,29 +301,29 @@ export default function NewExpense() {
                       onClick={() => setCategory(cat.id as any)}
                       className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
                         isSelected
-                          ? "border-[#C94F16] bg-[#FFF8EA] shadow-sm ring-2 ring-[#C94F16]/20"
-                          : "border-[#E7DCC8] hover:bg-[#FAF8F5]/50 bg-white"
+                          ? "border-primary bg-muted shadow-sm ring-2 ring-primary/20"
+                          : "border-border hover:bg-background/50 bg-white"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div
                           className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                             isSelected
-                              ? "bg-[#C94F16] text-white"
-                              : "bg-[#FFF8EA] text-[#51443A]"
+                              ? "bg-primary text-white"
+                              : "bg-muted text-foreground-soft"
                           }`}
                         >
                           <Icon className="w-4 h-4" />
                         </div>
                         {isSelected && (
-                          <CheckCircle2 className="w-4 h-4 text-[#C94F16]" />
+                          <CheckCircle2 className="w-4 h-4 text-primary" />
                         )}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[#171311]">
+                        <p className="text-xs font-bold text-foreground">
                           {cat.label}
                         </p>
-                        <p className="text-[10px] text-[#807266] line-clamp-1">
+                        <p className="text-[10px] text-muted-foreground line-clamp-1">
                           {cat.desc}
                         </p>
                       </div>
@@ -335,17 +335,17 @@ export default function NewExpense() {
           </div>
 
           {/* Section 2: Expense Details & Fund Allocation */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <Building className="w-5 h-5 text-[#9BCBA5]" />
+          <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Building className="w-5 h-5 text-success-border" />
               2. ข้อมูลรายการและกองทุนที่จัดสรร
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2 sm:col-span-2">
-                <label htmlFor="expense-description" className="text-sm font-semibold text-[#171311]">
+                <label htmlFor="expense-description" className="text-sm font-semibold text-foreground">
                   ชื่อรายการ / คำอธิบายรายจ่าย{" "}
-                  <span className="text-red-500">*</span>
+                  <span className="text-destructive">*</span>
                 </label>
                 <input
                   id="expense-description"
@@ -360,17 +360,17 @@ export default function NewExpense() {
                     setDescription(e.target.value);
                     if (errors.description) setErrors(current => ({ ...current, description: undefined }));
                   }}
-                  className={`w-full px-4 py-3 rounded-2xl border focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm font-medium text-[#171311] ${errors.description ? "border-[#C8372D]" : "border-[#E7DCC8]"}`}
+                  className={`w-full px-4 py-3 rounded-2xl border focus:border-primary focus:outline-none bg-background/20 text-sm font-medium text-foreground ${errors.description ? "border-destructive" : "border-border"}`}
                 />
                 {errors.description && (
-                  <p id="expense-description-error" className="text-sm text-[#C8372D]" role="alert">
+                  <p id="expense-description-error" className="text-sm text-destructive" role="alert">
                     {errors.description}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label className="text-sm font-semibold text-foreground">
                   ผู้รับเงิน / ร้านค้า / องค์กร
                 </label>
                 <input
@@ -378,13 +378,13 @@ export default function NewExpense() {
                   placeholder="เช่น การไฟฟ้านครหลวง, บจก. ซาวด์..."
                   value={payee}
                   onChange={e => setPayee(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                  className="w-full px-4 py-3 rounded-2xl border border-border focus:border-primary focus:outline-none bg-background/20 text-sm text-foreground"
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="expense-fund" className="text-sm font-semibold text-[#171311]">
-                  ตัดจ่ายจากกองทุน <span className="text-red-500">*</span>
+                <label htmlFor="expense-fund" className="text-sm font-semibold text-foreground">
+                  ตัดจ่ายจากกองทุน <span className="text-destructive">*</span>
                 </label>
                 <NativeSelect
                   id="expense-fund"
@@ -397,7 +397,7 @@ export default function NewExpense() {
                     setFundId(Number(e.target.value));
                     if (errors.fundId) setErrors(current => ({ ...current, fundId: undefined }));
                   }}
-                  className="bg-[#FAF8F5]/20 font-medium"
+                  className="bg-background/20 font-medium"
                 >
                   <option value="" disabled>
                     — เลือกกองทุน —
@@ -409,26 +409,26 @@ export default function NewExpense() {
                   ))}
                 </NativeSelect>
                 {errors.fundId && (
-                  <p id="expense-fund-error" className="text-sm text-[#C8372D]" role="alert">
+                  <p id="expense-fund-error" className="text-sm text-destructive" role="alert">
                     {errors.fundId}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label className="text-sm font-semibold text-foreground">
                   วันที่ทำรายการ
                 </label>
                 <input
                   type="date"
                   value={expenseDate}
                   onChange={e => setExpenseDate(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                  className="w-full px-4 py-3 rounded-2xl border border-border focus:border-primary focus:outline-none bg-background/20 text-sm text-foreground"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label className="text-sm font-semibold text-foreground">
                   เลขที่ใบเสร็จ / ใบแจ้งหนี้ (ถ้ามี)
                 </label>
                 <input
@@ -436,12 +436,12 @@ export default function NewExpense() {
                   placeholder="เช่น INV-2026-0911, RCP-4412"
                   value={receiptRef}
                   onChange={e => setReceiptRef(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm font-mono text-[#171311]"
+                  className="w-full px-4 py-3 rounded-2xl border border-border focus:border-primary focus:outline-none bg-background/20 text-sm font-mono text-foreground"
                 />
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <label className="text-sm font-semibold text-[#171311]">
+                <label className="text-sm font-semibold text-foreground">
                   หมายเหตุเพิ่มเติม / วัตถุประสงค์
                 </label>
                 <textarea
@@ -449,34 +449,34 @@ export default function NewExpense() {
                   placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับการตรวจสอบบัญชี..."
                   value={details}
                   onChange={e => setDetails(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-[#E7DCC8] focus:border-[#C94F16] focus:outline-none bg-[#FAF8F5]/20 text-sm text-[#171311]"
+                  className="w-full px-4 py-3 rounded-2xl border border-border focus:border-primary focus:outline-none bg-background/20 text-sm text-foreground"
                 />
               </div>
             </div>
           </div>
 
           {/* Section 3: Receipt Attachment */}
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-4">
-            <h2 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-[#A9D4ED]" />
+          <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-4">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <UploadCloud className="w-5 h-5 text-info-border" />
               3. แนบหลักฐานใบเสร็จ / สลิปโอนเงิน
             </h2>
 
             {isUploading ? (
-              <div className="p-6 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] flex items-center gap-4">
-                <div className="w-8 h-8 border-4 border-[#C94F16] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+              <div className="p-6 rounded-2xl bg-muted/50 border border-border flex items-center gap-4">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-semibold text-[#171311]">
+                  <p className="text-sm font-semibold text-foreground">
                     กำลังอัปโหลดไฟล์...
                   </p>
-                  <p className="text-xs text-[#807266]">{receiptFileName}</p>
+                  <p className="text-xs text-muted-foreground">{receiptFileName}</p>
                 </div>
               </div>
             ) : receiptFile ? (
-              <div className="p-4 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] space-y-3">
+              <div className="p-4 rounded-2xl bg-muted/50 border border-border space-y-3">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-[#E7DCC8] overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-white border border-border overflow-hidden flex-shrink-0">
                       {receiptContentType.startsWith("image/") ? (
                         <img
                           src={receiptFile}
@@ -485,17 +485,17 @@ export default function NewExpense() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-[#C94F16]" />
+                          <FileText className="w-6 h-6 text-primary" />
                         </div>
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#171311]">
+                      <p className="text-sm font-semibold text-foreground">
                         {receiptUrl
                           ? "✅ อัปโหลดสำเร็จแล้ว"
                           : "แนบไฟล์เรียบร้อย"}
                       </p>
-                      <p className="text-xs text-[#807266] truncate max-w-[160px]">
+                      <p className="text-xs text-muted-foreground truncate max-w-[160px]">
                         {receiptFileName}
                       </p>
                     </div>
@@ -507,7 +507,7 @@ export default function NewExpense() {
                       setReceiptUrl(null);
                       setReceiptFileName("");
                     }}
-                    className="text-xs text-red-600 hover:underline font-medium px-3 py-1.5"
+                    className="text-xs text-destructive hover:underline font-medium px-3 py-1.5"
                   >
                     ลบไฟล์
                   </button>
@@ -525,14 +525,14 @@ export default function NewExpense() {
                 )}
               </div>
             ) : (
-              <label className="border-2 border-dashed border-[#E7DCC8] hover:border-[#C94F16] rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-[#FAF8F5]/30 hover:bg-[#FFF8EA]/30 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-[#FFF8EA] flex items-center justify-center text-[#C94F16] mb-3">
+              <label className="border-2 border-dashed border-border hover:border-primary rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-background/30 hover:bg-muted/30 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-primary mb-3">
                   <ImageIcon className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-semibold text-[#171311]">
+                <p className="text-sm font-semibold text-foreground">
                   คลิกเพื่ออัปโหลด หรือลากไฟล์มาวางที่นี่
                 </p>
-                <p className="text-xs text-[#807266] mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   รองรับไฟล์ภาพ JPG, PNG, WEBP หรือเอกสาร PDF (ขนาดไม่เกิน 10
                   MB)
                 </p>
@@ -551,14 +551,14 @@ export default function NewExpense() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FFF8EA]/50 font-medium text-sm transition-colors"
+              className="px-6 py-3 rounded-2xl border border-border bg-white text-foreground-soft hover:bg-muted/50 font-medium text-sm transition-colors"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={isSubmitting || isUploading}
-              className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3 rounded-xl bg-primary hover:bg-primary-strong text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
               <span>
@@ -575,42 +575,42 @@ export default function NewExpense() {
         {/* Success Modal */}
         {showSuccessModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 rounded-full bg-[#E4F3E7] flex items-center justify-center text-[#51443A] mx-auto">
-                <CheckCircle2 className="w-8 h-8 text-[#51443A]" />
+            <div className="bg-white rounded-2xl border border-border max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-16 h-16 rounded-full bg-success-soft flex items-center justify-center text-foreground-soft mx-auto">
+                <CheckCircle2 className="w-8 h-8 text-foreground-soft" />
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-[#171311]">
+                <h3 className="text-2xl font-bold text-foreground">
                   บันทึกรายจ่ายสำเร็จ!
                 </h3>
-                <p className="text-sm text-[#807266]">
+                <p className="text-sm text-muted-foreground">
                   รายการรายจ่ายถูกบันทึกลงสมุดบัญชีคริสตจักรเรียบร้อยแล้ว
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#FFF8EA]/60 border border-[#E7DCC8] text-left space-y-2 text-xs text-[#51443A]">
+              <div className="p-4 rounded-2xl bg-muted/60 border border-border text-left space-y-2 text-xs text-foreground-soft">
                 <div className="flex justify-between">
-                  <span className="text-[#807266]">รายการ:</span>
-                  <span className="font-semibold text-[#171311]">
+                  <span className="text-muted-foreground">รายการ:</span>
+                  <span className="font-semibold text-foreground">
                     {description}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#807266]">จำนวนเงิน:</span>
-                  <span className="font-bold text-red-600 text-sm">
+                  <span className="text-muted-foreground">จำนวนเงิน:</span>
+                  <span className="font-bold text-destructive text-sm">
                     {formatBaht(-parseFloat(amount.replace(/,/g, "") || "0"))}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#807266]">ผู้รับเงิน:</span>
-                  <span className="font-medium text-[#171311]">
+                  <span className="text-muted-foreground">ผู้รับเงิน:</span>
+                  <span className="font-medium text-foreground">
                     {payee || "ทั่วไป"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#807266]">วันที่:</span>
-                  <span className="text-[#171311]">
+                  <span className="text-muted-foreground">วันที่:</span>
+                  <span className="text-foreground">
                     {new Date(expenseDate).toLocaleDateString("th-TH")}
                   </span>
                 </div>
@@ -626,7 +626,7 @@ export default function NewExpense() {
                     setReceiptRef("");
                     setReceiptFile(null);
                   }}
-                  className="w-full py-3 rounded-2xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-colors shadow-sm"
+                  className="w-full py-3 rounded-2xl bg-primary text-white font-medium text-sm hover:bg-primary-strong transition-colors shadow-sm"
                 >
                   บันทึกรายจ่ายรายการถัดไป
                 </button>
@@ -635,7 +635,7 @@ export default function NewExpense() {
                     setShowSuccessModal(false);
                     setLocation("/expenses");
                   }}
-                  className="w-full py-2.5 rounded-2xl border border-[#E7DCC8] text-[#51443A] font-medium text-sm hover:bg-[#FFF8EA]/50 transition-colors"
+                  className="w-full py-2.5 rounded-2xl border border-border text-foreground-soft font-medium text-sm hover:bg-muted/50 transition-colors"
                 >
                   กลับสู่หน้ารายการรายจ่าย
                 </button>
