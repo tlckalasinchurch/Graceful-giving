@@ -87,7 +87,7 @@ export default function Ministries() {
                 setShowCreate(true);
               }
             }}
-            className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-4 py-2 text-xs font-bold text-white"
+            className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-4 py-2 text-sm font-semibold text-white enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
           >
             <Plus className="h-4 w-4" />
             เพิ่มฝ่ายงาน
@@ -99,14 +99,14 @@ export default function Ministries() {
         {canManage && showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-[#E7DCC8] bg-card p-6 shadow-sm"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-[#171311]">เพิ่มฝ่ายงานใหม่</h2>
               <button
                 type="button"
                 onClick={closeCreateForm}
-                className="text-[#807266]"
+                className="text-[#6E6155] transition-all duration-200 ease-in-out"
                 aria-label="ปิดแบบฟอร์ม"
               >
                 <X className="h-5 w-5" />
@@ -152,7 +152,7 @@ export default function Ministries() {
             </div>
             <button
               disabled={createMinistry.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-[#2F7A45] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               {createMinistry.isPending ? "กำลังบันทึก…" : "บันทึกฝ่ายงาน"}
             </button>
@@ -185,7 +185,7 @@ export default function Ministries() {
                 key={ministry.id}
                 type="button"
                 onClick={() => setLocation(`/ministries/${ministry.id}`)}
-                className="rounded-2xl border border-[#E7DCC8] bg-white p-5 text-left shadow-sm hover:bg-[#FAF8F5]"
+                className="rounded-2xl border border-[#E7DCC8] bg-card p-5 text-left shadow-sm hover:bg-[#FAF8F5] transition-all duration-200 ease-in-out"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-[#171311]">{ministry.name}</h2>
@@ -193,17 +193,17 @@ export default function Ministries() {
                     className={`rounded-full px-2 py-1 text-[11px] ${
                       ministry.status === "active"
                         ? "bg-[#E4F3E7] text-[#171311]"
-                        : "bg-stone-100 text-stone-600"
+                        : "bg-[#F5EDE0] text-[#51443A]"
                     }`}
                   >
                     {ministry.status === "active" ? "ดำเนินการ" : "พักงาน"}
                   </span>
                 </div>
-                <p className="mt-2 flex items-center gap-1.5 text-sm text-[#807266]">
+                <p className="mt-2 flex items-center gap-1.5 text-sm text-[#6E6155]">
                   <UserRound className="h-4 w-4 shrink-0" />
                   {ministry.leaderName || "ยังไม่ระบุหัวหน้าฝ่าย"}
                 </p>
-                <p className="mt-1 flex items-center gap-1.5 text-sm text-[#807266]">
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-[#6E6155]">
                   <CalendarClock className="h-4 w-4 shrink-0" />
                   {ministry.meetingSchedule || "ยังไม่ระบุเวลานัดประชุม"}
                 </p>

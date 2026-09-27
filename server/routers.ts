@@ -23,8 +23,6 @@ import {
   DEFAULT_CHURCH_ID,
   deleteChurchEvent,
   deleteChurchNews,
-  deleteExpense,
-  deleteOffering,
   createMember,
   createMinistry,
   disburseWithdrawal,
@@ -567,7 +565,7 @@ export const appRouter = router({
     delete: financeProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .mutation(async ({ ctx, input }) => {
-        const deleted = await voidOffering(input.id);
+        const deleted = await voidOffering(input.id, ctx.user.id);
         if (!deleted)
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -579,6 +577,7 @@ export const appRouter = router({
           action: "VOID",
           entity: "offering",
           entityId: input.id,
+          metadata: { voidedBy: ctx.user.id, voidedAt: new Date() },
         });
         return { id: input.id };
       }),
@@ -711,7 +710,7 @@ export const appRouter = router({
     delete: financeProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .mutation(async ({ ctx, input }) => {
-        const deleted = await voidExpense(input.id);
+        const deleted = await voidExpense(input.id, ctx.user.id);
         if (!deleted)
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -723,6 +722,7 @@ export const appRouter = router({
           action: "VOID",
           entity: "expense",
           entityId: input.id,
+          metadata: { voidedBy: ctx.user.id, voidedAt: new Date() },
         });
         return { id: input.id };
       }),

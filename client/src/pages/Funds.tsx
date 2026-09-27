@@ -12,6 +12,7 @@ import {
   DollarSign,
   GraduationCap,
   HeartHandshake,
+  Landmark,
   Music,
   Plus,
   TrendingDown,
@@ -20,7 +21,12 @@ import {
   Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
-import { MoneyDisplay } from "@/components/common/CommonUI";
+import {
+  EmptyState,
+  MoneyDisplay,
+  StatCard,
+  StatCardSkeleton,
+} from "@/components/common/CommonUI";
 import { NativeSelect } from "@/components/ui/native-select";
 
 type AccountItem = RouterOutputs["finance"]["accounts"][number];
@@ -92,7 +98,7 @@ export default function Funds() {
       action={
         <button
           onClick={() => setShowNewFundModal(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F] enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
         >
           <Plus className="size-4" />
           สร้างกองทุนใหม่
@@ -101,91 +107,98 @@ export default function Funds() {
     >
       <div className="space-y-6">
         {/* Overview */}
-        <div className="rounded-2xl border border-[#E7DCC8] bg-white p-5">
-          <p className="text-sm font-medium text-[#807266]">
-            ยอดเงินรวมทุกกองทุน
-          </p>
-          <div className="mt-1">
-            <MoneyDisplay amount={totalFundsBalance} size="xl" />
-          </div>
-          <p className="mt-1 text-xs text-[#807266]">
-            จาก {fundsList.length} กองทุนที่เปิดใช้งาน
-          </p>
-        </div>
+        {isLoading ? (
+          <StatCardSkeleton count={1} className="!grid-cols-1" />
+        ) : (
+          <StatCard
+            label="ยอดเงินรวมทุกกองทุน"
+            icon={Landmark}
+            tone="primary"
+            value={<MoneyDisplay amount={totalFundsBalance} size="xl" />}
+            hint={`จาก ${fundsList.length} กองทุนที่เปิดใช้งาน`}
+          />
+        )}
 
         {/* Funds Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {fundsList.length === 0 && (
-            <p className="md:col-span-2 lg:col-span-3 py-12 text-center text-sm text-[#807266] bg-white rounded-2xl border border-dashed border-[#E7DCC8]">
-              ยังไม่มีข้อมูลกองทุนจากระบบ
-            </p>
-          )}
-          {fundsList.map(f => {
-            const Icon = f.icon;
-            const percentage = null;
+        {isLoading ? (
+          <StatCardSkeleton count={3} />
+        ) : fundsList.length === 0 ? (
+          <EmptyState
+            icon={Landmark}
+            title="ยังไม่มีกองทุน"
+            description="สร้างกองทุนแรกเพื่อแยกเงินถวายตามวัตถุประสงค์ เช่น กองทุนพันธกิจหรือกองทุนสร้างอาคาร"
+            actionText="สร้างกองทุนใหม่"
+            onAction={() => setShowNewFundModal(true)}
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {fundsList.map(f => {
+              const Icon = f.icon;
+              const percentage = null;
 
-            return (
-              <div
-                key={f.id}
-                className="bg-white rounded-2xl border border-[#E7DCC8] p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
-                onClick={() => setLocation(`/funds/${f.id}`)}
-              >
-                <div className="space-y-4">
-                  {/* Top Bar */}
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-[#FFF8EA] flex items-center justify-center text-[#51443A] group-hover:scale-105 transition-transform">
-                      <Icon className="w-6 h-6 text-primary" />
+              return (
+                <div
+                  key={f.id}
+                  className="bg-card rounded-2xl border border-[#E7DCC8] p-6 shadow-xs hover:-translate-y-0.5 hover:border-[#C94F16]/40 hover:shadow-md transition-all duration-200 ease-in-out flex flex-col justify-between group cursor-pointer"
+                  onClick={() => setLocation(`/funds/${f.id}`)}
+                >
+                  <div className="space-y-4">
+                    {/* Top Bar */}
+                    <div className="flex items-center justify-between">
+                      <div className="size-12 rounded-xl bg-[#FFF4D6] border border-[#F9D2AE] flex items-center justify-center text-[#51443A] transition-all duration-200 ease-in-out">
+                        <Icon className="w-6 h-6 text-primary" />
+                      </div>
+                      <span className="text-xs font-mono text-[#6E6155] bg-white px-2.5 py-1 rounded-full border border-[#E7DCC8]">
+                        {f.code}
+                      </span>
                     </div>
-                    <span className="text-xs font-mono text-[#807266] bg-background px-2.5 py-1 rounded-full border border-[#E7DCC8]">
-                      {f.code}
-                    </span>
-                  </div>
 
-                  {/* Title & Desc */}
-                  <div>
-                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
-                      {f.name}
-                    </h3>
-                    <p className="text-xs text-[#807266] line-clamp-2 mt-1 leading-relaxed">
-                      {f.description}
-                    </p>
-                  </div>
+                    {/* Title & Desc */}
+                    <div>
+                      <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-all duration-200 ease-in-out">
+                        {f.name}
+                      </h3>
+                      <p className="text-xs text-[#6E6155] line-clamp-2 mt-1 leading-relaxed">
+                        {f.description}
+                      </p>
+                    </div>
 
-                  {/* Balance Display */}
-                  <div className="pt-2">
-                    <p className="text-xs text-[#807266]">ยอดคงเหลือสุทธิ</p>
-                    <div
-                      className={`text-2xl font-bold tabular-nums ${f.balance < 0 ? "text-[#C8372D]" : "text-[#171311]"}`}
-                    >
-                      {formatBaht(f.balance)}
+                    {/* Balance Display */}
+                    <div className="pt-2">
+                      <p className="text-xs text-[#6E6155]">ยอดคงเหลือสุทธิ</p>
+                      <div
+                        className={`text-2xl font-bold tabular-nums ${f.balance < 0 ? "text-[#C8372D]" : "text-[#171311]"}`}
+                      >
+                        {formatBaht(f.balance)}
+                      </div>
+                    </div>
+
+                    {/* Progress towards target */}
+                    <div className="pt-1 text-xs text-[#6E6155]">
+                      ยังไม่มีข้อมูลเป้าหมายสำรองสำหรับกองทุนนี้
+                    </div>
+
+                    {/* Monthly Inflow/Outflow */}
+                    <div className="pt-2 border-t border-[#E7DCC8]/40 text-xs text-[#6E6155]">
+                      กิจกรรมล่าสุดจะแสดงเมื่อมีข้อมูลจากระบบ
                     </div>
                   </div>
 
-                  {/* Progress towards target */}
-                  <div className="pt-1 text-xs text-[#807266]">
-                    ยังไม่มีข้อมูลเป้าหมายสำรองสำหรับกองทุนนี้
-                  </div>
-
-                  {/* Monthly Inflow/Outflow */}
-                  <div className="pt-2 border-t border-[#E7DCC8]/40 text-xs text-[#807266]">
-                    กิจกรรมล่าสุดจะแสดงเมื่อมีข้อมูลจากระบบ
+                  {/* Bottom Action */}
+                  <div className="pt-5 mt-4 border-t border-[#E7DCC8]/50 flex items-center justify-between text-xs font-semibold text-[#51443A] group-hover:text-primary">
+                    <span>ดูสเตทเมนต์และรายละเอียด</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-all duration-200 ease-in-out" />
                   </div>
                 </div>
-
-                {/* Bottom Action */}
-                <div className="pt-5 mt-4 border-t border-[#E7DCC8]/50 flex items-center justify-between text-xs font-semibold text-[#51443A] group-hover:text-primary">
-                  <span>ดูสเตทเมนต์และรายละเอียด</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Create Fund Modal */}
         {showNewFundModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-50 bg-[#171311]/45 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-card rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 space-y-5 shadow-lg animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b border-[#E7DCC8] pb-3">
                 <h3 className="text-lg font-bold text-foreground">
                   สร้างกองทุนใหม่
@@ -194,7 +207,7 @@ export default function Funds() {
                   onClick={() => setShowNewFundModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-[#807266] hover:bg-[#FFF8EA] hover:text-foreground"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-[#6E6155] hover:bg-[#FFF4D6] hover:text-foreground transition-all duration-200 ease-in-out"
                 >
                   ×
                 </button>
@@ -203,7 +216,7 @@ export default function Funds() {
               <form onSubmit={handleCreateFund} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
-                    ชื่อกองทุน <span className="text-red-500">*</span>
+                    ชื่อกองทุน <span className="text-[#C8372D]">*</span>
                   </label>
                   <input
                     type="text"
@@ -254,13 +267,13 @@ export default function Funds() {
                   <button
                     type="button"
                     onClick={() => setShowNewFundModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-xs font-medium text-[#51443A]"
+                    className="px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-xs font-medium text-[#51443A] transition-all duration-200 ease-in-out"
                   >
                     ยกเลิก
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-[#9F3B0F]"
+                    className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-[#9F3B0F] enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
                   >
                     สร้างกองทุน
                   </button>

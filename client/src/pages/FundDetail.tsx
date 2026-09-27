@@ -5,7 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import {
   BackLink,
   EmptyState,
-  LoadingSkeleton,
+  DetailSkeleton,
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
@@ -25,7 +25,7 @@ export default function FundDetail() {
   if (isLoading)
     return (
       <AppLayout title="รายละเอียดกองทุน">
-        <LoadingSkeleton count={3} />
+        <DetailSkeleton />
       </AppLayout>
     );
   if (!fund)
@@ -49,11 +49,11 @@ export default function FundDetail() {
             label="กลับหน้ารายการกองทุน"
             onClick={() => setLocation("/funds")}
           />
-          <span className="font-mono text-xs text-[#807266] bg-[#FFF8EA] px-3 py-1 rounded-full border border-[#E7DCC8]">
+          <span className="font-mono text-xs text-[#6E6155] bg-[#FFF4D6] px-3 py-1 rounded-full border border-[#E7DCC8]">
             FD-{String(fund.id).padStart(3, "0")}
           </span>
         </div>
-        <section className="bg-[#FFF8EA] border border-[#E7DCC8] rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
+        <section className="bg-[#FFF4D6] border border-[#E7DCC8] rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-2">
               <StatusBadge
@@ -63,7 +63,7 @@ export default function FundDetail() {
               <h1 className="text-2xl md:text-3xl font-bold text-[#171311]">
                 {fund.name}
               </h1>
-              <p className="text-sm text-[#807266] max-w-xl">
+              <p className="text-sm text-[#6E6155] max-w-xl">
                 {fund.description || "ยังไม่มีคำอธิบายกองทุนในระบบ"}
               </p>
             </div>
@@ -74,7 +74,7 @@ export default function FundDetail() {
                     "ฟังก์ชันโอนเงินจะเปิดใช้เมื่อมี workflow จากระบบรองรับ"
                   )
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-[#E7DCC8] text-[#51443A] text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-[#E7DCC8] text-[#51443A] text-sm font-medium transition-all duration-200 ease-in-out"
               >
                 <ArrowRightLeft className="w-4 h-4 text-[#C94F16]" />
                 โอนเงินระหว่างกองทุน
@@ -83,7 +83,7 @@ export default function FundDetail() {
                 onClick={() =>
                   toast.info("ยังไม่มีข้อมูล statement สำหรับกองทุนนี้")
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C94F16] text-white text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C94F16] text-white text-sm font-medium enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
               >
                 <Download className="w-4 h-4" />
                 ดาวน์โหลด Statement
@@ -92,26 +92,26 @@ export default function FundDetail() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-2xl border border-[#E7DCC8]/80">
-              <p className="text-xs text-[#807266] font-medium">
+              <p className="text-xs text-[#6E6155] font-medium">
                 ยอดคงเหลือสุทธิ
               </p>
               <MoneyDisplay amount={balance} size="xl" />
-              <p className="text-[11px] text-[#807266] mt-1">
+              <p className="text-[11px] text-[#6E6155] mt-1">
                 ยอดจริงจากบัญชีกองทุน
               </p>
             </div>
             <div className="bg-white p-4 rounded-2xl border border-[#E7DCC8]/80">
-              <p className="text-xs text-[#807266] font-medium">ประเภทกองทุน</p>
+              <p className="text-xs text-[#6E6155] font-medium">ประเภทกองทุน</p>
               <p className="text-2xl font-bold text-[#171311] mt-1">
                 {fund.type}
               </p>
-              <p className="text-[11px] text-[#807266] mt-1">
+              <p className="text-[11px] text-[#6E6155] mt-1">
                 ไม่มีข้อมูลกิจกรรมรายเดือนใน API ปัจจุบัน
               </p>
             </div>
           </div>
         </section>
-        <section className="bg-white rounded-2xl border border-[#E7DCC8] p-6 shadow-sm">
+        <section className="bg-card rounded-2xl border border-[#E7DCC8] p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Wallet className="w-5 h-5 text-[#C94F16]" />
             <h2 className="text-base font-bold text-[#171311]">

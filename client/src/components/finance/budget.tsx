@@ -43,9 +43,9 @@ export function budgetUsage(planned: number, actual: number) {
 }
 
 const TONE_STYLES = {
-  ok: { bar: "bg-[#2F7A45]", text: "text-[#1F5C33]", label: "อยู่ในงบ" },
+  ok: { bar: "bg-[#2D6A2E]", text: "text-[#2D6A2E]", label: "อยู่ในงบ" },
   warn: { bar: "bg-[#C94F16]", text: "text-[#9F3B0F]", label: "ใกล้เต็มงบ" },
-  over: { bar: "bg-[#C7382D]", text: "text-[#C7382D]", label: "เกินงบ" },
+  over: { bar: "bg-[#C8372D]", text: "text-[#C8372D]", label: "เกินงบ" },
 } as const;
 
 export const BudgetProgress: React.FC<{
@@ -58,7 +58,7 @@ export const BudgetProgress: React.FC<{
   return (
     <div className={className}>
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-[#EDE8E3]"
+        className="h-2.5 w-full overflow-hidden rounded-full bg-[#F1E6D2]"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -72,7 +72,7 @@ export const BudgetProgress: React.FC<{
       </div>
       <div className="mt-1.5 flex items-center justify-between text-xs tabular-nums">
         <span className={`font-semibold ${style.text}`}>{style.label}</span>
-        <span className="text-[#807266]">ใช้ไป {percent.toFixed(0)}%</span>
+        <span className="text-[#6E6155]">ใช้ไป {percent.toFixed(0)}%</span>
       </div>
     </div>
   );
@@ -124,7 +124,7 @@ export function parseBudgetForm(values: BudgetFormValues):
 }
 
 const inputClass =
-  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base font-normal text-[#171311] md:text-sm";
+  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-card p-3 text-base font-normal text-[#171311] md:text-sm";
 
 export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;

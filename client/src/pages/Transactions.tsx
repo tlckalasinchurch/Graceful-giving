@@ -8,7 +8,10 @@ import {
   FilterBar,
   LoadingSkeleton,
   MoneyDisplay,
+  StatCard,
+  StatCardSkeleton,
   StatusBadge,
+  ActionButton,
 } from "@/components/common/CommonUI";
 import {
   Download,
@@ -18,6 +21,9 @@ import {
   Plus,
   ReceiptText,
   Calendar,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatThaiDate } from "@/lib/format";
@@ -100,7 +106,7 @@ export default function Transactions() {
           // explicit rather than presenting a legacy record as approved.
           status: "unknown",
           icon: Heart,
-          tone: "bg-[#FDECEA] text-[#E06250]",
+          tone: "bg-[#E4F3E7] text-[#2D6A2E] border border-[#C3E4B8]",
         });
       });
     }
@@ -119,7 +125,7 @@ export default function Transactions() {
           amount: Number(e.amount),
           status: e.status || "unknown",
           icon: Landmark,
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
+          tone: "bg-[#FEECEB] text-[#C8372D] border border-[#F8C8C5]",
         });
       });
     }
@@ -175,64 +181,63 @@ export default function Transactions() {
       subtitle="บันทึกการรับถวายและค่าใช้จ่ายทั้งหมดของคริสตจักร"
       action={
         <div className="flex items-center gap-2">
-          <button
+          <ActionButton
+            variant="secondary"
+            icon={Download}
             onClick={handleExport}
-            className="px-3.5 py-2 rounded-2xl bg-[#FFF8EA] hover:bg-[#FFF4D6] text-[#51443A] text-xs font-bold border border-[#E7DCC8] flex items-center gap-1.5 transition-all"
+            aria-label="ส่งออก CSV"
           >
-            <Download className="w-4 h-4" />
             <span className="hidden sm:inline">ส่งออก CSV</span>
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
+            icon={Plus}
             onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-primary hover:bg-[#9F3B0F] text-white text-xs font-bold button-elevation transition-all flex items-center gap-1.5"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>บันทึกใหม่</span>
-          </button>
+            บันทึกใหม่
+          </ActionButton>
         </div>
       }
     >
       {/* 1. Summary Cards (รายรับ, รายจ่าย, ยอดสุทธิ) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">
-            รายรับทั้งหมด
-          </span>
-          <div>
-            <MoneyDisplay amount={totalIncome} type="income" size="lg" />
-          </div>
-          <p className="text-xs text-[#807266]">
-            {filtered.filter(t => t.type === "income").length} รายการ
-          </p>
+      {isLoading ? (
+        <StatCardSkeleton count={3} />
+      ) : isError ? null : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatCard
+            label="รายรับทั้งหมด"
+            tone="income"
+            icon={TrendingUp}
+            value={
+              <MoneyDisplay amount={totalIncome} type="income" size="lg" />
+            }
+            hint={`${filtered.filter(t => t.type === "income").length} รายการ`}
+          />
+          <StatCard
+            label="รายจ่ายทั้งหมด"
+            tone="expense"
+            icon={TrendingDown}
+            value={
+              <MoneyDisplay amount={totalExpense} type="expense" size="lg" />
+            }
+            hint={`${filtered.filter(t => t.type === "expense").length} รายการ`}
+          />
+          <StatCard
+            label="ยอดสุทธิ"
+            icon={Wallet}
+            value={
+              <MoneyDisplay
+                amount={netTotal}
+                type={netTotal >= 0 ? "income" : "expense"}
+                size="lg"
+              />
+            }
+            hint="คงเหลือในรอบที่เลือก"
+          />
         </div>
-
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">
-            รายจ่ายทั้งหมด
-          </span>
-          <div>
-            <MoneyDisplay amount={totalExpense} type="expense" size="lg" />
-          </div>
-          <p className="text-xs text-[#807266]">
-            {filtered.filter(t => t.type === "expense").length} รายการ
-          </p>
-        </div>
-
-        <div className="bg-white border border-[#E7DCC8] rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-sm font-medium text-[#807266]">ยอดสุทธิ</span>
-          <div>
-            <MoneyDisplay
-              amount={netTotal}
-              type={netTotal >= 0 ? "income" : "expense"}
-              size="lg"
-            />
-          </div>
-          <p className="text-xs text-[#807266]">คงเหลือในรอบที่เลือก</p>
-        </div>
-      </div>
+      )}
 
       {/* 2. Filter Bar */}
-      <div className="bg-white rounded-2xl p-4 md:p-5 border border-[#E7DCC8] card-elevation-sm space-y-3">
+      <div className="bg-card rounded-2xl p-4 md:p-5 border border-[#E7DCC8] shadow-xs space-y-3">
         <FilterBar
           searchPlaceholder="ค้นหารายการ, หมวดหมู่, หรือพันธกิจ..."
           searchValue={searchTerm}
@@ -275,30 +280,48 @@ export default function Transactions() {
           onAction={() => setLocation("/offerings/new")}
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-[#E7DCC8] card-elevation-sm overflow-hidden">
+        <div className="bg-card rounded-2xl border border-[#E7DCC8] shadow-xs overflow-hidden">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
+            <table className="w-full text-left text-sm">
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="bg-[#FFFFFF] border-b border-[#E7DCC8] text-[#51443A] font-bold">
+              <thead className="bg-[#FFF4D6]/70 border-b border-[#E7DCC8] text-xs text-[#51443A] font-semibold">
                 <tr>
-                  <th scope="col" className="p-4">วันที่</th>
-                  <th scope="col" className="p-4">รายการ</th>
-                  <th scope="col" className="p-4">ประเภท</th>
-                  <th scope="col" className="p-4">กองทุน</th>
-                  <th scope="col" className="p-4 text-right">จำนวนเงิน</th>
-                  <th scope="col" className="p-4 text-center">สถานะ</th>
+                  <th scope="col" className="px-5 py-3.5">
+                    วันที่
+                  </th>
+                  <th scope="col" className="px-5 py-3.5">
+                    รายการ
+                  </th>
+                  <th scope="col" className="px-5 py-3.5">
+                    ประเภท
+                  </th>
+                  <th scope="col" className="px-5 py-3.5">
+                    กองทุน
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 text-right">
+                    จำนวนเงิน
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 text-center">
+                    สถานะ
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EDE8E3]/60">
+              <tbody className="divide-y divide-[#EFE5D3]/60">
                 {filtered.map(tx => (
-                  <tr key={tx.id} className="transition-colors hover:bg-[#FAF8F5]/70">
-                    <td className="p-4 text-[#807266] whitespace-nowrap font-medium">
+                  <tr
+                    key={tx.id}
+                    className="transition-all duration-200 ease-in-out hover:bg-[#FFF4D6]/50"
+                  >
+                    <td className="px-5 py-4 text-[#6E6155] whitespace-nowrap font-medium">
                       {formatThaiDate(tx.date)}
                     </td>
-                    <th scope="row" className="p-4 font-bold text-[#171311]">
+                    <th
+                      scope="row"
+                      className="px-5 py-4 font-semibold text-[#171311]"
+                    >
                       <Link
                         href={`/transactions/${tx.id}`}
                         className="rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
@@ -306,20 +329,20 @@ export default function Transactions() {
                         {tx.title}
                       </Link>
                     </th>
-                    <td className="p-4">
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#FFF8EA] text-[#51443A] text-xs font-medium">
+                    <td className="px-5 py-4">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#FFF4D6] text-[#51443A] text-xs font-medium">
                         {tx.categoryLabel}
                       </span>
                     </td>
-                    <td className="p-4 text-[#51443A]">{tx.fund}</td>
-                    <td className="p-4 text-right font-bold">
+                    <td className="px-5 py-4 text-[#51443A]">{tx.fund}</td>
+                    <td className="px-5 py-4 text-right font-bold whitespace-nowrap">
                       <MoneyDisplay
                         amount={tx.amount}
                         type={tx.type}
                         size="sm"
                       />
                     </td>
-                    <td className="p-4 text-center">
+                    <td className="px-5 py-4 text-center">
                       <StatusBadge status={tx.status} />
                     </td>
                   </tr>
@@ -329,7 +352,7 @@ export default function Transactions() {
           </div>
 
           {/* MOBILE CARDS VIEW (Visible on Mobile) */}
-          <div className="md:hidden divide-y divide-[#EDE8E3]/60">
+          <div className="md:hidden divide-y divide-[#EFE5D3]/60">
             {filtered.map(tx => {
               const Icon = tx.icon || ReceiptText;
               return (
@@ -337,25 +360,25 @@ export default function Transactions() {
                   key={tx.id}
                   href={`/transactions/${tx.id}`}
                   aria-label={`ดูรายละเอียด ${tx.title} วันที่ ${formatThaiDate(tx.date)} จำนวนเงิน ${tx.amount} บาท`}
-                  className="p-4 flex items-center justify-between gap-3 active:bg-[#FAF8F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C94F16]"
+                  className="px-4 py-3.5 flex items-center justify-between gap-3 transition-all duration-200 ease-in-out hover:bg-[#FFF4D6]/50 active:bg-[#FFF4D6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C94F16]"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`w-11 h-11 rounded-2xl ${tx.tone} flex items-center justify-center shrink-0 shadow-2xs`}
+                      className={`size-11 rounded-xl ${tx.tone} flex items-center justify-center shrink-0`}
                     >
                       <Icon className="w-5 h-5 stroke-[2.2]" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-[#171311] truncate">
+                      <p className="text-sm font-semibold text-[#171311] truncate">
                         {tx.title}
                       </p>
-                      <p className="text-sm text-[#51443A] pt-0.5">
+                      <p className="text-xs text-[#51443A] pt-1">
                         {formatThaiDate(tx.date)} · {tx.fund}
                       </p>
                     </div>
                   </div>
 
-                  <div className="text-right shrink-0 space-y-1">
+                  <div className="text-right shrink-0 flex flex-col items-end gap-1.5">
                     <MoneyDisplay amount={tx.amount} type={tx.type} size="sm" />
                     <div>
                       <StatusBadge status={tx.status} />

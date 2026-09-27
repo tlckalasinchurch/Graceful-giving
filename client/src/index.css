@@ -8,13 +8,28 @@
   --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-display: "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-script: "Caveat", cursive;
-  /* Quiet ledger geometry: restrained controls, compact cards, calm panels. */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.625rem;
-  --radius-2xl: 0.75rem;
-  --radius-3xl: 1rem;
+  /* Geometry of the Burnt Orange & Warm Vanilla system:
+     rounded-xl (12px) for buttons and form fields, rounded-2xl (16px) for
+     cards and summary panels, rounded-full for tags and status badges. */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+
+  /* Soft elevation only. The shadow colour is the Earth Brown text colour at
+     low alpha, so a raised card reads warm on the vanilla page instead of
+     grey. Use shadow-xs for resting cards and shadow-sm for hover or focus. */
+  --shadow-2xs: 0 1px 0 0 rgba(81, 68, 58, 0.04);
+  --shadow-xs: 0 1px 2px 0 rgba(81, 68, 58, 0.06);
+  --shadow-sm:
+    0 1px 3px 0 rgba(81, 68, 58, 0.08), 0 1px 2px -1px rgba(81, 68, 58, 0.06);
+  --shadow-md:
+    0 4px 8px -2px rgba(81, 68, 58, 0.08), 0 2px 4px -2px rgba(81, 68, 58, 0.05);
+  --shadow-lg:
+    0 10px 20px -6px rgba(81, 68, 58, 0.12),
+    0 4px 8px -4px rgba(81, 68, 58, 0.06);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -49,6 +64,12 @@
   --color-brand-muted: #807266;
   --color-brand-border: #e7dcc8;
 
+  /* Financial status pairs (text on tint). */
+  --color-income: #2d6a2e;
+  --color-income-bg: #e4f3e7;
+  --color-expense: #c8372d;
+  --color-expense-bg: #feeceb;
+
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
   --color-clay-cream: var(--color-brand-cream);
@@ -82,16 +103,16 @@
      at 4.9:1; #9F3B0F is its hover and the orange used for text. */
   --primary: #c94f16;
   --primary-foreground: #ffffff;
-  --background: #171311;
+  --background: #faf8f5;
   --foreground: #171311;
-  --card: #fff4d6;
+  --card: #fff8ea;
   --card-foreground: #171311;
-  --popover: #fff4d6;
+  --popover: #fffdf8;
   --popover-foreground: #171311;
-  --secondary: #fff8ea;
+  --secondary: #fff4d6;
   --secondary-foreground: #51443a;
-  --muted: #fff8ea;
-  --muted-foreground: #807266;
+  --muted: #f5ede0;
+  --muted-foreground: #6e6155;
   --accent: #fff4d6;
   --accent-foreground: #9f3b0f;
   --destructive: #c8372d;
@@ -138,30 +159,24 @@ select:focus-visible {
   }
 }
 
-/* Professional Financial Card & Elevation Shadows */
+/* Elevation helpers kept for existing call sites. They map onto the same
+   warm, soft shadow scale as the shadow-* tokens above. */
 .card-elevation-sm,
-.clay-card-shadow {
-  box-shadow:
-    0 1px 2px 0 rgba(23, 33, 40, 0.04),
-    0 1px 1px -1px rgba(23, 33, 40, 0.04);
+.clay-card-shadow,
+.inset-bevel-subtle,
+.clay-inset-bevel {
+  box-shadow: var(--shadow-xs);
 }
 
 .button-elevation,
 .clay-button-shadow {
-  box-shadow: 0 2px 5px -1px rgba(34, 91, 102, 0.18);
+  box-shadow: 0 1px 2px 0 rgba(159, 59, 15, 0.18);
 }
 
-.inset-bevel-subtle,
-.clay-inset-bevel {
-  box-shadow: 0 1px 2px 0 rgba(23, 33, 40, 0.04);
-}
-
-/* Clear, balanced elevation for the primary financial focal point */
+/* The one focal card per screen (the Home balance card). */
 .card-elevation-focus,
 .clay-balance-glow {
-  box-shadow:
-    0 4px 16px -2px rgba(23, 33, 40, 0.08),
-    0 2px 6px -2px rgba(23, 33, 40, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Staggered entrance for above-the-fold Home sections (hero, balance,
@@ -183,15 +198,52 @@ select:focus-visible {
   animation: fade-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Staggered entrance: put .stagger-children on a container and each direct
+   child fades up 70ms after the one before it (up to 10 children). */
+.stagger-children > * {
+  animation: fade-slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.stagger-children > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger-children > *:nth-child(2) {
+  animation-delay: 70ms;
+}
+.stagger-children > *:nth-child(3) {
+  animation-delay: 140ms;
+}
+.stagger-children > *:nth-child(4) {
+  animation-delay: 210ms;
+}
+.stagger-children > *:nth-child(5) {
+  animation-delay: 280ms;
+}
+.stagger-children > *:nth-child(6) {
+  animation-delay: 350ms;
+}
+.stagger-children > *:nth-child(7) {
+  animation-delay: 420ms;
+}
+.stagger-children > *:nth-child(8) {
+  animation-delay: 490ms;
+}
+.stagger-children > *:nth-child(9) {
+  animation-delay: 560ms;
+}
+.stagger-children > *:nth-child(n + 10) {
+  animation-delay: 630ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up {
+  .animate-fade-up,
+  .stagger-children > * {
     animation: none;
   }
 }
 
 @layer base {
   * {
-    border-color: #e4ded7;
+    border-color: var(--border);
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -202,18 +254,23 @@ select:focus-visible {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  button,
-  a {
-    transition:
-      transform 180ms cubic-bezier(0.23, 1, 0.32, 1),
-      background-color 180ms ease,
-      color 180ms ease,
-      box-shadow 180ms ease,
-      border-color 180ms ease;
-  }
-  button:active:not(:disabled) {
-    transform: scale(0.97);
+/* Default motion for every button and link. It sits in the base layer so a
+   component's own transition-* or active:scale-* utility still wins.
+   Tailwind v4 moves elements with the separate translate and scale
+   properties, so both are listed; without them a hover lift would snap. */
+@layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    button,
+    a {
+      transition-property:
+        color, background-color, border-color, box-shadow, opacity, transform,
+        translate, scale;
+      transition-duration: 200ms;
+      transition-timing-function: ease-in-out;
+    }
+    button:active:not(:disabled) {
+      scale: 0.98;
+    }
   }
 }
 
@@ -225,11 +282,11 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cfc7bf;
+  background: #e0d2bb;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a89e96;
+  background: #c9b79c;
 }
 
 /* ============================================

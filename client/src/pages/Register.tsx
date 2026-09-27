@@ -4,7 +4,7 @@ import { Sprout } from "lucide-react";
 
 export default function Register() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#FFF8EA] via-[#FFF8EA] to-[#FFF4D6] p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 space-y-2 text-center">
           <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-[#C94F16]/30 bg-[#C94F16]/15 shadow-xs">

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { ArrowRight, Heart, Inbox, Landmark } from "lucide-react";
 import { useLocation } from "wouter";
@@ -24,18 +24,25 @@ import { formatBaht, formatThaiDateTime } from "@/lib/format";
 const fmtBaht = (n: number) => formatBaht(n);
 const fmtShortBaht = (n: number) => formatBaht(n, 0);
 
-function pctChange(current: number, prev: number) {
-  if (prev === 0) return current > 0 ? "+∞%" : "0%";
-  const pct = ((current - prev) / prev) * 100;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(0)}%`;
+/** Percent change against last month; null when last month was zero. */
+function pctChange(current: number, prev: number): number | null {
+  if (prev === 0) return current === 0 ? 0 : null;
+  return ((current - prev) / prev) * 100;
 }
 
-function trendArrow(trend: string) {
-  return trend.trim().startsWith("-") ? "↓" : "↑";
-}
-
-function trendValue(trend: string) {
-  return trend.replace(/^[+\-↑↓]\s*/, "");
+/** Wraps one dashboard block in the staggered fade-up entrance. */
+function Reveal({
+  delay,
+  children,
+}: {
+  delay: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="animate-fade-up" style={{ animationDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
 }
 
 const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
@@ -109,15 +116,11 @@ export default function Home() {
     staleTime: 30_000,
   });
 
-  const { data: offeringsData } = trpc.offerings.list.useQuery(
-    { limit: 30 },
-    { retry: false }
-  );
+  const { data: offeringsData, isLoading: offeringsLoading } =
+    trpc.offerings.list.useQuery({ limit: 30 }, { retry: false });
 
-  const { data: expensesData } = trpc.expenses.list.useQuery(
-    { limit: 30 },
-    { retry: false }
-  );
+  const { data: expensesData, isLoading: expensesLoading } =
+    trpc.expenses.list.useQuery({ limit: 30 }, { retry: false });
 
   const { data: inboxStats } = trpc.givingInbox.stats.useQuery(undefined, {
     enabled: canAccessInbox,
@@ -134,12 +137,12 @@ export default function Home() {
   const netMonthly = summaryData
     ? summaryData.monthlyIncome - summaryData.monthlyExpense
     : undefined;
-  const incomeTrend = summaryData
+  const incomeChange = summaryData
     ? pctChange(summaryData.monthlyIncome, summaryData.prevMonthIncome)
-    : "";
-  const expenseTrend = summaryData
+    : undefined;
+  const expenseChange = summaryData
     ? pctChange(summaryData.monthlyExpense, summaryData.prevMonthExpense)
-    : "";
+    : undefined;
   const isBalanceLoading = summaryLoading;
   const isDataUnavailable = !summaryLoading && (summaryError || !summaryData);
   const isPositiveBalance = (totalBalance ?? 0) >= 0;
@@ -162,7 +165,7 @@ export default function Home() {
           category: o.category,
           subCategory: "อาคารคริสตจักร",
           amount: Number(o.amount),
-          tone: "bg-[#FDECEA] text-[#E06250]",
+          tone: "bg-[#FEECEB] text-[#C8372D]",
           icon: Heart,
         });
       });
@@ -178,7 +181,7 @@ export default function Home() {
           category: e.category,
           subCategory: "พันธกิจนมัสการ",
           amount: Number(e.amount),
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
+          tone: "bg-[#FFF4D6] text-[#C94F16]",
           icon: Landmark,
         });
       });
@@ -190,19 +193,22 @@ export default function Home() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 sm:space-y-8 md:space-y-10">
+      <div className="space-y-6 sm:space-y-8">
         {/* 1. Hero Section */}
-        <HeroSection />
+        <Reveal delay={0}>
+          <HeroSection name={user?.name?.split(" ")[0]} />
+        </Reveal>
 
         {/* Action Needed Banner: High-priority inbox alerts */}
         {canAccessInbox && pendingSlipCount > 0 && (
           <div
+            style={{ animationDelay: "60ms" }}
             role="region"
             aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#F9D2AE] text-[#51443A] shadow-2xs"
+            className="animate-fade-up flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FFF4D6] border border-[#F9D2AE] text-[#51443A] shadow-xs"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0">
+              <div className="size-11 rounded-xl bg-[#C94F16] flex items-center justify-center text-white shrink-0">
                 <Inbox className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -216,80 +222,101 @@ export default function Home() {
             </div>
             <button
               onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="group min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] active:scale-[0.98] text-white text-sm font-semibold shrink-0 flex items-center justify-center gap-1.5 shadow-xs transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2 hover:shadow-sm disabled:opacity-55 disabled:cursor-not-allowed"
             >
               <span>ตรวจสอบสลิป</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </button>
           </div>
         )}
 
-        <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+        <section aria-labelledby="dashboard-overview" className="space-y-4">
+          <h2
+            id="dashboard-overview"
+            className="text-sm font-semibold text-[#171311]"
+          >
             ดูภาพรวม
           </h2>
-          <BalanceCard
-            showBalance={showBalance}
-            setShowBalance={setShowBalance}
-            isPositiveBalance={isPositiveBalance}
-            isBalanceLoading={isBalanceLoading}
-            isDataUnavailable={isDataUnavailable}
-            summaryError={summaryError}
-            hasSummaryData={!!summaryData}
-            animatedBalance={animatedBalance}
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-            fmtBaht={fmtBaht}
-          />
-          <FinancialSummaryRow
-            isBalanceLoading={isBalanceLoading}
-            showBalance={showBalance}
-            monthlyIncome={monthlyIncome}
-            monthlyExpense={monthlyExpense}
-            netMonthly={netMonthly}
-            incomeTrend={incomeTrend}
-            expenseTrend={expenseTrend}
-            isPositiveNet={isPositiveNet}
-            fmtShortBaht={fmtShortBaht}
-            trendArrow={trendArrow}
-            trendValue={trendValue}
-          />
+          <Reveal delay={120}>
+            <BalanceCard
+              showBalance={showBalance}
+              setShowBalance={setShowBalance}
+              isPositiveBalance={isPositiveBalance}
+              isBalanceLoading={isBalanceLoading}
+              isDataUnavailable={isDataUnavailable}
+              summaryError={summaryError}
+              hasSummaryData={!!summaryData}
+              animatedBalance={animatedBalance}
+              canOpenReports={canOpenReports}
+              onOpenReports={() => setLocation("/reports")}
+              fmtBaht={fmtBaht}
+            />
+          </Reveal>
+          <Reveal delay={200}>
+            <FinancialSummaryRow
+              isBalanceLoading={isBalanceLoading}
+              showBalance={showBalance}
+              monthlyIncome={monthlyIncome}
+              monthlyExpense={monthlyExpense}
+              netMonthly={netMonthly}
+              incomeChange={incomeChange}
+              expenseChange={expenseChange}
+              isPositiveNet={isPositiveNet}
+              fmtShortBaht={fmtShortBaht}
+            />
+          </Reveal>
         </section>
 
-        <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+        <section aria-labelledby="dashboard-actions" className="space-y-4">
+          <h2
+            id="dashboard-actions"
+            className="text-sm font-semibold text-[#171311]"
+          >
             ทำรายการ
           </h2>
-          <PrimaryActions
-            canRecordExpense={canRecordExpense}
-            onNewOffering={() => setLocation("/offerings/new")}
-            onNewExpense={() => setLocation("/expenses/new")}
-          />
-          <SecondaryMenu
-            canOpenReports={canOpenReports}
-            canOpenMembers={canOpenMembers}
-            secondaryTileColsClass={secondaryTileColsClass}
-            onOpenReports={() => setLocation("/reports")}
-            onOpenMembers={() => setLocation("/members")}
-            onOpenNews={() => setNewsOpen(true)}
-            onOpenWithdrawals={() => setLocation("/withdrawals/new")}
-          />
+          <Reveal delay={280}>
+            <PrimaryActions
+              canRecordExpense={canRecordExpense}
+              onNewOffering={() => setLocation("/offerings/new")}
+              onNewExpense={() => setLocation("/expenses/new")}
+            />
+          </Reveal>
+          <Reveal delay={340}>
+            <SecondaryMenu
+              canOpenReports={canOpenReports}
+              canOpenMembers={canOpenMembers}
+              secondaryTileColsClass={secondaryTileColsClass}
+              onOpenReports={() => setLocation("/reports")}
+              onOpenMembers={() => setLocation("/members")}
+              onOpenNews={() => setNewsOpen(true)}
+              onOpenWithdrawals={() => setLocation("/withdrawals/new")}
+            />
+          </Reveal>
         </section>
 
-        <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+        <section aria-labelledby="dashboard-tracking" className="space-y-4">
+          <h2
+            id="dashboard-tracking"
+            className="text-sm font-semibold text-[#171311]"
+          >
             ติดตาม
           </h2>
-          <BudgetSection
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-          />
-          <RecentTransactions
-            allTransactions={allTransactions}
-            onViewAll={() => setLocation("/transactions")}
-            fmtBaht={fmtBaht}
-            fmtThaiDate={fmtThaiDate}
-          />
+          <Reveal delay={420}>
+            <BudgetSection
+              canOpenReports={canOpenReports}
+              onOpenReports={() => setLocation("/reports")}
+            />
+          </Reveal>
+          <Reveal delay={500}>
+            <RecentTransactions
+              allTransactions={allTransactions}
+              isLoading={offeringsLoading || expensesLoading}
+              onAdd={() => setLocation("/offerings/new")}
+              onViewAll={() => setLocation("/transactions")}
+              fmtBaht={fmtBaht}
+              fmtThaiDate={fmtThaiDate}
+            />
+          </Reveal>
         </section>
       </div>
 

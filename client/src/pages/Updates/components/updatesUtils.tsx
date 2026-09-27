@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/common/CommonUI";
 import React from "react";
 import { toast } from "sonner";
 import { CalendarDays, Clock3, Megaphone, Send } from "lucide-react";
@@ -100,15 +101,15 @@ export function downloadICS(event: {
 
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[#E7DCC8] bg-white/65 px-6 py-12 text-center">
-      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#FFF8EA] text-[#C94F16]">
+    <div className="rounded-2xl border border-dashed border-[#E0CFB3] bg-card px-6 py-12 text-center">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl border border-[#F9D2AE] bg-[#FFF4D6] text-[#C94F16]">
         {type === "news" ? (
           <Megaphone className="size-7" strokeWidth={1.5} />
         ) : (
           <CalendarDays className="size-7" strokeWidth={1.5} />
         )}
       </div>
-      <p className="mt-4 text-base font-bold text-[#3F3833]">
+      <p className="mt-4 text-base font-semibold text-[#171311]">
         {type === "news"
           ? "ยังไม่มีข่าวสารเผยแพร่"
           : "ยังไม่มีกิจกรรมที่กำลังจะมาถึง"}
@@ -123,27 +124,11 @@ export function EmptyPanel({ type }: { type: "news" | "events" }) {
 }
 
 export function StatusPill({ status }: { status: string }) {
-  const styles =
-    status === "published"
-      ? "bg-[#e6f4e8] text-[#2c7244]"
-      : status === "cancelled" || status === "archived"
-        ? "bg-[#f9e5e2] text-[#aa4e46]"
-        : "bg-[#FFF4D6] text-[#C94F16]";
-  const label =
-    status === "published"
-      ? "เผยแพร่แล้ว"
-      : status === "cancelled"
-        ? "ยกเลิก"
-        : status === "archived"
-          ? "เก็บถาวร"
-          : "ฉบับร่าง";
-  return (
-    <span
-      className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${styles}`}
-    >
-      {label}
-    </span>
-  );
+  // Any status other than published/cancelled/archived is a draft.
+  const key = ["published", "cancelled", "archived"].includes(status)
+    ? status
+    : "draft";
+  return <StatusBadge status={key} />;
 }
 
 export function Field({
@@ -175,14 +160,14 @@ export function SubmitButtons({
       <button
         type="button"
         onClick={onCancel}
-        className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-3 text-sm font-bold text-[#51443A] hover:bg-[#FFF8EA]"
+        className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-3 text-sm font-bold text-[#51443A] hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out"
       >
         ยกเลิก
       </button>
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#9F3B0F] py-3 text-sm font-bold text-white hover:bg-[#C94F16] disabled:opacity-60 shadow-sm"
+        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#9F3B0F] py-3 text-sm font-bold text-white hover:bg-[#C94F16] disabled:opacity-60 shadow-sm enabled:hover:-translate-y-0.5 enabled:hover:shadow-md active:translate-y-0 active:scale-[0.98] transition-all duration-200 ease-in-out"
       >
         {pending ? (
           <Clock3 className="size-4 animate-spin" />

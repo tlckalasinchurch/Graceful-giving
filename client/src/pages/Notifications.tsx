@@ -34,7 +34,7 @@ export default function Notifications() {
           type="button"
           onClick={() => markAllRead.mutate()}
           disabled={markAllRead.isPending || !query.data?.some(n => !n.readAt)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-4 text-sm font-medium text-[#3F3833] hover:bg-[#FFF8EA] disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#E7DCC8] bg-card px-4 text-sm font-medium text-[#51443A] hover:bg-[#FFF4D6] disabled:opacity-50 transition-all duration-200 ease-in-out"
         >
           <CheckCheck className="size-4" />
           อ่านแล้วทั้งหมด
@@ -68,7 +68,7 @@ export default function Notifications() {
                   if (!item.readAt) markRead.mutate({ id: item.id });
                   if (item.link) setLocation(item.link);
                 }}
-                className={`relative w-full rounded-2xl border bg-white p-4 pl-8 text-left hover:bg-[#FAF8F5] ${item.readAt ? "border-[#E7DCC8]" : "border-[#F9D2AE]"}`}
+                className={`relative w-full rounded-2xl border bg-card p-4 pl-8 text-left hover:bg-[#FAF8F5] transition-all duration-200 ease-in-out${item.readAt ? "border-[#E7DCC8]" : "border-[#F9D2AE]"}`}
               >
                 {!item.readAt && (
                   <span
@@ -83,11 +83,11 @@ export default function Notifications() {
                     >
                       {item.title}
                     </h2>
-                    <p className="mt-0.5 text-sm text-[#807266]">
+                    <p className="mt-0.5 text-sm text-[#6E6155]">
                       {item.description || ""}
                     </p>
                   </div>
-                  <span className="shrink-0 text-xs text-[#807266]">
+                  <span className="shrink-0 text-xs text-[#6E6155]">
                     {formatThaiDate(item.createdAt)}
                     <span className="sr-only">
                       {item.readAt ? " อ่านแล้ว" : " ยังไม่อ่าน"}
