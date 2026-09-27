@@ -4,10 +4,14 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
   ErrorState,
+  FilterBar,
   LoadingSkeleton,
+  StatusBadge,
 } from "@/components/common/CommonUI";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageChurchSettings } from "@shared/roles";
 import { trpc } from "@/lib/trpc";
-import { Plus, UsersRound, X } from "lucide-react";
+import { ChevronRight, Plus, UsersRound, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   confirmDiscardChanges,
@@ -20,8 +24,21 @@ const MEMBER_STATUS_LABEL: Record<string, string> = {
   pending: "รอยืนยัน",
 };
 
+/** First visible character of a Thai or Latin name, skipping titles. */
+function initial(name: string) {
+  const trimmed = name.replace(
+    /^(นาย|นางสาว|นาง|ด\.ช\.|ด\.ญ\.|Mr\.?|Mrs\.?|Ms\.?)\s*/,
+    ""
+  );
+  return (trimmed || name).trim().charAt(0).toUpperCase();
+}
+
 export default function Members() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  // members.create is churchLeaderProcedure; other roles here can view only.
+  const canCreate = canManageChurchSettings(user);
+  const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -52,6 +69,15 @@ export default function Members() {
     onError: error => toast.error(error.message || "เพิ่มสมาชิกไม่สำเร็จ"),
   });
 
+  const term = search.trim().toLowerCase();
+  const visibleMembers = (membersQuery.data ?? []).filter(
+    m =>
+      !term ||
+      m.name.toLowerCase().includes(term) ||
+      (m.phone ?? "").includes(term) ||
+      (m.email ?? "").toLowerCase().includes(term)
+  );
+
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (name.trim().length < 2) {
@@ -71,20 +97,22 @@ export default function Members() {
       title="สมาชิกคริสตจักร"
       subtitle="รายชื่อ ข้อมูลติดต่อ และสถานะของสมาชิก"
       action={
-        <button
-          type="button"
-          onClick={() => {
-            if (showCreate) {
-              closeCreateForm();
-            } else {
-              setShowCreate(true);
-            }
-          }}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white"
-        >
-          <Plus className="h-4 w-4" />
-          เพิ่มสมาชิก
-        </button>
+        canCreate ? (
+          <button
+            type="button"
+            onClick={() => {
+              if (showCreate) {
+                void closeCreateForm();
+              } else {
+                setShowCreate(true);
+              }
+            }}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary-strong"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+            เพิ่มสมาชิก
+          </button>
+        ) : undefined
       }
     >
       <div className="space-y-6">
@@ -98,7 +126,8 @@ export default function Members() {
               <button
                 type="button"
                 onClick={closeCreateForm}
-                className="text-muted-foreground"
+                aria-label="ปิดแบบฟอร์ม"
+                className="-mr-2 flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -110,15 +139,18 @@ export default function Members() {
                   required
                   value={name}
                   onChange={event => setName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-border p-3 font-normal text-foreground"
+                  className="mt-1 min-h-11 w-full rounded-xl border border-input bg-card px-3.5 py-2.5 font-normal text-foreground focus:border-primary focus:outline-none"
                 />
               </label>
               <label className="text-sm font-semibold text-foreground-soft">
                 โทรศัพท์
                 <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   value={phone}
                   onChange={event => setPhone(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-border p-3 font-normal text-foreground"
+                  className="mt-1 min-h-11 w-full rounded-xl border border-input bg-card px-3.5 py-2.5 font-normal text-foreground focus:border-primary focus:outline-none"
                 />
               </label>
               <label className="text-sm font-semibold text-foreground-soft">
@@ -127,7 +159,7 @@ export default function Members() {
                   type="email"
                   value={email}
                   onChange={event => setEmail(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-border p-3 font-normal text-foreground"
+                  className="mt-1 min-h-11 w-full rounded-xl border border-input bg-card px-3.5 py-2.5 font-normal text-foreground focus:border-primary focus:outline-none"
                 />
               </label>
               <label className="text-sm font-semibold text-foreground-soft md:col-span-2">
@@ -136,13 +168,14 @@ export default function Members() {
                   value={notes}
                   onChange={event => setNotes(event.target.value)}
                   rows={3}
-                  className="mt-1 w-full rounded-xl border border-border p-3 font-normal text-foreground"
+                  className="mt-1 min-h-11 w-full rounded-xl border border-input bg-card px-3.5 py-2.5 font-normal text-foreground focus:border-primary focus:outline-none"
                 />
               </label>
             </div>
             <button
               disabled={createMember.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-success px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              type="submit"
+              className="mt-5 min-h-11 w-full rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary-strong disabled:opacity-50 sm:w-auto"
             >
               {createMember.isPending ? "กำลังบันทึก…" : "บันทึกสมาชิก"}
             </button>
@@ -160,34 +193,79 @@ export default function Members() {
           <EmptyState
             title="ยังไม่มีข้อมูลสมาชิก"
             description="เริ่มต้นด้วยการเพิ่มสมาชิกคนแรก"
-            actionText="เพิ่มสมาชิก"
+            actionText={canCreate ? "เพิ่มสมาชิก" : undefined}
             onAction={() => setShowCreate(true)}
           />
         ) : (
-          <div className="grid gap-3 md:grid-cols-2">
-            {membersQuery.data.map(member => (
-              <button
-                key={member.id}
-                type="button"
-                onClick={() => setLocation(`/members/${member.id}`)}
-                className="rounded-2xl border border-border bg-card p-4 sm:p-5 text-left hover:bg-background"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-bold text-foreground">{member.name}</h2>
-                  <span
-                    className={`rounded-full px-2 py-1 text-[11px] ${member.status === "active" ? "bg-success-soft text-foreground" : "bg-muted text-foreground-soft"}`}
-                  >
-                    {MEMBER_STATUS_LABEL[member.status] ?? member.status}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {member.phone || "ไม่ระบุเบอร์โทรศัพท์"}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {member.email || "ไม่ระบุอีเมล"}
-                </p>
-              </button>
-            ))}
+          <div className="space-y-3">
+            <FilterBar
+              searchPlaceholder="ค้นหาชื่อ เบอร์โทร หรืออีเมล"
+              searchValue={search}
+              onSearchChange={setSearch}
+            />
+            <p className="text-xs text-muted-foreground">
+              {visibleMembers.length} จาก {membersQuery.data.length} คน
+            </p>
+            {visibleMembers.length === 0 ? (
+              <EmptyState
+                title="ไม่พบสมาชิกที่ค้นหา"
+                description="ลองพิมพ์ชื่อหรือเบอร์โทรอีกครั้ง"
+                actionText="ล้างการค้นหา"
+                onAction={() => setSearch("")}
+              />
+            ) : (
+              <ul className="divide-y divide-divider overflow-hidden rounded-2xl border border-border bg-card md:grid md:grid-cols-2 md:divide-y-0">
+                {visibleMembers.map(member => {
+                  const contact = [member.phone, member.email]
+                    .filter(Boolean)
+                    .join(" · ");
+                  return (
+                    <li
+                      key={member.id}
+                      className="md:border-b md:border-divider md:odd:border-r"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setLocation(`/members/${member.id}`)}
+                        className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted"
+                      >
+                        <span
+                          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-primary-strong"
+                          aria-hidden="true"
+                        >
+                          {initial(member.name)}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[15px] font-semibold text-foreground">
+                            {member.name}
+                          </span>
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {contact || "ยังไม่มีข้อมูลติดต่อ"}
+                          </span>
+                        </span>
+                        {member.status !== "active" && (
+                          <StatusBadge
+                            status={
+                              member.status === "pending"
+                                ? "pending"
+                                : "inactive"
+                            }
+                            label={
+                              MEMBER_STATUS_LABEL[member.status] ??
+                              member.status
+                            }
+                          />
+                        )}
+                        <ChevronRight
+                          className="size-4 shrink-0 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         )}
       </div>

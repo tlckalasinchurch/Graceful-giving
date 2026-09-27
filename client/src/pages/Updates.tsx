@@ -6,10 +6,10 @@ import {
   Bell,
   Megaphone,
   Settings2,
-  Sparkles,
   UsersRound,
 } from "lucide-react";
 import { Link } from "wouter";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { MemberFeed } from "./Updates/components/MemberFeed";
 import { AdminManager } from "./Updates/components/AdminManager";
 
@@ -61,71 +61,45 @@ export default function Updates() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-16 text-foreground">
-      <div className="mx-auto max-w-[var(--content-max)] px-5 py-6 sm:px-8 lg:py-10">
-        <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
-          <div>
-            <Link
-              href="/"
-              className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-primary-strong hover:underline"
-            >
-              <ArrowLeft className="size-4" />
-              กลับหน้าหลัก
-            </Link>
-            <div className="mt-4 flex items-center gap-3">
-              <div className="grid size-12 place-items-center rounded-2xl bg-info-soft text-info">
-                <Megaphone className="size-6" />
-              </div>
-              <div>
-                <h1 className="font-display text-3xl font-bold tracking-tight text-foreground-soft">
-                  ข่าวสาร & กิจกรรม
-                </h1>
-                <p className="mt-1 text-sm text-foreground-soft">
-                  ติดตามสิ่งที่เกิดขึ้นในคริสตจักรบ้านแห่งพระคุณ
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 rounded-full border border-divider bg-white/75 px-3.5 py-2 text-xs text-foreground-soft">
-            <Sparkles className="size-4 text-primary-strong" />
-            <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
-          </div>
-        </header>
-
-        <div className="mt-8 flex gap-2 rounded-2xl bg-divider p-1.5 sm:w-fit">
-          <button
-            onClick={() => setActiveTab("feed")}
-            className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
-              activeTab === "feed"
-                ? "bg-card text-primary-strong shadow-sm"
-                : "text-muted-foreground hover:text-foreground-soft"
-            }`}
-          >
-            สำหรับสมาชิก
-          </button>
-          {canManage && (
-            <button
-              onClick={() => setActiveTab("manage")}
-              className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
-                activeTab === "manage"
-                  ? "bg-card text-primary-strong shadow-sm"
-                  : "text-muted-foreground hover:text-foreground-soft"
-              }`}
-            >
-              <Settings2 className="mr-1.5 inline size-4" />
-              จัดการเนื้อหา
-            </button>
-          )}
+    <AppLayout
+      title="ข่าวสารและกิจกรรม"
+      subtitle="ประกาศ ข่าวสาร และกิจกรรมที่กำลังจะมาถึงของคริสตจักร"
+    >
+      {canManage && (
+        <div
+          role="tablist"
+          aria-label="มุมมองข่าวสาร"
+          className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted p-1 sm:w-fit"
+        >
+          {(
+            [
+              ["feed", "สำหรับสมาชิก", Megaphone],
+              ["manage", "จัดการเนื้อหา", Settings2],
+            ] as const
+          ).map(([id, label, Icon]) => {
+            const active = activeTab === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setActiveTab(id)}
+                className={`inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-4 text-sm transition-colors ${
+                  active
+                    ? "bg-card font-semibold text-foreground shadow-xs"
+                    : "font-medium text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Icon className="size-4" aria-hidden="true" />
+                {label}
+              </button>
+            );
+          })}
         </div>
+      )}
 
-        {activeTab === "feed" ? (
-          <div className="mt-8">
-            <MemberFeed />
-          </div>
-        ) : (
-          <AdminManager />
-        )}
-      </div>
-    </div>
+      {activeTab === "feed" || !canManage ? <MemberFeed /> : <AdminManager />}
+    </AppLayout>
   );
 }
