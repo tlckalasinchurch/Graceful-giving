@@ -60,9 +60,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#171311]/55 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
       {/* Container */}
-      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E7DCC8] overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
+      <div className="bg-card w-full max-w-3xl rounded-2xl shadow-lg border border-[#E7DCC8] overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Modal Action Bar (Hidden in print) */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#FAF8F5] border-b border-[#E7DCC8] print:hidden">
           <div className="flex items-center gap-2 text-[#51443A]">
@@ -74,14 +74,14 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-medium text-xs shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-medium text-xs shadow-xs transition-all duration-200 ease-in-out"
             >
               <Printer className="w-4 h-4" />
               <span>พิมพ์เอกสาร (Print / PDF)</span>
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-[#807266] hover:text-[#171311] hover:bg-black/5 rounded-xl transition-colors"
+              className="p-2 text-[#6E6155] hover:text-[#171311] hover:bg-black/5 rounded-xl transition-all duration-200 ease-in-out"
             >
               <X className="w-5 h-5" />
             </button>
@@ -93,7 +93,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           {/* Printable Voucher Card */}
           <div
             ref={printAreaRef}
-            className="voucher-print-area max-w-2xl mx-auto bg-white border border-stone-300 print:border-none p-8 sm:p-10 rounded-2xl text-stone-900 font-sans"
+            className="voucher-print-area max-w-2xl mx-auto bg-card border border-stone-300 print:border-none p-8 sm:p-10 rounded-2xl text-stone-900 font-sans"
           >
             {/* Header / Church Info */}
             <div className="border-b-2 border-stone-800 pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -101,22 +101,22 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
                   {church?.name || "คริสตจักร"}
                 </h1>
-                <p className="text-xs text-stone-600 mt-1 max-w-md">
+                <p className="text-xs text-[#51443A] mt-1 max-w-md">
                   {church?.address || "ที่อยู่คริสตจักร"}
                 </p>
-                <p className="text-xs text-stone-500 mt-0.5">
+                <p className="text-xs text-[#6E6155] mt-0.5">
                   {church?.phone && `โทรศัพท์: ${church.phone}`}
                   {church?.email && ` | อีเมล: ${church.email}`}
                 </p>
               </div>
-              <div className="text-left sm:text-right bg-stone-50 p-3 rounded-xl border border-stone-200 shrink-0">
-                <p className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+              <div className="text-left sm:text-right bg-[#FAF8F5] p-3 rounded-xl border border-[#E7DCC8] shrink-0">
+                <p className="text-[11px] font-semibold text-[#6E6155] uppercase tracking-wider">
                   {isExpense ? "เลขที่ใบสำคัญจ่าย" : "เลขที่ใบเสร็จ"}
                 </p>
                 <p className="text-sm font-bold text-stone-900 font-mono">
                   {docNumber}
                 </p>
-                <p className="text-[11px] text-stone-600 mt-1">
+                <p className="text-[11px] text-[#51443A] mt-1">
                   วันที่: {formattedDate}
                 </p>
               </div>
@@ -124,15 +124,15 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
 
             {/* Document Title Banner */}
             <div className="text-center my-6">
-              <span className="inline-block px-6 py-1.5 bg-stone-100 border border-stone-300 rounded-lg text-sm sm:text-base font-bold text-stone-900 tracking-wide">
+              <span className="inline-block px-6 py-1.5 bg-[#F5EDE0] border border-stone-300 rounded-lg text-sm sm:text-base font-bold text-stone-900 tracking-wide">
                 {docTitle}
               </span>
             </div>
 
             {/* Info Grid */}
-            <div className="grid grid-cols-2 gap-4 text-xs mb-6 bg-stone-50/70 p-4 rounded-xl border border-stone-200">
+            <div className="grid grid-cols-2 gap-4 text-xs mb-6 bg-[#FAF8F5]/70 p-4 rounded-xl border border-[#E7DCC8]">
               <div>
-                <span className="text-stone-500 font-medium">
+                <span className="text-[#6E6155] font-medium">
                   {isExpense ? "จ่ายให้แก่ (Payee):" : "ได้รับเงินจาก (Donor):"}
                 </span>
                 <p className="font-bold text-stone-900 text-sm mt-0.5">
@@ -141,7 +141,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </p>
               </div>
               <div>
-                <span className="text-stone-500 font-medium">
+                <span className="text-[#6E6155] font-medium">
                   หักจาก / เข้ากองทุน:
                 </span>
                 <p className="font-bold text-stone-900 text-sm mt-0.5">
@@ -149,7 +149,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </p>
               </div>
               <div>
-                <span className="text-stone-500 font-medium">
+                <span className="text-[#6E6155] font-medium">
                   หมวดหมู่รายการ:
                 </span>
                 <p className="font-semibold text-stone-800 mt-0.5">
@@ -157,7 +157,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </p>
               </div>
               <div>
-                <span className="text-stone-500 font-medium">
+                <span className="text-[#6E6155] font-medium">
                   {isExpense ? "เอกสารอ้างอิง / เลขที่สลิป:" : "วิธีการชำระ:"}
                 </span>
                 <p className="font-semibold text-stone-800 font-mono mt-0.5">
@@ -173,7 +173,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             {/* Items Table */}
             <div className="border border-stone-300 rounded-xl overflow-hidden mb-6">
               <table className="w-full text-left text-xs">
-                <thead className="bg-stone-100 border-b border-stone-300 text-stone-700 font-bold">
+                <thead className="bg-[#F5EDE0] border-b border-stone-300 text-stone-700 font-bold">
                   <tr>
                     <th className="py-2.5 px-4 w-12 text-center">ลำดับ</th>
                     <th className="py-2.5 px-4">
@@ -186,7 +186,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </thead>
                 <tbody className="divide-y divide-stone-200">
                   <tr>
-                    <td className="py-4 px-4 text-center font-mono text-stone-500">
+                    <td className="py-4 px-4 text-center font-mono text-[#6E6155]">
                       1
                     </td>
                     <td className="py-4 px-4">
@@ -194,7 +194,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                         {data.titleOrDescription}
                       </p>
                       {data.notes && (
-                        <p className="text-stone-500 text-xs mt-1">
+                        <p className="text-[#6E6155] text-xs mt-1">
                           {data.notes}
                         </p>
                       )}
@@ -207,7 +207,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     </td>
                   </tr>
                 </tbody>
-                <tfoot className="bg-stone-50 border-t-2 border-stone-300 font-bold">
+                <tfoot className="bg-[#FAF8F5] border-t-2 border-stone-300 font-bold">
                   <tr>
                     <td colSpan={2} className="py-3 px-4 text-stone-700">
                       จำนวนเงินรวมทั้งสิ้น (ตัวอักษร):
@@ -251,47 +251,47 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               {isExpense ? (
                 <div className="grid grid-cols-3 gap-6 text-center text-xs">
                   <div className="space-y-12">
-                    <p className="text-stone-600 font-medium">
+                    <p className="text-[#51443A] font-medium">
                       ผู้ขอเบิก / ผู้รับเงิน
                     </p>
                     <div className="border-b border-stone-400 mx-2"></div>
-                    <p className="text-stone-500">
+                    <p className="text-[#6E6155]">
                       (
                       {data.payeeOrDonor ||
                         "........................................"}
                       )
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-[10px] text-[#8C7B6B]">
                       วันที่ ......./......./.......
                     </p>
                   </div>
                   <div className="space-y-12">
-                    <p className="text-stone-600 font-medium">
+                    <p className="text-[#51443A] font-medium">
                       เหรัญญิก / ผู้จ่ายเงิน
                     </p>
                     <div className="border-b border-stone-400 mx-2"></div>
-                    <p className="text-stone-500">
+                    <p className="text-[#6E6155]">
                       (
                       {church?.treasurerName ||
                         "........................................"}
                       )
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-[10px] text-[#8C7B6B]">
                       วันที่ ......./......./.......
                     </p>
                   </div>
                   <div className="space-y-12">
-                    <p className="text-stone-600 font-medium">
+                    <p className="text-[#51443A] font-medium">
                       ศิษยาภิบาล / ผู้อนุมัติ
                     </p>
                     <div className="border-b border-stone-400 mx-2"></div>
-                    <p className="text-stone-500">
+                    <p className="text-[#6E6155]">
                       (
                       {church?.pastorName ||
                         "........................................"}
                       )
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-[10px] text-[#8C7B6B]">
                       วันที่ ......./......./.......
                     </p>
                   </div>
@@ -299,29 +299,29 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               ) : (
                 <div className="grid grid-cols-2 gap-10 text-center text-xs max-w-md mx-auto">
                   <div className="space-y-12">
-                    <p className="text-stone-600 font-medium">
+                    <p className="text-[#51443A] font-medium">
                       ผู้รับเงินถวาย / ผู้บันทึก
                     </p>
                     <div className="border-b border-stone-400 mx-4"></div>
-                    <p className="text-stone-500">
+                    <p className="text-[#6E6155]">
                       (........................................)
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-[10px] text-[#8C7B6B]">
                       วันที่ ......./......./.......
                     </p>
                   </div>
                   <div className="space-y-12">
-                    <p className="text-stone-600 font-medium">
+                    <p className="text-[#51443A] font-medium">
                       เหรัญญิกคริสตจักร
                     </p>
                     <div className="border-b border-stone-400 mx-4"></div>
-                    <p className="text-stone-500">
+                    <p className="text-[#6E6155]">
                       (
                       {church?.treasurerName ||
                         "........................................"}
                       )
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-[10px] text-[#8C7B6B]">
                       วันที่ ......./......./.......
                     </p>
                   </div>
@@ -331,7 +331,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
 
             {/* Footer motto */}
             {church?.motto && (
-              <p className="text-center text-[10px] text-stone-400 mt-8 italic">
+              <p className="text-center text-[10px] text-[#8C7B6B] mt-8 italic">
                 "{church.motto}"
               </p>
             )}

@@ -109,12 +109,14 @@ export default function Home() {
     staleTime: 30_000,
   });
 
-  const { data: offeringsData } = trpc.offerings.list.useQuery(
+  const { data: offeringsData, isLoading: offeringsLoading } =
+    trpc.offerings.list.useQuery(
     { limit: 30 },
     { retry: false }
   );
 
-  const { data: expensesData } = trpc.expenses.list.useQuery(
+  const { data: expensesData, isLoading: expensesLoading } =
+    trpc.expenses.list.useQuery(
     { limit: 30 },
     { retry: false }
   );
@@ -162,7 +164,7 @@ export default function Home() {
           category: o.category,
           subCategory: "อาคารคริสตจักร",
           amount: Number(o.amount),
-          tone: "bg-[#FDECEA] text-[#E06250]",
+          tone: "bg-[#FEECEB] text-[#C8372D]",
           icon: Heart,
         });
       });
@@ -178,7 +180,7 @@ export default function Home() {
           category: e.category,
           subCategory: "พันธกิจนมัสการ",
           amount: Number(e.amount),
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
+          tone: "bg-[#FFF4D6] text-[#C94F16]",
           icon: Landmark,
         });
       });
@@ -190,7 +192,7 @@ export default function Home() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 sm:space-y-8 md:space-y-10">
+      <div className="space-y-6 sm:space-y-8">
         {/* 1. Hero Section */}
         <HeroSection />
 
@@ -199,10 +201,10 @@ export default function Home() {
           <div
             role="region"
             aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#F9D2AE] text-[#51443A] shadow-2xs"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FFF4D6] border border-[#F9D2AE] text-[#51443A] shadow-xs"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0">
+              <div className="size-11 rounded-xl bg-[#C94F16] flex items-center justify-center text-white shrink-0">
                 <Inbox className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -216,16 +218,16 @@ export default function Home() {
             </div>
             <button
               onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="group min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] active:scale-[0.98] text-white text-sm font-semibold shrink-0 flex items-center justify-center gap-1.5 shadow-xs transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
             >
               <span>ตรวจสอบสลิป</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </button>
           </div>
         )}
 
-        <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+        <section aria-labelledby="dashboard-overview" className="space-y-4">
+          <h2 id="dashboard-overview" className="text-sm font-semibold text-[#51443A]">
             ดูภาพรวม
           </h2>
           <BalanceCard
@@ -256,8 +258,8 @@ export default function Home() {
           />
         </section>
 
-        <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+        <section aria-labelledby="dashboard-actions" className="space-y-4">
+          <h2 id="dashboard-actions" className="text-sm font-semibold text-[#51443A]">
             ทำรายการ
           </h2>
           <PrimaryActions
@@ -276,8 +278,8 @@ export default function Home() {
           />
         </section>
 
-        <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
+        <section aria-labelledby="dashboard-tracking" className="space-y-4">
+          <h2 id="dashboard-tracking" className="text-sm font-semibold text-[#51443A]">
             ติดตาม
           </h2>
           <BudgetSection
@@ -286,6 +288,8 @@ export default function Home() {
           />
           <RecentTransactions
             allTransactions={allTransactions}
+            isLoading={offeringsLoading || expensesLoading}
+            onAdd={() => setLocation("/offerings/new")}
             onViewAll={() => setLocation("/transactions")}
             fmtBaht={fmtBaht}
             fmtThaiDate={fmtThaiDate}

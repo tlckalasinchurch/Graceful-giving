@@ -91,7 +91,7 @@ export function DeductionsTab({
               }
             );
           }}
-          className="rounded-2xl border border-[#E7DCC8] bg-white p-5 shadow-sm md:p-6"
+          className="rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-sm md:p-6"
         >
           <h2 className="mb-4 font-bold text-foreground">
             บันทึกรายการหักเบิก
@@ -179,14 +179,14 @@ export function DeductionsTab({
           <button
             type="submit"
             disabled={addDeduction.isPending || !dFundId}
-            className="mt-4 min-h-11 rounded-xl bg-[#2F7A45] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            className="mt-4 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
           >
             {addDeduction.isPending ? "กำลังบันทึก…" : "เพิ่มรายการเบิก"}
           </button>
         </form>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-[#E7DCC8] p-4">
           <h2 className="font-bold text-foreground">
             รายการหักเบิก ({deductions.length})
@@ -200,7 +200,7 @@ export function DeductionsTab({
             ไม่มีการหักเบิกในรอบนี้ เงินถวายทั้งหมดจะถูกนำฝาก
           </p>
         ) : (
-          <ul className="divide-y divide-[#EDE8E3]">
+          <ul className="divide-y divide-[#EFE5D3]">
             {deductions.map(deduction => (
               <li key={deduction.id} className="space-y-2 p-4">
                 <div className="flex items-start justify-between gap-4">
@@ -228,7 +228,7 @@ export function DeductionsTab({
                           })
                         }
                         disabled={removeDeduction.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FDECEA] disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FEECEB] disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -247,7 +247,7 @@ export function DeductionsTab({
                           approveDeduction.mutate({ id: deduction.id })
                         }
                         disabled={approveDeduction.isPending}
-                        className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-[#2F7A45] disabled:opacity-50"
+                        className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-[#2D6A2E] disabled:opacity-50"
                       >
                         อนุมัติรายการนี้
                       </button>

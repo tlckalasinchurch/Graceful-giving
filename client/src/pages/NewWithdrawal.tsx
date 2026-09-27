@@ -103,7 +103,7 @@ export default function NewWithdrawal() {
         <BackLink label={`กลับ${returnLabel}`} onClick={goBack} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
+          <div className="bg-card border border-[#E7DCC8] rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#171311]">
                 วัตถุประสงค์การเบิก <span className="text-red-500">*</span>
@@ -124,7 +124,7 @@ export default function NewWithdrawal() {
                   จำนวนเงิน (บาท) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-[#807266]">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-[#6E6155]">
                     ฿
                   </span>
                   <input
@@ -200,14 +200,14 @@ export default function NewWithdrawal() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FFF8EA]/50 font-medium text-sm transition-colors"
+              className="px-6 py-3 rounded-2xl border border-[#E7DCC8] bg-card text-[#51443A] hover:bg-[#FFF4D6]/50 font-medium text-sm transition-all duration-200 ease-in-out"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={isSubmitting || funds.length === 0}
-              className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
             >
               <Banknote className="w-4 h-4" />
               <span>
@@ -218,8 +218,8 @@ export default function NewWithdrawal() {
         </form>
 
         {showSuccessModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl">
+          <div className="fixed inset-0 z-50 bg-[#171311]/45 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-card rounded-2xl border border-[#E7DCC8] max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-lg">
               <div className="w-16 h-16 rounded-full bg-[#E4F3E7] flex items-center justify-center text-[#51443A] mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-[#51443A]" />
               </div>
@@ -227,7 +227,7 @@ export default function NewWithdrawal() {
                 <h3 className="text-2xl font-bold text-[#171311]">
                   ส่งคำขอเบิกเงินสำเร็จ!
                 </h3>
-                <p className="text-sm text-[#807266]">
+                <p className="text-sm text-[#6E6155]">
                   คำขอของคุณถูกส่งให้ผู้มีสิทธิ์อนุมัติพิจารณาแล้ว
                 </p>
               </div>
@@ -241,7 +241,7 @@ export default function NewWithdrawal() {
                     setDetails("");
                     setUrgency("normal");
                   }}
-                  className="w-full py-3 rounded-2xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-colors shadow-sm"
+                  className="w-full py-3 rounded-2xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-all duration-200 ease-in-out shadow-sm"
                 >
                   ส่งคำขออีกรายการ
                 </button>
@@ -250,7 +250,7 @@ export default function NewWithdrawal() {
                     setShowSuccessModal(false);
                     setLocation(returnPath);
                   }}
-                  className="w-full py-2.5 rounded-2xl border border-[#E7DCC8] text-[#51443A] font-medium text-sm hover:bg-[#FFF8EA]/50 transition-colors"
+                  className="w-full py-2.5 rounded-2xl border border-[#E7DCC8] text-[#51443A] font-medium text-sm hover:bg-[#FFF4D6]/50 transition-all duration-200 ease-in-out"
                 >
                   กลับสู่{returnLabel}
                 </button>

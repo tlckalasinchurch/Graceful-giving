@@ -29,17 +29,17 @@ export function SecondaryMenu({
   return (
     <section
       aria-label="เมนูลัดอื่น ๆ"
-      className={`grid grid-cols-3 gap-3 sm:gap-4 md:gap-5 w-full ${secondaryTileColsClass}`}
+      className={`grid grid-cols-3 gap-3 sm:gap-4 w-full ${secondaryTileColsClass}`}
     >
       {/* รายงาน */}
       {canOpenReports && (
         <button
           onClick={onOpenReports}
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#8E44AD] hover:bg-[#FAF5FC] transition-colors focus-visible:ring-2 focus-visible:ring-[#8E44AD] shadow-2xs"
+          className="flex flex-col items-center justify-center gap-2 min-h-[88px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-card border border-[#E7DCC8] shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:border-[#C94F16]/40 hover:shadow-sm active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
           aria-label="รายงาน"
         >
-          <FileBarChart className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#8E44AD] mb-1.5" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-[#FFF4D6] text-[#C94F16]"><FileBarChart className="size-5" aria-hidden="true" /></span>
+          <span className="text-xs sm:text-sm font-semibold text-[#171311] text-center">
             รายงาน
           </span>
         </button>
@@ -49,11 +49,11 @@ export function SecondaryMenu({
       {canOpenMembers && (
         <button
           onClick={onOpenMembers}
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C94F16] hover:bg-[#FAF8F5] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs"
+          className="flex flex-col items-center justify-center gap-2 min-h-[88px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-card border border-[#E7DCC8] shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:border-[#C94F16]/40 hover:shadow-sm active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
           aria-label="สมาชิก"
         >
-          <UsersRound className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C94F16] mb-1.5" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-[#FFF4D6] text-[#C94F16]"><UsersRound className="size-5" aria-hidden="true" /></span>
+          <span className="text-xs sm:text-sm font-semibold text-[#171311] text-center">
             สมาชิก
           </span>
         </button>
@@ -62,11 +62,11 @@ export function SecondaryMenu({
       {/* กิจกรรม */}
       <button
         onClick={onOpenNews}
-        className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C9503B] hover:bg-[#FFF5F3] transition-colors focus-visible:ring-2 focus-visible:ring-[#C9503B] shadow-2xs"
+        className="flex flex-col items-center justify-center gap-2 min-h-[88px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-card border border-[#E7DCC8] shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:border-[#C94F16]/40 hover:shadow-sm active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
         aria-label="กิจกรรม"
       >
-        <CalendarDays className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C9503B] mb-1.5" />
-        <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+        <span className="flex size-10 items-center justify-center rounded-xl bg-[#FFF4D6] text-[#C94F16]"><CalendarDays className="size-5" aria-hidden="true" /></span>
+        <span className="text-xs sm:text-sm font-semibold text-[#171311] text-center">
           กิจกรรม
         </span>
       </button>
@@ -74,11 +74,11 @@ export function SecondaryMenu({
       {/* ขอเบิกเงิน */}
       <button
         onClick={onOpenWithdrawals}
-        className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C94F16] hover:bg-[#FAF8F5] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs"
+        className="flex flex-col items-center justify-center gap-2 min-h-[88px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-card border border-[#E7DCC8] shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:border-[#C94F16]/40 hover:shadow-sm active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16]"
         aria-label="ยื่นคำขอเบิกเงิน"
       >
-        <Banknote className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C94F16] mb-1.5" />
-        <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+        <span className="flex size-10 items-center justify-center rounded-xl bg-[#FFF4D6] text-[#C94F16]"><Banknote className="size-5" aria-hidden="true" /></span>
+        <span className="text-xs sm:text-sm font-semibold text-[#171311] text-center">
           ขอเบิกเงิน
         </span>
       </button>
@@ -87,11 +87,11 @@ export function SecondaryMenu({
       <AppMenu>
         <button
           type="button"
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 w-full rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#2A75A0] hover:bg-[#F2F8FC] transition-colors focus-visible:ring-2 focus-visible:ring-[#2A75A0] shadow-2xs"
+          className="flex flex-col items-center justify-center gap-2 min-h-[88px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-card border border-[#E7DCC8] shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:border-[#C94F16]/40 hover:shadow-sm active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] w-full"
           aria-label="เพิ่มเติม"
         >
-          <MoreHorizontal className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#2A75A0] mb-1.5" />
-          <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-[#FFF4D6] text-[#C94F16]"><MoreHorizontal className="size-5" aria-hidden="true" /></span>
+          <span className="text-xs sm:text-sm font-semibold text-[#171311] text-center">
             เพิ่มเติม
           </span>
         </button>

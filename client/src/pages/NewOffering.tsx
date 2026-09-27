@@ -123,7 +123,7 @@ export default function NewOffering() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Hero Card with offering_box.jpg */}
         <div className="bg-gradient-to-r from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] rounded-2xl p-6 border border-[#E7DCC8] shadow-xs flex items-center gap-5">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-white p-1 border border-[#E7DCC8] shadow-xs shrink-0">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-card p-1 border border-[#E7DCC8] shadow-xs shrink-0">
             <Illustration
               src="/illustrations/offering_box.jpg"
               alt="กล่องถวาย"
@@ -136,7 +136,7 @@ export default function NewOffering() {
             <h2 className="text-lg sm:text-xl font-bold text-[#51443A]">
               การถวายด้วยความยินดี
             </h2>
-            <p className="text-xs text-[#807266] leading-relaxed">
+            <p className="text-xs text-[#6E6155] leading-relaxed">
               "พระเจ้าทรงรักผู้ที่ให้ด้วยใจยินดี" —
               ทุกยอดการถวายจะถูกบันทึกอย่างถูกต้องและโปร่งใสเพื่อการงานของพระเจ้า
             </p>
@@ -146,7 +146,7 @@ export default function NewOffering() {
         {/* Main Step Form Card */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E7DCC8] card-elevation-sm space-y-6"
+          className="bg-card rounded-2xl p-6 sm:p-8 border border-[#E7DCC8] card-elevation-sm space-y-6"
         >
           {/* 1. ประเภทถวาย */}
           <div className="space-y-2.5">
@@ -161,8 +161,8 @@ export default function NewOffering() {
                   onClick={() => setCategory(cat.id)}
                   className={`p-3 rounded-2xl border text-xs font-bold text-center transition-all ${
                     category === cat.id
-                      ? "bg-[#FFF8EA] border-[#C94F16] text-[#51443A] shadow-2xs"
-                      : "bg-white border-[#E7DCC8] text-[#807266] hover:bg-[#FAF8F5]"
+                      ? "bg-[#FFF4D6] border-[#C94F16] text-[#51443A] shadow-2xs"
+                      : "bg-card border-[#E7DCC8] text-[#6E6155] hover:bg-[#FAF8F5]"
                   }`}
                 >
                   {cat.label}
@@ -177,7 +177,7 @@ export default function NewOffering() {
               2. ระบุจำนวนเงิน (บาท)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#1F5C33]">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#2D6A2E]">
                 ฿
               </span>
               <input
@@ -187,7 +187,7 @@ export default function NewOffering() {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-2xl font-bold text-[#1F5C33] focus:outline-none focus:border-[#C94F16]"
+                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-2xl font-bold text-[#2D6A2E] focus:outline-none focus:border-[#C94F16]"
               />
             </div>
 
@@ -244,8 +244,8 @@ export default function NewOffering() {
                   onClick={() => setMethod(m)}
                   className={`min-h-11 py-2.5 px-3 rounded-2xl border text-xs font-bold transition-all ${
                     method === m
-                      ? "bg-[#E4F3E7] border-[#9BCBA5] text-[#2F7A45] shadow-2xs"
-                      : "bg-white border-[#E7DCC8] text-[#807266] hover:bg-[#FAF8F5]"
+                      ? "bg-[#E4F3E7] border-[#9BCBA5] text-[#2D6A2E] shadow-2xs"
+                      : "bg-card border-[#E7DCC8] text-[#6E6155] hover:bg-[#FAF8F5]"
                   }`}
                 >
                   {m}
@@ -264,7 +264,7 @@ export default function NewOffering() {
                 type="date"
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311]"
+                className="w-full p-3 rounded-2xl bg-card border border-[#E7DCC8] text-xs text-[#171311]"
               />
             </div>
 
@@ -282,7 +282,7 @@ export default function NewOffering() {
                     ? "ถวายโดยไม่เปิดเผยนาม"
                     : "ชื่อ-นามสกุล หรือครอบครัว"
                 }
-                className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311] disabled:opacity-50"
+                className="w-full p-3 rounded-2xl bg-card border border-[#E7DCC8] text-xs text-[#171311] disabled:opacity-50"
               />
             </div>
           </div>
@@ -315,7 +315,7 @@ export default function NewOffering() {
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="เช่น ถวายขอบพระคุณสำหรับวันเกิด, พันธกิจเด็ก"
-              className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311]"
+              className="w-full p-3 rounded-2xl bg-card border border-[#E7DCC8] text-xs text-[#171311]"
             />
           </div>
 
@@ -337,7 +337,7 @@ export default function NewOffering() {
 
       {/* Success Celebration Dialog */}
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
-        <DialogContent className="max-w-sm bg-[#FFFFFF] border-[#E7DCC8] rounded-2xl p-6 text-center text-[#171311] space-y-4">
+        <DialogContent className="max-w-sm bg-card border-[#E7DCC8] rounded-2xl p-6 text-center text-[#171311] space-y-4">
           <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-[#E7DCC8] shadow-xs p-1 bg-[#E4F3E7]">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
@@ -351,26 +351,26 @@ export default function NewOffering() {
             <h3 className="text-xl font-bold text-[#51443A]">
               บันทึกการถวายเรียบร้อยแล้ว
             </h3>
-            <p className="text-xs text-[#807266] mt-1">
+            <p className="text-xs text-[#6E6155] mt-1">
               "ขอพระเจ้าทรงอวยพระพรและตอบแทนทุกน้ำใจที่ท่านได้มอบให้เพื่อพันธกิจของพระองค์"
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#FFF8EA] border border-[#E7DCC8] text-xs text-left space-y-1.5">
+          <div className="p-4 rounded-2xl bg-[#FFF4D6] border border-[#E7DCC8] text-xs text-left space-y-1.5">
             <p className="flex justify-between">
-              <span className="text-[#807266]">ประเภท:</span>
+              <span className="text-[#6E6155]">ประเภท:</span>
               <span className="font-bold text-[#51443A]">
                 {offeringCategoryLabel(category)}
               </span>
             </p>
             <p className="flex justify-between">
-              <span className="text-[#807266]">จำนวนเงิน:</span>
-              <span className="font-bold text-[#1F5C33]">
+              <span className="text-[#6E6155]">จำนวนเงิน:</span>
+              <span className="font-bold text-[#2D6A2E]">
                 {formatBaht(Number(amount))}
               </span>
             </p>
             <p className="flex justify-between">
-              <span className="text-[#807266]">ช่องทาง:</span>
+              <span className="text-[#6E6155]">ช่องทาง:</span>
               <span className="font-medium text-[#51443A]">{method}</span>
             </p>
           </div>

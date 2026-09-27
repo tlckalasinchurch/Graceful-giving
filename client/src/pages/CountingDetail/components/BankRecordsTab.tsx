@@ -77,7 +77,7 @@ export function BankRecordsTab({
             }
           );
         }}
-        className="rounded-2xl border border-[#E7DCC8] bg-white p-5 shadow-sm md:p-6"
+        className="rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-sm md:p-6"
       >
         <h2 className="mb-4 font-bold text-foreground">บันทึกรายการธนาคาร</h2>
         <div className="grid gap-4 md:grid-cols-4">
@@ -125,14 +125,14 @@ export function BankRecordsTab({
         <button
           type="submit"
           disabled={addBankRecord.isPending}
-          className="mt-4 min-h-11 rounded-xl bg-[#2F7A45] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+          className="mt-4 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
         >
           {addBankRecord.isPending ? "กำลังบันทึก…" : "เพิ่มรายการ"}
         </button>
       </form>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4">
+        <div className="rounded-2xl border border-[#E7DCC8] bg-card p-4">
           <p className="text-sm text-[#51443A]">เงินโอนเข้าบัญชีจริง</p>
           <MoneyDisplay amount={actualTransferIn} type="income" size="lg" />
           <p className="mt-1 text-sm text-[#51443A]">
@@ -142,7 +142,7 @@ export function BankRecordsTab({
             <Variance amount={transferVariance} />
           </div>
         </div>
-        <div className="rounded-2xl border border-[#E7DCC8] bg-white p-4">
+        <div className="rounded-2xl border border-[#E7DCC8] bg-card p-4">
           <p className="text-sm text-[#51443A]">นำเงินสดเข้าฝากจริง</p>
           <MoneyDisplay amount={actualCashDeposit} size="lg" />
           <p className="mt-1 text-sm text-[#51443A]">
@@ -154,7 +154,7 @@ export function BankRecordsTab({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-sm">
         <h2 className="border-b border-[#E7DCC8] p-4 font-bold text-foreground">
           รายการธนาคาร ({bankRecords.length})
         </h2>
@@ -163,7 +163,7 @@ export function BankRecordsTab({
             ยังไม่มีรายการธนาคารในรอบนี้
           </p>
         ) : (
-          <ul className="divide-y divide-[#EDE8E3]">
+          <ul className="divide-y divide-[#EFE5D3]">
             {bankRecords.map(record => (
               <li
                 key={record.id}
@@ -181,7 +181,7 @@ export function BankRecordsTab({
                   </p>
                   <p className="mt-1 text-sm">
                     {record.passbookMatched ? (
-                      <span className="font-bold text-[#2F7A45]">
+                      <span className="font-bold text-[#2D6A2E]">
                         กระทบสมุดบัญชีแล้ว
                       </span>
                     ) : (
@@ -203,7 +203,7 @@ export function BankRecordsTab({
                         })
                       }
                       disabled={matchPassbook.isPending}
-                      className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-[#2F7A45] disabled:opacity-50"
+                      className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-[#2D6A2E] disabled:opacity-50"
                     >
                       กระทบสมุด
                     </button>

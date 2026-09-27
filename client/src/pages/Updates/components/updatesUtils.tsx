@@ -101,14 +101,14 @@ export function downloadICS(event: {
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
     <div className="rounded-2xl border border-dashed border-[#E7DCC8] bg-white/65 px-6 py-12 text-center">
-      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#FFF8EA] text-[#C94F16]">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#FFF4D6] text-[#C94F16]">
         {type === "news" ? (
           <Megaphone className="size-7" strokeWidth={1.5} />
         ) : (
           <CalendarDays className="size-7" strokeWidth={1.5} />
         )}
       </div>
-      <p className="mt-4 text-base font-bold text-[#3F3833]">
+      <p className="mt-4 text-base font-bold text-[#51443A]">
         {type === "news"
           ? "ยังไม่มีข่าวสารเผยแพร่"
           : "ยังไม่มีกิจกรรมที่กำลังจะมาถึง"}
@@ -175,7 +175,7 @@ export function SubmitButtons({
       <button
         type="button"
         onClick={onCancel}
-        className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-3 text-sm font-bold text-[#51443A] hover:bg-[#FFF8EA]"
+        className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-3 text-sm font-bold text-[#51443A] hover:bg-[#FFF4D6]"
       >
         ยกเลิก
       </button>

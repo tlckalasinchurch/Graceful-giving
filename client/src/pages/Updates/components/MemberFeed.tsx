@@ -68,7 +68,7 @@ export function MemberFeed() {
         </p>
         <button
           onClick={() => refetch()}
-          className="mt-4 rounded-xl bg-[#B3322A] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#aa473e]"
+          className="mt-4 rounded-xl bg-[#A92D24] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#aa473e]"
         >
           ลองใหม่อีกครั้ง
         </button>
@@ -82,7 +82,7 @@ export function MemberFeed() {
       <section>
         <div className="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
-            <p className="font-display text-xl font-bold tracking-tight text-[#3F3833]">
+            <p className="font-display text-xl font-bold tracking-tight text-[#51443A]">
               ข่าวสารล่าสุด
             </p>
             <p className="mt-1 text-xs text-[#51443A]">
@@ -90,7 +90,7 @@ export function MemberFeed() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-[#FFF8EA] px-3 py-1 text-[11px] font-bold text-[#9F3B0F]">
+            <span className="rounded-full bg-[#FFF4D6] px-3 py-1 text-[11px] font-bold text-[#9F3B0F]">
               {filteredNews.length} รายการ
             </span>
           </div>
@@ -113,7 +113,7 @@ export function MemberFeed() {
               className={`min-h-11 rounded-full px-3.5 py-2 text-xs font-bold transition-all ${
                 newsCategoryFilter === cat
                   ? "bg-[#9F3B0F] text-white shadow-sm"
-                  : "bg-white/80 text-[#51443A] hover:bg-white hover:text-[#3F3833] border border-[#E7DCC8]"
+                  : "bg-white/80 text-[#51443A] hover:bg-white hover:text-[#51443A] border border-[#E7DCC8]"
               }`}
             >
               {cat === "all" ? "ทั้งหมด" : categoryLabels[cat]}
@@ -138,18 +138,18 @@ export function MemberFeed() {
                     setSelectedNews(item);
                   }
                 }}
-                className="group cursor-pointer rounded-2xl border border-[#EDE8E3] bg-white p-5 shadow-[0_5px_15px_rgba(94,70,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(94,70,42,0.08)] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
+                className="group cursor-pointer rounded-2xl border border-[#EFE5D3] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF8EA] px-2.5 py-1 text-[10px] font-bold text-[#9F3B0F]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4D6] px-2.5 py-1 text-[10px] font-bold text-[#9F3B0F]">
                     <Tag className="size-3" />
                     {categoryLabels[item.category]}
                   </span>
-                  <span className="text-[10px] text-[#807266] font-medium">
+                  <span className="text-[10px] text-[#6E6155] font-medium">
                     {formatThaiDate(item.publishedAt ?? item.createdAt)}
                   </span>
                 </div>
-                <h3 className="mt-4 font-display text-lg font-bold leading-7 text-[#3F3833] group-hover:text-[#C94F16] transition-colors">
+                <h3 className="mt-4 font-display text-lg font-bold leading-7 text-[#51443A] group-hover:text-[#C94F16] transition-all duration-200 ease-in-out">
                   {item.title}
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-[#51443A] line-clamp-3">
@@ -169,7 +169,7 @@ export function MemberFeed() {
       <section>
         <div className="mb-3 flex items-end justify-between">
           <div>
-            <p className="font-display text-xl font-bold tracking-tight text-[#3F3833]">
+            <p className="font-display text-xl font-bold tracking-tight text-[#51443A]">
               กิจกรรมที่กำลังจะมาถึง
             </p>
             <p className="mt-1 text-xs text-[#51443A]">
@@ -197,7 +197,7 @@ export function MemberFeed() {
                     setSelectedEvent(event);
                   }
                 }}
-                className="group flex cursor-pointer gap-4 rounded-2xl border border-[#EDE8E3] bg-white p-4 shadow-[0_5px_15px_rgba(94,70,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(94,70,42,0.08)] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
+                className="group flex cursor-pointer gap-4 rounded-2xl border border-[#EFE5D3] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
               >
                 <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#e9f3ff] text-[#3c6f9e]">
                   <CalendarDays className="size-5" />
@@ -206,7 +206,7 @@ export function MemberFeed() {
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold text-[#3F3833] group-hover:text-[#C94F16] transition-colors">
+                  <h3 className="text-base font-bold text-[#51443A] group-hover:text-[#C94F16] transition-all duration-200 ease-in-out">
                     {event.title}
                   </h3>
                   <p className="mt-1 text-xs font-semibold text-[#3b6d9c]">
@@ -222,7 +222,7 @@ export function MemberFeed() {
                     </p>
                   )}
                 </div>
-                <ChevronRight className="mt-1 size-5 shrink-0 text-[#807266] group-hover:text-[#C94F16] transition-colors" />
+                <ChevronRight className="mt-1 size-5 shrink-0 text-[#6E6155] group-hover:text-[#C94F16] transition-all duration-200 ease-in-out" />
               </article>
             ))}
           </div>
@@ -234,22 +234,22 @@ export function MemberFeed() {
         open={!!selectedNews}
         onOpenChange={open => !open && setSelectedNews(null)}
       >
-        <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-[#EDE8E3] bg-[#FFFFFF] p-6 shadow-2xl">
+        <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-[#EFE5D3] bg-card p-6 shadow-lg">
           {selectedNews && (
             <>
               <DialogHeader className="space-y-2 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF8EA] px-3 py-1 text-xs font-bold text-[#9F3B0F]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4D6] px-3 py-1 text-xs font-bold text-[#9F3B0F]">
                     <Tag className="size-3.5" />
                     {categoryLabels[selectedNews.category]}
                   </span>
-                  <span className="text-xs font-medium text-[#807266]">
+                  <span className="text-xs font-medium text-[#6E6155]">
                     {formatThaiDate(
                       selectedNews.publishedAt ?? selectedNews.createdAt
                     )}
                   </span>
                 </div>
-                <DialogTitle className="font-display text-2xl font-bold leading-tight text-[#3F3833]">
+                <DialogTitle className="font-display text-2xl font-bold leading-tight text-[#51443A]">
                   {selectedNews.title}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-[#51443A]">
@@ -262,16 +262,16 @@ export function MemberFeed() {
                 {selectedNews.summary}
               </div>
 
-              <div className="mt-4 border-t border-[#EDE8E3] pt-4">
+              <div className="mt-4 border-t border-[#EFE5D3] pt-4">
                 <p className="mb-2 text-sm font-semibold text-[#51443A]">
                   เนื้อหาฉบับเต็ม:
                 </p>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed text-[#3F3833]">
+                <div className="whitespace-pre-wrap text-sm leading-relaxed text-[#51443A]">
                   {selectedNews.body}
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end border-t border-[#EDE8E3] pt-4">
+              <div className="mt-6 flex justify-end border-t border-[#EFE5D3] pt-4">
                 <button
                   onClick={() => setSelectedNews(null)}
                   className="rounded-xl bg-[#9F3B0F] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
@@ -289,7 +289,7 @@ export function MemberFeed() {
         open={!!selectedEvent}
         onOpenChange={open => !open && setSelectedEvent(null)}
       >
-        <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-[#EDE8E3] bg-[#FFFFFF] p-6 shadow-2xl">
+        <DialogContent className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-[#EFE5D3] bg-card p-6 shadow-lg">
           {selectedEvent && (
             <>
               <DialogHeader className="space-y-2 text-left">
@@ -298,7 +298,7 @@ export function MemberFeed() {
                     <CalendarDays className="size-6" />
                   </span>
                   <div>
-                    <DialogTitle className="font-display text-xl font-bold text-[#3F3833]">
+                    <DialogTitle className="font-display text-xl font-bold text-[#51443A]">
                       {selectedEvent.title}
                     </DialogTitle>
                     <div className="mt-1 flex items-center gap-2">
@@ -311,7 +311,7 @@ export function MemberFeed() {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="mt-3 space-y-2.5 rounded-2xl border border-[#EDE8E3] bg-[#FAF8F5] p-4 text-xs text-[#51443A]">
+              <div className="mt-3 space-y-2.5 rounded-2xl border border-[#EFE5D3] bg-[#FAF8F5] p-4 text-xs text-[#51443A]">
                 <div className="flex items-center gap-2">
                   <Clock3 className="size-4 text-[#9F3B0F]" />
                   <span className="font-bold">เริ่ม:</span>{" "}
@@ -343,22 +343,22 @@ export function MemberFeed() {
               </div>
 
               {selectedEvent.description && (
-                <div className="mt-4 border-t border-[#EDE8E3] pt-4">
+                <div className="mt-4 border-t border-[#EFE5D3] pt-4">
                   <p className="mb-2 text-sm font-semibold text-[#51443A]">
                     รายละเอียดเพิ่มเติม:
                   </p>
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed text-[#3F3833]">
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed text-[#51443A]">
                     {selectedEvent.description}
                   </div>
                 </div>
               )}
 
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#EDE8E3] pt-4">
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#EFE5D3] pt-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() => downloadICS(selectedEvent)}
-                    className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-4 py-2.5 text-xs font-bold text-[#9F3B0F] shadow-sm hover:bg-[#FAF8F5] active:scale-95 transition"
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[#E7DCC8] bg-card px-4 py-2.5 text-xs font-bold text-[#9F3B0F] shadow-sm hover:bg-[#FAF8F5] active:scale-95 transition"
                   >
                     <CalendarPlus className="size-4 text-[#9F3B0F]" />
                     เพิ่มลงปฏิทิน (.ics)
@@ -376,7 +376,7 @@ export function MemberFeed() {
                 </div>
                 <button
                   onClick={() => setSelectedEvent(null)}
-                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] px-5 py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF8EA]"
+                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] px-5 py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF4D6]"
                 >
                   ปิดหน้าต่าง
                 </button>

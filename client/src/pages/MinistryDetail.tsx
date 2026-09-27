@@ -134,14 +134,14 @@ export default function MinistryDetail() {
         ) : canManage ? (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8"
+            className="rounded-2xl border border-[#E7DCC8] bg-card p-6 shadow-sm md:p-8"
           >
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold text-[#171311]">
                   แก้ไขข้อมูลฝ่ายงาน
                 </h1>
-                <p className="mt-1 text-sm text-[#807266]">
+                <p className="mt-1 text-sm text-[#6E6155]">
                   สถานะปัจจุบัน:{" "}
                   {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
                 </p>
@@ -151,7 +151,7 @@ export default function MinistryDetail() {
                   type="button"
                   disabled={update.isPending}
                   onClick={() => update.mutate({ id, status: "active" })}
-                  className="min-h-11 rounded-2xl border border-[#B8E2AB] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#1F5C33] disabled:opacity-50"
+                  className="min-h-11 rounded-2xl border border-[#B8E2AB] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#2D6A2E] disabled:opacity-50"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -218,14 +218,14 @@ export default function MinistryDetail() {
 
             <button
               disabled={update.isPending}
-              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#2F7A45] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
             </button>
           </form>
         ) : (
-          <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-[#E7DCC8] bg-card p-6 shadow-sm md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h1 className="text-2xl font-bold text-[#171311]">
                 {query.data.name}
@@ -234,7 +234,7 @@ export default function MinistryDetail() {
                 className={`rounded-full px-2.5 py-1 text-[11px] ${
                   query.data.status === "active"
                     ? "bg-[#E4F3E7] text-[#171311]"
-                    : "bg-stone-100 text-stone-600"
+                    : "bg-[#F5EDE0] text-[#51443A]"
                 }`}
               >
                 {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
@@ -243,12 +243,12 @@ export default function MinistryDetail() {
 
             <dl className="mt-5 space-y-3 text-sm text-[#51443A]">
               <div className="flex items-center gap-2">
-                <UserRound className="h-4 w-4 shrink-0 text-[#807266]" />
+                <UserRound className="h-4 w-4 shrink-0 text-[#6E6155]" />
                 <dt className="sr-only">หัวหน้าฝ่าย</dt>
                 <dd>{query.data.leaderName || "ยังไม่ระบุหัวหน้าฝ่าย"}</dd>
               </div>
               <div className="flex items-center gap-2">
-                <CalendarClock className="h-4 w-4 shrink-0 text-[#807266]" />
+                <CalendarClock className="h-4 w-4 shrink-0 text-[#6E6155]" />
                 <dt className="sr-only">เวลานัดประชุม</dt>
                 <dd>
                   {query.data.meetingSchedule || "ยังไม่ระบุเวลานัดประชุม"}

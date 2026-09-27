@@ -114,7 +114,7 @@ export default function Offerings() {
         <div className="flex items-center gap-2">
           <button
             onClick={exportCSV}
-            className="px-3.5 py-2 rounded-2xl bg-white border border-[#E7DCC8] text-[#51443A] hover:bg-[#FFF8EA]/70 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+            className="px-3.5 py-2 rounded-2xl bg-card border border-[#E7DCC8] text-[#51443A] hover:bg-[#FFF4D6]/70 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
           >
             <Download className="w-3.5 h-3.5" />
             <span>ส่งออก CSV</span>
@@ -136,15 +136,15 @@ export default function Offerings() {
             <Sparkles className="w-3.5 h-3.5 text-[#C94F16]" />
             <span>ยอดถวายรวมเดือนนี้</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#1F5C33]">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#2D6A2E]">
             <MoneyDisplay amount={totalAmount} type="income" size="xl" />
           </h2>
-          <p className="text-xs text-[#807266]">
+          <p className="text-xs text-[#6E6155]">
             "ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก" — 2 โครินธ์ 9:7
           </p>
         </div>
 
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-white p-1.5 border border-[#E7DCC8] shadow-xs shrink-0">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-card p-1.5 border border-[#E7DCC8] shadow-xs shrink-0">
           <Illustration
             src="/illustrations/offering_box.jpg"
             alt="กล่องถวาย"
@@ -156,7 +156,7 @@ export default function Offerings() {
       </div>
 
       {/* 2. Filter Bar */}
-      <div className="bg-white rounded-2xl p-4 md:p-5 border border-[#E7DCC8] card-elevation-sm">
+      <div className="bg-card rounded-2xl p-4 md:p-5 border border-[#E7DCC8] card-elevation-sm">
         <FilterBar
           searchPlaceholder="ค้นหาประเภทถวายหรือกองทุน..."
           searchValue={searchTerm}
@@ -207,22 +207,22 @@ export default function Offerings() {
           onAction={() => setLocation("/offerings/new")}
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-[#E7DCC8] card-elevation-sm divide-y divide-[#EDE8E3]/60 overflow-hidden">
+        <div className="bg-card rounded-2xl border border-[#E7DCC8] card-elevation-sm divide-y divide-[#EFE5D3]/60 overflow-hidden">
           {filtered.map(o => (
             <div
               key={o.id}
               onClick={() => setLocation(`/transactions/offering-${o.id}`)}
-              className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-[#FAF8F5]/70 cursor-pointer transition-colors"
+              className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-[#FAF8F5]/70 cursor-pointer transition-all duration-200 ease-in-out"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-12 h-12 rounded-2xl bg-[#E4F3E7] text-[#2F7A45] flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#E4F3E7] text-[#2D6A2E] flex items-center justify-center shrink-0 shadow-2xs">
                   <HandCoins className="w-6 h-6 stroke-[2.2]" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-sm font-bold text-[#171311] truncate">
                     {o.title}
                   </h3>
-                  <p className="text-[11px] text-[#807266] pt-0.5">
+                  <p className="text-[11px] text-[#6E6155] pt-0.5">
                     {formatThaiDateTime(o.date)} · {o.method} · {o.fund}
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export default function Offerings() {
                       notes: o.notes || undefined,
                     });
                   }}
-                  className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-stone-100 hover:bg-[#FFF8EA] hover:border-[#C94F16] text-[#51443A] border border-stone-200 transition-colors shadow-2xs"
+                  className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-[#F5EDE0] hover:bg-[#FFF4D6] hover:border-[#C94F16] text-[#51443A] border border-[#E7DCC8] transition-all duration-200 ease-in-out shadow-2xs"
                   title="พิมพ์ใบเสร็จเงินถวาย"
                 >
                   <Printer className="w-4 h-4 text-[#C94F16]" />

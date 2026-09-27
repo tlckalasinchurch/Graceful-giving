@@ -95,7 +95,7 @@ export function EnvelopesTab({
       {editable && (
         <form
           onSubmit={submitEnvelope}
-          className="rounded-2xl border border-[#E7DCC8] bg-white p-5 shadow-sm md:p-6"
+          className="rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-sm md:p-6"
         >
           <h2 className="mb-4 font-bold text-foreground">บันทึกซองถวาย</h2>
           <div className="grid gap-4 md:grid-cols-3">
@@ -190,7 +190,7 @@ export function EnvelopesTab({
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 text-base font-bold tabular-nums text-[#1F5C33]"
+                className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 text-base font-bold tabular-nums text-[#2D6A2E]"
               />
             </label>
             <div className="flex items-end gap-2">
@@ -214,7 +214,7 @@ export function EnvelopesTab({
               <button
                 type="submit"
                 disabled={addEnvelope.isPending || !fundId}
-                className="min-h-11 w-full rounded-xl bg-[#2F7A45] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+                className="min-h-11 w-full rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
               >
                 {addEnvelope.isPending ? "กำลังบันทึก…" : "เพิ่มซอง"}
               </button>
@@ -228,7 +228,7 @@ export function EnvelopesTab({
         </form>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-[#E7DCC8] p-4">
           <h2 className="font-bold text-foreground">
             ซองในรอบนี้ ({envelopes.length})
@@ -242,7 +242,7 @@ export function EnvelopesTab({
             ยังไม่มีซองในรอบนี้
           </p>
         ) : (
-          <ul className="divide-y divide-[#EDE8E3]">
+          <ul className="divide-y divide-[#EFE5D3]">
             {envelopes.map(envelope => {
               const member = members.find(m => m.id === envelope.memberId);
               const who = envelope.isAnonymous
@@ -286,7 +286,7 @@ export function EnvelopesTab({
                           })
                         }
                         disabled={removeEnvelope.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FDECEA] disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FEECEB] disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

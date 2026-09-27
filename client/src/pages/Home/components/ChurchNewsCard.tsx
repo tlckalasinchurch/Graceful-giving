@@ -21,7 +21,7 @@ export function ChurchNewsCard({ onOpenNews }: ChurchNewsCardProps) {
         aria-label="เปิดดูข่าวสารจากคริสตจักร"
       >
         <div className="flex items-center gap-4">
-          <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-2xl overflow-hidden shrink-0 bg-white p-1.5 border border-[#E7DCC8]">
+          <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-2xl overflow-hidden shrink-0 bg-card p-1.5 border border-[#E7DCC8]">
             <Illustration
               src="/illustrations/bible_cross.jpg"
               alt="พระคัมภีร์และกางเขน"
@@ -35,12 +35,12 @@ export function ChurchNewsCard({ onOpenNews }: ChurchNewsCardProps) {
             <h2 className="text-xl sm:text-2xl font-bold text-[#171311]">
               ข่าวสารจากคริสตจักร
             </h2>
-            <p className="text-sm sm:text-base text-[#3F3833] font-bold mt-0.5">
+            <p className="text-sm sm:text-base text-[#51443A] font-bold mt-0.5">
               ติดตามประกาศ กิจกรรม และพันธกิจต่าง ๆ
             </p>
           </div>
         </div>
-        <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center text-[#171311] border-2 border-[#E7DCC8] shrink-0 shadow-2xs">
+        <div className="w-11 h-11 rounded-full bg-card flex items-center justify-center text-[#171311] border-2 border-[#E7DCC8] shrink-0 shadow-2xs">
           <ChevronRight className="w-6 h-6" />
         </div>
       </div>

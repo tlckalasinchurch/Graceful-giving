@@ -39,14 +39,14 @@ export function CashCountTab({
 }: CashCountTabProps) {
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-sm">
         <div className="border-b border-[#E7DCC8] p-4">
           <h2 className="font-bold text-foreground">ใบนับธนบัตรและเหรียญ</h2>
           <p className="mt-1 text-sm text-[#51443A]">
             กรอกจำนวนใบหรือเหรียญ ระบบคูณและรวมยอดให้ทันที
           </p>
         </div>
-        <ul className="divide-y divide-[#EDE8E3]">
+        <ul className="divide-y divide-[#EFE5D3]">
           {THB_DENOMINATIONS.map(denomination => {
             const key = `${denomination.value}-${denomination.kind}`;
             const saved = cashCounts.find(

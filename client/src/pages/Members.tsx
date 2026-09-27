@@ -91,14 +91,14 @@ export default function Members() {
         {showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-[#E7DCC8] bg-card p-6 shadow-sm"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-[#171311]">เพิ่มสมาชิกใหม่</h2>
               <button
                 type="button"
                 onClick={closeCreateForm}
-                className="text-[#807266]"
+                className="text-[#6E6155]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -142,7 +142,7 @@ export default function Members() {
             </div>
             <button
               disabled={createMember.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-[#2F7A45] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
             >
               {createMember.isPending ? "กำลังบันทึก…" : "บันทึกสมาชิก"}
             </button>
@@ -170,20 +170,20 @@ export default function Members() {
                 key={member.id}
                 type="button"
                 onClick={() => setLocation(`/members/${member.id}`)}
-                className="rounded-2xl border border-[#E7DCC8] bg-white p-5 text-left shadow-sm hover:bg-[#FAF8F5]"
+                className="rounded-2xl border border-[#E7DCC8] bg-card p-5 text-left shadow-sm hover:bg-[#FAF8F5]"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-[#171311]">{member.name}</h2>
                   <span
-                    className={`rounded-full px-2 py-1 text-[11px] ${member.status === "active" ? "bg-[#E4F3E7] text-[#171311]" : "bg-stone-100 text-stone-600"}`}
+                    className={`rounded-full px-2 py-1 text-[11px] ${member.status === "active" ? "bg-[#E4F3E7] text-[#171311]" : "bg-[#F5EDE0] text-[#51443A]"}`}
                   >
                     {MEMBER_STATUS_LABEL[member.status] ?? member.status}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-[#807266]">
+                <p className="mt-2 text-sm text-[#6E6155]">
                   {member.phone || "ไม่ระบุเบอร์โทรศัพท์"}
                 </p>
-                <p className="text-sm text-[#807266]">
+                <p className="text-sm text-[#6E6155]">
                   {member.email || "ไม่ระบุอีเมล"}
                 </p>
               </button>

@@ -287,14 +287,14 @@ export default function Settings() {
   if (!isSuperAdmin(user)) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto my-12 bg-white rounded-2xl p-8 border-2 border-[#E7DCC8] text-center space-y-4 shadow-sm">
+        <div className="max-w-xl mx-auto my-12 bg-card rounded-2xl p-8 border-2 border-[#E7DCC8] text-center space-y-4 shadow-sm">
           <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
             <Lock className="w-8 h-8" />
           </div>
           <h2 className="text-xl font-bold text-[#171311]">
             สิทธิ์การเข้าถึงถูกจำกัด
           </h2>
-          <p className="text-sm text-[#807266]">
+          <p className="text-sm text-[#6E6155]">
             หน้านี้สงวนไว้สำหรับ{" "}
             <strong className="text-amber-800 font-bold">
               ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
@@ -325,10 +325,10 @@ export default function Settings() {
         <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[#E7DCC8] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x">
           <button
             onClick={() => setActiveTab("church")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "church"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
+                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
+                : "text-[#6E6155] hover:text-[#171311]"
             }`}
           >
             <Building className="w-4 h-4 text-[#C94F16] shrink-0" />
@@ -336,10 +336,10 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("roles")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "roles"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
+                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
+                : "text-[#6E6155] hover:text-[#171311]"
             }`}
           >
             <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -347,10 +347,10 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("categories")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "categories"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
+                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
+                : "text-[#6E6155] hover:text-[#171311]"
             }`}
           >
             <Banknote className="w-4 h-4 text-amber-600 shrink-0" />
@@ -358,10 +358,10 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("payment")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "payment"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
+                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
+                : "text-[#6E6155] hover:text-[#171311]"
             }`}
           >
             <QrCode className="w-4 h-4 text-sky-600 shrink-0" />
@@ -369,10 +369,10 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("audit")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "audit"
-                ? "bg-[#FFF8EA] text-[#171311] border border-[#E7DCC8] shadow-2xs"
-                : "text-[#807266] hover:text-[#171311]"
+                ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
+                : "text-[#6E6155] hover:text-[#171311]"
             }`}
           >
             <FileText className="w-4 h-4 text-purple-600 shrink-0" />
@@ -383,7 +383,7 @@ export default function Settings() {
         {/* Tab 1: Church Profile Form */}
         {activeTab === "church" && (
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
+            <div className="bg-card rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
               <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
                 <Building className="w-5 h-5 text-[#C94F16]" />
                 ข้อมูลทั่วไปของคริสตจักร
@@ -492,7 +492,7 @@ export default function Settings() {
 
         {/* Account and sign out */}
         {activeTab === "church" && (
-          <section className="rounded-2xl border border-[#E7DCC8] bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-[#E7DCC8] bg-card p-6 shadow-sm md:p-8">
             <h3 className="text-base font-bold text-[#171311]">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-[#51443A]">
@@ -510,7 +510,7 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/profile"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E7DCC8] bg-[#FFF8EA] px-5 py-2.5 text-sm font-bold text-[#51443A] transition-colors hover:bg-[#FFF4D6]"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E7DCC8] bg-[#FFF4D6] px-5 py-2.5 text-sm font-bold text-[#51443A] transition-all duration-200 ease-in-out hover:bg-[#FFF4D6]"
                 >
                   <UserCheck className="h-4 w-4 text-[#C94F16]" />
                   ดูโปรไฟล์เต็ม
@@ -518,7 +518,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-colors hover:bg-rose-100"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-all duration-200 ease-in-out hover:bg-rose-100"
                 >
                   <LogOut className="h-4 w-4" />
                   ออกจากระบบ
@@ -532,14 +532,14 @@ export default function Settings() {
         {activeTab === "roles" && (
           <div className="space-y-6">
             {/* User Management Table */}
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-card rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7DCC8]/60 pb-5">
                 <div>
                   <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
                     <Users className="w-5 h-5 text-[#C94F16]" />
                     จัดการบทบาทและสิทธิ์ผู้ใช้งานในระบบ
                   </h3>
-                  <p className="text-xs text-[#807266] mt-1">
+                  <p className="text-xs text-[#6E6155] mt-1">
                     กำหนดบทบาทให้ผู้ที่เข้าสู่ระบบ
                     เพื่อให้ได้รับสิทธิ์การใช้งานตรงตามตำแหน่งหน้าที่จริง
                   </p>
@@ -560,7 +560,7 @@ export default function Settings() {
               {/* Search & Filter Bar */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#807266]" />
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6E6155]" />
                   <input
                     type="text"
                     placeholder="ค้นหาชื่อผู้ใช้งาน หรือ อีเมล..."
@@ -570,7 +570,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-[#807266] shrink-0" />
+                  <Filter className="w-4 h-4 text-[#6E6155] shrink-0" />
                   <NativeSelect
                     value={roleFilter}
                     onChange={e => setRoleFilter(e.target.value)}
@@ -588,19 +588,19 @@ export default function Settings() {
               </div>
 
               {usersQuery.isLoading ? (
-                <div className="py-12 flex flex-col items-center justify-center text-sm text-[#807266] gap-3">
+                <div className="py-12 flex flex-col items-center justify-center text-sm text-[#6E6155] gap-3">
                   <Loader2 className="w-6 h-6 animate-spin text-[#C94F16]" />
                   <span>กำลังโหลดรายชื่อผู้ใช้งาน...</span>
                 </div>
               ) : !usersQuery.data || usersQuery.data.length === 0 ? (
-                <div className="py-8 text-center text-sm text-[#807266] bg-[#FAF8F5] rounded-2xl border border-[#E7DCC8]/60">
+                <div className="py-8 text-center text-sm text-[#6E6155] bg-[#FAF8F5] rounded-2xl border border-[#E7DCC8]/60">
                   ยังไม่พบข้อมูลผู้ใช้งานในระบบ
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-[#E7DCC8]/70 text-xs font-bold text-[#807266] uppercase">
+                      <tr className="border-b border-[#E7DCC8]/70 text-xs font-bold text-[#6E6155] uppercase">
                         <th className="pb-3 px-3">ผู้ใช้งาน</th>
                         <th className="pb-3 px-3">อีเมล</th>
                         <th className="pb-3 px-3">เข้าใช้ล่าสุด</th>
@@ -633,7 +633,7 @@ export default function Settings() {
                             <tr>
                               <td
                                 colSpan={4}
-                                className="py-8 text-center text-xs text-[#807266] bg-[#FAF8F5]/30"
+                                className="py-8 text-center text-xs text-[#6E6155] bg-[#FAF8F5]/30"
                               >
                                 ไม่พบผู้ใช้งานที่ตรงกับเงื่อนไขการค้นหา
                               </td>
@@ -651,7 +651,7 @@ export default function Settings() {
                           return (
                             <tr
                               key={u.id}
-                              className="hover:bg-[#FAF8F5]/50 transition-colors"
+                              className="hover:bg-[#FAF8F5]/50 transition-all duration-200 ease-in-out"
                             >
                               <td className="py-3.5 px-3">
                                 <div className="font-bold text-[#171311] flex items-center gap-2">
@@ -666,7 +666,7 @@ export default function Settings() {
                               <td className="py-3.5 px-3 text-[#51443A]">
                                 {u.email || "-"}
                               </td>
-                              <td className="py-3.5 px-3 text-xs text-[#807266]">
+                              <td className="py-3.5 px-3 text-xs text-[#6E6155]">
                                 {u.lastSignedIn
                                   ? new Date(u.lastSignedIn).toLocaleDateString(
                                       "th-TH",
@@ -715,7 +715,7 @@ export default function Settings() {
                                     </NativeSelect>
                                   </div>
                                 ) : (
-                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FFF8EA] text-[#51443A] border border-[#E7DCC8]">
+                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FFF4D6] text-[#51443A] border border-[#E7DCC8]">
                                     {u.churchRole || "MEMBER"}
                                   </span>
                                 )}
@@ -731,13 +731,13 @@ export default function Settings() {
             </div>
 
             {/* Structure and Appointed Roles Reference */}
-            <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-card rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
               <div>
                 <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
                   <Shield className="w-5 h-5 text-emerald-600" />
                   โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ
                 </h3>
-                <p className="text-xs text-[#807266] mt-1">
+                <p className="text-xs text-[#6E6155] mt-1">
                   กำหนดบทบาท หน้าที่ความรับผิดชอบ
                   และรายนามผู้ได้รับมอบหมายตามมติคริสตจักร
                 </p>
@@ -754,11 +754,11 @@ export default function Settings() {
                         <span className="font-bold text-base text-[#171311]">
                           {r.title}
                         </span>
-                        <span className="ml-2.5 font-mono text-xs text-[#807266] bg-white px-2.5 py-0.5 rounded-md border border-[#E7DCC8]">
+                        <span className="ml-2.5 font-mono text-xs text-[#6E6155] bg-card px-2.5 py-0.5 rounded-md border border-[#E7DCC8]">
                           {r.role}
                         </span>
                       </div>
-                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-white text-[#171311] border-[#E7DCC8] self-start sm:self-auto">
+                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-card text-[#171311] border-[#E7DCC8] self-start sm:self-auto">
                         ผู้รับผิดชอบ:{" "}
                         <span className="text-[#C94F16] font-bold">
                           {r.appointee}
@@ -766,7 +766,7 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-[#807266] leading-relaxed font-medium">
+                    <p className="text-xs text-[#6E6155] leading-relaxed font-medium">
                       {r.desc}
                     </p>
 
@@ -794,7 +794,7 @@ export default function Settings() {
 
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
-          <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="bg-card rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
             <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
               <Banknote className="w-5 h-5 text-amber-600" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
@@ -816,7 +816,7 @@ export default function Settings() {
                       className="flex items-center justify-between gap-3 text-sm text-[#51443A]"
                     >
                       <span>{c.label}</span>
-                      <span className="font-mono text-xs text-[#807266]">
+                      <span className="font-mono text-xs text-[#6E6155]">
                         {c.id}
                       </span>
                     </li>
@@ -832,7 +832,7 @@ export default function Settings() {
                       className="flex items-center justify-between gap-3 text-sm text-[#51443A]"
                     >
                       <span>{c.label}</span>
-                      <span className="font-mono text-xs text-[#807266]">
+                      <span className="font-mono text-xs text-[#6E6155]">
                         {c.id}
                       </span>
                     </li>
@@ -845,14 +845,14 @@ export default function Settings() {
 
         {/* Tab 4: Payment */}
         {activeTab === "payment" && (
-          <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="bg-card rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
             <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
               <QrCode className="w-5 h-5 text-sky-600" />
               บัญชีรับเงินถวายและ QR พร้อมเพย์
             </h3>
 
-            <div className="p-4 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-32 h-32 bg-white p-2 rounded-2xl border border-[#E7DCC8] shadow-inner flex items-center justify-center">
+            <div className="p-4 rounded-2xl bg-[#FFF4D6]/50 border border-[#E7DCC8] flex flex-col sm:flex-row items-center gap-6">
+              <div className="w-32 h-32 bg-card p-2 rounded-2xl border border-[#E7DCC8] shadow-inner flex items-center justify-center">
                 <QrCode className="w-24 h-24 text-[#171311]" />
               </div>
 
@@ -872,7 +872,7 @@ export default function Settings() {
                     {bankAccount}
                   </span>
                 </p>
-                <p className="text-xs text-[#807266]">
+                <p className="text-xs text-[#6E6155]">
                   QR Code นี้จะแสดงในแบบฟอร์มถวายทรัพย์
                   เพื่อให้สมาชิกสแกนโอนได้สะดวก
                 </p>
@@ -883,14 +883,14 @@ export default function Settings() {
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (
-          <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
+          <div className="bg-card rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7DCC8]/60 pb-5">
               <div>
                 <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
                   <FileText className="w-5 h-5 text-purple-600" />
                   บันทึกประวัติการดำเนินงาน
                 </h3>
-                <p className="text-xs text-[#807266] mt-1">
+                <p className="text-xs text-[#6E6155] mt-1">
                   ตรวจสอบความปลอดภัย การปรับเปลี่ยนบทบาทผู้ใช้
                   และการแก้ไขข้อมูลสำคัญทั้งหมดในระบบ
                 </p>
@@ -899,7 +899,7 @@ export default function Settings() {
                 type="button"
                 onClick={() => void auditQuery.refetch()}
                 disabled={auditQuery.isFetching}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#E7DCC8] bg-[#FAF8F5] hover:bg-[#FFF8EA] text-xs font-semibold text-[#51443A] transition-all disabled:opacity-50 self-start sm:self-auto"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#E7DCC8] bg-[#FAF8F5] hover:bg-[#FFF4D6] text-xs font-semibold text-[#51443A] transition-all disabled:opacity-50 self-start sm:self-auto"
               >
                 <RefreshCw
                   className={`w-3.5 h-3.5 ${
@@ -913,7 +913,7 @@ export default function Settings() {
             {/* Search & Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#807266]" />
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6E6155]" />
                 <input
                   type="text"
                   placeholder="ค้นหาชื่อผู้ดำเนินการ, อีเมล หรือกิจกรรม..."
@@ -923,7 +923,7 @@ export default function Settings() {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-[#807266] shrink-0" />
+                <Filter className="w-4 h-4 text-[#6E6155] shrink-0" />
                 <NativeSelect
                   value={auditActionFilter}
                   onChange={e => setAuditActionFilter(e.target.value)}
@@ -944,7 +944,7 @@ export default function Settings() {
             </div>
 
             {auditQuery.isLoading ? (
-              <div className="py-12 flex flex-col items-center justify-center text-sm text-[#807266] gap-3">
+              <div className="py-12 flex flex-col items-center justify-center text-sm text-[#6E6155] gap-3">
                 <Loader2 className="w-6 h-6 animate-spin text-[#C94F16]" />
                 <span>กำลังโหลด Audit Log...</span>
               </div>
@@ -972,7 +972,7 @@ export default function Settings() {
 
                 if (logs.length === 0) {
                   return (
-                    <div className="py-10 text-center text-sm text-[#807266] bg-[#FAF8F5] rounded-2xl border border-[#E7DCC8]/60">
+                    <div className="py-10 text-center text-sm text-[#6E6155] bg-[#FAF8F5] rounded-2xl border border-[#E7DCC8]/60">
                       ยังไม่พบบันทึกประวัติ หรือไม่ตรงกับเงื่อนไขการค้นหา
                     </div>
                   );
@@ -982,7 +982,7 @@ export default function Settings() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-[#E7DCC8]/70 font-bold text-[#807266] uppercase">
+                        <tr className="border-b border-[#E7DCC8]/70 font-bold text-[#6E6155] uppercase">
                           <th className="pb-3 px-3">วัน-เวลา</th>
                           <th className="pb-3 px-3">ผู้ดำเนินการ (Actor)</th>
                           <th className="pb-3 px-3">กิจกรรม (Action)</th>
@@ -1025,15 +1025,15 @@ export default function Settings() {
                           return (
                             <tr
                               key={log.id}
-                              className="hover:bg-[#FAF8F5]/50 transition-colors"
+                              className="hover:bg-[#FAF8F5]/50 transition-all duration-200 ease-in-out"
                             >
-                              <td className="py-3.5 px-3 text-[#807266] font-mono whitespace-nowrap">
+                              <td className="py-3.5 px-3 text-[#6E6155] font-mono whitespace-nowrap">
                                 {dateStr}
                               </td>
                               <td className="py-3.5 px-3 font-semibold text-[#171311]">
                                 <div>{log.userName || "ไม่ระบุชื่อ"}</div>
                                 {log.userEmail && (
-                                  <div className="text-[11px] text-[#807266] font-normal">
+                                  <div className="text-[11px] text-[#6E6155] font-normal">
                                     {log.userEmail}
                                   </div>
                                 )}
@@ -1042,7 +1042,7 @@ export default function Settings() {
                                 {actionBadge}
                               </td>
                               <td className="py-3.5 px-3 text-[#51443A]">
-                                <span className="font-mono text-[11px] bg-[#FFF8EA] px-2 py-0.5 rounded-md border border-[#E7DCC8]">
+                                <span className="font-mono text-[11px] bg-[#FFF4D6] px-2 py-0.5 rounded-md border border-[#E7DCC8]">
                                   {log.entity}
                                   {log.entityId ? ` #${log.entityId}` : ""}
                                 </span>

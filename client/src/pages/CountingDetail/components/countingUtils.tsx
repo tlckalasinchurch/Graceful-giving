@@ -8,7 +8,7 @@ export const fmtBaht = (n: number) => formatBaht(n);
 export function Variance({ amount }: { amount: number }) {
   if (amount === 0) {
     return (
-      <span className="inline-flex items-center gap-1 font-bold text-[#2F7A45]">
+      <span className="inline-flex items-center gap-1 font-bold text-[#2D6A2E]">
         <Check className="h-4 w-4" />
         ตรงกัน
       </span>
