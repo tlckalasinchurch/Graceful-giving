@@ -32,13 +32,13 @@ export function HomeLedgerTab({
 }: HomeLedgerTabProps) {
   return (
     <div role="tabpanel" aria-label="สมุดบัญชีการเงิน" className="space-y-4">
-      <div className="bg-white rounded-[28px] p-5 md:p-6 border border-[#E9D9BF] clay-card-shadow">
+      <div className="bg-white rounded-2xl p-5 md:p-6 border border-hairline clay-card-shadow">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-xl font-extrabold text-[#70452E]">
+            <h2 className="text-xl font-bold text-secondary-foreground">
               สมุดบัญชีการเงิน
             </h2>
-            <p className="text-xs text-[#927D6D]">
+            <p className="text-xs text-muted-foreground">
               บันทึกรายการรายรับ-รายจ่ายของคริสตจักรอย่างโปร่งใส
             </p>
           </div>
@@ -46,7 +46,7 @@ export function HomeLedgerTab({
             <button
               type="button"
               onClick={onExportCSV}
-              className="px-3.5 py-2 rounded-xl bg-[#FFF4DF] hover:bg-[#FBE9CD] text-[#70452E] text-xs font-bold border border-[#E9D9BF] flex items-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-[#E99A4A]"
+              className="px-3.5 py-2 rounded-xl bg-surface-subtle hover:bg-primary/10 text-secondary-foreground text-xs font-bold border border-hairline flex items-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-[#E99A4A]"
             >
               <Download className="w-3.5 h-3.5" />
               <span>ส่งออก CSV</span>
@@ -54,7 +54,7 @@ export function HomeLedgerTab({
             <button
               type="button"
               onClick={onOpenOffering}
-              className="px-4 py-2 rounded-xl bg-[#E99A4A] text-white text-xs font-bold flex items-center gap-1.5 clay-button-shadow hover:bg-[#DE8640] transition-all"
+              className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold flex items-center gap-1.5 clay-button-shadow hover:bg-[#0071e3] transition-all"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>บันทึกใหม่</span>
@@ -65,13 +65,13 @@ export function HomeLedgerTab({
         <div
           role="tablist"
           aria-label="ประเภทรายการ"
-          className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#FFF9EE] border border-[#E9D9BF] mb-4"
+          className="flex items-center gap-1.5 p-1 rounded-2xl bg-surface-subtle border border-hairline mb-4"
         >
           <button
             role="tab"
             aria-selected={ledgerTab === "all"}
             onClick={() => onLedgerTabChange("all")}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${ledgerTab === "all" ? "bg-white text-[#70452E] shadow-2xs" : "text-[#927D6D]"}`}
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${ledgerTab === "all" ? "bg-white text-secondary-foreground" : "text-muted-foreground"}`}
           >
             ทั้งหมด ({allTransactions.length})
           </button>
@@ -79,7 +79,7 @@ export function HomeLedgerTab({
             role="tab"
             aria-selected={ledgerTab === "offerings"}
             onClick={() => onLedgerTabChange("offerings")}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${ledgerTab === "offerings" ? "bg-[#EAF5E4] text-[#4F8B33] shadow-2xs" : "text-[#927D6D]"}`}
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${ledgerTab === "offerings" ? "bg-success-bg text-success" : "text-muted-foreground"}`}
           >
             รายรับถวาย
           </button>
@@ -87,14 +87,14 @@ export function HomeLedgerTab({
             role="tab"
             aria-selected={ledgerTab === "expenses"}
             onClick={() => onLedgerTabChange("expenses")}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${ledgerTab === "expenses" ? "bg-[#FFEBE5] text-[#D45945] shadow-2xs" : "text-[#927D6D]"}`}
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${ledgerTab === "expenses" ? "bg-[#FFEBE5] text-[#D45945]" : "text-muted-foreground"}`}
           >
             รายจ่าย
           </button>
         </div>
 
         <div className="relative mb-4">
-          <Search className="w-4 h-4 text-[#927D6D] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
           <label htmlFor="ledger-search" className="sr-only">
             ค้นหารายการทางการเงิน
           </label>
@@ -104,28 +104,28 @@ export function HomeLedgerTab({
             value={searchTerm}
             onChange={e => onSearchChange(e.target.value)}
             placeholder="ค้นหารายการ, หมวดหมู่ หรือผู้ถวาย..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#FFFDF8] border border-[#E9D9BF] text-xs md:text-sm focus:outline-none focus:border-[#E99A4A]"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-surface border border-hairline text-xs md:text-sm focus:outline-none focus:border-[#0071e3]"
           />
         </div>
 
         {filteredTransactions.length === 0 ? (
           <div className="py-12 px-4 flex flex-col items-center justify-center text-center space-y-4">
-            <div className="w-24 h-24 rounded-[24px] overflow-hidden bg-[#FFF4DF] p-1 border border-[#E9D9BF] shadow-xs">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-surface-subtle p-1 border border-hairline">
               <Illustration
                 src="/illustrations/offering_box.jpg"
                 alt="กล่องถวาย"
-                className="w-full h-full object-cover rounded-[20px]"
+                className="w-full h-full object-cover rounded-2xl"
                 width={96}
                 height={96}
               />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-[#70452E]">
+              <h3 className="text-base font-bold text-secondary-foreground">
                 {searchTerm || categoryFilter !== "all" || ledgerTab !== "all"
                   ? "ไม่พบรายการที่ตรงกับเงื่อนไข"
                   : "ยังไม่มีรายการถวาย"}
               </h3>
-              <p className="text-xs text-[#927D6D] max-w-xs mx-auto">
+              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
                 {searchTerm || categoryFilter !== "all" || ledgerTab !== "all"
                   ? "ลองเปลี่ยนคำค้นหา หรือเลือกประเภทรายการอื่น"
                   : "เริ่มบันทึกการถวายรายการแรกของคริสตจักรของคุณเพื่อความโปร่งใสและเป็นระเบียบ"}
@@ -134,7 +134,7 @@ export function HomeLedgerTab({
             <button
               type="button"
               onClick={onOpenOffering}
-              className="px-5 py-2.5 rounded-full bg-[#E99A4A] text-white text-xs font-bold clay-button-shadow hover:bg-[#DE8640] transition-all flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-full bg-primary text-white text-xs font-bold clay-button-shadow hover:bg-[#0071e3] transition-all flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
               <span>บันทึกการถวายรายการแรก</span>
@@ -157,10 +157,10 @@ export function HomeLedgerTab({
                       <IconComp className="w-5 h-5 stroke-[2.2]" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-[#38251B] truncate">
+                      <p className="text-sm font-bold text-foreground truncate">
                         {tx.title}
                       </p>
-                      <p className="text-[11px] text-[#927D6D]">
+                      <p className="text-[11px] text-muted-foreground">
                         {typeof tx.date === "string"
                           ? tx.date
                           : fmtThaiDate(tx.date)}{" "}
@@ -170,12 +170,12 @@ export function HomeLedgerTab({
                   </div>
                   <div className="text-right shrink-0">
                     <p
-                      className={`text-sm md:text-base font-black ${isIncome ? "text-[#1b5e3a]" : "text-[#c7382d]"}`}
+                      className={`text-sm md:text-base font-bold ${isIncome ? "text-success" : "text-error"}`}
                     >
                       {isIncome ? "+" : "-"}
                       {fmtBaht(tx.amount)}
                     </p>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF4DF] text-[#70452E] font-medium">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface-subtle text-secondary-foreground font-medium">
                       {tx.category}
                     </span>
                   </div>

@@ -40,12 +40,12 @@ export function CashTab(props: CashTabProps) {
   } = props;
   return (
           <section className="space-y-4">
-            <div className="overflow-hidden rounded-3xl border border-[#E9D9BF] bg-white shadow-sm">
-              <div className="border-b border-[#E9D9BF] p-4">
-                <h2 className="font-bold text-[#38251B]">
+            <div className="overflow-hidden rounded-3xl border border-hairline bg-white">
+              <div className="border-b border-hairline p-4">
+                <h2 className="font-bold text-foreground">
                   ใบนับธนบัตรและเหรียญ
                 </h2>
-                <p className="mt-1 text-sm text-[#674F42]">
+                <p className="mt-1 text-sm text-secondary-foreground">
                   กรอกจำนวนใบหรือเหรียญ ระบบคูณและรวมยอดให้ทันที
                 </p>
               </div>
@@ -66,7 +66,7 @@ export function CashTab(props: CashTabProps) {
                       key={key}
                       className="flex items-center gap-3 p-3 md:p-4"
                     >
-                      <span className="w-28 shrink-0 text-sm font-bold text-[#38251B] md:w-40">
+                      <span className="w-28 shrink-0 text-sm font-bold text-foreground md:w-40">
                         {denomination.label}
                       </span>
                       <input
@@ -96,19 +96,19 @@ export function CashTab(props: CashTabProps) {
                         }}
                         placeholder="0"
                         aria-label={`จำนวน ${denomination.label}`}
-                        className="w-24 rounded-xl border border-[#E9D9BF] p-2.5 text-right text-base font-bold tabular-nums text-[#38251B] disabled:opacity-60"
+                        className="w-24 rounded-xl border border-hairline p-2.5 text-right text-base font-bold tabular-nums text-foreground disabled:opacity-60"
                       />
-                      <span className="ml-auto text-right text-sm font-bold tabular-nums text-[#674F42]">
+                      <span className="ml-auto text-right text-sm font-bold tabular-nums text-secondary-foreground">
                         {fmtBaht(subtotal)}
                       </span>
                     </li>
                   );
                 })}
               </ul>
-              <div className="flex items-center justify-between border-t-2 border-[#E9D9BF] bg-[#FFF9EE] p-4">
+              <div className="flex items-center justify-between border-t-2 border-hairline bg-surface-subtle p-4">
                 <div>
-                  <p className="font-bold text-[#38251B]">รวมนับได้</p>
-                  <p className="text-sm text-[#674F42]">
+                  <p className="font-bold text-foreground">รวมนับได้</p>
+                  <p className="text-sm text-secondary-foreground">
                     เทียบซองเงินสด {fmtBaht(r.envelopeCashTotal)}
                   </p>
                 </div>

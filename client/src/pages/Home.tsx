@@ -305,7 +305,7 @@ const handleExportCSV = () => {
   };
 
 return (
-    <div className="min-h-screen bg-[#FFF9EE] text-[#38251B] flex flex-col font-sans selection:bg-[#F7B6A6]/30 overflow-x-clip">
+    <div className="min-h-screen bg-surface-subtle text-foreground flex flex-col font-sans selection:bg-primary/20 overflow-x-clip">
       <div className="flex-1 flex flex-row justify-center w-full max-w-[1440px] mx-auto">
         <HomeSidebar
           activeTab={activeTab}

@@ -15,19 +15,19 @@ export default function Login() {
   }, [loading, isAuthenticated, setLocation]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#FFFFFF] via-[#FAF8F5] to-[#F4F1ED] p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 space-y-2 text-center">
-          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-[#B9530F]/30 bg-[#B9530F]/15 shadow-xs">
-            <Sprout className="size-9 text-[#57504A]" />
-            <div className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-[#9BCBA5]">
+          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-primary/15">
+            <Sprout className="size-9 text-secondary-foreground" />
+            <div className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-success">
               <span className="text-[11px] font-bold text-white">✝</span>
             </div>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1F1A17]">
-            Grace <span className="text-[#B9530F]">Ledger</span>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Grace <span className="text-primary">Ledger</span>
           </h1>
-          <p className="text-sm text-[#57504A]">ระบบบัญชีการเงินคริสตจักร</p>
+          <p className="text-sm text-secondary-foreground">ระบบบัญชีการเงินคริสตจักร</p>
         </div>
 
         {/* Clerk Sign-In component — handles all auth providers */}
@@ -38,7 +38,7 @@ export default function Login() {
           forceRedirectUrl="/"
           appearance={{
             variables: {
-              colorPrimary: "#B9530F",
+              colorPrimary: "#0066cc",
               colorBackground: "#FFFFFF",
               borderRadius: "1rem",
             },

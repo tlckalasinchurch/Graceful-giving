@@ -21,8 +21,8 @@ export function TabBar({
               onClick={() => onTabChange(id)}
               className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl px-4 py-2 text-sm font-bold transition-colors ${
                 tab === id
-                  ? "bg-[#E99A4A] text-white shadow-sm"
-                  : "border border-[#E9D9BF] bg-white text-[#674F42] hover:bg-[#FFF9EE]"
+                  ? "bg-primary text-white"
+                  : "border border-hairline bg-white text-secondary-foreground hover:bg-surface-subtle"
               }`}
             >
               <Icon className="h-4 w-4" />

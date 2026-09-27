@@ -4,7 +4,7 @@ import { fmtBaht } from "../utils";
 export function Variance({ amount }: { amount: number }) {
   if (amount === 0) {
     return (
-      <span className="inline-flex items-center gap-1 font-bold text-[#4F8B33]">
+      <span className="inline-flex items-center gap-1 font-bold text-success">
         <Check className="h-4 w-4" />
         ตรงกัน
       </span>

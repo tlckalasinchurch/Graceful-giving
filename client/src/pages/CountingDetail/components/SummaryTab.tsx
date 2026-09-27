@@ -56,8 +56,8 @@ export function SummaryTab(props: SummaryTabProps) {
   } = props;
   return (
           <section className="space-y-4">
-            <div className="overflow-hidden rounded-3xl border border-[#E9D9BF] bg-white shadow-sm">
-              <h2 className="border-b border-[#E9D9BF] p-4 font-bold text-[#38251B]">
+            <div className="overflow-hidden rounded-3xl border border-hairline bg-white">
+              <h2 className="border-b border-hairline p-4 font-bold text-foreground">
                 ตารางกระทบยอด
               </h2>
               <dl className="divide-y divide-[#F0E6D8]">
@@ -83,41 +83,41 @@ export function SummaryTab(props: SummaryTabProps) {
                     key={row.label}
                     className="flex items-center justify-between gap-4 p-4"
                   >
-                    <dt className="text-sm text-[#674F42]">{row.label}</dt>
-                    <dd className="text-sm font-bold tabular-nums text-[#38251B]">
+                    <dt className="text-sm text-secondary-foreground">{row.label}</dt>
+                    <dd className="text-sm font-bold tabular-nums text-foreground">
                       {row.value}
                     </dd>
                   </div>
                 ))}
-                <div className="flex items-center justify-between gap-4 bg-[#FFF9EE] p-4">
-                  <dt className="text-sm font-bold text-[#38251B]">
+                <div className="flex items-center justify-between gap-4 bg-surface-subtle p-4">
+                  <dt className="text-sm font-bold text-foreground">
                     ผลต่างเงินสด (นับได้ − ซองเงินสด)
                   </dt>
                   <dd>
                     <Variance amount={r.cashVariance} />
                   </dd>
                 </div>
-                <div className="flex items-center justify-between gap-4 bg-[#FFF9EE] p-4">
-                  <dt className="text-sm font-bold text-[#38251B]">
+                <div className="flex items-center justify-between gap-4 bg-surface-subtle p-4">
+                  <dt className="text-sm font-bold text-foreground">
                     ผลต่างเงินโอน (เข้าบัญชี − ซองโอน)
                   </dt>
                   <dd>
                     <Variance amount={r.transferVariance} />
                   </dd>
                 </div>
-                <div className="flex items-center justify-between gap-4 bg-[#FFF9EE] p-4">
-                  <dt className="text-sm font-bold text-[#38251B]">
+                <div className="flex items-center justify-between gap-4 bg-surface-subtle p-4">
+                  <dt className="text-sm font-bold text-foreground">
                     ผลต่างการฝาก (ฝากจริง − ที่ต้องนำฝาก)
                   </dt>
                   <dd>
                     <Variance amount={r.depositVariance} />
                   </dd>
                 </div>
-                <div className="flex items-center justify-between gap-4 border-t-2 border-[#E9D9BF] p-4">
-                  <dt className="font-bold text-[#38251B]">
+                <div className="flex items-center justify-between gap-4 border-t-2 border-hairline p-4">
+                  <dt className="font-bold text-foreground">
                     นับเงินสดได้ − หักเบิก = ยอดนำฝาก
                   </dt>
-                  <dd className="text-sm font-bold tabular-nums text-[#38251B]">
+                  <dd className="text-sm font-bold tabular-nums text-foreground">
                     {fmtBaht(r.countedCashTotal)} − {fmtBaht(r.deductionTotal)}{" "}
                     = {fmtBaht(r.expectedDeposit)}
                   </dd>
@@ -136,10 +136,10 @@ export function SummaryTab(props: SummaryTabProps) {
                   value={varianceNote}
                   onChange={e => setVarianceNote(e.target.value)}
                   placeholder="เช่น เงินสดขาด 20 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมมัคนายกวันที่…"
-                  className="mt-3 w-full rounded-xl border border-[#E9D9BF] bg-white p-3 text-sm text-[#38251B]"
+                  className="mt-3 w-full rounded-xl border border-hairline bg-white p-3 text-sm text-foreground"
                 />
                 {detail.session.varianceNote && (
-                  <p className="mt-2 text-sm text-[#674F42]">
+                  <p className="mt-2 text-sm text-secondary-foreground">
                     คำอธิบายที่บันทึกไว้: {detail.session.varianceNote}
                   </p>
                 )}
@@ -147,15 +147,15 @@ export function SummaryTab(props: SummaryTabProps) {
             )}
 
             {unapproved.length > 0 && (
-              <p className="rounded-2xl border border-[#F7D5CD] bg-[#FFEBE5] p-4 text-sm font-bold text-[#A33B2A]">
+              <p className="rounded-2xl border border-error-border bg-[#FFEBE5] p-4 text-sm font-bold text-[#A33B2A]">
                 มีรายการหักเบิกที่ยังไม่ได้รับอนุมัติ{" "}
                 {unapproved.length} รายการ — ต้องอนุมัติก่อนลงบัญชี
               </p>
             )}
 
-            <div className="rounded-3xl border border-[#E9D9BF] bg-white p-5 shadow-sm">
-              <h3 className="font-bold text-[#38251B]">ดำเนินการกับรอบนี้</h3>
-              <p className="mt-1 text-sm text-[#674F42]">
+            <div className="rounded-3xl border border-hairline bg-white p-5">
+              <h3 className="font-bold text-foreground">ดำเนินการกับรอบนี้</h3>
+              <p className="mt-1 text-sm text-secondary-foreground">
                 ลำดับงาน: นับ → ส่งตรวจ → ตรวจสอบ → ลงบัญชี → ปิดรอบ
                 (ผู้นับไม่สามารถตรวจสอบรอบของตัวเองได้)
               </p>
@@ -165,7 +165,7 @@ export function SummaryTab(props: SummaryTabProps) {
                     type="button"
                     onClick={() => submitCount.mutate({ id: sessionId })}
                     disabled={submitCount.isPending}
-                    className="min-h-11 rounded-2xl bg-[#E99A4A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+                    className="min-h-11 rounded-2xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
                   >
                     ส่งนับให้ตรวจสอบ
                   </button>
@@ -175,7 +175,7 @@ export function SummaryTab(props: SummaryTabProps) {
                     type="button"
                     onClick={() => reopenCount.mutate({ id: sessionId })}
                     disabled={reopenCount.isPending}
-                    className="min-h-11 rounded-2xl border border-[#E9D9BF] bg-[#FFF4DF] px-5 py-2.5 text-sm font-bold text-[#674F42] disabled:opacity-50"
+                    className="min-h-11 rounded-2xl border border-hairline bg-surface-subtle px-5 py-2.5 text-sm font-bold text-secondary-foreground disabled:opacity-50"
                   >
                     ส่งกลับไปนับใหม่
                   </button>
@@ -222,7 +222,7 @@ export function SummaryTab(props: SummaryTabProps) {
                   </button>
                 )}
                 {status === "closed" && (
-                  <p className="text-sm font-bold text-[#4F8B33]">
+                  <p className="text-sm font-bold text-success">
                     รอบนี้ปิดเรียบร้อยแล้ว ข้อมูลถูกล็อกเพื่อการตรวจสอบ
                   </p>
                 )}

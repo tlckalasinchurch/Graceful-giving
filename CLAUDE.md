@@ -12,13 +12,11 @@ The codebase is more feature-complete than `README.md` describes — the README 
 
 Package manager is **pnpm** (see `packageManager` in `package.json`).
 
+Standard scripts (`dev`, `build`, `start`, `check`, `format`) are in `package.json`.
+The ones with non-obvious behavior:
+
 ```bash
-pnpm install          # install deps (also applies the wouter patch via patches/)
-pnpm dev              # dev server: tsx watch on server/_core/index.ts, Vite middleware for the client
-pnpm build            # vite build (client) + esbuild bundle of server/_core/index.ts -> dist/
-pnpm start            # run the production build (dist/index.js)
-pnpm check            # tsc --noEmit (project-wide type check)
-pnpm format           # prettier --write .
+pnpm install          # also applies the wouter patch via patches/
 pnpm test             # vitest run (server/**/*.test.ts only, see vitest.config.ts)
 pnpm ci               # pnpm check + pnpm test, with the DB env vars blanked (see below)
 pnpm db:push          # drizzle-kit generate && drizzle-kit migrate (requires DATABASE_URL)
@@ -55,7 +53,7 @@ Auth: `server/_core/context.ts` builds the tRPC context per-request by calling `
 
 ### tRPC API (`server/routers.ts`)
 
-Single `appRouter` composed of sub-routers by domain: `auth`, `church`, `finance`, `offerings`, `expenses`, `withdrawals`, `reports`, `updates` (legacy news/events), plus `system` (`server/_core/systemRouter.ts`). Client consumes it type-safely via `@trpc/react-query` (`client/src/lib/trpc.ts` imports `AppRouter` directly from `server/routers.ts` — client and server are not independently deployable packages).
+Single `appRouter` composed of sub-routers by domain (see the top of `routers.ts`); note `updates` is the legacy news/events router, and `system` lives in `server/_core/systemRouter.ts`. Client consumes it type-safely via `@trpc/react-query` (`client/src/lib/trpc.ts` imports `AppRouter` directly from `server/routers.ts` — client and server are not independently deployable packages).
 
 Procedure layering, all defined in `routers.ts` on top of the base `publicProcedure`/`protectedProcedure` from `server/_core/trpc.ts`:
 - `adminProcedure` — `user.role === "admin"`
@@ -79,7 +77,7 @@ So Supabase provides object storage only; the database is Neon. `@aws-sdk/client
 
 ### Frontend
 
-`client/src/App.tsx` is a flat `wouter` `<Switch>` of top-level routes (no nested layouts/route config file) — grouped by comment into Core/Auth, Transactions, Offerings, Expenses, Funds, Budgets, Ministries, Members, Reports, Approvals, Notifications, Settings, Updates. Pages live directly under `client/src/pages/` (one file per route, not per-feature folders). Server state goes through `@tanstack/react-query` + the tRPC client; `client/src/components/ui/` is the shadcn/Radix primitive layer — extend it rather than duplicating a primitive.
+`client/src/App.tsx` is a flat `wouter` `<Switch>` of top-level routes — there is no nested layout or route-config file, and pages are one file per route under `client/src/pages/` rather than per-feature folders. Server state goes through `@tanstack/react-query` + the tRPC client; `client/src/components/ui/` is the shadcn/Radix primitive layer — extend it rather than duplicating a primitive.
 
 ### Testing
 

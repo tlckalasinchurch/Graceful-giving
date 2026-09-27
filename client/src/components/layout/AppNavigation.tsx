@@ -111,6 +111,22 @@ export function getAuthorizedNavItems(
   return navItems.filter(item => canAccessRoute(item.path, user));
 }
 
+const NAV_GROUPS = [
+  { label: "ภาพรวม", paths: ["/"] },
+  {
+    label: "การเงิน",
+    paths: ["/transactions", "/counting", "/offerings", "/giving/inbox", "/expenses"],
+  },
+  { label: "วางแผนและควบคุม", paths: ["/funds", "/budgets", "/approvals"] },
+  { label: "คริสตจักร", paths: ["/ministries", "/members", "/updates"] },
+  { label: "วิเคราะห์", paths: ["/reports"] },
+  { label: "บัญชีผู้ใช้", paths: ["/profile", "/settings"] },
+] as const;
+
+export function getNavGroup(path: string) {
+  return NAV_GROUPS.find(group => group.paths.some(item => item === path))?.label ?? "เมนู";
+}
+
 export function isActiveRoute(currentPath: string, path: string) {
   return (
     currentPath === path || (path !== "/" && currentPath.startsWith(`${path}/`))
@@ -128,7 +144,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
         {children || (
           <button
             type="button"
-            className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#E4DED7] bg-white px-3.5 text-sm font-semibold text-[#1F1A17] hover:bg-[#F4F1ED]"
+            className="flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-hairline bg-surface px-3.5 text-sm font-semibold text-foreground hover:bg-accent"
           >
             <Menu className="size-5" aria-hidden="true" />
             <span>เมนูทั้งหมด</span>
@@ -137,13 +153,13 @@ export function AppMenu({ children }: { children?: ReactNode }) {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-[calc(100%-2rem)] max-w-sm gap-0 bg-white"
+        className="w-[calc(100%-2rem)] max-w-sm gap-0 bg-surface-dark text-white"
       >
-        <SheetHeader className="border-b border-[#E4DED7] p-5 pr-16">
-          <SheetTitle className="text-lg font-bold text-[#1F1A17]">
+        <SheetHeader className="border-b border-[#2a2a2c] p-5 pr-16">
+          <SheetTitle className="text-lg font-bold text-white">
             เมนูทั้งหมด
           </SheetTitle>
-          <SheetDescription className="text-sm text-[#736A63] mt-0.5">
+          <SheetDescription className="text-sm text-[#cccccc] mt-0.5">
             จัดการการเงินและพันธกิจคริสตจักร
           </SheetDescription>
         </SheetHeader>
@@ -151,31 +167,38 @@ export function AppMenu({ children }: { children?: ReactNode }) {
           aria-label="เมนูทุกหมวด"
           className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
-          {authorizedNavItems.map(({ path, label, icon: Icon }) => {
-            const active = isActiveRoute(location, path);
-            return (
-              <SheetClose asChild key={path}>
+          {authorizedNavItems.reduce<ReactNode[]>((content, item, index) => {
+            const previous = authorizedNavItems[index - 1];
+            const group = getNavGroup(item.path);
+            const previousGroup = previous ? getNavGroup(previous.path) : undefined;
+            const active = isActiveRoute(location, item.path);
+            const Icon = item.icon;
+            if (group !== previousGroup) {
+              content.push(
+                <p key={`group-${group}`} className="px-3.5 pb-1 pt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#cccccc]/70 first:pt-0">
+                  {group}
+                </p>
+              );
+            }
+            content.push(
+              <SheetClose asChild key={item.path}>
                 <GuardedLink
-                  href={path}
+                  href={item.path}
                   aria-current={active ? "page" : undefined}
-                  onFocus={e =>
-                    e.currentTarget.scrollIntoView({ block: "nearest" })
-                  }
-                  className={`flex min-h-12 items-center gap-3 rounded-xl px-3.5 text-[15px] ${
+                  onFocus={e => e.currentTarget.scrollIntoView({ block: "nearest" })}
+                  className={`flex min-h-11 items-center gap-3 rounded-lg px-3.5 text-[15px] ${
                     active
-                      ? "bg-[#FDEBD8] font-semibold text-[#A34A0C]"
-                      : "font-medium text-[#3F3833] hover:bg-[#F4F1ED]"
+                      ? "bg-primary font-semibold text-white"
+                      : "font-medium text-[#f5f5f7] hover:bg-[#2a2a2c]"
                   }`}
                 >
-                  <Icon
-                    className={`size-5 shrink-0 ${active ? "text-[#B9530F]" : "text-[#736A63]"}`}
-                    aria-hidden="true"
-                  />
-                  <span>{label}</span>
+                  <Icon className={`size-5 shrink-0 ${active ? "text-white" : "text-[#cccccc]"}`} aria-hidden="true" />
+                  <span>{item.label}</span>
                 </GuardedLink>
               </SheetClose>
             );
-          })}
+            return content;
+          }, [])}
         </nav>
       </SheetContent>
     </Sheet>

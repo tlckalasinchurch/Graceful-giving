@@ -107,15 +107,15 @@ export default function Approvals() {
       {[1, 2, 3].map(i => (
         <div
           key={i}
-          className="bg-white rounded-2xl border border-[#E9D9BF] p-4 shadow-sm"
+          className="bg-white rounded-2xl border border-hairline p-4"
         >
           <div className="flex items-center gap-3 mb-3">
-            <div className="h-6 w-20 bg-[#E9D9BF]/40 rounded-full animate-pulse" />
-            <div className="h-6 w-16 bg-[#E9D9BF]/40 rounded-full animate-pulse" />
-            <div className="h-6 w-16 bg-[#E9D9BF]/40 rounded-full animate-pulse" />
+            <div className="h-6 w-20 bg-accent rounded-full animate-pulse" />
+            <div className="h-6 w-16 bg-accent rounded-full animate-pulse" />
+            <div className="h-6 w-16 bg-accent rounded-full animate-pulse" />
           </div>
-          <div className="h-5 w-3/4 bg-[#E9D9BF]/40 rounded-lg mb-2 animate-pulse" />
-          <div className="h-4 w-1/2 bg-[#E9D9BF]/40 rounded-lg animate-pulse" />
+          <div className="h-5 w-3/4 bg-accent rounded-lg mb-2 animate-pulse" />
+          <div className="h-4 w-1/2 bg-accent rounded-lg animate-pulse" />
         </div>
       ))}
     </div>
@@ -125,16 +125,16 @@ export default function Approvals() {
     <AppLayout>
       <div className="space-y-6">
         {/* Banner */}
-        <div className="bg-[#FFF4DF] border border-[#E9D9BF] rounded-3xl p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+        <div className="bg-surface-subtle border border-hairline rounded-3xl p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1.5 text-center md:text-left">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#DCECC5] text-[#70452E]">
-              <ShieldCheck className="w-3 h-3 text-[#A8C978]" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-success-bg text-secondary-foreground">
+              <ShieldCheck className="w-3 h-3 text-success" />
               ระบบควบคุมภายในและการลงนามอนุมัติ
             </span>
-            <h1 className="text-xl md:text-2xl font-bold text-[#38251B]">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
               การอนุมัติการเบิกจ่าย
             </h1>
-            <p className="text-xs text-[#70452E]/80 max-w-lg">
+            <p className="text-xs text-secondary-foreground/80 max-w-lg">
               ตรวจสอบคำขอเบิกงบประมาณ วัตถุประสงค์ และเอกสารประกอบ
             </p>
           </div>
@@ -144,7 +144,7 @@ export default function Approvals() {
         <div
           role="tablist"
           aria-label="สถานะคำขอเบิกจ่าย"
-          className="flex items-center gap-1.5 bg-[#FFF9EE] border border-[#E9D9BF] rounded-2xl p-1"
+          className="flex items-center gap-1.5 bg-surface-subtle border border-hairline rounded-2xl p-1"
         >
           <button
             type="button"
@@ -153,13 +153,13 @@ export default function Approvals() {
             onClick={() => setActiveTab("pending")}
             className={`flex-1 px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
               activeTab === "pending"
-                ? "bg-white text-[#38251B] shadow-sm"
-                : "text-[#70452E]/70 hover:text-[#38251B] hover:bg-[#FFF4DF]"
+                ? "bg-white text-foreground"
+                : "text-secondary-foreground/70 hover:text-foreground hover:bg-surface-subtle"
             }`}
           >
-            <Clock className="w-3.5 h-3.5 text-[#E99A4A]" />
+            <Clock className="w-3.5 h-3.5 text-primary" />
             <span>รอดำเนินการ</span>
-            <span className="bg-[#E99A4A]/10 text-[#E99A4A] px-1.5 py-0.5 rounded-full text-[10px]">
+            <span className="bg-warning/10 text-primary px-1.5 py-0.5 rounded-full text-[10px]">
               {requests.filter(r => r.status === "pending").length}
             </span>
           </button>
@@ -170,8 +170,8 @@ export default function Approvals() {
             onClick={() => setActiveTab("approved")}
             className={`flex-1 px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
               activeTab === "approved"
-                ? "bg-white text-[#38251B] shadow-sm"
-                : "text-[#70452E]/70 hover:text-[#38251B] hover:bg-[#FFF4DF]"
+                ? "bg-white text-foreground"
+                : "text-secondary-foreground/70 hover:text-foreground hover:bg-surface-subtle"
             }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -187,8 +187,8 @@ export default function Approvals() {
             onClick={() => setActiveTab("rejected")}
             className={`flex-1 px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
               activeTab === "rejected"
-                ? "bg-white text-[#38251B] shadow-sm"
-                : "text-[#70452E]/70 hover:text-[#38251B] hover:bg-[#FFF4DF]"
+                ? "bg-white text-foreground"
+                : "text-secondary-foreground/70 hover:text-foreground hover:bg-surface-subtle"
             }`}
           >
             <XCircle className="w-3.5 h-3.5 text-rose-600" />
@@ -210,26 +210,26 @@ export default function Approvals() {
         ) : (
           <>
             {/* Desktop: Compact Table */}
-            <div className="hidden lg:block bg-white rounded-2xl border border-[#E9D9BF] shadow-sm overflow-hidden">
+            <div className="hidden lg:block bg-white rounded-2xl border border-hairline overflow-hidden">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-[#FFF9EE] border-b border-[#E9D9BF]">
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#70452E]">
+                  <tr className="bg-surface-subtle border-b border-hairline">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-secondary-foreground">
                       คำขอ
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#70452E]">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-secondary-foreground">
                       ผู้ขอ
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#70452E]">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-secondary-foreground">
                       วันที่
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#70452E]">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-secondary-foreground">
                       ยอดเงิน
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#70452E]">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-secondary-foreground">
                       สถานะ
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#70452E]">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-secondary-foreground">
                       การดำเนินการ
                     </th>
                   </tr>
@@ -238,35 +238,35 @@ export default function Approvals() {
                   {filteredRequests.map(req => (
                     <tr
                       key={req.id}
-                      className="border-b border-[#E9D9BF]/50 hover:bg-[#FFF9EE]/50 transition-colors"
+                      className="border-b border-hairline/50 hover:bg-surface-subtle/50 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono text-[#70452E]/60 bg-[#FFF9EE] px-1.5 py-0.5 rounded border border-[#E9D9BF]/60">
+                            <span className="text-[10px] font-mono text-secondary-foreground/60 bg-surface-subtle px-1.5 py-0.5 rounded border border-hairline/60">
                               REQ-{req.id}
                             </span>
-                            <span className="text-[10px] font-medium text-[#70452E] bg-[#FFF4DF] px-1.5 py-0.5 rounded border border-[#E9D9BF]/60">
+                            <span className="text-[10px] font-medium text-secondary-foreground bg-surface-subtle px-1.5 py-0.5 rounded border border-hairline/60">
                               {req.fund}
                             </span>
                           </div>
-                          <p className="text-xs font-semibold text-[#38251B] line-clamp-1">
+                          <p className="text-xs font-semibold text-foreground line-clamp-1">
                             {req.purpose}
                           </p>
-                          <p className="text-[10px] text-[#70452E]/70 line-clamp-1">
+                          <p className="text-[10px] text-secondary-foreground/70 line-clamp-1">
                             {req.details}
                           </p>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5 text-xs text-[#70452E]">
-                          <User className="w-3 h-3 text-[#E99A4A]" />
+                        <div className="flex items-center gap-1.5 text-xs text-secondary-foreground">
+                          <User className="w-3 h-3 text-primary" />
                           <span className="line-clamp-1">{req.requester}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5 text-xs text-[#70452E]">
-                          <Calendar className="w-3 h-3 text-[#927D6D]" />
+                        <div className="flex items-center gap-1.5 text-xs text-secondary-foreground">
+                          <Calendar className="w-3 h-3 text-muted-foreground" />
                           <span>
                             {new Date(req.date).toLocaleDateString("th-TH", {
                               day: "numeric",
@@ -310,7 +310,7 @@ export default function Approvals() {
                             <button
                               onClick={() => handleApprove(req.id)}
                               disabled={approveMutation.isPending}
-                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold transition-colors shadow-sm min-w-[60px] disabled:opacity-50"
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold transition-colors min-w-[60px] disabled:opacity-50"
                               aria-label="อนุมัติ"
                             >
                               อนุมัติ
@@ -329,12 +329,12 @@ export default function Approvals() {
               {filteredRequests.map(req => (
                 <div
                   key={req.id}
-                  className="bg-white rounded-2xl border border-[#E9D9BF] p-4 shadow-sm hover:shadow-md transition-all"
+                  className="bg-white rounded-2xl border border-hairline p-4 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-mono text-[#70452E]/60 bg-[#FFF9EE] px-1.5 py-0.5 rounded border border-[#E9D9BF]/60">
+                        <span className="text-[10px] font-mono text-secondary-foreground/60 bg-surface-subtle px-1.5 py-0.5 rounded border border-hairline/60">
                           REQ-{req.id}
                         </span>
                         <StatusBadge
@@ -347,10 +347,10 @@ export default function Approvals() {
                           }
                         />
                       </div>
-                      <h3 className="text-sm font-bold text-[#38251B] mb-1 line-clamp-1">
+                      <h3 className="text-sm font-bold text-foreground mb-1 line-clamp-1">
                         {req.purpose}
                       </h3>
-                      <p className="text-[11px] text-[#70452E]/70 line-clamp-2">
+                      <p className="text-[11px] text-secondary-foreground/70 line-clamp-2">
                         {req.details}
                       </p>
                     </div>
@@ -363,13 +363,13 @@ export default function Approvals() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 text-[10px] text-[#70452E]/70 mb-3 pb-3 border-b border-[#E9D9BF]/40">
+                  <div className="flex items-center gap-3 text-[10px] text-secondary-foreground/70 mb-3 pb-3 border-b border-hairline/40">
                     <span className="flex items-center gap-1">
-                      <User className="w-3 h-3 text-[#E99A4A]" />
+                      <User className="w-3 h-3 text-primary" />
                       {req.requester}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-[#927D6D]" />
+                      <Calendar className="w-3 h-3 text-muted-foreground" />
                       {new Date(req.date).toLocaleDateString("th-TH", {
                         day: "numeric",
                         month: "short",
@@ -393,7 +393,7 @@ export default function Approvals() {
                       <button
                         onClick={() => handleApprove(req.id)}
                         disabled={approveMutation.isPending}
-                        className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors shadow-sm disabled:opacity-50"
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors disabled:opacity-50"
                         aria-label="อนุมัติ"
                       >
                         อนุมัติ
@@ -417,23 +417,23 @@ export default function Approvals() {
           }}
         >
           <DialogContent
-            className="bg-white rounded-3xl border-[#E9D9BF] p-5"
+            className="bg-white rounded-3xl border-hairline p-5"
             onEscapeKeyDown={event => {
               if (approveMutation.isPending) event.preventDefault();
             }}
           >
             <DialogHeader>
-              <DialogTitle className="text-base text-[#38251B]">
+              <DialogTitle className="text-base text-foreground">
                 ระบุเหตุผลที่ไม่อนุมัติ
               </DialogTitle>
-              <DialogDescription className="text-xs text-[#70452E]/80">
+              <DialogDescription className="text-xs text-secondary-foreground/80">
                 เหตุผลนี้จะถูกบันทึกพร้อมผลการปฏิเสธคำขอ
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2 text-xs">
               <label
                 htmlFor="rejection-reason"
-                className="font-semibold text-[#38251B]"
+                className="font-semibold text-foreground"
               >
                 เหตุผลที่ไม่อนุมัติ
               </label>
@@ -446,7 +446,7 @@ export default function Approvals() {
                 placeholder="ระบุข้อมูลที่ต้องแก้ไขหรือเหตุผล..."
                 value={rejectReason}
                 onChange={event => setRejectReason(event.target.value)}
-                className="w-full p-3 rounded-2xl border border-[#E9D9BF] text-xs text-[#38251B] focus:outline-none focus:border-rose-400 disabled:opacity-60"
+                className="w-full p-3 rounded-2xl border border-hairline text-xs text-foreground focus:outline-none focus:border-rose-400 disabled:opacity-60"
               />
             </div>
             <DialogFooter>
@@ -454,7 +454,7 @@ export default function Approvals() {
                 type="button"
                 onClick={() => setSelectedReqId(null)}
                 disabled={approveMutation.isPending}
-                className="px-4 py-2 rounded-xl border border-[#E9D9BF] text-xs font-medium text-[#70452E] disabled:opacity-50"
+                className="px-4 py-2 rounded-xl border border-hairline text-xs font-medium text-secondary-foreground disabled:opacity-50"
               >
                 ยกเลิก
               </button>

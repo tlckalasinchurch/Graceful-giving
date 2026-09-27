@@ -1,10 +1,11 @@
+import React from "react";
 import { useLocation } from "wouter";
-import { useEffect, useRef, type ReactNode } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useGuardedNavigate } from "@/hooks/useUnsavedChanges";
 import { GuardedLink } from "./GuardedLink";
-import { AppMenu, isActiveRoute, navItems } from "./AppNavigation";
+import { AppMenu, getNavGroup, isActiveRoute, getAuthorizedNavItems } from "./AppNavigation";
+import { getChurchRoleInfo } from "@shared/roles";
 import {
   Bell,
   CircleUserRound,
@@ -15,12 +16,80 @@ import {
   Sprout,
 } from "lucide-react";
 
+type MobileTabItem = {
+  path: string;
+  label: string;
+  ariaLabel: string;
+  icon: React.ComponentType<{ className?: string }>;
+  match: (path: string) => boolean;
+};
+
+const MOBILE_TABS: MobileTabItem[] = [
+  {
+    path: "/",
+    label: "หน้าแรก",
+    ariaLabel: "ไปที่หน้าแรก",
+    icon: HomeIcon,
+    match: p => p === "/",
+  },
+  {
+    path: "/transactions",
+    label: "รายการ",
+    ariaLabel: "ไปที่รายการการเงิน",
+    icon: ReceiptText,
+    match: p => isActiveRoute(p, "/transactions"),
+  },
+  {
+    path: "/reports",
+    label: "รายงาน",
+    ariaLabel: "ไปที่หน้ารายงาน",
+    icon: FileBarChart,
+    match: p => isActiveRoute(p, "/reports"),
+  },
+  {
+    path: "/profile",
+    label: "ฉัน",
+    ariaLabel: "ไปที่หน้าโปรไฟล์",
+    icon: CircleUserRound,
+    match: p => isActiveRoute(p, "/profile") || isActiveRoute(p, "/settings"),
+  },
+];
+
+function MobileTab({
+  tab,
+  active,
+  onSelect,
+}: {
+  tab: MobileTabItem;
+  active: boolean;
+  onSelect: () => void;
+}) {
+  const Icon = tab.icon;
+  return (
+    <button
+      onClick={onSelect}
+      aria-label={tab.ariaLabel}
+      aria-current={active ? "page" : undefined}
+      className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl ${
+        active ? "text-primary-on-dark" : "text-[#cccccc] hover:text-white"
+      }`}
+    >
+      <Icon className="size-[22px]" />
+      <span
+        className={`text-[11px] ${active ? "font-semibold" : "font-medium"}`}
+      >
+        {tab.label}
+      </span>
+    </button>
+  );
+}
+
 interface AppLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
   activeRoute?: string;
   title?: string;
   subtitle?: string;
-  action?: ReactNode;
+  action?: React.ReactNode;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -34,16 +103,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const navigate = useGuardedNavigate();
   const { user } = useAuth();
   const currentPath = activeRoute || location;
-  const mainRef = useRef<HTMLElement>(null);
-  const previousPathRef = useRef(currentPath);
-
-  useEffect(() => {
-    if (previousPathRef.current !== currentPath) {
-      previousPathRef.current = currentPath;
-      mainRef.current?.focus({ preventScroll: true });
-      window.scrollTo({ top: 0, behavior: "auto" });
-    }
-  }, [currentPath]);
 
   const { data: churchProfile } = trpc.church.getProfile.useQuery(undefined, {
     retry: false,
@@ -54,37 +113,24 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     churchProfile?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";
 
   return (
-    <div className="min-h-screen bg-[#FFF9EE] text-[#38251B] flex flex-col font-sans selection:bg-[#F7B6A6]/30 overflow-x-clip">
-      <a
-        href="#main-content"
-        className="sr-only z-[100] rounded-lg bg-[#38251B] px-4 py-3 text-sm font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
-      >
-        ข้ามไปยังเนื้อหาหลัก
-      </a>
-      <div className="flex-1 flex flex-row justify-center w-full max-w-[1440px] mx-auto">
-        {/* DESKTOP FIXED SIDEBAR (Visible on lg: >= 1024px) */}
-        <aside className="hidden lg:flex flex-col w-72 bg-[#FFF4DF]/85 border-r border-[#E9D9BF] p-6 sticky top-0 h-screen overflow-y-auto shrink-0 z-30">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20 overflow-x-clip">
+      <div className="flex-1 flex flex-row w-full max-w-none mx-auto min-w-0">
+        {/* DESKTOP FIXED SIDEBAR (Visible on lg: >= 1024px) — dark quiet
+            chrome; Action Blue is the only accent (active state, logo tile). */}
+        <aside className="hidden lg:flex flex-col w-64 xl:w-72 bg-surface-dark border-r border-[#2a2a2c] px-4 py-5 sticky top-0 h-screen overflow-y-auto shrink-0 z-30">
           {/* 1. Grace-giving Branding */}
           <GuardedLink
             href="/"
-            className="flex items-center gap-3 mb-6 cursor-pointer select-none"
+            className="flex items-center gap-3 px-2 mb-5 cursor-pointer select-none"
           >
-            <div className="w-12 h-12 rounded-2xl bg-[#E99A4A]/15 border border-[#E99A4A]/30 flex items-center justify-center relative overflow-hidden shrink-0 shadow-2xs">
-              <Sprout className="w-7 h-7 text-[#70452E]" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#A8C978] flex items-center justify-center">
-                <span className="text-[10px] text-white font-bold">✝</span>
-              </div>
+            <div className="size-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
+              <Sprout className="size-5 text-white" aria-hidden="true" />
             </div>
-            <div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-black text-[#38251B] tracking-tight">
-                  Grace
-                </span>
-                <span className="text-xl font-black text-[#E99A4A] tracking-tight">
-                  Ledger
-                </span>
-              </div>
-              <p className="text-[11px] text-[#927D6D] font-medium leading-tight">
+            <div className="min-w-0">
+              <p className="text-lg font-bold leading-tight tracking-tight text-white">
+                Grace <span className="text-primary-on-dark">Ledger</span>
+              </p>
+              <p className="text-xs text-[#cccccc] leading-tight">
                 การเงินเชื่อมใจ เพื่อคริสตจักร
               </p>
             </div>
@@ -93,117 +139,102 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {/* Quick Offering Action Button */}
           <button
             onClick={() => navigate("/offerings/new")}
-            className="w-full mb-6 py-3 px-4 rounded-2xl bg-[#E99A4A] hover:bg-[#DE8640] text-white font-bold flex items-center justify-center gap-2 clay-button-shadow transition-all focus-visible:ring-2 focus-visible:ring-[#E99A4A]"
+            className="w-full mb-5 min-h-11 px-4 rounded-full bg-primary hover:bg-[#0071e3] text-white font-semibold text-sm flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-primary-on-dark"
             aria-label="บันทึกการถวายใหม่"
           >
-            <Plus className="w-5 h-5 stroke-[2.5]" />
+            <Plus className="size-4 stroke-[2.5]" />
             <span>บันทึกการถวาย</span>
           </button>
 
-          {/* Navigation Links in exact order */}
-          <nav
-            aria-label="เมนูนำทางหลัก"
-            className="flex-1 space-y-1 text-sm font-medium"
-          >
-            {navItems.map(item => {
+          <nav aria-label="เมนูนำทางหลัก" className="flex-1 space-y-0.5">
+            {getAuthorizedNavItems(user).reduce<React.ReactNode[]>((content, item, index, items) => {
+              const previous = items[index - 1];
+              const group = getNavGroup(item.path);
+              const previousGroup = previous ? getNavGroup(previous.path) : undefined;
               const Icon = item.icon;
               const isActive = isActiveRoute(currentPath, item.path);
-
-              return (
+              if (group !== previousGroup) {
+                content.push(
+                  <p key={`desktop-group-${group}`} className="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#cccccc]/70 first:pt-0">
+                    {group}
+                  </p>
+                );
+              }
+              content.push(
                 <GuardedLink
                   key={item.path}
                   href={item.path}
                   aria-current={isActive ? "page" : undefined}
-                  className={`w-full flex min-h-11 items-center gap-3 border px-4 py-2.5 rounded-2xl transition-all ${
+                  className={`w-full flex min-h-10 items-center gap-3 px-3 rounded-lg text-sm transition-colors ${
                     isActive
-                      ? "bg-[#FFF9EE] text-[#70452E] font-bold border border-[#E9D9BF] shadow-xs"
-                      : "border-transparent text-[#70452E]/80 hover:bg-[#FFF9EE]/60 hover:text-[#70452E]"
+                      ? "bg-primary text-white font-semibold"
+                      : "text-[#f5f5f7] font-medium hover:bg-[#2a2a2c] hover:text-white"
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${item.iconColor}`} />
-                  <span>{item.label}</span>
+                  <Icon className={`size-[18px] shrink-0 ${isActive ? "text-white" : "text-[#cccccc]"}`} aria-hidden="true" />
+                  <span className="truncate">{item.label}</span>
                 </GuardedLink>
               );
-            })}
+              return content;
+            }, [])}
           </nav>
 
           {/* User Profile Card at Sidebar Bottom */}
-          <div className="pt-4 mt-auto border-t border-[#E9D9BF]/80">
+          <div className="pt-4 mt-4 border-t border-[#2a2a2c]">
             <GuardedLink
-              href="/settings"
-              className="flex items-center gap-3 p-3 rounded-2xl bg-[#FFF9EE] border border-[#E9D9BF] cursor-pointer hover:bg-white transition-all"
+              href="/profile"
+              className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-[#2a2a2c] transition-colors"
             >
-              <div className="w-10 h-10 rounded-full bg-[#E99A4A]/20 flex items-center justify-center text-[#70452E] font-bold text-sm shrink-0">
+              <div className="size-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-sm shrink-0">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-[#70452E] truncate">
+                <p className="text-sm font-semibold text-white truncate">
                   {churchName}
                 </p>
-                <p className="text-[11px] text-[#A8C978] font-bold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#A8C978]" />
-                  {user?.churchRole === "SUPER_ADMIN"
-                    ? "ผู้ดูแลระบบสูงสุด"
-                    : user?.churchRole === "TREASURER"
-                      ? "เหรัญญิกคริสตจักร"
-                      : "สมาชิกคริสตจักร"}
+                <p className="text-xs text-[#cccccc] truncate">
+                  {getChurchRoleInfo(user?.churchRole).label}
                 </p>
               </div>
             </GuardedLink>
           </div>
         </aside>
 
-        {/* MAIN CONTAINER */}
-        <main
-          id="main-content"
-          ref={mainRef}
-          tabIndex={-1}
-          className="w-full max-w-[560px] md:max-w-4xl xl:max-w-5xl px-4 py-4 md:px-8 md:py-6 flex flex-col pb-[calc(9rem+env(safe-area-inset-bottom))] lg:pb-16 min-w-0 focus:outline-none"
-        >
+        {/* MAIN CONTAINER (Auto-filling 100% available space across all screens) */}
+        {/* The column is capped at --content-max and centred in whatever space
+            is left beside the sidebar, so a row's date and its amount stay
+            within reading distance of each other on a wide monitor. */}
+        <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto bg-background px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-6 md:py-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-16 min-w-0">
           {/* Top Bar for Desktop and Mobile */}
-          <header className="flex flex-wrap items-start justify-between gap-4 mb-6 pb-4 border-b border-[#E9D9BF]/60">
+          <header className="flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
             <div className="flex w-full items-center justify-between lg:hidden">
               <AppMenu />
               <GuardedLink
                 href="/notifications"
-                className="flex size-11 shrink-0 items-center justify-center rounded-full border border-[#E9D9BF] bg-white text-[#70452E] hover:bg-[#FFF4DF]"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full border border-hairline bg-surface text-foreground hover:bg-accent"
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="size-5" aria-hidden="true" />
               </GuardedLink>
             </div>
-            {/* Left: Page Title or Mobile Branding */}
-            <div className="min-w-0 flex-1 basis-full sm:basis-0">
-              {title ? (
-                <div>
-                  <h1 className="text-xl md:text-2xl font-extrabold text-[#38251B] tracking-tight break-words">
-                    {title}
-                  </h1>
-                  {subtitle && (
-                    <p className="text-sm leading-relaxed text-[#927D6D] mt-1">
-                      {subtitle}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <GuardedLink
-                  href="/"
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-[#E99A4A]/15 border border-[#E99A4A]/30 flex items-center justify-center">
-                    <Sprout className="w-5 h-5 text-[#70452E]" />
-                  </div>
-                  <div>
-                    <span className="text-base font-black text-[#38251B]">
-                      Grace{" "}
-                    </span>
-                    <span className="text-base font-black text-[#E99A4A]">
-                      Ledger
-                    </span>
-                  </div>
-                </GuardedLink>
-              )}
-            </div>
+            {/* Left: Page Title */}
+            {title && (
+              <div className="min-w-0 flex-1 basis-full sm:basis-0">
+                <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight break-words">
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p className="text-sm leading-relaxed text-muted-foreground mt-1 max-w-2xl">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+            )}
+            {/* No brand lockup here when a page passes no title. The sidebar
+                already carries it on lg:, and every title-less page (Home,
+                Funds, Expenses, Approvals, Settings and the two entry forms)
+                opens with its own hero or banner, so the fallback only ever
+                repeated a mark the user could already see. */}
 
             {/* Right: Actions and Notification */}
             <div className="flex max-w-full flex-wrap items-center gap-2.5">
@@ -215,7 +246,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
               <button
                 onClick={() => navigate("/notifications")}
-                className="hidden lg:flex size-11 shrink-0 rounded-full bg-white border border-[#E9D9BF] shadow-xs items-center justify-center text-[#70452E] hover:bg-[#FFF4DF] transition-all relative focus-visible:ring-2 focus-visible:ring-[#E99A4A]"
+                className="hidden lg:flex size-11 shrink-0 rounded-full bg-surface border border-hairline items-center justify-center text-foreground hover:bg-accent transition-colors relative focus-visible:ring-2 focus-visible:ring-[#0071e3]"
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="w-5 h-5" />
@@ -224,102 +255,47 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </header>
 
           {/* Children Content */}
-          <div className="space-y-6">{children}</div>
+          <div className="space-y-6 w-full">{children}</div>
         </main>
       </div>
 
-      {/* MOBILE FIXED BOTTOM NAVIGATION BAR */}
+      {/* MOBILE FIXED BOTTOM NAVIGATION BAR — dark chrome, Action Blue active */}
       <nav
         aria-label="เมนูนำทางหลักบนมือถือ"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFF4DF]/95 backdrop-blur-md border-t border-[#E9D9BF] px-4 pt-2 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-lg"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-dark/95 backdrop-blur-md border-t border-[#2a2a2c] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
       >
-        <div className="max-w-md mx-auto flex items-center justify-between relative">
-          {/* 1. หน้าแรก */}
-          <button
-            onClick={() => navigate("/")}
-            className={`flex flex-col items-center justify-center min-w-[56px] min-h-[48px] py-1 px-2.5 rounded-2xl transition-all ${
-              currentPath === "/"
-                ? "bg-[#FBE9CD] text-[#70452E] font-bold shadow-2xs"
-                : "text-[#927D6D] hover:text-[#70452E]"
-            }`}
-            aria-label="ไปที่หน้าแรก"
-            aria-current={currentPath === "/" ? "page" : undefined}
-          >
-            <HomeIcon className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[11px] mt-0.5 font-bold">หน้าแรก</span>
-          </button>
+        <div className="max-w-md mx-auto grid grid-cols-5 items-end">
+          {MOBILE_TABS.slice(0, 2).map(tab => (
+            <MobileTab
+              key={tab.path}
+              tab={tab}
+              active={tab.match(currentPath)}
+              onSelect={() => navigate(tab.path)}
+            />
+          ))}
 
-          {/* 2. รายการ */}
-          <button
-            onClick={() => navigate("/transactions")}
-            className={`flex flex-col items-center justify-center min-w-[56px] min-h-[48px] py-1 px-2.5 rounded-2xl transition-all ${
-              currentPath.startsWith("/transactions")
-                ? "bg-[#FBE9CD] text-[#70452E] font-bold shadow-2xs"
-                : "text-[#927D6D] hover:text-[#70452E]"
-            }`}
-            aria-label="ไปที่รายการการเงิน"
-            aria-current={
-              isActiveRoute(currentPath, "/transactions") ? "page" : undefined
-            }
-          >
-            <ReceiptText className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[11px] mt-0.5 font-bold">รายการ</span>
-          </button>
-
-          {/* 3. CENTER PRIMARY FAB: WARM ORANGE '+' BUTTON */}
-          <div className="relative -top-5 flex flex-col items-center">
+          {/* Centre primary action */}
+          <div className="flex flex-col items-center">
             <button
               onClick={() => navigate("/offerings/new")}
-              className="w-14 h-14 rounded-full bg-[#E99A4A] hover:bg-[#DE8640] text-white flex items-center justify-center clay-button-shadow transition-transform active:scale-95 border-3 border-white focus-visible:ring-2 focus-visible:ring-[#E99A4A]"
+              className="-mt-5 size-13 rounded-full bg-primary hover:bg-[#0071e3] text-white flex items-center justify-center ring-4 ring-surface-dark focus-visible:ring-2 focus-visible:ring-primary-on-dark"
               aria-label="บันทึกการถวายใหม่"
             >
-              <Plus className="w-7 h-7 stroke-[2.8]" />
+              <Plus className="size-6 stroke-[2.5]" />
             </button>
-            <span className="text-[11px] font-extrabold text-[#70452E] mt-0.5">
-              เพิ่ม
+            <span className="mt-1 text-[11px] font-medium text-[#cccccc]">
+              ถวาย
             </span>
           </div>
 
-          {/* 4. รายงาน */}
-          <button
-            onClick={() => navigate("/reports")}
-            className={`flex flex-col items-center justify-center min-w-[56px] min-h-[48px] py-1 px-2.5 rounded-2xl transition-all ${
-              currentPath.startsWith("/reports")
-                ? "bg-[#FBE9CD] text-[#70452E] font-bold shadow-2xs"
-                : "text-[#927D6D] hover:text-[#70452E]"
-            }`}
-            aria-label="ไปที่หน้ารายงาน"
-            aria-current={
-              isActiveRoute(currentPath, "/reports") ? "page" : undefined
-            }
-          >
-            <FileBarChart className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[11px] mt-0.5 font-bold">รายงาน</span>
-          </button>
-
-          {/* 5. ฉัน */}
-          <button
-            onClick={() => navigate("/settings")}
-            className={`flex flex-col items-center justify-center min-w-[56px] min-h-[48px] py-1 px-2.5 rounded-2xl transition-all ${
-              currentPath.startsWith("/settings")
-                ? "bg-[#FBE9CD] text-[#70452E] font-bold shadow-2xs"
-                : "text-[#927D6D] hover:text-[#70452E]"
-            }`}
-            aria-label="ไปที่หน้าฉัน (ตั้งค่า)"
-            aria-current={
-              isActiveRoute(currentPath, "/settings") ? "page" : undefined
-            }
-          >
-            <CircleUserRound className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[11px] mt-0.5 font-bold">ฉัน</span>
-          </button>
-        </div>
-
-        {/* Script Brand Signature */}
-        <div className="pt-1.5 text-center">
-          <p className="font-script text-xs md:text-sm text-[#927D6D]/85 tracking-wide">
-            All for His Glory ♥
-          </p>
+          {MOBILE_TABS.slice(2).map(tab => (
+            <MobileTab
+              key={tab.path}
+              tab={tab}
+              active={tab.match(currentPath)}
+              onSelect={() => navigate(tab.path)}
+            />
+          ))}
         </div>
       </nav>
     </div>

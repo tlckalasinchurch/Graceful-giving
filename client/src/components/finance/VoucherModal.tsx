@@ -62,11 +62,11 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
       {/* Container */}
-      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E4DED7] overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
+      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-hairline overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Modal Action Bar (Hidden in print) */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#FAF8F5] border-b border-[#E4DED7] print:hidden">
-          <div className="flex items-center gap-2 text-[#57504A]">
-            <Building2 className="w-5 h-5 text-[#B9530F]" />
+        <div className="flex items-center justify-between px-6 py-4 bg-canvas border-b border-hairline print:hidden">
+          <div className="flex items-center gap-2 text-secondary-foreground">
+            <Building2 className="w-5 h-5 text-primary" />
             <span className="font-bold text-sm">
               เอกสารทางการคริสตจักร (A4 Printable)
             </span>
@@ -74,14 +74,14 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#B9530F] hover:bg-[#A34A0C] text-white font-medium text-xs shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-[#0071e3] text-white font-medium text-xs transition-colors"
             >
               <Printer className="w-4 h-4" />
               <span>พิมพ์เอกสาร (Print / PDF)</span>
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-[#736A63] hover:text-[#1F1A17] hover:bg-black/5 rounded-xl transition-colors"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-black/5 rounded-xl transition-colors"
             >
               <X className="w-5 h-5" />
             </button>

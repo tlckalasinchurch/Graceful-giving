@@ -134,14 +134,14 @@ export default function MinistryDetail() {
         ) : canManage ? (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-[#E4DED7] bg-white p-6 shadow-sm md:p-8"
+            className="rounded-2xl border border-hairline bg-white p-6 md:p-8"
           >
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-[#1F1A17]">
+                <h1 className="text-2xl font-bold text-foreground">
                   แก้ไขข้อมูลฝ่ายงาน
                 </h1>
-                <p className="mt-1 text-sm text-[#736A63]">
+                <p className="mt-1 text-sm text-muted-foreground">
                   สถานะปัจจุบัน:{" "}
                   {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
                 </p>
@@ -151,7 +151,7 @@ export default function MinistryDetail() {
                   type="button"
                   disabled={update.isPending}
                   onClick={() => update.mutate({ id, status: "active" })}
-                  className="min-h-11 rounded-2xl border border-[#B8E2AB] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#1F5C33] disabled:opacity-50"
+                  className="min-h-11 rounded-2xl border border-[#B8E2AB] bg-success-bg px-4 py-2 text-sm font-bold text-success disabled:opacity-50"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -179,39 +179,39 @@ export default function MinistryDetail() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-semibold text-[#57504A]">
+              <label className="text-sm font-semibold text-secondary-foreground">
                 ชื่อฝ่ายงาน *
                 <input
                   required
                   value={name}
                   onChange={event => setName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-[#E4DED7] p-3 font-normal text-[#1F1A17]"
+                  className="mt-1 w-full rounded-xl border border-hairline p-3 font-normal text-foreground"
                 />
               </label>
-              <label className="text-sm font-semibold text-[#57504A]">
+              <label className="text-sm font-semibold text-secondary-foreground">
                 หัวหน้าฝ่าย
                 <input
                   value={leaderName}
                   onChange={event => setLeaderName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-[#E4DED7] p-3 font-normal text-[#1F1A17]"
+                  className="mt-1 w-full rounded-xl border border-hairline p-3 font-normal text-foreground"
                 />
               </label>
-              <label className="text-sm font-semibold text-[#57504A] md:col-span-2">
+              <label className="text-sm font-semibold text-secondary-foreground md:col-span-2">
                 เวลานัดประชุม
                 <input
                   value={meetingSchedule}
                   onChange={event => setMeetingSchedule(event.target.value)}
                   placeholder="เช่น ทุกวันอาทิตย์ 09:00"
-                  className="mt-1 w-full rounded-xl border border-[#E4DED7] p-3 font-normal text-[#1F1A17]"
+                  className="mt-1 w-full rounded-xl border border-hairline p-3 font-normal text-foreground"
                 />
               </label>
-              <label className="text-sm font-semibold text-[#57504A] md:col-span-2">
+              <label className="text-sm font-semibold text-secondary-foreground md:col-span-2">
                 รายละเอียดพันธกิจ
                 <textarea
                   value={description}
                   onChange={event => setDescription(event.target.value)}
                   rows={4}
-                  className="mt-1 w-full rounded-xl border border-[#E4DED7] p-3 font-normal text-[#1F1A17]"
+                  className="mt-1 w-full rounded-xl border border-hairline p-3 font-normal text-foreground"
                 />
               </label>
             </div>
@@ -225,15 +225,15 @@ export default function MinistryDetail() {
             </button>
           </form>
         ) : (
-          <section className="rounded-2xl border border-[#E4DED7] bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-hairline bg-white p-6 md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h1 className="text-2xl font-bold text-[#1F1A17]">
+              <h1 className="text-2xl font-bold text-foreground">
                 {query.data.name}
               </h1>
               <span
                 className={`rounded-full px-2.5 py-1 text-[11px] ${
                   query.data.status === "active"
-                    ? "bg-[#E4F3E7] text-[#1F1A17]"
+                    ? "bg-success-bg text-foreground"
                     : "bg-stone-100 text-stone-600"
                 }`}
               >
@@ -241,14 +241,14 @@ export default function MinistryDetail() {
               </span>
             </div>
 
-            <dl className="mt-5 space-y-3 text-sm text-[#57504A]">
+            <dl className="mt-5 space-y-3 text-sm text-secondary-foreground">
               <div className="flex items-center gap-2">
-                <UserRound className="h-4 w-4 shrink-0 text-[#736A63]" />
+                <UserRound className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <dt className="sr-only">หัวหน้าฝ่าย</dt>
                 <dd>{query.data.leaderName || "ยังไม่ระบุหัวหน้าฝ่าย"}</dd>
               </div>
               <div className="flex items-center gap-2">
-                <CalendarClock className="h-4 w-4 shrink-0 text-[#736A63]" />
+                <CalendarClock className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <dt className="sr-only">เวลานัดประชุม</dt>
                 <dd>
                   {query.data.meetingSchedule || "ยังไม่ระบุเวลานัดประชุม"}
@@ -257,7 +257,7 @@ export default function MinistryDetail() {
             </dl>
 
             {query.data.description && (
-              <p className="mt-5 whitespace-pre-line border-t border-[#E4DED7] pt-5 text-sm leading-relaxed text-[#1F1A17]">
+              <p className="mt-5 whitespace-pre-line border-t border-hairline pt-5 text-sm leading-relaxed text-foreground">
                 {query.data.description}
               </p>
             )}

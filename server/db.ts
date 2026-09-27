@@ -505,6 +505,23 @@ export async function getMonthlyStats(
 
 // ─── Offerings ────────────────────────────────────────────────────────────────
 
+// Shared by the Offerings and Expenses fund-balance UPDATEs below. The
+// `postgres` driver returns the RETURNING rows as the array itself (empty
+// here, since these UPDATEs have no RETURNING clause) with the actual
+// affected-row count on a separate `.count` property — `.length` is always 0
+// and `.rowCount` does not exist on this driver's result shape, so neither
+// check previously used here could ever tell a real fund-balance write apart
+// from a no-op one.
+function assertFundBalanceUpdated(
+  result: { count: number },
+  fundId: number,
+  churchId: string
+): void {
+  if (result.count === 0) {
+    throw new Error(`Fund ${fundId} not found or church mismatch (churchId=${churchId})`);
+  }
+}
+
 export type OfferingRow = {
   id: number;
   amount: number;
@@ -608,9 +625,10 @@ export async function createOffering(
       .returning({ id: offerings.id });
     // Update fund balance in the same transaction as the offering insert.
     if (input.fundId) {
-      await tx.execute(
+      const updateResult = await tx.execute(
         sql`UPDATE finance_accounts SET balance = balance + ${input.amount} WHERE id = ${input.fundId} AND "churchId" = ${churchId}`
       );
+      assertFundBalanceUpdated(updateResult, input.fundId, churchId);
     }
     return result[0].id;
   });
@@ -654,14 +672,30 @@ export async function updateOffering(
         input.amount === undefined ? oldAmount : Number(input.amount);
       const oldFundId = existing[0].fundId;
       const newFundId = input.fundId === undefined ? oldFundId : input.fundId;
-      if (oldFundId)
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance - ${oldAmount} WHERE id = ${oldFundId} AND "churchId" = ${churchId}`
+      
+      // Case 1: Same fund, amount changed (no-op when neither side has a fund)
+      if (oldFundId === newFundId && oldAmount !== newAmount && newFundId) {
+        const diff = newAmount - oldAmount;
+        const result = await tx.execute(
+          sql`UPDATE finance_accounts SET balance = balance + ${diff} WHERE id = ${newFundId} AND "churchId" = ${churchId}`
         );
-      if (newFundId)
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance + ${newAmount} WHERE id = ${newFundId} AND "churchId" = ${churchId}`
-        );
+        assertFundBalanceUpdated(result, newFundId, churchId);
+      }
+      // Case 2: Different funds
+      else if (oldFundId !== newFundId) {
+        if (oldFundId) {
+          const result = await tx.execute(
+            sql`UPDATE finance_accounts SET balance = balance - ${oldAmount} WHERE id = ${oldFundId} AND "churchId" = ${churchId}`
+          );
+          assertFundBalanceUpdated(result, oldFundId, churchId);
+        }
+        if (newFundId) {
+          const result = await tx.execute(
+            sql`UPDATE finance_accounts SET balance = balance + ${newAmount} WHERE id = ${newFundId} AND "churchId" = ${churchId}`
+          );
+          assertFundBalanceUpdated(result, newFundId, churchId);
+        }
+      }
     }
     return id;
   });
@@ -768,9 +802,10 @@ export async function createExpense(
       .returning({ id: expenses.id });
     // Deduct fund balance in the same transaction as the expense insert.
     if (input.fundId) {
-      await tx.execute(
+      const updateResult = await tx.execute(
         sql`UPDATE finance_accounts SET balance = balance - ${input.amount} WHERE id = ${input.fundId} AND "churchId" = ${churchId}`
       );
+      assertFundBalanceUpdated(updateResult, input.fundId, churchId);
     }
     return result[0].id;
   });
@@ -814,14 +849,30 @@ export async function updateExpense(
         input.amount === undefined ? oldAmount : Number(input.amount);
       const oldFundId = existing[0].fundId;
       const newFundId = input.fundId === undefined ? oldFundId : input.fundId;
-      if (oldFundId)
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance + ${oldAmount} WHERE id = ${oldFundId} AND "churchId" = ${churchId}`
+      
+      // Case 1: Same fund, amount changed (no-op when neither side has a fund)
+      if (oldFundId === newFundId && oldAmount !== newAmount && newFundId) {
+        const diff = oldAmount - newAmount; // Reverse: expenses decrease balance
+        const result = await tx.execute(
+          sql`UPDATE finance_accounts SET balance = balance + ${diff} WHERE id = ${newFundId} AND "churchId" = ${churchId}`
         );
-      if (newFundId)
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance - ${newAmount} WHERE id = ${newFundId} AND "churchId" = ${churchId}`
-        );
+        assertFundBalanceUpdated(result, newFundId, churchId);
+      }
+      // Case 2: Different funds
+      else if (oldFundId !== newFundId) {
+        if (oldFundId) {
+          const result = await tx.execute(
+            sql`UPDATE finance_accounts SET balance = balance + ${oldAmount} WHERE id = ${oldFundId} AND "churchId" = ${churchId}`
+          );
+          assertFundBalanceUpdated(result, oldFundId, churchId);
+        }
+        if (newFundId) {
+          const result = await tx.execute(
+            sql`UPDATE finance_accounts SET balance = balance - ${newAmount} WHERE id = ${newFundId} AND "churchId" = ${churchId}`
+          );
+          assertFundBalanceUpdated(result, newFundId, churchId);
+        }
+      }
     }
     return id;
   });

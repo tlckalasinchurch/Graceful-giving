@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
@@ -86,12 +86,16 @@ export default function Transactions() {
         fund: "ไม่ระบุกองทุน",
         ministry: "บันทึกทะเบียน",
         amount: Number(expense.amount),
+        // expenseStatusEnum (drizzle/schema.ts) is draft | approved | paid | voided
+        // only — "pending"/"rejected" are not real values here, and listExpenses
+        // already excludes "voided" server-side. Map "draft" to its own status so
+        // an unfinished expense doesn't read as approved/completed.
         status:
-          expense.status === "pending"
-            ? "pending"
-            : expense.status === "rejected" || expense.status === "voided"
-              ? "failed"
-              : "completed",
+          expense.status === "draft"
+            ? "draft"
+            : expense.status
+              ? "completed"
+              : "unknown",
         icon: Landmark,
         tone: "bg-[#FDF0E2] text-[#B3702A]",
       });
@@ -181,14 +185,14 @@ export default function Transactions() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleExport}
-            className="px-3.5 py-2 rounded-2xl bg-[#FFF4DF] hover:bg-[#FBE9CD] text-[#70452E] text-xs font-bold border border-[#E9D9BF] flex items-center gap-1.5 transition-all"
+            className="px-3.5 py-2 rounded-2xl bg-surface-subtle hover:bg-primary/10 text-secondary-foreground text-xs font-bold border border-hairline flex items-center gap-1.5 transition-all"
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-2xl bg-[#E99A4A] hover:bg-[#DE8640] text-white text-xs font-bold clay-button-shadow transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-2xl bg-primary hover:bg-[#0071e3] text-white text-xs font-bold clay-button-shadow transition-all flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>บันทึกใหม่</span>
@@ -198,32 +202,32 @@ export default function Transactions() {
     >
       {/* 1. Summary Cards (รายรับ, รายจ่าย, ยอดสุทธิ) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-        <div className="bg-[#FFF0ED] border border-[#FCE7DF] rounded-[28px] p-4 md:p-5 shadow-2xs space-y-1">
-          <span className="text-xs font-bold text-[#70452E]">
+        <div className="bg-[#FFF0ED] border border-[#FCE7DF] rounded-2xl p-4 md:p-5 space-y-1">
+          <span className="text-xs font-bold text-secondary-foreground">
             รายรับในผลที่กรอง
           </span>
           <div>
             <MoneyDisplay amount={totalIncome} type="income" size="lg" />
           </div>
-          <p className="text-sm text-[#674F42]">
+          <p className="text-sm text-secondary-foreground">
             {filtered.filter(t => t.type === "income").length} รายการ
           </p>
         </div>
 
-        <div className="bg-[#EFF8E8] border border-[#DCECC5] rounded-[28px] p-4 md:p-5 shadow-2xs space-y-1">
-          <span className="text-xs font-bold text-[#70452E]">
+        <div className="bg-success-bg border border-success-border rounded-2xl p-4 md:p-5 space-y-1">
+          <span className="text-xs font-bold text-secondary-foreground">
             รายจ่ายในผลที่กรอง
           </span>
           <div>
             <MoneyDisplay amount={totalExpense} type="expense" size="lg" />
           </div>
-          <p className="text-sm text-[#674F42]">
+          <p className="text-sm text-secondary-foreground">
             {filtered.filter(t => t.type === "expense").length} รายการ
           </p>
         </div>
 
-        <div className="bg-[#FFF8EB] border border-[#FBE9CD] rounded-[28px] p-4 md:p-5 shadow-2xs space-y-1">
-          <span className="text-xs font-bold text-[#70452E]">ยอดสุทธิ</span>
+        <div className="bg-warning-bg border border-warning-border rounded-2xl p-4 md:p-5 space-y-1">
+          <span className="text-xs font-bold text-secondary-foreground">ยอดสุทธิ</span>
           <div>
             <MoneyDisplay
               amount={netTotal}
@@ -231,14 +235,14 @@ export default function Transactions() {
               size="lg"
             />
           </div>
-          <p className="text-sm text-[#674F42]">
+          <p className="text-sm text-secondary-foreground">
             ยอดสุทธิของ {filtered.length} รายการที่แสดงผล
           </p>
         </div>
       </div>
 
       {/* 2. Filter Bar */}
-      <div className="bg-white rounded-[28px] p-4 md:p-5 border border-[#E9D9BF] clay-card-shadow space-y-3">
+      <div className="bg-white rounded-2xl p-4 md:p-5 border border-hairline clay-card-shadow space-y-3">
         <FilterBar
           searchPlaceholder="ค้นหารายการ, หมวดหมู่, หรือพันธกิจ..."
           searchValue={searchTerm}
@@ -281,44 +285,56 @@ export default function Transactions() {
           onAction={() => setLocation("/offerings/new")}
         />
       ) : (
-        <div className="bg-white rounded-[28px] border border-[#E9D9BF] clay-card-shadow overflow-hidden">
+        <div className="bg-white rounded-2xl border border-hairline clay-card-shadow overflow-hidden">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-[#FFFDF8] border-b border-[#E9D9BF] text-[#70452E] font-bold">
+              <caption className="sr-only">
+                รายการธุรกรรมรับถวายและรายจ่าย พร้อมสถานะและกองทุน
+              </caption>
+              <thead className="bg-surface border-b border-hairline text-secondary-foreground font-bold">
                 <tr>
-                  <th className="p-4">วันที่</th>
-                  <th className="p-4">รายการ</th>
-                  <th className="p-4">ประเภท</th>
-                  <th className="p-4">กองทุน</th>
-                  <th className="p-4">พันธกิจ</th>
-                  <th className="p-4 text-right">จำนวนเงิน</th>
-                  <th className="p-4 text-center">สถานะ</th>
-                  <th className="p-4 text-right">ดูรายละเอียด</th>
+                  <th scope="col" className="p-4">วันที่</th>
+                  <th scope="col" className="p-4">รายการ</th>
+                  <th scope="col" className="p-4">ประเภท</th>
+                  <th scope="col" className="p-4">กองทุน</th>
+                  <th scope="col" className="p-4">พันธกิจ</th>
+                  <th scope="col" className="p-4 text-right">จำนวนเงิน</th>
+                  <th scope="col" className="p-4 text-center">สถานะ</th>
+                  <th scope="col" className="p-4 text-right">
+                    <span className="sr-only">ดูรายละเอียด</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F0E6D8]/60">
                 {visibleTransactions.map(tx => (
                   <tr
                     key={tx.id}
-                    className="hover:bg-[#FFF9EE]/70 transition-colors"
+                    className="hover:bg-surface-subtle/70 transition-colors"
                   >
-                    <td className="p-4 text-[#927D6D] whitespace-nowrap font-medium">
+                    <td className="p-4 text-muted-foreground whitespace-nowrap font-medium">
                       {new Intl.DateTimeFormat("th-TH", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
                       }).format(new Date(tx.date))}
                     </td>
-                    <td className="p-4 font-bold text-[#38251B]">{tx.title}</td>
+                    <th scope="row" className="p-4 text-left font-bold text-foreground">
+                      <Link
+                        href={`/transactions/${tx.id}`}
+                        className="rounded-md underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+                      >
+                        {tx.title}
+                      </Link>
+                    </th>
                     <td className="p-4">
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#FFF4DF] text-[#70452E] text-xs font-medium">
+                      <span className="px-2.5 py-0.5 rounded-full bg-surface-subtle text-secondary-foreground text-xs font-medium">
                         {tx.category}
                       </span>
                     </td>
-                    <td className="p-4 text-[#70452E]">{tx.fund}</td>
-                    <td className="p-4 text-[#927D6D]">{tx.ministry}</td>
-                    <td className="p-4 text-right font-black">
+                    <td className="p-4 text-secondary-foreground">{tx.fund}</td>
+                    <td className="p-4 text-muted-foreground">{tx.ministry}</td>
+                    <td className="p-4 text-right font-bold">
                       <MoneyDisplay
                         amount={tx.amount}
                         type={tx.type}
@@ -329,14 +345,13 @@ export default function Transactions() {
                       <StatusBadge status={tx.status} />
                     </td>
                     <td className="p-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setLocation(`/transactions/${tx.id}`)}
-                        className="rounded-lg px-3 py-2 font-semibold text-[#70452E] hover:bg-[#FFF4DF] focus-visible:outline-2 focus-visible:outline-offset-2"
+                      <Link
+                        href={`/transactions/${tx.id}`}
+                        className="inline-block rounded-lg px-3 py-2 font-semibold text-secondary-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2"
                       >
                         ดูรายละเอียด
                         <span className="sr-only"> {tx.title}</span>
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -351,19 +366,19 @@ export default function Transactions() {
               return (
                 <article
                   key={tx.id}
-                  className="p-4 flex items-center justify-between gap-3 active:bg-[#FFF9EE]"
+                  className="p-4 flex items-center justify-between gap-3 active:bg-surface-subtle"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`w-11 h-11 rounded-2xl ${tx.tone} flex items-center justify-center shrink-0 shadow-2xs`}
+                      className={`w-11 h-11 rounded-2xl ${tx.tone} flex items-center justify-center shrink-0`}
                     >
                       <Icon className="w-5 h-5 stroke-[2.2]" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-[#38251B] truncate">
+                      <p className="text-sm font-bold text-foreground truncate">
                         {tx.title}
                       </p>
-                      <p className="text-sm text-[#674F42] pt-0.5">
+                      <p className="text-sm text-secondary-foreground pt-0.5">
                         {new Intl.DateTimeFormat("th-TH", {
                           day: "numeric",
                           month: "short",
@@ -379,13 +394,12 @@ export default function Transactions() {
                     <div>
                       <StatusBadge status={tx.status} />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setLocation(`/transactions/${tx.id}`)}
-                      className="mt-1 rounded-lg px-2 py-1 text-xs font-semibold text-[#70452E] hover:bg-[#FFF4DF]"
+                    <Link
+                      href={`/transactions/${tx.id}`}
+                      className="mt-1 inline-block rounded-lg px-2 py-1 text-xs font-semibold text-secondary-foreground hover:bg-surface-subtle"
                     >
                       ดูรายละเอียด<span className="sr-only"> {tx.title}</span>
-                    </button>
+                    </Link>
                   </div>
                 </article>
               );
@@ -394,7 +408,7 @@ export default function Transactions() {
           {totalPages > 1 && (
             <nav
               aria-label="แบ่งหน้ารายการธุรกรรม"
-              className="flex items-center justify-between border-t border-[#E9D9BF] bg-[#FFFDF8] px-4 py-3"
+              className="flex items-center justify-between border-t border-hairline bg-surface px-4 py-3"
             >
               <button
                 type="button"
@@ -404,7 +418,7 @@ export default function Transactions() {
               >
                 <ChevronLeft className="h-4 w-4" /> ก่อนหน้า
               </button>
-              <span className="text-xs text-[#70452E]">
+              <span className="text-xs text-secondary-foreground">
                 หน้า {currentPage} จาก {totalPages}
               </span>
               <button

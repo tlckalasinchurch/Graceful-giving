@@ -27,41 +27,41 @@ export function HomeReportsTab({
 }: HomeReportsTabProps) {
   return (
     <div role="tabpanel" aria-label="รายงานการเงิน" className="space-y-4">
-      <div className="bg-white rounded-[28px] p-5 md:p-6 border border-[#E9D9BF] clay-card-shadow flex items-center justify-between">
+      <div className="bg-white rounded-2xl p-5 md:p-6 border border-hairline clay-card-shadow flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-[#70452E]">
+          <h2 className="text-xl font-bold text-secondary-foreground">
             รายงานการเงินคริสตจักร
           </h2>
-          <p className="text-xs text-[#927D6D]">
+          <p className="text-xs text-muted-foreground">
             วิเคราะห์แนวโน้มรายรับ-รายจ่ายเพื่อวางแผนพันธกิจ
           </p>
         </div>
         <button
           type="button"
           onClick={onExportCSV}
-          className="px-3.5 py-2 rounded-xl bg-[#FFF4DF] text-[#70452E] text-xs font-bold border border-[#E9D9BF] flex items-center gap-1.5 hover:bg-[#FBE9CD] transition-all"
+          className="px-3.5 py-2 rounded-xl bg-surface-subtle text-secondary-foreground text-xs font-bold border border-hairline flex items-center gap-1.5 hover:bg-primary/10 transition-all"
         >
           <Download className="w-4 h-4" />
           <span>ดาวน์โหลด CSV</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-[28px] p-5 md:p-6 border border-[#E9D9BF] clay-card-shadow space-y-3">
+      <div className="bg-white rounded-2xl p-5 md:p-6 border border-hairline clay-card-shadow space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-[#38251B]">
+          <h3 className="text-sm font-bold text-foreground">
             แนวโน้มรายรับ - รายจ่าย 5 เดือนล่าสุด
           </h3>
           <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1 text-[#4F8B33] font-bold">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#A8C978]" /> รายรับ
+            <span className="flex items-center gap-1 text-success font-bold">
+              <span className="w-2.5 h-2.5 rounded-full bg-success" /> รายรับ
             </span>
             <span className="flex items-center gap-1 text-[#C26B1E] font-bold">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#E99A4A]" /> รายจ่าย
+              <span className="w-2.5 h-2.5 rounded-full bg-primary" /> รายจ่าย
             </span>
           </div>
         </div>
         {chartData.length === 0 ? (
-          <p className="py-16 text-center text-sm text-[#927D6D]">
+          <p className="py-16 text-center text-sm text-muted-foreground">
             ยังไม่มีข้อมูลแนวโน้มการเงินสำหรับช่วงเวลานี้
           </p>
         ) : (
@@ -100,13 +100,13 @@ export function HomeReportsTab({
         )}
       </div>
 
-      <div className="bg-white rounded-[28px] p-5 md:p-6 border border-[#E9D9BF] clay-card-shadow space-y-3">
-        <h3 className="text-sm font-bold text-[#38251B]">
+      <div className="bg-white rounded-2xl p-5 md:p-6 border border-hairline clay-card-shadow space-y-3">
+        <h3 className="text-sm font-bold text-foreground">
           ยอดเงินในแต่ละกองทุน (Fund Accounts)
         </h3>
         <div className="divide-y divide-[#F0E6D8]/60">
           {fundAccounts.length === 0 && (
-            <p className="py-8 text-center text-sm text-[#927D6D]">
+            <p className="py-8 text-center text-sm text-muted-foreground">
               ยังไม่มีข้อมูลกองทุนจากระบบ
             </p>
           )}
@@ -117,11 +117,11 @@ export function HomeReportsTab({
                   className="w-3.5 h-3.5 rounded-full"
                   style={{ backgroundColor: "#A8C978" }}
                 />
-                <span className="text-sm font-bold text-[#38251B]">
+                <span className="text-sm font-bold text-foreground">
                   {fa.name}
                 </span>
               </div>
-              <span className="text-sm font-extrabold text-[#1b5e3a]">
+              <span className="text-sm font-bold text-success">
                 {fmtBaht(Number(fa.balance))}
               </span>
             </div>

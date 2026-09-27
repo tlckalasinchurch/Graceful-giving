@@ -134,10 +134,10 @@ export function HomeDialogs(props: HomeDialogsProps) {
   return (
     <>
       <Dialog open={offeringOpen} onOpenChange={onOfferingOpenChange}>
-        <DialogContent className="max-w-md bg-[#FFFDF8] border-[#E9D9BF] rounded-[30px] p-6 text-[#38251B]">
+        <DialogContent className="max-w-md bg-surface border-hairline rounded-[30px] p-6 text-foreground">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl overflow-hidden bg-[#EAF5E4] p-1 border border-[#D2EAC7] shrink-0">
+              <div className="w-12 h-12 rounded-2xl overflow-hidden bg-success-bg p-1 border border-[#D2EAC7] shrink-0">
                 <Illustration
                   src="/illustrations/offering_box.jpg"
                   alt="กล่องถวาย"
@@ -147,10 +147,10 @@ export function HomeDialogs(props: HomeDialogsProps) {
                 />
               </div>
               <div>
-                <DialogTitle className="text-lg font-bold text-[#70452E]">
+                <DialogTitle className="text-lg font-bold text-secondary-foreground">
                   บันทึกการถวายทรัพย์
                 </DialogTitle>
-                <DialogDescription className="text-xs text-[#927D6D]">
+                <DialogDescription className="text-xs text-muted-foreground">
                   ขั้นตอนที่ {offeringStep} จาก 3:{" "}
                   {offeringStep === 1
                     ? "เลือกประเภทการถวาย"
@@ -164,7 +164,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
 
           {offeringStep === 1 && (
             <div className="space-y-4 pt-2">
-              <label className="text-xs font-bold text-[#70452E]">
+              <label className="text-xs font-bold text-secondary-foreground">
                 ประเภทการถวาย
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -173,7 +173,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                     key={cat.id}
                     type="button"
                     onClick={() => onOfferingTypeChange(cat.id)}
-                    className={`p-3 rounded-2xl border text-xs font-bold text-left transition-all ${offeringType === cat.id ? "bg-[#FFF4DF] border-[#E99A4A] text-[#70452E] shadow-2xs" : "bg-white border-[#E9D9BF] text-[#70452E]/80 hover:bg-[#FFF9EE]"}`}
+                    className={`p-3 rounded-2xl border text-xs font-bold text-left transition-all ${offeringType === cat.id ? "bg-surface-subtle border-primary text-secondary-foreground" : "bg-white border-hairline text-secondary-foreground/80 hover:bg-surface-subtle"}`}
                   >
                     {cat.label}
                   </button>
@@ -182,7 +182,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
               <button
                 type="button"
                 onClick={() => onOfferingStepChange(2)}
-                className="w-full mt-4 py-3 rounded-2xl bg-[#E99A4A] hover:bg-[#DE8640] text-white font-bold text-sm clay-button-shadow transition-all"
+                className="w-full mt-4 py-3 rounded-2xl bg-primary hover:bg-[#0071e3] text-white font-bold text-sm clay-button-shadow transition-all"
               >
                 ถัดไป: ระบุจำนวนเงิน →
               </button>
@@ -191,18 +191,18 @@ export function HomeDialogs(props: HomeDialogsProps) {
 
           {offeringStep === 2 && (
             <div className="space-y-4 pt-2">
-              <label className="text-xs font-bold text-[#70452E]">
+              <label className="text-xs font-bold text-secondary-foreground">
                 จำนวนเงินถวาย (บาท)
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-black text-[#1b5e3a]">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-success">
                   ฿
                 </span>
                 <input
                   type="number"
                   value={offeringAmount}
                   onChange={e => onOfferingAmountChange(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-[#E9D9BF] text-2xl font-black text-[#1b5e3a] focus:outline-none focus:border-[#E99A4A]"
+                  className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-hairline text-2xl font-bold text-success focus:outline-none focus:border-[#0071e3]"
                   placeholder="0.00"
                 />
               </div>
@@ -212,7 +212,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                     key={amt}
                     type="button"
                     onClick={() => onOfferingAmountChange(String(amt))}
-                    className="px-3 py-1.5 rounded-full bg-[#FFF4DF] border border-[#E9D9BF] text-xs font-bold text-[#70452E] hover:bg-[#FBE9CD]"
+                    className="px-3 py-1.5 rounded-full bg-surface-subtle border border-hairline text-xs font-bold text-secondary-foreground hover:bg-primary/10"
                   >
                     +฿{amt.toLocaleString()}
                   </button>
@@ -222,7 +222,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                 <button
                   type="button"
                   onClick={() => onOfferingStepChange(1)}
-                  className="flex-1 py-3 rounded-2xl bg-[#FFF4DF] text-[#70452E] font-bold text-sm border border-[#E9D9BF]"
+                  className="flex-1 py-3 rounded-2xl bg-surface-subtle text-secondary-foreground font-bold text-sm border border-hairline"
                 >
                   ← ย้อนกลับ
                 </button>
@@ -230,7 +230,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                   type="button"
                   onClick={() => onOfferingStepChange(3)}
                   disabled={!offeringAmount || Number(offeringAmount) <= 0}
-                  className="flex-2 py-3 rounded-2xl bg-[#E99A4A] hover:bg-[#DE8640] text-white font-bold text-sm clay-button-shadow disabled:opacity-50"
+                  className="flex-2 py-3 rounded-2xl bg-primary hover:bg-[#0071e3] text-white font-bold text-sm clay-button-shadow disabled:opacity-50"
                 >
                   ถัดไป: ช่องทางถวาย →
                 </button>
@@ -241,14 +241,14 @@ export function HomeDialogs(props: HomeDialogsProps) {
           {offeringStep === 3 && (
             <form onSubmit={onOfferingSubmit} className="space-y-4 pt-2">
               <div>
-                <label className="text-xs font-bold text-[#70452E] mb-1.5 block">
+                <label className="text-xs font-bold text-secondary-foreground mb-1.5 block">
                   เข้ากองทุน
                 </label>
                 <select
                   required
                   value={offeringFund}
                   onChange={e => onOfferingFundChange(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs font-medium text-[#38251B]"
+                  className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs font-medium text-foreground"
                 >
                   <option value="" disabled>
                     -- เลือกกองทุน --
@@ -266,7 +266,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                 )}
               </div>
               <div>
-                <label className="text-xs font-bold text-[#70452E] mb-1.5 block">
+                <label className="text-xs font-bold text-secondary-foreground mb-1.5 block">
                   วิธีการชำระเงิน
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -275,7 +275,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                       key={m}
                       type="button"
                       onClick={() => onOfferingMethodChange(m)}
-                      className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all ${offeringMethod === m ? "bg-[#EAF5E4] border-[#A8C978] text-[#4F8B33]" : "bg-white border-[#E9D9BF] text-[#70452E]/80"}`}
+                      className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all ${offeringMethod === m ? "bg-success-bg border-success-border text-success" : "bg-white border-hairline text-secondary-foreground/80"}`}
                     >
                       {m}
                     </button>
@@ -283,7 +283,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold text-[#70452E] mb-1 block">
+                <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                   บันทึกเพิ่มเติม (ถ้ามี)
                 </label>
                 <input
@@ -291,7 +291,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                   value={offeringNotes}
                   onChange={e => onOfferingNotesChange(e.target.value)}
                   placeholder="เช่น ขอบพระคุณสำหรับสุขภาพ, วันเกิด"
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs"
+                  className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs"
                 />
               </div>
               <div className="flex items-center gap-2 pt-1">
@@ -300,9 +300,9 @@ export function HomeDialogs(props: HomeDialogsProps) {
                   id="anon"
                   checked={offeringAnon}
                   onChange={e => onOfferingAnonChange(e.target.checked)}
-                  className="rounded text-[#E99A4A] focus:ring-[#E99A4A]"
+                  className="rounded text-primary focus:ring-[#0071e3]"
                 />
-                <label htmlFor="anon" className="text-xs text-[#70452E]">
+                <label htmlFor="anon" className="text-xs text-secondary-foreground">
                   ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
                 </label>
               </div>
@@ -310,14 +310,14 @@ export function HomeDialogs(props: HomeDialogsProps) {
                 <button
                   type="button"
                   onClick={() => onOfferingStepChange(2)}
-                  className="flex-1 py-3 rounded-2xl bg-[#FFF4DF] text-[#70452E] font-bold text-sm border border-[#E9D9BF]"
+                  className="flex-1 py-3 rounded-2xl bg-surface-subtle text-secondary-foreground font-bold text-sm border border-hairline"
                 >
                   ← ย้อนกลับ
                 </button>
                 <button
                   type="submit"
                   disabled={createOfferingMutation.isPending || !offeringFund}
-                  className="flex-2 py-3 rounded-2xl bg-[#E99A4A] hover:bg-[#DE8640] text-white font-bold text-sm clay-button-shadow disabled:opacity-50"
+                  className="flex-2 py-3 rounded-2xl bg-primary hover:bg-[#0071e3] text-white font-bold text-sm clay-button-shadow disabled:opacity-50"
                 >
                   {createOfferingMutation.isPending
                     ? "กำลังบันทึก..."
@@ -331,8 +331,8 @@ export function HomeDialogs(props: HomeDialogsProps) {
 
       {/* ─── MODAL 2: OFFERING SUCCESS CELEBRATION ─── */}
       <Dialog open={offeringSuccess} onOpenChange={onOfferingSuccessChange}>
-        <DialogContent className="max-w-sm bg-[#FFFDF8] border-[#E9D9BF] rounded-[30px] p-6 text-center text-[#38251B] space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-3xl overflow-hidden border border-[#E9D9BF] shadow-xs p-1 bg-[#EAF5E4]">
+        <DialogContent className="max-w-sm bg-surface border-hairline rounded-[30px] p-6 text-center text-foreground space-y-4">
+          <div className="w-20 h-20 mx-auto rounded-3xl overflow-hidden border border-hairline p-1 bg-success-bg">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
               alt="ถวายสำเร็จ"
@@ -342,32 +342,32 @@ export function HomeDialogs(props: HomeDialogsProps) {
             />
           </div>
           <div>
-            <h3 className="text-xl font-extrabold text-[#70452E]">
+            <h3 className="text-xl font-bold text-secondary-foreground">
               บันทึกการถวายเรียบร้อยแล้ว
             </h3>
-            <p className="text-xs text-[#927D6D] mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               "ขอพระเจ้าทรงอวยพระพรและตอบแทนทุกน้ำใจที่ท่านได้มอบให้เพื่อพันธกิจของพระองค์"
             </p>
           </div>
           {submittedOffering && (
-            <div className="p-3.5 rounded-2xl bg-[#FFF4DF] border border-[#E9D9BF] text-xs text-left space-y-1">
+            <div className="p-3.5 rounded-2xl bg-surface-subtle border border-hairline text-xs text-left space-y-1">
               <p>
-                <span className="text-[#927D6D]">รายการ:</span>{" "}
-                <span className="font-bold text-[#70452E]">
+                <span className="text-muted-foreground">รายการ:</span>{" "}
+                <span className="font-bold text-secondary-foreground">
                   {offeringCategoryLabel(
                     submittedOffering.type as OfferingCategory
                   )}
                 </span>
               </p>
               <p>
-                <span className="text-[#927D6D]">จำนวน:</span>{" "}
-                <span className="font-black text-[#1b5e3a]">
+                <span className="text-muted-foreground">จำนวน:</span>{" "}
+                <span className="font-bold text-success">
                   {fmtBaht(submittedOffering.amount)}
                 </span>
               </p>
               <p>
-                <span className="text-[#927D6D]">กองทุน:</span>{" "}
-                <span className="font-medium text-[#70452E]">
+                <span className="text-muted-foreground">กองทุน:</span>{" "}
+                <span className="font-medium text-secondary-foreground">
                   {submittedOffering.fund}
                 </span>
               </p>
@@ -375,7 +375,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
           )}
           <button
             onClick={() => onOfferingSuccessChange(false)}
-            className="w-full py-3 rounded-2xl bg-[#A8C978] hover:bg-[#96C764] text-white font-bold text-sm clay-button-shadow"
+            className="w-full py-3 rounded-2xl bg-success hover:bg-[#96C764] text-white font-bold text-sm clay-button-shadow"
           >
             เรียบร้อย (สรรเสริญพระเจ้า)
           </button>
@@ -384,18 +384,18 @@ export function HomeDialogs(props: HomeDialogsProps) {
 
       {/* ─── MODAL 3: EXPENSE ENTRY DIALOG ─── */}
       <Dialog open={expenseOpen} onOpenChange={onExpenseOpenChange}>
-        <DialogContent className="max-w-md bg-[#FFFDF8] border-[#E9D9BF] rounded-[30px] p-6 text-[#38251B]">
+        <DialogContent className="max-w-md bg-surface border-hairline rounded-[30px] p-6 text-foreground">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-[#70452E]">
+            <DialogTitle className="text-lg font-bold text-secondary-foreground">
               บันทึกรายจ่ายคริสตจักร
             </DialogTitle>
-            <DialogDescription className="text-xs text-[#927D6D]">
+            <DialogDescription className="text-xs text-muted-foreground">
               บันทึกค่าใช้จ่ายพร้อมหักยอดจากกองทุนที่เกี่ยวข้อง
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={onExpenseSubmit} className="space-y-3.5 pt-2">
             <div>
-              <label className="text-xs font-bold text-[#70452E] mb-1 block">
+              <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                 ชื่อรายการรายจ่าย
               </label>
               <input
@@ -406,12 +406,12 @@ export function HomeDialogs(props: HomeDialogsProps) {
                   onExpenseFormChange({ ...expenseForm, title: e.target.value })
                 }
                 placeholder="เช่น ค่าอุปกรณ์นมัสการ, ค่าไฟฟ้า"
-                className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs md:text-sm"
+                className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs md:text-sm"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-[#70452E] mb-1 block">
+                <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                   จำนวนเงิน (บาท)
                 </label>
                 <input
@@ -425,11 +425,11 @@ export function HomeDialogs(props: HomeDialogsProps) {
                     })
                   }
                   placeholder="0.00"
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs md:text-sm font-bold text-[#c7382d]"
+                  className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs md:text-sm font-bold text-error"
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-[#70452E] mb-1 block">
+                <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                   หมวดหมู่
                 </label>
                 <select
@@ -440,7 +440,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                       category: e.target.value as ExpenseCategory,
                     })
                   }
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs"
+                  className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs"
                 >
                   {EXPENSE_CATEGORIES.map(c => (
                     <option key={c.id} value={c.id}>
@@ -451,7 +451,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-[#70452E] mb-1 block">
+              <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                 หักจากกองทุน
               </label>
               <select
@@ -463,7 +463,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                     fundId: e.target.value,
                   })
                 }
-                className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs"
+                className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs"
               >
                 <option value="" disabled>
                   -- เลือกกองทุน --
@@ -483,7 +483,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
             <button
               type="submit"
               disabled={createExpenseMutation.isPending || !expenseForm.fundId}
-              className="w-full py-3 mt-2 rounded-2xl bg-[#E99A4A] hover:bg-[#DE8640] text-white font-bold text-sm clay-button-shadow disabled:opacity-50"
+              className="w-full py-3 mt-2 rounded-2xl bg-primary hover:bg-[#0071e3] text-white font-bold text-sm clay-button-shadow disabled:opacity-50"
             >
               {createExpenseMutation.isPending
                 ? "กำลังบันทึก..."
@@ -495,18 +495,18 @@ export function HomeDialogs(props: HomeDialogsProps) {
 
       {/* ─── MODAL 4: WITHDRAWAL REQUEST DIALOG ─── */}
       <Dialog open={withdrawalOpen} onOpenChange={onWithdrawalOpenChange}>
-        <DialogContent className="max-w-md bg-[#FFFDF8] border-[#E9D9BF] rounded-[30px] p-6 text-[#38251B]">
+        <DialogContent className="max-w-md bg-surface border-hairline rounded-[30px] p-6 text-foreground">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-[#70452E]">
+            <DialogTitle className="text-lg font-bold text-secondary-foreground">
               ยื่นคำขอเบิกเงิน (Withdrawal Request)
             </DialogTitle>
-            <DialogDescription className="text-xs text-[#927D6D]">
+            <DialogDescription className="text-xs text-muted-foreground">
               ส่งคำขอเบิกเงินเพื่อให้ศิษยาภิบาลหรือเหรัญญิกพิจารณาอนุมัติ
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={onWithdrawalSubmit} className="space-y-3.5 pt-2">
             <div>
-              <label className="text-xs font-bold text-[#70452E] mb-1 block">
+              <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                 วัตถุประสงค์การเบิก
               </label>
               <input
@@ -520,12 +520,12 @@ export function HomeDialogs(props: HomeDialogsProps) {
                   })
                 }
                 placeholder="เช่น ค่าจัดค่ายอนุชน, ค่าซ่อมแซมห้องน้ำ"
-                className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs md:text-sm"
+                className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs md:text-sm"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-[#70452E] mb-1 block">
+                <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                   จำนวนเงิน (บาท)
                 </label>
                 <input
@@ -539,11 +539,11 @@ export function HomeDialogs(props: HomeDialogsProps) {
                     })
                   }
                   placeholder="0.00"
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs font-bold"
+                  className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs font-bold"
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-[#70452E] mb-1 block">
+                <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                   ความเร่งด่วน
                 </label>
                 <select
@@ -554,7 +554,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                       urgency: e.target.value,
                     })
                   }
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs"
+                  className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs"
                 >
                   <option value="normal">ปกติ (ตามรอบ)</option>
                   <option value="urgent">เร่งด่วน</option>
@@ -562,7 +562,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-[#70452E] mb-1 block">
+              <label className="text-xs font-bold text-secondary-foreground mb-1 block">
                 เบิกจากกองทุน
               </label>
               <select
@@ -574,7 +574,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
                     fundId: e.target.value,
                   })
                 }
-                className="w-full p-2.5 rounded-xl bg-white border border-[#E9D9BF] text-xs"
+                className="w-full p-2.5 rounded-xl bg-white border border-hairline text-xs"
               >
                 <option value="" disabled>
                   -- เลือกกองทุน --
@@ -596,7 +596,7 @@ export function HomeDialogs(props: HomeDialogsProps) {
               disabled={
                 createWithdrawalMutation.isPending || !withdrawalForm.fundId
               }
-              className="w-full py-3 mt-2 rounded-2xl bg-[#E99A4A] hover:bg-[#DE8640] text-white font-bold text-sm clay-button-shadow disabled:opacity-50"
+              className="w-full py-3 mt-2 rounded-2xl bg-primary hover:bg-[#0071e3] text-white font-bold text-sm clay-button-shadow disabled:opacity-50"
             >
               {createWithdrawalMutation.isPending
                 ? "กำลังส่งคำขอ..."
@@ -608,37 +608,37 @@ export function HomeDialogs(props: HomeDialogsProps) {
 
       {/* ─── SHEET: CHURCH NEWS & ANNOUNCEMENTS ─── */}
       <Sheet open={newsOpen} onOpenChange={onNewsOpenChange}>
-        <SheetContent className="bg-[#FFFDF8] border-l border-[#E9D9BF] w-full sm:max-w-md p-6 overflow-y-auto">
+        <SheetContent className="bg-surface border-l border-hairline w-full sm:max-w-md p-6 overflow-y-auto">
           <SheetHeader className="mb-4">
-            <SheetTitle className="text-lg font-bold text-[#70452E] flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#E99A4A]" />
+            <SheetTitle className="text-lg font-bold text-secondary-foreground flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-primary" />
               <span>ข่าวสารและประกาศคริสตจักร</span>
             </SheetTitle>
-            <SheetDescription className="text-xs text-[#927D6D]">
+            <SheetDescription className="text-xs text-muted-foreground">
               ติดตามกิจกรรม พันธกิจ และคำพยานพระพร
             </SheetDescription>
           </SheetHeader>
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-[#FFF4DF] border border-[#E9D9BF] space-y-2">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E99A4A] text-white">
+            <div className="p-4 rounded-2xl bg-surface-subtle border border-hairline space-y-2">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-white">
                 ประกาศสำคัญ
               </span>
-              <h4 className="text-sm font-bold text-[#70452E]">
+              <h4 className="text-sm font-bold text-secondary-foreground">
                 ค่ายสามัคคีธรรมประจำปี 2026
               </h4>
-              <p className="text-xs text-[#38251B] leading-relaxed">
+              <p className="text-xs text-foreground leading-relaxed">
                 ขอเชิญชวนพี่น้องสมาชิกทุกท่านร่วมค่ายสามัคคีธรรม วันที่ 18-20
                 ต.ค. นี้ ณ ศูนย์ฝึกอบรมคริสเตียน
               </p>
             </div>
-            <div className="p-4 rounded-2xl bg-[#EAF5E4] border border-[#D2EAC7] space-y-2">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#A8C978] text-white">
+            <div className="p-4 rounded-2xl bg-success-bg border border-[#D2EAC7] space-y-2">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success text-white">
                 รายงานพันธกิจ
               </span>
-              <h4 className="text-sm font-bold text-[#4F8B33]">
+              <h4 className="text-sm font-bold text-success">
                 โครงการแจกถุงยังชีพสู่ชุมชนรอบโบสถ์
               </h4>
-              <p className="text-xs text-[#38251B] leading-relaxed">
+              <p className="text-xs text-foreground leading-relaxed">
                 คริสตจักรได้ส่งมอบถุงยังชีพจำนวน 120 ชุดแก่ครอบครัวยากไร้
                 ขอบคุณพระเจ้าสำหรับทุกการถวาย
               </p>

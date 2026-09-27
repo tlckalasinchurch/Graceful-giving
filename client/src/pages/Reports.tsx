@@ -128,7 +128,7 @@ export default function Reports() {
           type="button"
           onClick={handleExportCsv}
           disabled={!hasData}
-          className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-[#E4DED7] bg-white px-4 py-2.5 text-sm font-bold text-[#57504A] transition-colors hover:bg-[#F4F1ED] disabled:opacity-50"
+          className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-hairline bg-white px-4 py-2.5 text-sm font-bold text-secondary-foreground transition-colors hover:bg-accent disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
           ส่งออก CSV
@@ -136,7 +136,7 @@ export default function Reports() {
       }
     >
       <div className="space-y-6">
-        <p className="text-sm text-[#736A63]">
+        <p className="text-sm text-muted-foreground">
           คำนวณจากรายการถวายและรายจ่ายที่บันทึกไว้ ไม่รวมรายการที่ยกเลิกแล้ว
           {summary
             ? ` · ช่วง ${fmtThaiDate(summary.from)} ถึง ${fmtThaiDate(summary.to)}`
@@ -158,8 +158,8 @@ export default function Reports() {
                 onClick={() => setTab(id)}
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                   tab === id
-                    ? "bg-[#B9530F] text-white shadow-sm"
-                    : "border border-[#E4DED7] bg-white text-[#57504A] hover:bg-[#FAF8F5]"
+                    ? "bg-primary text-white"
+                    : "border border-hairline bg-white text-secondary-foreground hover:bg-canvas"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -168,7 +168,7 @@ export default function Reports() {
             ))}
           </div>
 
-          <label className="text-sm font-semibold text-[#57504A]">
+          <label className="text-sm font-semibold text-secondary-foreground">
             <span className="sr-only">ช่วงเวลา</span>
             <NativeSelect
               value={period}
@@ -194,8 +194,8 @@ export default function Reports() {
             onRetry={() => summaryQuery.refetch()}
           />
         ) : tab === "funds" ? (
-          <section className="overflow-hidden rounded-2xl border border-[#E4DED7] bg-white shadow-sm">
-            <h2 className="border-b border-[#E4DED7] p-4 font-bold text-[#1F1A17]">
+          <section className="overflow-hidden rounded-2xl border border-hairline bg-white">
+            <h2 className="border-b border-hairline p-4 font-bold text-foreground">
               ยอดคงเหลือแต่ละกองทุน
             </h2>
             {!summary || summary.funds.length === 0 ? (
@@ -206,15 +206,15 @@ export default function Reports() {
               />
             ) : (
               <>
-                <ul className="divide-y divide-[#EDE8E3]">
+                <ul className="divide-y divide-[#e0e0e0]">
                   {summary.funds.map(fund => (
                     <li
                       key={fund.id}
                       className="flex items-center justify-between gap-4 p-4"
                     >
                       <div className="flex items-center gap-3">
-                        <Wallet className="h-5 w-5 shrink-0 text-[#B9530F]" />
-                        <span className="font-bold text-[#1F1A17]">
+                        <Wallet className="h-5 w-5 shrink-0 text-primary" />
+                        <span className="font-bold text-foreground">
                           {fund.name}
                         </span>
                       </div>
@@ -222,8 +222,8 @@ export default function Reports() {
                     </li>
                   ))}
                 </ul>
-                <div className="flex items-center justify-between border-t-2 border-[#E4DED7] bg-[#FAF8F5] p-4">
-                  <span className="font-bold text-[#1F1A17]">รวมทุกกองทุน</span>
+                <div className="flex items-center justify-between border-t-2 border-hairline bg-canvas p-4">
+                  <span className="font-bold text-foreground">รวมทุกกองทุน</span>
                   <MoneyDisplay
                     amount={summary.funds.reduce((t, f) => t + f.balance, 0)}
                     size="lg"
@@ -241,94 +241,94 @@ export default function Reports() {
           <>
             {/* Totals */}
             <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-[#E4DED7] bg-white p-5 shadow-2xs">
-                <p className="text-sm text-[#57504A]">รายรับรวม</p>
+              <div className="rounded-2xl border border-hairline bg-white p-5">
+                <p className="text-sm text-secondary-foreground">รายรับรวม</p>
                 <MoneyDisplay
                   amount={summary!.totalIncome}
                   type="income"
                   size="lg"
                 />
               </div>
-              <div className="rounded-2xl border border-[#E4DED7] bg-white p-5 shadow-2xs">
-                <p className="text-sm text-[#57504A]">รายจ่ายรวม</p>
+              <div className="rounded-2xl border border-hairline bg-white p-5">
+                <p className="text-sm text-secondary-foreground">รายจ่ายรวม</p>
                 <MoneyDisplay
                   amount={summary!.totalExpense}
                   type="expense"
                   size="lg"
                 />
               </div>
-              <div className="rounded-2xl border border-[#E4DED7] bg-white p-5 shadow-2xs">
-                <p className="text-sm text-[#57504A]">คงเหลือสุทธิ</p>
+              <div className="rounded-2xl border border-hairline bg-white p-5">
+                <p className="text-sm text-secondary-foreground">คงเหลือสุทธิ</p>
                 <MoneyDisplay
                   amount={summary!.net}
                   type={summary!.net >= 0 ? "income" : "expense"}
                   size="lg"
                 />
-                <p className="mt-1 text-sm text-[#57504A]">
+                <p className="mt-1 text-sm text-secondary-foreground">
                   {summary!.transactionCount} รายการ
                 </p>
               </div>
             </section>
 
             {/* Statement by category */}
-            <section className="overflow-hidden rounded-2xl border border-[#E4DED7] bg-white shadow-sm">
-              <h2 className="border-b border-[#E4DED7] p-4 font-bold text-[#1F1A17]">
+            <section className="overflow-hidden rounded-2xl border border-hairline bg-white">
+              <h2 className="border-b border-hairline p-4 font-bold text-foreground">
                 สรุปตามหมวดหมู่
               </h2>
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-[#E4DED7] bg-[#FAF8F5] text-sm font-bold text-[#57504A]">
+                <thead className="border-b border-hairline bg-canvas text-sm font-bold text-secondary-foreground">
                   <tr>
                     <th className="p-4">รายการ</th>
                     <th className="p-4 text-right">จำนวนรายการ</th>
                     <th className="p-4 text-right">ยอดเงิน</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EDE8E3]">
-                  <tr className="bg-[#F4F1ED]/40">
-                    <td colSpan={3} className="p-3 font-bold text-[#1F1A17]">
+                <tbody className="divide-y divide-[#e0e0e0]">
+                  <tr className="bg-surface-subtle/40">
+                    <td colSpan={3} className="p-3 font-bold text-foreground">
                       รายรับ (เงินถวาย)
                     </td>
                   </tr>
                   {summary!.income.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="p-4 text-[#57504A]">
+                      <td colSpan={3} className="p-4 text-secondary-foreground">
                         ไม่มีรายรับในช่วงเวลานี้
                       </td>
                     </tr>
                   ) : (
                     summary!.income.map(row => (
                       <tr key={`income-${row.category}`}>
-                        <td className="py-3 pl-8 pr-4 text-[#57504A]">
+                        <td className="py-3 pl-8 pr-4 text-secondary-foreground">
                           {offeringCategoryLabel(row.category)}
                         </td>
-                        <td className="p-4 text-right tabular-nums text-[#57504A]">
+                        <td className="p-4 text-right tabular-nums text-secondary-foreground">
                           {row.count}
                         </td>
-                        <td className="p-4 text-right font-bold tabular-nums text-[#1F5C33]">
+                        <td className="p-4 text-right font-bold tabular-nums text-success">
                           {fmtBaht(row.total)}
                         </td>
                       </tr>
                     ))
                   )}
 
-                  <tr className="bg-[#F4F1ED]/40">
-                    <td colSpan={3} className="p-3 font-bold text-[#1F1A17]">
+                  <tr className="bg-surface-subtle/40">
+                    <td colSpan={3} className="p-3 font-bold text-foreground">
                       รายจ่าย
                     </td>
                   </tr>
                   {summary!.expense.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="p-4 text-[#57504A]">
+                      <td colSpan={3} className="p-4 text-secondary-foreground">
                         ไม่มีรายจ่ายในช่วงเวลานี้
                       </td>
                     </tr>
                   ) : (
                     summary!.expense.map(row => (
                       <tr key={`expense-${row.category}`}>
-                        <td className="py-3 pl-8 pr-4 text-[#57504A]">
+                        <td className="py-3 pl-8 pr-4 text-secondary-foreground">
                           {expenseCategoryLabel(row.category)}
                         </td>
-                        <td className="p-4 text-right tabular-nums text-[#57504A]">
+                        <td className="p-4 text-right tabular-nums text-secondary-foreground">
                           {row.count}
                         </td>
                         <td className="p-4 text-right font-bold tabular-nums text-[#B3261E]">
@@ -338,12 +338,12 @@ export default function Reports() {
                     ))
                   )}
 
-                  <tr className="border-t-2 border-[#E4DED7] bg-[#E4F3E7]/40">
-                    <td className="p-4 font-bold text-[#1F1A17]">
+                  <tr className="border-t-2 border-hairline bg-success-bg/40">
+                    <td className="p-4 font-bold text-foreground">
                       คงเหลือสุทธิ
                     </td>
                     <td className="p-4" />
-                    <td className="p-4 text-right font-bold tabular-nums text-[#1F1A17]">
+                    <td className="p-4 text-right font-bold tabular-nums text-foreground">
                       {fmtBaht(summary!.net)}
                     </td>
                   </tr>
@@ -352,14 +352,14 @@ export default function Reports() {
             </section>
 
             {/* Six month trend */}
-            <section className="rounded-2xl border border-[#E4DED7] bg-white p-6 shadow-sm">
-              <div className="mb-4 flex flex-col gap-2 border-b border-[#E4DED7]/60 pb-4 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="font-bold text-[#1F1A17]">
+            <section className="rounded-2xl border border-hairline bg-white p-6">
+              <div className="mb-4 flex flex-col gap-2 border-b border-hairline/60 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="font-bold text-foreground">
                   เปรียบเทียบ 6 เดือนล่าสุด
                 </h2>
-                <div className="flex items-center gap-4 text-sm font-bold text-[#1F1A17]">
+                <div className="flex items-center gap-4 text-sm font-bold text-foreground">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[#9BCBA5]" />
+                    <span className="h-3 w-3 rounded-md bg-success" />
                     รายรับ
                   </span>
                   <span className="flex items-center gap-1.5">
@@ -371,7 +371,7 @@ export default function Reports() {
               {monthlyQuery.isLoading ? (
                 <LoadingSkeleton count={1} height="h-56" />
               ) : monthlyFlow.length === 0 || chartMax === 0 ? (
-                <p className="py-12 text-center text-sm text-[#57504A]">
+                <p className="py-12 text-center text-sm text-secondary-foreground">
                   ยังไม่มีข้อมูลย้อนหลังพอที่จะเปรียบเทียบรายเดือน
                 </p>
               ) : (
@@ -386,7 +386,7 @@ export default function Reports() {
                           style={{
                             height: `${(month.income / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[#9BCBA5] sm:w-8"
+                          className="w-4 rounded-t-lg bg-success sm:w-8"
                           title={`รายรับ ${fmtBaht(month.income)}`}
                         />
                         <div
@@ -397,7 +397,7 @@ export default function Reports() {
                           title={`รายจ่าย ${fmtBaht(month.expense)}`}
                         />
                       </div>
-                      <span className="mt-3 whitespace-nowrap text-sm font-semibold text-[#57504A]">
+                      <span className="mt-3 whitespace-nowrap text-sm font-semibold text-secondary-foreground">
                         {month.month}
                       </span>
                     </div>

@@ -5,7 +5,6 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
-import { useEffect, useMemo } from "react";
 import superjson from "superjson";
 import App from "./App";
 import "./index.css";

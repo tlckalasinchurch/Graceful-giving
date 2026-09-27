@@ -84,24 +84,24 @@ export function BankTab(props: BankTabProps) {
                   }
                 );
               }}
-              className="rounded-3xl border border-[#E9D9BF] bg-white p-5 shadow-sm md:p-6"
+              className="rounded-3xl border border-hairline bg-white p-5 md:p-6"
             >
-              <h2 className="mb-4 font-bold text-[#38251B]">
+              <h2 className="mb-4 font-bold text-foreground">
                 บันทึกรายการธนาคาร
               </h2>
               <div className="grid gap-4 md:grid-cols-4">
-                <label className="text-sm font-semibold text-[#674F42]">
+                <label className="text-sm font-semibold text-secondary-foreground">
                   ประเภท
                   <select
                     value={bType}
                     onChange={e => setBType(e.target.value as typeof bType)}
-                    className="mt-1 w-full rounded-xl border border-[#E9D9BF] p-3 text-sm font-normal text-[#38251B]"
+                    className="mt-1 w-full rounded-xl border border-hairline p-3 text-sm font-normal text-foreground"
                   >
                     <option value="cash_deposit">นำเงินสดเข้าฝาก</option>
                     <option value="transfer_in">สมาชิกโอนเข้าบัญชี</option>
                   </select>
                 </label>
-                <label className="text-sm font-semibold text-[#674F42]">
+                <label className="text-sm font-semibold text-secondary-foreground">
                   จำนวนเงิน *
                   <input
                     type="number"
@@ -110,24 +110,24 @@ export function BankTab(props: BankTabProps) {
                     step="0.25"
                     value={bAmount}
                     onChange={e => setBAmount(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-[#E9D9BF] p-3 text-base font-bold tabular-nums text-[#38251B]"
+                    className="mt-1 w-full rounded-xl border border-hairline p-3 text-base font-bold tabular-nums text-foreground"
                   />
                 </label>
-                <label className="text-sm font-semibold text-[#674F42]">
+                <label className="text-sm font-semibold text-secondary-foreground">
                   ผู้โอน
                   <input
                     value={bName}
                     onChange={e => setBName(e.target.value)}
                     placeholder="เว้นว่างได้ถ้าเป็นการนำฝาก"
-                    className="mt-1 w-full rounded-xl border border-[#E9D9BF] p-3 text-sm font-normal text-[#38251B]"
+                    className="mt-1 w-full rounded-xl border border-hairline p-3 text-sm font-normal text-foreground"
                   />
                 </label>
-                <label className="text-sm font-semibold text-[#674F42]">
+                <label className="text-sm font-semibold text-secondary-foreground">
                   เลขอ้างอิง
                   <input
                     value={bRef}
                     onChange={e => setBRef(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-[#E9D9BF] p-3 font-mono text-sm font-normal text-[#38251B]"
+                    className="mt-1 w-full rounded-xl border border-hairline p-3 font-mono text-sm font-normal text-foreground"
                   />
                 </label>
               </div>
@@ -141,24 +141,24 @@ export function BankTab(props: BankTabProps) {
             </form>
 
             <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-2xl border border-[#E9D9BF] bg-white p-4">
-                <p className="text-sm text-[#674F42]">เงินโอนเข้าบัญชีจริง</p>
+              <div className="rounded-2xl border border-hairline bg-white p-4">
+                <p className="text-sm text-secondary-foreground">เงินโอนเข้าบัญชีจริง</p>
                 <MoneyDisplay
                   amount={r.actualTransferIn}
                   type="income"
                   size="lg"
                 />
-                <p className="mt-1 text-sm text-[#674F42]">
+                <p className="mt-1 text-sm text-secondary-foreground">
                   เทียบซองโอน {fmtBaht(r.envelopeTransferTotal)}
                 </p>
                 <div className="mt-1">
                   <Variance amount={r.transferVariance} />
                 </div>
               </div>
-              <div className="rounded-2xl border border-[#E9D9BF] bg-white p-4">
-                <p className="text-sm text-[#674F42]">นำเงินสดเข้าฝากจริง</p>
+              <div className="rounded-2xl border border-hairline bg-white p-4">
+                <p className="text-sm text-secondary-foreground">นำเงินสดเข้าฝากจริง</p>
                 <MoneyDisplay amount={r.actualCashDeposit} size="lg" />
-                <p className="mt-1 text-sm text-[#674F42]">
+                <p className="mt-1 text-sm text-secondary-foreground">
                   ต้องนำฝาก {fmtBaht(r.expectedDeposit)}
                 </p>
                 <div className="mt-1">
@@ -167,12 +167,12 @@ export function BankTab(props: BankTabProps) {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-3xl border border-[#E9D9BF] bg-white shadow-sm">
-              <h2 className="border-b border-[#E9D9BF] p-4 font-bold text-[#38251B]">
+            <div className="overflow-hidden rounded-3xl border border-hairline bg-white">
+              <h2 className="border-b border-hairline p-4 font-bold text-foreground">
                 รายการธนาคาร ({detail.bankRecords.length})
               </h2>
               {detail.bankRecords.length === 0 ? (
-                <p className="p-8 text-center text-sm text-[#674F42]">
+                <p className="p-8 text-center text-sm text-secondary-foreground">
                   ยังไม่มีรายการธนาคารในรอบนี้
                 </p>
               ) : (
@@ -183,18 +183,18 @@ export function BankTab(props: BankTabProps) {
                       className="flex items-center justify-between gap-4 p-4"
                     >
                       <div className="min-w-0">
-                        <p className="font-bold text-[#38251B]">
+                        <p className="font-bold text-foreground">
                           {record.type === "cash_deposit"
                             ? "นำเงินสดเข้าฝาก"
                             : "สมาชิกโอนเข้าบัญชี"}
                         </p>
-                        <p className="text-sm text-[#674F42]">
+                        <p className="text-sm text-secondary-foreground">
                           {record.transferredByName || "ไม่ระบุผู้โอน"}
                           {record.bankRef ? ` · ${record.bankRef}` : ""}
                         </p>
                         <p className="mt-1 text-sm">
                           {record.passbookMatched ? (
-                            <span className="font-bold text-[#4F8B33]">
+                            <span className="font-bold text-success">
                               กระทบสมุดบัญชีแล้ว
                             </span>
                           ) : (
@@ -216,7 +216,7 @@ export function BankTab(props: BankTabProps) {
                               })
                             }
                             disabled={matchPassbook.isPending}
-                            className="min-h-11 rounded-xl border border-[#A8C978] bg-[#EAF5E4] px-3 py-2 text-xs font-bold text-[#4F8B33] disabled:opacity-50"
+                            className="min-h-11 rounded-xl border border-success-border bg-success-bg px-3 py-2 text-xs font-bold text-success disabled:opacity-50"
                           >
                             กระทบสมุด
                           </button>

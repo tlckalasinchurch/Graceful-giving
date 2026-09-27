@@ -70,11 +70,11 @@ export function ReconciliationSummaryTab({
 }: ReconciliationSummaryTabProps) {
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-[#E4DED7] bg-white shadow-sm">
-        <h2 className="border-b border-[#E4DED7] p-4 font-bold text-foreground">
+      <div className="overflow-hidden rounded-2xl border border-hairline bg-white">
+        <h2 className="border-b border-hairline p-4 font-bold text-foreground">
           ตารางกระทบยอด
         </h2>
-        <dl className="divide-y divide-[#EDE8E3]">
+        <dl className="divide-y divide-[#e0e0e0]">
           {[
             {
               label: "ยอดถวายตามซอง (ทุกช่องทาง)",
@@ -97,7 +97,7 @@ export function ReconciliationSummaryTab({
               key={row.label}
               className="flex items-center justify-between gap-4 p-4"
             >
-              <dt className="text-sm text-[#57504A]">{row.label}</dt>
+              <dt className="text-sm text-secondary-foreground">{row.label}</dt>
               <dd className="text-sm font-bold tabular-nums text-foreground">
                 {row.value}
               </dd>
@@ -127,7 +127,7 @@ export function ReconciliationSummaryTab({
               <Variance amount={r.depositVariance} />
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4 border-t-2 border-[#E4DED7] p-4">
+          <div className="flex items-center justify-between gap-4 border-t-2 border-hairline p-4">
             <dt className="font-bold text-foreground">
               นับเงินสดได้ − หักเบิก = ยอดนำฝาก
             </dt>
@@ -140,9 +140,9 @@ export function ReconciliationSummaryTab({
       </div>
 
       {!r.isBalanced && (
-        <div className="rounded-2xl border border-[#F9D2AE] bg-[#F4F1ED] p-5">
-          <h3 className="font-bold text-[#A34A0C]">ยอดยังไม่ตรงกัน</h3>
-          <p className="mt-1 text-sm text-[#A34A0C]">
+        <div className="rounded-2xl border border-warning-border bg-surface-subtle p-5">
+          <h3 className="font-bold text-warning">ยอดยังไม่ตรงกัน</h3>
+          <p className="mt-1 text-sm text-warning">
             ปิดรอบได้เมื่อยอดตรง หรือบันทึกคำอธิบายผลต่างไว้เป็นหลักฐาน
           </p>
           <textarea
@@ -150,10 +150,10 @@ export function ReconciliationSummaryTab({
             value={varianceNote}
             onChange={e => setVarianceNote(e.target.value)}
             placeholder="เช่น เงินสดขาด 20 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมมัคนายกวันที่…"
-            className="mt-3 w-full rounded-xl border border-[#E4DED7] bg-white p-3 text-sm text-foreground"
+            className="mt-3 w-full rounded-xl border border-hairline bg-white p-3 text-sm text-foreground"
           />
           {sessionVarianceNote && (
-            <p className="mt-2 text-sm text-[#57504A]">
+            <p className="mt-2 text-sm text-secondary-foreground">
               คำอธิบายที่บันทึกไว้: {sessionVarianceNote}
             </p>
           )}
@@ -161,15 +161,15 @@ export function ReconciliationSummaryTab({
       )}
 
       {unapprovedDeductions.length > 0 && (
-        <p className="rounded-2xl border border-[#F7D5CD] bg-[#FDECEA] p-4 text-sm font-bold text-[#A33B2A]">
+        <p className="rounded-2xl border border-error-border bg-error-bg p-4 text-sm font-bold text-[#A33B2A]">
           มีรายการหักเบิกที่ยังไม่ได้รับอนุมัติ {unapprovedDeductions.length}{" "}
           รายการ — ต้องอนุมัติก่อนลงบัญชี
         </p>
       )}
 
-      <div className="rounded-2xl border border-[#E4DED7] bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-hairline bg-white p-5">
         <h3 className="font-bold text-foreground">ดำเนินการกับรอบนี้</h3>
-        <p className="mt-1 text-sm text-[#57504A]">
+        <p className="mt-1 text-sm text-secondary-foreground">
           ลำดับงาน: นับ → ส่งตรวจ → ตรวจสอบ → ลงบัญชี → ปิดรอบ
           (ผู้นับไม่สามารถตรวจสอบรอบของตัวเองได้)
         </p>
@@ -189,7 +189,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => reopenCount.mutate({ id: sessionId })}
               disabled={reopenCount.isPending}
-              className="min-h-11 rounded-2xl border border-[#E4DED7] bg-[#F4F1ED] px-5 py-2.5 text-sm font-bold text-[#57504A] disabled:opacity-50"
+              className="min-h-11 rounded-2xl border border-hairline bg-surface-subtle px-5 py-2.5 text-sm font-bold text-secondary-foreground disabled:opacity-50"
             >
               ส่งกลับไปนับใหม่
             </button>
@@ -228,13 +228,13 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => close.mutate({ id: sessionId })}
               disabled={close.isPending}
-              className="min-h-11 rounded-2xl bg-[#57504A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className="min-h-11 rounded-2xl bg-[#51443A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
             >
               ปิดรอบถาวร
             </button>
           )}
           {status === "closed" && (
-            <p className="text-sm font-bold text-[#2F7A45]">
+            <p className="text-sm font-bold text-success">
               รอบนี้ปิดเรียบร้อยแล้ว ข้อมูลถูกล็อกเพื่อการตรวจสอบ
             </p>
           )}
@@ -242,14 +242,14 @@ export function ReconciliationSummaryTab({
       </div>
 
       {isUnposted && (
-        <div className="rounded-2xl border border-[#E4DED7] bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-hairline bg-white p-5">
           <div className="flex items-center gap-2 mb-1.5">
-            <RotateCcw className="h-4 w-4 text-[#A34A0C]" />
+            <RotateCcw className="h-4 w-4 text-warning" />
             <h4 className="font-bold text-foreground">
               การจัดการรอบนับเงิน (งานค้าง / เริ่มนับใหม่)
             </h4>
           </div>
-          <p className="text-xs sm:text-sm text-[#57504A] leading-relaxed mb-4">
+          <p className="text-xs sm:text-sm text-secondary-foreground leading-relaxed mb-4">
             หากพบว่ากรอกข้อมูลผิดพลาด หรือเป็นรอบที่เปิดทิ้งไว้ไม่ได้ใช้งาน
             สามารถเลือกล้างเพื่อนับใหม่ หรือลบรอบนี้ออกจากระบบได้
           </p>
@@ -258,16 +258,16 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleResetThisSession}
               disabled={resetSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-[#E4DED7] bg-[#F4F1ED] px-4 py-2 text-xs font-bold text-[#A34A0C] shadow-2xs hover:bg-[#FDEBD8] transition-colors disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-hairline bg-surface-subtle px-4 py-2 text-xs font-bold text-warning hover:bg-accent transition-colors disabled:opacity-50"
             >
-              <RotateCcw className="h-4 w-4 text-[#A34A0C]" />
+              <RotateCcw className="h-4 w-4 text-warning" />
               <span>ล้างข้อมูลเพื่อนับใหม่ (Recount)</span>
             </button>
             <button
               type="button"
               onClick={handleDeleteThisSession}
               disabled={deleteSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-bold text-[#C8372D] shadow-2xs hover:bg-rose-100 transition-colors disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-bold text-error hover:bg-rose-100 transition-colors disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" />
               <span>ลบรอบนี้ (Delete Session)</span>

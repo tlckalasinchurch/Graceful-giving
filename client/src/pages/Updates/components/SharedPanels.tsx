@@ -2,8 +2,8 @@ import { CalendarDays, Megaphone } from "lucide-react";
 
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
-    <div className="rounded-[24px] border border-dashed border-[#eadfce] bg-white/65 px-6 py-12 text-center">
-      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#f8eddb] text-[#b17a44]">
+    <div className="rounded-2xl border border-dashed border-hairline bg-white/65 px-6 py-12 text-center">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-accent text-muted-foreground">
         {type === "news" ? (
           <Megaphone className="size-7" strokeWidth={1.5} />
         ) : (

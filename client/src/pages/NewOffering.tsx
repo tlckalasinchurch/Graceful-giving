@@ -58,8 +58,8 @@ export default function NewOffering() {
         method !== "เงินสด"
     );
   useUnsavedChanges(isDirty);
-  const goBack = () => {
-    if (confirmDiscardChanges(isDirty)) {
+  const goBack = async () => {
+    if (await confirmDiscardChanges(isDirty)) {
       setLocation("/offerings");
     }
   };
@@ -126,7 +126,7 @@ export default function NewOffering() {
       action={
         <button
           onClick={goBack}
-          className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-2xl border border-[#E9D9BF] bg-[#FFF4DF] px-3.5 py-2 text-xs font-bold text-[#70452E] transition-colors hover:bg-[#FBE9CD] focus-visible:ring-2 focus-visible:ring-[#E99A4A]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF9EE]"
+          className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-2xl border border-hairline bg-surface-subtle px-3.5 py-2 text-xs font-bold text-secondary-foreground transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-[#0071e3]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF9EE]"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>ดูรายการทั้งหมด</span>
@@ -136,9 +136,9 @@ export default function NewOffering() {
       <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-5">
         {/* Hero Card with offering_box.jpg */}
-        <div className="rounded-[28px] border border-[#E9D9BF] bg-white p-5 clay-card-shadow sm:p-6">
+        <div className="rounded-2xl border border-hairline bg-white p-5 clay-card-shadow sm:p-6">
           <div className="flex items-center gap-4 sm:gap-5">
-            <div className="size-16 shrink-0 overflow-hidden rounded-2xl border border-[#E9D9BF] bg-[#FFF4DF] p-1 sm:size-20 sm:rounded-[24px]">
+            <div className="size-16 shrink-0 overflow-hidden rounded-2xl border border-hairline bg-surface-subtle p-1 sm:size-20 sm:rounded-2xl">
             <Illustration
               src="/illustrations/offering_box.jpg"
               alt="กล่องถวาย"
@@ -148,11 +148,11 @@ export default function NewOffering() {
             />
           </div>
             <div className="min-w-0 space-y-1">
-              <p className="text-xs font-bold text-[#70452E]">Grace Giving</p>
-              <h2 className="text-xl font-black leading-tight text-[#38251B] sm:text-2xl">
+              <p className="text-xs font-bold text-secondary-foreground">Grace Giving</p>
+              <h2 className="text-xl font-bold leading-tight text-foreground sm:text-2xl">
                 สลิปถวายทรัพย์ที่ตรวจสอบง่ายตั้งแต่ก่อนกดบันทึก
             </h2>
-              <p className="text-xs leading-5 text-[#674F42] sm:text-sm sm:leading-6">
+              <p className="text-xs leading-5 text-secondary-foreground sm:text-sm sm:leading-6">
               "พระเจ้าทรงรักผู้ที่ให้ด้วยใจยินดี" —
               ทุกยอดการถวายจะถูกบันทึกอย่างถูกต้องและโปร่งใสเพื่อการงานของพระเจ้า
             </p>
@@ -163,11 +163,11 @@ export default function NewOffering() {
         {/* Main Step Form Card */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-[28px] border border-[#E9D9BF] bg-white p-5 clay-card-shadow sm:p-6 md:p-7"
+          className="space-y-6 rounded-2xl border border-hairline bg-white p-5 clay-card-shadow sm:p-6 md:p-7"
         >
           {/* 1. ประเภทถวาย */}
           <div className="space-y-2.5">
-            <label className="text-xs font-bold text-[#70452E] block">
+            <label className="text-xs font-bold text-secondary-foreground block">
               1. เลือกประเภทการถวาย
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -177,10 +177,10 @@ export default function NewOffering() {
                   type="button"
                   onClick={() => setCategory(cat.id)}
                   aria-pressed={category === cat.id}
-                  className={`min-h-12 rounded-2xl border px-3 py-2.5 text-center text-xs font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#E99A4A]/45 ${
+                  className={`min-h-12 rounded-2xl border px-3 py-2.5 text-center text-xs font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#0071e3]/45 ${
                     category === cat.id
-                      ? "bg-[#FFF4DF] border-[#E99A4A] text-[#70452E] shadow-2xs"
-                      : "bg-white border-[#E9D9BF] text-[#70452E]/80 hover:bg-[#FFF9EE]"
+                      ? "bg-surface-subtle border-primary text-secondary-foreground"
+                      : "bg-white border-hairline text-secondary-foreground/80 hover:bg-surface-subtle"
                   }`}
                 >
                   {cat.label}
@@ -191,11 +191,11 @@ export default function NewOffering() {
 
           {/* 2. จำนวนเงิน + Shortcuts */}
           <div className="space-y-2.5">
-            <label htmlFor="offering-amount" className="text-xs font-bold text-[#70452E] block">
+            <label htmlFor="offering-amount" className="text-xs font-bold text-secondary-foreground block">
               2. ระบุจำนวนเงิน (บาท)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-black text-[#1b5e3a]">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-success">
                 ฿
               </span>
               <input
@@ -206,7 +206,7 @@ export default function NewOffering() {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="min-h-14 w-full rounded-2xl border border-[#E9D9BF] bg-[#FFFDF8] py-3.5 pl-12 pr-4 text-3xl font-black tabular-nums text-[#1b5e3a] placeholder:text-[#A8C978]/70 focus:border-[#E99A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35"
+                className="min-h-14 w-full rounded-2xl border border-hairline bg-surface py-3.5 pl-12 pr-4 text-3xl font-bold tabular-nums text-success placeholder:text-success/70 focus:border-[#0071e3] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35"
               />
             </div>
 
@@ -217,7 +217,7 @@ export default function NewOffering() {
                   key={q}
                   type="button"
                   onClick={() => setAmount(String(q))}
-                  className="px-3.5 py-1.5 rounded-full bg-[#FFF4DF] hover:bg-[#FBE9CD] text-xs font-bold text-[#70452E] border border-[#E9D9BF] transition-all"
+                  className="px-3.5 py-1.5 rounded-full bg-surface-subtle hover:bg-primary/10 text-xs font-bold text-secondary-foreground border border-hairline transition-all"
                 >
                   +฿{q.toLocaleString()}
                 </button>
@@ -227,7 +227,7 @@ export default function NewOffering() {
 
           {/* 3. กองทุน */}
           <div className="space-y-2.5">
-            <label htmlFor="offering-fund" className="text-xs font-bold text-[#70452E] block">
+            <label htmlFor="offering-fund" className="text-xs font-bold text-secondary-foreground block">
               3. เข้ากองทุน
             </label>
             <select
@@ -235,7 +235,7 @@ export default function NewOffering() {
               required
               value={fundId}
               onChange={e => setFundId(e.target.value)}
-              className="min-h-12 w-full rounded-2xl border border-[#E9D9BF] bg-[#FFFDF8] px-3.5 py-3 text-base text-[#38251B] focus:border-[#E99A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35 sm:text-sm"
+              className="min-h-12 w-full rounded-2xl border border-hairline bg-surface px-3.5 py-3 text-base text-foreground focus:border-[#0071e3] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35 sm:text-sm"
             >
               <option value="" disabled>
                 — เลือกกองทุน —
@@ -255,7 +255,7 @@ export default function NewOffering() {
 
           {/* 4. วิธีรับเงิน */}
           <div className="space-y-2.5">
-            <label id="offering-method-label" className="text-xs font-bold text-[#70452E] block">
+            <label id="offering-method-label" className="text-xs font-bold text-secondary-foreground block">
               4. วิธีการรับเงิน
             </label>
             <div id="offering-method" role="group" aria-labelledby="offering-method-label" className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -265,10 +265,10 @@ export default function NewOffering() {
                   type="button"
                   onClick={() => setMethod(m)}
                   aria-pressed={method === m}
-                  className={`min-h-11 rounded-2xl border px-3 py-2.5 text-xs font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#E99A4A]/45 ${
+                  className={`min-h-11 rounded-2xl border px-3 py-2.5 text-xs font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#0071e3]/45 ${
                     method === m
-                      ? "bg-[#EAF5E4] border-[#A8C978] text-[#4F8B33] shadow-2xs"
-                      : "bg-white border-[#E9D9BF] text-[#70452E]/80 hover:bg-[#FFF9EE]"
+                      ? "bg-success-bg border-success-border text-success"
+                      : "bg-white border-hairline text-secondary-foreground/80 hover:bg-surface-subtle"
                   }`}
                 >
                   {m}
@@ -280,19 +280,19 @@ export default function NewOffering() {
           {/* 5. วันที่ & รายละเอียดเพิ่มเติม */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#70452E] block">
+              <label className="text-xs font-bold text-secondary-foreground block">
                 วันที่รับเงิน
               </label>
               <input
                 type="date"
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="min-h-12 w-full rounded-2xl border border-[#E9D9BF] bg-[#FFFDF8] px-3.5 py-3 text-base text-[#38251B] focus:border-[#E99A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35 sm:text-sm"
+                className="min-h-12 w-full rounded-2xl border border-hairline bg-surface px-3.5 py-3 text-base text-foreground focus:border-[#0071e3] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35 sm:text-sm"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#70452E] block">
+              <label className="text-xs font-bold text-secondary-foreground block">
                 ชื่อผู้ถวาย (ถ้ามี)
               </label>
               <input
@@ -305,7 +305,7 @@ export default function NewOffering() {
                     ? "ถวายโดยไม่เปิดเผยนาม"
                     : "ชื่อ-นามสกุล หรือครอบครัว"
                 }
-                className="min-h-12 w-full rounded-2xl border border-[#E9D9BF] bg-[#FFFDF8] px-3.5 py-3 text-base text-[#38251B] placeholder:text-[#927D6D] focus:border-[#E99A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35 disabled:cursor-not-allowed disabled:opacity-55 sm:text-sm"
+                className="min-h-12 w-full rounded-2xl border border-hairline bg-surface px-3.5 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-[#0071e3] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35 disabled:cursor-not-allowed disabled:opacity-55 sm:text-sm"
               />
             </div>
           </div>
@@ -319,18 +319,18 @@ export default function NewOffering() {
                 setIsAnonymous(e.target.checked);
                 if (e.target.checked) setDonorName("");
               }}
-              className="rounded text-[#E99A4A] focus:ring-[#E99A4A] w-4 h-4 border-[#E9D9BF]"
+              className="rounded text-primary focus:ring-[#0071e3] w-4 h-4 border-hairline"
             />
             <label
               htmlFor="anon"
-              className="text-xs text-[#70452E] cursor-pointer"
+              className="text-xs text-secondary-foreground cursor-pointer"
             >
               ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
             </label>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#70452E] block">
+            <label className="text-xs font-bold text-secondary-foreground block">
               หมายเหตุ / คำอธิษฐานขอบพระคุณ
             </label>
             <textarea
@@ -338,7 +338,7 @@ export default function NewOffering() {
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="เช่น ถวายขอบพระคุณสำหรับวันเกิด, พันธกิจเด็ก"
-              className="w-full resize-none rounded-2xl border border-[#E9D9BF] bg-[#FFFDF8] p-3.5 text-base text-[#38251B] placeholder:text-[#927D6D] focus:border-[#E99A4A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35 sm:text-sm"
+              className="w-full resize-none rounded-2xl border border-hairline bg-surface p-3.5 text-base text-foreground placeholder:text-muted-foreground focus:border-[#0071e3] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E99A4A]/35 sm:text-sm"
             />
           </div>
 
@@ -346,7 +346,7 @@ export default function NewOffering() {
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#E99A4A] px-4 py-3 text-sm font-bold text-white clay-button-shadow transition-colors hover:bg-[#DE8640] focus-visible:ring-2 focus-visible:ring-[#E99A4A]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white clay-button-shadow transition-colors hover:bg-[#0071e3] focus-visible:ring-2 focus-visible:ring-[#0071e3]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {createMutation.isPending ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -363,46 +363,46 @@ export default function NewOffering() {
         </div>
 
         <aside className="lg:sticky lg:top-6 lg:self-start">
-          <div className="overflow-hidden rounded-[28px] border border-[#E9D9BF] bg-white clay-card-shadow">
-            <div className="border-b border-[#E9D9BF] bg-[#FFFDF8] p-5">
-              <div className="flex items-center gap-2 text-[#70452E]">
-                <ReceiptText className="h-4 w-4 text-[#E99A4A]" />
+          <div className="overflow-hidden rounded-2xl border border-hairline bg-white clay-card-shadow">
+            <div className="border-b border-hairline bg-surface p-5">
+              <div className="flex items-center gap-2 text-secondary-foreground">
+                <ReceiptText className="h-4 w-4 text-primary" />
                 <p className="text-xs font-bold">สลิปสรุปยอด</p>
               </div>
-              <p className="mt-2 text-sm leading-6 text-[#674F42]">
+              <p className="mt-2 text-sm leading-6 text-secondary-foreground">
                 ตรวจรายละเอียดก่อนบันทึก ระบบจะเก็บรายการเข้ากองทุนที่เลือก
               </p>
             </div>
             <div className="space-y-4 p-5">
-              <div className="rounded-3xl border border-[#D2EAC7] bg-[#EAF5E4] p-4">
-                <p className="text-xs font-bold text-[#4F8B33]">ยอดถวาย</p>
-                <p className="mt-1 text-3xl font-black tabular-nums text-[#1b5e3a]">
+              <div className="rounded-3xl border border-[#D2EAC7] bg-success-bg p-4">
+                <p className="text-xs font-bold text-success">ยอดถวาย</p>
+                <p className="mt-1 text-3xl font-bold tabular-nums text-success">
                   ฿{amountNumber > 0 ? amountNumber.toLocaleString("th-TH") : "0"}
                 </p>
               </div>
 
               <dl className="space-y-3 text-sm">
                 <div className="flex items-start justify-between gap-3">
-                  <dt className="text-[#927D6D]">ประเภท</dt>
-                  <dd className="text-right font-bold text-[#38251B]">
+                  <dt className="text-muted-foreground">ประเภท</dt>
+                  <dd className="text-right font-bold text-foreground">
                     {offeringCategoryLabel(category)}
                   </dd>
                 </div>
                 <div className="flex items-start justify-between gap-3">
-                  <dt className="text-[#927D6D]">กองทุน</dt>
-                  <dd className="text-right font-bold text-[#38251B]">
+                  <dt className="text-muted-foreground">กองทุน</dt>
+                  <dd className="text-right font-bold text-foreground">
                     {selectedFund?.name || "ยังไม่ได้เลือก"}
                   </dd>
                 </div>
                 <div className="flex items-start justify-between gap-3">
-                  <dt className="text-[#927D6D]">ช่องทาง</dt>
-                  <dd className="text-right font-bold text-[#38251B]">
+                  <dt className="text-muted-foreground">ช่องทาง</dt>
+                  <dd className="text-right font-bold text-foreground">
                     {selectedMethodLabel}
                   </dd>
                 </div>
                 <div className="flex items-start justify-between gap-3">
-                  <dt className="text-[#927D6D]">วันที่</dt>
-                  <dd className="text-right font-bold text-[#38251B]">
+                  <dt className="text-muted-foreground">วันที่</dt>
+                  <dd className="text-right font-bold text-foreground">
                     {new Intl.DateTimeFormat("th-TH", {
                       day: "numeric",
                       month: "short",
@@ -412,7 +412,7 @@ export default function NewOffering() {
                 </div>
               </dl>
 
-              <div className="rounded-2xl border border-[#E9D9BF] bg-[#FFF9EE] p-3 text-xs leading-5 text-[#674F42]">
+              <div className="rounded-2xl border border-hairline bg-surface-subtle p-3 text-xs leading-5 text-secondary-foreground">
                 หลังจากยืนยัน ระบบจะแสดงสลิปบันทึกสำเร็จอีกครั้ง พร้อมยอดและช่องทางรับเงิน
               </div>
             </div>
@@ -421,44 +421,44 @@ export default function NewOffering() {
       </div>
 
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
-        <DialogContent className="max-w-sm rounded-[28px] border-[#E9D9BF] bg-[#FFFDF8] p-0 text-[#38251B]">
-          <div className="border-b border-[#E9D9BF] bg-white p-5 text-center">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-[#D2EAC7] bg-[#EAF5E4] text-[#4F8B33]">
+        <DialogContent className="max-w-sm rounded-2xl border-hairline bg-surface p-0 text-foreground">
+          <div className="border-b border-hairline bg-white p-5 text-center">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-[#D2EAC7] bg-success-bg text-success">
               <CheckCircle2 className="h-7 w-7" />
             </div>
             <DialogHeader className="mt-4">
-              <DialogTitle className="text-xl font-black text-[#38251B]">
+              <DialogTitle className="text-xl font-bold text-foreground">
                 บันทึกการถวายเรียบร้อยแล้ว
               </DialogTitle>
             </DialogHeader>
-            <p className="mt-2 text-xs leading-5 text-[#674F42]">
+            <p className="mt-2 text-xs leading-5 text-secondary-foreground">
               ขอพระเจ้าทรงอวยพระพรทุกน้ำใจที่มอบให้เพื่อพันธกิจของพระองค์
             </p>
           </div>
 
           <div className="p-5">
-            <div className="rounded-3xl border border-[#E9D9BF] bg-white p-4 text-sm">
-              <div className="mb-4 rounded-2xl border border-[#D2EAC7] bg-[#EAF5E4] p-3">
-                <p className="text-xs font-bold text-[#4F8B33]">ยอดถวายที่บันทึก</p>
-                <p className="mt-1 text-2xl font-black tabular-nums text-[#1b5e3a]">
+            <div className="rounded-3xl border border-hairline bg-white p-4 text-sm">
+              <div className="mb-4 rounded-2xl border border-[#D2EAC7] bg-success-bg p-3">
+                <p className="text-xs font-bold text-success">ยอดถวายที่บันทึก</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-success">
                   ฿{Number(amount).toLocaleString("th-TH")}
                 </p>
               </div>
               <p className="flex justify-between gap-3 py-1.5">
-                <span className="text-[#927D6D]">ประเภท:</span>
-                <span className="font-bold text-[#70452E]">
+                <span className="text-muted-foreground">ประเภท:</span>
+                <span className="font-bold text-secondary-foreground">
                   {offeringCategoryLabel(category)}
                 </span>
               </p>
               <p className="flex justify-between gap-3 py-1.5">
-                <span className="text-[#927D6D]">กองทุน:</span>
-                <span className="text-right font-bold text-[#70452E]">
+                <span className="text-muted-foreground">กองทุน:</span>
+                <span className="text-right font-bold text-secondary-foreground">
                   {selectedFund?.name || "บัญชีทั่วไป"}
                 </span>
               </p>
               <p className="flex justify-between gap-3 py-1.5">
-                <span className="text-[#927D6D]">ช่องทาง:</span>
-                <span className="font-medium text-[#70452E]">{method}</span>
+                <span className="text-muted-foreground">ช่องทาง:</span>
+                <span className="font-medium text-secondary-foreground">{method}</span>
               </p>
             </div>
 
@@ -467,7 +467,7 @@ export default function NewOffering() {
                 setIsSuccessOpen(false);
                 setLocation("/offerings");
               }}
-              className="mt-4 flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#A8C978] px-4 py-3 text-sm font-bold text-[#1f4f27] transition-colors hover:bg-[#96C764] focus-visible:ring-2 focus-visible:ring-[#A8C978]/60"
+              className="mt-4 flex min-h-11 w-full items-center justify-center rounded-2xl bg-success px-4 py-3 text-sm font-bold text-success transition-colors hover:bg-[#96C764] focus-visible:ring-2 focus-visible:ring-[#A8C978]/60"
             >
               ดูรายการถวายทั้งหมด
             </button>
