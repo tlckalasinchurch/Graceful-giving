@@ -159,7 +159,7 @@ export default function NewOffering() {
                   key={cat.id}
                   type="button"
                   onClick={() => setCategory(cat.id)}
-                  className={`p-3 rounded-2xl border text-xs font-bold text-center transition-all ${
+                  className={`min-h-11 p-3 rounded-2xl border text-xs font-bold text-center transition-all ${
                     category === cat.id
                       ? "bg-[#FFF8EA] border-[#C94F16] text-[#51443A] shadow-2xs"
                       : "bg-white border-[#E7DCC8] text-[#807266] hover:bg-[#FAF8F5]"
@@ -182,8 +182,10 @@ export default function NewOffering() {
               </span>
               <input
                 type="number"
+                inputMode="decimal"
                 required
-                min="1"
+                min="0.01"
+                step="0.01"
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
@@ -287,7 +289,10 @@ export default function NewOffering() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <label
+            htmlFor="anon"
+            className="flex min-h-11 items-center gap-2.5 cursor-pointer"
+          >
             <input
               type="checkbox"
               id="anon"
@@ -296,15 +301,12 @@ export default function NewOffering() {
                 setIsAnonymous(e.target.checked);
                 if (e.target.checked) setDonorName("");
               }}
-              className="rounded text-[#C94F16] focus:ring-[#C94F16] w-4 h-4 border-[#E7DCC8]"
+              className="size-5 shrink-0 rounded text-[#C94F16] focus:ring-[#C94F16] border-[#E7DCC8]"
             />
-            <label
-              htmlFor="anon"
-              className="text-xs text-[#51443A] cursor-pointer"
-            >
+            <span className="text-xs text-[#51443A]">
               ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
-            </label>
-          </div>
+            </span>
+          </label>
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[#51443A] block">

@@ -96,6 +96,7 @@ export function BankRecordsTab({
             จำนวนเงิน *
             <input
               type="number"
+              inputMode="decimal"
               required
               min="0.25"
               step="0.25"

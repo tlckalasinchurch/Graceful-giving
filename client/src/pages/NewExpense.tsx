@@ -507,7 +507,7 @@ export default function NewExpense() {
                       setReceiptUrl(null);
                       setReceiptFileName("");
                     }}
-                    className="text-xs text-red-600 hover:underline font-medium px-3 py-1.5"
+                    className="min-h-11 flex items-center text-xs text-red-600 hover:underline font-medium px-3"
                   >
                     ลบไฟล์
                   </button>

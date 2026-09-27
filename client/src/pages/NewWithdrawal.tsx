@@ -129,6 +129,7 @@ export default function NewWithdrawal() {
                   </span>
                   <input
                     type="text"
+                    inputMode="decimal"
                     required
                     placeholder="0.00"
                     value={amount}

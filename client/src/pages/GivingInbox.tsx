@@ -1108,6 +1108,7 @@ export default function GivingInbox() {
                       </label>
                       <input
                         type="number"
+                        inputMode="decimal"
                         step="0.01"
                         value={editAmount}
                         onChange={e => setEditAmount(e.target.value)}

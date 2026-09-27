@@ -184,6 +184,7 @@ export function EnvelopesTab({
               <input
                 ref={amountRef}
                 type="number"
+                inputMode="decimal"
                 required
                 min="0.25"
                 step="0.25"
@@ -193,8 +194,8 @@ export function EnvelopesTab({
                 className="mt-1 w-full rounded-xl border border-[#E7DCC8] p-3 text-base font-bold tabular-nums text-[#1F5C33]"
               />
             </label>
-            <div className="flex items-end gap-2">
-              <label className="flex items-center gap-2 text-sm text-[#51443A]">
+            <div className="flex items-end">
+              <label className="flex min-h-11 items-center gap-2.5 text-sm text-[#51443A] cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isAnonymous}
@@ -205,7 +206,7 @@ export function EnvelopesTab({
                       setDonorName("");
                     }
                   }}
-                  className="size-4 rounded border-[#E7DCC8]"
+                  className="size-5 shrink-0 rounded border-[#E7DCC8]"
                 />
                 ไม่ระบุนาม
               </label>
