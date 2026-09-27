@@ -45,7 +45,14 @@ export function MonthSummary({
       return <span className="text-lg font-bold text-muted-foreground">—</span>;
     if (!showAmounts)
       return <span className="text-lg font-bold text-foreground">{MASK}</span>;
-    return <MoneyDisplay amount={amount} type={type} size="md" />;
+    return (
+      <MoneyDisplay
+        amount={amount}
+        type={type}
+        size="md"
+        className="text-base! min-[360px]:text-lg! md:text-xl!"
+      />
+    );
   };
 
   return (

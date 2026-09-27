@@ -30,6 +30,16 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
 import { formatBaht } from "@/lib/format";
 
+// Button label → API payment method. The labels used to be compared against
+// "โอน" and "QR", which matched neither button, so every transfer and QR
+// offering was saved as cash. PromptPay QR is a bank transfer.
+const METHOD_IDS: Record<string, "cash" | "transfer" | "check"> = {
+  เงินสด: "cash",
+  โอนเงิน: "transfer",
+  "QR พร้อมเพย์": "transfer",
+  เช็ค: "check",
+};
+
 export default function NewOffering() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
@@ -97,12 +107,7 @@ export default function NewOffering() {
       category,
       amount: Number(amount),
       fundId: Number(fundId),
-      method:
-        method === "โอน" || method === "QR"
-          ? "transfer"
-          : method === "เช็ค"
-            ? "check"
-            : "cash",
+      method: METHOD_IDS[method] ?? "cash",
       notes: notes || undefined,
     });
   };
@@ -111,7 +116,7 @@ export default function NewOffering() {
 
   const quickAmounts = [100, 300, 500, 1000, 2000, 5000];
 
-  const paymentMethods = ["เงินสด", "โอนเงิน", "QR พร้อมเพย์", "เช็ค"];
+  const paymentMethods = Object.keys(METHOD_IDS);
 
   return (
     <AppLayout
@@ -122,7 +127,7 @@ export default function NewOffering() {
     >
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Hero Card with offering_box.jpg */}
-        <div className="bg-gradient-to-r from-card via-background to-muted rounded-2xl p-6 border border-border shadow-xs flex items-center gap-5">
+        <div className="hidden sm:flex bg-card rounded-2xl p-6 border border-border items-center gap-5">
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-white p-1 border border-border shadow-xs shrink-0">
             <Illustration
               src="/illustrations/offering_box.jpg"
@@ -146,11 +151,11 @@ export default function NewOffering() {
         {/* Main Step Form Card */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl p-6 sm:p-8 border border-border card-elevation-sm space-y-6"
+          className="bg-card rounded-2xl p-4 sm:p-8 border border-border space-y-6"
         >
           {/* 1. ประเภทถวาย */}
           <div className="space-y-2.5">
-            <label className="text-xs font-bold text-foreground-soft block">
+            <label className="text-sm font-semibold text-foreground block">
               1. เลือกประเภทการถวาย
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -159,10 +164,11 @@ export default function NewOffering() {
                   key={cat.id}
                   type="button"
                   onClick={() => setCategory(cat.id)}
-                  className={`p-3 rounded-2xl border text-xs font-bold text-center transition-all ${
+                  aria-pressed={category === cat.id}
+                  className={`min-h-12 px-3 py-2 rounded-xl border text-sm text-center transition-colors ${
                     category === cat.id
-                      ? "bg-muted border-primary text-foreground-soft shadow-2xs"
-                      : "bg-white border-border text-muted-foreground hover:bg-background"
+                      ? "bg-accent border-primary font-semibold text-primary-strong"
+                      : "bg-card border-border font-medium text-foreground-soft hover:bg-muted"
                   }`}
                 >
                   {cat.label}
@@ -173,7 +179,7 @@ export default function NewOffering() {
 
           {/* 2. จำนวนเงิน + Shortcuts */}
           <div className="space-y-2.5">
-            <label className="text-xs font-bold text-foreground-soft block">
+            <label className="text-sm font-semibold text-foreground block">
               2. ระบุจำนวนเงิน (บาท)
             </label>
             <div className="relative">
@@ -208,7 +214,7 @@ export default function NewOffering() {
 
           {/* 3. กองทุน */}
           <div className="space-y-2.5">
-            <label className="text-xs font-bold text-foreground-soft block">
+            <label className="text-sm font-semibold text-foreground block">
               3. เข้ากองทุน
             </label>
             <NativeSelect
@@ -234,7 +240,7 @@ export default function NewOffering() {
 
           {/* 4. วิธีรับเงิน */}
           <div className="space-y-2.5">
-            <label className="text-xs font-bold text-foreground-soft block">
+            <label className="text-sm font-semibold text-foreground block">
               4. วิธีการรับเงิน
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -243,10 +249,11 @@ export default function NewOffering() {
                   key={m}
                   type="button"
                   onClick={() => setMethod(m)}
-                  className={`min-h-11 py-2.5 px-3 rounded-2xl border text-xs font-bold transition-all ${
+                  aria-pressed={method === m}
+                  className={`min-h-12 py-2 px-3 rounded-xl border text-sm transition-colors ${
                     method === m
-                      ? "bg-success-soft border-success-border text-success shadow-2xs"
-                      : "bg-white border-border text-muted-foreground hover:bg-background"
+                      ? "bg-accent border-primary font-semibold text-primary-strong"
+                      : "bg-card border-border font-medium text-foreground-soft hover:bg-muted"
                   }`}
                 >
                   {m}
@@ -258,7 +265,7 @@ export default function NewOffering() {
           {/* 5. วันที่ & รายละเอียดเพิ่มเติม */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground-soft block">
+              <label className="text-sm font-semibold text-foreground block">
                 วันที่รับเงิน
               </label>
               <input
@@ -270,7 +277,7 @@ export default function NewOffering() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground-soft block">
+              <label className="text-sm font-semibold text-foreground block">
                 ชื่อผู้ถวาย (ถ้ามี)
               </label>
               <input
@@ -308,7 +315,7 @@ export default function NewOffering() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-foreground-soft block">
+            <label className="text-sm font-semibold text-foreground block">
               หมายเหตุ / คำอธิษฐานขอบพระคุณ
             </label>
             <textarea

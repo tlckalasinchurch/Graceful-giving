@@ -382,7 +382,8 @@ export const SummaryMetric: React.FC<{
 }> = ({ label, children, hint, className = "" }) => (
   <div className={`min-w-0 rounded-2xl border border-border bg-card p-4 ${className}`}>
     <p className="text-xs font-medium text-muted-foreground">{label}</p>
-    <div className="mt-1 min-w-0 truncate">{children}</div>
+    {/* Never truncate: a cut-off amount reads as a different number. */}
+    <div className="mt-1 min-w-0">{children}</div>
     {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
   </div>
 );
