@@ -272,7 +272,7 @@ export default function Expenses() {
         ) : (
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
             {/* Desktop Table View */}
-            <div className="hidden lg:block overflow-x-auto">
+            <div className="relative hidden lg:block overflow-x-auto">
               <table className="w-full text-left text-sm text-foreground">
                 <caption className="sr-only">
                   รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
@@ -387,7 +387,7 @@ export default function Expenses() {
                       meta={`${formatThaiDate(e.date)} · ${expenseCategoryLabel(e.category)}${e.payee ? ` · ${e.payee}` : ""}`}
                       amount={e.amount}
                       type="expense"
-                      hideIconOnMobile
+                      category={e.category}
                       trailing={
                         e.status !== "approved" ? (
                           <StatusBadge status={e.status} />

@@ -9,7 +9,7 @@ import {
   LoadingSkeleton,
   MoneyDisplay,
   StatusBadge,
-  TransactionRow,
+  TransactionFeed,
 } from "@/components/common/CommonUI";
 import {
   Download,
@@ -322,9 +322,9 @@ export default function Transactions() {
           }
         />
       ) : (
-        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+        <div className="bg-card rounded-2xl border border-border overflow-clip">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
-          <div className="hidden lg:block overflow-x-auto">
+          <div className="relative hidden lg:block overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
@@ -375,27 +375,29 @@ export default function Transactions() {
             </table>
           </div>
 
-          {/* MOBILE LIST: one row per movement, amount on the right. */}
-          <ul className="lg:hidden divide-y divide-divider">
-            {filtered.map(tx => (
-              <li key={tx.id}>
-                <TransactionRow
-                  href={`/transactions/${tx.id}`}
-                  title={tx.title}
-                  meta={`${formatThaiDate(tx.date)} · ${
-                    tx.type === "income" ? tx.fund : tx.categoryLabel
-                  }`}
-                  amount={tx.amount}
-                  type={tx.type}
-                  trailing={
-                    tx.type === "expense" && tx.status !== "approved" ? (
-                      <StatusBadge status={tx.status} />
-                    ) : undefined
-                  }
-                />
-              </li>
-            ))}
-          </ul>
+          {/* PHONE AND TABLET: feed grouped by day, headers stick below the
+              top bar while their day scrolls past. */}
+          <TransactionFeed
+            sticky
+            className="lg:hidden rounded-none border-0"
+            items={filtered.map(tx => ({
+              id: tx.id,
+              href: `/transactions/${tx.id}`,
+              title: tx.title,
+              meta:
+                tx.type === "income"
+                  ? tx.fund
+                  : `${tx.categoryLabel} · ${tx.fund}`,
+              amount: tx.amount,
+              type: tx.type,
+              category: tx.category,
+              date: tx.date,
+              trailing:
+                tx.type === "expense" && tx.status !== "approved" ? (
+                  <StatusBadge status={tx.status} />
+                ) : undefined,
+            }))}
+          />
         </div>
       )}
     </AppLayout>

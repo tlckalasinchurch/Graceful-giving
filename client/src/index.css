@@ -55,6 +55,21 @@
   --color-ring: var(--ring);
 
   /* Desktop sidebar (the only dark surface in the app). */
+  /* Category tones: icon colour on a soft fill. They identify a category
+     at a glance; the category name is always printed next to them. */
+  --color-cat-sage: var(--cat-sage);
+  --color-cat-sage-soft: var(--cat-sage-soft);
+  --color-cat-sky: var(--cat-sky);
+  --color-cat-sky-soft: var(--cat-sky-soft);
+  --color-cat-sand: var(--cat-sand);
+  --color-cat-sand-soft: var(--cat-sand-soft);
+  --color-cat-plum: var(--cat-plum);
+  --color-cat-plum-soft: var(--cat-plum-soft);
+  --color-cat-clay: var(--cat-clay);
+  --color-cat-clay-soft: var(--cat-clay-soft);
+  --color-cat-slate: var(--cat-slate);
+  --color-cat-slate-soft: var(--cat-slate-soft);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-muted: var(--sidebar-muted);
@@ -124,6 +139,19 @@
   --input: #ddd4c7;
   --ring: #c24c14;
   --radius: 0.75rem;
+
+  --cat-sage: #3f6f4f;
+  --cat-sage-soft: #e7f0e8;
+  --cat-sky: #36658a;
+  --cat-sky-soft: #e6eff6;
+  --cat-sand: #86601f;
+  --cat-sand-soft: #f6eedd;
+  --cat-plum: #7a4f7c;
+  --cat-plum-soft: #f2e9f2;
+  --cat-clay: #a34a24;
+  --cat-clay-soft: #fbeae1;
+  --cat-slate: #56606a;
+  --cat-slate-soft: #eceeef;
 
   --sidebar: #1c1714;
   --sidebar-foreground: #f5ede2;

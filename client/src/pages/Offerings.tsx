@@ -229,11 +229,10 @@ export default function Offerings() {
                 <TransactionRow
                   href={`/transactions/offering-${o.id}`}
                   title={o.title}
-                  meta={`${formatThaiDate(o.date)} · ${o.method} · ${o.fund}`}
+                  meta={`${formatThaiDate(o.date)} · ${o.fund} · ${o.method}`}
                   amount={o.amount}
                   type="income"
-                  icon={HandCoins}
-                  hideIconOnMobile
+                  category={o.category}
                   trailing={<span className="sr-only">รายรับ</span>}
                 />
               </div>

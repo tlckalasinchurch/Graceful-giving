@@ -114,6 +114,10 @@ export default function Home() {
     { limit: MONTH_COUNT_LIMIT, fromDate: monthStart },
     { retry: false, staleTime: 30_000 }
   );
+  const { data: monthlyFlow } = trpc.finance.monthlyStats.useQuery(
+    { months: 6 },
+    { retry: false, staleTime: 60_000 }
+  );
   const { data: inboxStats } = trpc.givingInbox.stats.useQuery(undefined, {
     enabled: canAccessInbox,
     retry: false,
@@ -145,6 +149,7 @@ export default function Home() {
         date: o.receiptDate,
         type: "income",
         context: (o.fundId && fundNames.get(o.fundId)) || "รายรับ",
+        category: o.category,
         amount: Number(o.amount),
       });
     }
@@ -156,6 +161,7 @@ export default function Home() {
         date: e.expenseDate,
         type: "expense",
         context: expenseCategoryLabel(e.category),
+        category: e.category,
         amount: Number(e.amount),
       });
     }
@@ -242,6 +248,7 @@ export default function Home() {
                   ? summary.monthlyIncome - summary.monthlyExpense
                   : undefined
               }
+              monthlyFlow={monthlyFlow}
               prevNetMonthly={
                 summary
                   ? summary.prevMonthIncome - summary.prevMonthExpense

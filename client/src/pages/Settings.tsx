@@ -597,7 +597,7 @@ export default function Settings() {
                   ยังไม่พบข้อมูลผู้ใช้งานในระบบ
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="relative overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
                       <tr className="border-b border-border/70 text-xs font-bold text-muted-foreground uppercase">
@@ -979,7 +979,7 @@ export default function Settings() {
                 }
 
                 return (
-                  <div className="overflow-x-auto">
+                  <div className="relative overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
                         <tr className="border-b border-border/70 font-bold text-muted-foreground uppercase">

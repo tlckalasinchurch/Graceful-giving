@@ -1,9 +1,8 @@
 import {
   LoadingSkeleton,
   SectionHeader,
-  TransactionRow,
+  TransactionFeed,
 } from "@/components/common/CommonUI";
-import { formatThaiDate } from "@/lib/format";
 
 export interface TransactionItem {
   id: string;
@@ -11,8 +10,9 @@ export interface TransactionItem {
   title: string;
   date: Date | string;
   type: "income" | "expense";
-  /** Category or fund, shown after the date. */
+  /** Category or fund, shown under the title. */
   context: string;
+  category: string;
   amount: number;
 }
 
@@ -59,19 +59,18 @@ export function RecentTransactions({
         </div>
       ) : (
         <>
-          <ul className="divide-y divide-divider overflow-hidden rounded-2xl border border-border bg-card">
-            {items.map(tx => (
-              <li key={tx.id}>
-                <TransactionRow
-                  href={tx.href}
-                  title={tx.title}
-                  meta={`${formatThaiDate(tx.date)} · ${tx.context}`}
-                  amount={tx.amount}
-                  type={tx.type}
-                />
-              </li>
-            ))}
-          </ul>
+          <TransactionFeed
+            items={items.map(tx => ({
+              id: tx.id,
+              href: tx.href,
+              title: tx.title,
+              meta: tx.context,
+              amount: tx.amount,
+              type: tx.type,
+              category: tx.category,
+              date: tx.date,
+            }))}
+          />
           <button
             type="button"
             onClick={onViewAll}

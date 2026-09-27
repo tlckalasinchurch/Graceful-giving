@@ -11,6 +11,85 @@ interface BalanceCardProps {
   /** This month's net (income − expense) and last month's, for the trend. */
   netMonthly?: number;
   prevNetMonthly?: number;
+  /** Last months, oldest first; the final entry is the current month. */
+  monthlyFlow?: { month: string; income: number; expense: number }[];
+}
+
+/**
+ * Six bars of monthly net (income − expense). Bars above the baseline are a
+ * surplus, below it a deficit; the current month is the solid bar. The
+ * figures are repeated in a visually hidden list for screen readers.
+ */
+function NetTrend({
+  data,
+}: {
+  data: { month: string; income: number; expense: number }[];
+}) {
+  const nets = data.map(d => d.income - d.expense);
+  const max = Math.max(1, ...nets.map(Math.abs));
+  const hasNegative = nets.some(n => n < 0);
+  const H = 48;
+  const base = hasNegative ? H / 2 : H;
+  return (
+    <figure className="mt-4">
+      <figcaption className="mb-2 text-xs text-muted-foreground">
+        สุทธิรายเดือน {data.length} เดือน
+      </figcaption>
+      <div className="grid grid-cols-6 items-end gap-2" aria-hidden="true">
+        {data.map((d, i) => {
+          const n = nets[i];
+          const h = Math.max(
+            2,
+            (Math.abs(n) / max) * (hasNegative ? H / 2 : H)
+          );
+          const current = i === data.length - 1;
+          const tone =
+            n < 0
+              ? current
+                ? "bg-destructive"
+                : "bg-destructive-border"
+              : current
+                ? "bg-primary"
+                : "bg-accent-border";
+          return (
+            <div
+              key={d.month + i}
+              className="flex flex-col items-center gap-1.5"
+            >
+              <div className="relative w-full" style={{ height: H }}>
+                <div
+                  className={`absolute inset-x-1 rounded-sm ${tone}`}
+                  style={
+                    n >= 0
+                      ? { bottom: H - base, height: h }
+                      : { top: base, height: h }
+                  }
+                />
+                {hasNegative && (
+                  <div
+                    className="absolute inset-x-0 border-t border-divider"
+                    style={{ top: base }}
+                  />
+                )}
+              </div>
+              <span
+                className={`text-[11px] ${current ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+              >
+                {d.month}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <ul className="sr-only">
+        {data.map((d, i) => (
+          <li key={d.month + i}>
+            {d.month}: สุทธิ {nets[i].toLocaleString("th-TH")} บาท
+          </li>
+        ))}
+      </ul>
+    </figure>
+  );
 }
 
 const HIDDEN = "฿ ••••••";
@@ -27,6 +106,7 @@ export function BalanceCard({
   totalBalance,
   netMonthly,
   prevNetMonthly,
+  monthlyFlow,
 }: BalanceCardProps) {
   const hasTrend =
     netMonthly !== undefined && prevNetMonthly !== undefined && !isUnavailable;
@@ -84,6 +164,14 @@ export function BalanceCard({
           </span>
         )}
       </div>
+
+      {showBalance &&
+        !isUnavailable &&
+        monthlyFlow &&
+        monthlyFlow.length > 1 &&
+        monthlyFlow.some(m => m.income || m.expense) && (
+          <NetTrend data={monthlyFlow} />
+        )}
 
       {hasTrend && showBalance && (
         <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-divider pt-4 text-sm">

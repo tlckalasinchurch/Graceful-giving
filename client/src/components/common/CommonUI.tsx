@@ -8,7 +8,8 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
-import { formatAmount } from "@/lib/format";
+import { formatAmount, toDate } from "@/lib/format";
+import { TONE_CLASSES, categoryStyle } from "@/lib/categoryStyle";
 import {
   Dialog,
   DialogContent,
@@ -268,9 +269,12 @@ export const MoneyDisplay: React.FC<{
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }> = ({ amount, type = "neutral", size = "md", className = "" }) => {
+  // Income is green; spending stays in the normal ink colour, as in most
+  // banking feeds, so a routine ledger does not read as a page of alerts.
+  // Only a negative balance is red. The sign carries the direction.
   const getColor = () => {
     if (type === "income") return "text-success-strong";
-    if (type === "expense") return "text-destructive";
+    if (type === "neutral" && amount < 0) return "text-destructive";
     return "text-foreground";
   };
 
@@ -281,16 +285,14 @@ export const MoneyDisplay: React.FC<{
       case "lg":
         return "text-2xl md:text-3xl font-bold";
       case "xl":
-        return "text-[2rem] leading-tight sm:text-4xl md:text-5xl font-bold";
+        return "text-[2.25rem] leading-none sm:text-5xl font-bold";
       case "md":
       default:
         return "text-lg md:text-xl font-bold";
     }
   };
 
-  // The sign always shows, so income and expense differ without colour. A
-  // true minus (U+2212) is as wide as "+", which keeps a column aligned.
-  // Neutral amounts keep their own sign: a negative balance reads negative.
+  // A true minus (U+2212) is as wide as "+", which keeps a column aligned.
   const prefix =
     type === "income"
       ? "+"
@@ -300,17 +302,36 @@ export const MoneyDisplay: React.FC<{
           ? "\u2212"
           : "";
   const formatted = formatAmount(Math.abs(amount));
+  // Headline sizes print the satang smaller and lighter, so the eye reads
+  // the baht first (the same treatment banking apps give cents).
+  const splitDecimals = size === "lg" || size === "xl";
+  const [whole, fraction] = formatted.split(".");
 
-  // The "฿" is its own element with a small gap. Run together with the
-  // digits, the glyph's ink overlaps the first numeral.
   return (
     <span
       data-amount
       className={`whitespace-nowrap tracking-tight tabular-nums font-sans ${getColor()} ${getSize()} ${className}`}
     >
       {prefix}
-      <span className="mx-0.5">฿</span>
-      {formatted}
+      <span
+        className={
+          splitDecimals
+            ? "mr-1 text-[0.62em] font-semibold opacity-80"
+            : "mx-0.5"
+        }
+      >
+        ฿
+      </span>
+      {splitDecimals && fraction !== undefined ? (
+        <>
+          {whole}
+          <span className="text-[0.55em] font-semibold opacity-60">
+            .{fraction}
+          </span>
+        </>
+      ) : (
+        formatted
+      )}
     </span>
   );
 };
@@ -409,6 +430,8 @@ export const TransactionRow: React.FC<{
   onClick?: () => void;
   trailing?: React.ReactNode;
   icon?: React.ComponentType<{ className?: string }>;
+  /** Category id; picks the icon and tone when no icon is given. */
+  category?: string | null;
   /** Drop the leading icon below 640px when the row also carries an action. */
   hideIconOnMobile?: boolean;
   /** Accessible name when the visible text alone is ambiguous. */
@@ -421,19 +444,23 @@ export const TransactionRow: React.FC<{
   href,
   onClick,
   trailing,
-  icon: Icon,
+  icon,
+  category,
   hideIconOnMobile = false,
   ariaLabel,
 }) => {
   const isIncome = type === "income";
+  const style = categoryStyle(type, category);
+  const Icon = icon ?? (category ? style.icon : null);
+  const toneClass = category
+    ? TONE_CLASSES[style.tone]
+    : isIncome
+      ? "bg-success-soft text-success-strong"
+      : "bg-muted text-foreground-soft";
   const content = (
     <>
       <span
-        className={`${hideIconOnMobile ? "hidden sm:flex" : "flex"} size-10 shrink-0 items-center justify-center rounded-full ${
-          isIncome
-            ? "bg-success-soft text-success-strong"
-            : "bg-destructive-soft text-destructive"
-        }`}
+        className={`${hideIconOnMobile ? "hidden sm:flex" : "flex"} size-10 shrink-0 items-center justify-center rounded-full ${toneClass}`}
         aria-hidden="true"
       >
         {Icon ? (
@@ -489,6 +516,103 @@ export const TransactionRow: React.FC<{
     );
   }
   return <div className={rowClass}>{content}</div>;
+};
+
+// ─── 5e. Transaction Feed ────────────────────────────────────────────────────
+
+export interface FeedItem {
+  id: string;
+  href?: string;
+  title: string;
+  /** Second line after the day header, e.g. category or fund. */
+  meta: React.ReactNode;
+  amount: number;
+  type: "income" | "expense";
+  category?: string | null;
+  date: string | Date;
+  trailing?: React.ReactNode;
+}
+
+function startOfDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+/** "วันนี้", "เมื่อวาน", or e.g. "ศ. 26 ก.ย." (year added when not this year). */
+export function dayLabel(date: Date, now = new Date()) {
+  const diff = Math.round((startOfDay(now) - startOfDay(date)) / 86_400_000);
+  if (diff === 0) return "วันนี้";
+  if (diff === 1) return "เมื่อวาน";
+  return date.toLocaleDateString("th-TH", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    ...(date.getFullYear() !== now.getFullYear() ? { year: "numeric" } : {}),
+  });
+}
+
+/**
+ * Money movements grouped by day, newest first, with the day's net on each
+ * header (the feed layout of most banking apps). Headers stick below the
+ * mobile top bar while that day scrolls past.
+ */
+export const TransactionFeed: React.FC<{
+  items: FeedItem[];
+  sticky?: boolean;
+  className?: string;
+}> = ({ items, sticky = false, className = "" }) => {
+  const groups: { key: number; date: Date; items: FeedItem[] }[] = [];
+  for (const item of items) {
+    const d = toDate(item.date);
+    if (!d) continue;
+    const key = startOfDay(d);
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) last.items.push(item);
+    else groups.push({ key, date: d, items: [item] });
+  }
+  return (
+    <div
+      className={`overflow-clip rounded-2xl border border-border bg-card ${className}`}
+    >
+      {groups.map((group, index) => {
+        const net = group.items.reduce(
+          (t, i) => t + (i.type === "income" ? i.amount : -i.amount),
+          0
+        );
+        return (
+          <section key={group.key} aria-label={dayLabel(group.date)}>
+            <div
+              className={`flex items-center justify-between gap-3 bg-muted/70 px-4 py-2 text-xs font-semibold text-muted-foreground backdrop-blur-sm ${
+                index > 0 ? "border-t border-divider" : ""
+              } ${sticky ? "sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-10 lg:top-0" : ""}`}
+            >
+              <h3 className="text-xs font-semibold text-foreground-soft">
+                {dayLabel(group.date)}
+              </h3>
+              <span className="tabular-nums">
+                <span className="sr-only">สุทธิของวัน </span>
+                {net >= 0 ? "+" : "\u2212"}฿{formatAmount(Math.abs(net))}
+              </span>
+            </div>
+            <ul className="divide-y divide-divider">
+              {group.items.map(item => (
+                <li key={item.id}>
+                  <TransactionRow
+                    href={item.href}
+                    title={item.title}
+                    meta={item.meta}
+                    amount={item.amount}
+                    type={item.type}
+                    category={item.category}
+                    trailing={item.trailing}
+                  />
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  );
 };
 
 // ─── 6. Chip ─────────────────────────────────────────────────────────────────

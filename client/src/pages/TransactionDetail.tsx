@@ -22,6 +22,10 @@ import {
   FileText,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageFinance } from "@shared/roles";
+import { formatThaiDateTime } from "@/lib/format";
+import { TONE_CLASSES, categoryStyle } from "@/lib/categoryStyle";
 import { Swal } from "@/lib/sweetalert";
 import {
   confirmDiscardChanges,
@@ -51,6 +55,9 @@ export default function TransactionDetail() {
   const [showVoucher, setShowVoucher] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const utils = trpc.useUtils();
+  const { user } = useAuth();
+  // offerings.update/delete and expenses.update/delete are financeProcedure.
+  const canEdit = canManageFinance(user);
   const deleteOffering = trpc.offerings.delete.useMutation({
     onSuccess: async () => {
       await Promise.all([
@@ -132,12 +139,10 @@ export default function TransactionDetail() {
       return {
         id: txId,
         refCode: `OFF-${item.id}`,
-        title:
-          item.category === "tithe"
-            ? "ถวายสิบลด"
-            : item.category === "mission"
-              ? "ถวายพันธกิจ"
-              : "ถวายทั่วไป",
+        // Every category gets its own name. The old three-way switch titled
+        // building, welfare and special offerings "ถวายทั่วไป".
+        title: offeringCategoryLabel(item.category),
+        categoryId: item.category,
         amount: item.amount,
         type: "income" as const,
         date: item.receiptDate,
@@ -145,7 +150,9 @@ export default function TransactionDetail() {
         fund: fundName(item.fundId),
         paymentMethod: paymentMethodLabel(item.method),
         donorOrPayee: item.donorName || "ผู้ถวายนิรนาม",
-        status: "approved",
+        // The offering API has no approval status; show none rather than
+        // a fabricated "approved".
+        status: null as string | null,
         notes: item.notes,
         receiptRef: "-",
         receiptUrl: null,
@@ -162,10 +169,11 @@ export default function TransactionDetail() {
         type: "expense" as const,
         date: item.expenseDate,
         category: expenseCategoryLabel(item.category),
+        categoryId: item.category,
         fund: fundName(item.fundId),
-        paymentMethod: "ไม่ระบุ",
+        paymentMethod: null as string | null,
         donorOrPayee: item.payee || "ไม่ระบุผู้รับเงิน",
-        status: item.status,
+        status: item.status as string | null,
         notes: null,
         receiptRef: item.receiptRef || "-",
         receiptUrl: (item as any).receiptUrl || null,
@@ -218,69 +226,45 @@ export default function TransactionDetail() {
         description: editText.trim() || undefined,
       });
   };
+  const style = transaction
+    ? categoryStyle(transaction.type, transaction.categoryId)
+    : null;
+  const CategoryIcon = style?.icon;
+  const busy = deleteOffering.isPending || deleteExpense.isPending;
+
+  const handleVoid = async () => {
+    const isConfirmed = await Swal.confirm(
+      "ยืนยันการยกเลิกรายการ?",
+      "ข้อมูลจะไม่ถูกลบถาวร แต่ยอดเงินในกองทุนจะถูกปรับกลับสถานะเดิม",
+      {
+        confirmButtonText: "ยืนยันยกเลิกรายการ",
+        cancelButtonText: "ปิดหน้าต่าง",
+        icon: "warning",
+      }
+    );
+    if (!isConfirmed) return;
+    if (isOffering) deleteOffering.mutate({ id: recordId });
+    if (isExpense) deleteExpense.mutate({ id: recordId });
+  };
+
+  const toggleEdit = async () => {
+    // confirmDiscardChanges is async. Called without await, its Promise was
+    // always truthy, so unsaved edits were dropped without asking.
+    if (isEditing && !(await confirmDiscardChanges(isDirty))) return;
+    setIsEditing(value => !value);
+  };
+
   return (
     <AppLayout
       activeRoute="/transactions"
-      title="รายละเอียดรายการ"
-      subtitle={
-        transaction
-          ? `เลขอ้างอิง: ${transaction.refCode}`
-          : "ตรวจสอบข้อมูลจากระบบ"
-      }
       action={
-        <div className="flex items-center gap-2">
-          {transaction && (
-            <button
-              onClick={() => setShowVoucher(true)}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-muted hover:bg-primary hover:text-white text-foreground-soft text-xs font-bold border border-border flex items-center gap-1.5 transition-colors"
-            >
-              <Printer className="w-4 h-4" />
-              <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
-            </button>
-          )}
-          {transaction && (
-            <button
-              onClick={() => {
-                if (isEditing && !confirmDiscardChanges(isDirty)) return;
-                setIsEditing(value => !value);
-              }}
-              className="min-h-11 px-3.5 py-2 rounded-2xl bg-success-soft text-success text-xs font-bold border border-success-border flex items-center gap-1.5"
-            >
-              <Pencil className="w-4 h-4" />
-              <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
-            </button>
-          )}
-          {transaction && (
-            <button
-              onClick={async () => {
-                const isConfirmed = await Swal.confirm(
-                  "ยืนยันการยกเลิกรายการ?",
-                  "ข้อมูลจะไม่ถูกลบถาวร แต่ยอดเงินในกองทุนจะถูกปรับกลับสถานะเดิม",
-                  {
-                    confirmButtonText: "ยืนยันยกเลิกรายการ",
-                    cancelButtonText: "ปิดหน้าต่าง",
-                    icon: "warning",
-                  }
-                );
-                if (!isConfirmed) return;
-                if (isOffering) deleteOffering.mutate({ id: recordId });
-                if (isExpense) deleteExpense.mutate({ id: recordId });
-              }}
-              disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="min-h-11 px-3.5 py-2 rounded-2xl bg-destructive-soft text-destructive-strong text-xs font-bold border border-destructive-border flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
-            >
-              <Ban className="w-4 h-4" />
-              <span>ยกเลิกรายการ</span>
-            </button>
-          )}
-          <BackLink
-            label="กลับหน้ารายการ"
-            onClick={async () => {
-              if (await confirmDiscardChanges(isDirty))
-                setLocation("/transactions");
-            }}
-          />
-        </div>
+        <BackLink
+          label="กลับหน้ารายการ"
+          onClick={async () => {
+            if (await confirmDiscardChanges(isDirty))
+              setLocation("/transactions");
+          }}
+        />
       }
     >
       {loading ? (
@@ -293,18 +277,79 @@ export default function TransactionDetail() {
           onAction={() => setLocation("/transactions")}
         />
       ) : (
-        <div className="bg-card rounded-2xl p-4 sm:p-6 lg:p-8 border border-border space-y-6">
+        <div className="mx-auto max-w-xl space-y-4">
+          {/* Receipt header: what, how much, when. */}
+          <section className="rounded-2xl border border-border bg-card px-5 pb-5 pt-7 text-center">
+            {CategoryIcon && style && (
+              <span
+                className={`mx-auto flex size-14 items-center justify-center rounded-full ${TONE_CLASSES[style.tone]}`}
+                aria-hidden="true"
+              >
+                <CategoryIcon className="size-6" />
+              </span>
+            )}
+            <p className="mt-3 text-xs font-medium text-muted-foreground">
+              {transaction.type === "income" ? "รายรับ" : "รายจ่าย"} ·{" "}
+              {transaction.category}
+            </p>
+            <h1 className="mt-1 text-lg font-semibold leading-snug text-foreground">
+              {transaction.title}
+            </h1>
+            <div className="mt-3">
+              <MoneyDisplay
+                amount={transaction.amount}
+                type={transaction.type}
+                size="xl"
+              />
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {formatThaiDateTime(transaction.date)}
+            </p>
+            {transaction.status && (
+              <div className="mt-3 flex justify-center">
+                <StatusBadge status={transaction.status} />
+              </div>
+            )}
+
+            {/* Actions as a row of labelled round buttons. Editing and voiding
+                are finance actions, so other roles see print only. */}
+            <div className="mt-6 flex justify-center gap-6 border-t border-divider pt-5">
+              <RoundAction
+                icon={Printer}
+                label={isExpense ? "ใบสำคัญจ่าย" : "ใบเสร็จ"}
+                onClick={() => setShowVoucher(true)}
+              />
+              {canEdit && (
+                <RoundAction
+                  icon={Pencil}
+                  label={isEditing ? "ยกเลิกแก้ไข" : "แก้ไข"}
+                  onClick={() => void toggleEdit()}
+                  active={isEditing}
+                />
+              )}
+              {canEdit && (
+                <RoundAction
+                  icon={Ban}
+                  label="ยกเลิกรายการ"
+                  onClick={() => void handleVoid()}
+                  disabled={busy}
+                  danger
+                />
+              )}
+            </div>
+          </section>
+
           {isEditing && (
             <form
               onSubmit={submitEdit}
-              className="rounded-2xl bg-background border border-border p-4 space-y-3"
+              className="space-y-4 rounded-2xl border border-accent-border bg-card p-4 sm:p-5"
             >
-              <p className="text-sm font-bold text-foreground">
+              <p className="text-sm font-semibold text-foreground">
                 แก้ไขข้อมูลรายการ
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-xs font-semibold text-foreground-soft">
-                  จำนวนเงิน
+                <label className="block text-sm font-medium text-foreground-soft">
+                  จำนวนเงิน (บาท)
                   <input
                     type="number"
                     inputMode="decimal"
@@ -312,128 +357,103 @@ export default function TransactionDetail() {
                     step="0.01"
                     value={editAmount}
                     onChange={event => setEditAmount(event.target.value)}
-                    className="mt-1 w-full rounded-xl border border-border p-3 text-sm"
+                    className="mt-1 min-h-11 w-full rounded-xl border border-input bg-card px-3.5 text-base font-semibold tabular-nums text-foreground focus:border-primary focus:outline-none"
                   />
                 </label>
-                <label className="text-xs font-semibold text-foreground-soft">
+                <label className="block text-sm font-medium text-foreground-soft">
                   {isOffering ? "หมายเหตุ" : "รายละเอียดรายการ"}
                   <input
                     value={editText}
                     onChange={event => setEditText(event.target.value)}
-                    className="mt-1 w-full rounded-xl border border-border p-3 text-sm"
+                    className="mt-1 min-h-11 w-full rounded-xl border border-input bg-card px-3.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </label>
               </div>
               <button
+                type="submit"
                 disabled={updateOffering.isPending || updateExpense.isPending}
-                className="rounded-xl bg-success px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+                className="min-h-11 w-full rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary-strong disabled:opacity-50 sm:w-auto"
               >
-                บันทึกการแก้ไข
+                {updateOffering.isPending || updateExpense.isPending
+                  ? "กำลังบันทึก…"
+                  : "บันทึกการแก้ไข"}
               </button>
             </form>
           )}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/60">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-muted-foreground">
-                  {transaction.type === "income" ? "รายรับ (ถวาย)" : "รายจ่าย"}
-                </span>
-                <StatusBadge status={transaction.status} />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                {transaction.title}
-              </h2>
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-primary" />
-                {new Date(transaction.date).toLocaleString("th-TH")}
-              </p>
-            </div>
-            <div className="text-left sm:text-right">
-              <span className="text-xs text-muted-foreground block">
-                จำนวนเงินสุทธิ
-              </span>
-              <MoneyDisplay
-                amount={transaction.amount}
-                type={transaction.type}
-                size="xl"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Detail
-              label="กองทุนบัญชี"
-              value={transaction.fund}
-              icon={<Landmark className="w-4 h-4 text-primary" />}
-            />
-            <Detail label="หมวดหมู่" value={transaction.category} />
-            <Detail
-              label="ช่องทางการเงิน"
-              value={transaction.paymentMethod}
-              icon={<CreditCard className="w-4 h-4 text-success-border" />}
-            />
-            <Detail
-              label={
-                transaction.type === "income"
-                  ? "ผู้ถวาย"
-                  : "ผู้รับเงิน / ร้านค้า"
-              }
-              value={transaction.donorOrPayee}
-              icon={<User className="w-4 h-4 text-info" />}
-            />
-            <Detail label="เลขอ้างอิง" value={transaction.refCode} />
-          </div>
-          {transaction.notes && (
-            <div className="rounded-2xl bg-card border border-border/70 p-4">
-              <p className="text-xs text-muted-foreground">หมายเหตุ</p>
-              <p className="text-sm text-foreground mt-1">{transaction.notes}</p>
-            </div>
-          )}
 
-          {/* Receipt Attachment from Supabase Storage */}
+          {/* Details as hairline rows: label left, value right. */}
+          <section className="rounded-2xl border border-border bg-card">
+            <h2 className="sr-only">รายละเอียด</h2>
+            <dl className="divide-y divide-divider">
+              <DetailRow label="กองทุน" value={transaction.fund} />
+              <DetailRow label="หมวด" value={transaction.category} />
+              {transaction.paymentMethod && (
+                <DetailRow
+                  label="ช่องทางการเงิน"
+                  value={transaction.paymentMethod}
+                />
+              )}
+              <DetailRow
+                label={transaction.type === "income" ? "ผู้ถวาย" : "ผู้รับเงิน"}
+                value={transaction.donorOrPayee}
+              />
+              {transaction.receiptRef && transaction.receiptRef !== "-" && (
+                <DetailRow
+                  label="เลขที่ใบเสร็จ"
+                  value={transaction.receiptRef}
+                />
+              )}
+              <DetailRow label="เลขอ้างอิง" value={transaction.refCode} mono />
+              {transaction.notes && (
+                <DetailRow label="หมายเหตุ" value={transaction.notes} />
+              )}
+            </dl>
+          </section>
+
           {transaction.receiptUrl && (
-            <div className="rounded-2xl bg-card border border-border/70 p-4 sm:p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground-soft flex items-center gap-1.5">
-                  <Paperclip className="w-4 h-4 text-primary" />
-                  หลักฐานสลิป / ใบเสร็จแนบ (Supabase Storage)
-                </span>
+            <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <Paperclip
+                    className="size-4 text-primary"
+                    aria-hidden="true"
+                  />
+                  หลักฐานการจ่าย
+                </h2>
                 <button
+                  type="button"
                   onClick={() => setShowReceiptModal(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-success hover:text-success-strong bg-success-soft hover:bg-success-soft px-3 py-1.5 rounded-xl border border-success-border transition-colors"
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-primary-strong hover:bg-accent"
                 >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>เปิดดูหลักฐานเต็มจอ</span>
+                  <ExternalLink className="size-4" aria-hidden="true" />
+                  เปิดเต็มจอ
                 </button>
               </div>
-
-              <div
+              <button
+                type="button"
                 onClick={() => setShowReceiptModal(true)}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-border bg-muted flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity group relative"
+                aria-label="เปิดดูหลักฐานการจ่ายเต็มจอ"
+                className="mt-3 flex h-44 w-full max-w-xs items-center justify-center overflow-hidden rounded-xl border border-border bg-muted"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
-                  <div className="text-center p-4">
-                    <FileText className="w-12 h-12 text-primary mx-auto mb-2" />
-                    <span className="text-xs font-bold text-foreground-soft">
-                      เอกสารแนบ PDF
-                    </span>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      คลิกเพื่อเปิดดูไฟล์
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <img
-                      src={transaction.receiptUrl}
-                      alt="Receipt thumbnail"
-                      className="w-full h-full object-cover"
+                  <span className="text-center">
+                    <FileText
+                      className="mx-auto mb-2 size-10 text-primary"
+                      aria-hidden="true"
                     />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-bold">
-                      คลิกเพื่อขยาย
-                    </div>
-                  </>
+                    <span className="text-xs font-semibold text-foreground-soft">
+                      เอกสาร PDF
+                    </span>
+                  </span>
+                ) : (
+                  <img
+                    src={transaction.receiptUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 )}
-              </div>
-            </div>
+              </button>
+            </section>
           )}
         </div>
       )}
@@ -453,7 +473,7 @@ export default function TransactionDetail() {
             titleOrDescription: transaction.title,
             payeeOrDonor: transaction.donorOrPayee,
             fundName: transaction.fund,
-            paymentMethod: transaction.paymentMethod,
+            paymentMethod: transaction.paymentMethod ?? "ไม่ระบุ",
             receiptRef: transaction.receiptRef,
             notes: transaction.notes || undefined,
             receiptUrl: transaction.receiptUrl,
@@ -475,22 +495,63 @@ export default function TransactionDetail() {
   );
 }
 
-function Detail({
+function DetailRow({
   label,
   value,
-  icon,
+  mono = false,
 }: {
   label: string;
   value: string;
-  icon?: React.ReactNode;
+  mono?: boolean;
 }) {
   return (
-    <div className="bg-card p-4 rounded-2xl border border-border/70 space-y-1">
-      <span className="text-xs text-muted-foreground block">{label}</span>
-      <span className="text-sm font-bold text-foreground-soft flex items-center gap-1.5">
-        {icon}
+    <div className="flex items-start justify-between gap-4 px-4 py-3.5">
+      <dt className="shrink-0 text-sm text-muted-foreground">{label}</dt>
+      <dd
+        className={`min-w-0 text-right text-sm font-medium text-foreground ${mono ? "font-mono tabular-nums" : ""}`}
+      >
         {value}
-      </span>
+      </dd>
     </div>
+  );
+}
+
+function RoundAction({
+  icon: Icon,
+  label,
+  onClick,
+  disabled = false,
+  active = false,
+  danger = false,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  active?: boolean;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-pressed={active || undefined}
+      className="flex w-20 flex-col items-center gap-1.5 text-xs font-medium text-foreground-soft disabled:opacity-50"
+    >
+      <span
+        className={`flex size-12 items-center justify-center rounded-full border transition-colors ${
+          danger
+            ? "border-destructive-border bg-card text-destructive hover:bg-destructive-soft"
+            : active
+              ? "border-primary bg-accent text-primary-strong"
+              : "border-border bg-card text-foreground hover:bg-muted"
+        }`}
+        aria-hidden="true"
+      >
+        <Icon className="size-5" />
+      </span>
+      {label}
+    </button>
   );
 }
