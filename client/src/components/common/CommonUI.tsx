@@ -581,7 +581,7 @@ export const TransactionFeed: React.FC<{
         return (
           <section key={group.key} aria-label={dayLabel(group.date)}>
             <div
-              className={`flex items-center justify-between gap-3 bg-muted/70 px-4 py-2 text-xs font-semibold text-muted-foreground backdrop-blur-sm ${
+              className={`flex items-center justify-between gap-3 bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground ${
                 index > 0 ? "border-t border-divider" : ""
               } ${sticky ? "sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-10 lg:top-0" : ""}`}
             >

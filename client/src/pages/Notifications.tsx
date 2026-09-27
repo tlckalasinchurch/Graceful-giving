@@ -89,7 +89,7 @@ export default function Notifications() {
               {groupByDay(query.data).map((group, index) => (
                 <section key={group.key} aria-label={dayLabel(group.date)}>
                   <h2
-                    className={`bg-muted/70 px-4 py-2 text-xs font-semibold text-foreground-soft ${index > 0 ? "border-t border-divider" : ""}`}
+                    className={`bg-muted px-4 py-2 text-xs font-semibold text-foreground-soft ${index > 0 ? "border-t border-divider" : ""}`}
                   >
                     {dayLabel(group.date)}
                   </h2>
