@@ -667,10 +667,6 @@ export async function updateOffering(
   });
 }
 
-export async function deleteOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
-  return voidOffering(id, churchId);
-}
-
 // ─── Expenses ─────────────────────────────────────────────────────────────────
 
 export type ExpenseRow = {
@@ -827,11 +823,11 @@ export async function updateExpense(
   });
 }
 
-export async function deleteExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
-  return voidExpense(id, churchId);
-}
-
-export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
+export async function voidOffering(
+  id: number,
+  voidedBy: number,
+  churchId = DEFAULT_CHURCH_ID
+) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.transaction(async tx => {
@@ -853,7 +849,7 @@ export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
     if (!existing[0] || existing[0].status === "voided") return false;
     const updatedRows = await tx
       .update(offerings)
-      .set({ status: "voided", voidedAt: new Date() })
+      .set({ status: "voided", voidedAt: new Date(), voidedBy })
       .where(
         and(
           eq(offerings.id, id),
@@ -871,7 +867,11 @@ export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
   });
 }
 
-export async function voidExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
+export async function voidExpense(
+  id: number,
+  voidedBy: number,
+  churchId = DEFAULT_CHURCH_ID
+) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.transaction(async tx => {
@@ -893,7 +893,7 @@ export async function voidExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
     if (!existing[0] || existing[0].status === "voided") return false;
     const updatedRows = await tx
       .update(expenses)
-      .set({ status: "voided" })
+      .set({ status: "voided", voidedAt: new Date(), voidedBy })
       .where(
         and(
           eq(expenses.id, id),
