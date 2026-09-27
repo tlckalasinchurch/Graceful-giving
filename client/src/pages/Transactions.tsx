@@ -189,7 +189,10 @@ export default function Transactions() {
           >
             <span className="hidden sm:inline">ส่งออก CSV</span>
           </ActionButton>
-          <ActionButton icon={Plus} onClick={() => setLocation("/offerings/new")}>
+          <ActionButton
+            icon={Plus}
+            onClick={() => setLocation("/offerings/new")}
+          >
             บันทึกใหม่
           </ActionButton>
         </div>
@@ -198,20 +201,24 @@ export default function Transactions() {
       {/* 1. Summary Cards (รายรับ, รายจ่าย, ยอดสุทธิ) */}
       {isLoading ? (
         <StatCardSkeleton count={3} />
-      ) : (
+      ) : isError ? null : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
             label="รายรับทั้งหมด"
             tone="income"
             icon={TrendingUp}
-            value={<MoneyDisplay amount={totalIncome} type="income" size="lg" />}
+            value={
+              <MoneyDisplay amount={totalIncome} type="income" size="lg" />
+            }
             hint={`${filtered.filter(t => t.type === "income").length} รายการ`}
           />
           <StatCard
             label="รายจ่ายทั้งหมด"
             tone="expense"
             icon={TrendingDown}
-            value={<MoneyDisplay amount={totalExpense} type="expense" size="lg" />}
+            value={
+              <MoneyDisplay amount={totalExpense} type="expense" size="lg" />
+            }
             hint={`${filtered.filter(t => t.type === "expense").length} รายการ`}
           />
           <StatCard
@@ -282,21 +289,39 @@ export default function Transactions() {
               </caption>
               <thead className="bg-[#FFF4D6]/70 border-b border-[#E7DCC8] text-xs text-[#51443A] font-semibold">
                 <tr>
-                  <th scope="col" className="px-5 py-3.5">วันที่</th>
-                  <th scope="col" className="px-5 py-3.5">รายการ</th>
-                  <th scope="col" className="px-5 py-3.5">ประเภท</th>
-                  <th scope="col" className="px-5 py-3.5">กองทุน</th>
-                  <th scope="col" className="px-5 py-3.5 text-right">จำนวนเงิน</th>
-                  <th scope="col" className="px-5 py-3.5 text-center">สถานะ</th>
+                  <th scope="col" className="px-5 py-3.5">
+                    วันที่
+                  </th>
+                  <th scope="col" className="px-5 py-3.5">
+                    รายการ
+                  </th>
+                  <th scope="col" className="px-5 py-3.5">
+                    ประเภท
+                  </th>
+                  <th scope="col" className="px-5 py-3.5">
+                    กองทุน
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 text-right">
+                    จำนวนเงิน
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 text-center">
+                    สถานะ
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE5D3]/60">
                 {filtered.map(tx => (
-                  <tr key={tx.id} className="transition-all duration-200 ease-in-out hover:bg-[#FFF4D6]/50">
+                  <tr
+                    key={tx.id}
+                    className="transition-all duration-200 ease-in-out hover:bg-[#FFF4D6]/50"
+                  >
                     <td className="px-5 py-4 text-[#6E6155] whitespace-nowrap font-medium">
                       {formatThaiDate(tx.date)}
                     </td>
-                    <th scope="row" className="px-5 py-4 font-semibold text-[#171311]">
+                    <th
+                      scope="row"
+                      className="px-5 py-4 font-semibold text-[#171311]"
+                    >
                       <Link
                         href={`/transactions/${tx.id}`}
                         className="rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"

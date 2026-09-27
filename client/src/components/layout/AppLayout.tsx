@@ -4,7 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useGuardedNavigate } from "@/hooks/useUnsavedChanges";
 import { GuardedLink } from "./GuardedLink";
-import { AppMenu, getNavGroup, isActiveRoute, getAuthorizedNavItems } from "./AppNavigation";
+import { AppMenu, getGroupedNavItems, isActiveRoute } from "./AppNavigation";
 import { getChurchRoleInfo } from "@shared/roles";
 import {
   Bell,
@@ -152,36 +152,39 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </button>
 
           <nav aria-label="เมนูนำทางหลัก" className="flex-1 space-y-0.5">
-            {getAuthorizedNavItems(user).reduce<React.ReactNode[]>((content, item, index, items) => {
-              const previous = items[index - 1];
-              const group = getNavGroup(item.path);
-              const previousGroup = previous ? getNavGroup(previous.path) : undefined;
-              const Icon = item.icon;
-              const isActive = isActiveRoute(currentPath, item.path);
-              if (group !== previousGroup) {
-                content.push(
-                  <p key={`desktop-group-${group}`} className="px-3 pt-5 pb-1.5 text-[11px] font-semibold tracking-wide text-[#8C7B6B] first:pt-0">
-                    {group}
-                  </p>
-                );
-              }
-              content.push(
-                <GuardedLink
-                  key={item.path}
-                  href={item.path}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`relative w-full flex min-h-10 items-center gap-3 px-3 rounded-xl text-sm transition-all duration-200 ease-in-out ${
-                    isActive
-                      ? "bg-[#C94F16] text-white font-semibold shadow-sm"
-                      : "text-[#E9DDC8] font-medium hover:bg-white/[0.06] hover:text-white"
-                  }`}
+            {getGroupedNavItems(user).map((group, groupIndex) => (
+              <div key={group.label} role="group" aria-label={group.label}>
+                <p
+                  className={`px-3 pb-1.5 text-[11px] font-semibold tracking-wide text-[#8C7B6B] ${groupIndex === 0 ? "pt-0" : "pt-5"}`}
                 >
-                  <Icon className={`size-[18px] shrink-0 transition-colors duration-200 ${isActive ? "text-white" : "text-[#F6C09B]"}`} aria-hidden="true" />
-                  <span className="truncate">{item.label}</span>
-                </GuardedLink>
-              );
-              return content;
-            }, [])}
+                  {group.label}
+                </p>
+                <div className="space-y-0.5">
+                  {group.items.map(item => {
+                    const Icon = item.icon;
+                    const isActive = isActiveRoute(currentPath, item.path);
+                    return (
+                      <GuardedLink
+                        key={item.path}
+                        href={item.path}
+                        aria-current={isActive ? "page" : undefined}
+                        className={`relative w-full flex min-h-10 items-center gap-3 px-3 rounded-xl text-sm transition-all duration-200 ease-in-out ${
+                          isActive
+                            ? "bg-[#C94F16] text-white font-semibold shadow-sm"
+                            : "text-[#E9DDC8] font-medium hover:bg-white/[0.06] hover:text-white"
+                        }`}
+                      >
+                        <Icon
+                          className={`size-[18px] shrink-0 transition-colors duration-200 ${isActive ? "text-white" : "text-[#F6C09B]"}`}
+                          aria-hidden="true"
+                        />
+                        <span className="truncate">{item.label}</span>
+                      </GuardedLink>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
 
           {/* User Profile Card at Sidebar Bottom */}
@@ -242,7 +245,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                 repeated a mark the user could already see. */}
 
             {/* Right: Actions and Notification */}
-            <div className="flex max-w-full flex-wrap items-center gap-2.5">
+            <div className="ml-auto flex max-w-full flex-wrap items-center gap-2.5">
               {action && (
                 <div className="max-w-full [&>div]:flex-wrap [&_button]:min-h-11">
                   {action}
@@ -288,7 +291,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             >
               <Plus className="size-6 stroke-[2.5]" />
             </button>
-            <span className="mt-1 text-[11px] leading-none font-medium text-[#D9CBB5]">
+            <span className="mt-2 text-[11px] leading-none font-medium text-[#D9CBB5]">
               ถวาย
             </span>
           </div>
