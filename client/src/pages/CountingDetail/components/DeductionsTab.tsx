@@ -179,7 +179,7 @@ export function DeductionsTab({
           <button
             type="submit"
             disabled={addDeduction.isPending || !dFundId}
-            className="mt-4 min-h-11 rounded-xl bg-[#F97316] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            className="mt-4 min-h-11 rounded-xl bg-[#F97316] px-5 py-2.5 text-sm font-bold text-[#171717] disabled:opacity-50"
           >
             {addDeduction.isPending ? "กำลังบันทึก…" : "เพิ่มรายการเบิก"}
           </button>

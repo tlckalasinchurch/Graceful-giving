@@ -112,7 +112,7 @@ export function MemberFeed() {
               onClick={() => setNewsCategoryFilter(cat)}
               className={`min-h-11 rounded-full px-3.5 py-2 text-xs font-bold transition-all ${
                 newsCategoryFilter === cat
-                  ? "bg-[#D95E0B] text-white shadow-sm"
+                  ? "bg-[#D95E0B] text-[#171717] shadow-sm"
                   : "bg-white/80 text-[#5F5B55] hover:bg-white hover:text-[#292929] border border-[#E5E1D8]"
               }`}
             >
@@ -274,7 +274,7 @@ export function MemberFeed() {
               <div className="mt-6 flex justify-end border-t border-[#E5E1D8] pt-4">
                 <button
                   onClick={() => setSelectedNews(null)}
-                  className="rounded-xl bg-[#D95E0B] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#F97316] focus:outline-none focus:ring-2 focus:ring-[#D95E0B]"
+                  className="rounded-xl bg-[#D95E0B] px-6 py-2.5 text-sm font-bold text-[#171717] shadow-sm hover:bg-[#F97316] focus:outline-none focus:ring-2 focus:ring-[#D95E0B]"
                 >
                   ปิดหน้าต่าง
                 </button>

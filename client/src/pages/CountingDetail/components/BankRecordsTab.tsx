@@ -125,7 +125,7 @@ export function BankRecordsTab({
         <button
           type="submit"
           disabled={addBankRecord.isPending}
-          className="mt-4 min-h-11 rounded-xl bg-[#F97316] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+          className="mt-4 min-h-11 rounded-xl bg-[#F97316] px-5 py-2.5 text-sm font-bold text-[#171717] disabled:opacity-50"
         >
           {addBankRecord.isPending ? "กำลังบันทึก…" : "เพิ่มรายการ"}
         </button>

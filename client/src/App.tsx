@@ -179,7 +179,7 @@ function RoleGuard({
           <div className="pt-2">
             <a
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#F97316] text-white font-bold text-sm hover:bg-[#D95E0B] transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#F97316] text-[#171717] font-bold text-sm hover:bg-[#D95E0B] transition-all shadow-xs"
             >
               กลับสู่หน้าหลัก
             </a>

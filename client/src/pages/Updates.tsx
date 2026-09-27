@@ -49,7 +49,7 @@ export default function Updates() {
             </p>
             <button
               onClick={startLogin}
-              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#D95E0B] px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#F97316] active:scale-95 transition"
+              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#D95E0B] px-6 py-3 text-sm font-bold text-[#171717] shadow-sm hover:bg-[#F97316] active:scale-95 transition"
             >
               <UsersRound className="size-4" />
               เข้าสู่ระบบ

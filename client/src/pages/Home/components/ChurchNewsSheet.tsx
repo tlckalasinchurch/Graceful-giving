@@ -28,7 +28,7 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
 
         <div className="space-y-5">
           <div className="p-5 sm:p-6 rounded-2xl bg-[#F1EFE9] border-2 border-[#E5E1D8] space-y-3 shadow-xs">
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary text-white inline-block">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary text-[#171717] inline-block">
               ประกาศสำคัญ
             </span>
             <h4 className="text-lg sm:text-xl font-bold text-[#5F5B55]">

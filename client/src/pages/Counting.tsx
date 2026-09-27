@@ -202,7 +202,7 @@ export default function Counting() {
         <button
           type="button"
           onClick={() => (showCreate ? closeCreate() : setShowCreate(true))}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#F97316] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#D95E0B] active:scale-95"
+          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#F97316] px-4 py-2.5 text-sm font-bold text-[#171717] shadow-sm transition-colors hover:bg-[#D95E0B] active:scale-95"
         >
           <Plus className="h-4 w-4" />
           เปิดรอบใหม่
@@ -282,7 +282,7 @@ export default function Counting() {
               <button
                 type="submit"
                 disabled={createSession.isPending}
-                className="min-h-11 rounded-xl bg-[#F97316] px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#D95E0B] transition-colors disabled:opacity-50"
+                className="min-h-11 rounded-xl bg-[#F97316] px-5 py-2 text-sm font-bold text-[#171717] shadow-sm hover:bg-[#D95E0B] transition-colors disabled:opacity-50"
               >
                 {createSession.isPending
                   ? "กำลังเปิดรอบ…"
@@ -479,7 +479,7 @@ export default function Counting() {
                         <button
                           type="button"
                           onClick={() => setLocation(`/counting/${session.id}`)}
-                          className="min-h-10 inline-flex items-center gap-1.5 rounded-xl bg-[#F97316] px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#D95E0B] transition-colors active:scale-95"
+                          className="min-h-10 inline-flex items-center gap-1.5 rounded-xl bg-[#F97316] px-3.5 py-2 text-xs font-bold text-[#171717] shadow-xs hover:bg-[#D95E0B] transition-colors active:scale-95"
                         >
                           <span>นับต่อ</span>
                           <ChevronRight className="h-3.5 w-3.5" />

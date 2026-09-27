@@ -207,7 +207,7 @@ export default function NewWithdrawal() {
             <button
               type="submit"
               disabled={isSubmitting || funds.length === 0}
-              className="px-8 py-3 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
             >
               <Banknote className="w-4 h-4" />
               <span>
@@ -241,7 +241,7 @@ export default function NewWithdrawal() {
                     setDetails("");
                     setUrgency("normal");
                   }}
-                  className="w-full py-3 rounded-2xl bg-[#F97316] text-white font-medium text-sm hover:bg-[#D95E0B] transition-colors shadow-sm"
+                  className="w-full py-3 rounded-2xl bg-[#F97316] text-[#171717] font-medium text-sm hover:bg-[#D95E0B] transition-colors shadow-sm"
                 >
                   ส่งคำขออีกรายการ
                 </button>

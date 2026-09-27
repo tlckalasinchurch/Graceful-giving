@@ -110,7 +110,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#F97316] px-4 text-sm font-semibold text-white hover:bg-[#D95E0B]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#F97316] px-4 text-sm font-semibold text-[#171717] hover:bg-[#D95E0B]"
         >
           <Banknote className="size-4" />
           ยื่นคำขอเบิกเงิน

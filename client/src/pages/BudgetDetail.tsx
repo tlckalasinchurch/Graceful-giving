@@ -229,7 +229,7 @@ export default function BudgetDetail() {
               />
               <button
                 disabled={update.isPending || !isDirty}
-                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#F97316] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#F97316] px-5 py-2 text-sm font-bold text-[#171717] disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}

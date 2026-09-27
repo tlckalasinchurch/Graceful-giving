@@ -232,7 +232,7 @@ export default function TransactionDetail() {
           {transaction && (
             <button
               onClick={() => setShowVoucher(true)}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#F1EFE9] hover:bg-[#F97316] hover:text-white text-[#5F5B55] text-xs font-bold border border-[#E5E1D8] flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#F1EFE9] hover:bg-[#F97316] hover:text-[#171717] text-[#5F5B55] text-xs font-bold border border-[#E5E1D8] flex items-center gap-1.5 transition-colors shadow-2xs"
             >
               <Printer className="w-4 h-4" />
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
@@ -325,7 +325,7 @@ export default function TransactionDetail() {
               </div>
               <button
                 disabled={updateOffering.isPending || updateExpense.isPending}
-                className="rounded-xl bg-[#F97316] px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+                className="rounded-xl bg-[#F97316] px-4 py-2 text-xs font-bold text-[#171717] disabled:opacity-50"
               >
                 บันทึกการแก้ไข
               </button>

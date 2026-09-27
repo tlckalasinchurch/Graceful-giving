@@ -309,7 +309,7 @@ export default function NewExpense() {
                         <div
                           className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                             isSelected
-                              ? "bg-[#F97316] text-white"
+                              ? "bg-[#F97316] text-[#171717]"
                               : "bg-[#F1EFE9] text-[#5F5B55]"
                           }`}
                         >
@@ -558,7 +558,7 @@ export default function NewExpense() {
             <button
               type="submit"
               disabled={isSubmitting || isUploading}
-              className="px-8 py-3 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3 rounded-xl bg-[#F97316] hover:bg-[#D95E0B] text-[#171717] font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
               <span>
@@ -626,7 +626,7 @@ export default function NewExpense() {
                     setReceiptRef("");
                     setReceiptFile(null);
                   }}
-                  className="w-full py-3 rounded-2xl bg-[#F97316] text-white font-medium text-sm hover:bg-[#D95E0B] transition-colors shadow-sm"
+                  className="w-full py-3 rounded-2xl bg-[#F97316] text-[#171717] font-medium text-sm hover:bg-[#D95E0B] transition-colors shadow-sm"
                 >
                   บันทึกรายจ่ายรายการถัดไป
                 </button>

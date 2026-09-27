@@ -83,7 +83,7 @@ export default function FundDetail() {
                 onClick={() =>
                   toast.info("ยังไม่มีข้อมูล statement สำหรับกองทุนนี้")
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F97316] text-white text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F97316] text-[#171717] text-sm font-medium"
               >
                 <Download className="w-4 h-4" />
                 ดาวน์โหลด Statement

@@ -251,7 +251,7 @@ export function Step4({
             >
               <span
                 className={`grid size-5 shrink-0 place-items-center rounded-md ${
-                  selected ? "bg-[#D95E0B] text-white" : "bg-[#E5E1D8]"
+                  selected ? "bg-[#D95E0B] text-[#171717]" : "bg-[#E5E1D8]"
                 }`}
               >
                 {selected ? (
