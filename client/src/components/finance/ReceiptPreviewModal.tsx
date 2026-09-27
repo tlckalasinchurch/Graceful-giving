@@ -59,7 +59,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
           {isPdf ? (
             <div className="text-center p-8 bg-card rounded-2xl border border-[#E7DCC8] shadow-xs max-w-sm">
               <FileText className="w-16 h-16 text-[#C94F16] mx-auto mb-3" />
-              <p className="font-bold text-sm text-stone-800">
+              <p className="font-bold text-sm text-[#171311]">
                 เอกสารแนบรูปแบบ PDF
               </p>
               <p className="text-xs text-[#6E6155] mt-1 mb-4">

@@ -212,7 +212,7 @@ export default function Counting() {
       <div className="space-y-6">
         {/* Header Overview Card */}
         {openCount > 0 && (
-          <div className="flex items-center gap-2 rounded-xl border border-[#F9D2AE] bg-[#FEF5EC] px-4 py-3 text-sm font-medium text-[#7F3A0D]">
+          <div className="flex items-center gap-2 rounded-xl border border-[#F9D2AE] bg-[#FFF4D6] px-4 py-3 text-sm font-medium text-[#9F3B0F]">
             <Clock className="size-4 shrink-0 text-[#C94F16]" />
             มี {openCount} รอบที่ค้างอยู่หรือกำลังนับ
           </div>
@@ -282,7 +282,7 @@ export default function Counting() {
               <button
                 type="submit"
                 disabled={createSession.isPending}
-                className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#43752c] transition-all duration-200 ease-in-out disabled:opacity-50 hover:shadow-sm active:scale-[0.98]"
+                className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-[#2D6A2E] transition-all duration-200 ease-in-out disabled:opacity-50 hover:shadow-sm active:scale-[0.98]"
               >
                 {createSession.isPending
                   ? "กำลังเปิดรอบ…"
@@ -323,7 +323,7 @@ export default function Counting() {
               <Clock className="h-3.5 w-3.5 text-[#9F3B0F]" />
               <span>กำลังดำเนินการ / ค้างอยู่</span>
               {openCount > 0 && (
-                <span className="rounded-md bg-amber-500/20 px-1.5 py-0.5 text-[11px] font-bold text-[#9F3B0F]">
+                <span className="rounded-md bg-[#C94F16]/20 px-1.5 py-0.5 text-[11px] font-bold text-[#9F3B0F]">
                   {openCount}
                 </span>
               )}
@@ -340,7 +340,7 @@ export default function Counting() {
             >
               <CheckCircle2 className="h-3.5 w-3.5 text-[#2D6A2E]" />
               <span>ปิดรอบเสร็จสมบูรณ์</span>
-              <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-[#2D6A2E]">
+              <span className="rounded-md bg-[#2D6A2E]/15 px-1.5 py-0.5 text-[11px] font-semibold text-[#2D6A2E]">
                 {completedCount}
               </span>
             </button>
@@ -354,7 +354,7 @@ export default function Counting() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="ค้นหาวันที่, บันทึก..."
-              className="min-h-11 w-full rounded-2xl border border-[#E7DCC8] bg-white pl-9 pr-3 py-2 text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#C94F16] focus:outline-none focus:ring-1 focus:ring-[#C94F16]"
+              className="min-h-11 w-full rounded-2xl border border-[#E7DCC8] bg-white pl-9 pr-3 py-2 text-base md:text-sm text-[#171311] placeholder-[#6E6155] focus:border-[#C94F16] focus:outline-none focus:ring-1 focus:ring-[#C94F16]"
             />
             {searchQuery && (
               <button
@@ -503,7 +503,7 @@ export default function Counting() {
                           title="ลบรอบนับเงินค้างนี้อย่างถาวร"
                           onClick={() => handleDeleteSession(session)}
                           disabled={deleteSession.isPending}
-                          className="min-h-10 inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-[#C8372D] hover:bg-rose-100 hover:border-rose-300 transition-all duration-200 ease-in-out disabled:opacity-50"
+                          className="min-h-10 inline-flex items-center gap-1 rounded-xl border border-[#F8C8C5] bg-[#FEECEB] px-3 py-2 text-sm font-semibold text-[#C8372D] hover:bg-[#FEECEB] hover:border-[#F8C8C5] transition-all duration-200 ease-in-out disabled:opacity-50"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>ลบรอบค้าง</span>

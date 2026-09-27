@@ -17,7 +17,7 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="bg-card border-l border-[#E7DCC8] w-full sm:max-w-lg p-6 sm:p-8 overflow-y-auto">
         <SheetHeader className="mb-6">
-          <SheetTitle className="text-xl sm:text-2xl font-bold text-[#51443A] flex items-center gap-3">
+          <SheetTitle className="text-xl sm:text-2xl font-bold text-[#171311] flex items-center gap-3">
             <BookOpen className="w-6 h-6 text-primary" />
             <span>ข่าวสารและประกาศคริสตจักร</span>
           </SheetTitle>
@@ -40,7 +40,7 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
             </p>
           </div>
 
-          <div className="p-5 sm:p-6 rounded-2xl bg-[#E4F3E7] border-2 border-[#D2EAC7] space-y-3 shadow-xs">
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#E4F3E7] border-2 border-[#C3E4B8] space-y-3 shadow-xs">
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#9BCBA5] text-white inline-block">
               รายงานพันธกิจ
             </span>

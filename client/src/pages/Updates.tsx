@@ -41,7 +41,7 @@ export default function Updates() {
             <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#FFF4D6] text-[#9F3B0F]">
               <Bell className="size-8" />
             </div>
-            <h1 className="mt-5 font-display text-2xl font-bold text-[#51443A]">
+            <h1 className="mt-5 font-display text-2xl font-bold text-[#171311]">
               ติดตามข่าวสารคริสตจักร
             </h1>
             <p className="mt-2 text-sm leading-6 text-[#51443A]">
@@ -73,11 +73,11 @@ export default function Updates() {
               กลับหน้าหลัก
             </Link>
             <div className="mt-4 flex items-center gap-3">
-              <div className="grid size-12 place-items-center rounded-2xl bg-[#e7f1fb] text-[#3c6f9e]">
+              <div className="grid size-12 place-items-center rounded-2xl bg-[#F5EDE0] text-[#51443A]">
                 <Megaphone className="size-6" />
               </div>
               <div>
-                <h1 className="font-display text-3xl font-bold tracking-tight text-[#51443A]">
+                <h1 className="font-display text-3xl font-bold tracking-tight text-[#171311]">
                   ข่าวสาร & กิจกรรม
                 </h1>
                 <p className="mt-1 text-sm text-[#51443A]">

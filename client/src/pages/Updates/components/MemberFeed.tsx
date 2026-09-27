@@ -50,25 +50,41 @@ export function MemberFeed() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="h-44 animate-pulse rounded-2xl bg-white/70" />
-        <div className="h-44 animate-pulse rounded-2xl bg-white/70" />
+      <div
+        role="status"
+        aria-label="กำลังโหลดข่าวสาร"
+        className="grid gap-6 sm:grid-cols-2"
+      >
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            aria-hidden="true"
+            className="animate-pulse overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-xs"
+          >
+            <div className="h-36 bg-[#F1E6D2]" />
+            <div className="space-y-2.5 p-5">
+              <div className="h-3 w-20 rounded-full bg-[#F5EDE0]" />
+              <div className="h-5 w-3/4 rounded-full bg-[#F1E6D2]" />
+              <div className="h-3 w-full rounded-full bg-[#F5EDE0]" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-[#f5c6cb] bg-[#fff0eb] p-6 text-center text-sm text-[#8a3928]">
-        <p className="font-bold text-[#9e3825]">
+      <div className="rounded-2xl border border-[#F8C8C5] bg-[#FEECEB] p-6 text-center text-sm text-[#C8372D]">
+        <p className="font-bold text-[#C8372D]">
           ไม่สามารถโหลดข้อมูลข่าวสารได้ในขณะนี้
         </p>
-        <p className="mt-1 text-xs text-[#704d44]">
+        <p className="mt-1 text-xs text-[#51443A]">
           {error.message || "เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย"}
         </p>
         <button
           onClick={() => refetch()}
-          className="mt-4 rounded-xl bg-[#A92D24] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#aa473e] transition-all duration-200 ease-in-out"
+          className="mt-4 rounded-xl bg-[#A92D24] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#C8372D] transition-all duration-200 ease-in-out"
         >
           ลองใหม่อีกครั้ง
         </button>
@@ -149,7 +165,7 @@ export function MemberFeed() {
                     {formatThaiDate(item.publishedAt ?? item.createdAt)}
                   </span>
                 </div>
-                <h3 className="mt-4 font-display text-lg font-bold leading-7 text-[#51443A] group-hover:text-[#C94F16] transition-all duration-200 ease-in-out">
+                <h3 className="mt-4 font-display text-lg font-bold leading-7 text-[#171311] group-hover:text-[#C94F16] transition-all duration-200 ease-in-out">
                   {item.title}
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-[#51443A] line-clamp-3">
@@ -176,7 +192,7 @@ export function MemberFeed() {
               วางแผนร่วมรับใช้และสามัคคีธรรมด้วยกัน
             </p>
           </div>
-          <span className="rounded-full bg-[#e7f1fb] px-3 py-1 text-[11px] font-bold text-[#356792]">
+          <span className="rounded-full bg-[#F5EDE0] px-3 py-1 text-[11px] font-bold text-[#51443A]">
             {events.length} กิจกรรม
           </span>
         </div>
@@ -199,17 +215,17 @@ export function MemberFeed() {
                 }}
                 className="group flex cursor-pointer gap-4 rounded-2xl border border-[#EFE5D3] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
               >
-                <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#e9f3ff] text-[#3c6f9e]">
+                <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[#F5EDE0] text-[#51443A]">
                   <CalendarDays className="size-5" />
                   <span className="mt-0.5 text-[11px] font-bold">
                     {new Date(event.startsAt).getDate()}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold text-[#51443A] group-hover:text-[#C94F16] transition-all duration-200 ease-in-out">
+                  <h3 className="text-base font-bold text-[#171311] group-hover:text-[#C94F16] transition-all duration-200 ease-in-out">
                     {event.title}
                   </h3>
-                  <p className="mt-1 text-xs font-semibold text-[#3b6d9c]">
+                  <p className="mt-1 text-xs font-semibold text-[#51443A]">
                     {formatEventDate(event.startsAt)}
                   </p>
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#51443A]">
@@ -249,7 +265,7 @@ export function MemberFeed() {
                     )}
                   </span>
                 </div>
-                <DialogTitle className="font-display text-2xl font-bold leading-tight text-[#51443A]">
+                <DialogTitle className="font-display text-2xl font-bold leading-tight text-[#171311]">
                   {selectedNews.title}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-[#51443A]">
@@ -294,11 +310,11 @@ export function MemberFeed() {
             <>
               <DialogHeader className="space-y-2 text-left">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-11 place-items-center rounded-2xl bg-[#e9f3ff] text-[#3c6f9e]">
+                  <span className="grid size-11 place-items-center rounded-2xl bg-[#F5EDE0] text-[#51443A]">
                     <CalendarDays className="size-6" />
                   </span>
                   <div>
-                    <DialogTitle className="font-display text-xl font-bold text-[#51443A]">
+                    <DialogTitle className="font-display text-xl font-bold text-[#171311]">
                       {selectedEvent.title}
                     </DialogTitle>
                     <div className="mt-1 flex items-center gap-2">
@@ -368,7 +384,7 @@ export function MemberFeed() {
                       href={selectedEvent.registrationUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#2e7d52] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#256843]"
+                      className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#2D6A2E] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#2D6A2E]"
                     >
                       ลงทะเบียนเข้าร่วม <ExternalLink className="size-3.5" />
                     </a>

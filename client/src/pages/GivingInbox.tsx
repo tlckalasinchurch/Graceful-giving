@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { LoadingSkeleton } from "@/components/common/CommonUI";
 import {
   Inbox,
   CheckCircle2,
@@ -63,56 +64,56 @@ const STATUS_LABELS: Record<
   pending: {
     text: "รอดึงข้อมูล",
     bg: "bg-[#F5EDE0]",
-    textCol: "text-stone-700",
-    border: "border-stone-300",
+    textCol: "text-[#51443A]",
+    border: "border-[#E7DCC8]",
   },
   processing: {
     text: "กำลังอ่านสลิป",
-    bg: "bg-amber-50",
-    textCol: "text-amber-700",
-    border: "border-amber-200",
+    bg: "bg-[#FFF4D6]",
+    textCol: "text-[#9F3B0F]",
+    border: "border-[#F9D2AE]",
   },
   extracted: {
     text: "อ่านข้อมูลแล้ว",
-    bg: "bg-blue-50",
-    textCol: "text-blue-700",
-    border: "border-blue-200",
+    bg: "bg-[#F5EDE0]",
+    textCol: "text-[#51443A]",
+    border: "border-[#E7DCC8]",
   },
   needs_review: {
     text: "ต้องตรวจสอบ",
-    bg: "bg-amber-500/10",
-    textCol: "text-amber-700",
-    border: "border-amber-400",
+    bg: "bg-[#C94F16]/10",
+    textCol: "text-[#9F3B0F]",
+    border: "border-[#F0B98A]",
   },
   matched: {
     text: "พร้อมอนุมัติ",
-    bg: "bg-emerald-500/10",
-    textCol: "text-emerald-700",
-    border: "border-emerald-400",
+    bg: "bg-[#2D6A2E]/10",
+    textCol: "text-[#2D6A2E]",
+    border: "border-[#9BCBA5]",
   },
   duplicate: {
     text: "สลิปซ้ำ",
-    bg: "bg-purple-500/10",
-    textCol: "text-purple-700",
-    border: "border-purple-300",
+    bg: "bg-[#51443A]/10",
+    textCol: "text-[#51443A]",
+    border: "border-[#E7DCC8]",
   },
   approved: {
     text: "อนุมัติแล้ว",
-    bg: "bg-emerald-500/15",
-    textCol: "text-emerald-800",
-    border: "border-emerald-500/30",
+    bg: "bg-[#2D6A2E]/15",
+    textCol: "text-[#2D6A2E]",
+    border: "border-[#9BCBA5]/30",
   },
   rejected: {
     text: "ปฏิเสธ",
-    bg: "bg-rose-500/10",
-    textCol: "text-rose-700",
-    border: "border-rose-300",
+    bg: "bg-[#C8372D]/10",
+    textCol: "text-[#C8372D]",
+    border: "border-[#F8C8C5]",
   },
   failed: {
     text: "อ่านสลิปล้มเหลว",
-    bg: "bg-rose-100",
-    textCol: "text-rose-800",
-    border: "border-rose-300",
+    bg: "bg-[#FEECEB]",
+    textCol: "text-[#C8372D]",
+    border: "border-[#F8C8C5]",
   },
 };
 
@@ -496,17 +497,17 @@ export default function GivingInbox() {
             onClick={() => setSelectedStatus("needs_review")}
             className={`min-h-11 p-3.5 rounded-xl border transition-all duration-200 ease-in-out text-left ${
               selectedStatus === "needs_review"
-                ? "bg-amber-50 border-amber-400 shadow-2xs ring-2 ring-amber-400/20"
+                ? "bg-[#FFF4D6] border-[#F0B98A] shadow-2xs ring-2 ring-[#F0B98A]/20"
                 : "bg-card border-[#E7DCC8] hover:bg-[#FFFFFF]"
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-amber-800">
+              <span className="text-xs font-bold text-[#9F3B0F]">
                 ต้องตรวจสอบ
               </span>
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <AlertTriangle className="w-4 h-4 text-[#9F3B0F]" />
             </div>
-            <div className="text-2xl font-bold text-amber-700 mt-1 tabular-nums">
+            <div className="text-2xl font-bold text-[#9F3B0F] mt-1 tabular-nums">
               {stats?.needs_review ?? 0}
             </div>
           </button>
@@ -515,17 +516,17 @@ export default function GivingInbox() {
             onClick={() => setSelectedStatus("matched")}
             className={`min-h-11 p-3.5 rounded-xl border transition-all duration-200 ease-in-out text-left ${
               selectedStatus === "matched"
-                ? "bg-emerald-50 border-emerald-400 shadow-2xs ring-2 ring-emerald-400/20"
+                ? "bg-[#E4F3E7] border-[#9BCBA5] shadow-2xs ring-2 ring-[#9BCBA5]/20"
                 : "bg-card border-[#E7DCC8] hover:bg-[#FFFFFF]"
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-emerald-800">
+              <span className="text-xs font-bold text-[#2D6A2E]">
                 พร้อมอนุมัติ
               </span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-4 h-4 text-[#2D6A2E]" />
             </div>
-            <div className="text-2xl font-bold text-emerald-700 mt-1 tabular-nums">
+            <div className="text-2xl font-bold text-[#2D6A2E] mt-1 tabular-nums">
               {stats?.matched ?? 0}
             </div>
           </button>
@@ -534,15 +535,15 @@ export default function GivingInbox() {
             onClick={() => setSelectedStatus("duplicate")}
             className={`min-h-11 p-3.5 rounded-xl border transition-all duration-200 ease-in-out text-left ${
               selectedStatus === "duplicate"
-                ? "bg-purple-50 border-purple-400 shadow-2xs ring-2 ring-purple-400/20"
+                ? "bg-[#F5EDE0] border-[#D9C6A6] shadow-2xs ring-2 ring-[#D9C6A6]/20"
                 : "bg-card border-[#E7DCC8] hover:bg-[#FFFFFF]"
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-purple-800">สลิปซ้ำ</span>
-              <ShieldAlert className="w-4 h-4 text-purple-600" />
+              <span className="text-xs font-bold text-[#51443A]">สลิปซ้ำ</span>
+              <ShieldAlert className="w-4 h-4 text-[#51443A]" />
             </div>
-            <div className="text-2xl font-bold text-purple-700 mt-1 tabular-nums">
+            <div className="text-2xl font-bold text-[#51443A] mt-1 tabular-nums">
               {stats?.duplicate ?? 0}
             </div>
           </button>
@@ -551,17 +552,17 @@ export default function GivingInbox() {
             onClick={() => setSelectedStatus("approved")}
             className={`min-h-11 p-3.5 rounded-xl border transition-all duration-200 ease-in-out text-left ${
               selectedStatus === "approved"
-                ? "bg-[#F5EDE0] border-stone-400 shadow-2xs ring-2 ring-stone-400/20"
+                ? "bg-[#F5EDE0] border-[#D9C6A6] shadow-2xs ring-2 ring-[#D9C6A6]/20"
                 : "bg-card border-[#E7DCC8] hover:bg-[#FFFFFF]"
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-700">
+              <span className="text-xs font-bold text-[#51443A]">
                 อนุมัติแล้ว
               </span>
               <Check className="w-4 h-4 text-[#51443A]" />
             </div>
-            <div className="text-2xl font-bold text-stone-700 mt-1 tabular-nums">
+            <div className="text-2xl font-bold text-[#51443A] mt-1 tabular-nums">
               {stats?.approved ?? 0}
             </div>
           </button>
@@ -588,7 +589,7 @@ export default function GivingInbox() {
 
         {/* ── If Total Slips is 0: Show Warm Onboarding Guide Card ── */}
         {totalSlips === 0 && !slipsQuery.isLoading && (
-          <div className="bg-gradient-to-br from-white via-[#FFFFFF] to-[#FFF8EA] rounded-2xl border-2 border-[#E7DCC8] p-6 sm:p-8 shadow-sm">
+          <div className="bg-gradient-to-br from-[#FFF8EA] via-[#FFF8EA] to-[#FFF4D6] rounded-2xl border border-[#E7DCC8] p-6 sm:p-8 shadow-xs">
             <div className="max-w-3xl mx-auto space-y-6 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row items-center gap-5">
                 <div className="w-16 h-16 rounded-2xl bg-[#2D6A2E]/15 border-2 border-[#2D6A2E]/30 flex items-center justify-center text-[#2D6A2E] shrink-0">
@@ -688,20 +689,22 @@ export default function GivingInbox() {
 
             {/* Slips Cards */}
             {slipsQuery.isLoading ? (
-              <div className="p-12 text-center text-sm text-[#6E6155] bg-card rounded-2xl border border-[#E7DCC8]">
-                กำลังโหลดรายการสลิป...
-              </div>
+              <LoadingSkeleton count={4} height="h-28" />
             ) : filteredSlips.length === 0 ? (
-              <div className="p-12 text-center text-[#6E6155] bg-card rounded-2xl border border-[#E7DCC8] space-y-3">
-                <CheckCircle2 className="w-10 h-10 text-emerald-600/50 mx-auto" />
-                <p className="font-bold">ไม่มีรายการสลิปในหมวดนี้</p>
+              <div className="p-12 text-center text-[#51443A] bg-card rounded-2xl border border-dashed border-[#E0CFB3] space-y-3">
+                <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border border-[#C3E4B8] bg-[#E4F3E7] text-[#2D6A2E]">
+                  <CheckCircle2 className="size-7" aria-hidden="true" />
+                </div>
+                <p className="font-semibold text-[#171311]">
+                  ไม่มีรายการสลิปในหมวดนี้
+                </p>
                 <p className="text-xs text-[#6E6155] max-w-xs mx-auto">
                   สลิปใหม่ที่ส่งเข้า LINE หรืออัปโหลดทดสอบจะปรากฏที่นี่
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(true)}
-                  className="min-h-11 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FFF4D6] border border-[#E7DCC8] text-[#51443A] text-sm font-semibold hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out"
+                  className="min-h-11 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#C94F16] text-white text-sm font-semibold shadow-xs hover:bg-[#9F3B0F] active:scale-[0.98] transition-all duration-200 ease-in-out"
                 >
                   <UploadCloud className="w-3.5 h-3.5" /> อัปโหลดสลิปทดสอบ
                 </button>
@@ -712,7 +715,7 @@ export default function GivingInbox() {
                   const statusConf = STATUS_LABELS[slip.status] || {
                     text: slip.status,
                     bg: "bg-[#F5EDE0]",
-                    textCol: "text-stone-700",
+                    textCol: "text-[#51443A]",
                     border: "border-[#E7DCC8]",
                   };
                   const isSelected = slip.id === selectedSlipId;
@@ -795,7 +798,7 @@ export default function GivingInbox() {
                           <button
                             type="button"
                             onClick={e => handleQuickApprove(e, slip)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-xs transition-all duration-200 ease-in-out"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#2D6A2E] hover:bg-[#235324] text-white font-bold text-[11px] shadow-xs transition-all duration-200 ease-in-out"
                             title="อนุมัติด่วนด้วยข้อมูลที่จับคู่ได้"
                           >
                             <Zap className="w-3 h-3" /> อนุมัติด่วน
@@ -861,11 +864,11 @@ export default function GivingInbox() {
                           type="button"
                           onClick={() => handleRescan(currentSlip.id)}
                           disabled={rescanMutation.isPending}
-                          className="min-h-11 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-xs font-bold text-amber-800 hover:bg-amber-100 inline-flex items-center gap-1.5 transition-all duration-200 ease-in-out cursor-pointer shadow-2xs"
+                          className="min-h-11 px-3 py-1.5 rounded-xl border border-[#F9D2AE] bg-[#FFF4D6] text-xs font-bold text-[#9F3B0F] hover:bg-[#FFF4D6] inline-flex items-center gap-1.5 transition-all duration-200 ease-in-out cursor-pointer shadow-2xs"
                           title="ให้ AI สแกนอ่านข้อมูลสลิปนี้ใหม่"
                         >
                           <Sparkles
-                            className={`w-3.5 h-3.5 text-amber-600 ${rescanMutation.isPending ? "animate-spin" : ""}`}
+                            className={`w-3.5 h-3.5 text-[#9F3B0F] ${rescanMutation.isPending ? "animate-spin" : ""}`}
                           />
                           <span>
                             {rescanMutation.isPending
@@ -879,12 +882,12 @@ export default function GivingInbox() {
 
                 {/* Duplicate Warning */}
                 {currentSlip.status === "duplicate" && (
-                  <div className="p-4 rounded-xl bg-purple-50 border border-purple-300 text-purple-900 space-y-1">
+                  <div className="p-4 rounded-xl bg-[#F5EDE0] border border-[#E7DCC8] text-[#51443A] space-y-1">
                     <div className="flex items-center gap-2 font-bold text-sm">
-                      <ShieldAlert className="w-5 h-5 text-purple-600" />
+                      <ShieldAlert className="w-5 h-5 text-[#51443A]" />
                       ตรวจพบสลิปซ้ำ (Duplicate Detected)
                     </div>
-                    <p className="text-xs leading-relaxed text-purple-800">
+                    <p className="text-xs leading-relaxed text-[#51443A]">
                       {currentSlip.lastErrorMessage ||
                         "สลิปนี้มีหมายเลขอ้างอิง รูปภาพ หรือรายการธุรกรรมที่ตรงกับข้อมูลที่มีอยู่แล้วในระบบ"}
                     </p>
@@ -894,7 +897,7 @@ export default function GivingInbox() {
                 {/* ── 1. หลักฐาน (Evidence) ── */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold text-[#51443A] uppercase tracking-wider">
+                    <h3 className="text-xs font-bold text-[#171311] uppercase tracking-wider">
                       1. หลักฐานการโอน (สลิป)
                     </h3>
                     {currentSlip.signedImageUrl && (
@@ -930,7 +933,7 @@ export default function GivingInbox() {
                       <Sparkles className="w-4 h-4 text-[#C94F16]" />
                       <span>2. ข้อมูลที่ AI อ่านได้</span>
                     </div>
-                    <span className="text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    <span className="text-[11px] text-[#9F3B0F] bg-[#FFF4D6] px-2 py-0.5 rounded-full border border-[#F9D2AE]">
                       ข้อมูลแนะนำจาก AI กรุณาตรวจสอบก่อนบันทึก
                     </span>
                   </div>
@@ -946,7 +949,7 @@ export default function GivingInbox() {
                           : "อ่านไม่ได้"}
                       </span>
                       {currentSlip.extractedAmountConfidence && (
-                        <span className="text-[10px] text-emerald-700 font-medium">
+                        <span className="text-[10px] text-[#2D6A2E] font-medium">
                           ความมั่นใจ{" "}
                           {(
                             Number(currentSlip.extractedAmountConfidence) * 100
@@ -995,8 +998,8 @@ export default function GivingInbox() {
                   )}
 
                   {!currentSlip.extractedAmount && (
-                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center gap-2 font-medium">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <div className="p-3 rounded-xl bg-[#FFF4D6] border border-[#F9D2AE] text-[#9F3B0F] text-xs flex items-center gap-2 font-medium">
+                      <AlertTriangle className="w-4 h-4 text-[#9F3B0F] shrink-0" />
                       <span>
                         AI ไม่สามารถระบุยอดเงินจากสลิปนี้ได้ชัดเจน
                         กรุณาตรวจดูภาพสลิปแล้วกรอกจำนวนเงินด้วยตนเอง
@@ -1006,8 +1009,8 @@ export default function GivingInbox() {
 
                   {currentSlip.extractedAmountConfidence &&
                     Number(currentSlip.extractedAmountConfidence) < 0.85 && (
-                      <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-800 text-xs flex items-center gap-2 font-medium">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <div className="p-2.5 rounded-xl bg-[#FFF4D6]/80 border border-[#F9D2AE] text-[#9F3B0F] text-xs flex items-center gap-2 font-medium">
+                        <AlertTriangle className="w-3.5 h-3.5 text-[#9F3B0F] shrink-0" />
                         <span>
                           ความมั่นใจของ AI ต่ำกว่าเกณฑ์ (
                           {(
@@ -1022,7 +1025,7 @@ export default function GivingInbox() {
                 {/* ── 3. ข้อมูลที่จะบันทึกบัญชี (Ledger Record) ── */}
                 <div className="space-y-4 pt-2 border-t border-[#E7DCC8]">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold text-[#51443A] uppercase tracking-wider">
+                    <h3 className="text-xs font-bold text-[#171311] uppercase tracking-wider">
                       3. ข้อมูลที่จะบันทึกบัญชีจริง
                     </h3>
                     <span className="text-[11px] text-[#6E6155]">
@@ -1068,7 +1071,7 @@ export default function GivingInbox() {
                         ))}
                       </NativeSelect>
                       {currentSlip.matchMethod && (
-                        <p className="text-[11px] text-emerald-700">
+                        <p className="text-[11px] text-[#2D6A2E]">
                           จับคู่โดย:{" "}
                           {currentSlip.matchMethod === "line_id"
                             ? "LINE Account"
@@ -1085,7 +1088,7 @@ export default function GivingInbox() {
                     {/* Fund Account */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-[#51443A]">
-                        เข้ากองทุน <span className="text-rose-500">*</span>
+                        เข้ากองทุน <span className="text-[#C8372D]">*</span>
                       </label>
                       <NativeSelect
                         value={editFundId ?? ""}
@@ -1104,7 +1107,7 @@ export default function GivingInbox() {
                     {/* Amount */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-[#51443A]">
-                        ยอดเงิน (บาท) <span className="text-rose-500">*</span>
+                        ยอดเงิน (บาท) <span className="text-[#C8372D]">*</span>
                       </label>
                       <input
                         type="number"
@@ -1159,8 +1162,8 @@ export default function GivingInbox() {
                 currentSlip.status !== "rejected" ? (
                   <div className="space-y-3 pt-4 border-t border-[#E7DCC8]">
                     {currentSlip.status === "duplicate" && (
-                      <div className="p-3 rounded-xl bg-purple-50 border border-purple-300 text-purple-900 text-xs flex items-center gap-2">
-                        <ShieldAlert className="w-4 h-4 text-purple-600 shrink-0" />
+                      <div className="p-3 rounded-xl bg-[#F5EDE0] border border-[#E7DCC8] text-[#51443A] text-xs flex items-center gap-2">
+                        <ShieldAlert className="w-4 h-4 text-[#51443A] shrink-0" />
                         <span>
                           สลิปนี้ได้รับการระบุว่าเป็นสลิปซ้ำ (Duplicate)
                           ระบบไม่อนุญาตให้อนุมัติเพื่อป้องกันการลงบัญชีซ้อน
@@ -1174,7 +1177,7 @@ export default function GivingInbox() {
                         disabled={
                           approveMutation.isPending || rejectMutation.isPending
                         }
-                        className="min-h-11 w-full sm:w-auto px-5 py-2.5 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-sm transition-all duration-200 ease-in-out cursor-pointer disabled:opacity-50"
+                        className="min-h-11 w-full sm:w-auto px-5 py-2.5 rounded-xl border border-[#F8C8C5] bg-[#FEECEB] hover:bg-[#FEECEB] text-[#C8372D] font-bold text-sm transition-all duration-200 ease-in-out cursor-pointer disabled:opacity-50"
                       >
                         ปฏิเสธสลิป
                       </button>
@@ -1238,7 +1241,7 @@ export default function GivingInbox() {
                 setShowUploadModal(false);
                 setUploadPreview(null);
               }}
-              className="absolute top-5 right-5 text-[#8C7B6B] hover:text-stone-700 p-1 transition-all duration-200 ease-in-out"
+              className="absolute top-5 right-5 text-[#8C7B6B] hover:text-[#51443A] p-1 transition-all duration-200 ease-in-out"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1346,7 +1349,7 @@ export default function GivingInbox() {
           <div className="bg-card rounded-2xl border-2 border-[#E7DCC8] p-6 max-w-lg w-full space-y-5 shadow-lg relative">
             <button
               onClick={() => setShowLineInfoModal(false)}
-              className="absolute top-5 right-5 text-[#8C7B6B] hover:text-stone-700 p-1 transition-all duration-200 ease-in-out"
+              className="absolute top-5 right-5 text-[#8C7B6B] hover:text-[#51443A] p-1 transition-all duration-200 ease-in-out"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1377,7 +1380,7 @@ export default function GivingInbox() {
                     );
                     toast.success("คัดลอก Webhook URL แล้ว");
                   }}
-                  className="text-emerald-700 hover:underline flex items-center gap-1 font-semibold transition-all duration-200 ease-in-out"
+                  className="text-[#2D6A2E] hover:underline flex items-center gap-1 font-semibold transition-all duration-200 ease-in-out"
                 >
                   <Copy className="w-3.5 h-3.5" /> คัดลอก
                 </button>
@@ -1420,7 +1423,7 @@ export default function GivingInbox() {
         <DialogContent className="max-w-md bg-card border border-[#E7DCC8] rounded-2xl p-6 text-[#171311] space-y-4 shadow-lg">
           <DialogHeader className="space-y-1 text-left">
             <DialogTitle className="text-lg font-bold text-[#171311] flex items-center gap-2">
-              <XCircle className="w-5 h-5 text-rose-600" />
+              <XCircle className="w-5 h-5 text-[#C8372D]" />
               <span>ปฏิเสธสลิป #{currentSlip?.id}</span>
             </DialogTitle>
             <DialogDescription className="text-xs text-[#6E6155]">
@@ -1447,8 +1450,8 @@ export default function GivingInbox() {
                   onClick={() => setRejectReason(preset)}
                   className={`px-2.5 py-1 text-xs rounded-xl border transition-all duration-200 ease-in-out ${
                     rejectReason === preset
-                      ? "bg-rose-100 border-rose-400 text-rose-800 font-bold"
-                      : "bg-[#FAF8F5] border-[#E7DCC8] text-stone-700 hover:bg-[#F5EDE0]"
+                      ? "bg-[#FEECEB] border-[#EFA39D] text-[#C8372D] font-bold"
+                      : "bg-[#FAF8F5] border-[#E7DCC8] text-[#51443A] hover:bg-[#F5EDE0]"
                   }`}
                 >
                   {preset}
@@ -1463,7 +1466,7 @@ export default function GivingInbox() {
               htmlFor="reject-reason"
               className="text-xs font-bold text-[#51443A] block"
             >
-              ระบุเหตุผล <span className="text-rose-500">*</span>
+              ระบุเหตุผล <span className="text-[#C8372D]">*</span>
             </label>
             <textarea
               id="reject-reason"
@@ -1471,7 +1474,7 @@ export default function GivingInbox() {
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
               placeholder="ระบุรายละเอียดเหตุผลการปฏิเสธสลิปนี้..."
-              className="w-full text-sm rounded-xl border border-[#E7DCC8] p-3 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"
+              className="w-full text-sm rounded-xl border border-[#E7DCC8] p-3 focus:outline-none focus:ring-2 focus:ring-[#EFA39D] resize-none"
             />
           </div>
 
@@ -1480,7 +1483,7 @@ export default function GivingInbox() {
               type="button"
               onClick={() => setShowRejectModal(false)}
               disabled={rejectMutation.isPending}
-              className="px-4 py-2 text-sm font-semibold rounded-xl border border-stone-300 text-stone-700 hover:bg-[#F5EDE0] transition-all duration-200 ease-in-out"
+              className="px-4 py-2 text-sm font-semibold rounded-xl border border-[#E7DCC8] text-[#51443A] hover:bg-[#F5EDE0] transition-all duration-200 ease-in-out"
             >
               ยกเลิก
             </button>
@@ -1488,7 +1491,7 @@ export default function GivingInbox() {
               type="button"
               onClick={handleConfirmReject}
               disabled={rejectMutation.isPending || !rejectReason.trim()}
-              className="px-4 py-2 text-sm font-semibold rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-all duration-200 ease-in-out flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold rounded-xl bg-[#C8372D] hover:bg-[#A92D24] text-white transition-all duration-200 ease-in-out flex items-center gap-1.5 disabled:opacity-50"
             >
               {rejectMutation.isPending ? (
                 <>

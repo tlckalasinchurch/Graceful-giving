@@ -59,9 +59,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)",
     appointee: "พณ.ท่านหม่อมหลวงราชวงศ์สุริยงค์ บาลเพ็ชร",
     badgeStyle: {
-      bg: "bg-amber-100",
-      text: "text-amber-900",
-      border: "border-amber-300",
+      bg: "bg-[#FFF4D6]",
+      text: "text-[#9F3B0F]",
+      border: "border-[#F9D2AE]",
       icon: "👑",
     },
     summary:
@@ -79,9 +79,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "เหรัญญิกคริสตจักร (TREASURER)",
     appointee: "สุดารัตน์ จิณเซ่ง, อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
-      bg: "bg-emerald-100",
-      text: "text-emerald-900",
-      border: "border-emerald-300",
+      bg: "bg-[#E4F3E7]",
+      text: "text-[#2D6A2E]",
+      border: "border-[#C3E4B8]",
       icon: "💰",
     },
     summary:
@@ -101,9 +101,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ (PASTOR)",
     appointee: "ศบ.อาจารย์สรรเสริญ ดวงจิตร",
     badgeStyle: {
-      bg: "bg-blue-100",
-      text: "text-blue-900",
-      border: "border-blue-300",
+      bg: "bg-[#F5EDE0]",
+      text: "text-[#51443A]",
+      border: "border-[#E7DCC8]",
       icon: "✝️",
     },
     summary:
@@ -122,9 +122,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "มัคนายก / คณะกรรมการ (DEACON)",
     appointee: "อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
-      bg: "bg-purple-100",
-      text: "text-purple-900",
-      border: "border-purple-300",
+      bg: "bg-[#F5EDE0]",
+      text: "text-[#51443A]",
+      border: "border-[#E7DCC8]",
       icon: "🤝",
     },
     summary:
@@ -143,9 +143,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "กรรมการนับเงิน / ทีมนับเงินถวาย (COUNTER)",
     appointee: "สุดารัตน์ จิณเซ่ง (และผู้ได้รับมอบหมายประจำสัปดาห์)",
     badgeStyle: {
-      bg: "bg-orange-100",
-      text: "text-orange-900",
-      border: "border-orange-300",
+      bg: "bg-[#FFF4D6]",
+      text: "text-[#9F3B0F]",
+      border: "border-[#F9D2AE]",
       icon: "📝",
     },
     summary:
@@ -164,8 +164,8 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     appointee: "สมาชิกคริสตจักรทั่วไป",
     badgeStyle: {
       bg: "bg-[#F5EDE0]",
-      text: "text-stone-800",
-      border: "border-stone-300",
+      text: "text-[#171311]",
+      border: "border-[#E7DCC8]",
       icon: "👤",
     },
     summary:
@@ -384,7 +384,7 @@ export default function Profile() {
         {canCountOfferings(user) && (
           <section className="bg-gradient-to-r from-[#FAF8F5] to-[#FFF8EA] rounded-2xl sm:rounded-2xl border border-[#E7DCC8] p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 border border-orange-200 text-orange-700 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#FFF4D6] border border-[#F9D2AE] text-[#9F3B0F] flex items-center justify-center shrink-0 shadow-xs">
                 <Coins className="w-6 h-6" />
               </div>
               <div>
@@ -408,16 +408,16 @@ export default function Profile() {
         )}
 
         {isSuperAdmin(user) && (
-          <section className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl sm:rounded-2xl border border-amber-200 p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <section className="bg-gradient-to-r from-[#FFF4D6] to-[#FFF4D6] rounded-2xl sm:rounded-2xl border border-[#F9D2AE] p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#FFF4D6] border border-[#F9D2AE] text-[#9F3B0F] flex items-center justify-center shrink-0 shadow-xs">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-amber-950">
+                <h3 className="text-base font-bold text-[#9F3B0F]">
                   แผงควบคุมผู้ดูแลระบบ
                 </h3>
-                <p className="text-xs text-amber-800/80">
+                <p className="text-xs text-[#9F3B0F]/80">
                   จัดการสิทธิ์ผู้ใช้งาน ตรวจสอบประวัติการใช้งาน
                   และตั้งค่าคริสตจักร
                 </p>
@@ -425,7 +425,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setLocation("/settings")}
-              className="min-h-11 px-5 py-2.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs sm:text-sm shadow-xs flex items-center gap-2 shrink-0 transition-all duration-200 ease-in-out active:scale-95"
+              className="min-h-11 px-5 py-2.5 rounded-xl bg-[#9F3B0F] hover:bg-[#9F3B0F] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center gap-2 shrink-0 transition-all duration-200 ease-in-out active:scale-95"
             >
               <span>ไปที่หน้าตั้งค่าและสิทธิ์</span>
               <ChevronRight className="w-4 h-4" />
@@ -488,7 +488,7 @@ export default function Profile() {
                           key={rIdx}
                           className="text-xs text-[#171311] flex items-start gap-1.5"
                         >
-                          <span className="text-emerald-600 font-bold mt-0.5">
+                          <span className="text-[#2D6A2E] font-bold mt-0.5">
                             •
                           </span>
                           <span>{resp}</span>
@@ -517,7 +517,7 @@ export default function Profile() {
               </p>
               <p className="text-[#6E6155] mt-0.5">
                 ระดับสิทธิ์ปัจจุบัน:{" "}
-                <strong className="text-emerald-800 font-bold">
+                <strong className="text-[#2D6A2E] font-bold">
                   {userRoleInfo.labelWithCode}
                 </strong>
               </p>
@@ -533,7 +533,7 @@ export default function Profile() {
                   await logout();
                 }
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-all duration-200 ease-in-out hover:bg-rose-100 active:scale-95"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#F8C8C5] bg-[#FEECEB] px-5 py-2.5 text-sm font-bold text-[#C8372D] transition-all duration-200 ease-in-out hover:bg-[#FEECEB] active:scale-95"
             >
               <LogOut className="h-4 w-4" />
               ออกจากระบบ
@@ -555,7 +555,7 @@ export default function Profile() {
             </button>
 
             <div className="text-center space-y-1 pt-1 sm:pt-2">
-              <span className="px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-[#E4F3E7] text-[#4F6E28] uppercase tracking-wider">
+              <span className="px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-[#E4F3E7] text-[#2D6A2E] uppercase tracking-wider">
                 Digital Church Member Card
               </span>
               <h3 className="text-lg sm:text-xl font-bold text-[#171311] pt-1">
@@ -612,7 +612,7 @@ export default function Profile() {
                   <span className="text-[10px] text-[#6E6155]">
                     สถานะสมาชิก:
                   </span>
-                  <p className="font-bold text-emerald-700">
+                  <p className="font-bold text-[#2D6A2E]">
                     ยืนยันแล้ว (Active)
                   </p>
                 </div>
@@ -665,7 +665,7 @@ export default function Profile() {
             >
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-[#171311]">
-                  ชื่อ-นามสกุลทางการ <span className="text-rose-500">*</span>
+                  ชื่อ-นามสกุลทางการ <span className="text-[#C8372D]">*</span>
                 </label>
                 <input
                   type="text"

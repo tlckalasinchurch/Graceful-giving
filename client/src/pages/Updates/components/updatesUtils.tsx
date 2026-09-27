@@ -100,15 +100,15 @@ export function downloadICS(event: {
 
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[#E7DCC8] bg-white/65 px-6 py-12 text-center">
-      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#FFF4D6] text-[#C94F16]">
+    <div className="rounded-2xl border border-dashed border-[#E0CFB3] bg-card px-6 py-12 text-center">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl border border-[#F9D2AE] bg-[#FFF4D6] text-[#C94F16]">
         {type === "news" ? (
           <Megaphone className="size-7" strokeWidth={1.5} />
         ) : (
           <CalendarDays className="size-7" strokeWidth={1.5} />
         )}
       </div>
-      <p className="mt-4 text-base font-bold text-[#51443A]">
+      <p className="mt-4 text-base font-semibold text-[#171311]">
         {type === "news"
           ? "ยังไม่มีข่าวสารเผยแพร่"
           : "ยังไม่มีกิจกรรมที่กำลังจะมาถึง"}
@@ -125,9 +125,9 @@ export function EmptyPanel({ type }: { type: "news" | "events" }) {
 export function StatusPill({ status }: { status: string }) {
   const styles =
     status === "published"
-      ? "bg-[#e6f4e8] text-[#2c7244]"
+      ? "bg-[#E4F3E7] text-[#2D6A2E]"
       : status === "cancelled" || status === "archived"
-        ? "bg-[#f9e5e2] text-[#aa4e46]"
+        ? "bg-[#FEECEB] text-[#C8372D]"
         : "bg-[#FFF4D6] text-[#C94F16]";
   const label =
     status === "published"

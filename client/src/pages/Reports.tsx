@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { trpc } from "@/lib/trpc";
 import {
@@ -6,12 +7,21 @@ import {
   ErrorState,
   LoadingSkeleton,
   MoneyDisplay,
+  StatCard,
+  StatCardSkeleton,
 } from "@/components/common/CommonUI";
 import {
   expenseCategoryLabel,
   offeringCategoryLabel,
 } from "@shared/categories";
-import { BarChart3, Download, Landmark, Wallet } from "lucide-react";
+import {
+  BarChart3,
+  Download,
+  Landmark,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 import { toast } from "sonner";
 import { formatBaht } from "@/lib/format";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -71,6 +81,7 @@ const fmtThaiDate = (iso: string) =>
   }).format(new Date(iso));
 
 export default function Reports() {
+  const [, setLocation] = useLocation();
   const [tab, setTab] = useState<ReportTab>("cashflow");
   const [period, setPeriod] = useState<PeriodId>("this-month");
   const utils = trpc.useUtils();
@@ -156,10 +167,10 @@ export default function Reports() {
                 key={id}
                 type="button"
                 onClick={() => setTab(id)}
-                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all duration-200 ease-in-out ${
+                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
                   tab === id
                     ? "bg-[#C94F16] text-white shadow-sm"
-                    : "border border-[#E7DCC8] bg-card text-[#51443A] hover:bg-[#FAF8F5]"
+                    : "border border-[#E7DCC8] bg-white text-[#51443A] hover:border-[#C94F16]/40 hover:bg-[#FFF4D6]"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -186,7 +197,10 @@ export default function Reports() {
         </div>
 
         {summaryQuery.isLoading ? (
-          <LoadingSkeleton count={4} />
+          <div className="space-y-6">
+            <StatCardSkeleton count={3} />
+            <LoadingSkeleton count={1} height="h-64" />
+          </div>
         ) : summaryQuery.isError ? (
           <ErrorState
             title="โหลดรายงานไม่สำเร็จ"
@@ -194,14 +208,17 @@ export default function Reports() {
             onRetry={() => summaryQuery.refetch()}
           />
         ) : tab === "funds" ? (
-          <section className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-sm">
+          <section className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-xs">
             <h2 className="border-b border-[#E7DCC8] p-4 font-bold text-[#171311]">
               ยอดคงเหลือแต่ละกองทุน
             </h2>
             {!summary || summary.funds.length === 0 ? (
               <EmptyState
+                icon={Landmark}
                 title="ยังไม่มีกองทุนในระบบ"
                 description="สร้างกองทุนในหน้ากองทุนก่อน จึงจะมียอดคงเหลือให้รายงาน"
+                actionText="ไปที่หน้ากองทุน"
+                onAction={() => setLocation("/funds")}
                 className="border-0 shadow-none"
               />
             ) : (
@@ -234,53 +251,65 @@ export default function Reports() {
           </section>
         ) : !hasData ? (
           <EmptyState
+            icon={BarChart3}
             title="ยังไม่มีรายการในช่วงเวลานี้"
             description="เมื่อบันทึกการถวายหรือรายจ่ายในช่วงที่เลือก ระบบจะสรุปยอดให้ที่นี่ ลองเลือกช่วงเวลาอื่น"
+            actionText="บันทึกการถวาย"
+            onAction={() => setLocation("/offerings/new")}
           />
         ) : (
           <>
             {/* Totals */}
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-2xs">
-                <p className="text-sm text-[#51443A]">รายรับรวม</p>
-                <MoneyDisplay
-                  amount={summary!.totalIncome}
-                  type="income"
-                  size="lg"
-                />
-              </div>
-              <div className="rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-2xs">
-                <p className="text-sm text-[#51443A]">รายจ่ายรวม</p>
-                <MoneyDisplay
-                  amount={summary!.totalExpense}
-                  type="expense"
-                  size="lg"
-                />
-              </div>
-              <div className="rounded-2xl border border-[#E7DCC8] bg-card p-5 shadow-2xs">
-                <p className="text-sm text-[#51443A]">คงเหลือสุทธิ</p>
-                <MoneyDisplay
-                  amount={summary!.net}
-                  type={summary!.net >= 0 ? "income" : "expense"}
-                  size="lg"
-                />
-                <p className="mt-1 text-sm text-[#51443A]">
-                  {summary!.transactionCount} รายการ
-                </p>
-              </div>
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <StatCard
+                label="รายรับรวม"
+                tone="income"
+                icon={TrendingUp}
+                value={
+                  <MoneyDisplay
+                    amount={summary!.totalIncome}
+                    type="income"
+                    size="lg"
+                  />
+                }
+              />
+              <StatCard
+                label="รายจ่ายรวม"
+                tone="expense"
+                icon={TrendingDown}
+                value={
+                  <MoneyDisplay
+                    amount={summary!.totalExpense}
+                    type="expense"
+                    size="lg"
+                  />
+                }
+              />
+              <StatCard
+                label="คงเหลือสุทธิ"
+                icon={Wallet}
+                value={
+                  <MoneyDisplay
+                    amount={summary!.net}
+                    type={summary!.net >= 0 ? "income" : "expense"}
+                    size="lg"
+                  />
+                }
+                hint={`${summary!.transactionCount} รายการ`}
+              />
             </section>
 
             {/* Statement by category */}
-            <section className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-sm">
+            <section className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-card shadow-xs">
               <h2 className="border-b border-[#E7DCC8] p-4 font-bold text-[#171311]">
                 สรุปตามหมวดหมู่
               </h2>
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-[#E7DCC8] bg-[#FAF8F5] text-sm font-bold text-[#51443A]">
+                <thead className="border-b border-[#E7DCC8] bg-[#FFF4D6]/70 text-xs font-semibold text-[#51443A]">
                   <tr>
-                    <th className="p-4">รายการ</th>
-                    <th className="p-4 text-right">จำนวนรายการ</th>
-                    <th className="p-4 text-right">ยอดเงิน</th>
+                    <th className="px-5 py-3.5">รายการ</th>
+                    <th className="px-5 py-3.5 text-right">จำนวนรายการ</th>
+                    <th className="px-5 py-3.5 text-right">ยอดเงิน</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EFE5D3]">
@@ -331,7 +360,7 @@ export default function Reports() {
                         <td className="p-4 text-right tabular-nums text-[#51443A]">
                           {row.count}
                         </td>
-                        <td className="p-4 text-right font-bold tabular-nums text-[#B3261E]">
+                        <td className="p-4 text-right font-bold tabular-nums text-[#C8372D]">
                           {fmtBaht(row.total)}
                         </td>
                       </tr>
@@ -352,18 +381,18 @@ export default function Reports() {
             </section>
 
             {/* Six month trend */}
-            <section className="rounded-2xl border border-[#E7DCC8] bg-card p-6 shadow-sm">
+            <section className="rounded-2xl border border-[#E7DCC8] bg-card p-6 shadow-xs">
               <div className="mb-4 flex flex-col gap-2 border-b border-[#E7DCC8]/60 pb-4 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="font-bold text-[#171311]">
                   เปรียบเทียบ 6 เดือนล่าสุด
                 </h2>
                 <div className="flex items-center gap-4 text-sm font-bold text-[#171311]">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[#9BCBA5]" />
+                    <span className="h-3 w-3 rounded-full bg-[#2D6A2E]" />
                     รายรับ
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[#F4C4BE]" />
+                    <span className="h-3 w-3 rounded-full bg-[#C8372D]" />
                     รายจ่าย
                   </span>
                 </div>
@@ -375,7 +404,7 @@ export default function Reports() {
                   ยังไม่มีข้อมูลย้อนหลังพอที่จะเปรียบเทียบรายเดือน
                 </p>
               ) : (
-                <div className="grid h-56 grid-cols-6 items-end gap-2 sm:gap-6">
+                <div className="grid h-56 grid-cols-6 items-end gap-2 border-b border-[#E7DCC8] bg-[linear-gradient(to_top,#EFE5D3_1px,transparent_1px)] bg-[length:100%_25%] sm:gap-6">
                   {monthlyFlow.map(month => (
                     <div
                       key={month.month}
@@ -386,14 +415,14 @@ export default function Reports() {
                           style={{
                             height: `${(month.income / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[#9BCBA5] sm:w-8"
+                          className="w-4 rounded-t-lg bg-[#2D6A2E] transition-all duration-200 ease-in-out hover:opacity-80 sm:w-8"
                           title={`รายรับ ${fmtBaht(month.income)}`}
                         />
                         <div
                           style={{
                             height: `${(month.expense / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[#F4C4BE] sm:w-8"
+                          className="w-4 rounded-t-lg bg-[#C8372D] transition-all duration-200 ease-in-out hover:opacity-80 sm:w-8"
                           title={`รายจ่าย ${fmtBaht(month.expense)}`}
                         />
                       </div>

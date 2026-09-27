@@ -223,7 +223,7 @@ export default function Home() {
         <section aria-labelledby="dashboard-overview" className="space-y-4">
           <h2
             id="dashboard-overview"
-            className="text-sm font-semibold text-[#51443A]"
+            className="text-sm font-semibold text-[#171311]"
           >
             ดูภาพรวม
           </h2>
@@ -258,7 +258,7 @@ export default function Home() {
         <section aria-labelledby="dashboard-actions" className="space-y-4">
           <h2
             id="dashboard-actions"
-            className="text-sm font-semibold text-[#51443A]"
+            className="text-sm font-semibold text-[#171311]"
           >
             ทำรายการ
           </h2>
@@ -281,7 +281,7 @@ export default function Home() {
         <section aria-labelledby="dashboard-tracking" className="space-y-4">
           <h2
             id="dashboard-tracking"
-            className="text-sm font-semibold text-[#51443A]"
+            className="text-sm font-semibold text-[#171311]"
           >
             ติดตาม
           </h2>

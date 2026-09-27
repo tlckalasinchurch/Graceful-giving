@@ -150,7 +150,7 @@ export default function MemberDetail() {
                     deactivate.mutate({ id });
                   }
                 }}
-                className="min-h-11 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 disabled:opacity-50 cursor-pointer transition-all duration-200 ease-in-out"
+                className="min-h-11 rounded-xl border border-[#F8C8C5] bg-[#FEECEB] px-3 py-2 text-sm font-semibold text-[#C8372D] disabled:opacity-50 cursor-pointer transition-all duration-200 ease-in-out"
               >
                 ปิดใช้งาน
               </button>

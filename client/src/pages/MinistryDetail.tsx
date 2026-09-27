@@ -151,7 +151,7 @@ export default function MinistryDetail() {
                   type="button"
                   disabled={update.isPending}
                   onClick={() => update.mutate({ id, status: "active" })}
-                  className="min-h-11 rounded-xl border border-[#B8E2AB] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#2D6A2E] disabled:opacity-50 transition-all duration-200 ease-in-out"
+                  className="min-h-11 rounded-xl border border-[#C3E4B8] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#2D6A2E] disabled:opacity-50 transition-all duration-200 ease-in-out"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -171,7 +171,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50 transition-all duration-200 ease-in-out"
+                  className="min-h-11 rounded-xl border border-[#F8C8C5] bg-[#FEECEB] px-4 py-2 text-sm font-bold text-[#C8372D] disabled:opacity-50 transition-all duration-200 ease-in-out"
                 >
                   พักงานฝ่าย
                 </button>

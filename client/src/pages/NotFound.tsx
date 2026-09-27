@@ -14,7 +14,7 @@ export default function NotFound() {
         <p className="font-display text-4xl font-bold tracking-tight text-[#9F3B0F]">
           404
         </p>
-        <h1 className="mt-2 font-display text-2xl font-bold text-[#51443A]">
+        <h1 className="mt-2 font-display text-2xl font-bold text-[#171311]">
           ไม่พบหน้าที่คุณต้องการ
         </h1>
 

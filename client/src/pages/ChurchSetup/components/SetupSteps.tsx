@@ -16,7 +16,7 @@ export function FieldLabel({
 }) {
   return (
     <label className="mb-1.5 block text-xs font-bold text-[#51443A]">
-      {children} {required && <span className="text-[#B3322A]">*</span>}
+      {children} {required && <span className="text-[#A92D24]">*</span>}
     </label>
   );
 }
@@ -47,7 +47,7 @@ export function TextField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#51443A] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]/20 disabled:opacity-60"
+        className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#51443A] placeholder:text-[#D9C6A6] focus:border-[#9F3B0F] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]/20 disabled:opacity-60"
       />
     </div>
   );
@@ -76,7 +76,7 @@ export function Step1({
           onChange={e => set({ address: e.target.value })}
           placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
           rows={3}
-          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#51443A] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none resize-none"
+          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#51443A] placeholder:text-[#D9C6A6] focus:border-[#9F3B0F] focus:outline-none resize-none"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -141,14 +141,14 @@ export function Step2({
           onChange={e => set({ motto: e.target.value })}
           placeholder="เช่น 2 โครินธ์ 9:7 · ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก"
           rows={2}
-          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#51443A] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none resize-none"
+          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#51443A] placeholder:text-[#D9C6A6] focus:border-[#9F3B0F] focus:outline-none resize-none"
         />
       </div>
-      <div className="rounded-2xl border border-[#dceeff] bg-[#eef7ff] p-4">
-        <p className="text-xs font-bold text-[#336a8c]">
+      <div className="rounded-2xl border border-[#F5EDE0] bg-[#FAF8F5] p-4">
+        <p className="text-xs font-bold text-[#51443A]">
           💡 เกี่ยวกับบทบาทผู้ใช้
         </p>
-        <p className="mt-1 text-xs text-[#477caa]">
+        <p className="mt-1 text-xs text-[#51443A]">
           ผู้ดูแลระบบสามารถกำหนดสิทธิ์ <strong>SUPER_ADMIN</strong>,{" "}
           <strong>PASTOR</strong>, <strong>TREASURER</strong>{" "}
           ให้ผู้ใช้แต่ละคนได้ในภายหลังจากหน้าโปรไฟล์
@@ -205,8 +205,8 @@ export function Step3({
         onChange={v => set({ bankAccountName: v })}
         placeholder="คริสตจักร..."
       />
-      <div className="rounded-2xl border border-[#e5f3da] bg-[#f1fae9] p-4">
-        <p className="text-xs font-bold text-[#4a7c2e]">🔒 ความปลอดภัย</p>
+      <div className="rounded-2xl border border-[#E4F3E7] bg-[#E4F3E7] p-4">
+        <p className="text-xs font-bold text-[#2D6A2E]">🔒 ความปลอดภัย</p>
         <p className="mt-1 text-xs text-[#2D6A2E]">
           ข้อมูลบัญชีธนาคารจะถูกเก็บเป็นความลับ — เข้าถึงได้เฉพาะ TREASURER และ
           SUPER_ADMIN เท่านั้น
@@ -266,7 +266,7 @@ export function Step4({
         })}
       </div>
       {data.offeringCategories.length === 0 && (
-        <p className="text-xs text-[#B3322A]">
+        <p className="text-xs text-[#A92D24]">
           ⚠ กรุณาเลือกอย่างน้อย 1 หมวดหมู่
         </p>
       )}
@@ -295,7 +295,7 @@ export function Step5({ data }: { data: SetupData }) {
           <Check className="size-4 shrink-0 text-[#2D6A2E]" />
         </div>
       ))}
-      <div className="rounded-2xl border border-[#FFF4D6] bg-[#fffde9] p-4">
+      <div className="rounded-2xl border border-[#FFF4D6] bg-[#FFF4D6] p-4">
         <p className="text-xs font-bold text-[#C94F16]">
           💡 สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
@@ -345,7 +345,7 @@ export function Step6({
           className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#51443A] focus:border-[#9F3B0F] focus:outline-none"
         />
       </div>
-      <div className="rounded-2xl border border-[#FFF4D6] bg-[#fffde9] p-4 space-y-2">
+      <div className="rounded-2xl border border-[#FFF4D6] bg-[#FFF4D6] p-4 space-y-2">
         <p className="text-xs font-bold text-[#C94F16]">
           📅 ตัวอย่างรอบปีงบประมาณ
         </p>
@@ -366,19 +366,19 @@ export function Step7() {
       role: "SUPER_ADMIN",
       label: "ผู้ดูแลระบบสูงสุด",
       desc: "เข้าถึงได้ทุกอย่าง รวมถึงข้อมูลผู้ถวายและการตั้งค่า",
-      color: "bg-[#ffe1dc] text-[#c15b4c]",
+      color: "bg-[#FEECEB] text-[#C8372D]",
     },
     {
       role: "PASTOR",
       label: "ศิษยาภิบาล / ผู้นำ",
       desc: "ดูรายงานการเงิน อนุมัติคำขอ แต่ไม่เห็นชื่อผู้ถวาย",
-      color: "bg-[#dceeff] text-[#4a83b7]",
+      color: "bg-[#F5EDE0] text-[#51443A]",
     },
     {
       role: "TREASURER",
       label: "เหรัญญิก / ผู้ดูแลการเงิน",
       desc: "บันทึกและดูรายการทั้งหมด รวมถึงชื่อผู้ถวาย",
-      color: "bg-[#e5f3da] text-[#2D6A2E]",
+      color: "bg-[#E4F3E7] text-[#2D6A2E]",
     },
     {
       role: "MEMBER",
@@ -408,7 +408,7 @@ export function Step7() {
           </div>
         </div>
       ))}
-      <div className="rounded-2xl border border-[#ddf0e6] bg-[#eafaf1] p-4">
+      <div className="rounded-2xl border border-[#E4F3E7] bg-[#E4F3E7] p-4">
         <p className="text-xs font-bold text-[#2D6A2E]">🔐 การกำหนดสิทธิ์</p>
         <p className="mt-1 text-xs text-[#2D6A2E]">
           ไปที่ เมนู → โปรไฟล์ผู้ใช้ → กำหนดบทบาท
@@ -452,10 +452,10 @@ export function Step8({ data }: { data: SetupData }) {
           </div>
         ))}
       </div>
-      <div className="rounded-2xl border border-[#d3eed8] bg-[#eefaf0] p-4 text-center">
-        <Heart className="mx-auto mb-2 size-8 text-[#2D6A2E]" fill="#2c7b4c" />
-        <p className="text-sm font-bold text-[#1f623a]">พร้อมเริ่มต้นใช้งาน!</p>
-        <p className="mt-1 text-xs text-[#358253]">
+      <div className="rounded-2xl border border-[#C3E4B8] bg-[#E4F3E7] p-4 text-center">
+        <Heart className="mx-auto mb-2 size-8 text-[#2D6A2E]" fill="#2D6A2E" />
+        <p className="text-sm font-bold text-[#2D6A2E]">พร้อมเริ่มต้นใช้งาน!</p>
+        <p className="mt-1 text-xs text-[#2D6A2E]">
           ระบบจะบันทึกข้อมูลและนำคุณไปยังหน้าแดชบอร์ด
         </p>
       </div>

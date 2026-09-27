@@ -267,7 +267,7 @@ export default function TransactionDetail() {
                 if (isExpense) deleteExpense.mutate({ id: recordId });
               }}
               disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-rose-50 text-rose-700 text-sm font-semibold border border-rose-200 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer transition-all duration-200 ease-in-out"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#FEECEB] text-[#C8372D] text-sm font-semibold border border-[#F8C8C5] flex items-center gap-1.5 disabled:opacity-50 cursor-pointer transition-all duration-200 ease-in-out"
             >
               <Ban className="w-4 h-4" />
               <span>ยกเลิกรายการ</span>
@@ -377,7 +377,7 @@ export default function TransactionDetail() {
                   : "ผู้รับเงิน / ร้านค้า"
               }
               value={transaction.donorOrPayee}
-              icon={<User className="w-4 h-4 text-[#85C1E9]" />}
+              icon={<User className="w-4 h-4 text-[#D9C6A6]" />}
             />
             <Detail label="เลขอ้างอิง" value={transaction.refCode} />
           </div>
@@ -398,7 +398,7 @@ export default function TransactionDetail() {
                 </span>
                 <button
                   onClick={() => setShowReceiptModal(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-200 transition-all duration-200 ease-in-out"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-[#2D6A2E] hover:text-[#2D6A2E] bg-[#E4F3E7] hover:bg-[#E4F3E7] px-3 py-1.5 rounded-xl border border-[#C3E4B8] transition-all duration-200 ease-in-out"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>เปิดดูหลักฐานเต็มจอ</span>
@@ -412,7 +412,7 @@ export default function TransactionDetail() {
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">
                     <FileText className="w-12 h-12 text-[#C94F16] mx-auto mb-2" />
-                    <span className="text-xs font-bold text-stone-700">
+                    <span className="text-xs font-bold text-[#51443A]">
                       เอกสารแนบ PDF
                     </span>
                     <p className="text-[10px] text-[#8C7B6B] mt-1">

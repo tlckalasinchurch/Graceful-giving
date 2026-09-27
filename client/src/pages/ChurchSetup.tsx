@@ -256,7 +256,7 @@ export default function ChurchSetup() {
                     <span
                       className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold ${
                         done
-                          ? "bg-[#3F9156] text-white"
+                          ? "bg-[#2D6A2E] text-white"
                           : active
                             ? "bg-[#9F3B0F] text-white"
                             : "bg-[#F1E6D2] text-[#6E6155]"
@@ -306,7 +306,7 @@ export default function ChurchSetup() {
               <button
                 onClick={handleFinish}
                 disabled={saving}
-                className="min-h-[48px] flex-[2] rounded-2xl bg-gradient-to-r from-[#2c7b4c] to-[#3a9560] text-sm font-bold text-white shadow-sm hover:opacity-95 active:scale-[0.98] transition disabled:opacity-60"
+                className="min-h-[48px] flex-[2] rounded-2xl bg-gradient-to-r from-[#2D6A2E] to-[#2D6A2E] text-sm font-bold text-white shadow-sm hover:opacity-95 active:scale-[0.98] transition disabled:opacity-60"
               >
                 {saving ? "กำลังบันทึก..." : "✓ ยืนยันและเริ่มใช้งาน"}
               </button>

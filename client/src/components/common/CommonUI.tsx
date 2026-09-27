@@ -126,7 +126,7 @@ export const ErrorState: React.FC<{
       !
     </div>
     <div className="space-y-1 max-w-sm">
-      <h3 className="text-base font-bold text-[#7C2A1E]">{title}</h3>
+      <h3 className="text-base font-bold text-[#C8372D]">{title}</h3>
       <p className="text-sm text-[#51443A] leading-relaxed">{description}</p>
     </div>
     {onRetry && (
@@ -197,12 +197,12 @@ export const StatusBadge: React.FC<{
         };
       case "submitted":
         return {
-          bg: "bg-[#EAF2FB] text-[#1E5282] border-[#C7DCF3]",
+          bg: "bg-[#F5EDE0] text-[#51443A] border-[#E7DCC8]",
           defaultLabel: "ส่งตรวจสอบแล้ว",
         };
       case "needs_review":
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-[#FFF4D6] text-[#9F3B0F] border-[#F9D2AE]",
           defaultLabel: "ต้องตรวจสอบ",
         };
       case "unknown":
@@ -217,12 +217,12 @@ export const StatusBadge: React.FC<{
         };
       case "counting":
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-[#FFF4D6] text-[#9F3B0F] border-[#F9D2AE]",
           defaultLabel: "กำลังนับ",
         };
       case "counted":
         return {
-          bg: "bg-[#EAF2FB] text-[#1E5282] border-[#C7DCF3]",
+          bg: "bg-[#F5EDE0] text-[#51443A] border-[#E7DCC8]",
           defaultLabel: "รอตรวจสอบ",
         };
       case "verified":
@@ -243,7 +243,7 @@ export const StatusBadge: React.FC<{
       case "pending":
       default:
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-[#FFF4D6] text-[#9F3B0F] border-[#F9D2AE]",
           defaultLabel: "รอดำเนินการ",
         };
     }
@@ -407,7 +407,7 @@ export const FilterBar: React.FC<{
       {/* Search Input */}
       <div className="relative w-full">
         <Search
-          className="pointer-events-none w-4 h-4 text-[#807266] absolute left-3.5 top-1/2 -translate-y-1/2"
+          className="pointer-events-none w-4 h-4 text-[#6E6155] absolute left-3.5 top-1/2 -translate-y-1/2"
           aria-hidden="true"
         />
         <input
@@ -416,7 +416,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#E7DCC8] shadow-xs text-base md:text-sm text-[#171311] placeholder-[#807266] transition-all duration-200 ease-in-out hover:border-[#D9C6A6] focus:border-[#C94F16] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#C94F16]/20"
+          className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#E7DCC8] shadow-xs text-base md:text-sm text-[#171311] placeholder-[#6E6155] transition-all duration-200 ease-in-out hover:border-[#D9C6A6] focus:border-[#C94F16] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#C94F16]/20"
         />
       </div>
 

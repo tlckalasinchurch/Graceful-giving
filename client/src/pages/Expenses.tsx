@@ -462,7 +462,7 @@ export default function Expenses() {
                               title: e.description,
                             })
                           }
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-medium transition-all duration-200 ease-in-out"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#E4F3E7] text-[#2D6A2E] border border-[#C3E4B8] text-xs font-medium transition-all duration-200 ease-in-out"
                         >
                           <Paperclip className="w-3 h-3" />
                           <span>ดูสลิป</span>

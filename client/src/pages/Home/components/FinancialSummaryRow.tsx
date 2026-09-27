@@ -34,7 +34,7 @@ export function FinancialSummaryRow({
       className="animate-fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"
     >
       {/* Card 1: รายรับ (Income) */}
-      <div className="min-w-0 bg-card border border-[#C3E4B8] rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs hover:shadow-sm hover:border-[#A3D995] transition-all duration-200 ease-in-out">
+      <div className="min-w-0 bg-card border border-[#C3E4B8] rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs hover:shadow-sm hover:border-[#9BCBA5] transition-all duration-200 ease-in-out">
         <div className="size-12 sm:size-14 rounded-xl overflow-hidden shrink-0 bg-[#E4F3E7] p-1 border border-[#C3E4B8]">
           <Illustration
             src="/illustrations/income_hand_heart.jpg"
@@ -70,7 +70,7 @@ export function FinancialSummaryRow({
       </div>
 
       {/* Card 2: รายจ่าย (Expenses) */}
-      <div className="min-w-0 bg-card border border-[#F8C8C5] rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs hover:shadow-sm hover:border-[#F2A49F] transition-all duration-200 ease-in-out">
+      <div className="min-w-0 bg-card border border-[#F8C8C5] rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs hover:shadow-sm hover:border-[#EFA39D] transition-all duration-200 ease-in-out">
         <div className="size-12 sm:size-14 rounded-xl overflow-hidden shrink-0 bg-[#FEECEB] p-1 border border-[#F8C8C5]">
           <Illustration
             src="/illustrations/expense_hand_coin.jpg"
@@ -107,7 +107,7 @@ export function FinancialSummaryRow({
 
       {/* Card 3: คงเหลือ (Net) */}
       <div
-        className={`min-w-0 bg-card rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 border shadow-xs hover:shadow-sm sm:col-span-2 lg:col-span-1 transition-all duration-200 ease-in-out ${isPositiveNet ? "border-[#E7DCC8] hover:border-[#C94F16]" : "border-[#F8C8C5] hover:border-[#F2A49F]"}`}
+        className={`min-w-0 bg-card rounded-2xl p-5 flex sm:flex-col items-center sm:items-start gap-4 border shadow-xs hover:shadow-sm sm:col-span-2 lg:col-span-1 transition-all duration-200 ease-in-out ${isPositiveNet ? "border-[#E7DCC8] hover:border-[#C94F16]" : "border-[#F8C8C5] hover:border-[#EFA39D]"}`}
       >
         <div
           className={`size-12 sm:size-14 rounded-xl overflow-hidden shrink-0 bg-[#FFF4D6] p-1 border ${isPositiveNet ? "border-[#E7DCC8]" : "border-[#F8C8C5]"}`}

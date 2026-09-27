@@ -55,11 +55,11 @@ export function AdminEventDialog({
         <form onSubmit={onSubmit}>
           <DialogHeader className="text-left">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-2xl bg-[#e7f1fb] text-[#3c6f9e]">
+              <span className="grid size-11 place-items-center rounded-2xl bg-[#F5EDE0] text-[#51443A]">
                 <CalendarDays className="size-5" />
               </span>
               <div>
-                <DialogTitle className="font-display text-xl font-bold text-[#51443A]">
+                <DialogTitle className="font-display text-xl font-bold text-[#171311]">
                   {editingEventId ? "แก้ไขกิจกรรม" : "สร้างกิจกรรมใหม่"}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-[#51443A]">

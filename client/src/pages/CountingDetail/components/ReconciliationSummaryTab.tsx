@@ -161,7 +161,7 @@ export function ReconciliationSummaryTab({
       )}
 
       {unapprovedDeductions.length > 0 && (
-        <p className="rounded-2xl border border-[#F7D5CD] bg-[#FEECEB] p-4 text-sm font-bold text-[#A33B2A]">
+        <p className="rounded-2xl border border-[#F8C8C5] bg-[#FEECEB] p-4 text-sm font-bold text-[#C8372D]">
           มีรายการหักเบิกที่ยังไม่ได้รับอนุมัติ {unapprovedDeductions.length}{" "}
           รายการ — ต้องอนุมัติก่อนลงบัญชี
         </p>
@@ -267,7 +267,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleDeleteThisSession}
               disabled={deleteSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-[#C8372D] shadow-2xs hover:bg-rose-100 transition-all duration-200 ease-in-out disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[#F8C8C5] bg-[#FEECEB] px-4 py-2 text-sm font-semibold text-[#C8372D] shadow-2xs hover:bg-[#FEECEB] transition-all duration-200 ease-in-out disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" />
               <span>ลบรอบนี้ (Delete Session)</span>

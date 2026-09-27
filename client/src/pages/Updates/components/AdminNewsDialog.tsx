@@ -53,7 +53,7 @@ export function AdminNewsDialog({
                 <Megaphone className="size-5" />
               </span>
               <div>
-                <DialogTitle className="font-display text-xl font-bold text-[#51443A]">
+                <DialogTitle className="font-display text-xl font-bold text-[#171311]">
                   {editingNewsId ? "แก้ไขข่าวสาร" : "สร้างข่าวสารใหม่"}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-[#51443A]">

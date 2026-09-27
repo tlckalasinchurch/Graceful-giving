@@ -216,7 +216,7 @@ export default function BudgetDetail() {
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50 transition-all duration-200 ease-in-out"
+                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-[#F8C8C5] bg-[#FEECEB] px-4 py-2 text-sm font-bold text-[#C8372D] disabled:opacity-50 transition-all duration-200 ease-in-out"
                 >
                   <Trash2 className="h-4 w-4" />
                   ลบงบประมาณ

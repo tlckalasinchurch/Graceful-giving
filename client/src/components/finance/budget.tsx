@@ -45,7 +45,7 @@ export function budgetUsage(planned: number, actual: number) {
 const TONE_STYLES = {
   ok: { bar: "bg-[#2D6A2E]", text: "text-[#2D6A2E]", label: "อยู่ในงบ" },
   warn: { bar: "bg-[#C94F16]", text: "text-[#9F3B0F]", label: "ใกล้เต็มงบ" },
-  over: { bar: "bg-[#C7382D]", text: "text-[#C8372D]", label: "เกินงบ" },
+  over: { bar: "bg-[#C8372D]", text: "text-[#C8372D]", label: "เกินงบ" },
 } as const;
 
 export const BudgetProgress: React.FC<{
