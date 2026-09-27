@@ -1,6 +1,12 @@
 import React from "react";
 import { Illustration } from "@/components/Illustration";
-import { ArrowLeft, Loader2, Plus, Search, type LucideIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  Plus,
+  Search,
+  type LucideIcon,
+} from "lucide-react";
 import { formatAmount } from "@/lib/format";
 import {
   Dialog,
@@ -694,4 +700,46 @@ export const ActionButton: React.FC<
     )}
     <span>{loading ? loadingText : children}</span>
   </button>
+);
+
+// ─── 12. Detail Skeleton ─────────────────────────────────────────────────────
+
+/**
+ * Placeholder for a detail page: a title block, a row of figures and a grid
+ * of label/value fields, in the same card box the loaded page uses. A stack
+ * of list-row skeletons made the page jump when the real layout arrived.
+ */
+export const DetailSkeleton: React.FC<{
+  stats?: number;
+  fields?: number;
+  className?: string;
+}> = ({ stats = 3, fields = 6, className = "" }) => (
+  <div
+    role="status"
+    aria-label="กำลังโหลดข้อมูล"
+    className={`space-y-6 ${className}`}
+  >
+    <div
+      aria-hidden="true"
+      className="animate-pulse rounded-2xl border border-[#E7DCC8] bg-card p-6 shadow-xs sm:p-8"
+    >
+      <div className="flex items-start gap-4">
+        <div className="size-14 shrink-0 rounded-2xl bg-[#F1E6D2]" />
+        <div className="flex-1 space-y-3">
+          <div className="h-6 w-2/5 rounded-full bg-[#F1E6D2]" />
+          <div className="h-4 w-1/4 rounded-full bg-[#F5EDE0]" />
+        </div>
+        <div className="h-6 w-20 rounded-full bg-[#F1E6D2]" />
+      </div>
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {Array.from({ length: fields }).map((_, i) => (
+          <div key={i} className="space-y-2">
+            <div className="h-3 w-20 rounded-full bg-[#F5EDE0]" />
+            <div className="h-5 w-3/5 rounded-full bg-[#F1E6D2]" />
+          </div>
+        ))}
+      </div>
+    </div>
+    {stats > 0 && <StatCardSkeleton count={stats} />}
+  </div>
 );

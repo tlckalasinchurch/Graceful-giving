@@ -80,7 +80,7 @@ export default function Members() {
               setShowCreate(true);
             }
           }}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-4 py-2 text-xs font-bold text-white"
+          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#C94F16] px-4 py-2 text-sm font-semibold text-white hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
         >
           <Plus className="h-4 w-4" />
           เพิ่มสมาชิก
@@ -98,7 +98,7 @@ export default function Members() {
               <button
                 type="button"
                 onClick={closeCreateForm}
-                className="text-[#6E6155]"
+                className="text-[#6E6155] transition-all duration-200 ease-in-out"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -142,7 +142,7 @@ export default function Members() {
             </div>
             <button
               disabled={createMember.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               {createMember.isPending ? "กำลังบันทึก…" : "บันทึกสมาชิก"}
             </button>
@@ -170,7 +170,7 @@ export default function Members() {
                 key={member.id}
                 type="button"
                 onClick={() => setLocation(`/members/${member.id}`)}
-                className="rounded-2xl border border-[#E7DCC8] bg-card p-5 text-left shadow-sm hover:bg-[#FAF8F5]"
+                className="rounded-2xl border border-[#E7DCC8] bg-card p-5 text-left shadow-sm hover:bg-[#FAF8F5] transition-all duration-200 ease-in-out"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-[#171311]">{member.name}</h2>

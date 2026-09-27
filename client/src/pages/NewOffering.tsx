@@ -122,7 +122,7 @@ export default function NewOffering() {
     >
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Hero Card with offering_box.jpg */}
-        <div className="bg-gradient-to-r from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] rounded-2xl p-6 border border-[#E7DCC8] shadow-xs flex items-center gap-5">
+        <div className="bg-gradient-to-r from-[#FFF8EA] via-[#FFF8EA] to-[#FFF4D6] rounded-2xl p-6 border border-[#E7DCC8] shadow-xs flex items-center gap-5">
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-card p-1 border border-[#E7DCC8] shadow-xs shrink-0">
             <Illustration
               src="/illustrations/offering_box.jpg"
@@ -146,7 +146,7 @@ export default function NewOffering() {
         {/* Main Step Form Card */}
         <form
           onSubmit={handleSubmit}
-          className="bg-card rounded-2xl p-6 sm:p-8 border border-[#E7DCC8] card-elevation-sm space-y-6"
+          className="bg-card rounded-2xl p-6 sm:p-8 border border-[#E7DCC8] shadow-xs space-y-6"
         >
           {/* 1. ประเภทถวาย */}
           <div className="space-y-2.5">
@@ -159,7 +159,7 @@ export default function NewOffering() {
                   key={cat.id}
                   type="button"
                   onClick={() => setCategory(cat.id)}
-                  className={`p-3 rounded-2xl border text-xs font-bold text-center transition-all ${
+                  className={`p-3 rounded-2xl border text-xs font-bold text-center transition-all duration-200 ease-in-out ${
                     category === cat.id
                       ? "bg-[#FFF4D6] border-[#C94F16] text-[#51443A] shadow-2xs"
                       : "bg-card border-[#E7DCC8] text-[#6E6155] hover:bg-[#FAF8F5]"
@@ -242,7 +242,7 @@ export default function NewOffering() {
                   key={m}
                   type="button"
                   onClick={() => setMethod(m)}
-                  className={`min-h-11 py-2.5 px-3 rounded-2xl border text-xs font-bold transition-all ${
+                  className={`min-h-11 py-2.5 px-3 rounded-xl border text-sm font-semibold transition-all duration-200 ease-in-out ${
                     method === m
                       ? "bg-[#E4F3E7] border-[#9BCBA5] text-[#2D6A2E] shadow-2xs"
                       : "bg-card border-[#E7DCC8] text-[#6E6155] hover:bg-[#FAF8F5]"
@@ -323,7 +323,7 @@ export default function NewOffering() {
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full py-4 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm button-elevation transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm shadow-xs transition-all duration-200 ease-in-out flex items-center justify-center gap-2 hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
           >
             <HandCoins className="w-5 h-5" />
             <span>
@@ -380,7 +380,7 @@ export default function NewOffering() {
               setIsSuccessOpen(false);
               setLocation("/offerings");
             }}
-            className="w-full py-3.5 rounded-2xl bg-[#9BCBA5] hover:bg-[#96C764] text-white font-bold text-sm button-elevation transition-all"
+            className="w-full py-3.5 rounded-2xl bg-[#9BCBA5] hover:bg-[#96C764] text-white font-bold text-sm shadow-xs transition-all duration-200 ease-in-out"
           >
             ดูรายการถวายทั้งหมด
           </button>

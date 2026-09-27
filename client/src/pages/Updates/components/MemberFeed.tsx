@@ -68,7 +68,7 @@ export function MemberFeed() {
         </p>
         <button
           onClick={() => refetch()}
-          className="mt-4 rounded-xl bg-[#A92D24] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#aa473e]"
+          className="mt-4 rounded-xl bg-[#A92D24] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#aa473e] transition-all duration-200 ease-in-out"
         >
           ลองใหม่อีกครั้ง
         </button>
@@ -110,7 +110,7 @@ export function MemberFeed() {
               role="tab"
               aria-selected={newsCategoryFilter === cat}
               onClick={() => setNewsCategoryFilter(cat)}
-              className={`min-h-11 rounded-full px-3.5 py-2 text-xs font-bold transition-all ${
+              className={`min-h-11 rounded-full px-3.5 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
                 newsCategoryFilter === cat
                   ? "bg-[#9F3B0F] text-white shadow-sm"
                   : "bg-white/80 text-[#51443A] hover:bg-white hover:text-[#51443A] border border-[#E7DCC8]"
@@ -274,7 +274,7 @@ export function MemberFeed() {
               <div className="mt-6 flex justify-end border-t border-[#EFE5D3] pt-4">
                 <button
                   onClick={() => setSelectedNews(null)}
-                  className="rounded-xl bg-[#9F3B0F] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]"
+                  className="rounded-xl bg-[#9F3B0F] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F] hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
                 >
                   ปิดหน้าต่าง
                 </button>
@@ -358,7 +358,7 @@ export function MemberFeed() {
                   <button
                     type="button"
                     onClick={() => downloadICS(selectedEvent)}
-                    className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[#E7DCC8] bg-card px-4 py-2.5 text-xs font-bold text-[#9F3B0F] shadow-sm hover:bg-[#FAF8F5] active:scale-95 transition"
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[#E7DCC8] bg-card px-4 py-2.5 text-sm font-semibold text-[#9F3B0F] shadow-sm hover:bg-[#FAF8F5] active:scale-95 transition"
                   >
                     <CalendarPlus className="size-4 text-[#9F3B0F]" />
                     เพิ่มลงปฏิทิน (.ics)
@@ -376,7 +376,7 @@ export function MemberFeed() {
                 </div>
                 <button
                   onClick={() => setSelectedEvent(null)}
-                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] px-5 py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF4D6]"
+                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] px-5 py-2.5 text-sm font-semibold text-[#51443A] hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out"
                 >
                   ปิดหน้าต่าง
                 </button>

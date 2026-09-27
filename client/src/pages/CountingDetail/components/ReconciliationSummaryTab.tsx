@@ -179,7 +179,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => submitCount.mutate({ id: sessionId })}
               disabled={submitCount.isPending}
-              className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               ส่งนับให้ตรวจสอบ
             </button>
@@ -189,7 +189,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => reopenCount.mutate({ id: sessionId })}
               disabled={reopenCount.isPending}
-              className="min-h-11 rounded-2xl border border-[#E7DCC8] bg-[#FFF4D6] px-5 py-2.5 text-sm font-bold text-[#51443A] disabled:opacity-50"
+              className="min-h-11 rounded-xl border border-[#E7DCC8] bg-[#FFF4D6] px-5 py-2.5 text-sm font-bold text-[#51443A] disabled:opacity-50 transition-all duration-200 ease-in-out"
             >
               ส่งกลับไปนับใหม่
             </button>
@@ -199,7 +199,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => verify.mutate({ id: sessionId })}
               disabled={verify.isPending}
-              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               ตรวจสอบและรับรองยอด
             </button>
@@ -218,7 +218,7 @@ export function ReconciliationSummaryTab({
                 unapprovedDeductions.length > 0 ||
                 (!r.isBalanced && !varianceNote.trim() && !sessionVarianceNote)
               }
-              className="min-h-11 rounded-2xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className="min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               ลงบัญชีเข้าระบบ
             </button>
@@ -228,7 +228,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => close.mutate({ id: sessionId })}
               disabled={close.isPending}
-              className="min-h-11 rounded-2xl bg-[#51443A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className="min-h-11 rounded-xl bg-[#51443A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 transition-all duration-200 ease-in-out"
             >
               ปิดรอบถาวร
             </button>
@@ -258,7 +258,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleResetThisSession}
               disabled={resetSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-[#E7DCC8] bg-[#FFF4D6] px-4 py-2 text-xs font-bold text-[#9F3B0F] shadow-2xs hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[#E7DCC8] bg-[#FFF4D6] px-4 py-2 text-sm font-semibold text-[#9F3B0F] shadow-2xs hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out disabled:opacity-50"
             >
               <RotateCcw className="h-4 w-4 text-[#9F3B0F]" />
               <span>ล้างข้อมูลเพื่อนับใหม่ (Recount)</span>
@@ -267,7 +267,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleDeleteThisSession}
               disabled={deleteSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-bold text-[#C8372D] shadow-2xs hover:bg-rose-100 transition-all duration-200 ease-in-out disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-[#C8372D] shadow-2xs hover:bg-rose-100 transition-all duration-200 ease-in-out disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" />
               <span>ลบรอบนี้ (Delete Session)</span>

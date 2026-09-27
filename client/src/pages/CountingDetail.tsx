@@ -6,7 +6,7 @@ import {
   BackLink,
   EmptyState,
   ErrorState,
-  LoadingSkeleton,
+  DetailSkeleton,
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
@@ -208,7 +208,7 @@ export default function CountingDetail() {
   if (detailQuery.isLoading) {
     return (
       <AppLayout title="รอบนับเงินถวาย">
-        <LoadingSkeleton count={4} />
+        <DetailSkeleton />
       </AppLayout>
     );
   }
@@ -300,7 +300,7 @@ export default function CountingDetail() {
                 title="ล้างข้อมูลเพื่อนับใหม่"
                 onClick={handleResetThisSession}
                 disabled={resetSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-[#E7DCC8] bg-[#FFF4D6] px-3.5 py-2 text-xs font-bold text-[#9F3B0F] hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[#E7DCC8] bg-[#FFF4D6] px-3.5 py-2 text-sm font-semibold text-[#9F3B0F] hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out disabled:opacity-50"
               >
                 <RotateCcw className="h-4 w-4 text-[#9F3B0F]" />
                 <span className="hidden sm:inline">นับใหม่</span>
@@ -310,7 +310,7 @@ export default function CountingDetail() {
                 title="ลบรอบนับเงินนี้"
                 onClick={handleDeleteThisSession}
                 disabled={deleteSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-[#C8372D] hover:bg-rose-100 transition-all duration-200 ease-in-out disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-sm font-semibold text-[#C8372D] hover:bg-rose-100 transition-all duration-200 ease-in-out disabled:opacity-50"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="hidden sm:inline">ลบรอบนี้</span>

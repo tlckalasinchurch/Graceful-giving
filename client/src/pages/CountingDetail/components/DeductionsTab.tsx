@@ -179,7 +179,7 @@ export function DeductionsTab({
           <button
             type="submit"
             disabled={addDeduction.isPending || !dFundId}
-            className="mt-4 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            className="mt-4 min-h-11 rounded-xl bg-[#2D6A2E] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
           >
             {addDeduction.isPending ? "กำลังบันทึก…" : "เพิ่มรายการเบิก"}
           </button>
@@ -228,7 +228,7 @@ export function DeductionsTab({
                           })
                         }
                         disabled={removeDeduction.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FEECEB] disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FEECEB] disabled:opacity-50 transition-all duration-200 ease-in-out"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -247,7 +247,7 @@ export function DeductionsTab({
                           approveDeduction.mutate({ id: deduction.id })
                         }
                         disabled={approveDeduction.isPending}
-                        className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-[#2D6A2E] disabled:opacity-50"
+                        className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-sm font-semibold text-[#2D6A2E] disabled:opacity-50 transition-all duration-200 ease-in-out"
                       >
                         อนุมัติรายการนี้
                       </button>

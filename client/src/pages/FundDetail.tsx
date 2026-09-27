@@ -5,7 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import {
   BackLink,
   EmptyState,
-  LoadingSkeleton,
+  DetailSkeleton,
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
@@ -25,7 +25,7 @@ export default function FundDetail() {
   if (isLoading)
     return (
       <AppLayout title="รายละเอียดกองทุน">
-        <LoadingSkeleton count={3} />
+        <DetailSkeleton />
       </AppLayout>
     );
   if (!fund)
@@ -74,7 +74,7 @@ export default function FundDetail() {
                     "ฟังก์ชันโอนเงินจะเปิดใช้เมื่อมี workflow จากระบบรองรับ"
                   )
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-[#E7DCC8] text-[#51443A] text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-[#E7DCC8] text-[#51443A] text-sm font-medium transition-all duration-200 ease-in-out"
               >
                 <ArrowRightLeft className="w-4 h-4 text-[#C94F16]" />
                 โอนเงินระหว่างกองทุน
@@ -83,7 +83,7 @@ export default function FundDetail() {
                 onClick={() =>
                   toast.info("ยังไม่มีข้อมูล statement สำหรับกองทุนนี้")
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C94F16] text-white text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C94F16] text-white text-sm font-medium hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
               >
                 <Download className="w-4 h-4" />
                 ดาวน์โหลด Statement
@@ -91,7 +91,7 @@ export default function FundDetail() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-card p-4 rounded-2xl border border-[#E7DCC8]/80">
+            <div className="bg-white p-4 rounded-2xl border border-[#E7DCC8]/80">
               <p className="text-xs text-[#6E6155] font-medium">
                 ยอดคงเหลือสุทธิ
               </p>
@@ -100,7 +100,7 @@ export default function FundDetail() {
                 ยอดจริงจากบัญชีกองทุน
               </p>
             </div>
-            <div className="bg-card p-4 rounded-2xl border border-[#E7DCC8]/80">
+            <div className="bg-white p-4 rounded-2xl border border-[#E7DCC8]/80">
               <p className="text-xs text-[#6E6155] font-medium">ประเภทกองทุน</p>
               <p className="text-2xl font-bold text-[#171311] mt-1">
                 {fund.type}

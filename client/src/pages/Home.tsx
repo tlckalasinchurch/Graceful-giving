@@ -110,16 +110,10 @@ export default function Home() {
   });
 
   const { data: offeringsData, isLoading: offeringsLoading } =
-    trpc.offerings.list.useQuery(
-    { limit: 30 },
-    { retry: false }
-  );
+    trpc.offerings.list.useQuery({ limit: 30 }, { retry: false });
 
   const { data: expensesData, isLoading: expensesLoading } =
-    trpc.expenses.list.useQuery(
-    { limit: 30 },
-    { retry: false }
-  );
+    trpc.expenses.list.useQuery({ limit: 30 }, { retry: false });
 
   const { data: inboxStats } = trpc.givingInbox.stats.useQuery(undefined, {
     enabled: canAccessInbox,
@@ -218,7 +212,7 @@ export default function Home() {
             </div>
             <button
               onClick={() => setLocation("/giving/inbox")}
-              className="group min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] active:scale-[0.98] text-white text-sm font-semibold shrink-0 flex items-center justify-center gap-1.5 shadow-xs transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2"
+              className="group min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] active:scale-[0.98] text-white text-sm font-semibold shrink-0 flex items-center justify-center gap-1.5 shadow-xs transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-[#C94F16] focus-visible:ring-offset-2 hover:shadow-sm disabled:opacity-55 disabled:cursor-not-allowed"
             >
               <span>ตรวจสอบสลิป</span>
               <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -227,7 +221,10 @@ export default function Home() {
         )}
 
         <section aria-labelledby="dashboard-overview" className="space-y-4">
-          <h2 id="dashboard-overview" className="text-sm font-semibold text-[#51443A]">
+          <h2
+            id="dashboard-overview"
+            className="text-sm font-semibold text-[#51443A]"
+          >
             ดูภาพรวม
           </h2>
           <BalanceCard
@@ -259,7 +256,10 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-actions" className="space-y-4">
-          <h2 id="dashboard-actions" className="text-sm font-semibold text-[#51443A]">
+          <h2
+            id="dashboard-actions"
+            className="text-sm font-semibold text-[#51443A]"
+          >
             ทำรายการ
           </h2>
           <PrimaryActions
@@ -279,7 +279,10 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-tracking" className="space-y-4">
-          <h2 id="dashboard-tracking" className="text-sm font-semibold text-[#51443A]">
+          <h2
+            id="dashboard-tracking"
+            className="text-sm font-semibold text-[#51443A]"
+          >
             ติดตาม
           </h2>
           <BudgetSection

@@ -325,7 +325,7 @@ export default function Settings() {
         <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[#E7DCC8] pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x">
           <button
             onClick={() => setActiveTab("church")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "church"
                 ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
                 : "text-[#6E6155] hover:text-[#171311]"
@@ -336,7 +336,7 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("roles")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "roles"
                 ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
                 : "text-[#6E6155] hover:text-[#171311]"
@@ -347,7 +347,7 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("categories")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "categories"
                 ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
                 : "text-[#6E6155] hover:text-[#171311]"
@@ -358,7 +358,7 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("payment")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "payment"
                 ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
                 : "text-[#6E6155] hover:text-[#171311]"
@@ -369,7 +369,7 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("audit")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "audit"
                 ? "bg-[#FFF4D6] text-[#171311] border border-[#E7DCC8] shadow-2xs"
                 : "text-[#6E6155] hover:text-[#171311]"
@@ -481,7 +481,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-sm transition-all duration-200 ease-in-out flex items-center gap-2 disabled:opacity-50 hover:shadow-sm active:scale-[0.98]"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>
@@ -518,7 +518,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-all duration-200 ease-in-out hover:bg-rose-100"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-all duration-200 ease-in-out hover:bg-rose-100"
                 >
                   <LogOut className="h-4 w-4" />
                   ออกจากระบบ
@@ -899,7 +899,7 @@ export default function Settings() {
                 type="button"
                 onClick={() => void auditQuery.refetch()}
                 disabled={auditQuery.isFetching}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#E7DCC8] bg-[#FAF8F5] hover:bg-[#FFF4D6] text-xs font-semibold text-[#51443A] transition-all disabled:opacity-50 self-start sm:self-auto"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#E7DCC8] bg-[#FAF8F5] hover:bg-[#FFF4D6] text-xs font-semibold text-[#51443A] transition-all duration-200 ease-in-out disabled:opacity-50 self-start sm:self-auto"
               >
                 <RefreshCw
                   className={`w-3.5 h-3.5 ${

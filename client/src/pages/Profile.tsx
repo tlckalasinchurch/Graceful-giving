@@ -363,7 +363,7 @@ export default function Profile() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-[#E7DCC8]/60">
             <button
               onClick={() => setShowIdCardModal(true)}
-              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-2xl bg-[#FFF4D6] hover:bg-[#FFF4D6] text-[#51443A] font-bold text-xs sm:text-sm border border-[#E7DCC8] shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl bg-[#FFF4D6] hover:bg-[#FFF4D6] text-[#51443A] font-bold text-xs sm:text-sm border border-[#E7DCC8] shadow-xs flex items-center justify-center gap-2 transition-all duration-200 ease-in-out active:scale-[0.98]"
             >
               <QrCode className="w-4 h-4 text-[#C94F16] shrink-0" />
               <span className="truncate">
@@ -372,7 +372,7 @@ export default function Profile() {
             </button>
             <button
               onClick={() => setShowEditProfileModal(true)}
-              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center justify-center gap-2 transition-all duration-200 ease-in-out active:scale-[0.98] hover:shadow-sm disabled:opacity-55 disabled:cursor-not-allowed"
             >
               <Edit3 className="w-4 h-4 stroke-[2.5] shrink-0" />
               <span>แก้ไขโปรไฟล์และรูปภาพ</span>
@@ -399,7 +399,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setLocation("/counting")}
-              className="min-h-11 px-5 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center gap-2 shrink-0 transition-all duration-200 ease-in-out active:scale-95"
+              className="min-h-11 px-5 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-xs sm:text-sm shadow-xs flex items-center gap-2 shrink-0 transition-all duration-200 ease-in-out active:scale-95 hover:shadow-sm disabled:opacity-55 disabled:cursor-not-allowed"
             >
               <span>เข้าสู่ห้องนับเงิน</span>
               <ChevronRight className="w-4 h-4" />
@@ -425,7 +425,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setLocation("/settings")}
-              className="min-h-11 px-5 py-2.5 rounded-2xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs sm:text-sm shadow-xs flex items-center gap-2 shrink-0 transition-all duration-200 ease-in-out active:scale-95"
+              className="min-h-11 px-5 py-2.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs sm:text-sm shadow-xs flex items-center gap-2 shrink-0 transition-all duration-200 ease-in-out active:scale-95"
             >
               <span>ไปที่หน้าตั้งค่าและสิทธิ์</span>
               <ChevronRight className="w-4 h-4" />
@@ -533,7 +533,7 @@ export default function Profile() {
                   await logout();
                 }
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-all duration-200 ease-in-out hover:bg-rose-100 active:scale-95"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-all duration-200 ease-in-out hover:bg-rose-100 active:scale-95"
             >
               <LogOut className="h-4 w-4" />
               ออกจากระบบ
@@ -622,14 +622,14 @@ export default function Profile() {
             <div className="flex gap-2">
               <button
                 onClick={() => window.print()}
-                className="flex-1 min-h-11 py-2.5 rounded-2xl bg-[#FFF4D6] border border-[#E7DCC8] text-[#51443A] font-bold text-xs sm:text-sm hover:bg-[#FFF4D6] transition-all flex items-center justify-center gap-1.5"
+                className="flex-1 min-h-11 py-2.5 rounded-2xl bg-[#FFF4D6] border border-[#E7DCC8] text-[#51443A] font-bold text-xs sm:text-sm hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out flex items-center justify-center gap-1.5"
               >
                 <Printer className="w-4 h-4" />
                 <span>พิมพ์บัตร</span>
               </button>
               <button
                 onClick={() => setShowIdCardModal(false)}
-                className="flex-1 min-h-11 py-2.5 rounded-2xl bg-[#171311] text-white font-bold text-xs sm:text-sm hover:bg-[#171311] transition-all"
+                className="flex-1 min-h-11 py-2.5 rounded-2xl bg-[#171311] text-white font-bold text-xs sm:text-sm hover:bg-[#171311] transition-all duration-200 ease-in-out"
               >
                 ปิดหน้าต่าง
               </button>
@@ -698,7 +698,7 @@ export default function Profile() {
                         key={i}
                         type="button"
                         onClick={() => setEditAvatarUrl(p)}
-                        className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all ${
+                        className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all duration-200 ease-in-out ${
                           editAvatarUrl === p
                             ? "border-[#C94F16] scale-110 shadow-xs"
                             : "border-transparent"
@@ -771,14 +771,14 @@ export default function Profile() {
                 <button
                   type="button"
                   onClick={() => setShowEditProfileModal(false)}
-                  className="flex-1 min-h-11 py-2.5 sm:py-3 rounded-2xl border border-[#E7DCC8] text-xs sm:text-sm font-bold text-[#51443A] hover:bg-[#FAF8F5] transition-all"
+                  className="flex-1 min-h-11 py-2.5 sm:py-3 rounded-2xl border border-[#E7DCC8] text-xs sm:text-sm font-bold text-[#51443A] hover:bg-[#FAF8F5] transition-all duration-200 ease-in-out"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 min-h-11 py-2.5 sm:py-3 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs sm:text-sm font-bold shadow-xs transition-all disabled:opacity-50 active:scale-[0.98]"
+                  className="flex-1 min-h-11 py-2.5 sm:py-3 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs sm:text-sm font-bold shadow-xs transition-all duration-200 ease-in-out disabled:opacity-50 active:scale-[0.98] hover:shadow-sm"
                 >
                   {isSaving ? "กำลังบันทึก..." : "บันทึกโปรไฟล์"}
                 </button>

@@ -260,13 +260,13 @@ export function AdminManager() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={openNewNews}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#9F3B0F] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#C94F16] shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#9F3B0F] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#C94F16] shadow-sm active:scale-95 transition hover:shadow-sm disabled:opacity-55 disabled:cursor-not-allowed"
           >
             <Plus className="size-4" /> ข่าวสารใหม่
           </button>
           <button
             onClick={openNewEvent}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[#E7DCC8] bg-card px-4 py-2.5 text-xs font-bold text-[#9F3B0F] hover:bg-[#FAF8F5] shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[#E7DCC8] bg-card px-4 py-2.5 text-sm font-semibold text-[#9F3B0F] hover:bg-[#FAF8F5] shadow-sm active:scale-95 transition"
           >
             <CalendarDays className="size-4" /> กิจกรรมใหม่
           </button>
@@ -319,14 +319,14 @@ export function AdminManager() {
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         aria-label={`แก้ไขข่าวสาร ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#9F3B0F] hover:bg-[#FAF8F5]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#9F3B0F] hover:bg-[#FAF8F5] transition-all duration-200 ease-in-out"
                         onClick={() => beginNewsEdit(item)}
                       >
                         <PencilLine className="size-4" />
                       </button>
                       <button
                         aria-label={`ลบข่าวสาร ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#B3322A] hover:bg-[#FEECEB]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#B3322A] hover:bg-[#FEECEB] transition-all duration-200 ease-in-out"
                         onClick={() => setDeletingNews(item)}
                       >
                         <Trash2 className="size-4" />
@@ -334,7 +334,7 @@ export function AdminManager() {
                       <StatusPill status={item.status} />
                       {item.status === "draft" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-[#2D6A2E] hover:underline"
+                          className="min-h-11 px-2 text-xs font-bold text-[#2D6A2E] hover:underline transition-all duration-200 ease-in-out"
                           onClick={() =>
                             setNewsStatus.mutate({
                               id: item.id,
@@ -347,7 +347,7 @@ export function AdminManager() {
                       )}
                       {item.status === "published" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-[#aa4e46] hover:underline"
+                          className="min-h-11 px-2 text-xs font-bold text-[#aa4e46] hover:underline transition-all duration-200 ease-in-out"
                           onClick={() =>
                             setNewsStatus.mutate({
                               id: item.id,
@@ -400,14 +400,14 @@ export function AdminManager() {
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         aria-label={`แก้ไขกิจกรรม ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#3c6f9e] hover:bg-[#eef6ff]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#3c6f9e] hover:bg-[#eef6ff] transition-all duration-200 ease-in-out"
                         onClick={() => beginEventEdit(item)}
                       >
                         <PencilLine className="size-4" />
                       </button>
                       <button
                         aria-label={`ลบกิจกรรม ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#B3322A] hover:bg-[#FEECEB]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#B3322A] hover:bg-[#FEECEB] transition-all duration-200 ease-in-out"
                         onClick={() => setDeletingEvent(item)}
                       >
                         <Trash2 className="size-4" />
@@ -415,7 +415,7 @@ export function AdminManager() {
                       <StatusPill status={item.status} />
                       {item.status === "draft" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-[#2D6A2E] hover:underline"
+                          className="min-h-11 px-2 text-xs font-bold text-[#2D6A2E] hover:underline transition-all duration-200 ease-in-out"
                           onClick={() =>
                             setEventStatus.mutate({
                               id: item.id,
@@ -428,7 +428,7 @@ export function AdminManager() {
                       )}
                       {item.status === "published" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-[#aa4e46] hover:underline"
+                          className="min-h-11 px-2 text-xs font-bold text-[#aa4e46] hover:underline transition-all duration-200 ease-in-out"
                           onClick={() =>
                             setEventStatus.mutate({
                               id: item.id,
@@ -504,7 +504,7 @@ export function AdminManager() {
                 <button
                   type="button"
                   onClick={() => setDeletingNews(null)}
-                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF4D6]"
+                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out"
                 >
                   ยกเลิก
                 </button>
@@ -512,7 +512,7 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteNews.isPending}
                   onClick={() => deleteNews.mutate({ id: deletingNews.id })}
-                  className="min-h-[44px] rounded-xl bg-[#A92D24] py-2.5 text-xs font-bold text-white hover:bg-[#ab4a40] disabled:opacity-60"
+                  className="min-h-[44px] rounded-xl bg-[#A92D24] py-2.5 text-xs font-bold text-white hover:bg-[#ab4a40] disabled:opacity-60 transition-all duration-200 ease-in-out"
                 >
                   {deleteNews.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
                 </button>
@@ -552,7 +552,7 @@ export function AdminManager() {
                 <button
                   type="button"
                   onClick={() => setDeletingEvent(null)}
-                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF4D6]"
+                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out"
                 >
                   ยกเลิก
                 </button>
@@ -560,7 +560,7 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteEvent.isPending}
                   onClick={() => deleteEvent.mutate({ id: deletingEvent.id })}
-                  className="min-h-[44px] rounded-xl bg-[#A92D24] py-2.5 text-xs font-bold text-white hover:bg-[#ab4a40] disabled:opacity-60"
+                  className="min-h-[44px] rounded-xl bg-[#A92D24] py-2.5 text-xs font-bold text-white hover:bg-[#ab4a40] disabled:opacity-60 transition-all duration-200 ease-in-out"
                 >
                   {deleteEvent.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
                 </button>

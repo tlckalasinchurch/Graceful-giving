@@ -4,7 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import {
   BackLink,
   EmptyState,
-  LoadingSkeleton,
+  DetailSkeleton,
 } from "@/components/common/CommonUI";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -116,7 +116,7 @@ export default function MinistryDetail() {
         <BackLink label="กลับหน้ารวมฝ่ายงาน" onClick={goBack} />
 
         {query.isLoading ? (
-          <LoadingSkeleton count={3} />
+          <DetailSkeleton />
         ) : query.isError ? (
           <EmptyState
             title="โหลดข้อมูลฝ่ายงานไม่สำเร็จ"
@@ -151,7 +151,7 @@ export default function MinistryDetail() {
                   type="button"
                   disabled={update.isPending}
                   onClick={() => update.mutate({ id, status: "active" })}
-                  className="min-h-11 rounded-2xl border border-[#B8E2AB] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#2D6A2E] disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-[#B8E2AB] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#2D6A2E] disabled:opacity-50 transition-all duration-200 ease-in-out"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -171,7 +171,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50 transition-all duration-200 ease-in-out"
                 >
                   พักงานฝ่าย
                 </button>
@@ -218,7 +218,7 @@ export default function MinistryDetail() {
 
             <button
               disabled={update.isPending}
-              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
             >
               <Save className="h-4 w-4" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}

@@ -175,14 +175,14 @@ export function SubmitButtons({
       <button
         type="button"
         onClick={onCancel}
-        className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-3 text-sm font-bold text-[#51443A] hover:bg-[#FFF4D6]"
+        className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-3 text-sm font-bold text-[#51443A] hover:bg-[#FFF4D6] transition-all duration-200 ease-in-out"
       >
         ยกเลิก
       </button>
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#9F3B0F] py-3 text-sm font-bold text-white hover:bg-[#C94F16] disabled:opacity-60 shadow-sm"
+        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#9F3B0F] py-3 text-sm font-bold text-white hover:bg-[#C94F16] disabled:opacity-60 shadow-sm hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
       >
         {pending ? (
           <Clock3 className="size-4 animate-spin" />

@@ -110,7 +110,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F] hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
         >
           <Banknote className="size-4" />
           ยื่นคำขอเบิกเงิน
@@ -265,7 +265,7 @@ export default function Approvals() {
                   onClick={() => setShowRejectModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-[#6E6155] hover:bg-[#FFF4D6] hover:text-foreground"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-[#6E6155] hover:bg-[#FFF4D6] hover:text-foreground transition-all duration-200 ease-in-out"
                 >
                   ×
                 </button>
@@ -288,13 +288,13 @@ export default function Approvals() {
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   onClick={() => setShowRejectModal(false)}
-                  className="px-4 py-2 rounded-xl border border-[#E7DCC8] text-xs font-medium text-[#51443A]"
+                  className="px-4 py-2 rounded-xl border border-[#E7DCC8] text-xs font-medium text-[#51443A] transition-all duration-200 ease-in-out"
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={handleReject}
-                  className="px-5 py-2 rounded-xl bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700"
+                  className="px-5 py-2 rounded-xl bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition-all duration-200 ease-in-out"
                 >
                   ยืนยันไม่อนุมัติ
                 </button>

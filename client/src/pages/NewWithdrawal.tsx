@@ -200,14 +200,14 @@ export default function NewWithdrawal() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-[#E7DCC8] bg-card text-[#51443A] hover:bg-[#FFF4D6]/50 font-medium text-sm transition-all duration-200 ease-in-out"
+              className="px-6 py-3 rounded-xl border border-[#E7DCC8] bg-card text-[#51443A] hover:bg-[#FFF4D6]/50 font-medium text-sm transition-all duration-200 ease-in-out"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={isSubmitting || funds.length === 0}
-              className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-semibold text-sm shadow-sm transition-all duration-200 ease-in-out flex items-center gap-2 disabled:opacity-50 hover:shadow-sm active:scale-[0.98]"
             >
               <Banknote className="w-4 h-4" />
               <span>
@@ -241,7 +241,7 @@ export default function NewWithdrawal() {
                     setDetails("");
                     setUrgency("normal");
                   }}
-                  className="w-full py-3 rounded-2xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-all duration-200 ease-in-out shadow-sm"
+                  className="w-full py-3 rounded-2xl bg-[#C94F16] text-white font-medium text-sm hover:bg-[#9F3B0F] transition-all duration-200 ease-in-out shadow-sm hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed"
                 >
                   ส่งคำขออีกรายการ
                 </button>

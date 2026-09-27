@@ -49,7 +49,7 @@ export default function Updates() {
             </p>
             <button
               onClick={startLogin}
-              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#9F3B0F] px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] active:scale-95 transition"
+              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#9F3B0F] px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#C94F16] active:scale-95 transition hover:shadow-sm disabled:opacity-55 disabled:cursor-not-allowed"
             >
               <UsersRound className="size-4" />
               เข้าสู่ระบบ
@@ -95,7 +95,7 @@ export default function Updates() {
         <div className="mt-8 flex gap-2 rounded-2xl bg-[#F1E6D2] p-1.5 sm:w-fit">
           <button
             onClick={() => setActiveTab("feed")}
-            className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
+            className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all duration-200 ease-in-out ${
               activeTab === "feed"
                 ? "bg-card text-[#9F3B0F] shadow-sm"
                 : "text-[#6E6155] hover:text-[#51443A]"
@@ -106,7 +106,7 @@ export default function Updates() {
           {canManage && (
             <button
               onClick={() => setActiveTab("manage")}
-              className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
+              className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all duration-200 ease-in-out ${
                 activeTab === "manage"
                   ? "bg-card text-[#9F3B0F] shadow-sm"
                   : "text-[#6E6155] hover:text-[#51443A]"

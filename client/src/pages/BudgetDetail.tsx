@@ -5,7 +5,7 @@ import {
   BackLink,
   EmptyState,
   ErrorState,
-  LoadingSkeleton,
+  DetailSkeleton,
   MoneyDisplay,
 } from "@/components/common/CommonUI";
 import {
@@ -146,7 +146,7 @@ export default function BudgetDetail() {
             onAction={() => setLocation("/budgets")}
           />
         ) : query.isLoading ? (
-          <LoadingSkeleton count={3} />
+          <DetailSkeleton />
         ) : query.isError ? (
           <ErrorState
             title="โหลดข้อมูลงบประมาณไม่สำเร็จ"
@@ -216,7 +216,7 @@ export default function BudgetDetail() {
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50"
+                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50 transition-all duration-200 ease-in-out"
                 >
                   <Trash2 className="h-4 w-4" />
                   ลบงบประมาณ
@@ -229,7 +229,7 @@ export default function BudgetDetail() {
               />
               <button
                 disabled={update.isPending || !isDirty}
-                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-[#2D6A2E] px-5 py-2 text-sm font-bold text-white disabled:opacity-50 hover:shadow-sm active:scale-[0.98] transition-all duration-200 ease-in-out"
               >
                 <Save className="h-4 w-4" />
                 {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}

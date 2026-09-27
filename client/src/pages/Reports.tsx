@@ -128,7 +128,7 @@ export default function Reports() {
           type="button"
           onClick={handleExportCsv}
           disabled={!hasData}
-          className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-[#E7DCC8] bg-card px-4 py-2.5 text-sm font-bold text-[#51443A] transition-all duration-200 ease-in-out hover:bg-[#FFF4D6] disabled:opacity-50"
+          className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-[#E7DCC8] bg-card px-4 py-2.5 text-sm font-bold text-[#51443A] transition-all duration-200 ease-in-out hover:bg-[#FFF4D6] disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
           ส่งออก CSV

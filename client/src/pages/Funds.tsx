@@ -92,7 +92,7 @@ export default function Funds() {
       action={
         <button
           onClick={() => setShowNewFundModal(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#C94F16] px-4 text-sm font-semibold text-white hover:bg-[#9F3B0F] hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
         >
           <Plus className="size-4" />
           สร้างกองทุนใหม่
@@ -194,7 +194,7 @@ export default function Funds() {
                   onClick={() => setShowNewFundModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-[#6E6155] hover:bg-[#FFF4D6] hover:text-foreground"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-[#6E6155] hover:bg-[#FFF4D6] hover:text-foreground transition-all duration-200 ease-in-out"
                 >
                   ×
                 </button>
@@ -254,13 +254,13 @@ export default function Funds() {
                   <button
                     type="button"
                     onClick={() => setShowNewFundModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-xs font-medium text-[#51443A]"
+                    className="px-4 py-2.5 rounded-xl border border-[#E7DCC8] text-xs font-medium text-[#51443A] transition-all duration-200 ease-in-out"
                   >
                     ยกเลิก
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-[#9F3B0F]"
+                    className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-[#9F3B0F] hover:shadow-sm active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed transition-all duration-200 ease-in-out"
                   >
                     สร้างกองทุน
                   </button>
