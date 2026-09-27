@@ -73,7 +73,7 @@
      keep page content clear of it below the lg: breakpoint. Any page that
      adds its own fixed/sticky bottom bar on mobile must clear this same
      value plus its own height, instead of guessing a pixel offset. */
-  --mobile-nav-clearance: 6rem;
+  --mobile-nav-clearance: 7.5rem;
 
   /* Widest the page content column is allowed to get (AppLayout.tsx). Without
      a ceiling, a ledger row on a 1920px monitor puts its date at the far left
