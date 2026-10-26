@@ -1,6 +1,7 @@
 import React from "react";
 import { RotateCcw, Trash2 } from "lucide-react";
 import { fmtBaht, Variance } from "./countingUtils";
+import { Swal } from "@/lib/sweetalert";
 
 interface ReconciliationSummaryTabProps {
   sessionId: number;
@@ -68,6 +69,44 @@ export function ReconciliationSummaryTab({
   resetSessionPending,
   deleteSessionPending,
 }: ReconciliationSummaryTabProps) {
+  const effectiveVarianceNote =
+    varianceNote.trim() || sessionVarianceNote || "";
+
+  const handlePost = async () => {
+    const confirmed = await Swal.confirm(
+      "ยืนยันการลงบัญชีเข้าระบบ?",
+      `จะบันทึกรายการถวายและรายจ่ายของรอบนี้เข้าบัญชีการเงิน\n\nยอดถวายตามซอง: ${fmtBaht(r.offeringTotal)}\nรายการหักเบิก: ${fmtBaht(r.deductionTotal)}${effectiveVarianceNote ? `\nคำอธิบายผลต่าง: ${effectiveVarianceNote}` : ""}\n\nลงบัญชีแล้วรอบจะล็อกข้อมูลซองและผลนับ หากต้องแก้ไขต้องขอ "ส่งกลับไปนับใหม่" ก่อน`,
+      {
+        icon: "question",
+        confirmButtonText: "ลงบัญชี",
+        confirmButtonColor: "#1F5C33",
+        cancelButtonText: "ยกเลิก",
+      }
+    );
+    if (confirmed) {
+      post.mutate({
+        id: sessionId,
+        varianceNote: varianceNote.trim() || undefined,
+      });
+    }
+  };
+
+  const handleClose = async () => {
+    const confirmed = await Swal.confirm(
+      "ยืนยันการปิดรอบถาวร?",
+      `เมื่อปิดรอบแล้วข้อมูลซองถวายและผลนับจะถูกล็อกเพื่อการตรวจสอบ ไม่สามารถแก้ไขได้อีก\n\n(ปิดรอบแล้วไม่มีปุ่มเปิดรอบใหม่ — รอบนี้จะปรากฏเป็นประวัติที่อ่านอย่างเดียว)`,
+      {
+        icon: "warning",
+        confirmButtonText: "ปิดรอบถาวร",
+        confirmButtonColor: "#51443A",
+        cancelButtonText: "ยกเลิก",
+      }
+    );
+    if (confirmed) {
+      close.mutate({ id: sessionId });
+    }
+  };
+
   return (
     <section className="space-y-4">
       <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
@@ -103,24 +142,24 @@ export function ReconciliationSummaryTab({
               </dd>
             </div>
           ))}
-          <div className="flex items-center justify-between gap-4 bg-background p-4">
-            <dt className="text-sm font-bold text-foreground">
+          <div className="flex items-center justify-between gap-4 bg-[#FFF8EA] p-4">
+            <dt className="text-sm font-bold text-[#171311]">
               ผลต่างเงินสด (นับได้ − ซองเงินสด)
             </dt>
             <dd>
               <Variance amount={r.cashVariance} />
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4 bg-background p-4">
-            <dt className="text-sm font-bold text-foreground">
+          <div className="flex items-center justify-between gap-4 bg-[#FFF8EA] p-4">
+            <dt className="text-sm font-bold text-[#171311]">
               ผลต่างเงินโอน (เข้าบัญชี − ซองโอน)
             </dt>
             <dd>
               <Variance amount={r.transferVariance} />
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4 bg-background p-4">
-            <dt className="text-sm font-bold text-foreground">
+          <div className="flex items-center justify-between gap-4 bg-[#FFF8EA] p-4">
+            <dt className="text-sm font-bold text-[#171311]">
               ผลต่างการฝาก (ฝากจริง − ที่ต้องนำฝาก)
             </dt>
             <dd>
@@ -207,12 +246,7 @@ export function ReconciliationSummaryTab({
           {status === "verified" && (
             <button
               type="button"
-              onClick={() =>
-                post.mutate({
-                  id: sessionId,
-                  varianceNote: varianceNote.trim() || undefined,
-                })
-              }
+              onClick={handlePost}
               disabled={
                 post.isPending ||
                 unapprovedDeductions.length > 0 ||
@@ -226,7 +260,7 @@ export function ReconciliationSummaryTab({
           {status === "posted" && (
             <button
               type="button"
-              onClick={() => close.mutate({ id: sessionId })}
+              onClick={handleClose}
               disabled={close.isPending}
               className="min-h-11 rounded-2xl bg-[#51443A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
             >

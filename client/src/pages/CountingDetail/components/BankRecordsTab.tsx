@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 import { fmtBaht, Variance } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
+import { Swal } from "@/lib/sweetalert";
 
 interface BankRecordsTabProps {
   sessionId: number;
@@ -49,6 +50,25 @@ export function BankRecordsTab({
   const [bAmount, setBAmount] = useState("");
   const [bName, setBName] = useState("");
   const [bRef, setBRef] = useState("");
+
+  const handleMatchPassbook = async (record: {
+    id: number;
+    amount: number;
+  }) => {
+    const confirmed = await Swal.confirm(
+      "ยืนยันการกระทบสมุดบัญชี?",
+      `จะบันทึกสถานะ "กระทบสมุดบัญชีแล้ว" ให้รายการจำนวน ${fmtBaht(record.amount)}\n\nทั้งนี้ระบบจะบันทึกวันกระทบสมุดเป็นวันนี้ และหลังกระทบสมุดแล้วจะไม่สามารถย้อนสถานะได้`,
+      {
+        icon: "question",
+        confirmButtonText: "กระทบสมุด",
+        confirmButtonColor: "#2F7A45",
+        cancelButtonText: "ยกเลิก",
+      }
+    );
+    if (confirmed) {
+      matchPassbook.mutate({ id: record.id, passbookDate: new Date() });
+    }
+  };
 
   return (
     <section className="space-y-4">
@@ -196,12 +216,7 @@ export function BankRecordsTab({
                   {!record.passbookMatched && (
                     <button
                       type="button"
-                      onClick={() =>
-                        matchPassbook.mutate({
-                          id: record.id,
-                          passbookDate: new Date(),
-                        })
-                      }
+                      onClick={() => void handleMatchPassbook(record)}
                       disabled={matchPassbook.isPending}
                       className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-[#2F7A45] disabled:opacity-50"
                     >

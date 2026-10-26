@@ -5,6 +5,7 @@ import { MoneyDisplay } from "@/components/common/CommonUI";
 import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
 import { fmtBaht } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
+import { Swal } from "@/lib/sweetalert";
 
 interface EnvelopesTabProps {
   sessionId: number;
@@ -88,6 +89,26 @@ export function EnvelopesTab({
         },
       }
     );
+  };
+
+  const handleRemoveEnvelope = async (envelope: {
+    id: number;
+    envelopeNo?: string | null;
+    amount: number;
+  }) => {
+    const confirmed = await Swal.confirm(
+      "ยืนยันการลบซองถวาย?",
+      `ต้องการลบ ${envelope.envelopeNo ? `ซอง ${envelope.envelopeNo}` : "รายการซองถวาย"} จำนวน ${fmtBaht(envelope.amount)} ออกจากรอบนี้หรือไม่?\n\nยอดรวมซองและการกระทบยอดจะถูกคำนวณใหม่ทันที`,
+      {
+        icon: "warning",
+        confirmButtonText: "ลบซองนี้",
+        confirmButtonColor: "#C8372D",
+        cancelButtonText: "ยกเลิก",
+      }
+    );
+    if (confirmed) {
+      removeEnvelope.mutate({ id: envelope.id, sessionId });
+    }
   };
 
   return (
@@ -279,12 +300,7 @@ export function EnvelopesTab({
                       <button
                         type="button"
                         aria-label="ลบซองนี้"
-                        onClick={() =>
-                          removeEnvelope.mutate({
-                            id: envelope.id,
-                            sessionId,
-                          })
-                        }
+                        onClick={() => void handleRemoveEnvelope(envelope)}
                         disabled={removeEnvelope.isPending}
                         className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FDECEA] disabled:opacity-50"
                       >
