@@ -99,9 +99,9 @@ export function CashCountTab({
             );
           })}
         </ul>
-        <div className="flex items-center justify-between border-t-2 border-[#E7DCC8] bg-background p-4">
+        <div className="flex items-center justify-between border-t-2 border-[#E7DCC8] bg-[#FFF8EA] p-4">
           <div>
-            <p className="font-bold text-foreground">รวมนับได้</p>
+            <p className="font-bold text-[#171311]">รวมนับได้</p>
             <p className="text-sm text-[#51443A]">
               เทียบซองเงินสด {fmtBaht(envelopeCashTotal)}
             </p>

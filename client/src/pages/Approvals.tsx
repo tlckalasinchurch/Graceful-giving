@@ -179,8 +179,8 @@ export default function Approvals() {
               >
                 <div className="space-y-2 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-mono text-[#807266] bg-background px-2.5 py-0.5 rounded-full border border-[#E7DCC8]">
-                      REQ-2026-00{req.id}
+                    <span className="text-xs font-mono text-[#807266] bg-[#FAF8F5] px-2.5 py-0.5 rounded-full border border-[#E7DCC8]">
+                      {`REQ-${new Date(req.date).getFullYear()}-00${req.id}`}
                     </span>
                     <span className="text-xs font-medium text-[#51443A] bg-[#FFF8EA] px-2.5 py-0.5 rounded-full border border-[#E7DCC8]/60">
                       {req.fund}
