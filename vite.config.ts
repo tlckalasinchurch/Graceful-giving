@@ -150,10 +150,18 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
-
 export default defineConfig({
-  plugins,
+  // The Manus runtime injects a ~367 KB inline script. It is a development
+  // preview helper, so keep it out of the production HTML.
+  plugins: [
+    react(),
+    tailwindcss(),
+    jsxLocPlugin(),
+    ...(process.env.NODE_ENV === "development"
+      ? [vitePluginManusRuntime()]
+      : []),
+    vitePluginManusDebugCollector(),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

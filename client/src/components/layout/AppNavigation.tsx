@@ -49,7 +49,7 @@ export const navItems = [
     icon: HandCoins,
   },
   {
-    label: "กล่องสลิป LINE",
+    label: "สลิป LINE",
     path: "/giving/inbox",
     icon: Inbox,
   },
@@ -89,7 +89,7 @@ export const navItems = [
     icon: CheckCircle2,
   },
   {
-    label: "ข่าวสารและกิจกรรม",
+    label: "ข่าวสาร",
     path: "/updates",
     icon: CalendarDays,
   },
@@ -109,6 +109,32 @@ export function getAuthorizedNavItems(
   user?: { role?: string; churchRole?: string | null } | null
 ) {
   return navItems.filter(item => canAccessRoute(item.path, user));
+}
+
+/**
+ * The work a treasurer does every week. Everything else is an occasional
+ * setting or record-keeping task and lives behind "จัดการเพิ่มเติม", so the
+ * sidebar stays short enough to scan in one glance.
+ */
+const DAILY_PATHS = new Set([
+  "/",
+  "/transactions",
+  "/offerings",
+  "/expenses",
+  "/reports",
+  "/approvals",
+]);
+
+export function getDailyNavItems(
+  user?: { role?: string; churchRole?: string | null } | null
+) {
+  return getAuthorizedNavItems(user).filter(item => DAILY_PATHS.has(item.path));
+}
+
+export function getManagementNavItems(
+  user?: { role?: string; churchRole?: string | null } | null
+) {
+  return getAuthorizedNavItems(user).filter(item => !DAILY_PATHS.has(item.path));
 }
 
 const NAV_GROUPS = [

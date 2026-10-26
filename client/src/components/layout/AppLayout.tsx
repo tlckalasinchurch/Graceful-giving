@@ -4,10 +4,18 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useGuardedNavigate } from "@/hooks/useUnsavedChanges";
 import { GuardedLink } from "./GuardedLink";
-import { AppMenu, getNavGroup, isActiveRoute, getAuthorizedNavItems } from "./AppNavigation";
+import {
+  AppMenu,
+  getDailyNavItems,
+  getManagementNavItems,
+  isActiveRoute,
+} from "./AppNavigation";
 import { getChurchRoleInfo } from "@shared/roles";
+import { canAccessRoute } from "@/lib/routeAccess";
 import {
   Bell,
+  CalendarDays,
+  ChevronDown,
   CircleUserRound,
   FileBarChart,
   Home as HomeIcon,
@@ -112,6 +120,35 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const churchName =
     churchProfile?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";
 
+  const dailyItems = getDailyNavItems(user);
+  // The profile card at the bottom of the sidebar already links to /profile.
+  const managementItems = getManagementNavItems(user).filter(
+    item => item.path !== "/profile"
+  );
+  const managementActive = managementItems.some(item =>
+    isActiveRoute(currentPath, item.path)
+  );
+  const [showManagement, setShowManagement] = React.useState(managementActive);
+
+  React.useEffect(() => {
+    if (managementActive) setShowManagement(true);
+  }, [managementActive]);
+
+  // A member cannot open Reports, so send that tab to the news feed instead
+  // of showing a tab that lands on the restricted screen.
+  const mobileTabs = MOBILE_TABS.map(tab =>
+    tab.path === "/reports" && !canAccessRoute("/reports", user)
+      ? {
+          ...tab,
+          path: "/updates",
+          label: "กิจกรรม",
+          ariaLabel: "ไปที่ข่าวสารและกิจกรรม",
+          icon: CalendarDays,
+          match: (p: string) => isActiveRoute(p, "/updates"),
+        }
+      : tab
+  );
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-[#FFF4D6] overflow-x-clip">
       <div className="flex-1 flex flex-row w-full max-w-none mx-auto min-w-0">
@@ -146,20 +183,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </button>
 
           <nav aria-label="เมนูนำทางหลัก" className="flex-1 space-y-0.5">
-            {getAuthorizedNavItems(user).reduce<React.ReactNode[]>((content, item, index, items) => {
-              const previous = items[index - 1];
-              const group = getNavGroup(item.path);
-              const previousGroup = previous ? getNavGroup(previous.path) : undefined;
+            {dailyItems.map(item => {
               const Icon = item.icon;
               const isActive = isActiveRoute(currentPath, item.path);
-              if (group !== previousGroup) {
-                content.push(
-                  <p key={`desktop-group-${group}`} className="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#807266] first:pt-0">
-                    {group}
-                  </p>
-                );
-              }
-              content.push(
+              return (
                 <GuardedLink
                   key={item.path}
                   href={item.path}
@@ -170,12 +197,58 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                       : "text-[#FFF4D6] font-medium hover:bg-[#2A211C] hover:text-white"
                   }`}
                 >
-                  <Icon className={`size-[18px] shrink-0 ${isActive ? "text-[#171311]" : "text-[#FC6C26]"}`} aria-hidden="true" />
+                  <Icon
+                    className={`size-[18px] shrink-0 ${isActive ? "text-[#171311]" : "text-[#FC6C26]"}`}
+                    aria-hidden="true"
+                  />
                   <span className="truncate">{item.label}</span>
                 </GuardedLink>
               );
-              return content;
-            }, [])}
+            })}
+
+            {managementItems.length > 0 && (
+              <div className="pt-3 mt-3 border-t border-[#3A302A]">
+                <button
+                  type="button"
+                  onClick={() => setShowManagement(open => !open)}
+                  aria-expanded={showManagement}
+                  className="flex min-h-10 w-full items-center justify-between gap-2 rounded-lg px-3 text-xs font-bold text-[#B9AC9F] hover:bg-[#2A211C] hover:text-white"
+                >
+                  <span>จัดการเพิ่มเติม</span>
+                  <ChevronDown
+                    className={`size-4 transition-transform ${showManagement ? "rotate-180" : ""}`}
+                    aria-hidden="true"
+                  />
+                </button>
+
+                {showManagement && (
+                  <div className="mt-1 space-y-0.5">
+                    {managementItems.map(item => {
+                      const Icon = item.icon;
+                      const isActive = isActiveRoute(currentPath, item.path);
+                      return (
+                        <GuardedLink
+                          key={item.path}
+                          href={item.path}
+                          aria-current={isActive ? "page" : undefined}
+                          className={`flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors ${
+                            isActive
+                              ? "bg-[#FC6C26] text-[#171311] font-semibold"
+                              : "text-[#FFF4D6] font-medium hover:bg-[#2A211C] hover:text-white"
+                          }`}
+                        >
+                          <Icon
+                            className={`size-[18px] shrink-0 ${isActive ? "text-[#171311]" : "text-[#FC6C26]"}`}
+                            aria-hidden="true"
+                          />
+                          <span className="truncate">{item.label}</span>
+                        </GuardedLink>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </nav>
 
           {/* User Profile Card at Sidebar Bottom */}
@@ -264,7 +337,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#171311]/95 backdrop-blur-md border-t border-[#51443A] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
       >
         <div className="max-w-md mx-auto grid grid-cols-5 items-end">
-          {MOBILE_TABS.slice(0, 2).map(tab => (
+          {mobileTabs.slice(0, 2).map(tab => (
             <MobileTab
               key={tab.path}
               tab={tab}
@@ -287,7 +360,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             </span>
           </div>
 
-          {MOBILE_TABS.slice(2).map(tab => (
+          {mobileTabs.slice(2).map(tab => (
             <MobileTab
               key={tab.path}
               tab={tab}

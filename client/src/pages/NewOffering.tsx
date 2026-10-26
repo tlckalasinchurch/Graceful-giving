@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -7,13 +7,7 @@ import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
-import {
-  Calendar,
-  CheckCircle2,
-  FileUp,
-  HandCoins,
-  Sparkles,
-} from "lucide-react";
+import { HandCoins } from "lucide-react";
 import { toast } from "sonner";
 import {
   OFFERING_CATEGORIES,
@@ -49,6 +43,12 @@ export default function NewOffering() {
   const [donorName, setDonorName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+
+  // Default to the first fund so a weekly offering takes three inputs, not
+  // four. The user can still pick another fund before saving.
+  useEffect(() => {
+    if (!fundId && funds.length > 0) setFundId(String(funds[0].id));
+  }, [fundId, funds]);
   const isDirty =
     !isSuccessOpen &&
     Boolean(
@@ -56,7 +56,6 @@ export default function NewOffering() {
         notes ||
         donorName ||
         isAnonymous ||
-        fundId ||
         category !== "general" ||
         method !== "เงินสด"
     );
@@ -103,7 +102,9 @@ export default function NewOffering() {
           : method === "เช็ค"
             ? "check"
             : "cash",
-      notes: notes || undefined,
+      receiptDate: date ? new Date(date) : undefined,
+      donorName: isAnonymous ? undefined : donorName.trim() || undefined,
+      notes: notes.trim() || undefined,
     });
   };
 
@@ -121,28 +122,6 @@ export default function NewOffering() {
       action={<BackLink label="ดูรายการทั้งหมด" onClick={goBack} />}
     >
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Hero Card with offering_box.jpg */}
-        <div className="bg-gradient-to-r from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] rounded-2xl p-6 border border-[#E7DCC8] shadow-xs flex items-center gap-5">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-white p-1 border border-[#E7DCC8] shadow-xs shrink-0">
-            <Illustration
-              src="/illustrations/offering_box.jpg"
-              alt="กล่องถวาย"
-              className="w-full h-full object-cover rounded-2xl"
-              width={96}
-              height={96}
-            />
-          </div>
-          <div className="space-y-1">
-            <h2 className="text-lg sm:text-xl font-bold text-[#51443A]">
-              การถวายด้วยความยินดี
-            </h2>
-            <p className="text-xs text-[#807266] leading-relaxed">
-              "พระเจ้าทรงรักผู้ที่ให้ด้วยใจยินดี" —
-              ทุกยอดการถวายจะถูกบันทึกอย่างถูกต้องและโปร่งใสเพื่อการงานของพระเจ้า
-            </p>
-          </div>
-        </div>
-
         {/* Main Step Form Card */}
         <form
           onSubmit={handleSubmit}
@@ -254,70 +233,78 @@ export default function NewOffering() {
             </div>
           </div>
 
-          {/* 5. วันที่ & รายละเอียดเพิ่มเติม */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#51443A] block">
-                วันที่รับเงิน
-              </label>
-              <input
-                type="date"
-                value={date}
-                onChange={e => setDate(e.target.value)}
-                className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311]"
-              />
+          {/* Optional details stay folded away for the common weekly entry. */}
+          <details className="rounded-2xl border border-[#E7DCC8] bg-[#FAF8F5]/50">
+            <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-xs font-bold text-[#51443A]">
+              <span>รายละเอียดเพิ่มเติม (ไม่บังคับ)</span>
+              <span className="text-base leading-none text-[#C94F16]">+</span>
+            </summary>
+            <div className="space-y-4 border-t border-[#E7DCC8] px-4 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[#51443A] block">
+                    วันที่รับเงิน
+                  </label>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={e => setDate(e.target.value)}
+                    className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[#51443A] block">
+                    ชื่อผู้ถวาย (ถ้ามี)
+                  </label>
+                  <input
+                    type="text"
+                    disabled={isAnonymous}
+                    value={donorName}
+                    onChange={e => setDonorName(e.target.value)}
+                    placeholder={
+                      isAnonymous
+                        ? "ถวายโดยไม่เปิดเผยนาม"
+                        : "ชื่อ-นามสกุล หรือครอบครัว"
+                    }
+                    className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311] disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="anon"
+                  checked={isAnonymous}
+                  onChange={e => {
+                    setIsAnonymous(e.target.checked);
+                    if (e.target.checked) setDonorName("");
+                  }}
+                  className="rounded text-[#C94F16] focus:ring-[#C94F16] w-4 h-4 border-[#E7DCC8]"
+                />
+                <label
+                  htmlFor="anon"
+                  className="text-xs text-[#51443A] cursor-pointer"
+                >
+                  ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
+                </label>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#51443A] block">
+                  หมายเหตุ / คำอธิษฐานขอบพระคุณ
+                </label>
+                <textarea
+                  rows={2}
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="เช่น ถวายขอบพระคุณสำหรับวันเกิด, พันธกิจเด็ก"
+                  className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311]"
+                />
+              </div>
             </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#51443A] block">
-                ชื่อผู้ถวาย (ถ้ามี)
-              </label>
-              <input
-                type="text"
-                disabled={isAnonymous}
-                value={donorName}
-                onChange={e => setDonorName(e.target.value)}
-                placeholder={
-                  isAnonymous
-                    ? "ถวายโดยไม่เปิดเผยนาม"
-                    : "ชื่อ-นามสกุล หรือครอบครัว"
-                }
-                className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311] disabled:opacity-50"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="anon"
-              checked={isAnonymous}
-              onChange={e => {
-                setIsAnonymous(e.target.checked);
-                if (e.target.checked) setDonorName("");
-              }}
-              className="rounded text-[#C94F16] focus:ring-[#C94F16] w-4 h-4 border-[#E7DCC8]"
-            />
-            <label
-              htmlFor="anon"
-              className="text-xs text-[#51443A] cursor-pointer"
-            >
-              ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
-            </label>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#51443A] block">
-              หมายเหตุ / คำอธิษฐานขอบพระคุณ
-            </label>
-            <textarea
-              rows={2}
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="เช่น ถวายขอบพระคุณสำหรับวันเกิด, พันธกิจเด็ก"
-              className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[#E7DCC8] text-xs text-[#171311]"
-            />
-          </div>
+          </details>
 
           {/* Submit Button */}
           <button

@@ -16,7 +16,6 @@ import {
   RecentTransactions,
   type TransactionItem,
 } from "./Home/components/RecentTransactions";
-import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
 import { formatBaht, formatThaiDateTime } from "@/lib/format";
 
 // ─── Formatting helpers ──────────────────────────────────────────────────────
@@ -76,9 +75,6 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const [showBalance, setShowBalance] = useState(true);
-
-  // Dialog states
-  const [newsOpen, setNewsOpen] = useState(false);
 
   // The dashboard only offers shortcuts the signed-in role can actually open,
   // so a tile never drops the user on the Restricted Access screen.
@@ -160,7 +156,7 @@ export default function Home() {
           date: o.receiptDate,
           type: "income",
           category: o.category,
-          subCategory: "อาคารคริสตจักร",
+          subCategory: "รายรับ",
           amount: Number(o.amount),
           tone: "bg-[#FDECEA] text-[#E06250]",
           icon: Heart,
@@ -176,7 +172,7 @@ export default function Home() {
           date: e.expenseDate,
           type: "expense",
           category: e.category,
-          subCategory: "พันธกิจนมัสการ",
+          subCategory: "รายจ่าย",
           amount: Number(e.amount),
           tone: "bg-[#FFF8EA] text-[#C94F16]",
           icon: Landmark,
@@ -271,7 +267,7 @@ export default function Home() {
             secondaryTileColsClass={secondaryTileColsClass}
             onOpenReports={() => setLocation("/reports")}
             onOpenMembers={() => setLocation("/members")}
-            onOpenNews={() => setNewsOpen(true)}
+            onOpenNews={() => setLocation("/updates")}
             onOpenWithdrawals={() => setLocation("/withdrawals/new")}
           />
         </section>
@@ -293,8 +289,6 @@ export default function Home() {
         </section>
       </div>
 
-      {/* Sheet: Church News & Announcements */}
-      <ChurchNewsSheet open={newsOpen} onOpenChange={setNewsOpen} />
     </AppLayout>
   );
 }

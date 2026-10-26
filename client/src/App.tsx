@@ -41,15 +41,9 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Updates = lazy(() => import("./pages/Updates"));
 const GivingInbox = lazy(() => import("./pages/GivingInbox"));
-const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
 
 /** Routes reachable without a session. Everything else needs one. */
-const PUBLIC_PATHS = [
-  "/login",
-  "/register",
-  "/404",
-  ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
-];
+const PUBLIC_PATHS = ["/login", "/register", "/404"];
 
 function normalizePath(path: string) {
   return path.length > 1 ? path.replace(/\/+$/, "") : path;
@@ -76,14 +70,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-const SETUP_EXEMPT_PATHS = [
-  "/setup",
-  "/login",
-  "/register",
-  "/404",
-  // Dev-only UI gallery; the route itself is also unmounted in prod (see Router).
-  ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
-];
+const SETUP_EXEMPT_PATHS = ["/setup", "/login", "/register", "/404"];
 
 // Hybrid onboarding gate: logged-in users whose church profile is missing or
 // not yet set up are nudged to the wizard — unless they skipped it in this
@@ -235,14 +222,6 @@ function Router() {
           <GivingInbox />
         </RoleGuard>
       </Route>
-      <Route path="/giving-inbox">
-        <RoleGuard
-          canAccess={u => canAccessRoute("/giving/inbox", u)}
-          message="ส่วนกล่องข้อความสลิปสงวนไว้สำหรับเหรัญญิกหรือผู้มีสิทธิ์จัดการการเงินเท่านั้น"
-        >
-          <GivingInbox />
-        </RoleGuard>
-      </Route>
 
       {/* Expenses */}
       <Route path="/expenses">
@@ -362,12 +341,6 @@ function Router() {
 
       {/* News & Updates */}
       <Route path="/updates" component={Updates} />
-
-      {/* Dev UI showcase (incl. adapted ObsidianUI components) — dev builds
-          only; statically stripped from production bundles. */}
-      {import.meta.env.DEV && (
-        <Route path="/ui-showcase" component={ComponentShowcase} />
-      )}
 
       {/* 404 Fallback */}
       <Route path="/404" component={NotFound} />
