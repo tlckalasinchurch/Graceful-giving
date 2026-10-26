@@ -98,11 +98,14 @@ export default function NewOffering() {
       amount: Number(amount),
       fundId: Number(fundId),
       method:
-        method === "โอน" || method === "QR"
+        method === "โอนเงิน" || method === "QR พร้อมเพย์"
           ? "transfer"
           : method === "เช็ค"
             ? "check"
             : "cash",
+      receiptDate: new Date(`${date}T00:00:00`),
+      donorName:
+        isAnonymous ? undefined : donorName.trim() || undefined,
       notes: notes || undefined,
     });
   };
