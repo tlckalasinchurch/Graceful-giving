@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -161,6 +161,14 @@ export default function CountingDetail() {
 
   const [varianceNote, setVarianceNote] = useState("");
   const [draftCounts, setDraftCounts] = useState<Record<string, string>>({});
+
+  // The route keeps this component mounted across /counting/:id values, so
+  // in-session drafts must reset when moving to another counting session.
+  useEffect(() => {
+    setDraftCounts({});
+    setVarianceNote("");
+    setTab("envelopes");
+  }, [sessionId]);
 
   const detail = detailQuery.data;
   const status = detail?.session.status;
@@ -358,7 +366,7 @@ export default function CountingDetail() {
               className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                 tab === id
                   ? "bg-primary text-white shadow-sm"
-                  : "border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-background"
+                  : "border border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FAF8F5]"
               }`}
             >
               <Icon className="h-4 w-4" />
