@@ -2,6 +2,10 @@ import { z } from "zod";
 import { notifyOwner } from "./notification";
 import { adminProcedure, publicProcedure, router } from "./trpc";
 
+// KEPT intentionally — not dead code. `health` is the deploy/uptime probe target
+// and `notifyOwner` is the admin ops-alert channel (platform notifications).
+// No client page calls them today; do not remove without checking Vercel/ops usage.
+
 export const systemRouter = router({
   health: publicProcedure
     .input(

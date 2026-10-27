@@ -101,9 +101,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ (PASTOR)",
     appointee: "ศบ.อาจารย์สรรเสริญ ดวงจิตร",
     badgeStyle: {
-      bg: "bg-blue-100",
-      text: "text-blue-900",
-      border: "border-blue-300",
+      bg: "bg-[#FFF8EA]",
+      text: "text-[#9F3B0F]",
+      border: "border-[#E7DCC8]",
       icon: "✝️",
     },
     summary:
@@ -122,9 +122,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "มัคนายก / คณะกรรมการ (DEACON)",
     appointee: "อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
-      bg: "bg-purple-100",
-      text: "text-purple-900",
-      border: "border-purple-300",
+      bg: "bg-[#F2C9BE]",
+      text: "text-[#7A2A20]",
+      border: "border-[#E06250]",
       icon: "🤝",
     },
     summary:
