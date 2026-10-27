@@ -161,8 +161,33 @@ export default function Transactions() {
   );
   const netTotal = totalIncome - totalExpense;
 
+  // Export the currently filtered transactions, same pattern as Offerings'
+  // exportCSV: UTF-8 BOM so Excel reads Thai text correctly.
   const handleExport = () => {
-    toast.success("ดาวน์โหลดรายงานธุรกรรมสำเร็จ (CSV)");
+    const typeLabel = (t: TransactionItem) =>
+      t.type === "income" ? "รายรับ" : "รายจ่าย";
+    const headers =
+      "ID,วันที่,รายการ,หมวดหมู่,ประเภท,กองทุน,จำนวนเงิน\n";
+    const rows = filtered
+      .map(
+        t =>
+          `"${t.rawId}","${new Date(t.date).toLocaleDateString("th-TH")}","${t.title}","${t.categoryLabel}","${typeLabel(t)}","${t.fund}",${t.amount.toFixed(2)}`
+      )
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + headers + rows], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `grace-giving-transactions-${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("ส่งออกรายการธุรกรรมสำเร็จ");
   };
 
   const isLoading = loadingOfferings || loadingExpenses;

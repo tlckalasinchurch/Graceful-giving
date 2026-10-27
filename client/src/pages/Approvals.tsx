@@ -4,6 +4,7 @@ import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
+  LoadingSkeleton,
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
@@ -44,9 +45,15 @@ export default function Approvals() {
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
 
+  const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
+    retry: false,
+    staleTime: 60_000,
+  });
+
   const {
     data: withdrawalsData,
     isLoading,
+    isError,
     refetch,
   } = trpc.withdrawals.list.useQuery(undefined, { retry: false });
 
@@ -62,22 +69,28 @@ export default function Approvals() {
 
   const requests = useMemo(() => {
     if (withdrawalsData && withdrawalsData.length > 0) {
+      const fundNameById = new Map<number, string>();
+      for (const a of accountsData ?? []) fundNameById.set(a.id, a.name);
+      const fundName = (id: number | null | undefined) =>
+        (id != null && fundNameById.get(id)) || "—";
       return withdrawalsData.map(
         (w: WithdrawalItem): ApprovalRequest => ({
           id: w.id,
           purpose: w.purpose,
-          amount: Number(w.amount),
+          amount: w.amount,
           status: w.status,
           date: w.requestDate || w.createdAt,
-          requester: "ผู้ประสานงานพันธกิจ",
-          fund: "บัญชีทั่วไป",
+          // Real requester from the joined users row; "—" when the user no
+          // longer exists rather than a fabricated label.
+          requester: w.requesterName ?? "—",
+          fund: fundName(w.fundId),
           details: w.details || "เบิกจ่ายตามงบประมาณที่ได้รับอนุมัติ",
         })
       );
     }
 
     return [];
-  }, [withdrawalsData]);
+  }, [withdrawalsData, accountsData]);
 
   const filteredRequests = useMemo(() => {
     return requests.filter(r => r.status === activeTab);
@@ -165,7 +178,16 @@ export default function Approvals() {
         </div>
 
         {/* Requests List */}
-        {filteredRequests.length === 0 ? (
+        {isLoading ? (
+          <LoadingSkeleton count={3} />
+        ) : isError ? (
+          <EmptyState
+            title="โหลดคำขอเบิกจ่ายไม่สำเร็จ"
+            description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+            actionText="ลองใหม่"
+            onAction={() => refetch()}
+          />
+        ) : filteredRequests.length === 0 ? (
           <EmptyState
             title="ไม่มีคำขอในหมวดหมู่นี้"
             description="คำขอเบิกจ่ายทั้งหมดได้รับการตรวจสอบและดำเนินการเรียบร้อยแล้ว"
