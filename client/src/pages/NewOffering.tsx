@@ -103,7 +103,11 @@ export default function NewOffering() {
           : method === "เช็ค"
             ? "check"
             : "cash",
-      receiptDate: new Date(`${date}T00:00:00`),
+      // Noon keeps the calendar date stable: back-converting a UTC+7 local
+      // midnight to UTC lands on the previous day, which silently moved
+      // offerings between fiscal/report days. Noon never changes the date
+      // when shifted ±12h into UTC.
+      receiptDate: new Date(`${date}T12:00:00`),
       donorName:
         isAnonymous ? undefined : donorName.trim() || undefined,
       notes: notes || undefined,

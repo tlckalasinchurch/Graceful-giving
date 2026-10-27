@@ -24,6 +24,17 @@ export const Swal = {
         return resolve({ isConfirmed: true, isDismissed: false });
       }
 
+      // Title/text may contain user-entered content (envelope numbers, names,
+      // notes) and are interpolated into innerHTML below — escape them. The
+      // `html` option stays raw: it exists for hand-built developer markup.
+      const escapeHtml = (s: string) =>
+        s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
       // Existing modal cleanup
       const existing = document.getElementById("grace-sweetalert-container");
       if (existing) existing.remove();
@@ -87,12 +98,12 @@ export const Swal = {
             ${iconHtml}
             ${
               options.title
-                ? `<h3 class="mt-5 text-2xl sm:text-3xl font-black text-[#171311] tracking-tight leading-snug">${options.title}</h3>`
+                ? `<h3 class="mt-5 text-2xl sm:text-3xl font-black text-[#171311] tracking-tight leading-snug">${escapeHtml(options.title)}</h3>`
                 : ""
             }
             ${
               options.text
-                ? `<p class="mt-3 whitespace-pre-line text-base sm:text-lg text-[#3F3833] font-medium leading-relaxed max-w-md mx-auto">${options.text}</p>`
+                ? `<p class="mt-3 whitespace-pre-line text-base sm:text-lg text-[#3F3833] font-medium leading-relaxed max-w-md mx-auto">${escapeHtml(options.text)}</p>`
                 : ""
             }
             ${options.html ? `<div class="mt-3 text-sm sm:text-base text-[#51443A]/90">${options.html}</div>` : ""}
