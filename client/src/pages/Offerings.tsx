@@ -231,9 +231,6 @@ export default function Offerings() {
               <div className="flex items-center gap-3 shrink-0">
                 <div className="text-right">
                   <MoneyDisplay amount={o.amount} type="income" size="md" />
-                  <span className="block text-xs text-[#2F7A45] font-semibold">
-                    บันทึกเรียบร้อย
-                  </span>
                 </div>
 
                 <button

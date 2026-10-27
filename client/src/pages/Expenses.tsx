@@ -140,15 +140,15 @@ export default function Expenses() {
       case "utilities":
         return { icon: Zap, color: "bg-amber-100 text-amber-800" };
       case "ministry":
-        return { icon: Users, color: "bg-sky-100 text-sky-800" };
+        return { icon: Users, color: "bg-[#FDECEA] text-[#E06250]" };
       case "pastoral":
         return { icon: Cross, color: "bg-emerald-100 text-emerald-800" };
       case "admin":
-        return { icon: Receipt, color: "bg-purple-100 text-purple-800" };
+        return { icon: Receipt, color: "bg-[#FAF8F5] text-[#51443A]" };
       case "building":
         return { icon: Building, color: "bg-orange-100 text-orange-800" };
       case "worship":
-        return { icon: GraduationCap, color: "bg-blue-100 text-blue-800" };
+        return { icon: GraduationCap, color: "bg-[#FFF8EA] text-[#9F3B0F]" };
       case "welfare":
         return { icon: HeartHandshake, color: "bg-rose-100 text-rose-800" };
       default:
