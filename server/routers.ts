@@ -1237,6 +1237,22 @@ export const appRouter = router({
             message: "ไม่พบรอบนับเงินถวาย",
           });
         }
+        // Donor names are needed only while a session is being counted (the
+        // counter transcribes them from the physical envelopes). Once posted,
+        // whoever isn't allowed to see donor names anywhere else in the system
+        // loses them here too — same rule as listOfferings.
+        if (
+          !isEditable(detail.session.status) &&
+          !canViewDonorNames(ctx.user)
+        ) {
+          return {
+            ...detail,
+            envelopes: detail.envelopes.map(e => ({
+              ...e,
+              donorName: null,
+            })),
+          };
+        }
         return detail;
       }),
 

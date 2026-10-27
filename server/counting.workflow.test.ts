@@ -334,6 +334,18 @@ describeDb("counting workflow against a real database", () => {
       caller.counting.reopenCount({ id: sessionId })
     ).rejects.toMatchObject({ code: "CONFLICT" });
   });
+
+  it("hides donor names from the counter once the session is posted", async () => {
+    // The treasurer sees names unchanged (canViewDonorNames); the counter who
+    // entered "พี่สมชาย" no longer needs it after posting.
+    const after = await asTreasurer().counting.get({ id: sessionId });
+    expect(after.envelopes.find(e => e.donorName === "พี่สมชาย")).toBeTruthy();
+
+    const masked = await asCounter().counting.get({ id: sessionId });
+    for (const e of masked.envelopes) {
+      expect(e.donorName).toBeNull();
+    }
+  });
 });
 
 describeDb("counting workflow: an unbalanced session", () => {
