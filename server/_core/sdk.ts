@@ -55,7 +55,9 @@ export const sdk = {
       try {
         const existingUsers = await db.getAllUsers();
         const isFirst = existingUsers.length === 0;
-        const isPrimary = isFirst || email === "vtr30025389@gmail.com";
+        // Grant admin/SUPER_ADMIN only to: the first registered user, or the
+        // explicitly configured owner (OWNER_OPEN_ID env var). No hardcoded values.
+        const isPrimary = isFirst || (ENV.ownerOpenId !== "" && clerkUserId === ENV.ownerOpenId);
         const role = isPrimary ? "admin" : "user";
         const churchRole = isPrimary ? "SUPER_ADMIN" : "MEMBER";
 
@@ -73,49 +75,15 @@ export const sdk = {
         console.warn("[Database] Failed to upsert user:", err);
       }
 
-      // Safe fallback if DB is not connected or still initializing
+      // DB is unavailable — reject the request rather than synthesising an admin session.
       if (!user) {
-        user = {
-          id: 1,
-          openId: clerkUserId,
-          name,
-          email,
-          loginMethod: "clerk",
-          role: "admin",
-          churchRole: "SUPER_ADMIN",
-          churchRoles: "SUPER_ADMIN",
-          avatarUrl: null,
-          phone: null,
-          department: null,
-          bio: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          lastSignedIn: new Date(),
-        };
+        throw new Error("Database unavailable: cannot authenticate user session");
       }
     }
 
-    if (user) {
-      const isSuperAdminEmail =
-        user.email === "vtr30025389@gmail.com" || user.id === 1;
-      if (isSuperAdminEmail && user.churchRole !== "SUPER_ADMIN") {
-        try {
-          await db.updateUserChurchRole(user.id, "SUPER_ADMIN", ["SUPER_ADMIN"]);
-          user.churchRole = "SUPER_ADMIN";
-          user.churchRoles = "SUPER_ADMIN";
-          user.role = "admin";
-        } catch (err) {
-          console.warn("[Database] Failed to promote to SUPER_ADMIN:", err);
-        }
-      }
-      try {
-        await db.upsertUser({ openId: user.openId, lastSignedIn: new Date() });
-      } catch {}
-    }
-
-    if (!user) {
-      throw new Error("Failed to authenticate or initialize user session");
-    }
+    try {
+      await db.upsertUser({ openId: user.openId, lastSignedIn: new Date() });
+    } catch {}
 
     return user;
   },

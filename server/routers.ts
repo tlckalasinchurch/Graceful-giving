@@ -1,3 +1,4 @@
+import path from "path";
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -657,12 +658,13 @@ export const appRouter = router({
       .input(
         z.object({
           fileName: z.string().min(1).max(255),
-          contentType: z.string().min(1).max(100),
+          contentType: z.enum(["image/jpeg", "image/png", "application/pdf"]),
           base64Data: z.string().min(1),
         })
       )
       .mutation(async ({ input }) => {
-        const ext = input.fileName.split(".").pop() ?? "bin";
+        const safeName = path.basename(input.fileName);
+        const ext = safeName.split(".").pop() ?? "bin";
         const key = `expenses/receipt.${ext}`;
         const { url } = await storagePut(
           key,

@@ -46,10 +46,6 @@ function isAuthorizedCron(req: Request): boolean {
   const auth = req.headers.authorization ?? "";
   if (ENV.cronSecret && auth === `Bearer ${ENV.cronSecret}`) return true;
 
-  // Also allow Vercel's internal cron header (x-vercel-signature)
-  // In production, Vercel signs cron requests automatically
-  if (req.headers["x-vercel-cron"] === "1") return true;
-
   // In dev, allow if no cron secret is configured
   if (!ENV.isProduction && !ENV.cronSecret) {
     console.warn("[Worker] CRON_SECRET not set — open in dev mode");
