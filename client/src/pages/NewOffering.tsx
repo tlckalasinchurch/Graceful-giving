@@ -383,7 +383,7 @@ export default function NewOffering() {
               setIsSuccessOpen(false);
               setLocation("/offerings");
             }}
-            className="w-full py-3.5 rounded-2xl bg-[#9BCBA5] hover:bg-[#96C764] text-white font-bold text-sm button-elevation transition-all"
+            className="w-full py-3.5 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm button-elevation transition-all"
           >
             ดูรายการถวายทั้งหมด
           </button>
