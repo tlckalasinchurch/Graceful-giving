@@ -399,7 +399,7 @@ export default function Settings() {
                 : "text-[#807266] hover:text-[#171311]"
             }`}
           >
-            <FileText className="w-4 h-4 text-purple-600 shrink-0" />
+            <FileText className="w-4 h-4 text-[#807266] shrink-0" />
             <span>ประวัติการใช้งาน</span>
           </button>
         </div>
@@ -910,7 +910,7 @@ export default function Settings() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7DCC8]/60 pb-5">
               <div>
                 <h3 className="text-lg font-bold text-[#171311] flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-purple-600" />
+                  <FileText className="w-5 h-5 text-[#807266]" />
                   บันทึกประวัติการดำเนินงาน
                 </h3>
                 <p className="text-xs text-[#807266] mt-1">
@@ -1039,7 +1039,7 @@ export default function Settings() {
                             );
                           } else if (log.action === "AUTH_UPDATE_PROFILE") {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-[11px] border border-blue-300">
+                              <span className="px-2.5 py-1 rounded-full bg-[#FFF8EA] text-[#9F3B0F] font-bold text-[11px] border border-[#E7DCC8]">
                                 👤 แก้ไขโปรไฟล์
                               </span>
                             );

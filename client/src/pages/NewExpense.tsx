@@ -517,7 +517,7 @@ export default function NewExpense() {
                     href={receiptUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                    className="text-xs text-[#9F3B0F] hover:underline flex items-center gap-1"
                   >
                     <ImageIcon className="w-3 h-3" />
                     ดูใบเสร็จต้นฉบับ →

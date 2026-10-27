@@ -74,9 +74,9 @@ const STATUS_LABELS: Record<
   },
   extracted: {
     text: "อ่านข้อมูลแล้ว",
-    bg: "bg-blue-50",
-    textCol: "text-blue-700",
-    border: "border-blue-200",
+    bg: "bg-[#FFF8EA]",
+    textCol: "text-[#9F3B0F]",
+    border: "border-[#F2C9BE]",
   },
   needs_review: {
     text: "ต้องตรวจสอบ",
@@ -92,9 +92,9 @@ const STATUS_LABELS: Record<
   },
   duplicate: {
     text: "สลิปซ้ำ",
-    bg: "bg-purple-500/10",
-    textCol: "text-purple-700",
-    border: "border-purple-300",
+    bg: "bg-[#FDECEA]",
+    textCol: "text-[#C8372D]",
+    border: "border-[#F2C9BE]",
   },
   approved: {
     text: "อนุมัติแล้ว",
@@ -534,15 +534,15 @@ export default function GivingInbox() {
             onClick={() => setSelectedStatus("duplicate")}
             className={`min-h-11 p-3.5 rounded-xl border transition-all text-left ${
               selectedStatus === "duplicate"
-                ? "bg-purple-50 border-purple-400 shadow-2xs ring-2 ring-purple-400/20"
+                ? "bg-[#FDECEA] border-[#C8372D] shadow-2xs ring-2 ring-[#C8372D]/20"
                 : "bg-white border-[#E7DCC8] hover:bg-[#FFFFFF]"
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-purple-800">สลิปซ้ำ</span>
-              <ShieldAlert className="w-4 h-4 text-purple-600" />
+              <span className="text-xs font-bold text-[#C8372D]">สลิปซ้ำ</span>
+              <ShieldAlert className="w-4 h-4 text-[#C8372D]" />
             </div>
-            <div className="text-2xl font-bold text-purple-700 mt-1 tabular-nums">
+            <div className="text-2xl font-bold text-[#C8372D] mt-1 tabular-nums">
               {stats?.duplicate ?? 0}
             </div>
           </button>
@@ -879,12 +879,12 @@ export default function GivingInbox() {
 
                 {/* Duplicate Warning */}
                 {currentSlip.status === "duplicate" && (
-                  <div className="p-4 rounded-xl bg-purple-50 border border-purple-300 text-purple-900 space-y-1">
+                  <div className="p-4 rounded-xl bg-[#FDECEA] border border-[#F2C9BE] text-[#7A2A20] space-y-1">
                     <div className="flex items-center gap-2 font-bold text-sm">
-                      <ShieldAlert className="w-5 h-5 text-purple-600" />
+                      <ShieldAlert className="w-5 h-5 text-[#C8372D]" />
                       ตรวจพบสลิปซ้ำ (Duplicate Detected)
                     </div>
-                    <p className="text-xs leading-relaxed text-purple-800">
+                    <p className="text-xs leading-relaxed text-[#7A2A20]">
                       {currentSlip.lastErrorMessage ||
                         "สลิปนี้มีหมายเลขอ้างอิง รูปภาพ หรือรายการธุรกรรมที่ตรงกับข้อมูลที่มีอยู่แล้วในระบบ"}
                     </p>
@@ -1159,8 +1159,8 @@ export default function GivingInbox() {
                 currentSlip.status !== "rejected" ? (
                   <div className="space-y-3 pt-4 border-t border-[#E7DCC8]">
                     {currentSlip.status === "duplicate" && (
-                      <div className="p-3 rounded-xl bg-purple-50 border border-purple-300 text-purple-900 text-xs flex items-center gap-2">
-                        <ShieldAlert className="w-4 h-4 text-purple-600 shrink-0" />
+                      <div className="p-3 rounded-xl bg-[#FDECEA] border border-[#F2C9BE] text-[#7A2A20] text-xs flex items-center gap-2">
+                        <ShieldAlert className="w-4 h-4 text-[#C8372D] shrink-0" />
                         <span>
                           สลิปนี้ได้รับการระบุว่าเป็นสลิปซ้ำ (Duplicate)
                           ระบบไม่อนุญาตให้อนุมัติเพื่อป้องกันการลงบัญชีซ้อน
