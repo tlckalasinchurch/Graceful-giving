@@ -98,11 +98,18 @@ export default function NewOffering() {
       amount: Number(amount),
       fundId: Number(fundId),
       method:
-        method === "โอน" || method === "QR"
+        method === "โอนเงิน" || method === "QR พร้อมเพย์"
           ? "transfer"
           : method === "เช็ค"
             ? "check"
             : "cash",
+      // Noon keeps the calendar date stable: back-converting a UTC+7 local
+      // midnight to UTC lands on the previous day, which silently moved
+      // offerings between fiscal/report days. Noon never changes the date
+      // when shifted ±12h into UTC.
+      receiptDate: new Date(`${date}T12:00:00`),
+      donorName:
+        isAnonymous ? undefined : donorName.trim() || undefined,
       notes: notes || undefined,
     });
   };
@@ -380,7 +387,7 @@ export default function NewOffering() {
               setIsSuccessOpen(false);
               setLocation("/offerings");
             }}
-            className="w-full py-3.5 rounded-2xl bg-[#9BCBA5] hover:bg-[#96C764] text-white font-bold text-sm button-elevation transition-all"
+            className="w-full py-3.5 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-bold text-sm button-elevation transition-all"
           >
             ดูรายการถวายทั้งหมด
           </button>

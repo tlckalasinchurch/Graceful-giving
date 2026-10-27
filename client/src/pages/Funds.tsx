@@ -122,7 +122,6 @@ export default function Funds() {
           )}
           {fundsList.map(f => {
             const Icon = f.icon;
-            const percentage = null;
 
             return (
               <div
@@ -136,7 +135,7 @@ export default function Funds() {
                     <div className="w-12 h-12 rounded-2xl bg-[#FFF8EA] flex items-center justify-center text-[#51443A] group-hover:scale-105 transition-transform">
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
-                    <span className="text-xs font-mono text-[#807266] bg-background px-2.5 py-1 rounded-full border border-[#E7DCC8]">
+                    <span className="text-xs font-mono text-[#807266] bg-[#FAF8F5] px-2.5 py-1 rounded-full border border-[#E7DCC8]">
                       {f.code}
                     </span>
                   </div>

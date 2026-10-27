@@ -291,7 +291,7 @@ export default function Profile() {
       <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6">
         {/* ── PROFILE HERO: Logged-in User's Actual Profile & ID Card Action ──── */}
         <section className="bg-white rounded-2xl sm:rounded-2xl border border-[#E7DCC8] p-4 sm:p-6 md:p-8 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-[#C94F16]/10 via-[#9BCBA5]/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left relative z-10">
             {/* Large Circular Avatar */}
@@ -307,7 +307,7 @@ export default function Profile() {
                   {user?.name ? user.name.slice(0, 1) : "ศ"}
                 </div>
               )}
-              <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#9BCBA5] border-2 border-white flex items-center justify-center shadow-xs">
+              <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#2F7A45] border-2 border-white flex items-center justify-center shadow-xs">
                 <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white stroke-[3]" />
               </div>
             </div>

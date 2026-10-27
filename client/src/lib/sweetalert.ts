@@ -24,6 +24,17 @@ export const Swal = {
         return resolve({ isConfirmed: true, isDismissed: false });
       }
 
+      // Title/text may contain user-entered content (envelope numbers, names,
+      // notes) and are interpolated into innerHTML below — escape them. The
+      // `html` option stays raw: it exists for hand-built developer markup.
+      const escapeHtml = (s: string) =>
+        s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
       // Existing modal cleanup
       const existing = document.getElementById("grace-sweetalert-container");
       if (existing) existing.remove();
@@ -74,23 +85,25 @@ export const Swal = {
       const iconHtml = options.icon ? iconSvgs[options.icon] || "" : "";
       const confirmText = options.confirmButtonText || "ตกลง";
       const cancelText = options.cancelButtonText || "ยกเลิก";
+      const customConfirmColor = options.confirmButtonColor || null;
+      const customCancelColor = options.cancelButtonColor || null;
 
       container.innerHTML = `
         <div class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-gradient-to-b from-[#FFFFFF] via-white to-[#FAF8F5] p-6 sm:p-9 text-center shadow-2xl border-2 border-[#E7DCC8] transition-all duration-200">
           <!-- Background ambients -->
           <div class="pointer-events-none absolute -top-12 -right-12 w-44 h-44 rounded-full bg-[#C94F16]/10 blur-3xl"></div>
-          <div class="pointer-events-none absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#9BCBA5]/10 blur-3xl"></div>
+          <div class="pointer-events-none absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#E4C98F]/10 blur-3xl"></div>
 
           <div class="relative z-10">
             ${iconHtml}
             ${
               options.title
-                ? `<h3 class="mt-5 text-2xl sm:text-3xl font-black text-[#171311] tracking-tight leading-snug">${options.title}</h3>`
+                ? `<h3 class="mt-5 text-2xl sm:text-3xl font-black text-[#171311] tracking-tight leading-snug">${escapeHtml(options.title)}</h3>`
                 : ""
             }
             ${
               options.text
-                ? `<p class="mt-3 text-base sm:text-lg text-[#3F3833] font-medium leading-relaxed max-w-md mx-auto">${options.text}</p>`
+                ? `<p class="mt-3 whitespace-pre-line text-base sm:text-lg text-[#3F3833] font-medium leading-relaxed max-w-md mx-auto">${escapeHtml(options.text)}</p>`
                 : ""
             }
             ${options.html ? `<div class="mt-3 text-sm sm:text-base text-[#51443A]/90">${options.html}</div>` : ""}
@@ -98,12 +111,12 @@ export const Swal = {
             <div class="mt-7 flex flex-col-reverse sm:flex-row items-center justify-center gap-3">
               ${
                 options.showCancelButton
-                  ? `<button id="swal-cancel-btn" type="button" class="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-2xl border-2 border-[#E7DCC8] bg-[#FFF8EA] hover:bg-[#FFF4D6] text-[#51443A] font-bold text-sm sm:text-base transition-all focus:outline-none focus:ring-4 focus:ring-[#C94F16]/30 active:scale-95 cursor-pointer">
+                  ? `<button id="swal-cancel-btn" type="button" style="${customCancelColor ? `background:${customCancelColor};` : ""}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-2xl border-2 border-[#E7DCC8] ${customCancelColor ? "hover:opacity-90" : "bg-[#FFF8EA] hover:bg-[#FFF4D6]"} text-[#51443A] font-bold text-sm sm:text-base transition-all focus:outline-none focus:ring-4 focus:ring-[#C94F16]/30 active:scale-95 cursor-pointer">
                       ${cancelText}
                     </button>`
                   : ""
               }
-              <button id="swal-confirm-btn" type="button" class="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-2xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white font-black text-sm sm:text-base shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-4 focus:ring-[#C94F16]/30 active:scale-95 cursor-pointer">
+              <button id="swal-confirm-btn" type="button" style="${customConfirmColor ? `background:${customConfirmColor};` : ""}" class="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-2xl ${customConfirmColor ? "hover:opacity-90" : "bg-[#C94F16] hover:bg-[#9F3B0F]"} text-white font-black text-sm sm:text-base shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-4 focus:ring-[#C94F16]/30 active:scale-95 cursor-pointer">
                 ${confirmText}
               </button>
             </div>

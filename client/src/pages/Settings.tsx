@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -12,7 +12,6 @@ import {
   Lock,
   Mail,
   Phone,
-  QrCode,
   Save,
   Settings as SettingsIcon,
   Shield,
@@ -46,7 +45,6 @@ export default function Settings() {
   } = trpc.church.getProfile.useQuery(undefined, { retry: false });
 
   const usersQuery = trpc.auth.listUsers.useQuery(undefined, {
-    enabled: activeTab === "roles",
     retry: false,
   });
 
@@ -211,11 +209,36 @@ export default function Settings() {
     });
   };
 
-  const churchRoles = [
+  // Real appointees: everyone holding the church role (from auth.listUsers).
+  // Falls back to the profile's office-holder fields only where they exist,
+  // and to an explicit "ยังไม่ได้กำหนด" rather than an invented person.
+  const churchRoles = useMemo(() => {
+    const assigneesFor = (role: string): string => {
+      const fromProfile =
+        role === "PASTOR"
+          ? [pastorName, assistantPastorName].filter(Boolean).join(", ")
+          : role === "TREASURER"
+            ? treasurerName
+            : null;
+      const usersWithRole = (usersQuery.data ?? [])
+        .filter(u => {
+          if (u.churchRole === role) return true;
+          if (u.churchRole) return false;
+          const extra = u.churchRoles ?? "";
+          return extra.includes(role);
+        })
+        .map(u => u.name)
+        .filter(Boolean);
+      const names = [fromProfile, ...usersWithRole]
+        .filter((n): n is string => Boolean(n && n.trim()))
+        .filter((n, i, arr) => arr.indexOf(n) === i);
+      return names.length ? names.join(", ") : "ยังไม่ได้กำหนด";
+    };
+    return [
     {
       role: "SUPER_ADMIN",
       title: "ผู้ดูแลระบบสูงสุด",
-      appointee: "พณ.ท่านหม่อมหลวงราชวงศ์สุริยงค์ บาลเพ็ชร",
+      appointee: assigneesFor("SUPER_ADMIN"),
       desc: "ดูแลระบบและโครงสร้างทั้งหมด จัดการผู้ใช้งานและสิทธิ์ ตั้งค่าคริสตจักร และตรวจสอบ Audit Log (สิทธิ์สูงสุดของระบบ)",
       duties: [
         "ดูแลระบบและโครงสร้างทั้งหมด",
@@ -228,7 +251,7 @@ export default function Settings() {
     {
       role: "TREASURER",
       title: "เหรัญญิกคริสตจักร",
-      appointee: "สุดารัตน์ จิณเซ่ง, อาจารย์ทัศนา ดวงจิตร",
+      appointee: assigneesFor("TREASURER"),
       desc: "บันทึกรายรับ-รายจ่าย ตรวจสอบเงินถวายและบัญชี จัดการเบิกจ่าย ติดตามงบประมาณ ออกใบเสร็จ และจัดทำรายงานการเงิน",
       duties: [
         "บันทึกรายรับและรายจ่าย",
@@ -243,7 +266,7 @@ export default function Settings() {
     {
       role: "PASTOR",
       title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ",
-      appointee: "ศบ.อาจารย์สรรเสริญ ดวงจิตร",
+      appointee: assigneesFor("PASTOR"),
       desc: "กำกับทิศทางและงานของคริสตจักร พิจารณาและอนุมัติโครงการ ตรวจสอบภาพรวมการเงิน และดูแลด้านอภิบาลสมาชิก",
       duties: [
         "กำกับทิศทางและงานของคริสตจักร",
@@ -257,7 +280,7 @@ export default function Settings() {
     {
       role: "DEACON",
       title: "มัคนายก / คณะกรรมการ",
-      appointee: "อาจารย์ทัศนา ดวงจิตร",
+      appointee: assigneesFor("DEACON"),
       desc: "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ ตรวจรับงานและติดตามโครงการ เสนอคำของบประมาณและรายการเบิกจ่าย",
       duties: [
         "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ",
@@ -271,7 +294,7 @@ export default function Settings() {
     {
       role: "MEMBER",
       title: "สมาชิกคริสตจักร",
-      appointee: "สมาชิกคริสตจักรทั่วไป",
+      appointee: assigneesFor("MEMBER"),
       desc: "ดูข่าวสาร ประกาศ ตารางกิจกรรม ตารางรับใช้ และดูประวัติการถวายส่วนบุคคลอย่างปลอดภัย",
       duties: [
         "ดูข่าวสารและประกาศ",
@@ -282,7 +305,8 @@ export default function Settings() {
         "จัดการข้อมูลส่วนตัวตามที่ระบบอนุญาต",
       ],
     },
-  ];
+    ];
+  }, [usersQuery.data, pastorName, assistantPastorName, treasurerName]);
 
   if (!isSuperAdmin(user)) {
     return (
@@ -364,8 +388,8 @@ export default function Settings() {
                 : "text-[#807266] hover:text-[#171311]"
             }`}
           >
-            <QrCode className="w-4 h-4 text-sky-600 shrink-0" />
-            <span>บัญชีธนาคาร & พร้อมเพย์</span>
+            <CreditCard className="w-4 h-4 text-[#C94F16] shrink-0" />
+            <span>บัญชีธนาคาร</span>
           </button>
           <button
             onClick={() => setActiveTab("audit")}
@@ -847,13 +871,13 @@ export default function Settings() {
         {activeTab === "payment" && (
           <div className="bg-white rounded-2xl border border-[#E7DCC8] p-6 md:p-8 space-y-5 shadow-sm">
             <h3 className="text-base font-bold text-[#171311] flex items-center gap-2">
-              <QrCode className="w-5 h-5 text-sky-600" />
-              บัญชีรับเงินถวายและ QR พร้อมเพย์
+              <CreditCard className="w-5 h-5 text-[#C94F16]" />
+              บัญชีรับเงินถวาย
             </h3>
 
             <div className="p-4 rounded-2xl bg-[#FFF8EA]/50 border border-[#E7DCC8] flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-32 h-32 bg-white p-2 rounded-2xl border border-[#E7DCC8] shadow-inner flex items-center justify-center">
-                <QrCode className="w-24 h-24 text-[#171311]" />
+              <div className="w-14 h-14 bg-white rounded-2xl border border-[#E7DCC8] shadow-inner flex items-center justify-center shrink-0">
+                <CreditCard className="w-7 h-7 text-[#C94F16]" />
               </div>
 
               <div className="space-y-2 text-center sm:text-left text-xs">
@@ -873,8 +897,7 @@ export default function Settings() {
                   </span>
                 </p>
                 <p className="text-xs text-[#807266]">
-                  QR Code นี้จะแสดงในแบบฟอร์มถวายทรัพย์
-                  เพื่อให้สมาชิกสแกนโอนได้สะดวก
+                  ช่องทางโอนเงินถวายของคริสตจักร — ข้อมูลนี้แสดงเมื่อบันทึกแล้ว
                 </p>
               </div>
             </div>

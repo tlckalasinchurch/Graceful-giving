@@ -924,15 +924,20 @@ export async function listWithdrawalRequests(
     conditions.push(eq(withdrawalRequests.requestedBy, opts.userId));
 
   const rows = await db
-    .select()
+    .select({
+      request: withdrawalRequests,
+      requesterName: users.name,
+    })
     .from(withdrawalRequests)
+    .leftJoin(users, eq(withdrawalRequests.requestedBy, users.id))
     .where(and(...conditions))
     .orderBy(desc(withdrawalRequests.createdAt))
     .limit(50);
 
   return rows.map(r => ({
-    ...r,
-    amount: parseFloat((r.amount as unknown as string) ?? "0"),
+    ...r.request,
+    requesterName: r.requesterName,
+    amount: parseFloat((r.request.amount as unknown as string) ?? "0"),
   }));
 }
 
@@ -1761,25 +1766,7 @@ export async function createCountingSession(
   return rows[0].id;
 }
 
-export async function updateCountingSession(
-  id: number,
-  input: Partial<Omit<InsertCountingSession, "churchId">>,
-  churchId = DEFAULT_CHURCH_ID
-) {
-  const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  const rows = await db
-    .update(countingSessions)
-    .set(input)
-    .where(
-      and(eq(countingSessions.id, id), eq(countingSessions.churchId, churchId))
-    )
-    .returning({ id: countingSessions.id });
-  return rows[0]?.id ?? null;
-}
-
 /**
- * Moves the session to a new status, but only from the status the caller saw.
  * The `from` guard makes the update a compare-and-set, so two people pressing
  * the same button cannot both succeed.
  */

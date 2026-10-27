@@ -130,7 +130,7 @@ export default function Offerings() {
       }
     >
       {/* 1. Header Banner with 3D Offering Box Illustration */}
-      <div className="bg-gradient-to-r from-[#FFFFFF] via-[#FAF8F5] to-[#FFF8EA] rounded-2xl p-5 sm:p-7 border border-[#E7DCC8] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-5">
+      <div className="bg-white rounded-2xl p-5 sm:p-7 border border-[#E7DCC8] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-2 text-center sm:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 border border-[#E7DCC8] text-xs font-bold text-[#51443A]">
             <Sparkles className="w-3.5 h-3.5 text-[#C94F16]" />
@@ -222,7 +222,7 @@ export default function Offerings() {
                   <h3 className="text-sm font-bold text-[#171311] truncate">
                     {o.title}
                   </h3>
-                  <p className="text-[11px] text-[#807266] pt-0.5">
+                  <p className="text-xs text-[#807266] pt-0.5">
                     {formatThaiDateTime(o.date)} · {o.method} · {o.fund}
                   </p>
                 </div>
@@ -231,9 +231,6 @@ export default function Offerings() {
               <div className="flex items-center gap-3 shrink-0">
                 <div className="text-right">
                   <MoneyDisplay amount={o.amount} type="income" size="md" />
-                  <span className="block text-[10px] text-[#9BCBA5] font-bold">
-                    บันทึกเรียบร้อย
-                  </span>
                 </div>
 
                 <button

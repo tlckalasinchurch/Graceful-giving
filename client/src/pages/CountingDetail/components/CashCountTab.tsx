@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 import { THB_DENOMINATIONS } from "@shared/counting";
 import { fmtBaht, Variance } from "./countingUtils";
@@ -37,6 +37,38 @@ export function CashCountTab({
   cashVariance,
   setCashCount,
 }: CashCountTabProps) {
+  // Debounce autosave: automatically flush draft counts to the server after 600ms of inactivity,
+  // or flush on tab unmount to prevent losing counts when switching tabs on mobile.
+  useEffect(() => {
+    if (!editable) return;
+    const flushDrafts = () => {
+      Object.entries(draftCounts).forEach(([key, draftVal]) => {
+        if (draftVal === undefined) return;
+        const [valStr, kind] = key.split('-');
+        const val = Number(valStr);
+        const next = Number(draftVal || 0);
+        if (!Number.isFinite(next) || next < 0) return;
+        const saved = cashCounts.find(
+          r => r.denomination === val && r.kind === kind
+        );
+        if (next !== (saved?.quantity ?? 0)) {
+          setCashCount.mutate({
+            sessionId,
+            denomination: val,
+            kind: kind as "note" | "coin",
+            quantity: next,
+          });
+        }
+      });
+    };
+
+    const timer = setTimeout(flushDrafts, 600);
+    return () => {
+      clearTimeout(timer);
+      flushDrafts();
+    };
+  }, [draftCounts, editable, sessionId, cashCounts, setCashCount]);
+
   return (
     <section className="space-y-4">
       <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
@@ -99,9 +131,9 @@ export function CashCountTab({
             );
           })}
         </ul>
-        <div className="flex items-center justify-between border-t-2 border-[#E7DCC8] bg-background p-4">
+        <div className="flex items-center justify-between border-t-2 border-[#E7DCC8] bg-[#FFF8EA] p-4">
           <div>
-            <p className="font-bold text-foreground">รวมนับได้</p>
+            <p className="font-bold text-[#171311]">รวมนับได้</p>
             <p className="text-sm text-[#51443A]">
               เทียบซองเงินสด {fmtBaht(envelopeCashTotal)}
             </p>

@@ -5,6 +5,7 @@ import { MoneyDisplay, StatusBadge } from "@/components/common/CommonUI";
 import { EXPENSE_CATEGORIES } from "@shared/categories";
 import { fmtBaht } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
+import { Swal } from "@/lib/sweetalert";
 
 interface DeductionsTabProps {
   sessionId: number;
@@ -51,9 +52,29 @@ export function DeductionsTab({
   const [dCategory, setDCategory] = useState<string>("other");
   const [dFundId, setDFundId] = useState("");
 
+  const handleRemoveDeduction = async (deduction: {
+    id: number;
+    purpose: string;
+    amount: number;
+  }) => {
+    const confirmed = await Swal.confirm(
+      "ยืนยันการลบรายการเบิก?",
+      `ต้องการลบ "${deduction.purpose}" จำนวน ${fmtBaht(deduction.amount)} ออกจากรอบนับนี้หรือไม่?`,
+      {
+        icon: "warning",
+        confirmButtonText: "ลบรายการนี้",
+        confirmButtonColor: "#C8372D",
+        cancelButtonText: "ยกเลิก",
+      }
+    );
+    if (confirmed) {
+      removeDeduction.mutate({ id: deduction.id, sessionId });
+    }
+  };
+
   return (
     <section className="space-y-4">
-      <p className="rounded-2xl border border-[#E7DCC8] bg-background p-4 text-sm text-[#51443A]">
+      <p className="rounded-2xl border border-[#E7DCC8] bg-[#FFF8EA] p-4 text-sm text-[#51443A]">
         เงินที่เบิกจากถุงถวายก่อนนำฝาก ยอดถวายจะไม่หายจากระบบ — ระบบตรวจว่า
         นับเงินสดได้ − หักเบิก = ยอดนำฝาก
       </p>
@@ -222,10 +243,7 @@ export function DeductionsTab({
                         type="button"
                         aria-label="ลบรายการเบิกนี้"
                         onClick={() =>
-                          removeDeduction.mutate({
-                            id: deduction.id,
-                            sessionId,
-                          })
+                          void handleRemoveDeduction(deduction)
                         }
                         disabled={removeDeduction.isPending}
                         className="flex size-11 items-center justify-center rounded-xl text-[#C8372D] hover:bg-[#FDECEA] disabled:opacity-50"
