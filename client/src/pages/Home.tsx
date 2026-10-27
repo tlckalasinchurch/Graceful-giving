@@ -199,10 +199,10 @@ export default function Home() {
           <div
             role="region"
             aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#F9D2AE] text-[#51443A] shadow-2xs"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-gradient-to-r from-[#FFFBF2] to-white border border-[#F9D2AE] text-[#51443A] shadow-xs fintech-card"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8EA] border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0">
+              <div className="size-11 rounded-2xl bg-gradient-to-tr from-[#FFF4D6] to-white border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0 shadow-2xs">
                 <Inbox className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -216,7 +216,7 @@ export default function Home() {
             </div>
             <button
               onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="min-h-11 px-4 py-2 rounded-2xl bg-gradient-to-r from-[#C94F16] to-[#FC6C26] hover:from-[#9F3B0F] hover:to-[#C94F16] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 shadow-sm shadow-[#C94F16]/20 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
             >
               <span>ตรวจสอบสลิป</span>
               <ArrowRight className="w-4 h-4" />
@@ -225,9 +225,12 @@ export default function Home() {
         )}
 
         <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-overview" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ดูภาพรวม
-          </h2>
+          <div className="flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-[#FC6C26]" aria-hidden="true" />
+            <h2 id="dashboard-overview" className="text-xs font-bold uppercase tracking-[0.16em] text-[#807266]">
+              ดูภาพรวม
+            </h2>
+          </div>
           <BalanceCard
             showBalance={showBalance}
             setShowBalance={setShowBalance}
@@ -257,9 +260,12 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-actions" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ทำรายการ
-          </h2>
+          <div className="flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-[#1F5C33]" aria-hidden="true" />
+            <h2 id="dashboard-actions" className="text-xs font-bold uppercase tracking-[0.16em] text-[#807266]">
+              ทำรายการ
+            </h2>
+          </div>
           <PrimaryActions
             canRecordExpense={canRecordExpense}
             onNewOffering={() => setLocation("/offerings/new")}
@@ -277,9 +283,12 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <h2 id="dashboard-tracking" className="text-sm font-bold uppercase tracking-wide text-[#807266]">
-            ติดตาม
-          </h2>
+          <div className="flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-[#C94F16]" aria-hidden="true" />
+            <h2 id="dashboard-tracking" className="text-xs font-bold uppercase tracking-[0.16em] text-[#807266]">
+              ติดตาม
+            </h2>
+          </div>
           <BudgetSection
             canOpenReports={canOpenReports}
             onOpenReports={() => setLocation("/reports")}

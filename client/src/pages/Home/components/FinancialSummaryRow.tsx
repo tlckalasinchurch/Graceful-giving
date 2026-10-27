@@ -34,12 +34,12 @@ export function FinancialSummaryRow({
       className="animate-fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full"
     >
       {/* Card 1: รายรับ (Income) */}
-      <div className="min-w-0 bg-white border border-[#C3E4B8] rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs hover:border-[#A3D995] transition-colors">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 bg-[#E4F3E7] p-1 border border-[#C3E4B8]">
+      <article className="min-w-0 bg-gradient-to-br from-white via-[#FCFDF9] to-[#F4FAF2] border border-[#C5E8BF]/90 rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 fintech-card fintech-card-hover">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-[#E4F3E7] p-1 border border-[#C5E8BF] shadow-2xs">
           <Illustration
             src="/illustrations/income_hand_heart.jpg"
             alt="รายรับ"
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-cover rounded-xl"
             width={96}
             height={96}
             aria-hidden="true"
@@ -58,24 +58,24 @@ export function FinancialSummaryRow({
                 : "—"}
             </div>
           )}
-          <span className="text-xs sm:text-sm font-semibold text-[#1F5C33] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-            <span>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBF7EC] text-[#1F5C33] text-xs font-bold">
               {trendArrow(incomeTrend)} {trendValue(incomeTrend)}
             </span>
-            <span className="text-xs text-stone-500 font-normal">
+            <span className="text-xs text-[#51443A] font-medium">
               จากเดือนที่แล้ว
             </span>
-          </span>
+          </div>
         </div>
-      </div>
+      </article>
 
       {/* Card 2: รายจ่าย (Expenses) */}
-      <div className="min-w-0 bg-white border border-[#F8C8C5] rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 shadow-xs hover:border-[#F2A49F] transition-colors">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 bg-[#FEECEB] p-1 border border-[#F8C8C5]">
+      <article className="min-w-0 bg-gradient-to-br from-white via-[#FDFDFC] to-[#FDF4F2] border border-[#F8C8C5]/90 rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 fintech-card fintech-card-hover">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-[#FEECEB] p-1 border border-[#F8C8C5] shadow-2xs">
           <Illustration
             src="/illustrations/expense_hand_coin.jpg"
             alt="รายจ่าย"
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-cover rounded-xl"
             width={96}
             height={96}
             aria-hidden="true"
@@ -94,28 +94,32 @@ export function FinancialSummaryRow({
                 : "—"}
             </div>
           )}
-          <span className="text-xs sm:text-sm font-semibold text-[#8A2E14] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1">
-            <span>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FDF0ED] text-[#8A2E14] text-xs font-bold">
               {trendArrow(expenseTrend)} {trendValue(expenseTrend)}
             </span>
-            <span className="text-xs text-stone-500 font-normal">
+            <span className="text-xs text-[#51443A] font-medium">
               จากเดือนที่แล้ว
             </span>
-          </span>
+          </div>
         </div>
-      </div>
+      </article>
 
       {/* Card 3: คงเหลือ (Net) */}
-      <div
-        className={`min-w-0 bg-white rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 border shadow-xs sm:col-span-2 lg:col-span-1 transition-colors ${isPositiveNet ? "border-[#E7DCC8] hover:border-[#C94F16]" : "border-[#F8C8C5] hover:border-[#F2A49F]"}`}
+      <article
+        className={`min-w-0 bg-gradient-to-br from-white via-[#FFFCF7] to-[#FFF7ED] rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 border fintech-card fintech-card-hover sm:col-span-2 lg:col-span-1 ${
+          isPositiveNet ? "border-[#E7DCC8]/90" : "border-[#F8C8C5]/90"
+        }`}
       >
         <div
-          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 bg-[#FFF8EA] p-1 border ${isPositiveNet ? "border-[#E7DCC8]" : "border-[#F8C8C5]"}`}
+          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-[#FFF8EA] p-1 border shadow-2xs ${
+            isPositiveNet ? "border-[#E7DCC8]" : "border-[#F8C8C5]"
+          }`}
         >
           <Illustration
             src="/illustrations/balance_wallet.jpg"
             alt="คงเหลือ"
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-cover rounded-xl"
             width={96}
             height={96}
             aria-hidden="true"
@@ -134,15 +138,19 @@ export function FinancialSummaryRow({
                 : "—"}
             </div>
           )}
-          <span
-            className={`text-xs sm:text-sm font-semibold flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1 ${isPositiveNet ? "text-[#1F5C33]" : "text-[#9E2D12]"}`}
-          >
-            <span>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                isPositiveNet
+                  ? "bg-[#EBF7EC] text-[#1F5C33]"
+                  : "bg-[#FDF0ED] text-[#8A2E14]"
+              }`}
+            >
               {isPositiveNet ? "รายรับมากกว่ารายจ่าย" : "รายจ่ายมากกว่ารายรับ"}
             </span>
-          </span>
+          </div>
         </div>
-      </div>
+      </article>
     </section>
   );
 }

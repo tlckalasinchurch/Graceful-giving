@@ -35,10 +35,12 @@ export function SecondaryMenu({
       {canOpenReports && (
         <button
           onClick={onOpenReports}
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#8E44AD] hover:bg-[#FAF5FC] transition-colors focus-visible:ring-2 focus-visible:ring-[#8E44AD] shadow-2xs"
+          className="group flex flex-col items-center justify-center min-h-[88px] sm:min-h-[104px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8]/90 hover:border-[#C94F16] fintech-card fintech-card-hover focus-visible:ring-2 focus-visible:ring-[#C94F16] active:scale-95 transition-all"
           aria-label="รายงาน"
         >
-          <FileBarChart className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#8E44AD] mb-1.5" />
+          <div className="size-10 sm:size-11 rounded-2xl bg-[#FFF8EA] border border-[#E7DCC8] flex items-center justify-center text-[#9F3B0F] mb-1.5 group-hover:scale-110 transition-transform shadow-2xs">
+            <FileBarChart className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+          </div>
           <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
             รายงาน
           </span>
@@ -49,10 +51,12 @@ export function SecondaryMenu({
       {canOpenMembers && (
         <button
           onClick={onOpenMembers}
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C94F16] hover:bg-[#FAF8F5] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs"
+          className="group flex flex-col items-center justify-center min-h-[88px] sm:min-h-[104px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8]/90 hover:border-[#C94F16] fintech-card fintech-card-hover focus-visible:ring-2 focus-visible:ring-[#C94F16] active:scale-95 transition-all"
           aria-label="สมาชิก"
         >
-          <UsersRound className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C94F16] mb-1.5" />
+          <div className="size-10 sm:size-11 rounded-2xl bg-[#FFF2EB] border border-[#E7DCC8] flex items-center justify-center text-[#C94F16] mb-1.5 group-hover:scale-110 transition-transform shadow-2xs">
+            <UsersRound className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+          </div>
           <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
             สมาชิก
           </span>
@@ -62,10 +66,12 @@ export function SecondaryMenu({
       {/* กิจกรรม */}
       <button
         onClick={onOpenNews}
-        className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C9503B] hover:bg-[#FFF5F3] transition-colors focus-visible:ring-2 focus-visible:ring-[#C9503B] shadow-2xs"
+        className="group flex flex-col items-center justify-center min-h-[88px] sm:min-h-[104px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8]/90 hover:border-[#C94F16] fintech-card fintech-card-hover focus-visible:ring-2 focus-visible:ring-[#C94F16] active:scale-95 transition-all"
         aria-label="กิจกรรม"
       >
-        <CalendarDays className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C9503B] mb-1.5" />
+        <div className="size-10 sm:size-11 rounded-2xl bg-[#FFF0ED] border border-[#E7DCC8] flex items-center justify-center text-[#C9503B] mb-1.5 group-hover:scale-110 transition-transform shadow-2xs">
+          <CalendarDays className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+        </div>
         <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
           กิจกรรม
         </span>
@@ -74,10 +80,12 @@ export function SecondaryMenu({
       {/* ขอเบิกเงิน */}
       <button
         onClick={onOpenWithdrawals}
-        className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#C94F16] hover:bg-[#FAF8F5] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs"
+        className="group flex flex-col items-center justify-center min-h-[88px] sm:min-h-[104px] py-3.5 px-3 rounded-2xl bg-white border border-[#E7DCC8]/90 hover:border-[#C94F16] fintech-card fintech-card-hover focus-visible:ring-2 focus-visible:ring-[#C94F16] active:scale-95 transition-all"
         aria-label="ยื่นคำขอเบิกเงิน"
       >
-        <Banknote className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#C94F16] mb-1.5" />
+        <div className="size-10 sm:size-11 rounded-2xl bg-[#EBF5ED] border border-[#E7DCC8] flex items-center justify-center text-[#235324] mb-1.5 group-hover:scale-110 transition-transform shadow-2xs">
+          <Banknote className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+        </div>
         <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
           ขอเบิกเงิน
         </span>
@@ -87,10 +95,12 @@ export function SecondaryMenu({
       <AppMenu>
         <button
           type="button"
-          className="flex flex-col items-center justify-center min-h-[82px] sm:min-h-[96px] py-3.5 px-3 w-full rounded-2xl bg-white border border-[#E7DCC8] hover:border-[#2A75A0] hover:bg-[#F2F8FC] transition-colors focus-visible:ring-2 focus-visible:ring-[#2A75A0] shadow-2xs"
+          className="group flex flex-col items-center justify-center min-h-[88px] sm:min-h-[104px] py-3.5 px-3 w-full rounded-2xl bg-white border border-[#E7DCC8]/90 hover:border-[#C94F16] fintech-card fintech-card-hover focus-visible:ring-2 focus-visible:ring-[#C94F16] active:scale-95 transition-all"
           aria-label="เพิ่มเติม"
         >
-          <MoreHorizontal className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-[#2A75A0] mb-1.5" />
+          <div className="size-10 sm:size-11 rounded-2xl bg-[#F7F4F0] border border-[#E7DCC8] flex items-center justify-center text-[#51443A] mb-1.5 group-hover:scale-110 transition-transform shadow-2xs">
+            <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+          </div>
           <span className="text-xs sm:text-sm font-bold text-[#171311] tracking-tight text-center">
             เพิ่มเติม
           </span>

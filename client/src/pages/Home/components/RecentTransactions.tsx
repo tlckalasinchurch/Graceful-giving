@@ -29,7 +29,7 @@ export function RecentTransactions({
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E7DCC8] shadow-xs space-y-4 w-full"
+      className="bg-white rounded-3xl p-6 sm:p-7 border border-[#E7DCC8]/90 fintech-card space-y-4 w-full"
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg sm:text-xl font-bold text-[#171311]">
@@ -37,7 +37,7 @@ export function RecentTransactions({
         </h2>
         <button
           onClick={onViewAll}
-          className="min-h-11 -mr-2 px-2 text-sm font-bold text-[#9F3B0F] hover:underline flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF8EA] hover:bg-[#FFF2DF] text-xs sm:text-sm font-bold text-[#9F3B0F] border border-[#E7DCC8] shadow-2xs transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
         >
           <span>ดูทั้งหมด</span>
           <ChevronRight className="w-4 h-4" />
@@ -46,7 +46,7 @@ export function RecentTransactions({
 
       <div className="divide-y divide-[#EDE8E3]">
         {allTransactions.length === 0 && (
-          <p className="py-8 text-center text-sm text-[#3F3833] font-medium">
+          <p className="py-8 text-center text-sm text-[#51443A] font-medium">
             ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
           </p>
         )}
@@ -56,19 +56,19 @@ export function RecentTransactions({
           return (
             <div
               key={tx.id}
-              className="py-3.5 flex items-center justify-between gap-4"
+              className="py-3 sm:p-3 -mx-2 sm:-mx-3 rounded-2xl hover:bg-[#FFFBF5] transition-colors flex items-center justify-between gap-4"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 <div
-                  className={`w-10 h-10 rounded-xl ${tx.tone} flex items-center justify-center shrink-0`}
+                  className={`size-11 rounded-2xl ${tx.tone} flex items-center justify-center shrink-0 shadow-2xs`}
                 >
-                  <IconComponent className="w-5 h-5 stroke-[2]" />
+                  <IconComponent className="w-5 h-5 stroke-[2.2]" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm sm:text-base font-bold text-[#171311] leading-tight truncate">
                     {tx.title}
                   </p>
-                  <p className="text-xs text-stone-500 font-medium pt-0.5">
+                  <p className="text-xs text-[#807266] font-medium pt-0.5">
                     {fmtThaiDate(tx.date)}
                   </p>
                 </div>
@@ -76,12 +76,14 @@ export function RecentTransactions({
 
               <div className="text-right shrink-0">
                 <p
-                  className={`text-base sm:text-lg font-bold tabular-nums tracking-tight ${isIncome ? "text-[#155724]" : "text-[#9E2D12]"}`}
+                  className={`text-base sm:text-lg font-bold tabular-nums tracking-tight ${
+                    isIncome ? "text-[#155724]" : "text-[#9E2D12]"
+                  }`}
                 >
                   {isIncome ? "+" : "-"}
                   {fmtBaht(Math.abs(tx.amount))}
                 </p>
-                <p className="text-xs text-stone-500 font-medium">
+                <p className="text-xs text-[#807266] font-medium">
                   {tx.subCategory}
                 </p>
               </div>
