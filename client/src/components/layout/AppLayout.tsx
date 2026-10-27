@@ -70,16 +70,22 @@ function MobileTab({
       onClick={onSelect}
       aria-label={tab.ariaLabel}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl ${
-        active ? "text-[#FC6C26]" : "text-[#FFF4D6] hover:text-white"
+      className={`relative flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl transition-all duration-150 active:scale-95 ${
+        active ? "text-[#FC6C26]" : "text-[#FFF4D6]/75 hover:text-white"
       }`}
     >
-      <Icon className="size-[22px]" />
+      <Icon className="size-[22px] transition-transform duration-150" />
       <span
-        className={`text-[11px] ${active ? "font-semibold" : "font-medium"}`}
+        className={`text-[11px] leading-tight ${active ? "font-bold text-[#FC6C26]" : "font-medium"}`}
       >
         {tab.label}
       </span>
+      {active && (
+        <span
+          className="absolute bottom-0.5 size-1 rounded-full bg-[#FC6C26] shadow-xs shadow-[#FC6C26]"
+          aria-hidden="true"
+        />
+      )}
     </button>
   );
 }
@@ -116,13 +122,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-[#FFF4D6] overflow-x-clip">
       <div className="flex-1 flex flex-row w-full max-w-none mx-auto min-w-0">
         {/* DESKTOP FIXED SIDEBAR (Visible on lg: >= 1024px) */}
-        <aside className="hidden lg:flex flex-col w-64 xl:w-72 bg-[#171311] border-r border-[#51443A] px-4 py-5 sticky top-0 h-screen overflow-y-auto shrink-0 z-30">
+        <aside className="hidden lg:flex flex-col w-64 xl:w-72 bg-gradient-to-b from-[#1E1916] via-[#171311] to-[#110E0D] border-r border-[#51443A]/40 px-4 py-5 sticky top-0 h-screen overflow-y-auto shrink-0 z-30 shadow-xl">
           {/* 1. Grace-giving Branding */}
           <GuardedLink
             href="/"
-            className="flex items-center gap-3 px-2 mb-5 cursor-pointer select-none"
+            className="flex items-center gap-3 px-2 mb-5 cursor-pointer select-none group"
           >
-            <div className="size-10 rounded-xl bg-[#C94F16] flex items-center justify-center shrink-0">
+            <div className="size-10 rounded-xl bg-gradient-to-tr from-[#C94F16] to-[#FC6C26] flex items-center justify-center shrink-0 shadow-sm shadow-[#FC6C26]/30 group-hover:scale-105 transition-transform">
               <Sprout className="size-5 text-white" aria-hidden="true" />
             </div>
             <div className="min-w-0">
@@ -138,7 +144,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {/* Quick Offering Action Button */}
           <button
             onClick={() => navigate("/offerings/new")}
-            className="w-full mb-5 min-h-11 px-4 rounded-xl bg-[#FC6C26] hover:bg-[#C94F16] text-[#171311] font-bold text-sm flex items-center justify-center gap-2 button-elevation focus-visible:ring-2 focus-visible:ring-[#FC6C26]"
+            className="w-full mb-5 min-h-11 px-4 rounded-xl bg-gradient-to-r from-[#FC6C26] to-[#E55613] hover:from-[#E55613] hover:to-[#C94F16] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FC6C26]/20 transition-all hover:shadow-[#FC6C26]/30 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#FC6C26]"
             aria-label="บันทึกการถวายใหม่"
           >
             <Plus className="size-4 stroke-[2.5]" />
@@ -164,13 +170,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   key={item.path}
                   href={item.path}
                   aria-current={isActive ? "page" : undefined}
-                  className={`w-full flex min-h-10 items-center gap-3 px-3 rounded-lg text-sm transition-colors ${
+                  className={`w-full flex min-h-10 items-center gap-3 px-3 rounded-xl text-sm transition-all duration-150 ${
                     isActive
-                      ? "bg-[#FC6C26] text-[#171311] font-semibold"
-                      : "text-[#FFF4D6] font-medium hover:bg-[#2A211C] hover:text-white"
+                      ? "bg-gradient-to-r from-[#FC6C26] to-[#E55613] text-white font-semibold shadow-sm shadow-[#FC6C26]/25"
+                      : "text-[#FFF4D6]/80 font-medium hover:bg-white/5 hover:text-white"
                   }`}
                 >
-                  <Icon className={`size-[18px] shrink-0 ${isActive ? "text-[#171311]" : "text-[#FC6C26]"}`} aria-hidden="true" />
+                  <Icon className={`size-[18px] shrink-0 ${isActive ? "text-white" : "text-[#FC6C26]"}`} aria-hidden="true" />
                   <span className="truncate">{item.label}</span>
                 </GuardedLink>
               );
@@ -179,12 +185,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </nav>
 
           {/* User Profile Card at Sidebar Bottom */}
-          <div className="pt-4 mt-4 border-t border-[#51443A]">
+          <div className="pt-4 mt-4 border-t border-[#51443A]/40">
             <GuardedLink
               href="/profile"
-              className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-[#2A211C] transition-colors"
+              className="flex items-center gap-3 p-2.5 rounded-xl cursor-pointer hover:bg-white/5 transition-colors border border-transparent hover:border-white/5"
             >
-              <div className="size-9 rounded-full bg-[#FC6C26] flex items-center justify-center text-[#171311] font-semibold text-sm shrink-0">
+              <div className="size-9 rounded-full bg-gradient-to-tr from-[#FC6C26] to-[#E55613] flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm shadow-[#FC6C26]/25">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </div>
               <div className="flex-1 min-w-0">
@@ -203,14 +209,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         {/* The column is capped at --content-max and centred in whatever space
             is left beside the sidebar, so a row's date and its amount stay
             within reading distance of each other on a wide monitor. */}
-        <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto bg-[#FFF4D6] px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-6 md:py-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-16 min-w-0">
+        <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto bg-gradient-to-b from-[#FFFDF9] via-[#FFF9EE] to-[#FFF4D6] px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-6 md:py-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-16 min-w-0">
           {/* Top Bar for Desktop and Mobile */}
           <header className="flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
-            <div className="flex w-full items-center justify-between lg:hidden">
+            <div className="flex w-full items-center justify-between lg:hidden mb-2">
               <AppMenu />
               <GuardedLink
                 href="/notifications"
-                className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#E7DCC8] bg-white text-[#3F3833] hover:bg-[#FFF8EA]"
+                className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#E7DCC8] bg-white/90 backdrop-blur-sm text-[#3F3833] hover:bg-[#FFF8EA] shadow-2xs transition-colors"
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="size-5" aria-hidden="true" />
@@ -229,11 +235,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                 )}
               </div>
             )}
-            {/* No brand lockup here when a page passes no title. The sidebar
-                already carries it on lg:, and every title-less page (Home,
-                Funds, Expenses, Approvals, Settings and the two entry forms)
-                opens with its own hero or banner, so the fallback only ever
-                repeated a mark the user could already see. */}
 
             {/* Right: Actions and Notification */}
             <div className="flex max-w-full flex-wrap items-center gap-2.5">
@@ -245,7 +246,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
               <button
                 onClick={() => navigate("/notifications")}
-                className="hidden lg:flex size-11 shrink-0 rounded-xl bg-white border border-[#E7DCC8] items-center justify-center text-[#3F3833] hover:bg-[#FFF8EA] transition-colors relative focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+                className="hidden lg:flex size-11 shrink-0 rounded-xl bg-white/90 backdrop-blur-sm border border-[#E7DCC8] items-center justify-center text-[#3F3833] hover:bg-[#FFF8EA] transition-colors relative focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs"
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="w-5 h-5" />
@@ -261,9 +262,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {/* MOBILE FIXED BOTTOM NAVIGATION BAR */}
       <nav
         aria-label="เมนูนำทางหลักบนมือถือ"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#171311]/95 backdrop-blur-md border-t border-[#51443A] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+        className="lg:hidden fixed bottom-3 inset-x-3 sm:inset-x-8 max-w-lg mx-auto z-40 fintech-glass-dark rounded-2xl px-2 py-1.5 shadow-2xl shadow-black/35"
       >
-        <div className="max-w-md mx-auto grid grid-cols-5 items-end">
+        <div className="grid grid-cols-5 items-end">
           {MOBILE_TABS.slice(0, 2).map(tab => (
             <MobileTab
               key={tab.path}
@@ -277,12 +278,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           <div className="flex flex-col items-center">
             <button
               onClick={() => navigate("/offerings/new")}
-              className="-mt-5 size-13 rounded-2xl bg-[#FC6C26] hover:bg-[#C94F16] text-[#171311] flex items-center justify-center shadow-lg shadow-[#FC6C26]/25 ring-4 ring-[#FFF4D6] focus-visible:ring-2 focus-visible:ring-[#FC6C26]"
+              className="-mt-6 size-12 rounded-2xl bg-gradient-to-tr from-[#E55613] to-[#FC6C26] text-white flex items-center justify-center shadow-lg shadow-[#FC6C26]/30 ring-4 ring-[#171311] active:scale-95 transition-transform"
               aria-label="บันทึกการถวายใหม่"
             >
               <Plus className="size-6 stroke-[2.5]" />
             </button>
-            <span className="mt-1 text-[11px] font-medium text-[#FFF4D6]">
+            <span className="mt-1 text-[11px] font-semibold text-[#FFF4D6]">
               ถวาย
             </span>
           </div>

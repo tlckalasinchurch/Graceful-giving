@@ -39,37 +39,53 @@ export function BalanceCard({
     <section
       aria-label="ยอดเงินคงเหลือรวม"
       style={{ animationDelay: "90ms" }}
-      className={`animate-fade-up bg-white rounded-2xl p-6 sm:p-8 md:p-10 border relative overflow-hidden w-full ${isPositiveBalance ? "border-[#A8D59D] card-elevation-focus" : "border-[#F2C9BE] card-elevation-sm"}`}
+      className={`animate-fade-up relative rounded-3xl p-6 sm:p-8 md:p-10 border overflow-hidden w-full fintech-card transition-all duration-300 ${
+        isPositiveBalance
+          ? "bg-gradient-to-br from-white via-[#FCFDF9] to-[#F3F9F1] border-[#C2E4B7]"
+          : "bg-gradient-to-br from-white via-[#FDFDFC] to-[#FDF4F2] border-[#F8C8C5]"
+      }`}
     >
-      <div className="flex items-center justify-between gap-6">
+      {/* Ambient background glows for card depth */}
+      <div
+        className={`pointer-events-none absolute -right-20 -bottom-20 size-80 rounded-full blur-3xl opacity-20 ${
+          isPositiveBalance ? "bg-[#2D6A2E]" : "bg-[#C8372D]"
+        }`}
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute right-1/4 -top-16 size-48 rounded-full bg-[#FC6C26]/10 blur-3xl"
+        aria-hidden="true"
+      />
+
+      <div className="flex items-center justify-between gap-6 relative z-10">
         {/* Left: Prominent financial figures */}
-        <div className="min-w-0 flex-1 space-y-2 sm:space-y-3 z-10">
+        <div className="min-w-0 flex-1 space-y-2 sm:space-y-3">
           <div className="flex flex-wrap items-center gap-2.5">
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#171311]">
               ยอดเงินคงเหลือรวม
             </h2>
             <button
               onClick={() => setShowBalance(!showBalance)}
-              className="size-11 shrink-0 inline-flex items-center justify-center text-[#3F3833] hover:text-[#171311] transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+              className="size-10 shrink-0 inline-flex items-center justify-center text-[#51443A] hover:text-[#171311] bg-white/80 hover:bg-[#FFF4D6] border border-[#E7DCC8]/70 shadow-2xs transition-all duration-150 rounded-full active:scale-90 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
               aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
               aria-pressed={!showBalance}
             >
               {showBalance ? (
-                <Eye className="w-5 h-5 sm:w-6 sm:h-6" />
+                <Eye className="w-5 h-5" />
               ) : (
-                <EyeOff className="w-5 h-5 sm:w-6 sm:h-6" />
+                <EyeOff className="w-5 h-5" />
               )}
             </button>
 
             {/* Data-source status */}
             {isBalanceLoading && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#F0EAF8] text-[#7D3C98] text-xs sm:text-sm font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0EAF8] text-[#7D3C98] text-xs sm:text-sm font-bold shadow-2xs">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 กำลังโหลดข้อมูล
               </span>
             )}
             {isDataUnavailable && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFF8EA] border border-dashed border-[#F9D2AE] text-[#7F3A0D] text-xs sm:text-sm font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF8EA] border border-dashed border-[#F9D2AE] text-[#7F3A0D] text-xs sm:text-sm font-bold shadow-2xs">
                 <Info className="w-4 h-4" />
                 {summaryError
                   ? "เชื่อมต่อข้อมูลไม่สำเร็จ"
@@ -97,38 +113,40 @@ export function BalanceCard({
             </div>
           )}
 
-          <p className="text-sm sm:text-base md:text-lg text-[#3F3833] font-bold flex items-center gap-2 pt-1">
+          <div className="pt-0.5">
             {isBalanceLoading ? (
-              <span>กำลังตรวจสอบยอดเงินล่าสุด…</span>
+              <span className="text-sm sm:text-base text-[#51443A] font-medium">
+                กำลังตรวจสอบยอดเงินล่าสุด…
+              </span>
             ) : isPositiveBalance ? (
-              <>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF7EC] border border-[#C5E8BF] text-xs sm:text-sm font-bold text-[#1F5C33]">
                 <span>ขอบคุณพระเจ้าสำหรับทุกการถวาย</span>
-                <span className="text-[#1F5C33] text-lg">♥</span>
-              </>
+                <span className="text-[#1F5C33] text-base leading-none">♥</span>
+              </span>
             ) : (
-              <span className="text-[#9E2D12] font-bold">
-                ยอดคงเหลือติดลบ — ควรตรวจสอบรายจ่าย
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF0ED] border border-[#F8C8C5] text-xs sm:text-sm font-bold text-[#9E2D12]">
+                <span>ยอดคงเหลือติดลบ — ควรตรวจสอบรายจ่าย</span>
               </span>
             )}
-          </p>
+          </div>
 
           {canOpenReports && (
-            <div className="pt-3">
+            <div className="pt-2">
               <button
                 onClick={onOpenReports}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16] shadow-2xs hover:border-[#C94F16]"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/95 hover:bg-[#FFF8EA] text-[#171311] text-sm sm:text-base font-bold border border-[#E7DCC8] transition-all hover:border-[#C94F16] shadow-2xs hover:shadow-xs active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#C94F16]"
               >
                 <BarChart3 className="w-4 h-4 text-[#C94F16]" />
                 <span>ดูรายละเอียด</span>
-                <ChevronRight className="w-4 h-4 text-[#3F3833]" />
+                <ChevronRight className="w-4 h-4 text-[#51443A]" />
               </button>
             </div>
           )}
         </div>
 
         {/* Right: Balance illustration tucked cleanly in corner */}
-        <div className="hidden sm:block shrink-0 z-10">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#E7DCC8] bg-[#FAF8F5] p-1.5 shadow-2xs">
+        <div className="hidden sm:block shrink-0">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-[#E7DCC8] bg-white/90 p-1.5 shadow-sm">
             <Illustration
               src="/illustrations/balance_wallet.jpg"
               alt="กระเป๋าสตางค์ยอดคงเหลือ"
