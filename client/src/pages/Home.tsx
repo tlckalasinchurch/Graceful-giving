@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
-import { ArrowRight, Heart, Inbox, Landmark } from "lucide-react";
+import { Heart, Landmark } from "lucide-react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canAccessRoute } from "@/lib/routeAccess";
 import { offeringCategoryLabel } from "@shared/categories";
+import { canManageFinance } from "@shared/roles";
 import { HeroSection } from "./Home/components/HeroSection";
 import { BalanceCard } from "./Home/components/BalanceCard";
 import { FinancialSummaryRow } from "./Home/components/FinancialSummaryRow";
 import { PrimaryActions } from "./Home/components/PrimaryActions";
 import { SecondaryMenu } from "./Home/components/SecondaryMenu";
 import { BudgetSection } from "./Home/components/BudgetSection";
+import { TaskQueue } from "./Home/components/TaskQueue";
+import { buildTaskItems } from "./Home/taskQueue";
 import {
   RecentTransactions,
   type TransactionItem,
@@ -86,6 +89,17 @@ export default function Home() {
   const canOpenMembers = canAccessRoute("/members", user);
   const canRecordExpense = canAccessRoute("/expenses", user);
   const canAccessInbox = canAccessRoute("/giving/inbox", user);
+  const canOpenCounting = canAccessRoute("/counting", user);
+  const canViewBudgets = canAccessRoute("/budgets", user);
+  // withdrawals.list returns every request only to finance roles, and only
+  // they can approve, so the to-do row is limited to them.
+  const canApproveWithdrawals = canManageFinance(user);
+  const hasTaskSources =
+    canAccessInbox || canApproveWithdrawals || canOpenCounting;
+
+  const today = new Date();
+  const budgetYear = today.getFullYear();
+  const budgetMonth = today.getMonth() + 1;
 
   // Three tiles always show (กิจกรรม, ขอเบิกเงิน, เพิ่มเติม); the two gated
   // ones change the count, so match the column count to what is actually
@@ -119,13 +133,57 @@ export default function Home() {
     { retry: false }
   );
 
-  const { data: inboxStats } = trpc.givingInbox.stats.useQuery(undefined, {
-    enabled: canAccessInbox,
-    retry: false,
-    staleTime: 15_000,
-  });
+  const { data: inboxStats, isLoading: inboxLoading } =
+    trpc.givingInbox.stats.useQuery(undefined, {
+      enabled: canAccessInbox,
+      retry: false,
+      staleTime: 15_000,
+    });
 
-  const pendingSlipCount = inboxStats?.reviewRequired ?? 0;
+  const { data: withdrawalsData, isLoading: withdrawalsLoading } =
+    trpc.withdrawals.list.useQuery(undefined, {
+      enabled: canApproveWithdrawals,
+      retry: false,
+      staleTime: 15_000,
+    });
+
+  const { data: countingData, isLoading: countingLoading } =
+    trpc.counting.list.useQuery(undefined, {
+      enabled: canOpenCounting,
+      retry: false,
+      staleTime: 15_000,
+    });
+
+  const {
+    data: budgetData,
+    isLoading: budgetLoading,
+    isError: budgetError,
+  } = trpc.budgets.list.useQuery(
+    { year: budgetYear },
+    { enabled: canViewBudgets, retry: false, staleTime: 60_000 }
+  );
+
+  const taskItems = useMemo(
+    () =>
+      buildTaskItems({
+        slipsToReview: canAccessInbox ? inboxStats?.reviewRequired : undefined,
+        pendingWithdrawals: canApproveWithdrawals
+          ? withdrawalsData?.filter(w => w.status === "pending").length
+          : undefined,
+        countingStatuses: canOpenCounting
+          ? countingData?.map(s => s.status)
+          : undefined,
+      }),
+    [
+      canAccessInbox,
+      canApproveWithdrawals,
+      canOpenCounting,
+      inboxStats,
+      withdrawalsData,
+      countingData,
+    ]
+  );
+  const tasksLoading = inboxLoading || withdrawalsLoading || countingLoading;
 
   // Derived values always come from the current API response.
   const totalBalance = summaryData?.totalBalance;
@@ -194,34 +252,13 @@ export default function Home() {
         {/* 1. Hero Section */}
         <HeroSection />
 
-        {/* Action Needed Banner: High-priority inbox alerts */}
-        {canAccessInbox && pendingSlipCount > 0 && (
-          <div
-            role="region"
-            aria-label="รายการที่ต้องดำเนินการ"
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-gradient-to-r from-[#FFFBF2] to-white border border-[#F9D2AE] text-[#51443A] shadow-xs fintech-card"
-          >
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="size-11 rounded-2xl bg-gradient-to-tr from-[#FFF4D6] to-white border border-[#F9D2AE] flex items-center justify-center text-[#C94F16] shrink-0 shadow-2xs">
-                <Inbox className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-sm sm:text-base text-[#171311]">
-                  มีสลิปถวายรอตรวจสอบ {pendingSlipCount} รายการ
-                </h3>
-                <p className="text-xs text-[#51443A] truncate">
-                  สลิปจาก LINE Official Account รอดำเนินการตรวจสอบและบันทึกบัญชี
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setLocation("/giving/inbox")}
-              className="min-h-11 px-4 py-2 rounded-2xl bg-gradient-to-r from-[#C94F16] to-[#FC6C26] hover:from-[#9F3B0F] hover:to-[#C94F16] text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 shadow-sm shadow-[#C94F16]/20 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
-            >
-              <span>ตรวจสอบสลิป</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+        {/* To-do queue: work waiting on this role (slips, withdrawals, counting) */}
+        {hasTaskSources && (
+          <TaskQueue
+            items={taskItems}
+            isLoading={tasksLoading}
+            onOpen={setLocation}
+          />
         )}
 
         <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
@@ -289,10 +326,15 @@ export default function Home() {
               ติดตาม
             </h2>
           </div>
-          <BudgetSection
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-          />
+          {canViewBudgets && (
+            <BudgetSection
+              plans={budgetData}
+              isLoading={budgetLoading}
+              isError={budgetError}
+              currentMonth={budgetMonth}
+              onOpenBudgets={() => setLocation("/budgets")}
+            />
+          )}
           <RecentTransactions
             allTransactions={allTransactions}
             onViewAll={() => setLocation("/transactions")}
