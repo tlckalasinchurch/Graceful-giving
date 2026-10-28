@@ -23,4 +23,7 @@ export const ENV = {
 
   // Secret for protecting the Vercel Cron endpoint
   cronSecret: process.env.CRON_SECRET ?? "",
+
+  // Allowed CORS origin (e.g. https://yourdomain.com). Empty string disables CORS header.
+  allowedOrigin: process.env.ALLOWED_ORIGIN ?? "",
 };

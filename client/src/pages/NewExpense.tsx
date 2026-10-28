@@ -212,7 +212,7 @@ export default function NewExpense() {
       const base64Data = dataUrl.split(",")[1];
       uploadReceiptMutation.mutate({
         fileName: file.name,
-        contentType: file.type,
+        contentType: file.type as "image/jpeg" | "image/png" | "application/pdf",
         base64Data,
       });
     };
