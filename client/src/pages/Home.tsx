@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
-import { Heart, Landmark } from "lucide-react";
+import { HandHeart, ReceiptText } from "lucide-react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canAccessRoute } from "@/lib/routeAccess";
-import { offeringCategoryLabel } from "@shared/categories";
+import {
+  expenseCategoryLabel,
+  offeringCategoryLabel,
+} from "@shared/categories";
 import { canManageFinance } from "@shared/roles";
 import { HeroSection } from "./Home/components/HeroSection";
 import { BalanceCard } from "./Home/components/BalanceCard";
@@ -20,12 +23,9 @@ import {
   type TransactionItem,
 } from "./Home/components/RecentTransactions";
 import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
-import { formatBaht, formatThaiDateTime } from "@/lib/format";
+import { formatThaiDateTime } from "@/lib/format";
 
 // ─── Formatting helpers ──────────────────────────────────────────────────────
-
-const fmtBaht = (n: number) => formatBaht(n);
-const fmtShortBaht = (n: number) => formatBaht(n, 0);
 
 function pctChange(current: number, prev: number) {
   if (prev === 0) return current > 0 ? "+∞%" : "0%";
@@ -218,10 +218,10 @@ export default function Home() {
           date: o.receiptDate,
           type: "income",
           category: o.category,
-          subCategory: "อาคารคริสตจักร",
+          subCategory: "รายรับ",
           amount: Number(o.amount),
-          tone: "bg-[#FDECEA] text-[#E06250]",
-          icon: Heart,
+          tone: "bg-tile-mint text-tile-mint-ink",
+          icon: HandHeart,
         });
       });
     }
@@ -234,10 +234,10 @@ export default function Home() {
           date: e.expenseDate,
           type: "expense",
           category: e.category,
-          subCategory: "พันธกิจนมัสการ",
+          subCategory: expenseCategoryLabel(e.category),
           amount: Number(e.amount),
-          tone: "bg-[#FFF8EA] text-[#C94F16]",
-          icon: Landmark,
+          tone: "bg-tile-sand text-tile-sand-ink",
+          icon: ReceiptText,
         });
       });
     }
@@ -246,10 +246,11 @@ export default function Home() {
     );
   }, [offeringsData, expensesData]);
 
+  // DOM order is the mobile reading order. From lg up the same blocks sit in
+  // a 7/5 grid so a wide screen gets two columns, not a stretched phone.
   return (
     <AppLayout>
-      <div className="space-y-6 sm:space-y-8 md:space-y-10">
-        {/* 1. Hero Section */}
+      <div className="space-y-4 sm:space-y-6">
         <HeroSection />
 
         {/* To-do queue: work waiting on this role (slips, withdrawals, counting) */}
@@ -261,87 +262,84 @@ export default function Home() {
           />
         )}
 
-        <section aria-labelledby="dashboard-overview" className="space-y-4 sm:space-y-5">
-          <div className="flex items-center gap-2">
-            <span className="size-1.5 rounded-full bg-[#FC6C26]" aria-hidden="true" />
-            <h2 id="dashboard-overview" className="text-xs font-bold uppercase tracking-[0.16em] text-[#807266]">
-              ดูภาพรวม
-            </h2>
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <BalanceCard
+              showBalance={showBalance}
+              setShowBalance={setShowBalance}
+              isPositiveBalance={isPositiveBalance}
+              isBalanceLoading={isBalanceLoading}
+              isDataUnavailable={isDataUnavailable}
+              summaryError={summaryError}
+              hasSummaryData={!!summaryData}
+              animatedBalance={animatedBalance}
+              canOpenReports={canOpenReports}
+              onOpenReports={() => setLocation("/reports")}
+            />
           </div>
-          <BalanceCard
-            showBalance={showBalance}
-            setShowBalance={setShowBalance}
-            isPositiveBalance={isPositiveBalance}
-            isBalanceLoading={isBalanceLoading}
-            isDataUnavailable={isDataUnavailable}
-            summaryError={summaryError}
-            hasSummaryData={!!summaryData}
-            animatedBalance={animatedBalance}
-            canOpenReports={canOpenReports}
-            onOpenReports={() => setLocation("/reports")}
-            fmtBaht={fmtBaht}
-          />
-          <FinancialSummaryRow
-            isBalanceLoading={isBalanceLoading}
-            showBalance={showBalance}
-            monthlyIncome={monthlyIncome}
-            monthlyExpense={monthlyExpense}
-            netMonthly={netMonthly}
-            incomeTrend={incomeTrend}
-            expenseTrend={expenseTrend}
-            isPositiveNet={isPositiveNet}
-            fmtShortBaht={fmtShortBaht}
-            trendArrow={trendArrow}
-            trendValue={trendValue}
-          />
-        </section>
 
-        <section aria-labelledby="dashboard-actions" className="space-y-4 sm:space-y-5">
-          <div className="flex items-center gap-2">
-            <span className="size-1.5 rounded-full bg-[#1F5C33]" aria-hidden="true" />
-            <h2 id="dashboard-actions" className="text-xs font-bold uppercase tracking-[0.16em] text-[#807266]">
+          <section
+            aria-labelledby="dashboard-actions"
+            style={{ animationDelay: "160ms" }}
+            className="animate-fade-up lg:col-span-5 rounded-3xl bg-surface p-4 sm:p-5 fintech-card space-y-4"
+          >
+            <h2
+              id="dashboard-actions"
+              className="px-1 text-base font-semibold text-ink"
+            >
               ทำรายการ
             </h2>
-          </div>
-          <PrimaryActions
-            canRecordExpense={canRecordExpense}
-            onNewOffering={() => setLocation("/offerings/new")}
-            onNewExpense={() => setLocation("/expenses/new")}
-          />
-          <SecondaryMenu
-            canOpenReports={canOpenReports}
-            canOpenMembers={canOpenMembers}
-            secondaryTileColsClass={secondaryTileColsClass}
-            onOpenReports={() => setLocation("/reports")}
-            onOpenMembers={() => setLocation("/members")}
-            onOpenNews={() => setNewsOpen(true)}
-            onOpenWithdrawals={() => setLocation("/withdrawals/new")}
-          />
-        </section>
-
-        <section aria-labelledby="dashboard-tracking" className="space-y-4 sm:space-y-5">
-          <div className="flex items-center gap-2">
-            <span className="size-1.5 rounded-full bg-[#C94F16]" aria-hidden="true" />
-            <h2 id="dashboard-tracking" className="text-xs font-bold uppercase tracking-[0.16em] text-[#807266]">
-              ติดตาม
-            </h2>
-          </div>
-          {canViewBudgets && (
-            <BudgetSection
-              plans={budgetData}
-              isLoading={budgetLoading}
-              isError={budgetError}
-              currentMonth={budgetMonth}
-              onOpenBudgets={() => setLocation("/budgets")}
+            <PrimaryActions
+              canRecordExpense={canRecordExpense}
+              onNewOffering={() => setLocation("/offerings/new")}
+              onNewExpense={() => setLocation("/expenses/new")}
             />
+            <SecondaryMenu
+              canOpenReports={canOpenReports}
+              canOpenMembers={canOpenMembers}
+              secondaryTileColsClass={secondaryTileColsClass}
+              onOpenReports={() => setLocation("/reports")}
+              onOpenMembers={() => setLocation("/members")}
+              onOpenNews={() => setNewsOpen(true)}
+              onOpenWithdrawals={() => setLocation("/withdrawals/new")}
+            />
+          </section>
+
+          <div className="lg:col-span-12">
+            <FinancialSummaryRow
+              isBalanceLoading={isBalanceLoading}
+              showBalance={showBalance}
+              monthlyIncome={monthlyIncome}
+              monthlyExpense={monthlyExpense}
+              netMonthly={netMonthly}
+              incomeTrend={incomeTrend}
+              expenseTrend={expenseTrend}
+              isPositiveNet={isPositiveNet}
+              trendArrow={trendArrow}
+              trendValue={trendValue}
+            />
+          </div>
+
+          <div className={canViewBudgets ? "lg:col-span-7" : "lg:col-span-12"}>
+            <RecentTransactions
+              allTransactions={allTransactions}
+              onViewAll={() => setLocation("/transactions")}
+              fmtThaiDate={fmtThaiDate}
+            />
+          </div>
+
+          {canViewBudgets && (
+            <div className="lg:col-span-5">
+              <BudgetSection
+                plans={budgetData}
+                isLoading={budgetLoading}
+                isError={budgetError}
+                currentMonth={budgetMonth}
+                onOpenBudgets={() => setLocation("/budgets")}
+              />
+            </div>
           )}
-          <RecentTransactions
-            allTransactions={allTransactions}
-            onViewAll={() => setLocation("/transactions")}
-            fmtBaht={fmtBaht}
-            fmtThaiDate={fmtThaiDate}
-          />
-        </section>
+        </div>
       </div>
 
       {/* Sheet: Church News & Announcements */}

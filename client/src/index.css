@@ -1,20 +1,52 @@
-@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-display: "IBM Plex Sans Thai", system-ui, sans-serif;
+  /* Manrope has no Thai glyphs, so Latin and digits render in Manrope and
+     Thai falls through to IBM Plex Sans Thai. */
+  --font-sans: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-display: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-script: "Caveat", cursive;
-  /* Quiet ledger geometry: restrained controls, compact cards, calm panels. */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.625rem;
-  --radius-2xl: 0.75rem;
-  --radius-3xl: 1rem;
+  /* Card 20px; inner controls step down 10 / 8 / 5. */
+  --radius-sm: 0.1875rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.3125rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-3xl: 1.25rem;
+
+  /* Pastel-consumer system. Text pairs are checked against white:
+     ink 16.9:1, ink-2 6.3:1, ink-3 5.0:1 (4.6:1 on ground), income 5.3:1,
+     danger 5.9:1.
+     `field` is the input outline (3:1, WCAG 1.4.11); `line` only divides. */
+  --color-ground: #f3f5f7;
+  --color-surface: #ffffff;
+  --color-ink: #1b1d1f;
+  --color-ink-2: #5c6064;
+  --color-ink-3: #6b7075;
+  --color-line: #e4e7eb;
+  --color-field: #8a9096;
+  --color-income: #2f7a45;
+  --color-danger: #c41c29;
+  --color-brand: #c94f16;
+  --color-brand-ink: #9f3b0f;
+
+  /* Category tiles: pale ground with a dark text of the same hue (≥7:1). */
+  --color-tile-sky: #dcf1ff;
+  --color-tile-sky-ink: #0a3a80;
+  --color-tile-mint: #dff3e6;
+  --color-tile-mint-ink: #1d5a32;
+  --color-tile-peach: #ffe8d9;
+  --color-tile-peach-ink: #8a3510;
+  --color-tile-lilac: #ece8fb;
+  --color-tile-lilac-ink: #4a2f8f;
+  --color-tile-sand: #f5efe1;
+  --color-tile-sand-ink: #5e4a1b;
+  --color-tile-rose: #fde4e6;
+  --color-tile-rose-ink: #8f1a24;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -68,7 +100,7 @@
      keep page content clear of it below the lg: breakpoint. Any page that
      adds its own fixed/sticky bottom bar on mobile must clear this same
      value plus its own height, instead of guessing a pixel offset. */
-  --mobile-nav-clearance: 6rem;
+  --mobile-nav-clearance: 5rem;
 
   /* Widest the page content column is allowed to get (AppLayout.tsx). Without
      a ceiling, a ledger row on a 1920px monitor puts its date at the far left
@@ -76,30 +108,28 @@
      them, which is unreadable. The sidebar sits outside this width. */
   --content-max: 88rem;
 
-  /* Warm-grey ramp (neutral surfaces and text) and burnt-orange primary.
-     Text pairs are chosen for at least 4.5:1 on white: #171311 primary text,
-     #51443A secondary, #807266 tertiary. #C94F16 carries white button text
-     at 4.9:1; #9F3B0F is its hover and the orange used for text. */
+  /* shadcn roles mapped onto the pastel-consumer tokens above. #C94F16 is
+     the one warm brand colour: it carries white button text at 4.6:1. */
   --primary: #c94f16;
   --primary-foreground: #ffffff;
-  --background: #171311;
-  --foreground: #171311;
-  --card: #fff4d6;
-  --card-foreground: #171311;
-  --popover: #fff4d6;
-  --popover-foreground: #171311;
-  --secondary: #fff8ea;
-  --secondary-foreground: #51443a;
-  --muted: #fff8ea;
-  --muted-foreground: #807266;
-  --accent: #fff4d6;
-  --accent-foreground: #9f3b0f;
-  --destructive: #c8372d;
+  --background: #f3f5f7;
+  --foreground: #1b1d1f;
+  --card: #ffffff;
+  --card-foreground: #1b1d1f;
+  --popover: #ffffff;
+  --popover-foreground: #1b1d1f;
+  --secondary: #eef1f4;
+  --secondary-foreground: #1b1d1f;
+  --muted: #eef1f4;
+  --muted-foreground: #5c6064;
+  --accent: #eef1f4;
+  --accent-foreground: #1b1d1f;
+  --destructive: #c41c29;
   --destructive-foreground: #ffffff;
-  --border: #e7dcc8;
-  --input: #e7dcc8;
+  --border: #e4e7eb;
+  --input: #8a9096;
   --ring: #c94f16;
-  --radius: 0.75rem;
+  --radius: 0.625rem;
 }
 
 * {
@@ -115,9 +145,16 @@ body {
   margin: 0;
   background-color: var(--background);
   color: var(--foreground);
-  font-family: "IBM Plex Sans Thai", system-ui, sans-serif;
+  font-family: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100dvh;
+}
+
+/* Amounts line up down a column and do not jitter while counting up. */
+.money {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
 }
 
 button:focus-visible,
@@ -167,12 +204,13 @@ select:focus-visible {
 }
 
 /* Modern Warm Fintech & Glass Tokens */
+/* Surfaces sit just above the ground: the colour step does the separating,
+   the shadow only confirms it. */
 .fintech-card {
   container-type: inline-size;
   box-shadow:
-    0 1px 3px rgba(23, 19, 17, 0.03),
-    0 10px 28px -6px rgba(81, 68, 58, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    0 1px 2px hsla(210, 20%, 20%, 0.05),
+    0 1px 3px hsla(210, 20%, 20%, 0.04);
 }
 
 .fintech-card-hover {
@@ -230,7 +268,7 @@ select:focus-visible {
 
 @layer base {
   * {
-    border-color: #e4ded7;
+    border-color: #e4e7eb;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),

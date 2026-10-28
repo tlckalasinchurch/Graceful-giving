@@ -23,14 +23,14 @@ export const LoadingSkeleton: React.FC<{
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className={`w-full ${height} rounded-2xl bg-[#FFF8EA]/60 animate-pulse border border-[#E7DCC8]/50 p-4 flex items-center gap-4`}
+          className={`w-full ${height} rounded-2xl bg-ground animate-pulse border border-line p-4 flex items-center gap-4`}
         >
-          <div className="w-14 h-14 rounded-2xl bg-[#E7DCC8]/40 shrink-0" />
+          <div className="w-14 h-14 rounded-2xl bg-line shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="w-1/3 h-4 rounded-md bg-[#E7DCC8]/40" />
-            <div className="w-1/2 h-3 rounded-md bg-[#E7DCC8]/30" />
+            <div className="w-1/3 h-4 rounded-md bg-line" />
+            <div className="w-1/2 h-3 rounded-md bg-line" />
           </div>
-          <div className="w-20 h-6 rounded-md bg-[#E7DCC8]/40" />
+          <div className="w-20 h-6 rounded-md bg-line" />
         </div>
       ))}
     </div>
@@ -58,9 +58,9 @@ export const EmptyState: React.FC<{
 }) => {
   return (
     <div
-      className={`py-12 px-6 rounded-2xl bg-white border border-[#E7DCC8] card-elevation-sm flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+      className={`py-12 px-6 rounded-2xl bg-surface fintech-card flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     >
-      <div className="size-20 rounded-2xl overflow-hidden bg-[#FFF8EA] shrink-0">
+      <div className="size-20 rounded-2xl overflow-hidden bg-ground shrink-0">
         <Illustration
           src={illustrationSrc}
           alt={illustrationAlt}
@@ -70,13 +70,13 @@ export const EmptyState: React.FC<{
         />
       </div>
       <div className="space-y-1 max-w-sm">
-        <h3 className="text-base font-semibold text-[#171311]">{title}</h3>
-        <p className="text-sm text-[#807266] leading-relaxed">{description}</p>
+        <h3 className="text-base font-semibold text-ink">{title}</h3>
+        <p className="text-sm text-ink-3 leading-relaxed">{description}</p>
       </div>
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="min-h-11 mt-2 px-5 py-2.5 rounded-xl bg-[#C94F16] hover:bg-[#9F3B0F] text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+          className="min-h-11 mt-2 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brand"
         >
           {actionText}
         </button>
@@ -105,7 +105,7 @@ export const ErrorState: React.FC<{
     </div>
     <div className="space-y-1 max-w-sm">
       <h3 className="text-base font-bold text-[#7C2A1E]">{title}</h3>
-      <p className="text-sm text-[#51443A] leading-relaxed">{description}</p>
+      <p className="text-sm text-ink-2 leading-relaxed">{description}</p>
     </div>
     {onRetry && (
       <button
@@ -180,7 +180,7 @@ export const StatusBadge: React.FC<{
         };
       case "needs_review":
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-tile-peach text-tile-peach-ink border-tile-peach",
           defaultLabel: "ต้องตรวจสอบ",
         };
       case "unknown":
@@ -195,7 +195,7 @@ export const StatusBadge: React.FC<{
         };
       case "counting":
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-tile-peach text-tile-peach-ink border-tile-peach",
           defaultLabel: "กำลังนับ",
         };
       case "counted":
@@ -221,7 +221,7 @@ export const StatusBadge: React.FC<{
       case "pending":
       default:
         return {
-          bg: "bg-[#FEF5EC] text-[#9F3B0F] border-[#F9D2AE]",
+          bg: "bg-tile-peach text-tile-peach-ink border-tile-peach",
           defaultLabel: "รอดำเนินการ",
         };
     }
@@ -247,51 +247,56 @@ export const StatusBadge: React.FC<{
 export const MoneyDisplay: React.FC<{
   amount: number;
   type?: "income" | "expense" | "neutral";
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "base" | "md" | "lg" | "xl";
   className?: string;
 }> = ({ amount, type = "neutral", size = "md", className = "" }) => {
   const isPositive = type === "income" || (type === "neutral" && amount > 0);
   const isNegative = type === "expense" || (type === "neutral" && amount < 0);
 
+  // Quiet money polarity: income is green, ordinary spending stays in ink.
+  // Red is reserved for a balance that has gone below zero.
   const getColor = () => {
-    if (type === "income") return "text-[#1F5C33]";
-    if (type === "expense") return "text-[#c7382d]";
-    return "text-[#171311]";
+    if (type === "income") return "text-income";
+    if (type === "neutral" && amount < 0) return "text-danger";
+    return "text-ink";
   };
 
   // Each size carries its own weight. The base class used to set font-bold
   // as well, so two font-weight utilities landed on the same element and the
   // winner depended on Tailwind's output order rather than on this switch.
-  const getSize = () => {
-    switch (size) {
-      case "sm":
-        return "text-sm font-bold";
-      case "lg":
-        return "text-2xl md:text-3xl font-bold";
-      case "xl":
-        return "text-3xl sm:text-4xl md:text-5xl font-bold";
-      case "md":
-      default:
-        return "text-lg md:text-xl font-bold";
-    }
-  };
+  // Satang sizes come from the same type scale, one or two steps down.
+  const SIZES = {
+    sm: { whole: "text-sm font-semibold", satang: "" },
+    base: { whole: "text-base font-semibold", satang: "text-sm" },
+    md: { whole: "text-lg md:text-xl font-semibold", satang: "text-sm" },
+    lg: { whole: "text-2xl md:text-3xl font-semibold", satang: "text-base" },
+    xl: { whole: "text-3xl md:text-4xl font-semibold", satang: "text-xl" },
+  } as const;
+  const sizeStyle = SIZES[size];
 
   // Neutral amounts keep their own sign: a negative balance must read as
   // negative, not as its absolute value.
   const prefix =
-    type === "income" ? "+" : type === "expense" ? "-" : amount < 0 ? "-" : "";
+    type === "income" ? "+" : type === "expense" ? "−" : amount < 0 ? "−" : "";
   const formatted = formatAmount(Math.abs(amount));
+  const dot = formatted.lastIndexOf(".");
+  const whole = dot === -1 ? formatted : formatted.slice(0, dot);
+  const satang = dot === -1 ? "" : formatted.slice(dot);
+  const satangColor = type === "income" ? "" : "text-ink-3";
 
   // The "฿" is its own element with a small gap. Run together with the
   // digits, the glyph's ink overlaps the first numeral, and separating it
   // also keeps the digits themselves aligned down a table column.
   return (
     <span
-      className={`tracking-tight tabular-nums font-sans ${getColor()} ${getSize()} ${className}`}
+      className={`money whitespace-nowrap font-sans ${getColor()} ${sizeStyle.whole} ${className}`}
     >
       {prefix}
       <span className="mr-1">฿</span>
-      {formatted}
+      {whole}
+      {satang && (
+        <span className={`${sizeStyle.satang} ${satangColor}`}>{satang}</span>
+      )}
     </span>
   );
 };
@@ -306,16 +311,14 @@ export const PageHeader: React.FC<{
 }> = ({ title, subtitle, action, className = "" }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl p-5 md:p-6 border border-[#E7DCC8] card-elevation-sm ${className}`}
+      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl p-5 md:p-6 border border-line card-elevation-sm ${className}`}
     >
       <div className="min-w-0">
-        <h1 className="text-xl md:text-2xl font-bold text-[#51443A] tracking-tight break-words">
+        <h1 className="text-xl md:text-2xl font-bold text-ink-2 tracking-tight break-words">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs text-[#807266] mt-1 leading-relaxed">
-            {subtitle}
-          </p>
+          <p className="text-xs text-ink-3 mt-1 leading-relaxed">{subtitle}</p>
         )}
       </div>
       {action && (
@@ -347,16 +350,16 @@ export const Chip: React.FC<
   <button
     type="button"
     aria-pressed={active}
-    className={`min-h-11 shrink-0 whitespace-nowrap rounded-xl border px-3.5 py-2 text-[13px] transition-colors ${
+    className={`min-h-11 shrink-0 whitespace-nowrap rounded-2xl border px-3.5 py-2 text-sm transition-colors ${
       active
-        ? "border-[#F9D2AE] bg-[#FFF4D6] font-semibold text-[#9F3B0F]"
-        : "border-[#E7DCC8] bg-white font-medium text-[#51443A] hover:bg-[#FFF8EA]"
+        ? "border-brand bg-tile-peach font-semibold text-tile-peach-ink"
+        : "border-field bg-surface font-medium text-ink hover:bg-ground"
     } ${className}`}
     {...props}
   >
     {children}
     {count !== undefined && (
-      <span className="ml-1.5 tabular-nums opacity-70">{count}</span>
+      <span className="money ml-1.5 font-normal">{count}</span>
     )}
   </button>
 );
@@ -385,7 +388,7 @@ export const FilterBar: React.FC<{
       {/* Search Input */}
       <div className="relative w-full">
         <Search
-          className="pointer-events-none w-4 h-4 text-[#807266] absolute left-3.5 top-1/2 -translate-y-1/2"
+          className="pointer-events-none w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2"
           aria-hidden="true"
         />
         <input
@@ -394,7 +397,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-[#E7DCC8] text-base md:text-sm text-[#171311] placeholder-[#807266] focus:border-[#C94F16] focus-visible:ring-2 focus-visible:ring-[#C94F16]/30"
+          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-surface border border-field text-base md:text-sm text-ink placeholder-ink-3 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/30"
         />
       </div>
 
@@ -452,8 +455,8 @@ export const BackLink: React.FC<{
     onClick={onClick}
     className={`min-h-11 inline-flex items-center gap-1.5 text-sm font-medium transition-colors ${
       variant === "pill"
-        ? "rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2 text-[#3F3833] hover:bg-[#FFF8EA]"
-        : "text-[#51443A] hover:text-[#171311]"
+        ? "rounded-2xl border border-field bg-surface px-3.5 py-2 text-ink hover:bg-ground"
+        : "text-ink-2 hover:text-ink"
     } ${className}`}
   >
     <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -486,12 +489,12 @@ export const ConfirmDialog: React.FC<{
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm bg-[#FFFFFF] border-[#E7DCC8] rounded-2xl p-6 text-[#171311]">
+      <DialogContent className="max-w-sm bg-surface border-line rounded-2xl p-6 text-ink">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-[#51443A]">
+          <DialogTitle className="text-lg font-bold text-ink-2">
             {title}
           </DialogTitle>
-          <DialogDescription className="text-sm text-[#51443A] leading-relaxed">
+          <DialogDescription className="text-sm text-ink-2 leading-relaxed">
             {description}
           </DialogDescription>
         </DialogHeader>
@@ -500,7 +503,7 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="flex-1 py-2.5 rounded-xl bg-[#FFF8EA] text-[#51443A] font-bold text-xs border border-[#E7DCC8]"
+            className="flex-1 py-2.5 rounded-xl bg-ground text-ink-2 font-bold text-xs border border-line"
           >
             {cancelText}
           </button>
@@ -511,7 +514,7 @@ export const ConfirmDialog: React.FC<{
             className={`flex-1 py-2.5 rounded-xl text-white font-bold text-xs button-elevation transition-all ${
               variant === "danger"
                 ? "bg-[#C8372D] hover:bg-[#B3322A]"
-                : "bg-[#C94F16] hover:bg-[#9F3B0F]"
+                : "bg-brand hover:bg-brand-ink"
             }`}
           >
             {isLoading ? "กำลังดำเนินการ..." : confirmText}

@@ -144,7 +144,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
         {children || (
           <button
             type="button"
-            className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#E7DCC8] bg-white px-3.5 text-sm font-semibold text-[#171311] hover:bg-[#FFF8EA]"
+            className="flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border border-line bg-surface px-3.5 text-sm font-semibold text-ink hover:bg-ground"
           >
             <Menu className="size-5" aria-hidden="true" />
             <span>เมนูทั้งหมด</span>
@@ -153,13 +153,13 @@ export function AppMenu({ children }: { children?: ReactNode }) {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-[calc(100%-2rem)] max-w-sm gap-0 bg-[#171311] text-[#FFF4D6]"
+        className="w-[calc(100%-2rem)] max-w-sm gap-0 bg-surface text-ink"
       >
-        <SheetHeader className="border-b border-[#51443A] p-5 pr-16">
-          <SheetTitle className="text-lg font-bold text-[#FFF4D6]">
+        <SheetHeader className="border-b border-line p-5 pr-16">
+          <SheetTitle className="text-lg font-semibold text-ink">
             เมนูทั้งหมด
           </SheetTitle>
-          <SheetDescription className="text-sm text-[#F6C09B] mt-0.5">
+          <SheetDescription className="text-sm text-ink-2 mt-0.5">
             จัดการการเงินและพันธกิจคริสตจักร
           </SheetDescription>
         </SheetHeader>
@@ -175,7 +175,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
             const Icon = item.icon;
             if (group !== previousGroup) {
               content.push(
-                <p key={`group-${group}`} className="px-3.5 pb-1 pt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#807266] first:pt-0">
+                <p key={`group-${group}`} className="px-3.5 pb-1 pt-4 text-xs font-semibold tracking-[0.05em] text-ink-3 first:pt-0">
                   {group}
                 </p>
               );
@@ -186,13 +186,13 @@ export function AppMenu({ children }: { children?: ReactNode }) {
                   href={item.path}
                   aria-current={active ? "page" : undefined}
                   onFocus={e => e.currentTarget.scrollIntoView({ block: "nearest" })}
-                  className={`flex min-h-11 items-center gap-3 rounded-lg px-3.5 text-[15px] ${
+                  className={`flex min-h-11 items-center gap-3 rounded-2xl px-3.5 text-base ${
                     active
-                      ? "bg-[#FC6C26] font-semibold text-[#171311]"
-                      : "font-medium text-[#FFF4D6] hover:bg-[#2A211C]"
+                      ? "bg-tile-peach font-semibold text-tile-peach-ink"
+                      : "font-medium text-ink hover:bg-ground"
                   }`}
                 >
-                  <Icon className={`size-5 shrink-0 ${active ? "text-[#171311]" : "text-[#FC6C26]"}`} aria-hidden="true" />
+                  <Icon className={`size-5 shrink-0 ${active ? "text-tile-peach-ink" : "text-ink-2"}`} aria-hidden="true" />
                   <span>{item.label}</span>
                 </GuardedLink>
               </SheetClose>
