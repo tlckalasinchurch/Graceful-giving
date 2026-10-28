@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Fullstack TypeScript church finance app (offerings, expenses, funds, budgets, withdrawal approvals, members, news/events). One deployable Node process: Express serves the tRPC API and the built React SPA.
+Fullstack TypeScript church finance app (offerings, expenses, funds, budgets, withdrawal approvals, members, news/events). One Express app (`server/_core/app.ts`) serves the tRPC API: locally via `server/_core/index.ts` (also serves the SPA), on Vercel as a serverless function built from `server/_core/apiHandler.ts` → `api/index.js`. Register new routes in `app.ts`, not `index.ts`, or they won't exist in production.
 
 **Note:** `CLAUDE.md` has a longer version of this guidance. `README.md` documents an earlier milestone ("news & events" only) and underestimates scope — trust `server/routers.ts` and `drizzle/schema.ts` instead.
 
@@ -11,7 +11,7 @@ Package manager is **pnpm** (pinned via `packageManager`).
 ```bash
 pnpm dev     # tsx watch server/_core/index.ts + Vite middleware for client
 pnpm check   # tsc --noEmit (project-wide; tsconfig excludes *.test.ts)
-pnpm test    # vitest run — includes ONLY server/**/*.test.ts; client tests not wired up
+pnpm test    # vitest run — server/**/*.{test,spec}.ts (node) + client/**/*.{test,spec}.{ts,tsx} (jsdom)
 pnpm format  # prettier --write .
 pnpm ci      # pnpm check && pnpm test, with DATABASE_URL/POSTGRES_* blanked
 pnpm db:push # drizzle-kit generate && migrate — requires DATABASE_URL
@@ -50,7 +50,7 @@ Procedure tiers layered on `server/_core/trpc.ts`: `publicProcedure`, `protected
 
 ### Testing
 
-Tests call `appRouter.createCaller(context)` directly (no HTTP) with a fake `TrpcContext`; access-control tests assert thrown tRPC error codes. `server/test/setupTenant.ts` (vitest setupFile) assigns a unique `test-<uuid>` tenant per file and purges it afterwards. Suites that write rows (`counting.workflow`, `reports.integration`) skip unless `DATABASE_URL` is set — expect skipped files locally. If adding a row-writing suite, scope all statements by `churchId` and inherit the tenant mechanism.
+Tests call `appRouter.createCaller(context)` directly (no HTTP) with a fake `TrpcContext`; access-control tests assert thrown tRPC error codes. `server/test/setupTenant.ts` (vitest setupFile) assigns a unique `test-<uuid>` tenant per file and purges it afterwards. Suites that write rows (`counting.workflow`, `reports.integration`, `budgets.integration`) skip unless `DATABASE_URL` is set — expect skipped files locally. If adding a row-writing suite, scope all statements by `churchId` and inherit the tenant mechanism.
 
 ## Local tooling quirks
 

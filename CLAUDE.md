@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Graceful-giving ("Grace-giving" / เกรซกิฟวิง) is a church financial management and member-communication system: offerings/tithes, expenses, funds, budgets, withdrawal approvals, ministries, members, and a news/events feed. Fullstack TypeScript, single deployable Node process (Express serves both the API and the built SPA).
+Graceful-giving ("Grace-giving" / เกรซกิฟวิง) is a church financial management and member-communication system: offerings/tithes, expenses, funds, budgets, withdrawal approvals, ministries, members, and a news/events feed. Fullstack TypeScript. Locally it runs as one Node process (Express serves both the API and the built SPA); on Vercel the same Express app runs as a serverless function (see Request flow).
 
 The codebase is more feature-complete than `README.md` describes — the README documents an earlier "news & events" milestone only. Prefer reading `server/routers.ts` and `drizzle/schema.ts` over the README for current scope.
 
@@ -15,7 +15,7 @@ Package manager is **pnpm** (see `packageManager` in `package.json`).
 ```bash
 pnpm install          # install deps (also applies the wouter patch via patches/)
 pnpm dev              # dev server: tsx watch on server/_core/index.ts, Vite middleware for the client
-pnpm build            # vite build (client) + esbuild bundle of server/_core/index.ts -> dist/
+pnpm build            # vite build (client) + esbuild server/_core/index.ts -> dist/ + server/_core/apiHandler.ts -> api/index.js
 pnpm start            # run the production build (dist/index.js)
 pnpm check            # tsc --noEmit (project-wide type check)
 pnpm format           # prettier --write .
@@ -24,7 +24,7 @@ pnpm ci               # pnpm check + pnpm test, with the DB env vars blanked (se
 pnpm db:push          # drizzle-kit generate && drizzle-kit migrate (requires DATABASE_URL)
 ```
 
-Run a single test file: `pnpm exec vitest run server/updates.access.test.ts`. Tests live under `server/` and are named `*.test.ts`; the vitest config only includes `server/**/*.test.ts` and `server/**/*.spec.ts` — client-side tests are not wired up.
+Run a single test file: `pnpm exec vitest run server/updates.access.test.ts`. Vitest includes `server/**/*.{test,spec}.ts` (node env) and `client/**/*.{test,spec}.{ts,tsx}` (jsdom env, setup in `client/test/setup.ts`).
 
 There is no separate lint script; `pnpm check` (tsc) and `pnpm format` (prettier) are the enforced checks. `tsconfig.json` excludes `*.test.ts`.
 
@@ -49,13 +49,20 @@ No `.env` is committed. Required variables (read in `server/_core/env.ts`):
 
 ### Request flow
 
-`server/_core/index.ts` boots one Express app: body parsing → storage proxy routes → OAuth routes (`server/_core/oauth.ts`) → tRPC router mounted at `/api/trpc` (`createExpressMiddleware`) → Vite dev middleware (development) or static file serving (production). Port selection auto-probes for a free port starting at `PORT`/3000.
+`server/_core/app.ts` (`createApp`) builds the Express app: LINE webhook (registered **before** the JSON body parser — it needs the raw body for HMAC validation) → body parsing → storage proxy → LINE worker → OAuth routes (`server/_core/oauth.ts`) → tRPC at `/api/trpc`. Two entry points wrap it:
+
+- `server/_core/index.ts` — local/`pnpm start`: adds Vite dev middleware (development) or static serving (production); port auto-probes from `PORT`/3000.
+- `server/_core/apiHandler.ts` → `api/index.js` — Vercel serverless function. `vercel.json` rewrites `/api/*` and `/manus-storage/*` to it, serves the SPA from `dist/public`, and runs a daily cron on `/api/line/process-worker`.
+
+So route registration belongs in `app.ts`, not `index.ts`, or it will not exist in production.
+
+`server/line/` holds the LINE giving-inbox pipeline (webhook, slip OCR, member matching, duplicate detection, process worker) behind the `givingInbox` router.
 
 Auth: `server/_core/context.ts` builds the tRPC context per-request by calling `sdk.authenticateRequest(req)` (reads/verifies the session cookie via `server/_core/sdk.ts`); failures just yield `user: null` rather than throwing, so public procedures keep working. The OAuth callback flow (`server/_core/oauth.ts`) exchanges a code for a token, upserts the user (`db.upsertUser`, which promotes `OWNER_OPEN_ID` to `admin`), mints a session token, and sets the `app_session_id` cookie. The OAuth `state` param carries a CSRF nonce bound to a `__Host-oauth_state` cookie — see the comments in `shared/const.ts`/`server/_core/oauth.ts` before touching this flow.
 
 ### tRPC API (`server/routers.ts`)
 
-Single `appRouter` composed of sub-routers by domain: `auth`, `church`, `finance`, `offerings`, `expenses`, `withdrawals`, `reports`, `updates` (legacy news/events), plus `system` (`server/_core/systemRouter.ts`). Client consumes it type-safely via `@trpc/react-query` (`client/src/lib/trpc.ts` imports `AppRouter` directly from `server/routers.ts` — client and server are not independently deployable packages).
+Single `appRouter` composed of sub-routers by domain: `auth`, `church`, `finance`, `offerings`, `expenses`, `withdrawals`, `members`, `ministries`, `budgets`, `notifications`, `reports`, `updates` (legacy news/events), `counting` (offering count sessions/reconciliation), `givingInbox` (LINE slips), `audit`, plus `system` (`server/_core/systemRouter.ts`). Client consumes it type-safely via `@trpc/react-query` (`client/src/lib/trpc.ts` imports `AppRouter` directly from `server/routers.ts` — client and server are not independently deployable packages).
 
 Procedure layering, all defined in `routers.ts` on top of the base `publicProcedure`/`protectedProcedure` from `server/_core/trpc.ts`:
 - `adminProcedure` — `user.role === "admin"`
@@ -83,9 +90,9 @@ So Supabase provides object storage only; the database is Neon. `@aws-sdk/client
 
 ### Testing
 
-Server-side only (`server/*.test.ts`); client tests are not wired up. Tests run against `appRouter.createCaller(context)` directly, with no HTTP layer — see `server/updates.access.test.ts` or `server/line.inbox.test.ts` for the pattern: build a fake `TrpcContext` with a plain `User` object, call procedures via the caller, and assert on thrown tRPC error codes (`UNAUTHORIZED`/`FORBIDDEN`/`BAD_REQUEST`) for access-control tests.
+Mostly server-side; a few client component tests exist (`client/**/*.test.tsx`, jsdom). Server tests run against `appRouter.createCaller(context)` directly, with no HTTP layer — see `server/updates.access.test.ts` or `server/line.inbox.test.ts` for the pattern: build a fake `TrpcContext` with a plain `User` object, call procedures via the caller, and assert on thrown tRPC error codes (`UNAUTHORIZED`/`FORBIDDEN`/`BAD_REQUEST`) for access-control tests.
 
-Two suites are different and need care. `server/counting.workflow.test.ts` and `server/reports.integration.test.ts` hit a real Postgres and **write rows**. They skip themselves unless `DATABASE_URL` is set, which is why `pnpm test` reports skipped files on a normal machine.
+Integration suites need care. `server/counting.workflow.test.ts`, `server/reports.integration.test.ts` and `server/budgets.integration.test.ts` hit a real Postgres and **write rows**. They skip themselves unless `DATABASE_URL` is set, which is why `pnpm test` reports skipped files on a normal machine.
 
 When a database is configured, `server/test/setupTenant.ts` (a vitest `setupFile`, which runs before each test file's modules load — early enough for `DEFAULT_CHURCH_ID` to read it) assigns a unique `test-<uuid>` tenant per file, and `purgeTenant` in `server/test/tenant.ts` drops the whole tenant afterwards. That keeps a run away from application data even if a test fails partway. `purgeTenant` refuses to act unless the tenant starts with `test-`, so a misconfigured `CHURCH_ID` cannot turn cleanup into a wipe. If you add a suite that writes rows, scope every statement by `churchId` and let it inherit this tenant rather than naming one.
 
