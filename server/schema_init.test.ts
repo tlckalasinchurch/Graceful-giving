@@ -54,17 +54,75 @@ describe("integrity index definitions", () => {
   });
 });
 
+describe("runSchemaInit with indexes that already exist", () => {
+  // The app role may not own the tables. Postgres then rejects
+  // CREATE INDEX IF NOT EXISTS with "must be owner" even when the index exists.
+  function clientWithExistingIndexes(existing: string[]) {
+    return {
+      unsafe: vi.fn(async (stmt: string) => {
+        const lookup = stmt.match(/FROM pg_indexes .*indexname = '([^']+)'/s);
+        if (lookup)
+          return existing.includes(lookup[1]) ? [{ "?column?": 1 }] : [];
+        if (/CREATE\s+(UNIQUE\s+)?INDEX/i.test(stmt)) {
+          throw new Error("must be owner of table offerings");
+        }
+        return [];
+      }),
+    };
+  }
+
+  it("does not run or report a statement for an index that exists", async () => {
+    const client = clientWithExistingIndexes(INTEGRITY_INDEX_NAMES);
+    await runSchemaInit(client);
+
+    const errors = errorSpy.mock.calls.map(c => String(c[0]));
+    expect(errors.some(m => m.includes("WAS NOT CREATED"))).toBe(false);
+    const ran = client.unsafe.mock.calls.map(c => String(c[0]));
+    for (const name of INTEGRITY_INDEX_NAMES) {
+      expect(ran).not.toContain(statementFor(name));
+    }
+  });
+
+  it("still reports an integrity index that is missing and cannot be created", async () => {
+    const client = clientWithExistingIndexes(
+      INTEGRITY_INDEX_NAMES.filter(n => n !== "line_slips_ref_uniq")
+    );
+    await runSchemaInit(client);
+
+    const errors = errorSpy.mock.calls.map(c => String(c[0]));
+    expect(errors.filter(m => m.includes("WAS NOT CREATED"))).toHaveLength(1);
+    expect(errors.some(m => m.includes("line_slips_ref_uniq"))).toBe(true);
+  });
+
+  it("falls back to CREATE when the existence check itself fails", async () => {
+    const client = {
+      unsafe: vi.fn(async (stmt: string) => {
+        if (/pg_indexes/.test(stmt)) throw new Error("permission denied");
+        return [];
+      }),
+    };
+    await runSchemaInit(client);
+
+    const ran = client.unsafe.mock.calls.map(c => String(c[0]));
+    expect(ran).toContain(statementFor("offerings_ref_active_uniq"));
+  });
+});
+
 describe("runSchemaInit failure reporting", () => {
   it("reports a failed integrity index at error level, not warn", async () => {
     const client = clientFailing("offerings_ref_active_uniq");
     await runSchemaInit(client);
 
     const errors = errorSpy.mock.calls.map(c => String(c[0]));
-    expect(errors.some(m => m.includes("offerings_ref_active_uniq"))).toBe(true);
+    expect(errors.some(m => m.includes("offerings_ref_active_uniq"))).toBe(
+      true
+    );
     expect(errors.some(m => m.includes("WAS NOT CREATED"))).toBe(true);
 
     const warnings = warnSpy.mock.calls.map(c => String(c[1] ?? c[0]));
-    expect(warnings.some(m => m.includes("offerings_ref_active_uniq"))).toBe(false);
+    expect(warnings.some(m => m.includes("offerings_ref_active_uniq"))).toBe(
+      false
+    );
   });
 
   it("names the rows that block the index", async () => {
@@ -84,7 +142,10 @@ describe("runSchemaInit failure reporting", () => {
       await runSchemaInit(clientFailing(name));
 
       const errors = errorSpy.mock.calls.map(c => String(c[0]));
-      expect(errors.some(m => m.includes(name)), name).toBe(true);
+      expect(
+        errors.some(m => m.includes(name)),
+        name
+      ).toBe(true);
     }
   });
 
@@ -109,7 +170,10 @@ describe("runSchemaInit failure reporting", () => {
   it("survives a diagnostic query that also fails", async () => {
     const client = {
       unsafe: vi.fn(async (stmt: string) => {
-        if (/CREATE/i.test(stmt) && stmt.includes("offerings_ref_active_uniq")) {
+        if (
+          /CREATE/i.test(stmt) &&
+          stmt.includes("offerings_ref_active_uniq")
+        ) {
           throw new Error("could not create unique index");
         }
         if (/GROUP BY/i.test(stmt)) throw new Error("permission denied");
