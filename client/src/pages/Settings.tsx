@@ -62,6 +62,7 @@ export default function Settings() {
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("MEMBER");
+  const [invitePassword, setInvitePassword] = useState("");
 
   const [auditSearch, setAuditSearch] = useState("");
   const [auditActionFilter, setAuditActionFilter] = useState<string>("ALL");
@@ -82,22 +83,28 @@ export default function Settings() {
 
   const inviteMutation = trpc.auth.inviteUser.useMutation({
     onSuccess: () => {
-      toast.success("ส่งคำเชิญแล้ว ผู้ได้รับเชิญเข้าสู่ระบบด้วยอีเมล Google นี้ได้ทันที");
+      toast.success("สร้างบัญชีแล้ว แจ้งอีเมลและรหัสผ่านให้ผู้ใช้เข้าสู่ระบบได้ทันที");
       setInviteEmail("");
+      setInvitePassword("");
       void usersQuery.refetch();
     },
     onError: err => {
-      toast.error(err.message || "ไม่สามารถเชิญผู้ใช้ได้");
+      toast.error(err.message || "ไม่สามารถสร้างบัญชีได้");
     },
+  });
+
+  const resetPasswordMutation = trpc.auth.resetUserPassword.useMutation({
+    onSuccess: () => toast.success("ตั้งรหัสผ่านใหม่แล้ว แจ้งรหัสผ่านใหม่ให้ผู้ใช้"),
+    onError: err => toast.error(err.message || "ไม่สามารถตั้งรหัสผ่านได้"),
   });
 
   const revokeMutation = trpc.auth.revokeInvite.useMutation({
     onSuccess: () => {
-      toast.success("ยกเลิกคำเชิญแล้ว");
+      toast.success("ยกเลิกบัญชีแล้ว");
       void usersQuery.refetch();
     },
     onError: err => {
-      toast.error(err.message || "ไม่สามารถยกเลิกคำเชิญได้");
+      toast.error(err.message || "ไม่สามารถยกเลิกบัญชีได้");
     },
   });
 
@@ -642,18 +649,32 @@ export default function Settings() {
                     inviteMutation.mutate({
                       email: inviteEmail,
                       churchRole: inviteRole as any,
+                      password: invitePassword,
                     });
                   }}
                   className="flex flex-col gap-3 rounded-2xl border border-[#E7DCC8]/70 bg-[#FAF8F5]/40 p-4 sm:flex-row sm:items-end"
                 >
                   <label className="flex-1 text-xs font-semibold text-[#51443A]">
-                    เชิญด้วยอีเมล Google
+                    สร้างบัญชีด้วยอีเมล
                     <input
                       type="email"
                       required
                       value={inviteEmail}
                       onChange={e => setInviteEmail(e.target.value)}
                       placeholder="name@gmail.com"
+                      className="mt-1 w-full rounded-xl border border-[#E7DCC8] bg-white px-3 py-2 text-sm text-[#171311] focus:outline-none focus:ring-2 focus:ring-[#C94F16]/20"
+                    />
+                  </label>
+                  <label className="text-xs font-semibold text-[#51443A]">
+                    รหัสผ่านเริ่มต้น
+                    <input
+                      type="text"
+                      required
+                      minLength={8}
+                      autoComplete="off"
+                      value={invitePassword}
+                      onChange={e => setInvitePassword(e.target.value)}
+                      placeholder="อย่างน้อย 8 ตัว"
                       className="mt-1 w-full rounded-xl border border-[#E7DCC8] bg-white px-3 py-2 text-sm text-[#171311] focus:outline-none focus:ring-2 focus:ring-[#C94F16]/20"
                     />
                   </label>
@@ -674,10 +695,10 @@ export default function Settings() {
                   </label>
                   <button
                     type="submit"
-                    disabled={inviteMutation.isPending || !inviteEmail}
+                    disabled={inviteMutation.isPending || !inviteEmail || invitePassword.length < 8}
                     className="rounded-xl bg-[#C94F16] px-4 py-2 text-sm font-semibold text-white hover:bg-[#B04412] disabled:opacity-60"
                   >
-                    {inviteMutation.isPending ? "กำลังเชิญ…" : "เชิญ"}
+                    {inviteMutation.isPending ? "กำลังสร้าง…" : "สร้างบัญชี"}
                   </button>
                 </form>
               )}
@@ -813,16 +834,31 @@ export default function Settings() {
                                         👤 สมาชิกคริสตจักร (MEMBER)
                                       </option>
                                     </NativeSelect>
+                                    {!isMe && (
+                                      <button
+                                        type="button"
+                                        disabled={resetPasswordMutation.isPending}
+                                        onClick={() => {
+                                          const pw = window.prompt(
+                                            `ตั้งรหัสผ่านใหม่ให้ ${u.email} (อย่างน้อย 8 ตัวอักษร)`
+                                          );
+                                          if (pw) resetPasswordMutation.mutate({ userId: u.id, password: pw });
+                                        }}
+                                        className="rounded-lg border border-[#E7DCC8] px-2.5 py-1.5 text-xs font-semibold text-[#51443A] hover:bg-[#FAF8F5]"
+                                      >
+                                        ตั้งรหัสผ่านใหม่
+                                      </button>
+                                    )}
                                     {u.openId.startsWith("invite:") && (
                                       <button
                                         type="button"
                                         disabled={revokeMutation.isPending}
                                         onClick={async () => {
                                           const ok = await Swal.confirm(
-                                            "ยกเลิกคำเชิญ?",
+                                            "ยกเลิกบัญชี?",
                                             `อีเมล ${u.email} จะเข้าสู่ระบบไม่ได้อีก`,
                                             {
-                                              confirmButtonText: "ยกเลิกคำเชิญ",
+                                              confirmButtonText: "ยกเลิกบัญชี",
                                               cancelButtonText: "ไม่ยกเลิก",
                                             }
                                           );
@@ -830,7 +866,7 @@ export default function Settings() {
                                         }}
                                         className="rounded-lg border border-[#E7DCC8] px-2.5 py-1.5 text-xs font-semibold text-[#9B2C2C] hover:bg-[#FFF1F0]"
                                       >
-                                        ยกเลิกคำเชิญ
+                                        ยกเลิกบัญชี
                                       </button>
                                     )}
                                   </div>

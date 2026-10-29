@@ -59,6 +59,7 @@ import {
   deactivateMember,
   getAllUsers,
   createInvitedUser,
+  getUserByEmail,
   deleteInvitedUser,
   updateUserProfile,
   markNotificationRead,
@@ -99,6 +100,12 @@ import {
 } from "./db";
 import { runWorkerBatch } from "./line/processWorker";
 import { TRPCError } from "@trpc/server";
+import {
+  AuthAccountExistsError,
+  createAuthAccount,
+  deleteAuthAccount,
+  setAuthPassword,
+} from "./_core/supabaseAdmin";
 import type { User } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
 import { canTransition, isEditable } from "@shared/counting";
@@ -195,6 +202,11 @@ function canApproveDeduction(user: User): boolean {
 }
 
 // ─── Shared Procedures ────────────────────────────────────────────────────────
+
+const passwordSchema = z
+  .string()
+  .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร")
+  .max(72, "รหัสผ่านยาวเกินไป");
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin" && ctx.user.churchRole !== "SUPER_ADMIN") {
@@ -464,23 +476,41 @@ export const appRouter = router({
         return { success: true } as const;
       }),
     /**
-     * Invite someone by email (SUPER_ADMIN only). The person signs in with
-     * that Google address and gets the role chosen here. Nobody else can sign in.
+     * Create an account for someone (SUPER_ADMIN only). The admin chooses the
+     * first password and tells the person. Nobody else can sign in, because
+     * every sign-in needs both a Supabase account and a users row.
      */
     inviteUser: adminProcedure
       .input(
         z.object({
           email: z.string().trim().toLowerCase().email().max(320),
           churchRole: churchRoleEnum,
+          password: passwordSchema,
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const { created } = await createInvitedUser(input);
+        const { created } = await createInvitedUser({
+          email: input.email,
+          churchRole: input.churchRole,
+        });
         if (!created) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "อีเมลนี้อยู่ในระบบหรือได้รับเชิญแล้ว",
           });
+        }
+        try {
+          await createAuthAccount(input.email, input.password);
+        } catch (err) {
+          const row = await getUserByEmail(input.email);
+          if (row) await deleteInvitedUser(row.id);
+          if (err instanceof AuthAccountExistsError) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "อีเมลนี้มีบัญชีเข้าสู่ระบบอยู่แล้ว",
+            });
+          }
+          throw err;
         }
         await createAuditLog({
           churchId: "default",
@@ -492,10 +522,35 @@ export const appRouter = router({
         });
         return { success: true } as const;
       }),
-    /** Cancel an invitation that has not been used yet (SUPER_ADMIN only). */
+    /** Set a new password for someone who forgot theirs (SUPER_ADMIN only). */
+    resetUserPassword: adminProcedure
+      .input(
+        z.object({
+          userId: z.number().int().positive(),
+          password: passwordSchema,
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const target = (await getAllUsers()).find(u => u.id === input.userId);
+        if (!target?.email) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบผู้ใช้" });
+        }
+        await setAuthPassword(target.email, input.password);
+        await createAuditLog({
+          churchId: "default",
+          userId: ctx.user.id,
+          action: "reset_password",
+          entity: "user",
+          entityId: input.userId,
+          metadata: {},
+        });
+        return { success: true } as const;
+      }),
+    /** Cancel an account that has not signed in yet (SUPER_ADMIN only). */
     revokeInvite: adminProcedure
       .input(z.object({ userId: z.number().int().positive() }))
       .mutation(async ({ ctx, input }) => {
+        const target = (await getAllUsers()).find(u => u.id === input.userId);
         const deleted = await deleteInvitedUser(input.userId);
         if (!deleted) {
           throw new TRPCError({
@@ -503,6 +558,7 @@ export const appRouter = router({
             message: "ยกเลิกไม่ได้ ผู้ใช้นี้เข้าสู่ระบบแล้ว",
           });
         }
+        if (target?.email) await deleteAuthAccount(target.email);
         await createAuditLog({
           churchId: "default",
           userId: ctx.user.id,

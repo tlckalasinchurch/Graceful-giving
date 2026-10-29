@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { ChangePasswordCard } from "@/components/ChangePasswordCard";
 import { trpc } from "@/lib/trpc";
 import {
   getChurchRoleInfo,
@@ -498,6 +499,8 @@ export default function Profile() {
             ))}
           </div>
         </section>
+
+        <ChangePasswordCard />
 
         {/* ── SECTION: ข้อมูลบัญชีและทางเลือกความปลอดภัย ─────────────────────── */}
         <section className="rounded-2xl sm:rounded-2xl border border-[#E7DCC8] bg-white p-4 sm:p-6 md:p-8 shadow-xs space-y-4">

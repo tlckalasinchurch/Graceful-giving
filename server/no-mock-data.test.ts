@@ -117,12 +117,11 @@ describe("the expense list links to a detail route the router understands", () =
 });
 
 describe("authentication is real", () => {
-  it("the login page starts the Google sign-in instead of faking success", () => {
+  it("the login page signs in with Supabase instead of faking success", () => {
     const source = read("client/src/pages/Login.tsx");
-    expect(source).toContain("signInWithGoogle");
+    expect(source).toContain("signInWithPassword");
     expect(source).not.toContain("setTimeout");
     expect(source).not.toContain("เข้าสู่ระบบเรียบร้อยแล้ว");
-    expect(source).not.toContain('type="password"');
   });
 
   it("there is no self-service sign-up page; /register goes to /login", () => {

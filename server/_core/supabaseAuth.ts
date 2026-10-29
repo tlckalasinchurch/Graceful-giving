@@ -1,10 +1,11 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { ENV } from "./env";
+import { isEmailConfirmed } from "./supabaseAdmin";
 
 export type VerifiedIdentity = {
   /** Supabase auth user id (UUID). Stored in users.openId. */
   sub: string;
-  /** Lower-cased, verified by the identity provider. */
+  /** Lower-cased and confirmed. */
   email: string;
   name: string | null;
   provider: string;
@@ -24,9 +25,25 @@ function getClient(): SupabaseClient {
   return client;
 }
 
+const CONFIRMED_TTL_MS = 5 * 60 * 1000;
+const confirmedCache = new Map<string, number>();
+
+/**
+ * The token claim is enough when it says "verified". Accounts an admin created
+ * may not carry that claim, so ask Supabase once per user and cache the answer.
+ */
+async function isConfirmed(sub: string, claimSaysVerified: boolean) {
+  if (claimSaysVerified) return true;
+  const until = confirmedCache.get(sub);
+  if (until && until > Date.now()) return true;
+  if (!(await isEmailConfirmed(sub))) return false;
+  confirmedCache.set(sub, Date.now() + CONFIRMED_TTL_MS);
+  return true;
+}
+
 /**
  * Verify a Supabase access token and return the identity it carries.
- * Throws when the token is invalid, expired, or has no verified email.
+ * Throws when the token is invalid, expired, or has no confirmed email.
  */
 export async function verifySupabaseToken(
   token: string
@@ -42,9 +59,9 @@ export async function verifySupabaseToken(
   if (!email) throw new Error("Invalid session token: missing email");
 
   const meta = (claims.user_metadata ?? {}) as Record<string, any>;
-  // An unverified address must never match an invitation.
-  if (meta.email_verified !== true) {
-    throw new Error("Email address is not verified by the identity provider");
+  // An unconfirmed address must never match an invitation.
+  if (!(await isConfirmed(sub, meta.email_verified === true))) {
+    throw new Error("Email address is not confirmed");
   }
 
   return {

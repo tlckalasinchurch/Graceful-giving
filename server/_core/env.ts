@@ -1,10 +1,12 @@
 export const ENV = {
-  // Supabase Auth (Google sign-in, invite-only)
+  // Supabase Auth (email + password, accounts created by an admin)
   supabaseUrl: process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "",
   supabasePublishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "",
+  // Server-only. Creates and resets member accounts. Never ship it to the browser.
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
 
   // App settings
-  // Email of the church owner. Signing in with this verified Google address
+  // Email of the church owner. Signing in with this confirmed address
   // creates (or relinks) the SUPER_ADMIN account. Nobody else is created
   // without an invitation.
   ownerEmail: (process.env.OWNER_EMAIL ?? "").trim().toLowerCase(),

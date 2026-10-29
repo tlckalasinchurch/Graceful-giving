@@ -14,21 +14,16 @@ export const supabase = createClient(
   key ?? "missing",
   {
     auth: {
-      flowType: "pkce",
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
+      detectSessionInUrl: false,
     },
   }
 );
 
-export function signInWithGoogle() {
-  return supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${window.location.origin}/`,
-      // Always show the account chooser so a shared device does not reuse the wrong account.
-      queryParams: { prompt: "select_account" },
-    },
+export function signInWithPassword(email: string, password: string) {
+  return supabase.auth.signInWithPassword({
+    email: email.trim().toLowerCase(),
+    password,
   });
 }

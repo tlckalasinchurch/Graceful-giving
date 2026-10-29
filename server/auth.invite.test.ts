@@ -20,7 +20,7 @@ const identity = {
   sub: "11111111-1111-1111-1111-111111111111",
   email: "new@example.com",
   name: "New Person",
-  provider: "google",
+  provider: "email",
 };
 
 const row = (over: Record<string, unknown>) => ({
@@ -58,7 +58,7 @@ describe("resolveUser (invite-only sign-in)", () => {
     await expect(resolveUser(identity)).resolves.toBe(linked);
     expect(dbMock.relinkUserOpenId).toHaveBeenCalledWith(7, identity.sub, {
       name: "new",
-      loginMethod: "google",
+      loginMethod: "email",
     });
   });
 
@@ -126,7 +126,11 @@ describe("invitation procedures", () => {
     role: "user",
     churchRole: "TREASURER",
   };
-  const input = { email: "a@example.com", churchRole: "MEMBER" as const };
+  const input = {
+    email: "a@example.com",
+    churchRole: "MEMBER" as const,
+    password: "longenough1",
+  };
 
   it("rejects anonymous callers", async () => {
     const c = appRouter.createCaller(ctx(null));
@@ -153,6 +157,22 @@ describe("invitation procedures", () => {
     });
   }
 
+  it("rejects a password shorter than 8 characters", async () => {
+    const admin = {
+      id: 1,
+      openId: "a",
+      role: "admin",
+      churchRole: "SUPER_ADMIN",
+    };
+    const c = appRouter.createCaller(ctx(admin));
+    await expect(
+      c.auth.inviteUser({ ...input, password: "short" })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    await expect(
+      c.auth.resetUserPassword({ userId: 1, password: "short" })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
   it("rejects a malformed email", async () => {
     const admin = {
       id: 1,
@@ -162,7 +182,7 @@ describe("invitation procedures", () => {
     };
     const c = appRouter.createCaller(ctx(admin));
     await expect(
-      c.auth.inviteUser({ email: "not-an-email", churchRole: "MEMBER" })
+      c.auth.inviteUser({ ...input, email: "not-an-email" })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });
