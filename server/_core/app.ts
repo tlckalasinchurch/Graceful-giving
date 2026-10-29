@@ -22,14 +22,17 @@ export function createApp(): Express {
 
   // LINE webhook needs raw body stream for HMAC validation — register before body parser
   registerLineWebhook(app);
-  // General routes use a 1 MB limit; the tRPC upload path uses 50 MB.
-  app.use(express.json({ limit: "1mb" }));
-  app.use(express.urlencoded({ limit: "1mb", extended: true }));
-  // tRPC receipt/slip upload path needs a higher body limit.
-  app.use(
-    "/api/trpc/expenses.uploadReceipt,line.uploadSlip",
-    express.json({ limit: "50mb" })
+  // Receipt and slip photos travel as base64 inside tRPC calls, so /api/trpc
+  // gets a larger limit than everything else. Vercel rejects request bodies
+  // over 4.5 MB before they reach this code, so 5 MB is the useful ceiling.
+  // The limit is chosen per request: a second app.use() after a 1 MB parser
+  // never runs, because the first parser already rejected the body.
+  const jsonDefault = express.json({ limit: "1mb" });
+  const jsonTrpc = express.json({ limit: "5mb" });
+  app.use((req, res, next) =>
+    (req.path.startsWith("/api/trpc") ? jsonTrpc : jsonDefault)(req, res, next)
   );
+  app.use(express.urlencoded({ limit: "1mb", extended: true }));
   registerStorageProxy(app);
   registerLineWorker(app);
   registerOAuthRoutes(app);

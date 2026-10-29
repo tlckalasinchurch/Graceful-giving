@@ -27,14 +27,14 @@ const ALLOWED: Record<string, ChurchRole[]> = {
   "/reports": ["SUPER_ADMIN", "PASTOR", "TREASURER"],
   "/approvals": ["SUPER_ADMIN", "PASTOR", "TREASURER"],
   "/members": ["SUPER_ADMIN", "PASTOR", "TREASURER", "DEACON"],
+  "/transactions": ["SUPER_ADMIN", "PASTOR", "TREASURER"],
+  "/offerings": ["SUPER_ADMIN", "PASTOR", "TREASURER"],
+  "/offerings/new": ["SUPER_ADMIN", "TREASURER"],
 };
 
 /** Routes with no entry in the map: open to anyone signed in. */
 const UNGATED = [
   "/",
-  "/transactions",
-  "/offerings",
-  "/offerings/new",
   "/withdrawals/new",
   "/ministries",
   "/updates",

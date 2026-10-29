@@ -194,9 +194,6 @@ export default function Profile() {
   const utils = trpc.useUtils();
 
   // Queries for live financial data
-  const financeSummaryQuery = trpc.finance.summary.useQuery(undefined, {
-    staleTime: 60_000,
-  });
   const pendingApprovalsQuery = trpc.withdrawals.list.useQuery(
     { myOnly: false },
     { staleTime: 60_000 }
