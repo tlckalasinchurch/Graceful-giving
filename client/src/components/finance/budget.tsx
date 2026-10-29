@@ -42,10 +42,11 @@ export function budgetUsage(planned: number, actual: number) {
   return { percent, tone } as const;
 }
 
+// Red is reserved for spending past the plan, matching the money polarity rule.
 const TONE_STYLES = {
-  ok: { bar: "bg-[#2F7A45]", text: "text-[#1F5C33]", label: "อยู่ในงบ" },
-  warn: { bar: "bg-[#C94F16]", text: "text-[#9F3B0F]", label: "ใกล้เต็มงบ" },
-  over: { bar: "bg-[#C7382D]", text: "text-[#C7382D]", label: "เกินงบ" },
+  ok: { bar: "bg-income", text: "text-income", label: "อยู่ในงบ" },
+  warn: { bar: "bg-brand", text: "text-brand-ink", label: "ใกล้เต็มงบ" },
+  over: { bar: "bg-danger", text: "text-danger", label: "เกินงบ" },
 } as const;
 
 export const BudgetProgress: React.FC<{
@@ -58,7 +59,7 @@ export const BudgetProgress: React.FC<{
   return (
     <div className={className}>
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-[#EDE8E3]"
+        className="h-2.5 w-full overflow-hidden rounded-full bg-line"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -72,7 +73,7 @@ export const BudgetProgress: React.FC<{
       </div>
       <div className="mt-1.5 flex items-center justify-between text-xs tabular-nums">
         <span className={`font-semibold ${style.text}`}>{style.label}</span>
-        <span className="text-[#807266]">ใช้ไป {percent.toFixed(0)}%</span>
+        <span className="text-ink-3">ใช้ไป {percent.toFixed(0)}%</span>
       </div>
     </div>
   );

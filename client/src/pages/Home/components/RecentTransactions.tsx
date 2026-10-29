@@ -1,4 +1,6 @@
-import { ChevronRight, Heart } from "lucide-react";
+import { ChevronRight, type LucideIcon } from "lucide-react";
+import { Link } from "wouter";
+import { MoneyDisplay } from "@/components/common/CommonUI";
 
 export interface TransactionItem {
   id: string;
@@ -10,87 +12,78 @@ export interface TransactionItem {
   subCategory: string;
   amount: number;
   tone: string;
-  icon: typeof Heart;
+  icon: LucideIcon;
 }
 
 interface RecentTransactionsProps {
   allTransactions: TransactionItem[];
   onViewAll: () => void;
-  fmtBaht: (n: number) => string;
   fmtThaiDate: (d: Date | string) => string;
 }
 
 export function RecentTransactions({
   allTransactions,
   onViewAll,
-  fmtBaht,
   fmtThaiDate,
 }: RecentTransactionsProps) {
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="bg-white rounded-3xl p-6 sm:p-7 border border-[#E7DCC8]/90 fintech-card space-y-4 w-full"
+      className="h-full bg-surface rounded-3xl p-2 sm:p-3 fintech-card w-full"
     >
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg sm:text-xl font-bold text-[#171311]">
-          รายการล่าสุด
-        </h2>
+      <div className="flex items-center justify-between px-3 pt-2">
+        <h2 className="text-base font-semibold text-ink">รายการล่าสุด</h2>
         <button
           onClick={onViewAll}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF8EA] hover:bg-[#FFF2DF] text-xs sm:text-sm font-bold text-[#9F3B0F] border border-[#E7DCC8] shadow-2xs transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-[#C94F16]"
+          className="inline-flex min-h-11 items-center gap-1 rounded-2xl px-2 text-sm font-semibold text-brand-ink hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand"
         >
           <span>ดูทั้งหมด</span>
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="size-4" aria-hidden="true" />
         </button>
       </div>
 
-      <div className="divide-y divide-[#EDE8E3]">
-        {allTransactions.length === 0 && (
-          <p className="py-8 text-center text-sm text-[#51443A] font-medium">
-            ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
-          </p>
-        )}
-        {allTransactions.slice(0, 4).map(tx => {
-          const IconComponent = tx.icon || Heart;
-          const isIncome = tx.type === "income";
-          return (
-            <div
-              key={tx.id}
-              className="py-3 sm:p-3 -mx-2 sm:-mx-3 rounded-2xl hover:bg-[#FFFBF5] transition-colors flex items-center justify-between gap-4"
-            >
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div
-                  className={`size-11 rounded-2xl ${tx.tone} flex items-center justify-center shrink-0 shadow-2xs`}
+      {allTransactions.length === 0 ? (
+        <p className="px-3 py-8 text-center text-sm text-ink-2">
+          ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
+        </p>
+      ) : (
+        <ul className="divide-y divide-line">
+          {allTransactions.slice(0, 5).map(tx => {
+            const Icon = tx.icon;
+            return (
+              <li key={tx.id}>
+                <Link
+                  href={`/transactions/${tx.id}`}
+                  className="flex min-h-16 items-center justify-between gap-4 rounded-2xl px-3 py-3 hover:bg-ground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                 >
-                  <IconComponent className="w-5 h-5 stroke-[2.2]" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm sm:text-base font-bold text-[#171311] leading-tight truncate">
-                    {tx.title}
-                  </p>
-                  <p className="text-xs text-[#807266] font-medium pt-0.5">
-                    {fmtThaiDate(tx.date)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-right shrink-0">
-                <p
-                  className={`text-base sm:text-lg font-bold tabular-nums tracking-tight ${
-                    isIncome ? "text-[#155724]" : "text-[#9E2D12]"
-                  }`}
-                >
-                  {isIncome ? "+" : "-"}
-                  {fmtBaht(Math.abs(tx.amount))}
-                </p>
-                <p className="text-xs text-[#807266] font-medium">
-                  {tx.subCategory}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                  <div className="flex min-w-0 items-center gap-3.5">
+                    <span
+                      className={`size-11 shrink-0 rounded-2xl flex items-center justify-center ${tx.tone}`}
+                      aria-hidden="true"
+                    >
+                      <Icon className="size-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-ink">
+                        {tx.title}
+                      </p>
+                      <p className="truncate text-xs text-ink-2 pt-0.5">
+                        {tx.subCategory} · {fmtThaiDate(tx.date)}
+                      </p>
+                    </div>
+                  </div>
+                  <MoneyDisplay
+                    amount={tx.amount}
+                    type={tx.type}
+                    size="base"
+                    className="shrink-0"
+                  />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }

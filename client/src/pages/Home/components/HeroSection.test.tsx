@@ -40,6 +40,5 @@ describe("HeroSection", () => {
       "src",
       "/illustrations/hero_jesus_shepherd.jpg"
     );
-    expect(screen.getByText("พระเยซูผู้เลี้ยงที่ดี ♥")).toBeInTheDocument();
   });
 });

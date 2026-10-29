@@ -1,4 +1,6 @@
-import { Illustration } from "@/components/Illustration";
+import { HandHeart, ReceiptText, Scale } from "lucide-react";
+import type { ReactNode } from "react";
+import { formatAmount } from "@/lib/format";
 
 interface FinancialSummaryRowProps {
   isBalanceLoading: boolean;
@@ -9,9 +11,38 @@ interface FinancialSummaryRowProps {
   incomeTrend: string;
   expenseTrend: string;
   isPositiveNet: boolean;
-  fmtShortBaht: (n: number) => string;
   trendArrow: (trend: string) => string;
   trendValue: (trend: string) => string;
+}
+
+function SummaryCard({
+  label,
+  icon,
+  tile,
+  amount,
+  footnote,
+}: {
+  label: string;
+  icon: ReactNode;
+  tile: string;
+  amount: ReactNode;
+  footnote: ReactNode;
+}) {
+  return (
+    <article className="min-w-0 rounded-3xl bg-surface p-5 fintech-card flex items-start gap-4">
+      <span
+        className={`size-11 shrink-0 rounded-2xl flex items-center justify-center ${tile}`}
+        aria-hidden="true"
+      >
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1 space-y-1">
+        <h3 className="text-sm font-medium text-ink-2">{label}</h3>
+        {amount}
+        <p className="text-xs text-ink-3">{footnote}</p>
+      </div>
+    </article>
+  );
 }
 
 export function FinancialSummaryRow({
@@ -23,134 +54,57 @@ export function FinancialSummaryRow({
   incomeTrend,
   expenseTrend,
   isPositiveNet,
-  fmtShortBaht,
   trendArrow,
   trendValue,
 }: FinancialSummaryRowProps) {
+  const figure = (
+    value: number | undefined,
+    tone: string,
+    sign: string
+  ): ReactNode =>
+    isBalanceLoading ? (
+      <div className="h-8 w-28 rounded-2xl bg-ground animate-pulse" />
+    ) : (
+      <p className={`money text-2xl font-semibold leading-tight ${tone}`}>
+        {showBalance && value !== undefined
+          ? `${sign}฿ ${formatAmount(Math.abs(value), 0)}`
+          : "—"}
+      </p>
+    );
+
   return (
     <section
       aria-label="สรุปตัวเลขการเงินรายเดือน"
       style={{ animationDelay: "160ms" }}
-      className="animate-fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full"
+      className="animate-fade-up grid grid-cols-1 sm:grid-cols-3 gap-4 w-full"
     >
-      {/* Card 1: รายรับ (Income) */}
-      <article className="min-w-0 bg-gradient-to-br from-white via-[#FCFDF9] to-[#F4FAF2] border border-[#C5E8BF]/90 rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 fintech-card fintech-card-hover">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-[#E4F3E7] p-1 border border-[#C5E8BF] shadow-2xs">
-          <Illustration
-            src="/illustrations/income_hand_heart.jpg"
-            alt="รายรับ"
-            className="w-full h-full object-cover rounded-xl"
-            width={96}
-            height={96}
-            aria-hidden="true"
-          />
-        </div>
-        <div className="min-w-0 max-w-full flex-1">
-          <span className="text-sm sm:text-base font-bold text-[#1F5C33]">
-            รายรับเดือนนี้
-          </span>
-          {isBalanceLoading ? (
-            <div className="h-8 md:h-10 w-32 my-1 rounded-xl bg-stone-100 animate-pulse" />
-          ) : (
-            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#155724] break-words tabular-nums mt-0.5">
-              {showBalance && monthlyIncome !== undefined
-                ? fmtShortBaht(monthlyIncome)
-                : "—"}
-            </div>
-          )}
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBF7EC] text-[#1F5C33] text-xs font-bold">
-              {trendArrow(incomeTrend)} {trendValue(incomeTrend)}
-            </span>
-            <span className="text-xs text-[#51443A] font-medium">
-              จากเดือนที่แล้ว
-            </span>
-          </div>
-        </div>
-      </article>
-
-      {/* Card 2: รายจ่าย (Expenses) */}
-      <article className="min-w-0 bg-gradient-to-br from-white via-[#FDFDFC] to-[#FDF4F2] border border-[#F8C8C5]/90 rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 fintech-card fintech-card-hover">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-[#FEECEB] p-1 border border-[#F8C8C5] shadow-2xs">
-          <Illustration
-            src="/illustrations/expense_hand_coin.jpg"
-            alt="รายจ่าย"
-            className="w-full h-full object-cover rounded-xl"
-            width={96}
-            height={96}
-            aria-hidden="true"
-          />
-        </div>
-        <div className="min-w-0 max-w-full flex-1">
-          <span className="text-sm sm:text-base font-bold text-[#8A2E14]">
-            รายจ่ายเดือนนี้
-          </span>
-          {isBalanceLoading ? (
-            <div className="h-8 md:h-10 w-32 my-1 rounded-xl bg-stone-100 animate-pulse" />
-          ) : (
-            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#9E2D12] break-words tabular-nums mt-0.5">
-              {showBalance && monthlyExpense !== undefined
-                ? fmtShortBaht(monthlyExpense)
-                : "—"}
-            </div>
-          )}
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FDF0ED] text-[#8A2E14] text-xs font-bold">
-              {trendArrow(expenseTrend)} {trendValue(expenseTrend)}
-            </span>
-            <span className="text-xs text-[#51443A] font-medium">
-              จากเดือนที่แล้ว
-            </span>
-          </div>
-        </div>
-      </article>
-
-      {/* Card 3: คงเหลือ (Net) */}
-      <article
-        className={`min-w-0 bg-gradient-to-br from-white via-[#FFFCF7] to-[#FFF7ED] rounded-2xl p-5 sm:p-6 flex sm:flex-col items-center sm:items-start gap-4 border fintech-card fintech-card-hover sm:col-span-2 lg:col-span-1 ${
-          isPositiveNet ? "border-[#E7DCC8]/90" : "border-[#F8C8C5]/90"
-        }`}
-      >
-        <div
-          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-[#FFF8EA] p-1 border shadow-2xs ${
-            isPositiveNet ? "border-[#E7DCC8]" : "border-[#F8C8C5]"
-          }`}
-        >
-          <Illustration
-            src="/illustrations/balance_wallet.jpg"
-            alt="คงเหลือ"
-            className="w-full h-full object-cover rounded-xl"
-            width={96}
-            height={96}
-            aria-hidden="true"
-          />
-        </div>
-        <div className="min-w-0 max-w-full flex-1">
-          <span className="text-sm sm:text-base font-bold text-[#51443A]">
-            คงเหลือสุทธิเดือนนี้
-          </span>
-          {isBalanceLoading ? (
-            <div className="h-8 md:h-10 w-32 my-1 rounded-xl bg-stone-100 animate-pulse" />
-          ) : (
-            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#171311] break-words tabular-nums mt-0.5">
-              {showBalance && netMonthly !== undefined
-                ? fmtShortBaht(netMonthly)
-                : "—"}
-            </div>
-          )}
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <span
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                isPositiveNet
-                  ? "bg-[#EBF7EC] text-[#1F5C33]"
-                  : "bg-[#FDF0ED] text-[#8A2E14]"
-              }`}
-            >
-              {isPositiveNet ? "รายรับมากกว่ารายจ่าย" : "รายจ่ายมากกว่ารายรับ"}
-            </span>
-          </div>
-        </div>
-      </article>
+      <SummaryCard
+        label="รายรับเดือนนี้"
+        tile="bg-tile-mint text-tile-mint-ink"
+        icon={<HandHeart className="size-5" />}
+        amount={figure(monthlyIncome, "text-income", "+")}
+        footnote={`${trendArrow(incomeTrend)} ${trendValue(incomeTrend)} จากเดือนที่แล้ว`}
+      />
+      <SummaryCard
+        label="รายจ่ายเดือนนี้"
+        tile="bg-tile-sand text-tile-sand-ink"
+        icon={<ReceiptText className="size-5" />}
+        amount={figure(monthlyExpense, "text-ink", "")}
+        footnote={`${trendArrow(expenseTrend)} ${trendValue(expenseTrend)} จากเดือนที่แล้ว`}
+      />
+      <SummaryCard
+        label="คงเหลือสุทธิเดือนนี้"
+        tile="bg-tile-sky text-tile-sky-ink"
+        icon={<Scale className="size-5" />}
+        amount={figure(
+          netMonthly,
+          isPositiveNet ? "text-ink" : "text-danger",
+          isPositiveNet ? "" : "−"
+        )}
+        footnote={
+          isPositiveNet ? "รายรับมากกว่ารายจ่าย" : "รายจ่ายมากกว่ารายรับ"
+        }
+      />
     </section>
   );
 }
