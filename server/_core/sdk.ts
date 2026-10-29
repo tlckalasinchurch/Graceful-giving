@@ -54,9 +54,10 @@ export const sdk = {
 
       try {
         const existingUsers = await db.getAllUsers();
-        const isFirst = existingUsers.length === 0;
-        // Grant admin/SUPER_ADMIN only to: the first registered user, or the
-        // explicitly configured owner (OWNER_OPEN_ID env var). No hardcoded values.
+        // In production, only the configured owner (OWNER_OPEN_ID env var) gets
+        // admin/SUPER_ADMIN. "First user wins" would let anyone who signs up on an
+        // empty database take over the church. It stays on in development only.
+        const isFirst = !ENV.isProduction && existingUsers.length === 0;
         const isPrimary = isFirst || (ENV.ownerOpenId !== "" && clerkUserId === ENV.ownerOpenId);
         const role = isPrimary ? "admin" : "user";
         const churchRole = isPrimary ? "SUPER_ADMIN" : "MEMBER";

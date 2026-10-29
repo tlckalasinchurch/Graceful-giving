@@ -63,9 +63,8 @@ The changes form four logical groups (proposed commit split, not yet applied):
    `sessionId` now clears `draftCounts`, `varianceNote`, and resets the active
    tab, so reconciliation numbers could previously leak across sessions.
 
-Gotcha: running `pnpm build` drops an untracked `api/index.js` artifact into the
-working tree; clean it with `git checkout -- api/index.js` if `pnpm build` was
-used only for verification.
+Note: `pnpm build` writes `api/index.js`. The file is git-ignored and Vercel
+regenerates it on every build.
 
 ## Design conventions (decided during this session, not in CLAUDE.md)
 
