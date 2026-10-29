@@ -9,7 +9,7 @@ import {
   expenseCategoryLabel,
   offeringCategoryLabel,
 } from "@shared/categories";
-import { canManageFinance } from "@shared/roles";
+import { canManageFinance, canViewFinanceRecords } from "@shared/roles";
 import { HeroSection } from "./Home/components/HeroSection";
 import { BalanceCard } from "./Home/components/BalanceCard";
 import { FinancialSummaryRow } from "./Home/components/FinancialSummaryRow";
@@ -94,6 +94,10 @@ export default function Home() {
   // withdrawals.list returns every request only to finance roles, and only
   // they can approve, so the to-do row is limited to them.
   const canApproveWithdrawals = canManageFinance(user);
+  // Balances, totals and the ledger are for finance roles and church leaders;
+  // the server refuses everyone else, so the dashboard does not ask.
+  const canSeeFinance = canViewFinanceRecords(user);
+  const canRecordOffering = canAccessRoute("/offerings/new", user);
   const hasTaskSources =
     canAccessInbox || canApproveWithdrawals || canOpenCounting;
 
@@ -119,18 +123,19 @@ export default function Home() {
     isLoading: summaryLoading,
     isError: summaryError,
   } = trpc.finance.summary.useQuery(undefined, {
+    enabled: canSeeFinance,
     retry: false,
     staleTime: 30_000,
   });
 
   const { data: offeringsData } = trpc.offerings.list.useQuery(
     { limit: 30 },
-    { retry: false }
+    { enabled: canSeeFinance, retry: false }
   );
 
   const { data: expensesData } = trpc.expenses.list.useQuery(
     { limit: 30 },
-    { retry: false }
+    { enabled: canSeeFinance, retry: false }
   );
 
   const { data: inboxStats, isLoading: inboxLoading } =
@@ -263,6 +268,7 @@ export default function Home() {
         )}
 
         <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
+          {canSeeFinance && (
           <div className="lg:col-span-7">
             <BalanceCard
               showBalance={showBalance}
@@ -277,11 +283,12 @@ export default function Home() {
               onOpenReports={() => setLocation("/reports")}
             />
           </div>
+          )}
 
           <section
             aria-labelledby="dashboard-actions"
             style={{ animationDelay: "160ms" }}
-            className="animate-fade-up lg:col-span-5 rounded-3xl bg-surface p-4 sm:p-5 fintech-card space-y-4"
+            className={`animate-fade-up ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"} rounded-3xl bg-surface p-4 sm:p-5 fintech-card space-y-4`}
           >
             <h2
               id="dashboard-actions"
@@ -290,6 +297,7 @@ export default function Home() {
               ทำรายการ
             </h2>
             <PrimaryActions
+              canRecordOffering={canRecordOffering}
               canRecordExpense={canRecordExpense}
               onNewOffering={() => setLocation("/offerings/new")}
               onNewExpense={() => setLocation("/expenses/new")}
@@ -305,6 +313,7 @@ export default function Home() {
             />
           </section>
 
+          {canSeeFinance && (
           <div className="lg:col-span-12">
             <FinancialSummaryRow
               isBalanceLoading={isBalanceLoading}
@@ -319,7 +328,9 @@ export default function Home() {
               trendValue={trendValue}
             />
           </div>
+          )}
 
+          {canSeeFinance && (
           <div className={canViewBudgets ? "lg:col-span-7" : "lg:col-span-12"}>
             <RecentTransactions
               allTransactions={allTransactions}
@@ -327,6 +338,7 @@ export default function Home() {
               fmtThaiDate={fmtThaiDate}
             />
           </div>
+          )}
 
           {canViewBudgets && (
             <div className="lg:col-span-5">

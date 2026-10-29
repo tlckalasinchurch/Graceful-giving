@@ -3,6 +3,7 @@ import {
   canManageBudgets,
   canManageChurchSettings,
   canManageFinance,
+  canViewFinanceRecords,
   canViewReports,
   isSuperAdmin,
 } from "@shared/roles";
@@ -24,6 +25,9 @@ type AuthUser =
 export const ROUTE_ACCESS: Record<string, (user: AuthUser) => boolean> = {
   "/settings": isSuperAdmin,
   "/counting": canCountOfferings,
+  "/transactions": canViewFinanceRecords,
+  "/offerings": canViewFinanceRecords,
+  "/offerings/new": canManageFinance,
   "/giving/inbox": canManageFinance,
   "/expenses": u => canManageFinance(u) || canManageChurchSettings(u),
   "/funds": u => canManageFinance(u) || canManageChurchSettings(u),

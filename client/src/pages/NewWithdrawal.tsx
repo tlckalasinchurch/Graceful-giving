@@ -45,7 +45,7 @@ export default function NewWithdrawal() {
     if (await confirmDiscardChanges(isDirty)) setLocation(returnPath);
   };
 
-  const fundsQuery = trpc.finance.accounts.useQuery(undefined, {
+  const fundsQuery = trpc.finance.fundOptions.useQuery(undefined, {
     retry: false,
   });
   const funds = fundsQuery.data ?? [];

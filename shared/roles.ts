@@ -152,6 +152,20 @@ export function canManageMinistries(
 }
 
 /**
+ * Ledger records and church-wide totals: offerings, expenses, fund balances,
+ * reports. The same people who manage budgets. The server enforces this
+ * (canViewFinanceRecords in server/routers.ts); this copy only decides what
+ * the UI offers.
+ */
+export function canViewFinanceRecords(
+  user?: { role?: string; churchRole?: string | null } | null
+): boolean {
+  return Boolean(
+    user && (canManageFinance(user) || canManageChurchSettings(user))
+  );
+}
+
+/**
  * Budget plans are compared against recorded spending, so both reading and
  * writing them stay with the treasurer, the pastor and the super admin.
  */

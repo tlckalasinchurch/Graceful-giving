@@ -1,4 +1,3 @@
-import path from "path";
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -160,6 +159,24 @@ function canManageBudgets(user: User): boolean {
   return hasAnyRole(user, "SUPER_ADMIN", "TREASURER", "PASTOR");
 }
 
+/**
+ * Ledger records (offerings, expenses, fund balances) and church-wide totals.
+ * Same people the /expenses, /funds and /reports routes admit.
+ */
+function canViewFinanceRecords(user: User): boolean {
+  return hasAnyRole(user, "SUPER_ADMIN", "PASTOR", "TREASURER");
+}
+
+/** The member directory holds phone numbers, emails and notes. */
+function canViewMemberDirectory(user: User): boolean {
+  return hasAnyRole(user, "SUPER_ADMIN", "PASTOR", "TREASURER", "DEACON");
+}
+
+/** Bank account details are for people who handle money or run the church. */
+function canViewBankDetails(user: User): boolean {
+  return canViewFinanceRecords(user);
+}
+
 /** COUNTER records the count; finance roles may also record it. */
 function canCountOfferings(user: User): boolean {
   return hasAnyRole(user, "SUPER_ADMIN", "TREASURER", "COUNTER");
@@ -217,6 +234,47 @@ const ministryProcedure = protectedProcedure.use(({ ctx, next }) => {
   return next();
 });
 
+const financeViewProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!canViewFinanceRecords(ctx.user)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "เฉพาะเหรัญญิก ศิษยาภิบาล หรือผู้ดูแลระบบเท่านั้น",
+    });
+  }
+  return next();
+});
+
+/** Counters pick a fund and a member for each envelope, so they read both. */
+const fundReadProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!canViewFinanceRecords(ctx.user) && !canCountOfferings(ctx.user)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "คุณไม่มีสิทธิ์ดูข้อมูลกองทุน",
+    });
+  }
+  return next();
+});
+
+const memberReadProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!canViewMemberDirectory(ctx.user) && !canCountOfferings(ctx.user)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "คุณไม่มีสิทธิ์ดูรายชื่อสมาชิก",
+    });
+  }
+  return next();
+});
+
+const memberDetailProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!canViewMemberDirectory(ctx.user)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "คุณไม่มีสิทธิ์ดูข้อมูลสมาชิก",
+    });
+  }
+  return next();
+});
+
 const budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canManageBudgets(ctx.user)) {
     throw new TRPCError({
@@ -226,6 +284,12 @@ const budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
   }
   return next();
 });
+
+const RECEIPT_EXTENSIONS = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "application/pdf": "pdf",
+} as const;
 
 // ─── Zod Enums ────────────────────────────────────────────────────────────────
 
@@ -307,6 +371,23 @@ function assertCanVerify(user: User) {
   }
 }
 
+/** Everyone sees the church's name and contact details, not its bank account. */
+export function redactChurchProfile<
+  T extends {
+    bankName: string | null;
+    bankAccount: string | null;
+    bankAccountName: string | null;
+  },
+>(profile: T | null, user: User): T | null {
+  if (!profile || canViewBankDetails(user)) return profile;
+  return {
+    ...profile,
+    bankName: null,
+    bankAccount: null,
+    bankAccountName: null,
+  };
+}
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 
 export const appRouter = router({
@@ -384,8 +465,8 @@ export const appRouter = router({
 
   // ── Church Profile ──────────────────────────────────────────────────────────
   church: router({
-    getProfile: protectedProcedure.query(async () => {
-      return await getChurchProfile();
+    getProfile: protectedProcedure.query(async ({ ctx }) => {
+      return redactChurchProfile(await getChurchProfile(), ctx.user);
     }),
     updateProfile: churchLeaderProcedure
       .input(
@@ -417,10 +498,10 @@ export const appRouter = router({
 
   // ── Finance Summary ─────────────────────────────────────────────────────────
   finance: router({
-    summary: protectedProcedure.query(async () => {
+    summary: financeViewProcedure.query(async () => {
       return await getFinancialSummary();
     }),
-    monthlyStats: protectedProcedure
+    monthlyStats: financeViewProcedure
       .input(
         z
           .object({ months: z.number().int().min(1).max(24).default(6) })
@@ -429,8 +510,13 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await getMonthlyStats(DEFAULT_CHURCH_ID, input?.months ?? 6);
       }),
-    accounts: protectedProcedure.query(async () => {
+    accounts: fundReadProcedure.query(async () => {
       return await listFinanceAccounts();
+    }),
+    /** Fund names only, no balances: any member can pick one on a withdrawal request. */
+    fundOptions: protectedProcedure.query(async () => {
+      const accounts = await listFinanceAccounts();
+      return accounts.map(a => ({ id: a.id, name: a.name, type: a.type }));
     }),
     createAccount: financeProcedure
       .input(
@@ -460,7 +546,7 @@ export const appRouter = router({
 
   // ── Offerings ───────────────────────────────────────────────────────────────
   offerings: router({
-    list: protectedProcedure
+    list: financeViewProcedure
       .input(
         z
           .object({
@@ -479,7 +565,7 @@ export const appRouter = router({
           toDate: input?.toDate,
         });
       }),
-    getById: protectedProcedure
+    getById: financeViewProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .query(async ({ ctx, input }) => {
         return await getOfferingById(
@@ -587,7 +673,7 @@ export const appRouter = router({
 
   // ── Expenses ────────────────────────────────────────────────────────────────
   expenses: router({
-    list: protectedProcedure
+    list: financeViewProcedure
       .input(
         z
           .object({
@@ -604,7 +690,7 @@ export const appRouter = router({
           toDate: input?.toDate,
         });
       }),
-    getById: protectedProcedure
+    getById: financeViewProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .query(async ({ input }) => {
         return await getExpenseById(input.id, DEFAULT_CHURCH_ID);
@@ -659,12 +745,14 @@ export const appRouter = router({
         z.object({
           fileName: z.string().min(1).max(255),
           contentType: z.enum(["image/jpeg", "image/png", "application/pdf"]),
-          base64Data: z.string().min(1),
+          // About 5 MB of binary once decoded; matches the /api/trpc body limit.
+          base64Data: z.string().min(1).max(6_900_000),
         })
       )
       .mutation(async ({ input }) => {
-        const safeName = path.basename(input.fileName);
-        const ext = safeName.split(".").pop() ?? "bin";
+        // The extension comes from the validated content type, never from the
+        // client's file name, so a file cannot be stored as receipt.html.
+        const ext = RECEIPT_EXTENSIONS[input.contentType];
         const key = `expenses/receipt.${ext}`;
         const { url } = await storagePut(
           key,
@@ -806,8 +894,8 @@ export const appRouter = router({
 
   // ── Members ──────────────────────────────────────────────────────────────────
   members: router({
-    list: protectedProcedure.query(async () => listMembers(DEFAULT_CHURCH_ID)),
-    getById: protectedProcedure
+    list: memberReadProcedure.query(async () => listMembers(DEFAULT_CHURCH_ID)),
+    getById: memberDetailProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .query(async ({ input }) => getMemberById(input.id, DEFAULT_CHURCH_ID)),
     create: churchLeaderProcedure
@@ -1024,7 +1112,7 @@ export const appRouter = router({
   // ── Reports ──────────────────────────────────────────────────────────────────
   reports: router({
     /** Category totals and fund balances for the report screen. */
-    summary: protectedProcedure
+    summary: financeViewProcedure
       .input(reportDateRange)
       .query(async ({ input }) =>
         getFinancialReportSummary(
@@ -1033,7 +1121,7 @@ export const appRouter = router({
           input.toDate
         )
       ),
-    financial: protectedProcedure
+    financial: financeViewProcedure
       .input(reportDateRange)
       .query(async ({ input }) => {
         return await getFinancialReportData(

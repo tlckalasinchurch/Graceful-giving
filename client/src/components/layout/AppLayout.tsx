@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { canAccessRoute } from "@/lib/routeAccess";
 import { useGuardedNavigate } from "@/hooks/useUnsavedChanges";
 import { GuardedLink } from "./GuardedLink";
 import {
@@ -166,6 +167,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     churchProfile?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";
   const roleLabel = getChurchRoleInfo(user?.churchRole).label;
   const railItems = getAuthorizedNavItems(user);
+  // A tab the role cannot open would only lead to the restricted-access page.
+  const mobileTabs = MOBILE_TABS.filter(tab => canAccessRoute(tab.path, user));
+  const canRecordOffering = canAccessRoute("/offerings/new", user);
+  const tabsBeforeGive = Math.ceil(mobileTabs.length / 2);
+  const mobileColumns = mobileTabs.length + (canRecordOffering ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-ground text-ink flex flex-col font-sans selection:bg-tile-peach overflow-x-clip">
@@ -305,8 +311,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         aria-label="เมนูนำทางหลักบนมือถือ"
         className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line bg-surface/95 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
       >
-        <div className="mx-auto grid max-w-lg grid-cols-5 items-center px-2 py-1">
-          {MOBILE_TABS.slice(0, 2).map(tab => (
+        <div
+          className="mx-auto grid max-w-lg items-center px-2 py-1"
+          style={{
+            gridTemplateColumns: `repeat(${mobileColumns}, minmax(0, 1fr))`,
+          }}
+        >
+          {mobileTabs.slice(0, tabsBeforeGive).map(tab => (
             <MobileTab
               key={tab.path}
               tab={tab}
@@ -315,6 +326,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             />
           ))}
 
+          {canRecordOffering && (
           <button
             onClick={() => navigate("/offerings/new")}
             aria-label="บันทึกการถวายใหม่"
@@ -327,8 +339,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               ถวาย
             </span>
           </button>
+          )}
 
-          {MOBILE_TABS.slice(2).map(tab => (
+          {mobileTabs.slice(tabsBeforeGive).map(tab => (
             <MobileTab
               key={tab.path}
               tab={tab}
