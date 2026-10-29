@@ -28,6 +28,7 @@ import { CashCountTab } from "./CountingDetail/components/CashCountTab";
 import { BankRecordsTab } from "./CountingDetail/components/BankRecordsTab";
 import { DeductionsTab } from "./CountingDetail/components/DeductionsTab";
 import { ReconciliationSummaryTab } from "./CountingDetail/components/ReconciliationSummaryTab";
+import { THAI_LOCALE } from "@/lib/format";
 
 type TabId = "envelopes" | "cash" | "bank" | "deductions" | "summary";
 
@@ -247,7 +248,7 @@ export default function CountingDetail() {
   }
 
   const r = liveReconciliation;
-  const serviceDate = new Intl.DateTimeFormat("th-TH", {
+  const serviceDate = new Intl.DateTimeFormat(THAI_LOCALE, {
     weekday: "long",
     day: "numeric",
     month: "long",

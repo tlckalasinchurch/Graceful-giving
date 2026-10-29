@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { bahtText } from "@/lib/bahtText";
 import { Printer, X, Building2, CheckCircle2 } from "lucide-react";
+import { THAI_LOCALE } from "@/lib/format";
 
 export interface VoucherData {
   id: number | string;
@@ -45,11 +46,11 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
     ? "ใบสำคัญจ่าย (PAYMENT VOUCHER)"
     : "ใบเสร็จรับเงินถวาย (OFFERING RECEIPT)";
   const defaultDocNum = isExpense
-    ? `PV-${new Date(data.date).getFullYear() + 543}-${String(data.id).padStart(4, "0")}`
-    : `OR-${new Date(data.date).getFullYear() + 543}-${String(data.id).padStart(4, "0")}`;
+    ? `PV-${new Date(data.date).getFullYear()}-${String(data.id).padStart(4, "0")}`
+    : `OR-${new Date(data.date).getFullYear()}-${String(data.id).padStart(4, "0")}`;
   const docNumber = data.docNumber || defaultDocNum;
 
-  const formattedDate = new Date(data.date).toLocaleDateString("th-TH", {
+  const formattedDate = new Date(data.date).toLocaleDateString(THAI_LOCALE, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -200,7 +201,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                       )}
                     </td>
                     <td className="py-4 px-4 text-right font-mono font-bold text-stone-900 text-sm">
-                      {data.amount.toLocaleString("th-TH", {
+                      {data.amount.toLocaleString(THAI_LOCALE, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -216,7 +217,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right text-base text-stone-900 font-mono">
-                      {data.amount.toLocaleString("th-TH", {
+                      {data.amount.toLocaleString(THAI_LOCALE, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}

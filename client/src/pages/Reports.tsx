@@ -13,7 +13,7 @@ import {
 } from "@shared/categories";
 import { BarChart3, Download, Landmark, Wallet } from "lucide-react";
 import { toast } from "sonner";
-import { formatBaht } from "@/lib/format";
+import { formatBaht, THAI_LOCALE } from "@/lib/format";
 import { NativeSelect } from "@/components/ui/native-select";
 
 type ReportTab = "cashflow" | "funds";
@@ -64,7 +64,7 @@ function resolvePeriod(id: PeriodId, now = new Date()) {
 const fmtBaht = (n: number) => formatBaht(n);
 
 const fmtThaiDate = (iso: string) =>
-  new Intl.DateTimeFormat("th-TH", {
+  new Intl.DateTimeFormat(THAI_LOCALE, {
     day: "numeric",
     month: "short",
     year: "numeric",

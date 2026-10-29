@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { formatBaht } from "@/lib/format";
+import { formatBaht, THAI_LOCALE } from "@/lib/format";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
@@ -778,7 +778,7 @@ export default function GivingInbox() {
                           <Calendar className="w-3.5 h-3.5" />
                           {slip.extractedDate
                             ? new Date(slip.extractedDate).toLocaleDateString(
-                                "th-TH",
+                                THAI_LOCALE,
                                 {
                                   day: "numeric",
                                   month: "short",
@@ -786,7 +786,7 @@ export default function GivingInbox() {
                                 }
                               )
                             : new Date(slip.createdAt).toLocaleDateString(
-                                "th-TH"
+                                THAI_LOCALE
                               )}
                         </span>
 
@@ -850,7 +850,9 @@ export default function GivingInbox() {
                     </div>
                     <p className="text-xs text-stone-500 mt-1">
                       ส่งเข้ามาเมื่อ:{" "}
-                      {new Date(currentSlip.createdAt).toLocaleString("th-TH")}
+                      {new Date(currentSlip.createdAt).toLocaleString(
+                        THAI_LOCALE
+                      )}
                     </p>
                   </div>
 
@@ -981,7 +983,7 @@ export default function GivingInbox() {
                       <span className="text-xs font-medium text-[#171311] block mt-1 truncate">
                         {currentSlip.extractedDate
                           ? new Date(currentSlip.extractedDate).toLocaleString(
-                              "th-TH"
+                              THAI_LOCALE
                             )
                           : "—"}
                       </span>
@@ -1217,7 +1219,7 @@ export default function GivingInbox() {
                       <span>
                         เมื่อ:{" "}
                         {new Date(currentSlip.reviewedAt).toLocaleString(
-                          "th-TH"
+                          THAI_LOCALE
                         )}
                       </span>
                     )}

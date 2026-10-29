@@ -397,7 +397,8 @@ describeDb("counting workflow: an unbalanced session", () => {
 
     const posted = await asTreasurer().counting.post({
       id: strayId,
-      varianceNote: "เงินสดขาด 100 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมมัคนายก",
+      varianceNote:
+        "เงินสดขาด 100 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมคณะกรรมการ",
     });
     expect(posted.offeringCount).toBe(1);
   });

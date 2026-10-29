@@ -132,7 +132,7 @@ export function Step2({
         required
         value={data.treasurerName}
         onChange={v => set({ treasurerName: v })}
-        placeholder="มัคนายก ชื่อ นามสกุล"
+        placeholder="ชื่อ นามสกุล"
       />
       <div>
         <FieldLabel>ข้อพระคัมภีร์หรือคติพจน์ของคริสตจักร</FieldLabel>
@@ -335,13 +335,13 @@ export function Step6({
         </p>
       </div>
       <div>
-        <FieldLabel required>ปีงบประมาณปัจจุบัน (พ.ศ.)</FieldLabel>
+        <FieldLabel required>ปีงบประมาณปัจจุบัน (ค.ศ.)</FieldLabel>
         <input
           type="number"
           value={data.budgetYear}
           onChange={e => set({ budgetYear: Number(e.target.value) })}
-          min={2550}
-          max={2600}
+          min={2000}
+          max={2100}
           className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
         />
       </div>

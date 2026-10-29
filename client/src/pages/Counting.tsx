@@ -29,6 +29,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { THAI_LOCALE } from "@/lib/format";
 
 /** The Sunday on or before today, as a yyyy-mm-dd string for a date input. */
 function lastSunday(): string {
@@ -43,7 +44,7 @@ function lastSunday(): string {
 }
 
 const fmtThaiDate = (value: Date | string) =>
-  new Intl.DateTimeFormat("th-TH", {
+  new Intl.DateTimeFormat(THAI_LOCALE, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -465,7 +466,7 @@ export default function Counting() {
                       <span>
                         สร้างเมื่อ{" "}
                         {new Date(session.createdAt).toLocaleDateString(
-                          "th-TH"
+                          THAI_LOCALE
                         )}
                       </span>
                     </div>

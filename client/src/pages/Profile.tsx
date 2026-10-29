@@ -119,7 +119,7 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   },
   {
     role: "DEACON",
-    title: "มัคนายก / คณะกรรมการ (DEACON)",
+    title: "ผู้รับผิดชอบฝ่าย",
     appointee: "อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
       bg: "bg-[#F2C9BE]",

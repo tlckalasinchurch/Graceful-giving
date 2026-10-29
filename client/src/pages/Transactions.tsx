@@ -18,7 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { formatThaiDate } from "@/lib/format";
+import { formatThaiDate, THAI_LOCALE } from "@/lib/format";
 import {
   expenseCategoryLabel,
   offeringCategoryLabel,
@@ -169,7 +169,7 @@ export default function Transactions() {
     const rows = filtered
       .map(
         t =>
-          `"${t.rawId}","${new Date(t.date).toLocaleDateString("th-TH")}","${t.title}","${t.categoryLabel}","${typeLabel(t)}","${t.fund}",${t.amount.toFixed(2)}`
+          `"${t.rawId}","${new Date(t.date).toLocaleDateString(THAI_LOCALE)}","${t.title}","${t.categoryLabel}","${typeLabel(t)}","${t.fund}",${t.amount.toFixed(2)}`
       )
       .join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], {

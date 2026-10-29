@@ -1,6 +1,7 @@
 import React from "react";
 import { toast } from "sonner";
 import { CalendarDays, Clock3, Megaphone, Send } from "lucide-react";
+import { THAI_LOCALE } from "@/lib/format";
 
 export const categoryLabels = {
   announcement: "ประกาศ",
@@ -12,7 +13,7 @@ export const categoryLabels = {
 export type NewsCategory = keyof typeof categoryLabels;
 
 export const formatThaiDate = (value: Date | string) =>
-  new Intl.DateTimeFormat("th-TH", {
+  new Intl.DateTimeFormat(THAI_LOCALE, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -21,7 +22,7 @@ export const formatThaiDate = (value: Date | string) =>
   }).format(new Date(value));
 
 export const formatEventDate = (value: Date | string) =>
-  new Intl.DateTimeFormat("th-TH", {
+  new Intl.DateTimeFormat(THAI_LOCALE, {
     weekday: "short",
     day: "numeric",
     month: "short",

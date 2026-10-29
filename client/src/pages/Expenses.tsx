@@ -9,7 +9,7 @@ import {
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
-import { formatThaiDate } from "@/lib/format";
+import { formatThaiDate, THAI_LOCALE } from "@/lib/format";
 import {
   Download,
   Plus,
@@ -103,7 +103,7 @@ export default function Expenses() {
     const rows = filteredExpenses
       .map(
         e =>
-          `"${e.id}","${new Date(e.date).toLocaleDateString("th-TH")}","${e.description}","${expenseCategoryLabel(e.category)}","${e.payee}",${e.amount},"${e.receiptRef}","${fundName(e.fundId)}","${e.status}"`
+          `"${e.id}","${new Date(e.date).toLocaleDateString(THAI_LOCALE)}","${e.description}","${expenseCategoryLabel(e.category)}","${e.payee}",${e.amount},"${e.receiptRef}","${fundName(e.fundId)}","${e.status}"`
       )
       .join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], {
@@ -405,7 +405,7 @@ export default function Expenses() {
                         </Link>
                         <p className="text-xs text-[#807266]">
                           {e.payee} •{" "}
-                          {new Date(e.date).toLocaleDateString("th-TH")}
+                          {new Date(e.date).toLocaleDateString(THAI_LOCALE)}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">

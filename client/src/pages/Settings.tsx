@@ -30,6 +30,7 @@ import { LogOut } from "lucide-react";
 import { EXPENSE_CATEGORIES, OFFERING_CATEGORIES } from "@shared/categories";
 import { isSuperAdmin, getChurchRoleInfo, CHURCH_ROLES } from "@shared/roles";
 import { NativeSelect } from "@/components/ui/native-select";
+import { THAI_LOCALE } from "@/lib/format";
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -279,7 +280,7 @@ export default function Settings() {
     },
     {
       role: "DEACON",
-      title: "มัคนายก / คณะกรรมการ",
+      title: "ผู้รับผิดชอบฝ่าย",
       appointee: assigneesFor("DEACON"),
       desc: "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ ตรวจรับงานและติดตามโครงการ เสนอคำของบประมาณและรายการเบิกจ่าย",
       duties: [
@@ -604,7 +605,7 @@ export default function Settings() {
                     <option value="SUPER_ADMIN">👑 ผู้ดูแลระบบสูงสุด</option>
                     <option value="PASTOR">✝️ ศิษยาภิบาล</option>
                     <option value="TREASURER">💰 เหรัญญิก</option>
-                    <option value="DEACON">🤝 มัคนายก</option>
+                    <option value="DEACON">🤝 ผู้รับผิดชอบฝ่าย</option>
                     <option value="COUNTER">📝 ทีมนับเงิน</option>
                     <option value="MEMBER">👤 สมาชิกทั่วไป</option>
                   </NativeSelect>
@@ -693,7 +694,7 @@ export default function Settings() {
                               <td className="py-3.5 px-3 text-xs text-[#807266]">
                                 {u.lastSignedIn
                                   ? new Date(u.lastSignedIn).toLocaleDateString(
-                                      "th-TH",
+                                      THAI_LOCALE,
                                       {
                                         year: "numeric",
                                         month: "short",
@@ -728,7 +729,7 @@ export default function Settings() {
                                         💰 เหรัญญิกคริสตจักร (TREASURER)
                                       </option>
                                       <option value="DEACON">
-                                        🤝 มัคนายก / คณะกรรมการ (DEACON)
+                                        🤝 ผู้รับผิดชอบฝ่าย
                                       </option>
                                       <option value="COUNTER">
                                         📝 ทีมนับเงินถวาย (COUNTER)
@@ -1017,7 +1018,7 @@ export default function Settings() {
                         {logs.map(log => {
                           const dateStr = new Date(
                             log.createdAt
-                          ).toLocaleDateString("th-TH", {
+                          ).toLocaleDateString(THAI_LOCALE, {
                             year: "numeric",
                             month: "short",
                             day: "numeric",

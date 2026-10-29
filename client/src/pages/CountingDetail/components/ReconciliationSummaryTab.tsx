@@ -188,7 +188,7 @@ export function ReconciliationSummaryTab({
             rows={2}
             value={varianceNote}
             onChange={e => setVarianceNote(e.target.value)}
-            placeholder="เช่น เงินสดขาด 20 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมมัคนายกวันที่…"
+            placeholder="เช่น เงินสดขาด 20 บาท นับซ้ำสองครั้งแล้ว แจ้งที่ประชุมคณะกรรมการวันที่…"
             className="mt-3 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-sm text-foreground"
           />
           {sessionVarianceNote && (

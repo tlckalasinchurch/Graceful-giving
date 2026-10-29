@@ -211,7 +211,7 @@ const ministryProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canManageMinistries(ctx.user)) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "เฉพาะผู้นำคริสตจักรและมัคนายกเท่านั้น",
+      message: "เฉพาะผู้นำคริสตจักรและผู้รับผิดชอบฝ่ายเท่านั้น",
     });
   }
   return next();
