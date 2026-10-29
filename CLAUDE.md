@@ -36,7 +36,7 @@ No `.env` is committed. Required variables (read in `server/_core/env.ts`):
 
 - `DATABASE_URL` — PostgreSQL connection string. Production points at **Neon** (provisioned through the Vercel integration, which also sets `POSTGRES_URL`, `DATABASE_URL_UNPOOLED`, `PG*` and friends). `getDb()` reads `DATABASE_URL`, then `POSTGRES_URL`, then `POSTGRES_PRISMA_URL`, and builds `drizzle-orm/postgres-js` + a `postgres` client with `prepare: false`, which any transaction pooler requires. If none is set — or the URL is unreachable (one eager `SELECT 1` runs at init) — `getDb()` returns `null` and every DB-backed function degrades to a no-op/empty read rather than throwing — keep this behavior in mind when adding new `db.ts` functions.
 - `CHURCH_ID` — optional tenant override, defaulting to `demo-church`. **Only the test suite sets it.** `server/test/setupTenant.ts` assigns a unique `test-<uuid>` per test file so an integration run against a real database cannot touch application rows. `server/db.ts` throws at module scope if a `test-` tenant reaches production, so never set this on a deployment.
-- `VITE_APP_ID`, `JWT_SECRET` (session cookie signing), `OAUTH_SERVER_URL`, `OWNER_OPEN_ID` (the openId that gets auto-promoted to `role: "admin"` on first upsert), `BUILT_IN_FORGE_API_URL`, `BUILT_IN_FORGE_API_KEY`.
+- `VITE_APP_ID`, `JWT_SECRET` (session cookie signing), `OAUTH_SERVER_URL`, `OWNER_OPEN_ID` (the Clerk user id that gets `admin` + `SUPER_ADMIN` on first sign-in; in production this is the only way to bootstrap an admin, because "first user wins" is development-only), `BUILT_IN_FORGE_API_URL`, `BUILT_IN_FORGE_API_KEY`.
 
 ## Architecture
 
