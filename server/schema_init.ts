@@ -441,7 +441,22 @@ const INTEGRITY_INDEXES: Record<
 };
 
 function indexNameOf(stmt: string): string | null {
-  return stmt.match(/CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?"([^"]+)"/i)?.[1] ?? null;
+  return (
+    stmt.match(
+      /CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?"([^"]+)"/i
+    )?.[1] ?? null
+  );
+}
+
+async function indexExists(client: any, indexName: string): Promise<boolean> {
+  try {
+    const rows = await client.unsafe(
+      `SELECT 1 FROM pg_indexes WHERE schemaname = current_schema() AND indexname = '${indexName}' LIMIT 1;`
+    );
+    return Array.isArray(rows) && rows.length > 0;
+  } catch {
+    return false;
+  }
 }
 
 export async function runSchemaInit(client: any) {
@@ -460,10 +475,14 @@ export async function runSchemaInit(client: any) {
     }
   }
   for (const stmt of INDEX_STATEMENTS) {
+    const indexName = indexNameOf(stmt);
+    // CREATE ... IF NOT EXISTS still needs table ownership in Postgres, so a
+    // role that does not own the table fails even when the index is present.
+    // Skip an index that already exists instead of reporting a false failure.
+    if (indexName && (await indexExists(client, indexName))) continue;
     try {
       await client.unsafe(stmt);
     } catch (err: any) {
-      const indexName = indexNameOf(stmt);
       const diagnostic = indexName ? INTEGRITY_INDEXES[indexName] : undefined;
 
       if (!diagnostic) {
@@ -496,4 +515,3 @@ export async function runSchemaInit(client: any) {
     }
   }
 }
-
