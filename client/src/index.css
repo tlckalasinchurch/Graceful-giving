@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Noto+Serif+Thai:wght@500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -8,44 +8,52 @@
   /* Manrope has no Thai glyphs, so Latin and digits render in Manrope and
      Thai falls through to IBM Plex Sans Thai. */
   --font-sans: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-display: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  /* Editorial display face for titles and the headline figure. Newsreader
+     covers Latin and digits; Noto Serif Thai takes over for Thai glyphs. */
+  --font-display: "Newsreader", "Noto Serif Thai", Georgia, serif;
+  --font-serif: "Newsreader", "Noto Serif Thai", Georgia, serif;
   --font-script: "Caveat", cursive;
-  /* Card 20px; inner controls step down 10 / 8 / 5. */
+  /* Card 14px; inner controls step down 10 / 8 / 5. */
   --radius-sm: 0.1875rem;
   --radius-md: 0.25rem;
   --radius-lg: 0.3125rem;
   --radius-xl: 0.5rem;
   --radius-2xl: 0.625rem;
-  --radius-3xl: 1.25rem;
+  --radius-3xl: 0.875rem;
 
-  /* Pastel-consumer system. Text pairs are checked against white:
-     ink 16.9:1, ink-2 6.3:1, ink-3 5.0:1 (4.6:1 on ground), income 5.3:1,
-     danger 5.9:1.
-     `field` is the input outline (3:1, WCAG 1.4.11); `line` only divides. */
-  --color-ground: #f3f5f7;
+  /* Editorial minimal palette: warm paper ground, white surfaces, near-black
+     ink, one accent. Text pairs are checked against white and ground:
+     ink 17.6:1, ink-2 9.2:1, ink-3 5.6:1 (5.1:1 on ground), income 5.3:1,
+     danger 5.9:1. `field` is the input outline (3:1, WCAG 1.4.11); `line`
+     only divides. */
+  --color-ground: #f6f4ef;
+  --color-paper: #f6f4ef;
+  --color-paper-2: #efece4;
   --color-surface: #ffffff;
-  --color-ink: #1b1d1f;
-  --color-ink-2: #5c6064;
-  --color-ink-3: #6b7075;
-  --color-line: #e4e7eb;
-  --color-field: #8a9096;
+  --color-ink: #16140f;
+  --color-ink-2: #4a463e;
+  --color-ink-3: #6b665c;
+  --color-line: #e3dfd5;
+  --color-field: #8c8678;
   --color-income: #2f7a45;
   --color-danger: #c41c29;
   --color-brand: #c94f16;
   --color-brand-ink: #9f3b0f;
 
-  /* Category tiles: pale ground with a dark text of the same hue (≥7:1). */
-  --color-tile-sky: #dcf1ff;
-  --color-tile-sky-ink: #0a3a80;
-  --color-tile-mint: #dff3e6;
+  /* Category tiles. Most are neutral so the single accent stays meaningful;
+     peach is the accent tint, mint is money in, rose is a warning. Dark text
+     on each is ≥7:1. */
+  --color-tile-sky: #ece9e0;
+  --color-tile-sky-ink: #3a362f;
+  --color-tile-mint: #e4efe7;
   --color-tile-mint-ink: #1d5a32;
-  --color-tile-peach: #ffe8d9;
+  --color-tile-peach: #f8e9de;
   --color-tile-peach-ink: #8a3510;
-  --color-tile-lilac: #ece8fb;
-  --color-tile-lilac-ink: #4a2f8f;
-  --color-tile-sand: #f5efe1;
-  --color-tile-sand-ink: #5e4a1b;
-  --color-tile-rose: #fde4e6;
+  --color-tile-lilac: #ece9e0;
+  --color-tile-lilac-ink: #3a362f;
+  --color-tile-sand: #efece4;
+  --color-tile-sand-ink: #4a463e;
+  --color-tile-rose: #fae6e3;
   --color-tile-rose-ink: #8f1a24;
 
   --color-background: var(--background);
@@ -112,22 +120,22 @@
      the one warm brand colour: it carries white button text at 4.6:1. */
   --primary: #c94f16;
   --primary-foreground: #ffffff;
-  --background: #f3f5f7;
-  --foreground: #1b1d1f;
+  --background: #f6f4ef;
+  --foreground: #16140f;
   --card: #ffffff;
-  --card-foreground: #1b1d1f;
+  --card-foreground: #16140f;
   --popover: #ffffff;
-  --popover-foreground: #1b1d1f;
-  --secondary: #eef1f4;
-  --secondary-foreground: #1b1d1f;
-  --muted: #eef1f4;
-  --muted-foreground: #5c6064;
-  --accent: #eef1f4;
-  --accent-foreground: #1b1d1f;
+  --popover-foreground: #16140f;
+  --secondary: #efece4;
+  --secondary-foreground: #16140f;
+  --muted: #efece4;
+  --muted-foreground: #5a564d;
+  --accent: #efece4;
+  --accent-foreground: #16140f;
   --destructive: #c41c29;
   --destructive-foreground: #ffffff;
-  --border: #e4e7eb;
-  --input: #8a9096;
+  --border: #e3dfd5;
+  --input: #8c8678;
   --ring: #c94f16;
   --radius: 0.625rem;
 }
@@ -146,7 +154,10 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   min-height: 100dvh;
 }
 
@@ -162,8 +173,34 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 3px solid rgba(185, 83, 15, 0.35);
+  outline: 2px solid var(--color-brand);
   outline-offset: 2px;
+}
+
+/* Editorial building blocks ------------------------------------------------ */
+
+/* A small label above a title: Latin caps with wide tracking, quiet colour. */
+.eyebrow {
+  font-size: 0.6875rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}
+
+/* Titles use the serif and sit tight; digits stay lining so a figure reads as a figure. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  font-variant-numeric: lining-nums;
+}
+
+/* A 1px rule that separates sections instead of a box around each. */
+.rule {
+  border-top: 1px solid var(--color-line);
 }
 
 .font-script {
@@ -177,40 +214,31 @@ select:focus-visible {
   }
 }
 
-/* Professional Financial Card & Elevation Shadows */
+/* Surfaces are separated by a 1px hairline, not by a shadow. The legacy
+   shadow class names stay so existing markup keeps working. */
 .card-elevation-sm,
-.clay-card-shadow {
-  box-shadow:
-    0 1px 2px 0 rgba(23, 33, 40, 0.04),
-    0 1px 1px -1px rgba(23, 33, 40, 0.04);
+.clay-card-shadow,
+.inset-bevel-subtle,
+.clay-inset-bevel {
+  box-shadow: 0 0 0 1px var(--color-line);
 }
 
 .button-elevation,
 .clay-button-shadow {
-  box-shadow: 0 2px 5px -1px rgba(34, 91, 102, 0.18);
+  box-shadow: none;
 }
 
-.inset-bevel-subtle,
-.clay-inset-bevel {
-  box-shadow: 0 1px 2px 0 rgba(23, 33, 40, 0.04);
-}
-
-/* Clear, balanced elevation for the primary financial focal point */
+/* The one focal figure on a page gets a slightly stronger edge. */
 .card-elevation-focus,
 .clay-balance-glow {
   box-shadow:
-    0 4px 16px -2px rgba(23, 33, 40, 0.08),
-    0 2px 6px -2px rgba(23, 33, 40, 0.04);
+    0 0 0 1px var(--color-line),
+    0 12px 32px -20px rgba(22, 20, 15, 0.18);
 }
 
-/* Modern Warm Fintech & Glass Tokens */
-/* Surfaces sit just above the ground: the colour step does the separating,
-   the shadow only confirms it. */
 .fintech-card {
   container-type: inline-size;
-  box-shadow:
-    0 1px 2px hsla(210, 20%, 20%, 0.05),
-    0 1px 3px hsla(210, 20%, 20%, 0.04);
+  box-shadow: 0 0 0 1px var(--color-line);
 }
 
 .fintech-card-hover {
@@ -220,11 +248,10 @@ select:focus-visible {
 }
 
 .fintech-card-hover:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow:
-    0 4px 8px rgba(23, 19, 17, 0.04),
-    0 16px 36px -6px rgba(81, 68, 58, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 0 0 1px var(--color-field),
+    0 10px 28px -18px rgba(22, 20, 15, 0.22);
 }
 
 .fintech-glass {
@@ -268,7 +295,7 @@ select:focus-visible {
 
 @layer base {
   * {
-    border-color: #e4e7eb;
+    border-color: var(--color-line);
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -302,11 +329,11 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cfc7bf;
+  background: #d3cec2;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a89e96;
+  background: #aba596;
 }
 
 /* ============================================

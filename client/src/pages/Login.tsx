@@ -46,25 +46,45 @@ export default function Login() {
   const error = errorKey ? (ERRORS[errorKey] ?? ERRORS.failed) : null;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-ground p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 space-y-2 text-center">
-          <div className="relative mb-2 inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl bg-tile-peach">
-            <Sprout className="size-9 text-tile-peach-ink" />
-            <div className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-income">
-              <span className="text-[11px] font-bold text-white">✝</span>
-            </div>
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">
-            Grace <span className="text-brand-ink">Ledger</span>
-          </h1>
-          <p className="text-sm text-ink-2">ระบบบัญชีการเงินคริสตจักร</p>
+    <div className="grid min-h-screen bg-ground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      {/* Editorial panel: the verse the ministry stands on. Desktop only. */}
+      <aside className="relative hidden flex-col justify-between bg-ink p-12 text-surface lg:flex xl:p-16">
+        <div className="flex items-center gap-3">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-surface text-ink">
+            <Sprout className="size-5" aria-hidden="true" />
+          </span>
+          <span className="display text-xl">Grace Ledger</span>
         </div>
+        <figure className="max-w-md space-y-6">
+          <p className="eyebrow !text-surface/60">2 โครินธ์ 9:7</p>
+          <blockquote className="display text-4xl leading-snug xl:text-5xl">
+            “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
+          </blockquote>
+        </figure>
+        <p className="text-sm text-surface/60">
+          ระบบบัญชีการเงินคริสตจักร · เพื่อพันธกิจของพระเจ้า
+        </p>
+      </aside>
 
-        <div className="space-y-4 rounded-3xl bg-surface p-6 fintech-card">
+      <main className="flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-sm">
+          <div className="mb-10 space-y-3">
+            <div className="flex items-center gap-3 lg:hidden">
+              <span className="flex size-10 items-center justify-center rounded-xl bg-ink text-surface">
+                <Sprout className="size-5" aria-hidden="true" />
+              </span>
+              <span className="display text-xl text-ink">Grace Ledger</span>
+            </div>
+            <p className="eyebrow">Sign in</p>
+            <h1 className="display text-4xl text-ink">เข้าสู่ระบบ</h1>
+            <p className="text-sm text-ink-2">
+              ใช้บัญชี LINE ของคุณ ผู้ดูแลระบบจะอนุมัติสิทธิ์ให้ในครั้งแรก
+            </p>
+          </div>
+
           {state === "pending" || state === "disabled" ? (
-            <div className="space-y-3 text-center">
-              <p className="text-sm font-medium text-ink">
+            <div className="space-y-4 rounded-xl border border-line bg-surface p-6">
+              <p className="display text-xl text-ink">
                 {state === "pending"
                   ? "รอผู้ดูแลระบบอนุมัติ"
                   : "บัญชีนี้ถูกปิดการใช้งาน"}
@@ -77,33 +97,33 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => void logout()}
-                className="w-full rounded-xl border border-line px-4 py-3 text-sm font-medium text-ink hover:bg-ground"
+                className="w-full rounded-lg border border-field px-4 py-3 text-sm font-medium text-ink hover:bg-paper-2"
               >
                 ออกจากระบบ
               </button>
             </div>
           ) : (
-            <>
+            <div className="space-y-4">
               <a
                 href="/api/auth/line/login"
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#06C755] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:brightness-95"
+                className="flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-[#06C755] px-4 text-sm font-semibold text-white hover:brightness-95"
               >
                 <LineMark />
                 เข้าสู่ระบบด้วย LINE
               </a>
               {error && (
-                <p role="alert" className="text-center text-sm text-red-600">
+                <p role="alert" className="text-sm text-danger">
                   {error}
                 </p>
               )}
-              <p className="text-center text-xs text-ink-2">
-                ครั้งแรกที่เข้าใช้
-                ผู้ดูแลระบบต้องอนุมัติบัญชีและกำหนดบทบาทให้ก่อน
+              <p className="border-t border-line pt-4 text-xs text-ink-3">
+                ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
+                โปรดติดต่อผู้ดูแลระบบของคริสตจักร
               </p>
-            </>
+            </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -100,7 +100,7 @@ export const ErrorState: React.FC<{
     className={`py-12 px-6 rounded-2xl bg-[#FFF8F6] border border-[#F7D5CD] flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     role="alert"
   >
-    <div className="w-12 h-12 rounded-full bg-[#FDECEA] text-[#C8372D] flex items-center justify-center text-xl font-bold">
+    <div className="w-12 h-12 rounded-full bg-[#FDECEA] text-danger flex items-center justify-center text-xl font-bold">
       !
     </div>
     <div className="space-y-1 max-w-sm">
@@ -111,7 +111,7 @@ export const ErrorState: React.FC<{
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-11 rounded-xl bg-[#C8372D] hover:bg-[#B3322A] px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+        className="min-h-11 rounded-xl bg-danger hover:bg-danger px-5 py-2.5 text-sm font-semibold text-white transition-colors"
       >
         ลองใหม่
       </button>
@@ -513,7 +513,7 @@ export const ConfirmDialog: React.FC<{
             disabled={isLoading}
             className={`flex-1 py-2.5 rounded-xl text-white font-bold text-xs button-elevation transition-all ${
               variant === "danger"
-                ? "bg-[#C8372D] hover:bg-[#B3322A]"
+                ? "bg-danger hover:bg-danger"
                 : "bg-brand hover:bg-brand-ink"
             }`}
           >
