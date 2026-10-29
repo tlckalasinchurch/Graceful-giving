@@ -181,6 +181,62 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+/** Create the account for a first-time LINE sign-in. Returns the new row. */
+export async function createLineUser(input: {
+  openId: string;
+  name: string | null;
+  avatarUrl: string | null;
+  status: "pending" | "active";
+  isOwner: boolean;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const [row] = await db
+    .insert(users)
+    .values({
+      openId: input.openId,
+      name: input.name,
+      avatarUrl: input.avatarUrl,
+      loginMethod: "line",
+      status: input.status,
+      role: input.isOwner ? "admin" : "user",
+      churchRole: input.isOwner ? "SUPER_ADMIN" : "MEMBER",
+      churchRoles: input.isOwner ? "SUPER_ADMIN" : "MEMBER",
+    })
+    .onConflictDoNothing({ target: users.openId })
+    .returning();
+  return row ?? (await getUserByOpenId(input.openId));
+}
+
+export async function touchLineUser(
+  userId: number,
+  patch: { name: string | null; avatarUrl: string | null }
+) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(users)
+    .set({
+      // Keep a name or photo an admin or the user already edited.
+      name: sql`coalesce(nullif(${users.name}, ''), ${patch.name})`,
+      avatarUrl: sql`coalesce(${users.avatarUrl}, ${patch.avatarUrl})`,
+      lastSignedIn: new Date(),
+    })
+    .where(eq(users.id, userId));
+}
+
+export async function setUserStatus(
+  userId: number,
+  status: "pending" | "active" | "disabled"
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db
+    .update(users)
+    .set({ status, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+}
+
 export async function getAllUsers() {
   const db = await getDb();
   if (!db) return [];
@@ -194,6 +250,8 @@ export async function getAllUsers() {
       role: users.role,
       churchRole: users.churchRole,
       churchRoles: users.churchRoles,
+      status: users.status,
+      avatarUrl: users.avatarUrl,
       createdAt: users.createdAt,
       lastSignedIn: users.lastSignedIn,
     })

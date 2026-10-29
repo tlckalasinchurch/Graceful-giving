@@ -1,9 +1,14 @@
 export const ENV = {
-  // Clerk Auth
-  clerkSecretKey: process.env.CLERK_SECRET_KEY ?? "",
-  clerkPublishableKey: process.env.VITE_CLERK_PUBLISHABLE_KEY ?? "",
+  // LINE Login (sign-in). Create the channel under the same LINE provider as
+  // the Messaging API channel so a person has one userId in both.
+  lineLoginChannelId: process.env.LINE_LOGIN_CHANNEL_ID ?? "",
+  lineLoginChannelSecret: process.env.LINE_LOGIN_CHANNEL_SECRET ?? "",
+  // Public origin registered as the LINE callback host, e.g. https://graceful-giving.vercel.app
+  appUrl: (process.env.APP_URL ?? "").replace(/\/+$/, ""),
 
   // App settings
+  // openId of the church owner, e.g. "line:Uxxxxxxxx". Signing in as this user
+  // creates an active SUPER_ADMIN. Everyone else starts as "pending".
   ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
   appId: process.env.VITE_APP_ID ?? "",
   cookieSecret: process.env.JWT_SECRET ?? "",

@@ -78,6 +78,16 @@ export default function Settings() {
     },
   });
 
+  const statusMutation = trpc.auth.setUserStatus.useMutation({
+    onSuccess: (_data, vars) => {
+      toast.success(
+        vars.status === "active" ? "อนุมัติบัญชีแล้ว" : "ปิดการใช้งานบัญชีแล้ว"
+      );
+      void usersQuery.refetch();
+    },
+    onError: err => toast.error(err.message || "ไม่สามารถเปลี่ยนสถานะได้"),
+  });
+
   const handleRoleChange = async (userId: number, newRole: string) => {
     const targetUser = usersQuery.data?.find(u => u.id === userId);
     const targetRoleInfo = getChurchRoleInfo(newRole as any);
@@ -686,6 +696,16 @@ export default function Settings() {
                                       คุณ
                                     </span>
                                   )}
+                                  {u.status === "pending" && (
+                                    <span className="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full border border-sky-300">
+                                      รออนุมัติ
+                                    </span>
+                                  )}
+                                  {u.status === "disabled" && (
+                                    <span className="text-[10px] bg-red-100 text-red-800 font-semibold px-2 py-0.5 rounded-full border border-red-300">
+                                      ปิดใช้งาน
+                                    </span>
+                                  )}
                                 </div>
                               </td>
                               <td className="py-3.5 px-3 text-[#51443A]">
@@ -738,6 +758,38 @@ export default function Settings() {
                                         👤 สมาชิกคริสตจักร (MEMBER)
                                       </option>
                                     </NativeSelect>
+                                    {!isMe && u.status !== "active" && (
+                                      <button
+                                        type="button"
+                                        disabled={statusMutation.isPending}
+                                        onClick={() =>
+                                          statusMutation.mutate({ userId: u.id, status: "active" })
+                                        }
+                                        className="rounded-lg bg-[#C94F16] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#B04412]"
+                                      >
+                                        {u.status === "pending" ? "อนุมัติ" : "เปิดใช้งาน"}
+                                      </button>
+                                    )}
+                                    {!isMe && u.status === "active" && (
+                                      <button
+                                        type="button"
+                                        disabled={statusMutation.isPending}
+                                        onClick={async () => {
+                                          const ok = await Swal.confirm(
+                                            "ปิดการใช้งานบัญชี?",
+                                            `${u.name || "ผู้ใช้"} จะเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใช้งานอีกครั้ง`,
+                                            {
+                                              confirmButtonText: "ปิดการใช้งาน",
+                                              cancelButtonText: "ไม่ปิด",
+                                            }
+                                          );
+                                          if (ok) statusMutation.mutate({ userId: u.id, status: "disabled" });
+                                        }}
+                                        className="rounded-lg border border-[#E7DCC8] px-2.5 py-1.5 text-xs font-semibold text-[#9B2C2C] hover:bg-[#FFF1F0]"
+                                      >
+                                        ปิดใช้งาน
+                                      </button>
+                                    )}
                                   </div>
                                 ) : (
                                   <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FFF8EA] text-[#51443A] border border-[#E7DCC8]">

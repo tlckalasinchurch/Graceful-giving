@@ -1,6 +1,5 @@
 import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { useClerk, useUser } from "@clerk/clerk-react";
 import { useCallback, useEffect, useMemo } from "react";
 
 type UseAuthOptions = {
@@ -10,12 +9,10 @@ type UseAuthOptions = {
 
 export function useAuth(options?: UseAuthOptions) {
   const { redirectOnUnauthenticated = false, redirectPath } = options ?? {};
-  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
-  const { signOut } = useClerk();
   const utils = trpc.useUtils();
 
+  // The session is an HttpOnly cookie, so the server is the only source of truth.
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    enabled: isLoaded && Boolean(isSignedIn),
     retry: false,
     refetchOnWindowFocus: true,
     staleTime: 5_000,
@@ -24,51 +21,23 @@ export function useAuth(options?: UseAuthOptions) {
 
   const logout = useCallback(async () => {
     try {
-      await signOut({ redirectUrl: "/login" });
+      await utils.client.auth.logout.mutate();
     } finally {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
+      window.location.href = "/login";
     }
-  }, [signOut, utils]);
+  }, [utils]);
 
   const state = useMemo(() => {
-    // If signed in via Clerk, create fallback user so UI never blocks if DB is syncing
-    const fallbackUser =
-      isSignedIn && clerkUser
-        ? {
-            id: 1,
-            openId: clerkUser.id,
-            name:
-              clerkUser.fullName ??
-              clerkUser.username ??
-              clerkUser.primaryEmailAddress?.emailAddress ??
-              "Member",
-            email: clerkUser.primaryEmailAddress?.emailAddress ?? null,
-            loginMethod: "clerk",
-            role: "user" as const,
-            churchRole: "MEMBER" as const,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            lastSignedIn: new Date(),
-          }
-        : null;
-
-    const user = meQuery.data ?? fallbackUser;
-
+    const user = meQuery.data ?? null;
     return {
       user,
-      loading: !isLoaded || (Boolean(isSignedIn) && meQuery.isLoading),
+      loading: meQuery.isLoading,
       error: meQuery.error ?? null,
-      isAuthenticated: Boolean(isSignedIn),
+      isAuthenticated: Boolean(user),
     };
-  }, [
-    isLoaded,
-    isSignedIn,
-    clerkUser,
-    meQuery.data,
-    meQuery.error,
-    meQuery.isLoading,
-  ]);
+  }, [meQuery.data, meQuery.error, meQuery.isLoading]);
 
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;

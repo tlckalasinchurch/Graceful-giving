@@ -58,6 +58,7 @@ import {
   archiveMinistry,
   deactivateMember,
   getAllUsers,
+  setUserStatus,
   updateUserProfile,
   markNotificationRead,
   markAllNotificationsRead,
@@ -404,6 +405,18 @@ export const appRouter = router({
         roles,
       };
     }),
+    /** Sign-in state for the login screen. Works for signed-out and pending people. */
+    status: publicProcedure.query(({ ctx }) => {
+      if (ctx.user) return { state: "active" as const };
+      if (ctx.account) {
+        return {
+          state: ctx.account.status,
+          name: ctx.account.name,
+          avatarUrl: ctx.account.avatarUrl,
+        };
+      }
+      return { state: "signed_out" as const };
+    }),
     listUsers: churchLeaderProcedure.query(async () => {
       return await getAllUsers();
     }),
@@ -434,7 +447,7 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
-    /** Set the church role of a user (SUPER_ADMIN only) */
+    /** Set the church role of a user (SUPER_ADMIN only). Also approves a pending person. */
     setChurchRole: adminProcedure
       .input(
         z.object({
@@ -447,6 +460,7 @@ export const appRouter = router({
         const roles =
           input.churchRoles || (input.churchRole ? [input.churchRole] : null);
         await updateUserChurchRole(input.userId, input.churchRole, roles);
+        await setUserStatus(input.userId, "active");
         await createAuditLog({
           churchId: "default",
           userId: ctx.user.id,
@@ -458,6 +472,33 @@ export const appRouter = router({
             assignedRoles: roles,
             updatedBy: ctx.user.name || ctx.user.email,
           },
+        });
+        return { success: true } as const;
+      }),
+    /** Approve, disable, or re-enable an account (SUPER_ADMIN only). */
+    setUserStatus: adminProcedure
+      .input(
+        z.object({
+          userId: z.number().int().positive(),
+          status: z.enum(["active", "disabled"]),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (input.userId === ctx.user.id) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ปิดการใช้งานบัญชีของตัวเองไม่ได้",
+          });
+        }
+        await setUserStatus(input.userId, input.status);
+        await createAuditLog({
+          churchId: "default",
+          userId: ctx.user.id,
+          action:
+            input.status === "active" ? "approve_user" : "disable_user",
+          entity: "user",
+          entityId: input.userId,
+          metadata: { status: input.status },
         });
         return { success: true } as const;
       }),

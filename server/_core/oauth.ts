@@ -1,8 +1,8 @@
-﻿import type { Express } from "express";
+import type { Express } from "express";
+import { registerLineLogin } from "./lineLogin";
 
-// OAuth routes previously handled Manus SSO login.
-// Auth is now managed by Clerk — no server-side OAuth callback needed.
-// Clerk validates tokens on each API request via sdk.authenticateRequest().
-export function registerOAuthRoutes(_app: Express) {
-  // No-op: Clerk handles authentication entirely client-side + token verification.
+// Sign-in is LINE Login. See lineLogin.ts: it sets the app_session_id cookie,
+// and sdk.authenticateRequest() verifies it on every API request.
+export function registerOAuthRoutes(app: Express) {
+  registerLineLogin(app);
 }
