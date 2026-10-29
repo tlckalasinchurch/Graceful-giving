@@ -145,6 +145,14 @@ export const users = pgTable("users", {
   >(),
   /** Comma-separated or serialized list of multiple church roles */
   churchRoles: text("churchRoles"),
+  /**
+   * Account state. A person who signs in with LINE for the first time is
+   * "pending" and sees no data until an admin approves them ("active").
+   */
+  status: varchar("status", { length: 12 })
+    .$type<"pending" | "active" | "disabled">()
+    .default("active")
+    .notNull(),
   avatarUrl: text("avatarUrl"),
   phone: varchar("phone", { length: 40 }),
   department: varchar("department", { length: 120 }),

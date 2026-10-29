@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Route, Switch, useLocation } from "wouter";
+import { Redirect, Route, Switch, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageChurchSettings } from "@shared/roles";
 import { canAccessRoute } from "@/lib/routeAccess";
@@ -15,7 +15,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
-const Register = lazy(() => import("./pages/Register"));
 const ChurchSetup = lazy(() => import("./pages/ChurchSetup"));
 const Transactions = lazy(() => import("./pages/Transactions"));
 const TransactionDetail = lazy(() => import("./pages/TransactionDetail"));
@@ -46,7 +45,6 @@ const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
 /** Routes reachable without a session. Everything else needs one. */
 const PUBLIC_PATHS = [
   "/login",
-  "/register",
   "/404",
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
 ];
@@ -79,7 +77,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 const SETUP_EXEMPT_PATHS = [
   "/setup",
   "/login",
-  "/register",
   "/404",
   // Dev-only UI gallery; the route itself is also unmounted in prod (see Router).
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
@@ -197,7 +194,7 @@ function Router() {
       {/* Core & Auth */}
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
+      <Route path="/register">{() => <Redirect to="/login" />}</Route>
       <Route path="/setup" component={ChurchSetup} />
 
       {/* Transactions & Ledgers */}
