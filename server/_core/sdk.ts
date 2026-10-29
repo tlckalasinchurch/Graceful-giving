@@ -1,86 +1,82 @@
-import { createClerkClient, verifyToken } from "@clerk/backend";
 import type { Request } from "express";
 import * as db from "../db";
 import { ENV } from "./env";
 import type { User } from "../../drizzle/schema";
-
-const clerkClient = createClerkClient({ secretKey: ENV.clerkSecretKey });
+import { verifySupabaseToken, type VerifiedIdentity } from "./supabaseAuth";
 
 export type AuthenticatedUser = User;
+
+/** Thrown when a verified identity has no account and no invitation. */
+export class NotInvitedError extends Error {
+  constructor(email: string) {
+    super(`No invitation for ${email}`);
+    this.name = "NotInvitedError";
+  }
+}
+
+/** openId prefixes that may be replaced by a Supabase id on first sign-in. */
+function isRelinkable(openId: string) {
+  // "invite:" = pending invitation. "user_" = account created by the old Clerk login.
+  return (
+    openId.startsWith(db.INVITE_OPEN_ID_PREFIX) || openId.startsWith("user_")
+  );
+}
+
+/**
+ * Map a verified identity to a user row. Accounts exist only for people who
+ * were invited (a row with their email) or who match OWNER_EMAIL.
+ */
+export async function resolveUser(identity: VerifiedIdentity): Promise<User> {
+  const byId = await db.getUserByOpenId(identity.sub);
+  if (byId) return byId;
+
+  const byEmail = await db.getUserByEmail(identity.email);
+  if (byEmail) {
+    if (!isRelinkable(byEmail.openId)) {
+      // The email already belongs to a different sign-in identity.
+      throw new NotInvitedError(identity.email);
+    }
+    await db.relinkUserOpenId(byEmail.id, identity.sub, {
+      name: byEmail.name || identity.name,
+      loginMethod: identity.provider,
+    });
+  } else {
+    // In production only OWNER_EMAIL may create an account without an invitation.
+    // "First user wins" would let anyone who signs in on an empty database take
+    // over the church, so it stays on in development only.
+    const isOwner = ENV.ownerEmail !== "" && identity.email === ENV.ownerEmail;
+    const isFirstDevUser =
+      !ENV.isProduction && (await db.getAllUsers()).length === 0;
+    if (!isOwner && !isFirstDevUser) throw new NotInvitedError(identity.email);
+
+    await db.upsertUser({
+      openId: identity.sub,
+      name: identity.name ?? identity.email.split("@")[0],
+      email: identity.email,
+      loginMethod: identity.provider,
+      role: "admin",
+      churchRole: "SUPER_ADMIN",
+      lastSignedIn: new Date(),
+    });
+  }
+
+  const user = await db.getUserByOpenId(identity.sub);
+  // DB is unavailable — reject rather than synthesising a session.
+  if (!user)
+    throw new Error("Database unavailable: cannot authenticate user session");
+  return user;
+}
 
 export const sdk = {
   async authenticateRequest(req: Request): Promise<AuthenticatedUser> {
     const authHeader = req.headers.authorization ?? "";
     const sessionToken = authHeader.startsWith("Bearer ")
       ? authHeader.slice(7)
-      : (req.cookies?.["__session"] ?? "");
+      : "";
+    if (!sessionToken) throw new Error("No session token provided");
 
-    if (!sessionToken) {
-      throw new Error("No session token provided");
-    }
-
-    // Verify token with Clerk
-    const payload = await verifyToken(sessionToken, {
-      secretKey: ENV.clerkSecretKey,
-    });
-    const clerkUserId = payload.sub;
-
-    if (!clerkUserId) {
-      throw new Error("Invalid session token: missing sub");
-    }
-
-    // Get user from DB if available
-    let user: User | undefined;
-    try {
-      user = await db.getUserByOpenId(clerkUserId);
-    } catch (e) {
-      console.warn("[Database] getUserByOpenId failed:", e);
-      user = undefined;
-    }
-
-    if (!user) {
-      let clerkUser: any = null;
-      try {
-        clerkUser = await clerkClient.users.getUser(clerkUserId);
-      } catch (err) {
-        console.warn("[Clerk] Failed to fetch user from Clerk API:", err);
-      }
-
-      const email = clerkUser?.emailAddresses?.[0]?.emailAddress ?? null;
-      const name =
-        `${clerkUser?.firstName ?? ""} ${clerkUser?.lastName ?? ""}`.trim() ||
-        clerkUser?.username ||
-        "Admin";
-
-      try {
-        const existingUsers = await db.getAllUsers();
-        // In production, only the configured owner (OWNER_OPEN_ID env var) gets
-        // admin/SUPER_ADMIN. "First user wins" would let anyone who signs up on an
-        // empty database take over the church. It stays on in development only.
-        const isFirst = !ENV.isProduction && existingUsers.length === 0;
-        const isPrimary = isFirst || (ENV.ownerOpenId !== "" && clerkUserId === ENV.ownerOpenId);
-        const role = isPrimary ? "admin" : "user";
-        const churchRole = isPrimary ? "SUPER_ADMIN" : "MEMBER";
-
-        await db.upsertUser({
-          openId: clerkUserId,
-          name,
-          email,
-          loginMethod: clerkUser?.externalAccounts?.[0]?.provider ?? "email",
-          role,
-          churchRole,
-          lastSignedIn: new Date(),
-        });
-        user = await db.getUserByOpenId(clerkUserId);
-      } catch (err) {
-        console.warn("[Database] Failed to upsert user:", err);
-      }
-
-      // DB is unavailable — reject the request rather than synthesising an admin session.
-      if (!user) {
-        throw new Error("Database unavailable: cannot authenticate user session");
-      }
-    }
+    const identity = await verifySupabaseToken(sessionToken);
+    const user = await resolveUser(identity);
 
     try {
       await db.upsertUser({ openId: user.openId, lastSignedIn: new Date() });

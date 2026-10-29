@@ -73,22 +73,16 @@ describe("security regressions", () => {
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
-  it("never grants admin or SUPER_ADMIN in the useAuth fallback user", () => {
+  it("useAuth never invents a user when the server has no account", () => {
     const source = readFileSync(
       join(import.meta.dirname, "../client/src/_core/hooks/useAuth.ts"),
       "utf8"
     );
-    const fallbackMatch = source.match(/const fallbackUser\s*=\s*[\s\S]*?: null;/);
-    expect(fallbackMatch).not.toBeNull();
-    const fallbackBlock = fallbackMatch![0];
-
-    // Must never fall back to admin or SUPER_ADMIN
-    expect(fallbackBlock).not.toMatch(/role:\s*["']admin["']/);
-    expect(fallbackBlock).not.toMatch(/churchRole:\s*["']SUPER_ADMIN["']/);
-
-    // Must strictly fall back to least-privileged member
-    expect(fallbackBlock).toMatch(/role:\s*["']user["']/);
-    expect(fallbackBlock).toMatch(/churchRole:\s*["']MEMBER["']/);
+    // The user comes from auth.me only. No client-side fallback identity.
+    expect(source).not.toContain("fallbackUser");
+    expect(source).not.toMatch(/role:\s*["']admin["']/);
+    expect(source).not.toMatch(/churchRole:\s*["']SUPER_ADMIN["']/);
+    expect(source).toMatch(/meQuery\.data\s*\?\?\s*null/);
   });
 
   it("ensures useAuth loading waits for meQuery when signed in", () => {
@@ -97,7 +91,7 @@ describe("security regressions", () => {
       "utf8"
     );
     expect(source).toMatch(
-      /loading:\s*!isLoaded\s*\|\|\s*\(Boolean\(isSignedIn\)\s*&&\s*meQuery\.isLoading\)/
+      /loading:\s*!loaded\s*\|\|\s*\(hasSession\s*&&\s*meQuery\.isLoading\)/
     );
   });
 });

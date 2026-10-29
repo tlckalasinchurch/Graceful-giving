@@ -153,9 +153,6 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   if (user.role !== undefined) {
     values.role = user.role;
     updateSet.role = user.role;
-  } else if (user.openId === ENV.ownerOpenId) {
-    values.role = "admin";
-    updateSet.role = "admin";
   }
   if (user.churchRole !== undefined) {
     values.churchRole = user.churchRole;
@@ -179,6 +176,74 @@ export async function getUserByOpenId(openId: string) {
     .where(eq(users.openId, openId))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(users)
+    .where(sql`lower(${users.email}) = ${email.trim().toLowerCase()}`)
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/** Prefix of the placeholder openId given to an invited user who has not signed in yet. */
+export const INVITE_OPEN_ID_PREFIX = "invite:";
+
+/**
+ * Pre-create a user row for an invited email. The row holds the church role
+ * and gets its real openId when the person first signs in with that email.
+ */
+export async function createInvitedUser(input: {
+  email: string;
+  churchRole: NonNullable<InsertUser["churchRole"]>;
+}): Promise<{ created: boolean }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const email = input.email.trim().toLowerCase();
+  if (await getUserByEmail(email)) return { created: false };
+  await db.insert(users).values({
+    openId: `${INVITE_OPEN_ID_PREFIX}${crypto.randomUUID()}`,
+    email,
+    name: email.split("@")[0],
+    loginMethod: "invite",
+    role: input.churchRole === "SUPER_ADMIN" ? "admin" : "user",
+    churchRole: input.churchRole,
+    churchRoles: input.churchRole,
+  });
+  return { created: true };
+}
+
+/** Delete an invitation. Refuses to touch a user who has already signed in. */
+export async function deleteInvitedUser(userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const deleted = await db
+    .delete(users)
+    .where(
+      and(
+        eq(users.id, userId),
+        sql`${users.openId} like ${INVITE_OPEN_ID_PREFIX + "%"}`
+      )
+    )
+    .returning({ id: users.id });
+  return deleted.length > 0;
+}
+
+/** Point an existing row (invited or migrated) at the identity that just signed in. */
+export async function relinkUserOpenId(
+  userId: number,
+  openId: string,
+  patch: { name?: string | null; loginMethod?: string }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db
+    .update(users)
+    .set({ openId, ...patch, lastSignedIn: new Date() })
+    .where(eq(users.id, userId));
 }
 
 export async function getAllUsers() {

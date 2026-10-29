@@ -60,6 +60,8 @@ export default function Settings() {
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
   const [roleSearch, setRoleSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<string>("MEMBER");
 
   const [auditSearch, setAuditSearch] = useState("");
   const [auditActionFilter, setAuditActionFilter] = useState<string>("ALL");
@@ -75,6 +77,27 @@ export default function Settings() {
     },
     onSettled: () => {
       setUpdatingUserId(null);
+    },
+  });
+
+  const inviteMutation = trpc.auth.inviteUser.useMutation({
+    onSuccess: () => {
+      toast.success("ส่งคำเชิญแล้ว ผู้ได้รับเชิญเข้าสู่ระบบด้วยอีเมล Google นี้ได้ทันที");
+      setInviteEmail("");
+      void usersQuery.refetch();
+    },
+    onError: err => {
+      toast.error(err.message || "ไม่สามารถเชิญผู้ใช้ได้");
+    },
+  });
+
+  const revokeMutation = trpc.auth.revokeInvite.useMutation({
+    onSuccess: () => {
+      toast.success("ยกเลิกคำเชิญแล้ว");
+      void usersQuery.refetch();
+    },
+    onError: err => {
+      toast.error(err.message || "ไม่สามารถยกเลิกคำเชิญได้");
     },
   });
 
@@ -612,6 +635,53 @@ export default function Settings() {
                 </div>
               </div>
 
+              {(user?.churchRole === "SUPER_ADMIN" || user?.role === "admin") && (
+                <form
+                  onSubmit={e => {
+                    e.preventDefault();
+                    inviteMutation.mutate({
+                      email: inviteEmail,
+                      churchRole: inviteRole as any,
+                    });
+                  }}
+                  className="flex flex-col gap-3 rounded-2xl border border-[#E7DCC8]/70 bg-[#FAF8F5]/40 p-4 sm:flex-row sm:items-end"
+                >
+                  <label className="flex-1 text-xs font-semibold text-[#51443A]">
+                    เชิญด้วยอีเมล Google
+                    <input
+                      type="email"
+                      required
+                      value={inviteEmail}
+                      onChange={e => setInviteEmail(e.target.value)}
+                      placeholder="name@gmail.com"
+                      className="mt-1 w-full rounded-xl border border-[#E7DCC8] bg-white px-3 py-2 text-sm text-[#171311] focus:outline-none focus:ring-2 focus:ring-[#C94F16]/20"
+                    />
+                  </label>
+                  <label className="text-xs font-semibold text-[#51443A]">
+                    บทบาท
+                    <NativeSelect
+                      value={inviteRole}
+                      onChange={e => setInviteRole(e.target.value)}
+                      className="mt-1 font-semibold"
+                    >
+                      <option value="MEMBER">สมาชิกทั่วไป</option>
+                      <option value="COUNTER">ทีมนับเงิน</option>
+                      <option value="DEACON">ผู้รับผิดชอบฝ่าย</option>
+                      <option value="TREASURER">เหรัญญิก</option>
+                      <option value="PASTOR">ศิษยาภิบาล</option>
+                      <option value="SUPER_ADMIN">ผู้ดูแลระบบสูงสุด</option>
+                    </NativeSelect>
+                  </label>
+                  <button
+                    type="submit"
+                    disabled={inviteMutation.isPending || !inviteEmail}
+                    className="rounded-xl bg-[#C94F16] px-4 py-2 text-sm font-semibold text-white hover:bg-[#B04412] disabled:opacity-60"
+                  >
+                    {inviteMutation.isPending ? "กำลังเชิญ…" : "เชิญ"}
+                  </button>
+                </form>
+              )}
+
               {usersQuery.isLoading ? (
                 <div className="py-12 flex flex-col items-center justify-center text-sm text-[#807266] gap-3">
                   <Loader2 className="w-6 h-6 animate-spin text-[#C94F16]" />
@@ -686,6 +756,11 @@ export default function Settings() {
                                       คุณ
                                     </span>
                                   )}
+                                  {u.openId.startsWith("invite:") && (
+                                    <span className="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full border border-sky-300">
+                                      รอเข้าสู่ระบบ
+                                    </span>
+                                  )}
                                 </div>
                               </td>
                               <td className="py-3.5 px-3 text-[#51443A]">
@@ -738,6 +813,26 @@ export default function Settings() {
                                         👤 สมาชิกคริสตจักร (MEMBER)
                                       </option>
                                     </NativeSelect>
+                                    {u.openId.startsWith("invite:") && (
+                                      <button
+                                        type="button"
+                                        disabled={revokeMutation.isPending}
+                                        onClick={async () => {
+                                          const ok = await Swal.confirm(
+                                            "ยกเลิกคำเชิญ?",
+                                            `อีเมล ${u.email} จะเข้าสู่ระบบไม่ได้อีก`,
+                                            {
+                                              confirmButtonText: "ยกเลิกคำเชิญ",
+                                              cancelButtonText: "ไม่ยกเลิก",
+                                            }
+                                          );
+                                          if (ok) revokeMutation.mutate({ userId: u.id });
+                                        }}
+                                        className="rounded-lg border border-[#E7DCC8] px-2.5 py-1.5 text-xs font-semibold text-[#9B2C2C] hover:bg-[#FFF1F0]"
+                                      >
+                                        ยกเลิกคำเชิญ
+                                      </button>
+                                    )}
                                   </div>
                                 ) : (
                                   <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FFF8EA] text-[#51443A] border border-[#E7DCC8]">

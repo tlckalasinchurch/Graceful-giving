@@ -58,6 +58,8 @@ import {
   archiveMinistry,
   deactivateMember,
   getAllUsers,
+  createInvitedUser,
+  deleteInvitedUser,
   updateUserProfile,
   markNotificationRead,
   markAllNotificationsRead,
@@ -458,6 +460,56 @@ export const appRouter = router({
             assignedRoles: roles,
             updatedBy: ctx.user.name || ctx.user.email,
           },
+        });
+        return { success: true } as const;
+      }),
+    /**
+     * Invite someone by email (SUPER_ADMIN only). The person signs in with
+     * that Google address and gets the role chosen here. Nobody else can sign in.
+     */
+    inviteUser: adminProcedure
+      .input(
+        z.object({
+          email: z.string().trim().toLowerCase().email().max(320),
+          churchRole: churchRoleEnum,
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { created } = await createInvitedUser(input);
+        if (!created) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "อีเมลนี้อยู่ในระบบหรือได้รับเชิญแล้ว",
+          });
+        }
+        await createAuditLog({
+          churchId: "default",
+          userId: ctx.user.id,
+          action: "invite_user",
+          entity: "user",
+          entityId: 0,
+          metadata: { email: input.email, assignedRole: input.churchRole },
+        });
+        return { success: true } as const;
+      }),
+    /** Cancel an invitation that has not been used yet (SUPER_ADMIN only). */
+    revokeInvite: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const deleted = await deleteInvitedUser(input.userId);
+        if (!deleted) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ยกเลิกไม่ได้ ผู้ใช้นี้เข้าสู่ระบบแล้ว",
+          });
+        }
+        await createAuditLog({
+          churchId: "default",
+          userId: ctx.user.id,
+          action: "revoke_invite",
+          entity: "user",
+          entityId: input.userId,
+          metadata: {},
         });
         return { success: true } as const;
       }),

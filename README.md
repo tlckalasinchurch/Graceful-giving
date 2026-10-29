@@ -18,7 +18,7 @@
   - **Runtime & Server**: Node.js, Express, esbuild
   - **API Layer**: tRPC v11 (End-to-End Type Safety)
   - **Database & ORM**: PostgreSQL (Supabase) via Drizzle ORM (`drizzle-orm/postgres-js`)
-  - **Authentication**: Manus OAuth Integration + Session Cookies
+  - **Authentication**: Supabase Auth (Google sign-in, invite-only)
   - **Testing**: Vitest + TypeScript Compiler (`tsc`)
 
 ---

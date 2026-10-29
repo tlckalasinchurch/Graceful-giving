@@ -1,10 +1,13 @@
 export const ENV = {
-  // Clerk Auth
-  clerkSecretKey: process.env.CLERK_SECRET_KEY ?? "",
-  clerkPublishableKey: process.env.VITE_CLERK_PUBLISHABLE_KEY ?? "",
+  // Supabase Auth (Google sign-in, invite-only)
+  supabaseUrl: process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "",
+  supabasePublishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "",
 
   // App settings
-  ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
+  // Email of the church owner. Signing in with this verified Google address
+  // creates (or relinks) the SUPER_ADMIN account. Nobody else is created
+  // without an invitation.
+  ownerEmail: (process.env.OWNER_EMAIL ?? "").trim().toLowerCase(),
   appId: process.env.VITE_APP_ID ?? "",
   cookieSecret: process.env.JWT_SECRET ?? "",
   databaseUrl: process.env.DATABASE_URL ?? "",

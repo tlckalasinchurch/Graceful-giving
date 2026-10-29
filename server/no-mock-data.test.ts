@@ -6,7 +6,7 @@
  * failure mode being prevented is a developer typing a number into JSX.
  */
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   EXPENSE_CATEGORY_IDS,
@@ -117,18 +117,19 @@ describe("the expense list links to a detail route the router understands", () =
 });
 
 describe("authentication is real", () => {
-  it("the login page starts the OAuth flow instead of faking success", () => {
+  it("the login page starts the Google sign-in instead of faking success", () => {
     const source = read("client/src/pages/Login.tsx");
-    expect(source).toContain("startLogin");
+    expect(source).toContain("signInWithGoogle");
     expect(source).not.toContain("setTimeout");
     expect(source).not.toContain("เข้าสู่ระบบเรียบร้อยแล้ว");
+    expect(source).not.toContain('type="password"');
   });
 
-  it("the register page does not pretend to create an account", () => {
-    const source = read("client/src/pages/Register.tsx");
-    expect(source).not.toContain("setTimeout");
-    expect(source).not.toContain("สร้างบัญชีคริสตจักรสำเร็จ");
-    expect(source).not.toContain('type="password"');
+  it("there is no self-service sign-up page; /register goes to /login", () => {
+    expect(
+      existsSync(join(import.meta.dirname, "../client/src/pages/Register.tsx"))
+    ).toBe(false);
+    expect(read("client/src/App.tsx")).toContain('<Redirect to="/login" />');
   });
 
   it("routes are gated for signed-out visitors", () => {
