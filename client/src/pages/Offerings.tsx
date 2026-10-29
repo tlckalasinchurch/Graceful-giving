@@ -24,7 +24,7 @@ import {
   type VoucherData,
 } from "@/components/finance/VoucherModal";
 import { paymentMethodLabel } from "@shared/categories";
-import { formatThaiDateTime } from "@/lib/format";
+import { formatThaiDateTime, THAI_LOCALE } from "@/lib/format";
 
 export default function Offerings() {
   const [, setLocation] = useLocation();
@@ -86,7 +86,7 @@ export default function Offerings() {
     const rows = filtered
       .map(
         o =>
-          `"${o.id}","${new Date(o.date).toLocaleDateString("th-TH")}","${o.title}","${o.donorName}",${o.amount},"${o.method}","${o.fund}"`
+          `"${o.id}","${new Date(o.date).toLocaleDateString(THAI_LOCALE)}","${o.title}","${o.donorName}",${o.amount},"${o.method}","${o.fund}"`
       )
       .join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], {

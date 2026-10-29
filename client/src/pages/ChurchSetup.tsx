@@ -55,7 +55,7 @@ export default function ChurchSetup() {
     offeringCategories: DEFAULT_OFFERING_CATEGORIES.slice(0, 4),
     funds: DEFAULT_FUNDS,
     fiscalYearStartMonth: 1,
-    budgetYear: 2569,
+    budgetYear: new Date().getFullYear(),
   });
 
   const updateProfileMutation = trpc.church.updateProfile.useMutation();

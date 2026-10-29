@@ -14,7 +14,6 @@ import {
   budgetPeriodLabel,
   budgetUsage,
   parseBudgetForm,
-  thaiYear,
   type BudgetFormValues,
 } from "@/components/finance/budget";
 import { trpc } from "@/lib/trpc";
@@ -121,7 +120,7 @@ export default function Budgets() {
               <ChevronLeft className="size-5" />
             </button>
             <span className="min-w-24 text-center text-sm font-semibold tabular-nums text-[#171311]">
-              ปี พ.ศ. {thaiYear(year)}
+              ปี ค.ศ. {year}
             </span>
             <button
               type="button"
@@ -145,7 +144,7 @@ export default function Budgets() {
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-[#171311]">
-                ตั้งงบประมาณสำหรับปี {thaiYear(year)}
+                ตั้งงบประมาณสำหรับปี {year}
               </h2>
               <button
                 type="button"
@@ -176,7 +175,7 @@ export default function Budgets() {
           />
         ) : plans.length === 0 ? (
           <EmptyState
-            title={`ยังไม่มีงบประมาณปี ${thaiYear(year)}`}
+            title={`ยังไม่มีงบประมาณปี ${year}`}
             description="ตั้งงบประมาณรายปีหรือรายเดือนตามหมวดรายจ่าย แล้วระบบจะเทียบกับรายจ่ายจริงให้อัตโนมัติ"
             actionText="ตั้งงบประมาณ"
             onAction={() => setShowCreate(true)}

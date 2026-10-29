@@ -8,12 +8,18 @@
  * screen formats them the same way and renders them with `tabular-nums`.
  */
 
-const BAHT = new Intl.NumberFormat("th-TH", {
+/**
+ * Thai wording with the Gregorian calendar. Plain "th-TH" defaults to the
+ * Buddhist Era (2026 prints as 2569); the church records years in C.E.
+ */
+export const THAI_LOCALE = "th-TH-u-ca-gregory";
+
+const BAHT = new Intl.NumberFormat(THAI_LOCALE, {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
 
-const BAHT_ROUNDED = new Intl.NumberFormat("th-TH", {
+const BAHT_ROUNDED = new Intl.NumberFormat(THAI_LOCALE, {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });
@@ -55,7 +61,7 @@ export function formatThaiDate(
 ) {
   const d = toDate(value);
   if (!d) return "—";
-  return d.toLocaleDateString("th-TH", {
+  return d.toLocaleDateString(THAI_LOCALE, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -68,7 +74,7 @@ export function formatThaiDateTime(
 ) {
   const d = toDate(value);
   if (!d) return "—";
-  return `${formatThaiDate(d)} ${d.toLocaleTimeString("th-TH", {
+  return `${formatThaiDate(d)} ${d.toLocaleTimeString(THAI_LOCALE, {
     hour: "2-digit",
     minute: "2-digit",
   })}`;

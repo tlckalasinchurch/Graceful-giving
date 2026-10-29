@@ -17,15 +17,8 @@ export const THAI_MONTHS = [
   "ธันวาคม",
 ];
 
-/** The API stores the Gregorian year; every Thai date on screen is B.E. */
-export function thaiYear(year: number) {
-  return year + 543;
-}
-
 export function budgetPeriodLabel(year: number, month: number | null) {
-  return month
-    ? `${THAI_MONTHS[month - 1]} ${thaiYear(year)}`
-    : `ทั้งปี ${thaiYear(year)}`;
+  return month ? `${THAI_MONTHS[month - 1]} ${year}` : `ทั้งปี ${year}`;
 }
 
 export function budgetCategoryLabel(category: string | null) {

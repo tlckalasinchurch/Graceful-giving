@@ -34,6 +34,7 @@ import {
   offeringCategoryLabel,
   paymentMethodLabel,
 } from "@shared/categories";
+import { THAI_LOCALE } from "@/lib/format";
 
 export default function TransactionDetail() {
   const [, setLocation] = useLocation();
@@ -344,7 +345,7 @@ export default function TransactionDetail() {
               </h2>
               <p className="text-xs text-[#807266] flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-[#C94F16]" />
-                {new Date(transaction.date).toLocaleString("th-TH")}
+                {new Date(transaction.date).toLocaleString(THAI_LOCALE)}
               </p>
             </div>
             <div className="text-left sm:text-right">

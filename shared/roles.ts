@@ -49,12 +49,13 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
   },
   DEACON: {
     role: "DEACON",
-    label: "มัคนายก / คณะกรรมการ",
-    labelWithCode: "มัคนายก / คณะกรรมการ (DEACON)",
-    badgeLabel: "🤝 มัคนายก / คณะกรรมการ (DEACON)",
+    label: "ผู้รับผิดชอบฝ่าย",
+    labelWithCode: "ผู้รับผิดชอบฝ่าย",
+    badgeLabel: "🤝 ผู้รับผิดชอบฝ่าย",
     badgeColor: "bg-purple-100 text-purple-900 border-purple-300",
     icon: "🤝",
-    description: "ดูแลฝ่ายพันธกิจ งานรับใช้ และการบริหารงานทั่วไปของคริสตจักร",
+    description:
+      "รับผิดชอบงานและงบประมาณของฝ่าย เสนอคำของบประมาณและรายการเบิกจ่าย",
   },
   COUNTER: {
     role: "COUNTER",

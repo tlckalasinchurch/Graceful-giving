@@ -22,6 +22,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { THAI_LOCALE } from "@/lib/format";
 
 type WithdrawalItem = RouterOutputs["withdrawals"]["list"][number];
 
@@ -234,7 +235,7 @@ export default function Approvals() {
                     <span>•</span>
                     <span>
                       ยื่นคำขอเมื่อ{" "}
-                      {new Date(req.date).toLocaleDateString("th-TH")}
+                      {new Date(req.date).toLocaleDateString(THAI_LOCALE)}
                     </span>
                   </div>
                 </div>

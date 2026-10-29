@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/categories";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
-import { formatBaht } from "@/lib/format";
+import { formatBaht, THAI_LOCALE } from "@/lib/format";
 
 export default function NewExpense() {
   const [, setLocation] = useLocation();
@@ -152,7 +152,7 @@ export default function NewExpense() {
   const amountPresets = [500, 1000, 2500, 5000, 10000];
 
   const handlePreset = (val: number) => {
-    setAmount(val.toLocaleString("th-TH"));
+    setAmount(val.toLocaleString(THAI_LOCALE));
   };
 
   const categoryIcons: Record<string, { icon: typeof Zap; desc: string }> = {
@@ -612,7 +612,7 @@ export default function NewExpense() {
                 <div className="flex justify-between">
                   <span className="text-ink-3">วันที่:</span>
                   <span className="text-ink">
-                    {new Date(expenseDate).toLocaleDateString("th-TH")}
+                    {new Date(expenseDate).toLocaleDateString(THAI_LOCALE)}
                   </span>
                 </div>
               </div>
