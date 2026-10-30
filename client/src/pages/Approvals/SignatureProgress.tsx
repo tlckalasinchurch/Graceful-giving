@@ -38,30 +38,28 @@ export function SignatureProgress({
 
   return (
     <section aria-label="สถานะการลงนาม" className="space-y-3">
-      <h4 className="font-display text-sm font-semibold text-foreground">
-        ลงนามโดยผู้มีอำนาจ
-      </h4>
+      <h4 className="display text-sm font-bold text-ink">ลงนามโดยผู้มีอำนาจ</h4>
 
       {signatures.length > 0 && (
         <ul className="space-y-2">
           {signatures.map(sig => (
             <li
               key={sig.userId}
-              className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-line pb-2 text-sm last:border-b-0"
+              className="flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-2xl bg-surface px-3.5 py-2.5 border border-line/60 text-sm"
             >
-              <span className="text-foreground">
+              <span className="font-bold text-ink">
                 {sig.name || `ผู้ใช้ #${sig.userId}`}
               </span>
               {sig.wasRequiredSigner && (
-                <span className="rounded-full border border-line bg-paper-2 px-2 py-0.5 text-[11px] font-medium text-ink-2">
+                <span className="rounded-full bg-tile-lilac px-2.5 py-0.5 text-[11px] font-bold text-tile-lilac-ink">
                   ต้องลงนามทุกครั้ง
                 </span>
               )}
               <span
                 className={
                   sig.decision === "approved"
-                    ? "text-sm font-medium text-income"
-                    : "text-sm font-medium text-danger"
+                    ? "rounded-full bg-tile-mint px-2.5 py-0.5 text-xs font-bold text-tile-mint-ink"
+                    : "rounded-full bg-tile-rose px-2.5 py-0.5 text-xs font-bold text-tile-rose-ink"
                 }
               >
                 {sig.decision === "approved" ? "ลงนามแล้ว" : "ปฏิเสธ"}
@@ -70,7 +68,7 @@ export function SignatureProgress({
                 {fmtDate(sig.createdAt) ?? ""}
               </span>
               {sig.note && (
-                <span className="w-full text-xs text-ink-3">
+                <span className="w-full text-xs text-ink-2 pt-0.5">
                   เหตุผล: <span>{sig.note}</span>
                 </span>
               )}
@@ -80,20 +78,24 @@ export function SignatureProgress({
       )}
 
       {approval.outcome === "approved" && (
-        <p className="text-sm font-medium text-income">ครบตามเงื่อนไขธนาคาร</p>
+        <p className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-bold text-tile-mint-ink">
+          ครบตามเงื่อนไขธนาคาร
+        </p>
       )}
       {approval.outcome === "rejected" && (
-        <p className="text-sm font-medium text-danger">
+        <p className="inline-flex items-center rounded-full bg-tile-rose px-3 py-1 text-xs font-bold text-tile-rose-ink">
           ถูกปฏิเสธ คำขอนี้ไปไม่ถึงการจ่ายเงิน
         </p>
       )}
       {approval.outcome === "pending" && (
-        <p className="space-y-1 text-sm">
+        <p className="flex flex-wrap items-center gap-2 text-xs">
           {!approval.requiredSignerApproved && (
-            <span className="block text-danger">รอศิษยาภิบาลลงนาม</span>
+            <span className="inline-flex items-center rounded-full bg-tile-peach px-3 py-1 font-bold text-tile-peach-ink">
+              รอศิษยาภิบาลลงนาม
+            </span>
           )}
           {approval.approvedCount < MIN_APPROVALS && (
-            <span className="block text-ink-2">
+            <span className="inline-flex items-center rounded-full bg-tile-sky px-3 py-1 font-bold text-tile-sky-ink">
               รออีก {MIN_APPROVALS - approval.approvedCount} คน
             </span>
           )}

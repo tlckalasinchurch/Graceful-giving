@@ -76,19 +76,19 @@ function MobileTab({
       onClick={onSelect}
       aria-label={tab.ariaLabel}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl ${
-        active ? "text-ink" : "text-ink-3 hover:text-ink"
+      className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl transition-colors ${
+        active ? "text-brand" : "text-ink-3 hover:text-ink"
       }`}
     >
       <span
-        className={`flex h-7 w-12 items-center justify-center rounded-full ${
-          active ? "bg-paper-2" : ""
+        className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
+          active ? "bg-tile-lilac text-brand" : ""
         }`}
       >
         <Icon className="size-5" />
       </span>
       <span
-        className={`text-xs leading-none ${active ? "font-semibold" : "font-medium"}`}
+        className={`text-xs leading-none ${active ? "font-bold" : "font-medium"}`}
       >
         {tab.label}
       </span>
@@ -114,10 +114,10 @@ function SidebarLink({
     <GuardedLink
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-9 w-full items-center gap-3 rounded-lg px-3 text-sm focus-visible:ring-2 focus-visible:ring-brand ${
+      className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
         active
-          ? "bg-ink font-semibold text-surface"
-          : "font-medium text-ink-2 hover:bg-paper-2 hover:text-ink"
+          ? "bg-brand font-bold text-white shadow-sm shadow-brand/25"
+          : "font-medium text-ink-2 hover:bg-paper hover:text-ink"
       }`}
     >
       <Icon className="size-[18px] shrink-0" aria-hidden="true" />
@@ -159,30 +159,29 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     churchProfile?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";
   const roleLabel = getChurchRoleInfo(user?.churchRole).label;
   const railItems = getAuthorizedNavItems(user);
-  // A tab the role cannot open would only lead to the restricted-access page.
   const mobileTabs = MOBILE_TABS.filter(tab => canAccessRoute(tab.path, user));
   const canRecordOffering = canAccessRoute("/offerings/new", user);
   const tabsBeforeGive = Math.ceil(mobileTabs.length / 2);
   const mobileColumns = mobileTabs.length + (canRecordOffering ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-ground text-ink flex flex-col font-sans selection:bg-tile-peach overflow-x-clip">
+    <div className="min-h-screen bg-ground text-ink flex flex-col font-sans selection:bg-tile-lilac overflow-x-clip">
       <div className="flex-1 flex flex-row w-full min-w-0">
-        {/* DESKTOP SIDEBAR (lg: >= 1024px): icon + label for every item */}
-        <aside className="hidden lg:flex w-60 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface border-r border-line px-3 py-4 z-30">
+        {/* DESKTOP SIDEBAR (lg: >= 1024px) */}
+        <aside className="hidden lg:flex w-64 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface/90 backdrop-blur-xl border-r border-line/80 px-4 py-5 z-30">
           <GuardedLink
             href="/"
             aria-label="Grace Ledger หน้าหลัก"
-            className="flex items-center gap-3 rounded-lg px-1 py-1"
+            className="flex items-center gap-3 rounded-2xl px-1.5 py-1.5 hover:bg-paper/60 transition-colors"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ink text-surface">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-white shadow-md shadow-brand/25">
               <Sprout className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
               <span className="display block truncate text-lg leading-none text-ink">
-                Grace Ledger
+                Grace <span className="text-brand">Ledger</span>
               </span>
-              <span className="mt-1 block truncate text-xs text-ink-3">
+              <span className="mt-1 block truncate text-xs font-medium text-ink-3">
                 {churchName}
               </span>
             </span>
@@ -191,7 +190,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {canRecordOffering && (
             <button
               onClick={() => navigate("/offerings/new")}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-white shadow-md shadow-brand/25 hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
               บันทึกการถวาย
@@ -200,7 +199,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
           <nav
             aria-label="เมนูนำทางหลัก"
-            className="no-scrollbar -mx-1 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-1"
+            className="no-scrollbar -mx-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-1"
           >
             {railItems.reduce<React.ReactNode[]>((content, item, index) => {
               const previous = railItems[index - 1];
@@ -209,7 +208,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                 content.push(
                   <p
                     key={`group-${item.path}`}
-                    className={`px-3 pb-1 text-xs font-semibold text-ink-3 ${index === 0 ? "" : "pt-3"}`}
+                    className={`px-3.5 pb-1 text-[11px] font-bold uppercase tracking-wider text-ink-3 ${index === 0 ? "" : "pt-3.5"}`}
                   >
                     {group}
                   </p>
@@ -228,7 +227,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             }, [])}
           </nav>
 
-          <div className="space-y-1 border-t border-line pt-3">
+          <div className="space-y-1.5 border-t border-line/80 pt-3">
             <SidebarLink
               href="/notifications"
               label="การแจ้งเตือน"
@@ -238,16 +237,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             <GuardedLink
               href="/profile"
               aria-label={`โปรไฟล์ ${user?.name ?? ""} ${roleLabel}`}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-paper-2"
+              className="flex items-center gap-3 rounded-2xl bg-paper/70 border border-line/60 px-3 py-2.5 hover:bg-paper-2 transition-colors"
             >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-paper-2 text-sm font-semibold text-ink">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-tile-lilac text-sm font-bold text-tile-lilac-ink">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </span>
               <span className="min-w-0">
-                <span className="block truncate text-sm font-medium text-ink">
+                <span className="block truncate text-sm font-bold text-ink">
                   {user?.name || "ผู้ใช้"}
                 </span>
-                <span className="block truncate text-xs text-ink-3">
+                <span className="block truncate text-xs font-medium text-ink-3">
                   {roleLabel}
                 </span>
               </span>
@@ -255,20 +254,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </div>
         </aside>
 
-        {/* The column is capped at --content-max and centred beside the rail,
-            so a row's date and its amount stay within reading distance on a
-            wide monitor. */}
+        {/* Main Content Column */}
         <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-12 min-w-0">
           <header
             className={`flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 ${
-              title ? "border-b border-line pb-5 sm:pb-6" : ""
+              title ? "border-b border-line/80 pb-5 sm:pb-6" : ""
             }`}
           >
             <div className="flex w-full items-center justify-between lg:hidden">
               <AppMenu />
               <GuardedLink
                 href="/notifications"
-                className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-ink-2 hover:text-ink"
+                className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-ink-2 shadow-2xs hover:bg-paper hover:text-ink"
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="size-5" aria-hidden="true" />
@@ -276,7 +273,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             </div>
             {title && (
               <div className="min-w-0 flex-1 basis-full sm:basis-0">
-                {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
+                {eyebrow && <p className="eyebrow mb-2.5">{eyebrow}</p>}
                 <h1 className="display text-3xl md:text-4xl text-ink break-words">
                   {title}
                 </h1>
@@ -304,10 +301,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {/* MOBILE BOTTOM BAR */}
       <nav
         aria-label="เมนูนำทางหลักบนมือถือ"
-        className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line bg-surface/95 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line/80 bg-surface/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(15,23,42,0.06)] pb-[env(safe-area-inset-bottom)]"
       >
         <div
-          className="mx-auto grid max-w-lg items-center px-2 py-1"
+          className="mx-auto grid max-w-lg items-center px-2 py-1.5"
           style={{
             gridTemplateColumns: `repeat(${mobileColumns}, minmax(0, 1fr))`,
           }}
@@ -327,10 +324,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               aria-label="บันทึกการถวายใหม่"
               className="flex min-h-14 flex-col items-center justify-center gap-1"
             >
-              <span className="flex size-9 items-center justify-center rounded-full bg-brand text-white">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-white shadow-md shadow-brand/30">
                 <Plus className="size-5 stroke-[2.5]" />
               </span>
-              <span className="text-xs font-semibold leading-none text-brand-ink">
+              <span className="text-xs font-bold leading-none text-brand">
                 ถวาย
               </span>
             </button>
