@@ -9,7 +9,7 @@ import {
 } from "@shared/roles";
 
 type AuthUser =
-  | { role?: string; churchRole?: string | null }
+  | { role?: string; churchRole?: string | null; isBankSigner?: boolean }
   | null
   | undefined;
 
@@ -33,7 +33,10 @@ export const ROUTE_ACCESS: Record<string, (user: AuthUser) => boolean> = {
   "/funds": u => canManageFinance(u) || canManageChurchSettings(u),
   "/budgets": canManageBudgets,
   "/reports": canViewReports,
-  "/approvals": u => canManageFinance(u) || canManageChurchSettings(u),
+  "/approvals": u =>
+    canManageFinance(u) ||
+    canManageChurchSettings(u) ||
+    u?.isBankSigner === true,
   "/members": u =>
     canManageChurchSettings(u) ||
     canManageFinance(u) ||

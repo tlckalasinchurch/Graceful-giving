@@ -52,8 +52,9 @@ export function buildTaskItems(input: TaskQueueInput): TaskItem[] {
   if (input.pendingWithdrawals && input.pendingWithdrawals > 0) {
     items.push({
       kind: "withdrawals",
-      title: "คำขอเบิกเงินรออนุมัติ",
-      description: "ตรวจสอบวัตถุประสงค์ แล้วอนุมัติหรือปฏิเสธคำขอ",
+      title: "คำขอเบิกเงินรอลงนามของคุณ",
+      description:
+        "คำขอที่ยังรอลงนามจากคุณในฐานะผู้ลงนามบัญชีธนาคาร ตรวจสอบแล้วลงนามในหน้าการอนุมัติ",
       count: input.pendingWithdrawals,
       href: "/approvals",
     });

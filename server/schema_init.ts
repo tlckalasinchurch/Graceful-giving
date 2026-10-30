@@ -18,6 +18,8 @@ export const ENUM_STATEMENTS: string[] = [
   `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS 'withdrawal';`,
   `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS 'other_in';`,
   `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS 'other_out';`,
+  // Withdrawal approvals (Part 2).
+  `ALTER TYPE "public"."withdrawal_status" ADD VALUE IF NOT EXISTS 'cancelled';`,
   `DO $$ BEGIN CREATE TYPE "public"."cash_kind" AS ENUM('note', 'coin'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `DO $$ BEGIN CREATE TYPE "public"."counting_session_status" AS ENUM('counting', 'counted', 'verified', 'posted', 'closed'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `DO $$ BEGIN CREATE TYPE "public"."session_document_kind" AS ENUM('count_sheet', 'envelope_photo', 'deposit_slip', 'transfer_slip', 'passbook_page', 'deduction_receipt', 'other'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
@@ -183,6 +185,33 @@ export const TABLE_STATEMENTS: string[] = [
     "createdAt" timestamp DEFAULT now() NOT NULL,
     "updatedAt" timestamp DEFAULT now() NOT NULL
   );`,
+  `ALTER TABLE "withdrawal_requests" ADD COLUMN IF NOT EXISTS "disbursedAt" timestamp;`,
+  `ALTER TABLE "withdrawal_requests" ADD COLUMN IF NOT EXISTS "disbursedBy" integer;`,
+  `ALTER TABLE "withdrawal_requests" ADD COLUMN IF NOT EXISTS "cancelledAt" timestamp;`,
+  `ALTER TABLE "withdrawal_requests" ADD COLUMN IF NOT EXISTS "cancelledBy" integer;`,
+  `ALTER TABLE "withdrawal_requests" ADD COLUMN IF NOT EXISTS "cancelReason" text;`,
+
+  // ─── Withdrawal bank signers (Part 2) ──────────────────────────────────────
+  `CREATE TABLE IF NOT EXISTS "bank_signers" (
+    "id" serial PRIMARY KEY NOT NULL,
+    "churchId" varchar(64) NOT NULL,
+    "userId" integer NOT NULL,
+    "isRequired" boolean DEFAULT false NOT NULL,
+    "addedBy" integer,
+    "createdAt" timestamp DEFAULT now() NOT NULL
+  );`,
+
+  /** One row per signer per withdrawal request. */
+  `CREATE TABLE IF NOT EXISTS "withdrawal_approvals" (
+    "id" serial PRIMARY KEY NOT NULL,
+    "churchId" varchar(64) NOT NULL,
+    "requestId" integer NOT NULL,
+    "userId" integer NOT NULL,
+    "decision" varchar(10) NOT NULL,
+    "note" text,
+    "wasRequiredSigner" boolean NOT NULL,
+    "createdAt" timestamp DEFAULT now() NOT NULL
+  );`,
 
   `CREATE TABLE IF NOT EXISTS "members" (
     "id" serial PRIMARY KEY NOT NULL,
@@ -251,6 +280,7 @@ export const TABLE_STATEMENTS: string[] = [
     "createdAt" timestamp DEFAULT now() NOT NULL,
     "updatedAt" timestamp DEFAULT now() NOT NULL
   );`,
+  `ALTER TABLE "bank_records" ADD COLUMN IF NOT EXISTS "withdrawalRequestId" integer;`,
 
   `CREATE TABLE IF NOT EXISTS "cash_counts" (
     "id" serial PRIMARY KEY NOT NULL,
@@ -416,6 +446,15 @@ export const INDEX_STATEMENTS: string[] = [
   `CREATE INDEX IF NOT EXISTS "line_slips_status_idx" ON "line_slips" ("churchId", "status", "createdAt");`,
   /** Financial integrity backstop: prevent duplicate active offerings with the same bank reference */
   `CREATE UNIQUE INDEX IF NOT EXISTS "offerings_ref_active_uniq" ON "offerings" ("churchId", "reference") WHERE "reference" IS NOT NULL AND "status" = 'active';`,
+
+  // ─── Withdrawal bank signers (Part 2) ──────────────────────────────────────
+  `CREATE UNIQUE INDEX IF NOT EXISTS "bank_signers_user_uniq" ON "bank_signers" ("churchId", "userId");`,
+  /** At most one "ต้องลงนามทุกครั้ง" signer per church. */
+  `CREATE UNIQUE INDEX IF NOT EXISTS "bank_signers_required_uniq" ON "bank_signers" ("churchId") WHERE "isRequired" = true;`,
+  /** One signature row per signer per request. */
+  `CREATE UNIQUE INDEX IF NOT EXISTS "withdrawal_approvals_signer_uniq" ON "withdrawal_approvals" ("requestId", "userId");`,
+  /** A withdrawal request lands in the counting round exactly once. */
+  `CREATE UNIQUE INDEX IF NOT EXISTS "bank_records_withdrawal_uniq" ON "bank_records" ("withdrawalRequestId") WHERE "withdrawalRequestId" IS NOT NULL;`,
 ];
 
 /**
