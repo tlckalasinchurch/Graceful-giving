@@ -31,6 +31,7 @@ import { EXPENSE_CATEGORIES, OFFERING_CATEGORIES } from "@shared/categories";
 import { isSuperAdmin, getChurchRoleInfo, CHURCH_ROLES } from "@shared/roles";
 import { NativeSelect } from "@/components/ui/native-select";
 import { THAI_LOCALE } from "@/lib/format";
+import { BankSignersSection } from "./Settings/BankSignersSection";
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -971,6 +972,7 @@ export default function Settings() {
 
         {/* Tab 4: Payment */}
         {activeTab === "payment" && (
+          <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
             <h3 className="text-base font-bold text-ink flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-brand" />
@@ -1004,7 +1006,9 @@ export default function Settings() {
               </div>
             </div>
           </div>
-        )}
+          <BankSignersSection />
+        </div>
+      )}
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (

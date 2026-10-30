@@ -11,6 +11,8 @@ import {
   StatusBadge,
 } from "@/components/common/CommonUI";
 import { THB_DENOMINATIONS, reconcile } from "@shared/counting";
+import { canManageFinance } from "@shared/roles";
+import { useAuth } from "@/_core/hooks/useAuth";
 import {
   Banknote,
   BookCheck,
@@ -28,6 +30,7 @@ import { CashCountTab } from "./CountingDetail/components/CashCountTab";
 import { BankRecordsTab } from "./CountingDetail/components/BankRecordsTab";
 import { DeductionsTab } from "./CountingDetail/components/DeductionsTab";
 import { ReconciliationSummaryTab } from "./CountingDetail/components/ReconciliationSummaryTab";
+import { CarryForwardLedger } from "./CountingDetail/components/CarryForwardLedger";
 import { THAI_LOCALE } from "@/lib/format";
 
 type TabId = "envelopes" | "cash" | "bank" | "deductions" | "summary";
@@ -45,6 +48,7 @@ export default function CountingDetail() {
   const [, setLocation] = useLocation();
   const sessionId = Number(params.id);
   const utils = trpc.useUtils();
+  const { user } = useAuth();
   const [tab, setTab] = useState<TabId>("envelopes");
 
   const detailQuery = trpc.counting.get.useQuery(
@@ -93,6 +97,14 @@ export default function CountingDetail() {
   const matchPassbook = trpc.counting.matchPassbook.useMutation({
     onSuccess: () => void refreshAll(),
     onError: onError("กระทบสมุดบัญชี"),
+  });
+  const setOpeningBalances = trpc.counting.setOpeningBalances.useMutation({
+    onSuccess: () => void refreshAll(),
+    onError: onError("บันทึกยอดยกมา"),
+  });
+  const setClosingFigures = trpc.counting.setClosingFigures.useMutation({
+    onSuccess: () => void refreshAll(),
+    onError: onError("บันทึกยอดคงเหลือ"),
   });
   const addDeduction = trpc.counting.addDeduction.useMutation({
     onSuccess: () => void refreshAll(),
@@ -198,6 +210,13 @@ export default function CountingDetail() {
       cashCounts: cashRows,
       deductions: detail.deductions,
       bankRecords: detail.bankRecords,
+      // Opening balances are resolved on the server from the previous round.
+      carry: {
+        openingCash: detail.reconciliation.openingCash,
+        openingBank: detail.reconciliation.openingBank,
+        cashOnHandActual: detail.reconciliation.cashOnHandActual,
+        passbookBalance: detail.reconciliation.passbookBalance,
+      },
     });
   }, [detail, draftCounts]);
 
@@ -349,11 +368,8 @@ export default function CountingDetail() {
             <MoneyDisplay amount={r.deductionTotal} type="expense" size="lg" />
           </div>
           <div className="rounded-2xl border border-line bg-white p-4 shadow-2xs">
-            <p className="text-sm text-ink-2">ต้องนำฝาก</p>
-            <MoneyDisplay amount={r.expectedDeposit} size="lg" />
-            <div className="mt-1 text-sm">
-              <Variance amount={r.depositVariance} />
-            </div>
+            <p className="text-sm text-ink-2">นำฝาก</p>
+            <MoneyDisplay amount={r.actualCashDeposit} size="lg" />
           </div>
         </section>
 
@@ -418,8 +434,6 @@ export default function CountingDetail() {
             envelopeTransferTotal={r.envelopeTransferTotal}
             transferVariance={r.transferVariance}
             actualCashDeposit={r.actualCashDeposit}
-            expectedDeposit={r.expectedDeposit}
-            depositVariance={r.depositVariance}
             addBankRecord={addBankRecord}
             matchPassbook={matchPassbook}
           />
@@ -435,6 +449,27 @@ export default function CountingDetail() {
             addDeduction={addDeduction}
             removeDeduction={removeDeduction}
             approveDeduction={approveDeduction}
+          />
+        )}
+
+        {tab === "summary" && (
+          <CarryForwardLedger
+            r={r}
+            openingSource={detail.openingSource}
+            locked={!isUnposted}
+            canEdit={canManageFinance(user)}
+            unmatchedPassbookCount={
+              detail.bankRecords.filter(b => !b.passbookMatched).length
+            }
+            pending={
+              setOpeningBalances.isPending || setClosingFigures.isPending
+            }
+            onSetOpening={v =>
+              setOpeningBalances.mutate({ id: sessionId, ...v })
+            }
+            onSetClosing={v =>
+              setClosingFigures.mutate({ id: sessionId, ...v })
+            }
           />
         )}
 

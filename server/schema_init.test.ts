@@ -1,5 +1,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { INDEX_STATEMENTS, runSchemaInit } from "./schema_init";
+import {
+  ENUM_STATEMENTS,
+  INDEX_STATEMENTS,
+  TABLE_STATEMENTS,
+  runSchemaInit,
+} from "./schema_init";
 
 /**
  * A unique index that guards a financial rule fails to create when the table
@@ -184,5 +189,107 @@ describe("runSchemaInit failure reporting", () => {
     await expect(runSchemaInit(client)).resolves.toBeUndefined();
     const joined = errorSpy.mock.calls.flat().map(String).join(" ");
     expect(joined).toContain("Could not diagnose");
+  });
+});
+
+describe("counting carry-forward schema", () => {
+  // CREATE TYPE ... EXCEPTION WHEN duplicate_object never adds values to an
+  // enum that already exists, which is the case on every live database.
+  it("adds the new bank record types to an existing enum", () => {
+    for (const value of ["withdrawal", "other_in", "other_out"]) {
+      expect(ENUM_STATEMENTS).toContain(
+        `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS '${value}';`
+      );
+    }
+  });
+
+  it("adds the carry-forward columns to existing counting_sessions", () => {
+    for (const column of [
+      "openingCash",
+      "openingBank",
+      "closingBank",
+      "cashOnHandActual",
+      "passbookBalance",
+      "passbookBalanceDate",
+    ]) {
+      expect(
+        TABLE_STATEMENTS.some(s =>
+          s.includes(
+            `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "${column}"`
+          )
+        )
+      ).toBe(true);
+    }
+  });
+});
+
+describe("withdrawal signer schema", () => {
+  // ADD VALUE cannot run inside a DO block, so the new enum value must be its
+  // own statement exactly like the bank_record_type values from Part 1.
+  it("adds the cancelled value to the withdrawal_status enum as its own statement", () => {
+    expect(ENUM_STATEMENTS).toContain(
+      `ALTER TYPE "public"."withdrawal_status" ADD VALUE IF NOT EXISTS 'cancelled';`
+    );
+  });
+
+  it("creates the bank_signers and withdrawal_approvals tables", () => {
+    for (const table of ["bank_signers", "withdrawal_approvals"]) {
+      expect(
+        TABLE_STATEMENTS.some(s =>
+          s.includes(`CREATE TABLE IF NOT EXISTS "${table}"`)
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("adds the disburse and cancel columns to existing withdrawal_requests", () => {
+    for (const column of [
+      "disbursedAt",
+      "disbursedBy",
+      "cancelledAt",
+      "cancelledBy",
+      "cancelReason",
+    ]) {
+      expect(
+        TABLE_STATEMENTS.some(s =>
+          s.includes(
+            `ALTER TABLE "withdrawal_requests" ADD COLUMN IF NOT EXISTS "${column}"`
+          )
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("adds the withdrawal link column to existing bank_records", () => {
+    expect(
+      TABLE_STATEMENTS.some(s =>
+        s.includes(
+          `ALTER TABLE "bank_records" ADD COLUMN IF NOT EXISTS "withdrawalRequestId"`
+        )
+      )
+    ).toBe(true);
+  });
+
+  it("defines the four signer and link indexes", () => {
+    for (const name of [
+      "bank_signers_user_uniq",
+      "bank_signers_required_uniq",
+      "withdrawal_approvals_signer_uniq",
+      "bank_records_withdrawal_uniq",
+    ]) {
+      expect(statementFor(name)).toBeTruthy();
+    }
+  });
+
+  it("guards one required signer per church with a partial unique index", () => {
+    const stmt = statementFor("bank_signers_required_uniq");
+    expect(stmt).toMatch(/CREATE\s+UNIQUE\s+INDEX/i);
+    expect(stmt).toMatch(/WHERE\s+"isRequired"\s*=\s*true/i);
+  });
+
+  it("guards one counting-round bank record per request with a partial unique index", () => {
+    const stmt = statementFor("bank_records_withdrawal_uniq");
+    expect(stmt).toMatch(/CREATE\s+UNIQUE\s+INDEX/i);
+    expect(stmt).toMatch(/WHERE\s+"withdrawalRequestId"\s+IS\s+NOT\s+NULL/i);
   });
 });
