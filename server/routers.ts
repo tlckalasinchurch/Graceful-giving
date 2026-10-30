@@ -73,6 +73,8 @@ import {
   listCountingSessions,
   getCountingSession,
   getCountingSessionDetail,
+  resolveOpeningBalances,
+  setCountingCarryFields,
   createCountingSession,
   setCountingSessionStatus,
   addOfferingEnvelope,
@@ -102,7 +104,11 @@ import { runWorkerBatch } from "./line/processWorker";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
-import { canTransition, isEditable } from "@shared/counting";
+import {
+  BANK_RECORD_TYPES,
+  canTransition,
+  isEditable,
+} from "@shared/counting";
 import {
   EXPENSE_CATEGORY_IDS,
   OFFERING_CATEGORY_IDS,
@@ -352,6 +358,16 @@ function assertCountEditable(status: CountingStatus) {
     throw new TRPCError({
       code: "CONFLICT",
       message: "รอบนี้ส่งนับแล้ว ต้องส่งกลับไปแก้ไขก่อนจึงจะบันทึกได้",
+    });
+  }
+}
+
+/** Posted and closed rounds are part of the books; their figures are fixed. */
+function assertNotPosted(status: CountingStatus) {
+  if (status === "posted" || status === "closed") {
+    throw new TRPCError({
+      code: "CONFLICT",
+      message: "รอบนี้ลงบัญชีแล้ว แก้ไขยอดไม่ได้",
     });
   }
 }
@@ -1677,7 +1693,7 @@ export const appRouter = router({
       .input(
         z.object({
           sessionId: z.number().int().positive(),
-          type: z.enum(["transfer_in", "cash_deposit"]),
+          type: z.enum(BANK_RECORD_TYPES),
           amount: z.number().positive(),
           transferredBy: z.number().int().positive().optional(),
           transferredByName: z.string().trim().max(180).optional(),
@@ -1729,6 +1745,88 @@ export const appRouter = router({
             message: "ไม่พบรายการธนาคาร",
           });
         }
+        return { success: true } as const;
+      }),
+
+    /** Opening balances for the first round, entered once by finance. */
+    setOpeningBalances: financeProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          openingCash: z.number().nonnegative(),
+          openingBank: z.number(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const session = await requireCountingSession(input.id);
+        assertNotPosted(session.status);
+        if (await resolveOpeningBalances(session)) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "รอบนี้มียอดยกมาแล้ว",
+          });
+        }
+        const saved = await setCountingCarryFields(input.id, {
+          openingCash: input.openingCash.toFixed(2),
+          openingBank: input.openingBank.toFixed(2),
+        });
+        if (!saved) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "สถานะรอบเปลี่ยนไปแล้ว กรุณาโหลดข้อมูลใหม่",
+          });
+        }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "SET_OPENING",
+          entity: "counting_session",
+          entityId: input.id,
+          metadata: input,
+        });
+        return { success: true } as const;
+      }),
+
+    /** The cash actually left in the box, and the latest passbook balance. */
+    setClosingFigures: financeProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          cashOnHandActual: z.number().nonnegative().nullable().optional(),
+          passbookBalance: z.number().nullable().optional(),
+          passbookBalanceDate: z.coerce.date().nullable().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const session = await requireCountingSession(input.id);
+        assertNotPosted(session.status);
+        const money = (value: number | null) =>
+          value === null ? null : value.toFixed(2);
+        const saved = await setCountingCarryFields(input.id, {
+          ...(input.cashOnHandActual !== undefined && {
+            cashOnHandActual: money(input.cashOnHandActual),
+          }),
+          ...(input.passbookBalance !== undefined && {
+            passbookBalance: money(input.passbookBalance),
+          }),
+          ...(input.passbookBalanceDate !== undefined && {
+            passbookBalanceDate: input.passbookBalanceDate,
+          }),
+        });
+        if (!saved) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "สถานะรอบเปลี่ยนไปแล้ว กรุณาโหลดข้อมูลใหม่",
+          });
+        }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "SET_CLOSING",
+          entity: "counting_session",
+          entityId: input.id,
+          metadata: input,
+        });
         return { success: true } as const;
       }),
 

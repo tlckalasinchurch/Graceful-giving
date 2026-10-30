@@ -483,3 +483,111 @@ describeDb(
     });
   }
 );
+
+/**
+ * Cash and bank balances carried from one round to the next. Dates sit before
+ * every other session in this file so the first round really is the first.
+ */
+describeDb("counting workflow: carry forward", () => {
+  const roundOneDate = new Date("2025-01-05T01:00:00.000Z");
+  let roundOne = 0;
+
+  it("asks for opening balances on the first round", async () => {
+    roundOne = (
+      await asCounter().counting.create({
+        serviceDate: roundOneDate,
+        serviceRound: 1,
+      })
+    ).id;
+
+    const before = await asTreasurer().counting.get({ id: roundOne });
+    expect(before.openingSource).toBeNull();
+    expect(before.reconciliation.hasCarryForward).toBe(false);
+
+    await asTreasurer().counting.setOpeningBalances({
+      id: roundOne,
+      openingCash: 2000,
+      openingBank: 50000,
+    });
+
+    const after = await asTreasurer().counting.get({ id: roundOne });
+    expect(after.openingSource).toBe("stored");
+    expect(after.reconciliation.openingCash).toBe(2000);
+    expect(after.reconciliation.openingBank).toBe(50000);
+
+    await expect(
+      asTreasurer().counting.setOpeningBalances({
+        id: roundOne,
+        openingCash: 1,
+        openingBank: 1,
+      })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+
+  it("records a withdrawal and other bank items", async () => {
+    const caller = asTreasurer();
+    await caller.counting.addBankRecord({
+      sessionId: roundOne,
+      type: "withdrawal",
+      amount: 5000,
+    });
+    await caller.counting.addBankRecord({
+      sessionId: roundOne,
+      type: "other_in",
+      amount: 12.5,
+      notes: "ดอกเบี้ย",
+    });
+    await caller.counting.addBankRecord({
+      sessionId: roundOne,
+      type: "other_out",
+      amount: 30,
+      notes: "ค่าธรรมเนียม",
+    });
+
+    const r = (await caller.counting.get({ id: roundOne })).reconciliation;
+    expect(r.withdrawalTotal).toBe(5000);
+    expect(r.otherInTotal).toBe(12.5);
+    expect(r.otherOutTotal).toBe(30);
+    // 50000 + 12.5 − 5000 − 30
+    expect(r.closingBankExpected).toBe(44982.5);
+    // 2000 + 0 + 5000
+    expect(r.closingCashExpected).toBe(7000);
+  });
+
+  it("records the cash box and the passbook", async () => {
+    await asTreasurer().counting.setClosingFigures({
+      id: roundOne,
+      cashOnHandActual: 7000,
+      passbookBalance: 44982.5,
+      passbookBalanceDate: new Date("2025-01-06T03:00:00.000Z"),
+    });
+    const r = (await asTreasurer().counting.get({ id: roundOne }))
+      .reconciliation;
+    expect(r.cashOnHandActual).toBe(7000);
+    expect(r.cashOnHandVariance).toBe(0);
+    expect(r.passbookVariance).toBe(0);
+  });
+
+  it("does not carry forward from a round that predates carry-forward", async () => {
+    const db = await getDb();
+    const seeded = await db!.execute(
+      sql`INSERT INTO counting_sessions ("churchId", "serviceDate", "serviceRound", status, "countedBy")
+          VALUES (${TEST_CHURCH_ID}, ${"2024-06-02T01:00:00.000Z"}, 1, 'posted', ${counter.id})
+          RETURNING id`
+    );
+    const legacyId = (seeded as unknown as Array<{ id: number }>)[0].id;
+    const next = await asCounter().counting.create({
+      serviceDate: new Date("2024-06-09T01:00:00.000Z"),
+      serviceRound: 1,
+    });
+
+    const detail = await asTreasurer().counting.get({ id: next.id });
+    expect(detail.openingSource).toBeNull();
+    expect(detail.reconciliation.hasCarryForward).toBe(false);
+
+    // Remove both so they cannot block posting the 2025 rounds.
+    await db!.execute(
+      sql`DELETE FROM counting_sessions WHERE id IN (${legacyId}, ${next.id})`
+    );
+  });
+});

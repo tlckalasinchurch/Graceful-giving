@@ -6,6 +6,7 @@ import {
   desc,
   eq,
   gte,
+  inArray,
   lt,
   lte,
   ne,
@@ -31,6 +32,7 @@ import {
   InsertChurchEvent,
   InsertChurchNews,
   InsertChurchProfile,
+  CountingSession,
   InsertCountingSession,
   InsertExpense,
   InsertFinanceAccount,
@@ -1770,6 +1772,130 @@ export async function getCountingSession(
   return rows[0] ?? null;
 }
 
+/** Sessions are ordered by Sunday, then service round, then id. */
+function countingSessionsBefore(session: CountingSession) {
+  return sql`(${countingSessions.serviceDate}, ${countingSessions.serviceRound}, ${countingSessions.id}) < (${session.serviceDate}, ${session.serviceRound}, ${session.id})`;
+}
+
+/** The latest posted or closed session before `session`. */
+export async function findPreviousPostedSession(
+  session: CountingSession,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(countingSessions)
+    .where(
+      and(
+        eq(countingSessions.churchId, churchId),
+        inArray(countingSessions.status, ["posted", "closed"]),
+        countingSessionsBefore(session)
+      )
+    )
+    .orderBy(
+      desc(countingSessions.serviceDate),
+      desc(countingSessions.serviceRound),
+      desc(countingSessions.id)
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/** The earliest session before `session` that has not been posted yet. */
+export async function findEarlierUnpostedSession(
+  session: CountingSession,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(countingSessions)
+    .where(
+      and(
+        eq(countingSessions.churchId, churchId),
+        inArray(countingSessions.status, ["counting", "counted", "verified"]),
+        countingSessionsBefore(session)
+      )
+    )
+    .orderBy(
+      asc(countingSessions.serviceDate),
+      asc(countingSessions.serviceRound),
+      asc(countingSessions.id)
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * Where a session's opening balances come from: its own stored figures (set by
+ * hand on the first round, or frozen when it posted), else what the previous
+ * posted round carried out. null when neither exists, including when the
+ * previous round predates carry-forward and never recorded a closing balance.
+ */
+export async function resolveOpeningBalances(
+  session: CountingSession,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<{
+  openingCash: number;
+  openingBank: number;
+  source: "stored" | "previous";
+} | null> {
+  if (session.openingCash !== null && session.openingBank !== null) {
+    return {
+      openingCash: num(session.openingCash),
+      openingBank: num(session.openingBank),
+      source: "stored",
+    };
+  }
+  const previous = await findPreviousPostedSession(session, churchId);
+  if (
+    !previous ||
+    previous.cashOnHandActual === null ||
+    previous.closingBank === null
+  ) {
+    return null;
+  }
+  return {
+    openingCash: num(previous.cashOnHandActual),
+    openingBank: num(previous.closingBank),
+    source: "previous",
+  };
+}
+
+/** Writes carry-forward fields on a session that has not been posted. */
+export async function setCountingCarryFields(
+  id: number,
+  fields: Partial<
+    Pick<
+      InsertCountingSession,
+      | "openingCash"
+      | "openingBank"
+      | "cashOnHandActual"
+      | "passbookBalance"
+      | "passbookBalanceDate"
+    >
+  >,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db
+    .update(countingSessions)
+    .set(fields)
+    .where(
+      and(
+        eq(countingSessions.id, id),
+        eq(countingSessions.churchId, churchId),
+        inArray(countingSessions.status, ["counting", "counted", "verified"])
+      )
+    )
+    .returning({ id: countingSessions.id });
+  return rows.length > 0;
+}
+
 /**
  * The session with every part needed to reconcile it. Returns null when the
  * session does not exist, so callers can map that to NOT_FOUND.
@@ -1819,6 +1945,7 @@ export async function getCountingSessionDetail(
   }));
   const deductions = deductionRows.map(r => ({ ...r, amount: num(r.amount) }));
   const bank = bankRows.map(r => ({ ...r, amount: num(r.amount) }));
+  const opening = await resolveOpeningBalances(session, churchId);
 
   return {
     session,
@@ -1827,11 +1954,24 @@ export async function getCountingSessionDetail(
     deductions,
     bankRecords: bank,
     documents: documentRows,
+    openingSource: opening?.source ?? null,
     reconciliation: reconcile({
       envelopes,
       cashCounts: cash,
       deductions,
       bankRecords: bank,
+      carry: {
+        openingCash: opening?.openingCash ?? null,
+        openingBank: opening?.openingBank ?? null,
+        cashOnHandActual:
+          session.cashOnHandActual === null
+            ? null
+            : num(session.cashOnHandActual),
+        passbookBalance:
+          session.passbookBalance === null
+            ? null
+            : num(session.passbookBalance),
+      },
     }),
   };
 }
