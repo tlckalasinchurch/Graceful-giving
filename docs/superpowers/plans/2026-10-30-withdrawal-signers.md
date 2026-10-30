@@ -1,6 +1,6 @@
 # Withdrawal Approval by Bank Signers — Implementation Plan
 
-> **For the AI tool picking this up (Codex, Cursor, Claude, Gemini, any):** this plan is self-contained. Read "Handoff" and "Global Constraints" first, then the spec, then do the tasks in order. Each task is test-first: write the test, run it and see it fail, implement, run it and see it pass, commit. Steps use checkboxes (`- [ ]`); tick them as you go so the next tool can resume.
+> **For the AI tool picking this up (Codex, Cursor, Claude, Gemini, any):** this plan is self-contained. Read "Handoff" and "Global Constraints" first, then the spec, then do the tasks in order. Each task is test-first: write the test, run it and see it fail, implement, run it and see it pass, commit. Steps use checkboxes (`- [x]`); tick them as you go so the next tool can resume.
 
 **Goal:** Withdrawals are approved by the people named on the church's bank account (the required signer, i.e. the pastor, plus at least one more), and "paid" drops a bank withdrawal line into the counting round automatically.
 
@@ -54,7 +54,7 @@ export function approvalState(signatures: readonly Signature[]): ApprovalState;
 export const MIN_APPROVALS = 2;
 ```
 
-- [ ] **Step 1: Failing tests** (`describe("approvalState")`):
+- [x] **Step 1: Failing tests** (`describe("approvalState")`):
   - `[]` → `{ outcome: "pending", approvedCount: 0, requiredSignerApproved: false }`
   - required signer approved alone → `pending`
   - two non-required approved → `pending` (`requiredSignerApproved: false`)
@@ -62,10 +62,10 @@ export const MIN_APPROVALS = 2;
   - required + two others approved → `approved`, `approvedCount: 3`
   - any `rejected`, even after the rule was met → `rejected`
   - Review Focus 2: signature `{ userId: 1, wasRequiredSigner: true }` + `{ userId: 2, wasRequiredSigner: false }` → `approved`. The rule never looks up a current signer list.
-- [ ] **Step 2:** `pnpm exec vitest run server/withdrawals.rules.test.ts` → FAIL (module not found).
-- [ ] **Step 3:** Implement. Pure, no imports from `server/`.
-- [ ] **Step 4:** Same command → PASS. `pnpm check` → clean.
-- [ ] **Step 5:** Commit `feat(withdrawals): approval rule for bank signers`.
+- [x] **Step 2:** `pnpm exec vitest run server/withdrawals.rules.test.ts` → FAIL (module not found).
+- [x] **Step 3:** Implement. Pure, no imports from `server/`.
+- [x] **Step 4:** Same command → PASS. `pnpm check` → clean.
+- [x] **Step 5:** Commit `feat(withdrawals): approval rule for bank signers`.
 
 ---
 
@@ -81,15 +81,15 @@ export const MIN_APPROVALS = 2;
 - `bank_records` + `withdrawalRequestId` integer. Partial unique `bank_records_withdrawal_uniq` on (`withdrawalRequestId`) where not null.
 - Drizzle exports: `bankSigners`, `withdrawalApprovals`, types `BankSigner`, `InsertBankSigner`, `WithdrawalApproval`, `InsertWithdrawalApproval`.
 
-- [ ] **Step 1: Failing tests** in `server/schema_init.test.ts`, following the existing `describe("counting carry-forward schema")` block:
+- [x] **Step 1: Failing tests** in `server/schema_init.test.ts`, following the existing `describe("counting carry-forward schema")` block:
   - `ENUM_STATEMENTS` contains exactly ``ALTER TYPE "public"."withdrawal_status" ADD VALUE IF NOT EXISTS 'cancelled';``
   - `TABLE_STATEMENTS` has a `CREATE TABLE IF NOT EXISTS "bank_signers"` and one for `"withdrawal_approvals"`
   - `TABLE_STATEMENTS` has `ADD COLUMN IF NOT EXISTS` for each of the 5 new `withdrawal_requests` columns and `bank_records.withdrawalRequestId`
   - `INDEX_STATEMENTS` contains the four index names above
-- [ ] **Step 2:** `pnpm exec vitest run server/schema_init.test.ts` → FAIL.
-- [ ] **Step 3:** Implement in all three places. In `0007`, add a header comment saying to run statements one at a time.
-- [ ] **Step 4:** Test PASS. `pnpm check` clean.
-- [ ] **Step 5:** Commit `feat(withdrawals): schema for bank signers and per-signer approvals`.
+- [x] **Step 2:** `pnpm exec vitest run server/schema_init.test.ts` → FAIL.
+- [x] **Step 3:** Implement in all three places. In `0007`, add a header comment saying to run statements one at a time.
+- [x] **Step 4:** Test PASS. `pnpm check` clean.
+- [x] **Step 5:** Commit `feat(withdrawals): schema for bank signers and per-signer approvals`.
 
 ---
 
@@ -112,14 +112,14 @@ Router `bankSigners`:
 
 `auth.me` adds `isBankSigner: boolean` (false when there is no DB).
 
-- [ ] **Step 1: Failing tests** (no DB needed; they fail at auth before any query):
+- [x] **Step 1: Failing tests** (no DB needed; they fail at auth before any query):
   - member, counter, treasurer and pastor calling `bankSigners.add` / `remove` / `setRequired` → `FORBIDDEN`
   - unauthenticated `bankSigners.list` → `UNAUTHORIZED`
   - `bankSigners.add({ userId: 0 })` as SUPER_ADMIN → `BAD_REQUEST` (zod `int().positive()`)
-- [ ] **Step 2:** Run → FAIL.
-- [ ] **Step 3:** Implement.
-- [ ] **Step 4:** Run → PASS. `pnpm check` clean.
-- [ ] **Step 5:** Commit `feat(withdrawals): manage bank signers`.
+- [x] **Step 2:** Run → FAIL.
+- [x] **Step 3:** Implement.
+- [x] **Step 4:** Run → PASS. `pnpm check` clean.
+- [x] **Step 5:** Commit `feat(withdrawals): manage bank signers`.
 
 ---
 
@@ -141,7 +141,7 @@ Router `bankSigners`:
 - `withdrawals.list`: signers see all requests, like finance roles. Each row gains `signatures: Array<{ userId; name; decision; note; createdAt; wasRequiredSigner }>` and `approval: ApprovalState`.
 - Delete `withdrawals.approve`, the `canApproveWithdrawals` helper and `db.approveWithdrawal` once no caller remains. `client/src/pages/Approvals.tsx` is the only client caller and is rewritten in Task 6. Keep `pnpm check` green at commit time by stubbing the page call minimally, the same way Part 1's Task 1 did.
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
   - access file (no DB): a non-signer member calling `withdrawals.sign` → `FORBIDDEN`. `sign` with `decision: "rejected"` and no note → `BAD_REQUEST`. `cancel` with a 1-character reason → `BAD_REQUEST`. **Note:** the FORBIDDEN case needs `isBankSigner` to return null, which happens with no DB. Assert only `code`.
   - workflow file (DB):
     - `"approves once the pastor and one more have signed"`: seed 3 signers (pastor required), a request from a member; sign as pastor → `pending`; sign as treasurer → `approved`; the third signer's `sign` → `CONFLICT`.
@@ -150,10 +150,10 @@ Router `bankSigners`:
     - `"refuses a second signature from the same person"` → `CONFLICT`.
     - `"records both signatures when two signers press at once"` (Review Focus 1): `Promise.allSettled([sign(pastor), sign(treasurer)])` → both rows exist, status `approved`, and exactly one audit `SIGN` row ends in an `approved` transition. Assert on the status and the count of rows in `withdrawal_approvals`.
     - `"cancels before payout and refuses after"`.
-- [ ] **Step 2:** Run the access file → FAIL. The workflow file skips: record **NOT VERIFIED**.
-- [ ] **Step 3:** Implement.
-- [ ] **Step 4:** Access file PASS. `pnpm check` clean.
-- [ ] **Step 5:** Commit `feat(withdrawals): sign by bank signers, cancel, list signatures`.
+- [x] **Step 2:** Run the access file → FAIL. The workflow file skips: record **NOT VERIFIED**.
+- [x] **Step 3:** Implement.
+- [x] **Step 4:** Access file PASS. `pnpm check` clean.
+- [x] **Step 5:** Commit `feat(withdrawals): sign by bank signers, cancel, list signatures`.
 
 ---
 
@@ -173,15 +173,15 @@ attachPendingWithdrawals(session: CountingSession, churchId?): Promise<number>  
 - `counting.create` calls `attachPendingWithdrawals` after creating the session: requests `disbursed` with no `bank_records` row whose `disbursedAt` date ≤ the session date.
 - `resetCountingSession` keeps `bank_records` rows where `withdrawalRequestId` is not null.
 
-- [ ] **Step 1: Failing tests** (DB):
+- [x] **Step 1: Failing tests** (DB):
   - `"puts the payout into this Sunday's open round"`
   - `"waits for the next round when none is open, then attaches once"` (Review Focus 3): disburse, then `counting.create`; exactly one `withdrawal` row; a second `counting.create` for a later Sunday attaches nothing.
   - `"skips a round that is already posted"` (Review Focus 5)
   - `"keeps request-linked withdrawals when a round is reset"` (Review Focus 4), in `counting.workflow.test.ts`
-- [ ] **Step 2:** The suites skip without a DB: **NOT VERIFIED**. Still run `pnpm check`.
-- [ ] **Step 3:** Implement.
-- [ ] **Step 4:** `pnpm check` clean. `pnpm exec vitest run server/withdrawals.access.test.ts server/withdrawals.rules.test.ts` PASS.
-- [ ] **Step 5:** Commit `feat(withdrawals): payout lands in the counting round`.
+- [x] **Step 2:** The suites skip without a DB: **NOT VERIFIED**. Still run `pnpm check`.
+- [x] **Step 3:** Implement.
+- [x] **Step 4:** `pnpm check` clean. `pnpm exec vitest run server/withdrawals.access.test.ts server/withdrawals.rules.test.ts` PASS.
+- [x] **Step 5:** Commit `feat(withdrawals): payout lands in the counting round`.
 
 ---
 
@@ -200,14 +200,14 @@ attachPendingWithdrawals(session: CountingSession, churchId?): Promise<number>  
 - `TaskQueueInput.pendingWithdrawals` now means "requests waiting for **my** signature". `Home.tsx` computes it for signers as `pending` requests with no signature from `user.id`. Update the `withdrawals` row copy accordingly.
 - `routeAccess.ts`: `/approvals` allows `canManageFinance(u) || canManageChurchSettings(u) || u?.isBankSigner === true`. Update `server/routeAccess.matrix.test.ts` with a signer case.
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
   - `SignatureProgress`: `{ pastor approved }` → shows "รออีก 1 คน". `{}` → shows "รอศิษยาภิบาลลงนาม". Approved → "ครบตามเงื่อนไขธนาคาร".
   - `taskQueue.test.ts`: `pendingWithdrawals: 2` → the row's copy says it is waiting for your signature.
   - `routeAccess.matrix.test.ts`: a MEMBER with `isBankSigner: true` can open `/approvals`; one without cannot.
-- [ ] **Step 2:** Run those three files → FAIL.
-- [ ] **Step 3:** Implement. Remove any Task 4 stub.
-- [ ] **Step 4:** Those files PASS. `pnpm check` clean. `pnpm run ci` green. Browser check is **NOT VERIFIED** without a DB; say so.
-- [ ] **Step 5:** Commit `feat(withdrawals): signer screens, approvals progress, task queue`.
+- [x] **Step 2:** Run those three files → FAIL.
+- [x] **Step 3:** Implement. Remove any Task 4 stub.
+- [x] **Step 4:** Those files PASS. `pnpm check` clean. `pnpm run ci` green. Browser check is **NOT VERIFIED** without a DB; say so.
+- [x] **Step 5:** Commit `feat(withdrawals): signer screens, approvals progress, task queue`.
 
 ---
 
