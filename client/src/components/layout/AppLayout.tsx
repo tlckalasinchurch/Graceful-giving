@@ -13,12 +13,6 @@ import {
 } from "./AppNavigation";
 import { getChurchRoleInfo } from "@shared/roles";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   Bell,
   CircleUserRound,
   FileBarChart,
@@ -102,39 +96,34 @@ function MobileTab({
   );
 }
 
-/** One icon in the desktop rail. The label lives in the tooltip and in
- *  aria-label, so the rail stays 56px wide without losing the name. */
-function RailLink({
+/** One row in the desktop sidebar: icon and a visible label. */
+function SidebarLink({
   href,
   label,
   active,
   icon: Icon,
+  badge,
 }: {
   href: string;
   label: string;
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
+  badge?: React.ReactNode;
 }) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <GuardedLink
-          href={href}
-          aria-label={label}
-          aria-current={active ? "page" : undefined}
-          className={`flex size-10 shrink-0 items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-brand ${
-            active
-              ? "bg-ink text-surface"
-              : "text-ink-2 hover:bg-paper-2 hover:text-ink"
-          }`}
-        >
-          <Icon className="size-5" />
-        </GuardedLink>
-      </TooltipTrigger>
-      <TooltipContent side="right" sideOffset={8}>
-        {label}
-      </TooltipContent>
-    </Tooltip>
+    <GuardedLink
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={`flex min-h-9 w-full items-center gap-3 rounded-lg px-3 text-sm focus-visible:ring-2 focus-visible:ring-brand ${
+        active
+          ? "bg-ink font-semibold text-surface"
+          : "font-medium text-ink-2 hover:bg-paper-2 hover:text-ink"
+      }`}
+    >
+      <Icon className="size-[18px] shrink-0" aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      {badge}
+    </GuardedLink>
   );
 }
 
@@ -179,94 +168,92 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   return (
     <div className="min-h-screen bg-ground text-ink flex flex-col font-sans selection:bg-tile-peach overflow-x-clip">
       <div className="flex-1 flex flex-row w-full min-w-0">
-        {/* DESKTOP ICON RAIL (lg: >= 1024px) */}
-        <TooltipProvider delayDuration={150}>
-          <aside className="hidden lg:flex w-14 shrink-0 sticky top-0 h-screen flex-col items-center gap-2 bg-surface border-r border-line py-3 z-30">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <GuardedLink
-                  href="/"
-                  aria-label="Grace Ledger หน้าหลัก"
-                  className="flex size-10 items-center justify-center rounded-xl bg-ink text-surface"
-                >
-                  <Sprout className="size-5" aria-hidden="true" />
-                </GuardedLink>
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>
+        {/* DESKTOP SIDEBAR (lg: >= 1024px): icon + label for every item */}
+        <aside className="hidden lg:flex w-60 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface border-r border-line px-3 py-4 z-30">
+          <GuardedLink
+            href="/"
+            aria-label="Grace Ledger หน้าหลัก"
+            className="flex items-center gap-3 rounded-lg px-1 py-1"
+          >
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ink text-surface">
+              <Sprout className="size-5" aria-hidden="true" />
+            </span>
+            <span className="min-w-0">
+              <span className="display block truncate text-lg leading-none text-ink">
                 Grace Ledger
-              </TooltipContent>
-            </Tooltip>
+              </span>
+              <span className="mt-1 block truncate text-xs text-ink-3">
+                {churchName}
+              </span>
+            </span>
+          </GuardedLink>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => navigate("/offerings/new")}
-                  aria-label="บันทึกการถวายใหม่"
-                  className="flex size-10 items-center justify-center rounded-xl bg-brand text-white hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-                >
-                  <Plus className="size-5 stroke-[2.5]" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>
-                บันทึกการถวาย
-              </TooltipContent>
-            </Tooltip>
-
-            <nav
-              aria-label="เมนูนำทางหลัก"
-              className="no-scrollbar mt-1 flex w-full flex-1 flex-col items-center gap-1 overflow-y-auto border-t border-line pt-3"
+          {canRecordOffering && (
+            <button
+              onClick={() => navigate("/offerings/new")}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
-              {railItems.reduce<React.ReactNode[]>((content, item, index) => {
-                const previous = railItems[index - 1];
-                if (
-                  previous &&
-                  getNavGroup(previous.path) !== getNavGroup(item.path)
-                ) {
-                  content.push(
-                    <span
-                      key={`gap-${item.path}`}
-                      className="my-1 h-px w-6 shrink-0 bg-line"
-                      aria-hidden="true"
-                    />
-                  );
-                }
-                content.push(
-                  <RailLink
-                    key={item.path}
-                    href={item.path}
-                    label={item.label}
-                    icon={item.icon}
-                    active={isActiveRoute(currentPath, item.path)}
-                  />
-                );
-                return content;
-              }, [])}
-            </nav>
+              <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
+              บันทึกการถวาย
+            </button>
+          )}
 
-            <div className="flex flex-col items-center gap-2 border-t border-line pt-3">
-              <RailLink
-                href="/notifications"
-                label="การแจ้งเตือน"
-                icon={Bell}
-                active={isActiveRoute(currentPath, "/notifications")}
-              />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <GuardedLink
-                    href="/profile"
-                    aria-label={`โปรไฟล์ ${churchName} ${roleLabel}`}
-                    className="flex size-9 items-center justify-center rounded-full bg-paper-2 text-sm font-semibold text-ink"
+          <nav
+            aria-label="เมนูนำทางหลัก"
+            className="no-scrollbar -mx-1 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-1"
+          >
+            {railItems.reduce<React.ReactNode[]>((content, item, index) => {
+              const previous = railItems[index - 1];
+              const group = getNavGroup(item.path);
+              if (!previous || getNavGroup(previous.path) !== group) {
+                content.push(
+                  <p
+                    key={`group-${item.path}`}
+                    className={`px-3 pb-1 text-xs font-semibold text-ink-3 ${index === 0 ? "" : "pt-3"}`}
                   >
-                    {user?.name ? user.name.slice(0, 1) : "ศ"}
-                  </GuardedLink>
-                </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={8}>
-                  {churchName} · {roleLabel}
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </aside>
-        </TooltipProvider>
+                    {group}
+                  </p>
+                );
+              }
+              content.push(
+                <SidebarLink
+                  key={item.path}
+                  href={item.path}
+                  label={item.label}
+                  icon={item.icon}
+                  active={isActiveRoute(currentPath, item.path)}
+                />
+              );
+              return content;
+            }, [])}
+          </nav>
+
+          <div className="space-y-1 border-t border-line pt-3">
+            <SidebarLink
+              href="/notifications"
+              label="การแจ้งเตือน"
+              icon={Bell}
+              active={isActiveRoute(currentPath, "/notifications")}
+            />
+            <GuardedLink
+              href="/profile"
+              aria-label={`โปรไฟล์ ${user?.name ?? ""} ${roleLabel}`}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-paper-2"
+            >
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-paper-2 text-sm font-semibold text-ink">
+                {user?.name ? user.name.slice(0, 1) : "ศ"}
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium text-ink">
+                  {user?.name || "ผู้ใช้"}
+                </span>
+                <span className="block truncate text-xs text-ink-3">
+                  {roleLabel}
+                </span>
+              </span>
+            </GuardedLink>
+          </div>
+        </aside>
 
         {/* The column is capped at --content-max and centred beside the rail,
             so a row's date and its amount stay within reading distance on a
