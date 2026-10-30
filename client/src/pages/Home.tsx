@@ -9,7 +9,11 @@ import {
   expenseCategoryLabel,
   offeringCategoryLabel,
 } from "@shared/categories";
-import { canManageFinance, canViewFinanceRecords } from "@shared/roles";
+import {
+  canManageFinance,
+  canViewFinanceRecords,
+  isSuperAdmin,
+} from "@shared/roles";
 import { HeroSection } from "./Home/components/HeroSection";
 import { BalanceCard } from "./Home/components/BalanceCard";
 import { FinancialSummaryRow } from "./Home/components/FinancialSummaryRow";
@@ -98,8 +102,10 @@ export default function Home() {
   // the server refuses everyone else, so the dashboard does not ask.
   const canSeeFinance = canViewFinanceRecords(user);
   const canRecordOffering = canAccessRoute("/offerings/new", user);
+  // Only the super admin approves new sign-ins.
+  const canApproveUsers = isSuperAdmin(user);
   const hasTaskSources =
-    canAccessInbox || canApproveWithdrawals || canOpenCounting;
+    canAccessInbox || canApproveWithdrawals || canOpenCounting || canApproveUsers;
 
   const today = new Date();
   const budgetYear = today.getFullYear();
@@ -159,6 +165,13 @@ export default function Home() {
       staleTime: 15_000,
     });
 
+  const { data: pendingUsers, isLoading: pendingLoading } =
+    trpc.auth.pendingCount.useQuery(undefined, {
+      enabled: canApproveUsers,
+      retry: false,
+      staleTime: 15_000,
+    });
+
   const {
     data: budgetData,
     isLoading: budgetLoading,
@@ -178,17 +191,21 @@ export default function Home() {
         countingStatuses: canOpenCounting
           ? countingData?.map(s => s.status)
           : undefined,
+        pendingApprovals: canApproveUsers ? pendingUsers?.count : undefined,
       }),
     [
       canAccessInbox,
       canApproveWithdrawals,
       canOpenCounting,
+      canApproveUsers,
       inboxStats,
       withdrawalsData,
       countingData,
+      pendingUsers,
     ]
   );
-  const tasksLoading = inboxLoading || withdrawalsLoading || countingLoading;
+  const tasksLoading =
+    inboxLoading || withdrawalsLoading || countingLoading || pendingLoading;
 
   // Derived values always come from the current API response.
   const totalBalance = summaryData?.totalBalance;
