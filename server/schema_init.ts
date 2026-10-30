@@ -14,6 +14,10 @@ export const ENUM_STATEMENTS: string[] = [
   `DO $$ BEGIN CREATE TYPE "public"."ministry_status" AS ENUM('active', 'inactive'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `DO $$ BEGIN CREATE TYPE "public"."offering_status" AS ENUM('active', 'voided'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `DO $$ BEGIN CREATE TYPE "public"."bank_record_type" AS ENUM('transfer_in', 'cash_deposit'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
+  // ADD VALUE cannot run inside a DO block, so each value is its own statement.
+  `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS 'withdrawal';`,
+  `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS 'other_in';`,
+  `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS 'other_out';`,
   `DO $$ BEGIN CREATE TYPE "public"."cash_kind" AS ENUM('note', 'coin'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `DO $$ BEGIN CREATE TYPE "public"."counting_session_status" AS ENUM('counting', 'counted', 'verified', 'posted', 'closed'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `DO $$ BEGIN CREATE TYPE "public"."session_document_kind" AS ENUM('count_sheet', 'envelope_photo', 'deposit_slip', 'transfer_slip', 'passbook_page', 'deduction_receipt', 'other'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
@@ -278,6 +282,12 @@ export const TABLE_STATEMENTS: string[] = [
     "createdAt" timestamp DEFAULT now() NOT NULL,
     "updatedAt" timestamp DEFAULT now() NOT NULL
   );`,
+  `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "openingCash" numeric(15, 2);`,
+  `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "openingBank" numeric(15, 2);`,
+  `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "closingBank" numeric(15, 2);`,
+  `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "cashOnHandActual" numeric(15, 2);`,
+  `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "passbookBalance" numeric(15, 2);`,
+  `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "passbookBalanceDate" timestamp;`,
 
   `CREATE TABLE IF NOT EXISTS "offering_envelopes" (
     "id" serial PRIMARY KEY NOT NULL,

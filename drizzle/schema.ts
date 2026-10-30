@@ -99,6 +99,12 @@ export const bankRecordTypeEnum = pgEnum("bank_record_type", [
   "transfer_in",
   /** The treasurer banked counted cash. */
   "cash_deposit",
+  /** Cash drawn from the bank into the cash box. */
+  "withdrawal",
+  /** Interest or any other money the bank credits. */
+  "other_in",
+  /** Bank fees, bills paid by transfer, any other debit. */
+  "other_out",
 ]);
 export const sessionDocumentKindEnum = pgEnum("session_document_kind", [
   "count_sheet",
@@ -507,6 +513,16 @@ export const countingSessions = pgTable("counting_sessions", {
   varianceNote: text("varianceNote"),
   varianceApprovedBy: integer("varianceApprovedBy"),
   notes: text("notes"),
+  /** Carried in from the previous round; frozen when this round posts. */
+  openingCash: decimal("openingCash", { precision: 15, scale: 2 }),
+  openingBank: decimal("openingBank", { precision: 15, scale: 2 }),
+  /** Bank balance carried out, frozen at post. Cash carried out is cashOnHandActual. */
+  closingBank: decimal("closingBank", { precision: 15, scale: 2 }),
+  /** Cash actually in the box after the round's payments and deposits. */
+  cashOnHandActual: decimal("cashOnHandActual", { precision: 15, scale: 2 }),
+  /** Latest balance printed in the passbook, for comparison only. */
+  passbookBalance: decimal("passbookBalance", { precision: 15, scale: 2 }),
+  passbookBalanceDate: timestamp("passbookBalanceDate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()

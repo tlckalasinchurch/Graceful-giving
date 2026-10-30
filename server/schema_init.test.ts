@@ -1,5 +1,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { INDEX_STATEMENTS, runSchemaInit } from "./schema_init";
+import {
+  ENUM_STATEMENTS,
+  INDEX_STATEMENTS,
+  TABLE_STATEMENTS,
+  runSchemaInit,
+} from "./schema_init";
 
 /**
  * A unique index that guards a financial rule fails to create when the table
@@ -184,5 +189,36 @@ describe("runSchemaInit failure reporting", () => {
     await expect(runSchemaInit(client)).resolves.toBeUndefined();
     const joined = errorSpy.mock.calls.flat().map(String).join(" ");
     expect(joined).toContain("Could not diagnose");
+  });
+});
+
+describe("counting carry-forward schema", () => {
+  // CREATE TYPE ... EXCEPTION WHEN duplicate_object never adds values to an
+  // enum that already exists, which is the case on every live database.
+  it("adds the new bank record types to an existing enum", () => {
+    for (const value of ["withdrawal", "other_in", "other_out"]) {
+      expect(ENUM_STATEMENTS).toContain(
+        `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS '${value}';`
+      );
+    }
+  });
+
+  it("adds the carry-forward columns to existing counting_sessions", () => {
+    for (const column of [
+      "openingCash",
+      "openingBank",
+      "closingBank",
+      "cashOnHandActual",
+      "passbookBalance",
+      "passbookBalanceDate",
+    ]) {
+      expect(
+        TABLE_STATEMENTS.some(s =>
+          s.includes(
+            `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "${column}"`
+          )
+        )
+      ).toBe(true);
+    }
   });
 });
