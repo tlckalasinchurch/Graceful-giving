@@ -18,6 +18,8 @@ interface ReconciliationSummaryTabProps {
     transferVariance: number;
     countedCashTotal: number;
     deductionTotal: number;
+    hasCarryForward: boolean;
+    cashOnHandActual: number | null;
     isBalanced: boolean;
   };
   unapprovedDeductions: Array<any>;
@@ -231,6 +233,8 @@ export function ReconciliationSummaryTab({
               disabled={
                 post.isPending ||
                 unapprovedDeductions.length > 0 ||
+                !r.hasCarryForward ||
+                r.cashOnHandActual === null ||
                 (!r.isBalanced && !varianceNote.trim() && !sessionVarianceNote)
               }
               className="min-h-11 rounded-2xl bg-[#1F5C33] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
