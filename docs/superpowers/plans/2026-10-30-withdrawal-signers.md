@@ -215,4 +215,4 @@ attachPendingWithdrawals(session: CountingSession, churchId?): Promise<number>  
 
 - [x] `pnpm run ci` and `pnpm build` both exit 0. Revert `api/index.js` if the build rewrote it (`git checkout -- api/index.js`).
 - [x] Push `feat/withdrawal-signers` and open a PR with **base `feat/counting-carry-forward`**. The body covers: why, what changes, Rulings (every deviation), NOT VERIFIED list (every skipped DB suite by name), and the deploy note: **"After deploying, a SUPER_ADMIN must add the three bank signers in Settings and mark the pastor as required; until then no withdrawal can be approved."**
-- [ ] Report to the user in Thai with VERIFIED / NOT VERIFIED / BLOCKER / NEXT labels.
+- [x] Report to the user in Thai with VERIFIED / NOT VERIFIED / BLOCKER / NEXT labels.
