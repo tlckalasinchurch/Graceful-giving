@@ -60,6 +60,7 @@ export const withdrawalStatusEnum = pgEnum("withdrawal_status", [
   "approved",
   "rejected",
   "disbursed",
+  "cancelled",
 ]);
 export const newsCategoryEnum = pgEnum("news_category", [
   "announcement",
@@ -397,6 +398,12 @@ export const withdrawalRequests = pgTable("withdrawal_requests", {
   approvalDate: timestamp("approvalDate"),
   approvalNote: text("approvalNote"),
   rejectionReason: text("rejectionReason"),
+  /** When a signer pressed "paid" and the request entered a counting round. */
+  disbursedAt: timestamp("disbursedAt"),
+  disbursedBy: integer("disbursedBy"),
+  cancelledAt: timestamp("cancelledAt"),
+  cancelledBy: integer("cancelledBy"),
+  cancelReason: text("cancelReason"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
@@ -628,6 +635,8 @@ export const bankRecords = pgTable("bank_records", {
   matchedBy: integer("matchedBy"),
   recordedBy: integer("recordedBy").notNull(),
   notes: text("notes"),
+  /** The withdrawal request that produced this record; null for a hand-entered record. */
+  withdrawalRequestId: integer("withdrawalRequestId"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
@@ -674,6 +683,41 @@ export type BankRecord = typeof bankRecords.$inferSelect;
 export type InsertBankRecord = typeof bankRecords.$inferInsert;
 export type SessionDocument = typeof sessionDocuments.$inferSelect;
 export type InsertSessionDocument = typeof sessionDocuments.$inferInsert;
+
+// ─── Withdrawal Bank Signers (Part 2) ────────────────────────────────────────
+
+/**
+ * People named on the church's bank account. A withdrawal request is approved
+ * only when the required signer approves and the approvals total at least two.
+ */
+export const bankSigners = pgTable("bank_signers", {
+  id: serial("id").primaryKey(),
+  churchId: varchar("churchId", { length: 64 }).notNull(),
+  userId: integer("userId").notNull(),
+  /** "ต้องลงนามทุกครั้ง" — at most one signer per church carries this flag. */
+  isRequired: boolean("isRequired").default(false).notNull(),
+  addedBy: integer("addedBy"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BankSigner = typeof bankSigners.$inferSelect;
+export type InsertBankSigner = typeof bankSigners.$inferInsert;
+
+/** One row per signer per withdrawal request — every signature is evidence. */
+export const withdrawalApprovals = pgTable("withdrawal_approvals", {
+  id: serial("id").primaryKey(),
+  churchId: varchar("churchId", { length: 64 }).notNull(),
+  requestId: integer("requestId").notNull(),
+  userId: integer("userId").notNull(),
+  decision: varchar("decision", { length: 10 }).notNull(),
+  note: text("note"),
+  /** Captured at signing time so later signer-list changes cannot alter the outcome. */
+  wasRequiredSigner: boolean("wasRequiredSigner").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WithdrawalApproval = typeof withdrawalApprovals.$inferSelect;
+export type InsertWithdrawalApproval = typeof withdrawalApprovals.$inferInsert;
 
 // ─── LINE Slip Giving Inbox ───────────────────────────────────────────────────
 
