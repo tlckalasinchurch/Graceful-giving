@@ -296,6 +296,17 @@ describeDb("counting workflow against a real database", () => {
   it("posts the ledger rows and moves the fund balance once", async () => {
     const caller = asTreasurer();
     await caller.counting.verify({ id: sessionId });
+    // First round in this tenant: nothing to carry in. All counted cash
+    // (20,000) less the deduction went to the bank, so the box is empty.
+    await caller.counting.setOpeningBalances({
+      id: sessionId,
+      openingCash: 0,
+      openingBank: 0,
+    });
+    await caller.counting.setClosingFigures({
+      id: sessionId,
+      cashOnHandActual: 0,
+    });
 
     const result = await caller.counting.post({ id: sessionId });
     expect(result.offeringCount).toBe(3);
@@ -385,6 +396,11 @@ describeDb("counting workflow: an unbalanced session", () => {
     });
     await asCounter().counting.submitCount({ id: strayId });
     await asTreasurer().counting.verify({ id: strayId });
+    // Carries in from the round above (cash 0); nothing was banked this week.
+    await asTreasurer().counting.setClosingFigures({
+      id: strayId,
+      cashOnHandActual: 4900,
+    });
 
     const detail = await asTreasurer().counting.get({ id: strayId });
     expect(detail.reconciliation.cashVariance).toBe(-100);
@@ -589,5 +605,128 @@ describeDb("counting workflow: carry forward", () => {
     await db!.execute(
       sql`DELETE FROM counting_sessions WHERE id IN (${legacyId}, ${next.id})`
     );
+  });
+});
+
+/**
+ * Posting freezes what a round carries in and out. Dates sit before every
+ * other round so the first one here has nothing earlier to carry from.
+ */
+describeDb("counting workflow: posting carries balances forward", () => {
+  const sunday = new Date("2024-02-04T01:00:00.000Z");
+  const nextSunday = new Date("2024-02-11T01:00:00.000Z");
+  let localFundId = 0;
+  let roundA = 0;
+
+  beforeAll(async () => {
+    const db = await getDb();
+    if (!db)
+      throw new Error("DATABASE_URL set but the database is unreachable");
+    const inserted = await db.execute(
+      sql`INSERT INTO finance_accounts ("churchId", name, type, balance, "isActive")
+          VALUES (${TEST_CHURCH_ID}, 'กองทุนยกยอด', 'general', 0, true)
+          RETURNING id`
+    );
+    localFundId = (inserted as unknown as Array<{ id: number }>)[0].id;
+  });
+
+  async function countedRound(serviceDate: Date, serviceRound: number) {
+    const { id } = await asCounter().counting.create({
+      serviceDate,
+      serviceRound,
+    });
+    await asCounter().counting.addEnvelope({
+      sessionId: id,
+      fundId: localFundId,
+      amount: 8000,
+      category: "general",
+      method: "cash",
+      isAnonymous: true,
+    });
+    await asCounter().counting.setCashCount({
+      sessionId: id,
+      denomination: 1000,
+      kind: "note",
+      quantity: 8,
+    });
+    await asCounter().counting.submitCount({ id });
+    await asTreasurer().counting.verify({ id });
+    return id;
+  }
+
+  it("will not post a round while an earlier one is still open", async () => {
+    roundA = (
+      await asCounter().counting.create({ serviceDate: sunday, serviceRound: 1 })
+    ).id;
+    const later = await countedRound(nextSunday, 1);
+    await expect(
+      asTreasurer().counting.post({ id: later })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+
+    const db = await getDb();
+    await db!.execute(sql`DELETE FROM offering_envelopes WHERE "sessionId" = ${later}`);
+    await db!.execute(sql`DELETE FROM cash_counts WHERE "sessionId" = ${later}`);
+    await db!.execute(sql`DELETE FROM counting_sessions WHERE id = ${later}`);
+    await db!.execute(sql`DELETE FROM counting_sessions WHERE id = ${roundA}`);
+  });
+
+  it("will not post without opening balances", async () => {
+    roundA = await countedRound(sunday, 1);
+    await expect(
+      asTreasurer().counting.post({ id: roundA })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("will not post without the cash box count", async () => {
+    await asTreasurer().counting.setOpeningBalances({
+      id: roundA,
+      openingCash: 2000,
+      openingBank: 50000,
+    });
+    await expect(
+      asTreasurer().counting.post({ id: roundA })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("carries the first service into the same Sunday's second service", async () => {
+    await asTreasurer().counting.addBankRecord({
+      sessionId: roundA,
+      type: "cash_deposit",
+      amount: 5000,
+    });
+    // 2000 + 8000 − 5000
+    await asTreasurer().counting.setClosingFigures({
+      id: roundA,
+      cashOnHandActual: 5000,
+    });
+    await asTreasurer().counting.post({ id: roundA });
+
+    const roundB = await asCounter().counting.create({
+      serviceDate: sunday,
+      serviceRound: 2,
+    });
+    const detail = await asTreasurer().counting.get({ id: roundB.id });
+    expect(detail.openingSource).toBe("previous");
+    expect(detail.reconciliation.openingCash).toBe(5000);
+    expect(detail.reconciliation.openingBank).toBe(55000);
+  });
+
+  it("freezes opening and closing balances when posted", async () => {
+    const db = await getDb();
+    const rows = await db!.execute(
+      sql`SELECT "openingCash", "openingBank", "closingBank", "cashOnHandActual"
+          FROM counting_sessions WHERE id = ${roundA}`
+    );
+    const row = (rows as unknown as Array<Record<string, string>>)[0];
+    expect(row.openingCash).toBe("2000.00");
+    expect(row.openingBank).toBe("50000.00");
+    expect(row.closingBank).toBe("55000.00");
+    expect(row.cashOnHandActual).toBe("5000.00");
+
+    const detail = await asTreasurer().counting.get({ id: roundA });
+    expect(detail.openingSource).toBe("stored");
+    await expect(
+      asTreasurer().counting.setClosingFigures({ id: roundA, cashOnHandActual: 1 })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
   });
 });

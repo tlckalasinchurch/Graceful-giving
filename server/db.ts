@@ -2199,16 +2199,26 @@ export async function addSessionDocument(
 export async function postCountingSession(
   id: number,
   postedBy: number,
+  carry: { openingCash: number; openingBank: number; closingBank: number },
   churchId = DEFAULT_CHURCH_ID
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
 
   return db.transaction(async tx => {
-    // Compare-and-set on `verified` so a session can never post twice.
+    // Compare-and-set on `verified` so a session can never post twice. The
+    // carried balances are frozen in the same write, so the next round reads
+    // exactly what this one closed with.
     const claimed = await tx
       .update(countingSessions)
-      .set({ status: "posted", postedBy, postedAt: new Date() })
+      .set({
+        status: "posted",
+        postedBy,
+        postedAt: new Date(),
+        openingCash: carry.openingCash.toFixed(2),
+        openingBank: carry.openingBank.toFixed(2),
+        closingBank: carry.closingBank.toFixed(2),
+      })
       .where(
         and(
           eq(countingSessions.id, id),

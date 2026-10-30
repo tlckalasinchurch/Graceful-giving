@@ -73,6 +73,7 @@ import {
   listCountingSessions,
   getCountingSession,
   getCountingSessionDetail,
+  findEarlierUnpostedSession,
   resolveOpeningBalances,
   setCountingCarryFields,
   createCountingSession,
@@ -2019,6 +2020,34 @@ export const appRouter = router({
           });
         }
 
+        // Each round carries in what the one before carried out, so rounds
+        // post in order or the chain breaks.
+        const earlier = await findEarlierUnpostedSession(detail.session);
+        if (earlier) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `ต้องลงบัญชีรอบวันที่ ${earlier.serviceDate.toISOString().slice(0, 10)} รอบที่ ${earlier.serviceRound} ก่อน`,
+          });
+        }
+        const r = detail.reconciliation;
+        if (
+          !r.hasCarryForward ||
+          r.openingCash === null ||
+          r.openingBank === null ||
+          r.closingBankExpected === null
+        ) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ต้องกรอกยอดยกมาก่อนลงบัญชี",
+          });
+        }
+        if (r.cashOnHandActual === null) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ต้องนับเงินสดคงเหลือในกล่องก่อนลงบัญชี",
+          });
+        }
+
         const note = input.varianceNote?.trim() || detail.session.varianceNote;
         if (!detail.reconciliation.isBalanced && !note) {
           throw new TRPCError({
@@ -2035,7 +2064,11 @@ export const appRouter = router({
           );
         }
 
-        const result = await postCountingSession(input.id, ctx.user.id);
+        const result = await postCountingSession(input.id, ctx.user.id, {
+          openingCash: r.openingCash,
+          openingBank: r.openingBank,
+          closingBank: r.closingBankExpected,
+        });
         if (!result) {
           throw new TRPCError({
             code: "CONFLICT",
