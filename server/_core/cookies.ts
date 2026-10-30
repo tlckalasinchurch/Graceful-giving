@@ -44,11 +44,9 @@ export function getSessionCookieOptions(
   return {
     httpOnly: true,
     path: "/",
-    // SameSite=None is only legal on a secure origin. Browsers reject such a
-    // cookie over plain http, which silently breaks both sign-in and sign-out
-    // on non-https origins. Fall back to Lax there; https keeps None so the
-    // session still works when the app is embedded cross-site.
-    sameSite: secure ? "none" : "lax",
+    // Lax: the session cookie is first-party only. It still travels on the
+    // top-level redirect back from LINE Login. The app is not embedded cross-site.
+    sameSite: "lax",
     secure,
   };
 }

@@ -459,6 +459,14 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        // Changing your own role could remove the last super admin. Another
+        // super admin makes this change instead.
+        if (input.userId === ctx.user.id) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "เปลี่ยนบทบาทของตัวเองไม่ได้ ให้ผู้ดูแลระบบคนอื่นเปลี่ยนให้",
+          });
+        }
         const roles =
           input.churchRoles || (input.churchRole ? [input.churchRole] : null);
         await updateUserChurchRole(input.userId, input.churchRole, roles);

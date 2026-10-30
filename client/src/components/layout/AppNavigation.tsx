@@ -105,17 +105,17 @@ export const navItems = [
   },
 ];
 
-export function getAuthorizedNavItems(
-  user?: { role?: string; churchRole?: string | null } | null
-) {
-  return navItems.filter(item => canAccessRoute(item.path, user));
-}
-
 const NAV_GROUPS = [
   { label: "ภาพรวม", paths: ["/"] },
   {
     label: "การเงิน",
-    paths: ["/transactions", "/counting", "/offerings", "/giving/inbox", "/expenses"],
+    paths: [
+      "/transactions",
+      "/counting",
+      "/offerings",
+      "/giving/inbox",
+      "/expenses",
+    ],
   },
   { label: "วางแผนและควบคุม", paths: ["/funds", "/budgets", "/approvals"] },
   { label: "คริสตจักร", paths: ["/ministries", "/members", "/updates"] },
@@ -124,7 +124,34 @@ const NAV_GROUPS = [
 ] as const;
 
 export function getNavGroup(path: string) {
-  return NAV_GROUPS.find(group => group.paths.some(item => item === path))?.label ?? "เมนู";
+  return (
+    NAV_GROUPS.find(group => group.paths.some(item => item === path))?.label ??
+    "เมนู"
+  );
+}
+
+/**
+ * Items the role can open, ordered by group so a group heading appears once.
+ * Items inside a group keep the order of `navItems`.
+ */
+export function getAuthorizedNavItems(
+  user?: { role?: string; churchRole?: string | null } | null
+) {
+  const groupOrder = (path: string) => {
+    const index = NAV_GROUPS.findIndex(group =>
+      group.paths.some(item => item === path)
+    );
+    return index === -1 ? NAV_GROUPS.length : index;
+  };
+  return navItems
+    .map((item, position) => ({ item, position }))
+    .filter(({ item }) => canAccessRoute(item.path, user))
+    .sort(
+      (a, b) =>
+        groupOrder(a.item.path) - groupOrder(b.item.path) ||
+        a.position - b.position
+    )
+    .map(({ item }) => item);
 }
 
 export function isActiveRoute(currentPath: string, path: string) {
@@ -170,12 +197,17 @@ export function AppMenu({ children }: { children?: ReactNode }) {
           {authorizedNavItems.reduce<ReactNode[]>((content, item, index) => {
             const previous = authorizedNavItems[index - 1];
             const group = getNavGroup(item.path);
-            const previousGroup = previous ? getNavGroup(previous.path) : undefined;
+            const previousGroup = previous
+              ? getNavGroup(previous.path)
+              : undefined;
             const active = isActiveRoute(location, item.path);
             const Icon = item.icon;
             if (group !== previousGroup) {
               content.push(
-                <p key={`group-${group}`} className="px-3.5 pb-1 pt-4 text-xs font-semibold tracking-[0.05em] text-ink-3 first:pt-0">
+                <p
+                  key={`group-${group}`}
+                  className="px-3.5 pb-1 pt-4 text-xs font-semibold tracking-[0.05em] text-ink-3 first:pt-0"
+                >
                   {group}
                 </p>
               );
@@ -185,14 +217,19 @@ export function AppMenu({ children }: { children?: ReactNode }) {
                 <GuardedLink
                   href={item.path}
                   aria-current={active ? "page" : undefined}
-                  onFocus={e => e.currentTarget.scrollIntoView({ block: "nearest" })}
+                  onFocus={e =>
+                    e.currentTarget.scrollIntoView({ block: "nearest" })
+                  }
                   className={`flex min-h-11 items-center gap-3 rounded-2xl px-3.5 text-base ${
                     active
                       ? "bg-tile-peach font-semibold text-tile-peach-ink"
                       : "font-medium text-ink hover:bg-ground"
                   }`}
                 >
-                  <Icon className={`size-5 shrink-0 ${active ? "text-tile-peach-ink" : "text-ink-2"}`} aria-hidden="true" />
+                  <Icon
+                    className={`size-5 shrink-0 ${active ? "text-tile-peach-ink" : "text-ink-2"}`}
+                    aria-hidden="true"
+                  />
                   <span>{item.label}</span>
                 </GuardedLink>
               </SheetClose>

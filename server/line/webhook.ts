@@ -27,6 +27,8 @@ import { sql } from "drizzle-orm";
 const LINE_API_BASE = "https://api.line.me/v2/bot";
 const LINE_CONTENT_BASE = "https://api-data.line.me/v2/bot";
 const MAX_RETRIES = 3;
+/** LINE webhook bodies are a few KB. Anything near this size is not from LINE. */
+const MAX_WEBHOOK_BODY_BYTES = 256 * 1024;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -278,10 +280,24 @@ export function registerLineWebhook(app: Express): void {
    */
   app.post("/api/line/webhook", (req: Request, res: Response): void => {
     const chunks: Buffer[] = [];
+    let received = 0;
+    let tooLarge = false;
 
-    req.on("data", (chunk: Buffer) => chunks.push(chunk));
+    req.on("data", (chunk: Buffer) => {
+      if (tooLarge) return;
+      received += chunk.length;
+      if (received > MAX_WEBHOOK_BODY_BYTES) {
+        // Stop buffering before the signature is checked.
+        tooLarge = true;
+        chunks.length = 0;
+        res.status(413).json({ error: "Payload too large" });
+        return;
+      }
+      chunks.push(chunk);
+    });
 
     req.on("end", async () => {
+      if (tooLarge) return;
       const rawBody = Buffer.concat(chunks);
       const signature = req.headers["x-line-signature"] as string | undefined;
 
