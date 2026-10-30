@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Inbox,
+  UserCheck,
   Wallet,
 } from "lucide-react";
 import type { TaskItem, TaskKind } from "../taskQueue";
@@ -11,6 +12,7 @@ const TASK_ICONS: Record<TaskKind, typeof Inbox> = {
   slips: Inbox,
   withdrawals: Wallet,
   counting: Calculator,
+  approvals: UserCheck,
 };
 
 interface TaskQueueProps {

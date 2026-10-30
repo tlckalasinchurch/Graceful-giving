@@ -7,6 +7,40 @@ const none = {
   countingStatuses: undefined,
 };
 
+describe("pending approvals row", () => {
+  it("adds a row that opens the roles tab when people wait", () => {
+    expect(
+      buildTaskItems({
+        slipsToReview: undefined,
+        pendingWithdrawals: undefined,
+        countingStatuses: undefined,
+        pendingApprovals: 2,
+      })
+    ).toEqual([
+      {
+        kind: "approvals",
+        title: "ผู้ใช้รออนุมัติเข้าระบบ",
+        description: "เข้าสู่ระบบด้วย LINE แล้ว รอคุณกำหนดบทบาทหรืออนุมัติ",
+        count: 2,
+        href: "/settings?tab=roles",
+      },
+    ]);
+  });
+
+  it("adds no row for zero or for a role that cannot approve", () => {
+    for (const pendingApprovals of [0, undefined]) {
+      expect(
+        buildTaskItems({
+          slipsToReview: undefined,
+          pendingWithdrawals: undefined,
+          countingStatuses: undefined,
+          pendingApprovals,
+        })
+      ).toEqual([]);
+    }
+  });
+});
+
 describe("buildTaskItems", () => {
   it("returns no rows when the role has no task source", () => {
     expect(buildTaskItems(none)).toEqual([]);
