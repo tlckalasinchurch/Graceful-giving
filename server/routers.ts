@@ -85,6 +85,7 @@ import {
   resolveOpeningBalances,
   setCountingCarryFields,
   createCountingSession,
+  attachPendingWithdrawals,
   setCountingSessionStatus,
   addOfferingEnvelope,
   updateOfferingEnvelope,
@@ -1124,15 +1125,23 @@ export const appRouter = router({
       }),
     disburse: financeProcedure
       .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ input }) => {
-        const updated = await disburseWithdrawal(input.id);
-        if (!updated) {
+      .mutation(async ({ ctx, input }) => {
+        const res = await disburseWithdrawal(input.id, ctx.user.id);
+        if (!res) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "ต้องอนุมัติคำขอเบิกก่อนจ่ายเงิน",
           });
         }
-        return { success: true } as const;
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "DISBURSE",
+          entity: "withdrawal_requests",
+          entityId: input.id,
+          metadata: { attachedSessionId: res.attachedSessionId },
+        });
+        return { success: true, sessionId: res.attachedSessionId };
       }),
   }),
 
@@ -1608,6 +1617,10 @@ export const appRouter = router({
           notes: input.notes ?? null,
           countedBy: ctx.user.id,
         });
+        // A paid withdrawal request that waited for a round flows into this
+        // one now, exactly once, before anyone counts anything.
+        const session = await getCountingSession(id);
+        if (session) await attachPendingWithdrawals(session);
         await createAuditLog({
           churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
@@ -2276,7 +2289,9 @@ export const appRouter = router({
             message:
               res.reason === "NOT_FOUND"
                 ? "ไม่พบรอบนับเงินถวาย"
-                : "ไม่สามารถลบรอบนี้ได้",
+                : res.reason === "HAS_WITHDRAWALS"
+                  ? "รอบนี้มียอดถอนจากคำขอเบิก ลบรอบไม่ได้ ให้จัดการคำขอเบิกก่อน"
+                  : "ไม่สามารถลบรอบนี้ได้",
           });
         }
         await createAuditLog({

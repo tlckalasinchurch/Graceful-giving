@@ -656,7 +656,10 @@ describeDb("counting workflow: posting carries balances forward", () => {
 
   it("will not post a round while an earlier one is still open", async () => {
     roundA = (
-      await asCounter().counting.create({ serviceDate: sunday, serviceRound: 1 })
+      await asCounter().counting.create({
+        serviceDate: sunday,
+        serviceRound: 1,
+      })
     ).id;
     const later = await countedRound(nextSunday, 1);
     await expect(
@@ -664,8 +667,12 @@ describeDb("counting workflow: posting carries balances forward", () => {
     ).rejects.toMatchObject({ code: "CONFLICT" });
 
     const db = await getDb();
-    await db!.execute(sql`DELETE FROM offering_envelopes WHERE "sessionId" = ${later}`);
-    await db!.execute(sql`DELETE FROM cash_counts WHERE "sessionId" = ${later}`);
+    await db!.execute(
+      sql`DELETE FROM offering_envelopes WHERE "sessionId" = ${later}`
+    );
+    await db!.execute(
+      sql`DELETE FROM cash_counts WHERE "sessionId" = ${later}`
+    );
     await db!.execute(sql`DELETE FROM counting_sessions WHERE id = ${later}`);
     await db!.execute(sql`DELETE FROM counting_sessions WHERE id = ${roundA}`);
   });
@@ -726,7 +733,46 @@ describeDb("counting workflow: posting carries balances forward", () => {
     const detail = await asTreasurer().counting.get({ id: roundA });
     expect(detail.openingSource).toBe("stored");
     await expect(
-      asTreasurer().counting.setClosingFigures({ id: roundA, cashOnHandActual: 1 })
+      asTreasurer().counting.setClosingFigures({
+        id: roundA,
+        cashOnHandActual: 1,
+      })
     ).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+
+  it("keeps request-linked withdrawals when a round is reset", async () => {
+    // Review Focus 4: a bank line that a withdrawal request produced must not
+    // silently vanish when the treasurer resets the round; only hand-entered
+    // bank lines are cleared.
+    const db = await getDb();
+    const sessionId = await asCounter()
+      .counting.create({
+        serviceDate: new Date("2026-10-11T01:00:00.000Z"),
+        serviceRound: 1,
+      })
+      .then(r => r.id);
+    await asTreasurer().counting.addBankRecord({
+      sessionId,
+      type: "cash_deposit",
+      amount: 1000,
+    });
+    const linked = await db!.execute(
+      sql`INSERT INTO bank_records ("sessionId", "churchId", type, amount, "occurredAt", "recordedBy", "withdrawalRequestId")
+          VALUES (${sessionId}, ${TEST_CHURCH_ID}, 'withdrawal', '500.00', now(), ${treasurer.id}, 1)
+          RETURNING id`
+    );
+    const linkedId = (linked as unknown as Array<{ id: number }>)[0].id;
+
+    await asTreasurer().counting.resetSession({ id: sessionId });
+
+    const after = await db!.execute(
+      sql`SELECT id, "withdrawalRequestId" FROM bank_records WHERE "sessionId" = ${sessionId}`
+    );
+    const rows = after as unknown as Array<{
+      id: number;
+      withdrawalRequestId: number | null;
+    }>;
+    expect(rows.map(r => r.id)).toEqual([linkedId]);
+    expect(rows[0].withdrawalRequestId).toBe(1);
   });
 });

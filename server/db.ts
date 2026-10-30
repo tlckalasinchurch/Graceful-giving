@@ -7,11 +7,14 @@ import {
   eq,
   gte,
   inArray,
+  isNotNull,
+  isNull,
   lt,
   lte,
   ne,
   sql,
   sum,
+  type SQL,
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
@@ -84,6 +87,10 @@ let _schemaInitialized = false;
  * read or delete the application's rows.
  */
 export const DEFAULT_CHURCH_ID = process.env.CHURCH_ID || "demo-church";
+
+/** The transaction handle a passed-in `db.transaction` callback receives. */
+type Database = NonNullable<Awaited<ReturnType<typeof getDb>>>;
+type CountingTx = Parameters<Parameters<Database["transaction"]>[0]>[0];
 
 // A test tenant reaching production would point every read and write at an
 // empty tenant: the app would serve a church with no members, no funds and no
@@ -1257,22 +1264,161 @@ export async function cancelWithdrawalRequest(
 
 export async function disburseWithdrawal(
   id: number,
+  disbursedBy: number,
   churchId = DEFAULT_CHURCH_ID
-) {
+): Promise<{ attachedSessionId: number | null } | null> {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const rows = await db
-    .update(withdrawalRequests)
-    .set({ status: "disbursed" })
+  return db.transaction(async tx => {
+    // The `approved` guard makes this a compare-and-set: only finance roles
+    // reach here, but two treasurers pressing together must not pay twice.
+    const rows = await tx
+      .update(withdrawalRequests)
+      .set({ status: "disbursed", disbursedAt: new Date(), disbursedBy })
+      .where(
+        and(
+          eq(withdrawalRequests.id, id),
+          eq(withdrawalRequests.churchId, churchId),
+          eq(withdrawalRequests.status, "approved")
+        )
+      )
+      .returning({ id: withdrawalRequests.id });
+    if (rows.length === 0) return null;
+    const attachedSessionId = await attachWithdrawalToCounting(
+      id,
+      tx,
+      churchId
+    );
+    return { attachedSessionId };
+  });
+}
+
+/**
+ * "Date" means the calendar date in Asia/Bangkok, because the counting rounds
+ * are planned by Thai Sundays, not UTC days.
+ */
+function bangkokDate(expr: SQL) {
+  return sql`(${expr} AT TIME ZONE 'Asia/Bangkok')::date`;
+}
+
+/**
+ * Lays a paid withdrawal request into the first counting round whose Bangkok
+ * date is on or after the payout date, ordered by the round tuple. The request
+ * row is locked and the partial unique index on `bank_records.withdrawalRequestId`
+ * keeps a payout from landing twice, however the races interleave.
+ *
+ * Must be called inside the caller's transaction. Returns the round id the
+ * line landed in, or null when nothing was attached (no open round yet, or
+ * another transaction just won the attach).
+ */
+export async function attachWithdrawalToCounting(
+  requestId: number,
+  tx: CountingTx,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<number | null> {
+  const [request] = await tx
+    .select({
+      amount: withdrawalRequests.amount,
+      purpose: withdrawalRequests.purpose,
+      status: withdrawalRequests.status,
+      disbursedAt: withdrawalRequests.disbursedAt,
+      disbursedBy: withdrawalRequests.disbursedBy,
+    })
+    .from(withdrawalRequests)
     .where(
       and(
-        eq(withdrawalRequests.id, id),
-        eq(withdrawalRequests.churchId, churchId),
-        eq(withdrawalRequests.status, "approved")
+        eq(withdrawalRequests.id, requestId),
+        eq(withdrawalRequests.churchId, churchId)
       )
     )
-    .returning({ id: withdrawalRequests.id });
-  return rows.length > 0;
+    .for("update")
+    .limit(1);
+  if (!request || request.status !== "disbursed" || !request.disbursedAt) {
+    return null;
+  }
+
+  const existing = await tx
+    .select({ sessionId: bankRecords.sessionId })
+    .from(bankRecords)
+    .where(eq(bankRecords.withdrawalRequestId, requestId))
+    .limit(1);
+  if (existing[0]) return null; // Already attached; do not attach twice.
+
+  const [target] = await tx
+    .select({ id: countingSessions.id })
+    .from(countingSessions)
+    .where(
+      and(
+        eq(countingSessions.churchId, churchId),
+        inArray(countingSessions.status, ["counting", "counted", "verified"]),
+        sql`${bangkokDate(sql`${countingSessions.serviceDate}`)} >= ${bangkokDate(sql`${request.disbursedAt}::timestamp`)}`
+      )
+    )
+    .orderBy(
+      asc(countingSessions.serviceDate),
+      asc(countingSessions.serviceRound),
+      asc(countingSessions.id)
+    )
+    .limit(1);
+  if (!target) return null;
+
+  const inserted = await tx
+    .insert(bankRecords)
+    .values({
+      sessionId: target.id,
+      churchId,
+      type: "withdrawal",
+      amount: request.amount,
+      occurredAt: request.disbursedAt,
+      recordedBy: request.disbursedBy ?? 0,
+      notes: request.purpose,
+      withdrawalRequestId: requestId,
+    })
+    // The index is the backstop when two concurrent attaches pass the read.
+    .onConflictDoNothing()
+    .returning({ id: bankRecords.id });
+  if (inserted.length === 0) return null;
+  return target.id;
+}
+
+/**
+ * When a new counting round opens, every request paid earlier that has no
+ * bank line yet (and whose payout date has come) flows in exactly once.
+ * Returns how many were attached.
+ */
+export async function attachPendingWithdrawals(
+  session: CountingSession,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.transaction(async tx => {
+    const candidates = await tx
+      .select({ id: withdrawalRequests.id })
+      .from(withdrawalRequests)
+      .leftJoin(
+        bankRecords,
+        eq(bankRecords.withdrawalRequestId, withdrawalRequests.id)
+      )
+      .where(
+        and(
+          eq(withdrawalRequests.churchId, churchId),
+          eq(withdrawalRequests.status, "disbursed"),
+          isNull(bankRecords.withdrawalRequestId),
+          sql`${bangkokDate(sql`${withdrawalRequests.disbursedAt}`)} <= ${bangkokDate(sql`${session.serviceDate}::timestamp`)}`
+        )
+      );
+    let attached = 0;
+    for (const candidate of candidates) {
+      const landing = await attachWithdrawalToCounting(
+        candidate.id,
+        tx,
+        churchId
+      );
+      if (landing !== null) attached += 1;
+    }
+    return attached;
+  });
 }
 
 // ─── Bank signers (Part 2) ────────────────────────────────────────────────────
@@ -2608,6 +2754,21 @@ export async function deleteCountingSession(
       return { success: false, reason: "ALREADY_POSTED" as const };
     }
 
+    // A bank line that a withdrawal request produced survives the round; its
+    // request still points here, so the session cannot simply vanish.
+    const linkedWithRounds = await tx
+      .select({ id: bankRecords.id })
+      .from(bankRecords)
+      .where(
+        and(
+          eq(bankRecords.sessionId, id),
+          isNotNull(bankRecords.withdrawalRequestId)
+        )
+      );
+    if (linkedWithRounds.length > 0) {
+      return { success: false, reason: "HAS_WITHDRAWALS" as const };
+    }
+
     // Cascade delete related records in reverse dependency order:
     await tx.delete(sessionDocuments).where(eq(sessionDocuments.sessionId, id));
     await tx.delete(bankRecords).where(eq(bankRecords.sessionId, id));
@@ -2660,9 +2821,17 @@ export async function resetCountingSession(
       return { success: false, reason: "ALREADY_POSTED" as const };
     }
 
-    // Clear child data for fresh recount
+    // Reset child data for a fresh recount, but never a bank line that a
+    // withdrawal request produced: that record is an audit trail, not scratch.
     await tx.delete(sessionDocuments).where(eq(sessionDocuments.sessionId, id));
-    await tx.delete(bankRecords).where(eq(bankRecords.sessionId, id));
+    await tx
+      .delete(bankRecords)
+      .where(
+        and(
+          eq(bankRecords.sessionId, id),
+          isNull(bankRecords.withdrawalRequestId)
+        )
+      );
     await tx
       .delete(sessionDeductions)
       .where(eq(sessionDeductions.sessionId, id));
