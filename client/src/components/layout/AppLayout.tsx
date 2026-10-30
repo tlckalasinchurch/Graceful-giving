@@ -83,12 +83,12 @@ function MobileTab({
       aria-label={tab.ariaLabel}
       aria-current={active ? "page" : undefined}
       className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl ${
-        active ? "text-brand-ink" : "text-ink-2 hover:text-ink"
+        active ? "text-ink" : "text-ink-3 hover:text-ink"
       }`}
     >
       <span
         className={`flex h-7 w-12 items-center justify-center rounded-full ${
-          active ? "bg-tile-peach" : ""
+          active ? "bg-paper-2" : ""
         }`}
       >
         <Icon className="size-5" />
@@ -122,10 +122,10 @@ function RailLink({
           href={href}
           aria-label={label}
           aria-current={active ? "page" : undefined}
-          className={`flex size-10 shrink-0 items-center justify-center rounded-2xl focus-visible:ring-2 focus-visible:ring-brand ${
+          className={`flex size-10 shrink-0 items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:ring-brand ${
             active
-              ? "bg-tile-peach text-tile-peach-ink"
-              : "text-ink-2 hover:bg-ground hover:text-ink"
+              ? "bg-ink text-surface"
+              : "text-ink-2 hover:bg-paper-2 hover:text-ink"
           }`}
         >
           <Icon className="size-5" />
@@ -143,6 +143,8 @@ interface AppLayoutProps {
   activeRoute?: string;
   title?: string;
   subtitle?: string;
+  /** Small caps label above the title, e.g. "Ledger". Latin reads best. */
+  eyebrow?: string;
   action?: React.ReactNode;
 }
 
@@ -151,6 +153,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   activeRoute,
   title,
   subtitle,
+  eyebrow,
   action,
 }) => {
   const [location] = useLocation();
@@ -184,7 +187,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                 <GuardedLink
                   href="/"
                   aria-label="Grace Ledger หน้าหลัก"
-                  className="flex size-10 items-center justify-center rounded-2xl bg-tile-peach text-tile-peach-ink"
+                  className="flex size-10 items-center justify-center rounded-xl bg-ink text-surface"
                 >
                   <Sprout className="size-5" aria-hidden="true" />
                 </GuardedLink>
@@ -199,7 +202,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                 <button
                   onClick={() => navigate("/offerings/new")}
                   aria-label="บันทึกการถวายใหม่"
-                  className="flex size-10 items-center justify-center rounded-2xl bg-brand text-white shadow-[0_1px_3px_hsla(20,80%,30%,0.3)] hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                  className="flex size-10 items-center justify-center rounded-xl bg-brand text-white hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 >
                   <Plus className="size-5 stroke-[2.5]" />
                 </button>
@@ -252,7 +255,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   <GuardedLink
                     href="/profile"
                     aria-label={`โปรไฟล์ ${churchName} ${roleLabel}`}
-                    className="flex size-9 items-center justify-center rounded-full bg-tile-sky text-sm font-semibold text-tile-sky-ink"
+                    className="flex size-9 items-center justify-center rounded-full bg-paper-2 text-sm font-semibold text-ink"
                   >
                     {user?.name ? user.name.slice(0, 1) : "ศ"}
                   </GuardedLink>
@@ -269,7 +272,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             so a row's date and its amount stay within reading distance on a
             wide monitor. */}
         <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-12 min-w-0">
-          <header className="flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
+          <header
+            className={`flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 ${
+              title ? "border-b border-line pb-5 sm:pb-6" : ""
+            }`}
+          >
             <div className="flex w-full items-center justify-between lg:hidden">
               <AppMenu />
               <GuardedLink
@@ -282,11 +289,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             </div>
             {title && (
               <div className="min-w-0 flex-1 basis-full sm:basis-0">
-                <h1 className="text-2xl md:text-3xl font-semibold text-ink tracking-tight break-words">
+                {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
+                <h1 className="display text-3xl md:text-4xl text-ink break-words">
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="text-sm leading-relaxed text-ink-2 mt-1 max-w-2xl">
+                  <p className="text-sm leading-relaxed text-ink-2 mt-2 max-w-2xl">
                     {subtitle}
                   </p>
                 )}
@@ -327,18 +335,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           ))}
 
           {canRecordOffering && (
-          <button
-            onClick={() => navigate("/offerings/new")}
-            aria-label="บันทึกการถวายใหม่"
-            className="flex min-h-14 flex-col items-center justify-center gap-1"
-          >
-            <span className="flex size-9 items-center justify-center rounded-full bg-brand text-white shadow-[0_1px_3px_hsla(20,80%,30%,0.3)]">
-              <Plus className="size-5 stroke-[2.5]" />
-            </span>
-            <span className="text-xs font-semibold leading-none text-brand-ink">
-              ถวาย
-            </span>
-          </button>
+            <button
+              onClick={() => navigate("/offerings/new")}
+              aria-label="บันทึกการถวายใหม่"
+              className="flex min-h-14 flex-col items-center justify-center gap-1"
+            >
+              <span className="flex size-9 items-center justify-center rounded-full bg-brand text-white">
+                <Plus className="size-5 stroke-[2.5]" />
+              </span>
+              <span className="text-xs font-semibold leading-none text-brand-ink">
+                ถวาย
+              </span>
+            </button>
           )}
 
           {mobileTabs.slice(tabsBeforeGive).map(tab => (

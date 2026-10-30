@@ -212,7 +212,10 @@ export default function NewExpense() {
       const base64Data = dataUrl.split(",")[1];
       uploadReceiptMutation.mutate({
         fileName: file.name,
-        contentType: file.type as "image/jpeg" | "image/png" | "application/pdf",
+        contentType: file.type as
+          | "image/jpeg"
+          | "image/png"
+          | "application/pdf",
         base64Data,
       });
     };
@@ -221,6 +224,7 @@ export default function NewExpense() {
 
   return (
     <AppLayout
+      eyebrow="New expense"
       title="บันทึกรายจ่ายใหม่"
       subtitle="บันทึกค่าใช้จ่ายหรือการเบิกจ่ายงบประมาณ พร้อมแนบหลักฐาน"
     >
@@ -239,7 +243,10 @@ export default function NewExpense() {
 
             {/* Amount Input */}
             <div className="space-y-2">
-              <label htmlFor="expense-amount" className="text-sm font-medium text-ink">
+              <label
+                htmlFor="expense-amount"
+                className="text-sm font-medium text-ink"
+              >
                 จำนวนเงิน (บาท) <span className="text-danger">*</span>
               </label>
               <div className="relative">
@@ -255,10 +262,15 @@ export default function NewExpense() {
                   value={amount}
                   inputMode="decimal"
                   aria-invalid={Boolean(errors.amount)}
-                  aria-describedby={errors.amount ? "expense-amount-error" : "expense-amount-hint"}
+                  aria-describedby={
+                    errors.amount
+                      ? "expense-amount-error"
+                      : "expense-amount-hint"
+                  }
                   onChange={e => {
                     setAmount(e.target.value);
-                    if (errors.amount) setErrors(current => ({ ...current, amount: undefined }));
+                    if (errors.amount)
+                      setErrors(current => ({ ...current, amount: undefined }));
                   }}
                   className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 focus:border-brand focus:outline-none bg-surface money text-3xl font-semibold text-ink placeholder:text-ink-3 ${errors.amount ? "border-danger" : "border-field"}`}
                 />
@@ -267,16 +279,18 @@ export default function NewExpense() {
                 ระบุจำนวนเงินบาทได้ไม่เกิน 2 ตำแหน่งทศนิยม
               </p>
               {errors.amount && (
-                <p id="expense-amount-error" className="text-sm text-danger" role="alert">
+                <p
+                  id="expense-amount-error"
+                  className="text-sm text-danger"
+                  role="alert"
+                >
                   {errors.amount}
                 </p>
               )}
 
               {/* Amount Quick Presets */}
               <div className="flex flex-wrap gap-2 pt-1">
-                <span className="text-xs text-ink-3 py-1">
-                  จำนวนเงินแนะนำ:
-                </span>
+                <span className="text-xs text-ink-3 py-1">จำนวนเงินแนะนำ:</span>
                 {amountPresets.map(val => (
                   <Chip key={val} onClick={() => handlePreset(val)}>
                     +{formatBaht(val, 0)}
@@ -344,7 +358,10 @@ export default function NewExpense() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2 sm:col-span-2">
-                <label htmlFor="expense-description" className="text-sm font-medium text-ink">
+                <label
+                  htmlFor="expense-description"
+                  className="text-sm font-medium text-ink"
+                >
                   ชื่อรายการ / คำอธิบายรายจ่าย{" "}
                   <span className="text-danger">*</span>
                 </label>
@@ -356,15 +373,25 @@ export default function NewExpense() {
                   placeholder="เช่น ค่าไฟฟ้าประจำเดือน, อุปกรณ์รวีวารศึกษา..."
                   value={description}
                   aria-invalid={Boolean(errors.description)}
-                  aria-describedby={errors.description ? "expense-description-error" : undefined}
+                  aria-describedby={
+                    errors.description ? "expense-description-error" : undefined
+                  }
                   onChange={e => {
                     setDescription(e.target.value);
-                    if (errors.description) setErrors(current => ({ ...current, description: undefined }));
+                    if (errors.description)
+                      setErrors(current => ({
+                        ...current,
+                        description: undefined,
+                      }));
                   }}
                   className={`w-full px-4 py-3 rounded-2xl border focus:border-brand focus:ring-2 focus:ring-brand/20 focus:outline-none bg-surface min-h-11 text-base md:text-sm font-medium text-ink ${errors.description ? "border-danger" : "border-field"}`}
                 />
                 {errors.description && (
-                  <p id="expense-description-error" className="text-sm text-danger" role="alert">
+                  <p
+                    id="expense-description-error"
+                    className="text-sm text-danger"
+                    role="alert"
+                  >
                     {errors.description}
                   </p>
                 )}
@@ -384,7 +411,10 @@ export default function NewExpense() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="expense-fund" className="text-sm font-medium text-ink">
+                <label
+                  htmlFor="expense-fund"
+                  className="text-sm font-medium text-ink"
+                >
                   ตัดจ่ายจากกองทุน <span className="text-danger">*</span>
                 </label>
                 <NativeSelect
@@ -392,11 +422,14 @@ export default function NewExpense() {
                   ref={fundRef}
                   required
                   invalid={Boolean(errors.fundId)}
-                  aria-describedby={errors.fundId ? "expense-fund-error" : undefined}
+                  aria-describedby={
+                    errors.fundId ? "expense-fund-error" : undefined
+                  }
                   value={fundId ?? ""}
                   onChange={e => {
                     setFundId(Number(e.target.value));
-                    if (errors.fundId) setErrors(current => ({ ...current, fundId: undefined }));
+                    if (errors.fundId)
+                      setErrors(current => ({ ...current, fundId: undefined }));
                   }}
                   className="font-medium"
                 >
@@ -410,7 +443,11 @@ export default function NewExpense() {
                   ))}
                 </NativeSelect>
                 {errors.fundId && (
-                  <p id="expense-fund-error" className="text-sm text-danger" role="alert">
+                  <p
+                    id="expense-fund-error"
+                    className="text-sm text-danger"
+                    role="alert"
+                  >
                     {errors.fundId}
                   </p>
                 )}
@@ -593,9 +630,7 @@ export default function NewExpense() {
               <div className="p-4 rounded-2xl bg-ground border border-line text-left space-y-2 text-xs text-ink-2">
                 <div className="flex justify-between">
                   <span className="text-ink-3">รายการ:</span>
-                  <span className="font-semibold text-ink">
-                    {description}
-                  </span>
+                  <span className="font-semibold text-ink">{description}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-ink-3">จำนวนเงิน:</span>

@@ -164,8 +164,7 @@ export default function Transactions() {
   const handleExport = () => {
     const typeLabel = (t: TransactionItem) =>
       t.type === "income" ? "รายรับ" : "รายจ่าย";
-    const headers =
-      "ID,วันที่,รายการ,หมวดหมู่,ประเภท,กองทุน,จำนวนเงิน\n";
+    const headers = "ID,วันที่,รายการ,หมวดหมู่,ประเภท,กองทุน,จำนวนเงิน\n";
     const rows = filtered
       .map(
         t =>
@@ -207,6 +206,7 @@ export default function Transactions() {
   return (
     <AppLayout
       activeRoute="/transactions"
+      eyebrow="Ledger"
       title="รายการธุรกรรม"
       subtitle="บันทึกการรับถวายและค่าใช้จ่ายทั้งหมดของคริสตจักร"
       action={
@@ -232,9 +232,7 @@ export default function Transactions() {
       {/* 1. Summary Cards (รายรับ, รายจ่าย, ยอดสุทธิ) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         <div className="bg-surface rounded-3xl p-5 space-y-1 fintech-card">
-          <span className="text-sm font-medium text-ink-2">
-            รายรับทั้งหมด
-          </span>
+          <span className="text-sm font-medium text-ink-2">รายรับทั้งหมด</span>
           <div>
             <MoneyDisplay amount={totalIncome} type="income" size="lg" />
           </div>
@@ -244,9 +242,7 @@ export default function Transactions() {
         </div>
 
         <div className="bg-surface rounded-3xl p-5 space-y-1 fintech-card">
-          <span className="text-sm font-medium text-ink-2">
-            รายจ่ายทั้งหมด
-          </span>
+          <span className="text-sm font-medium text-ink-2">รายจ่ายทั้งหมด</span>
           <div>
             <MoneyDisplay amount={totalExpense} type="expense" size="lg" />
           </div>
@@ -258,11 +254,7 @@ export default function Transactions() {
         <div className="bg-surface rounded-3xl p-5 space-y-1 fintech-card">
           <span className="text-sm font-medium text-ink-2">ยอดสุทธิ</span>
           <div>
-            <MoneyDisplay
-              amount={netTotal}
-              type="neutral"
-              size="lg"
-            />
+            <MoneyDisplay amount={netTotal} type="neutral" size="lg" />
           </div>
           <p className="text-xs text-ink-3">คงเหลือในรอบที่เลือก</p>
         </div>
@@ -321,12 +313,24 @@ export default function Transactions() {
               </caption>
               <thead className="border-b border-line text-ink-2 font-semibold">
                 <tr>
-                  <th scope="col" className="p-4">วันที่</th>
-                  <th scope="col" className="p-4">รายการ</th>
-                  <th scope="col" className="p-4">ประเภท</th>
-                  <th scope="col" className="p-4">กองทุน</th>
-                  <th scope="col" className="p-4 text-right">จำนวนเงิน</th>
-                  <th scope="col" className="p-4 text-center">สถานะ</th>
+                  <th scope="col" className="p-4">
+                    วันที่
+                  </th>
+                  <th scope="col" className="p-4">
+                    รายการ
+                  </th>
+                  <th scope="col" className="p-4">
+                    ประเภท
+                  </th>
+                  <th scope="col" className="p-4">
+                    กองทุน
+                  </th>
+                  <th scope="col" className="p-4 text-right">
+                    จำนวนเงิน
+                  </th>
+                  <th scope="col" className="p-4 text-center">
+                    สถานะ
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">

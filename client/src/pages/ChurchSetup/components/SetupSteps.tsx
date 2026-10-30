@@ -15,8 +15,8 @@ export function FieldLabel({
   required?: boolean;
 }) {
   return (
-    <label className="mb-1.5 block text-xs font-bold text-[#51443A]">
-      {children} {required && <span className="text-[#B3322A]">*</span>}
+    <label className="mb-1.5 block text-xs font-bold text-ink-2">
+      {children} {required && <span className="text-danger">*</span>}
     </label>
   );
 }
@@ -47,7 +47,7 @@ export function TextField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none focus:ring-2 focus:ring-[#9F3B0F]/20 disabled:opacity-60"
+        className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/20 disabled:opacity-60"
       />
     </div>
   );
@@ -76,7 +76,7 @@ export function Step1({
           onChange={e => set({ address: e.target.value })}
           placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
           rows={3}
-          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none resize-none"
+          className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -141,7 +141,7 @@ export function Step2({
           onChange={e => set({ motto: e.target.value })}
           placeholder="เช่น 2 โครินธ์ 9:7 · ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก"
           rows={2}
-          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] placeholder:text-[#CFC7BF] focus:border-[#9F3B0F] focus:outline-none resize-none"
+          className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
         />
       </div>
       <div className="rounded-2xl border border-[#dceeff] bg-[#eef7ff] p-4">
@@ -181,7 +181,7 @@ export function Step3({
         <NativeSelect
           value={data.bankName}
           onChange={e => set({ bankName: e.target.value })}
-          className="border-[#E7DCC8] text-[#3F3833] focus:border-[#9F3B0F]"
+          className="border-line text-ink-2 focus:border-brand-ink"
         >
           <option value="">— เลือกธนาคาร —</option>
           {BANKS.map(b => (
@@ -232,7 +232,7 @@ export function Step4({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-[#51443A]">
+      <p className="text-sm text-ink-2">
         เลือกหมวดหมู่การถวายที่คริสตจักรของคุณใช้งาน:
       </p>
       <div className="grid grid-cols-2 gap-2">
@@ -245,19 +245,19 @@ export function Step4({
               onClick={() => toggleCat(cat)}
               className={`flex min-h-[48px] items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${
                 selected
-                  ? "border-[#9F3B0F] bg-[#FFF8EA] text-[#9F3B0F]"
-                  : "border-[#E7DCC8] bg-white text-[#51443A] hover:bg-[#FAF8F5]"
+                  ? "border-brand-ink bg-paper-2 text-brand-ink"
+                  : "border-line bg-white text-ink-2 hover:bg-paper"
               }`}
             >
               <span
                 className={`grid size-5 shrink-0 place-items-center rounded-md ${
-                  selected ? "bg-[#9F3B0F] text-white" : "bg-[#EDE8E3]"
+                  selected ? "bg-brand-ink text-white" : "bg-line"
                 }`}
               >
                 {selected ? (
                   <Check className="size-3" />
                 ) : (
-                  <HandCoins className="size-3 text-[#9F3B0F]" />
+                  <HandCoins className="size-3 text-brand-ink" />
                 )}
               </span>
               {cat}
@@ -266,7 +266,7 @@ export function Step4({
         })}
       </div>
       {data.offeringCategories.length === 0 && (
-        <p className="text-xs text-[#B3322A]">
+        <p className="text-xs text-danger">
           ⚠ กรุณาเลือกอย่างน้อย 1 หมวดหมู่
         </p>
       )}
@@ -277,29 +277,29 @@ export function Step4({
 export function Step5({ data }: { data: SetupData }) {
   return (
     <div className="space-y-3">
-      <p className="text-sm text-[#51443A]">
+      <p className="text-sm text-ink-2">
         กองทุนเริ่มต้นที่แนะนำสำหรับคริสตจักร:
       </p>
       {data.funds.map((fund, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-2xl border border-[#EDE8E3] bg-white p-3.5"
+          className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3.5"
         >
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#FFF4D6] text-[#9F3B0F]">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-paper-2 text-brand-ink">
             <WalletCards className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-[#3F3833]">{fund.name}</p>
-            <p className="text-xs text-[#51443A]">{fund.description}</p>
+            <p className="text-sm font-bold text-ink-2">{fund.name}</p>
+            <p className="text-xs text-ink-2">{fund.description}</p>
           </div>
           <Check className="size-4 shrink-0 text-[#3F9156]" />
         </div>
       ))}
-      <div className="rounded-2xl border border-[#FFF4D6] bg-[#fffde9] p-4">
-        <p className="text-xs font-bold text-[#C94F16]">
+      <div className="rounded-2xl border border-paper-2 bg-[#fffde9] p-4">
+        <p className="text-xs font-bold text-brand">
           💡 สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
-        <p className="mt-1 text-xs text-[#C94F16]">
+        <p className="mt-1 text-xs text-brand">
           จากหน้าการเงิน → จัดการกองทุน
         </p>
       </div>
@@ -321,7 +321,7 @@ export function Step6({
         <NativeSelect
           value={data.fiscalYearStartMonth}
           onChange={e => set({ fiscalYearStartMonth: Number(e.target.value) })}
-          className="border-[#E7DCC8] text-[#3F3833] focus:border-[#9F3B0F]"
+          className="border-line text-ink-2 focus:border-brand-ink"
         >
           {THAI_MONTHS.map((m, i) => (
             <option key={i + 1} value={i + 1}>
@@ -329,7 +329,7 @@ export function Step6({
             </option>
           ))}
         </NativeSelect>
-        <p className="mt-1.5 text-xs text-[#807266]">
+        <p className="mt-1.5 text-xs text-ink-3">
           ปีงบประมาณจะเริ่มจาก{THAI_MONTHS[data.fiscalYearStartMonth - 1]}
           ของทุกปี
         </p>
@@ -342,14 +342,14 @@ export function Step6({
           onChange={e => set({ budgetYear: Number(e.target.value) })}
           min={2000}
           max={2100}
-          className="w-full rounded-xl border border-[#E7DCC8] bg-white px-3.5 py-2.5 text-sm text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+          className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink-2 focus:border-brand-ink focus:outline-none"
         />
       </div>
-      <div className="rounded-2xl border border-[#FFF4D6] bg-[#fffde9] p-4 space-y-2">
-        <p className="text-xs font-bold text-[#C94F16]">
+      <div className="rounded-2xl border border-paper-2 bg-[#fffde9] p-4 space-y-2">
+        <p className="text-xs font-bold text-brand">
           📅 ตัวอย่างรอบปีงบประมาณ
         </p>
-        <p className="text-xs text-[#C94F16]">
+        <p className="text-xs text-brand">
           ปีที่ {data.budgetYear}: {THAI_MONTHS[data.fiscalYearStartMonth - 1]}{" "}
           {data.budgetYear} →{" "}
           {THAI_MONTHS[(data.fiscalYearStartMonth - 2 + 12) % 12]}{" "}
@@ -384,18 +384,18 @@ export function Step7() {
       role: "MEMBER",
       label: "สมาชิกทั่วไป",
       desc: "ดูยอดรวมและสร้างคำขอเบิก แต่ไม่เห็นรายละเอียดผู้ถวาย",
-      color: "bg-[#FFF8EA] text-[#9F3B0F]",
+      color: "bg-paper-2 text-brand-ink",
     },
   ];
   return (
     <div className="space-y-3">
-      <p className="text-sm text-[#51443A]">
+      <p className="text-sm text-ink-2">
         ระบบมี 4 บทบาทหลัก ผู้ดูแลระบบสามารถกำหนดให้ผู้ใช้แต่ละคนได้:
       </p>
       {roles.map(({ role, label, desc, color }) => (
         <div
           key={role}
-          className="flex items-start gap-3 rounded-2xl border border-[#EDE8E3] bg-white p-3.5"
+          className="flex items-start gap-3 rounded-2xl border border-line bg-white p-3.5"
         >
           <span
             className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-bold ${color}`}
@@ -403,8 +403,8 @@ export function Step7() {
             {role}
           </span>
           <div>
-            <p className="text-sm font-bold text-[#3F3833]">{label}</p>
-            <p className="text-xs text-[#51443A]">{desc}</p>
+            <p className="text-sm font-bold text-ink-2">{label}</p>
+            <p className="text-xs text-ink-2">{desc}</p>
           </div>
         </div>
       ))}
@@ -437,16 +437,16 @@ export function Step8({ data }: { data: SetupData }) {
   ];
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-[#EDE8E3] bg-white overflow-hidden">
+      <div className="rounded-2xl border border-line bg-white overflow-hidden">
         {summaryItems.map(({ label, value }, i) => (
           <div
             key={label}
             className={`flex items-center justify-between px-4 py-3 text-sm ${
-              i < summaryItems.length - 1 ? "border-b border-[#EDE8E3]" : ""
+              i < summaryItems.length - 1 ? "border-b border-line" : ""
             }`}
           >
-            <span className="text-[#51443A]">{label}</span>
-            <span className="font-bold text-[#3F3833] text-right max-w-[55%] truncate">
+            <span className="text-ink-2">{label}</span>
+            <span className="font-bold text-ink-2 text-right max-w-[55%] truncate">
               {value}
             </span>
           </div>

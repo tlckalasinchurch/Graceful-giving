@@ -34,25 +34,25 @@ class ErrorBoundary extends Component<Props, State> {
       const isDev = Boolean(import.meta.env?.DEV);
 
       return (
-        <div className="flex items-center justify-center min-h-screen p-8 bg-[#FAF8F5]">
+        <div className="flex items-center justify-center min-h-screen p-8 bg-paper">
           <div className="flex flex-col items-center w-full max-w-2xl p-8">
             <AlertTriangle
               size={48}
               className="text-destructive mb-6 flex-shrink-0"
             />
 
-            <h2 className="text-xl mb-4 text-[#171311]">An unexpected error occurred.</h2>
+            <h2 className="text-xl mb-4 text-ink">An unexpected error occurred.</h2>
 
             {isDev && this.state.error?.stack && (
               <div className="p-4 w-full rounded bg-white overflow-auto mb-6">
-                <pre className="text-sm text-[#51443A] whitespace-break-spaces">
+                <pre className="text-sm text-ink-2 whitespace-break-spaces">
                   {this.state.error.stack}
                 </pre>
               </div>
             )}
 
             {!isDev && (
-              <p className="text-sm text-[#51443A] mb-6 text-center">
+              <p className="text-sm text-ink-2 mb-6 text-center">
                 ระบบเกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองโหลดหน้าใหม่อีกครั้ง
               </p>
             )}

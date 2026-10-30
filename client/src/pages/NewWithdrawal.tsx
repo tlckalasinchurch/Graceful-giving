@@ -96,6 +96,7 @@ export default function NewWithdrawal() {
 
   return (
     <AppLayout
+      eyebrow="Withdrawal"
       title="ยื่นคำขอเบิกเงิน"
       subtitle="คำขอจะรอการพิจารณาจากศิษยาภิบาลหรือเหรัญญิกในหน้าการอนุมัติ"
     >

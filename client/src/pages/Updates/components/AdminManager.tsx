@@ -244,29 +244,29 @@ export function AdminManager() {
   };
 
   return (
-    <section className="mt-10 rounded-2xl border border-[#E7DCC8] bg-[#FAF8F5] p-5 sm:p-7">
+    <section className="mt-10 rounded-2xl border border-line bg-paper p-5 sm:p-7">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <Settings2 className="size-5 text-[#9F3B0F]" />
-            <h2 className="font-display text-xl font-bold tracking-tight text-[#3F3833]">
+            <Settings2 className="size-5 text-brand-ink" />
+            <h2 className="font-display text-xl font-bold tracking-tight text-ink-2">
               จัดการเนื้อหา
             </h2>
           </div>
-          <p className="mt-1 text-sm text-[#51443A]">
+          <p className="mt-1 text-sm text-ink-2">
             เพิ่มประกาศและปฏิทินกิจกรรมให้สมาชิกติดตาม
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={openNewNews}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#9F3B0F] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#C94F16] shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand-ink px-4 py-2.5 text-xs font-bold text-white hover:bg-brand shadow-sm active:scale-95 transition"
           >
             <Plus className="size-4" /> ข่าวสารใหม่
           </button>
           <button
             onClick={openNewEvent}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[#E7DCC8] bg-white px-4 py-2.5 text-xs font-bold text-[#9F3B0F] hover:bg-[#FAF8F5] shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-line bg-white px-4 py-2.5 text-xs font-bold text-brand-ink hover:bg-paper shadow-sm active:scale-95 transition"
           >
             <CalendarDays className="size-4" /> กิจกรรมใหม่
           </button>
@@ -274,13 +274,13 @@ export function AdminManager() {
       </div>
 
       <div className="mt-4 relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#807266]" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-ink-3" />
         <input
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="ค้นหาชื่อข่าวสารหรือกิจกรรม..."
-          className="w-full rounded-2xl border border-[#E7DCC8] bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-[#3F3833] focus:border-[#9F3B0F] focus:outline-none"
+          className="w-full rounded-2xl border border-line bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-ink-2 focus:border-brand-ink focus:outline-none"
         />
       </div>
 
@@ -289,29 +289,29 @@ export function AdminManager() {
       ) : (
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           {/* Admin News List */}
-          <div className="rounded-2xl border border-[#EDE8E3] bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-line bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-bold text-[#3F3833]">ข่าวสารทั้งหมด</p>
-              <span className="text-xs font-semibold text-[#807266]">
+              <p className="text-sm font-bold text-ink-2">ข่าวสารทั้งหมด</p>
+              <span className="text-xs font-semibold text-ink-3">
                 {filteredNews.length} รายการ
               </span>
             </div>
             {filteredNews.length ? (
-              <div className="max-h-[380px] overflow-y-auto divide-y divide-[#EDE8E3] pr-1">
+              <div className="max-h-[380px] overflow-y-auto divide-y divide-line pr-1">
                 {filteredNews.map(item => (
                   <div
                     key={item.id}
                     className="flex flex-wrap items-center justify-between gap-2 py-3"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#FFF8EA] text-[#9F3B0F]">
+                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-paper-2 text-brand-ink">
                         <Megaphone className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-[#3F3833]">
+                        <p className="truncate text-sm font-semibold text-ink-2">
                           {item.title}
                         </p>
-                        <p className="text-[11px] text-[#807266]">
+                        <p className="text-[11px] text-ink-3">
                           {formatThaiDate(item.createdAt)}
                         </p>
                       </div>
@@ -319,14 +319,14 @@ export function AdminManager() {
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         aria-label={`แก้ไขข่าวสาร ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#9F3B0F] hover:bg-[#FAF8F5]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-brand-ink hover:bg-paper"
                         onClick={() => beginNewsEdit(item)}
                       >
                         <PencilLine className="size-4" />
                       </button>
                       <button
                         aria-label={`ลบข่าวสาร ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#B3322A] hover:bg-[#ffefec]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-danger hover:bg-[#ffefec]"
                         onClick={() => setDeletingNews(item)}
                       >
                         <Trash2 className="size-4" />
@@ -363,22 +363,22 @@ export function AdminManager() {
                 ))}
               </div>
             ) : (
-              <p className="py-6 text-center text-xs text-[#807266]">
+              <p className="py-6 text-center text-xs text-ink-3">
                 ไม่พบข่าวสาร
               </p>
             )}
           </div>
 
           {/* Admin Events List */}
-          <div className="rounded-2xl border border-[#EDE8E3] bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-line bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-bold text-[#3F3833]">กิจกรรมทั้งหมด</p>
-              <span className="text-xs font-semibold text-[#807266]">
+              <p className="text-sm font-bold text-ink-2">กิจกรรมทั้งหมด</p>
+              <span className="text-xs font-semibold text-ink-3">
                 {filteredEvents.length} รายการ
               </span>
             </div>
             {filteredEvents.length ? (
-              <div className="max-h-[380px] overflow-y-auto divide-y divide-[#EDE8E3] pr-1">
+              <div className="max-h-[380px] overflow-y-auto divide-y divide-line pr-1">
                 {filteredEvents.map(item => (
                   <div
                     key={item.id}
@@ -389,7 +389,7 @@ export function AdminManager() {
                         <CalendarDays className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-[#3F3833]">
+                        <p className="truncate text-sm font-semibold text-ink-2">
                           {item.title}
                         </p>
                         <p className="text-[11px] text-[#3b6d9c]">
@@ -407,7 +407,7 @@ export function AdminManager() {
                       </button>
                       <button
                         aria-label={`ลบกิจกรรม ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#B3322A] hover:bg-[#ffefec]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-danger hover:bg-[#ffefec]"
                         onClick={() => setDeletingEvent(item)}
                       >
                         <Trash2 className="size-4" />
@@ -444,7 +444,7 @@ export function AdminManager() {
                 ))}
               </div>
             ) : (
-              <p className="py-6 text-center text-xs text-[#807266]">
+              <p className="py-6 text-center text-xs text-ink-3">
                 ไม่พบกิจกรรม
               </p>
             )}
@@ -479,19 +479,19 @@ export function AdminManager() {
         open={!!deletingNews}
         onOpenChange={open => !open && setDeletingNews(null)}
       >
-        <DialogContent className="w-full max-w-sm rounded-2xl border-[#EDE8E3] bg-[#FFFFFF] p-6 shadow-2xl">
+        <DialogContent className="w-full max-w-sm rounded-2xl border-line bg-white p-6 shadow-2xl">
           {deletingNews && (
             <>
               <DialogHeader className="text-left">
-                <div className="flex items-center gap-3 text-[#B3322A]">
+                <div className="flex items-center gap-3 text-danger">
                   <div className="grid size-11 place-items-center rounded-2xl bg-[#ffefec]">
                     <AlertTriangle className="size-6" />
                   </div>
                   <div>
-                    <DialogTitle className="font-display text-lg font-bold text-[#3F3833]">
+                    <DialogTitle className="font-display text-lg font-bold text-ink-2">
                       ยืนยันการลบข่าวสาร
                     </DialogTitle>
-                    <DialogDescription className="text-xs text-[#51443A]">
+                    <DialogDescription className="text-xs text-ink-2">
                       การดำเนินการนี้ไม่สามารถย้อนกลับได้
                     </DialogDescription>
                   </div>
@@ -504,7 +504,7 @@ export function AdminManager() {
                 <button
                   type="button"
                   onClick={() => setDeletingNews(null)}
-                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF8EA]"
+                  className="min-h-[44px] rounded-xl border border-line py-2.5 text-xs font-bold text-ink-2 hover:bg-paper-2"
                 >
                   ยกเลิก
                 </button>
@@ -512,7 +512,7 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteNews.isPending}
                   onClick={() => deleteNews.mutate({ id: deletingNews.id })}
-                  className="min-h-[44px] rounded-xl bg-[#B3322A] py-2.5 text-xs font-bold text-white hover:bg-[#ab4a40] disabled:opacity-60"
+                  className="min-h-[44px] rounded-xl bg-danger py-2.5 text-xs font-bold text-white hover:bg-[#ab4a40] disabled:opacity-60"
                 >
                   {deleteNews.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
                 </button>
@@ -527,19 +527,19 @@ export function AdminManager() {
         open={!!deletingEvent}
         onOpenChange={open => !open && setDeletingEvent(null)}
       >
-        <DialogContent className="w-full max-w-sm rounded-2xl border-[#EDE8E3] bg-[#FFFFFF] p-6 shadow-2xl">
+        <DialogContent className="w-full max-w-sm rounded-2xl border-line bg-white p-6 shadow-2xl">
           {deletingEvent && (
             <>
               <DialogHeader className="text-left">
-                <div className="flex items-center gap-3 text-[#B3322A]">
+                <div className="flex items-center gap-3 text-danger">
                   <div className="grid size-11 place-items-center rounded-2xl bg-[#ffefec]">
                     <AlertTriangle className="size-6" />
                   </div>
                   <div>
-                    <DialogTitle className="font-display text-lg font-bold text-[#3F3833]">
+                    <DialogTitle className="font-display text-lg font-bold text-ink-2">
                       ยืนยันการลบกิจกรรม
                     </DialogTitle>
-                    <DialogDescription className="text-xs text-[#51443A]">
+                    <DialogDescription className="text-xs text-ink-2">
                       การดำเนินการนี้ไม่สามารถย้อนกลับได้
                     </DialogDescription>
                   </div>
@@ -552,7 +552,7 @@ export function AdminManager() {
                 <button
                   type="button"
                   onClick={() => setDeletingEvent(null)}
-                  className="min-h-[44px] rounded-xl border border-[#E7DCC8] py-2.5 text-xs font-bold text-[#51443A] hover:bg-[#FFF8EA]"
+                  className="min-h-[44px] rounded-xl border border-line py-2.5 text-xs font-bold text-ink-2 hover:bg-paper-2"
                 >
                   ยกเลิก
                 </button>
@@ -560,7 +560,7 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteEvent.isPending}
                   onClick={() => deleteEvent.mutate({ id: deletingEvent.id })}
-                  className="min-h-[44px] rounded-xl bg-[#B3322A] py-2.5 text-xs font-bold text-white hover:bg-[#ab4a40] disabled:opacity-60"
+                  className="min-h-[44px] rounded-xl bg-danger py-2.5 text-xs font-bold text-white hover:bg-[#ab4a40] disabled:opacity-60"
                 >
                   {deleteEvent.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
                 </button>

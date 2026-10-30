@@ -118,7 +118,7 @@ export function parseBudgetForm(values: BudgetFormValues):
 }
 
 const inputClass =
-  "mt-1 min-h-11 w-full rounded-xl border border-[#E7DCC8] bg-white p-3 text-base font-normal text-[#171311] md:text-sm";
+  "mt-1 min-h-11 w-full rounded-xl border border-line bg-white p-3 text-base font-normal text-ink md:text-sm";
 
 export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;
@@ -136,7 +136,7 @@ export const BudgetFormFields: React.FC<{
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <label className="text-sm font-semibold text-[#51443A]">
+      <label className="text-sm font-semibold text-ink-2">
         ช่วงเวลา
         <select
           value={values.month}
@@ -151,7 +151,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-[#51443A]">
+      <label className="text-sm font-semibold text-ink-2">
         หมวดรายจ่าย
         <select
           value={values.category}
@@ -166,7 +166,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-[#51443A]">
+      <label className="text-sm font-semibold text-ink-2">
         กองทุน
         <select
           value={values.fundId}
@@ -181,7 +181,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-[#51443A]">
+      <label className="text-sm font-semibold text-ink-2">
         วงเงินงบประมาณ (บาท) *
         <input
           required
@@ -192,7 +192,7 @@ export const BudgetFormFields: React.FC<{
           className={`${inputClass} tabular-nums`}
         />
       </label>
-      <label className="text-sm font-semibold text-[#51443A] md:col-span-2">
+      <label className="text-sm font-semibold text-ink-2 md:col-span-2">
         หมายเหตุ
         <textarea
           value={values.notes}

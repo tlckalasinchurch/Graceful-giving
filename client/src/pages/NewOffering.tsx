@@ -108,8 +108,7 @@ export default function NewOffering() {
       // offerings between fiscal/report days. Noon never changes the date
       // when shifted ±12h into UTC.
       receiptDate: new Date(`${date}T12:00:00`),
-      donorName:
-        isAnonymous ? undefined : donorName.trim() || undefined,
+      donorName: isAnonymous ? undefined : donorName.trim() || undefined,
       notes: notes || undefined,
     });
   };
@@ -123,6 +122,7 @@ export default function NewOffering() {
   return (
     <AppLayout
       activeRoute="/offerings"
+      eyebrow="New offering"
       title="บันทึกถวาย"
       subtitle="บันทึกรายการเงินถวายเข้าสู่บัญชีและกองทุนคริสตจักร"
       action={<BackLink label="ดูรายการทั้งหมด" onClick={goBack} />}
@@ -307,10 +307,7 @@ export default function NewOffering() {
               }}
               className="rounded text-brand focus:ring-brand w-4 h-4 border-line"
             />
-            <label
-              htmlFor="anon"
-              className="text-xs text-ink-2 cursor-pointer"
-            >
+            <label htmlFor="anon" className="text-xs text-ink-2 cursor-pointer">
               ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
             </label>
           </div>

@@ -26,9 +26,13 @@ function BalanceAmount({
   return (
     <span className={negative ? "text-danger" : "text-ink"}>
       {negative && "−"}
-      <span className="mr-1.5 text-2xl font-medium text-ink-2">฿</span>
+      <span className="mr-2 text-2xl font-medium text-ink-3 sm:text-3xl">
+        ฿
+      </span>
       {formatted.slice(0, dot)}
-      <span className="text-xl text-ink-3">{formatted.slice(dot)}</span>
+      <span className="text-2xl text-ink-3 sm:text-3xl">
+        {formatted.slice(dot)}
+      </span>
     </span>
   );
 }
@@ -49,7 +53,7 @@ export function BalanceCard({
     <section
       aria-label="ยอดเงินคงเหลือรวม"
       style={{ animationDelay: "90ms" }}
-      className="animate-fade-up h-full rounded-3xl bg-surface p-6 sm:p-8 fintech-card flex flex-col justify-between gap-6 w-full"
+      className="animate-fade-up h-full rounded-3xl bg-surface p-6 sm:p-8 fintech-card flex flex-col justify-between gap-8 w-full"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2">
@@ -89,7 +93,7 @@ export function BalanceCard({
           aria-hidden="true"
         />
       ) : (
-        <p className="money whitespace-nowrap text-3xl sm:text-4xl font-semibold leading-none">
+        <p className="display money whitespace-nowrap text-4xl font-semibold leading-none sm:text-5xl lg:text-6xl">
           {!hasSummaryData ? (
             <span className="text-ink-3">—</span>
           ) : showBalance ? (

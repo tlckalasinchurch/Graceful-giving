@@ -71,14 +71,14 @@ export function CashCountTab({
 
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-[#E7DCC8] bg-white shadow-sm">
-        <div className="border-b border-[#E7DCC8] p-4">
+      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+        <div className="border-b border-line p-4">
           <h2 className="font-bold text-foreground">ใบนับธนบัตรและเหรียญ</h2>
-          <p className="mt-1 text-sm text-[#51443A]">
+          <p className="mt-1 text-sm text-ink-2">
             กรอกจำนวนใบหรือเหรียญ ระบบคูณและรวมยอดให้ทันที
           </p>
         </div>
-        <ul className="divide-y divide-[#EDE8E3]">
+        <ul className="divide-y divide-line">
           {THB_DENOMINATIONS.map(denomination => {
             const key = `${denomination.value}-${denomination.kind}`;
             const saved = cashCounts.find(
@@ -122,19 +122,19 @@ export function CashCountTab({
                   }}
                   placeholder="0"
                   aria-label={`จำนวน ${denomination.label}`}
-                  className="w-24 rounded-xl border border-[#E7DCC8] p-2.5 text-right text-base font-bold tabular-nums text-foreground disabled:opacity-60"
+                  className="w-24 rounded-xl border border-line p-2.5 text-right text-base font-bold tabular-nums text-foreground disabled:opacity-60"
                 />
-                <span className="ml-auto text-right text-sm font-bold tabular-nums text-[#51443A]">
+                <span className="ml-auto text-right text-sm font-bold tabular-nums text-ink-2">
                   {fmtBaht(subtotal)}
                 </span>
               </li>
             );
           })}
         </ul>
-        <div className="flex items-center justify-between border-t-2 border-[#E7DCC8] bg-[#FFF8EA] p-4">
+        <div className="flex items-center justify-between border-t-2 border-line bg-paper-2 p-4">
           <div>
-            <p className="font-bold text-[#171311]">รวมนับได้</p>
-            <p className="text-sm text-[#51443A]">
+            <p className="font-bold text-ink">รวมนับได้</p>
+            <p className="text-sm text-ink-2">
               เทียบซองเงินสด {fmtBaht(envelopeCashTotal)}
             </p>
           </div>

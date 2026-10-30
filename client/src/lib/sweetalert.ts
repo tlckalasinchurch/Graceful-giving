@@ -42,7 +42,7 @@ export const Swal = {
       const container = document.createElement("div");
       container.id = "grace-sweetalert-container";
       container.className =
-        "fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-[#171311]/60 backdrop-blur-sm transition-opacity duration-200 animate-in fade-in";
+        "fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-ink/60 backdrop-blur-sm transition-opacity duration-200 animate-in fade-in";
 
       const iconSvgs: Record<string, string> = {
         success: `
@@ -67,14 +67,14 @@ export const Swal = {
           </div>
         `,
         info: `
-          <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#FFF8EA] border-2 border-[#E7DCC8] text-[#9F3B0F] shadow-sm">
+          <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-paper-2 border-2 border-line text-brand-ink shadow-sm">
             <svg class="h-10 w-10 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
         `,
         question: `
-          <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#C94F16]/15 border-2 border-[#C94F16]/30 text-[#C94F16] shadow-sm">
+          <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-brand/15 border-2 border-brand/30 text-brand shadow-sm">
             <svg class="h-10 w-10 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -89,34 +89,34 @@ export const Swal = {
       const customCancelColor = options.cancelButtonColor || null;
 
       container.innerHTML = `
-        <div class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-gradient-to-b from-[#FFFFFF] via-white to-[#FAF8F5] p-6 sm:p-9 text-center shadow-2xl border-2 border-[#E7DCC8] transition-all duration-200">
+        <div class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-gradient-to-b from-white via-white to-paper p-6 sm:p-9 text-center shadow-2xl border-2 border-line transition-all duration-200">
           <!-- Background ambients -->
-          <div class="pointer-events-none absolute -top-12 -right-12 w-44 h-44 rounded-full bg-[#C94F16]/10 blur-3xl"></div>
+          <div class="pointer-events-none absolute -top-12 -right-12 w-44 h-44 rounded-full bg-brand/10 blur-3xl"></div>
           <div class="pointer-events-none absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#E4C98F]/10 blur-3xl"></div>
 
           <div class="relative z-10">
             ${iconHtml}
             ${
               options.title
-                ? `<h3 class="mt-5 text-2xl sm:text-3xl font-black text-[#171311] tracking-tight leading-snug">${escapeHtml(options.title)}</h3>`
+                ? `<h3 class="mt-5 text-2xl sm:text-3xl font-black text-ink tracking-tight leading-snug">${escapeHtml(options.title)}</h3>`
                 : ""
             }
             ${
               options.text
-                ? `<p class="mt-3 whitespace-pre-line text-base sm:text-lg text-[#3F3833] font-medium leading-relaxed max-w-md mx-auto">${escapeHtml(options.text)}</p>`
+                ? `<p class="mt-3 whitespace-pre-line text-base sm:text-lg text-ink-2 font-medium leading-relaxed max-w-md mx-auto">${escapeHtml(options.text)}</p>`
                 : ""
             }
-            ${options.html ? `<div class="mt-3 text-sm sm:text-base text-[#51443A]/90">${options.html}</div>` : ""}
+            ${options.html ? `<div class="mt-3 text-sm sm:text-base text-ink-2/90">${options.html}</div>` : ""}
 
             <div class="mt-7 flex flex-col-reverse sm:flex-row items-center justify-center gap-3">
               ${
                 options.showCancelButton
-                  ? `<button id="swal-cancel-btn" type="button" style="${customCancelColor ? `background:${customCancelColor};` : ""}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-2xl border-2 border-[#E7DCC8] ${customCancelColor ? "hover:opacity-90" : "bg-[#FFF8EA] hover:bg-[#FFF4D6]"} text-[#51443A] font-bold text-sm sm:text-base transition-all focus:outline-none focus:ring-4 focus:ring-[#C94F16]/30 active:scale-95 cursor-pointer">
+                  ? `<button id="swal-cancel-btn" type="button" style="${customCancelColor ? `background:${customCancelColor};` : ""}" class="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-2xl border-2 border-line ${customCancelColor ? "hover:opacity-90" : "bg-paper-2 hover:bg-paper-2"} text-ink-2 font-bold text-sm sm:text-base transition-all focus:outline-none focus:ring-4 focus:ring-brand/30 active:scale-95 cursor-pointer">
                       ${cancelText}
                     </button>`
                   : ""
               }
-              <button id="swal-confirm-btn" type="button" style="${customConfirmColor ? `background:${customConfirmColor};` : ""}" class="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-2xl ${customConfirmColor ? "hover:opacity-90" : "bg-[#C94F16] hover:bg-[#9F3B0F]"} text-white font-black text-sm sm:text-base shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-4 focus:ring-[#C94F16]/30 active:scale-95 cursor-pointer">
+              <button id="swal-confirm-btn" type="button" style="${customConfirmColor ? `background:${customConfirmColor};` : ""}" class="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-2xl ${customConfirmColor ? "hover:opacity-90" : "bg-brand hover:bg-brand-ink"} text-white font-black text-sm sm:text-base shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-4 focus:ring-brand/30 active:scale-95 cursor-pointer">
                 ${confirmText}
               </button>
             </div>
