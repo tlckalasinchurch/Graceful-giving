@@ -237,6 +237,31 @@ export async function setUserStatus(
     .where(eq(users.id, userId));
 }
 
+/**
+ * Delete an account that is not active (pending or disabled). Returns false
+ * when the user does not exist or is still active, so a live account, and
+ * with it the audit trail of who did what, is never removed by mistake.
+ */
+export async function deleteInactiveUser(userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const deleted = await db
+    .delete(users)
+    .where(and(eq(users.id, userId), ne(users.status, "active")))
+    .returning({ id: users.id });
+  return deleted.length > 0;
+}
+
+export async function countPendingUsers(): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ n: count() })
+    .from(users)
+    .where(eq(users.status, "pending"));
+  return Number(row?.n ?? 0);
+}
+
 export async function getAllUsers() {
   const db = await getDb();
   if (!db) return [];

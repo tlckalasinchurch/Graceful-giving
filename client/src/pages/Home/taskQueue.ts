@@ -1,4 +1,4 @@
-export type TaskKind = "slips" | "withdrawals" | "counting";
+export type TaskKind = "slips" | "withdrawals" | "counting" | "approvals";
 
 export interface TaskItem {
   kind: TaskKind;
@@ -15,6 +15,8 @@ export interface TaskQueueInput {
   pendingWithdrawals: number | undefined;
   /** Status of every counting session. */
   countingStatuses: readonly string[] | undefined;
+  /** People who signed in with LINE and wait for approval. Admin only. */
+  pendingApprovals?: number | undefined;
 }
 
 const COUNTING_OPEN_LABELS = [
@@ -70,6 +72,16 @@ export function buildTaskItems(input: TaskQueueInput): TaskItem[] {
         href: "/counting",
       });
     }
+  }
+
+  if (input.pendingApprovals && input.pendingApprovals > 0) {
+    items.push({
+      kind: "approvals",
+      title: "ผู้ใช้รออนุมัติเข้าระบบ",
+      description: "เข้าสู่ระบบด้วย LINE แล้ว รอคุณกำหนดบทบาทหรืออนุมัติ",
+      count: input.pendingApprovals,
+      href: "/settings?tab=roles",
+    });
   }
 
   return items;

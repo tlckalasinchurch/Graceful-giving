@@ -36,7 +36,18 @@ export default function Settings() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<
     "church" | "roles" | "categories" | "payment" | "audit"
-  >("church");
+  >(() => {
+    const tab =
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("tab");
+    return tab === "roles" ||
+      tab === "categories" ||
+      tab === "payment" ||
+      tab === "audit"
+      ? tab
+      : "church";
+  });
   const utils = trpc.useUtils();
 
   const {
@@ -86,6 +97,14 @@ export default function Settings() {
       void usersQuery.refetch();
     },
     onError: err => toast.error(err.message || "ไม่สามารถเปลี่ยนสถานะได้"),
+  });
+
+  const deleteUserMutation = trpc.auth.deleteUser.useMutation({
+    onSuccess: () => {
+      toast.success("ลบบัญชีแล้ว");
+      void usersQuery.refetch();
+    },
+    onError: err => toast.error(err.message || "ไม่สามารถลบบัญชีได้"),
   });
 
   const handleRoleChange = async (userId: number, newRole: string) => {
@@ -766,9 +785,32 @@ export default function Settings() {
                                         onClick={() =>
                                           statusMutation.mutate({ userId: u.id, status: "active" })
                                         }
-                                        className="rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#B04412]"
+                                        className="whitespace-nowrap rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#B04412]"
                                       >
                                         {u.status === "pending" ? "อนุมัติ" : "เปิดใช้งาน"}
+                                      </button>
+                                    )}
+                                    {!isMe && u.status !== "active" && (
+                                      <button
+                                        type="button"
+                                        disabled={deleteUserMutation.isPending}
+                                        onClick={async () => {
+                                          const ok = await Swal.confirm(
+                                            "ลบบัญชีนี้?",
+                                            `${u.name || "ผู้ใช้"} จะถูกลบออกจากรายชื่อถาวร หากเขาล็อกอินด้วย LINE อีก จะกลับมาเป็นสถานะรออนุมัติ`,
+                                            {
+                                              confirmButtonText: "ลบบัญชี",
+                                              cancelButtonText: "ไม่ลบ",
+                                            }
+                                          );
+                                          if (ok)
+                                            deleteUserMutation.mutate({
+                                              userId: u.id,
+                                            });
+                                        }}
+                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-tile-rose"
+                                      >
+                                        ลบ
                                       </button>
                                     )}
                                     {!isMe && u.status === "active" && (
@@ -786,7 +828,7 @@ export default function Settings() {
                                           );
                                           if (ok) statusMutation.mutate({ userId: u.id, status: "disabled" });
                                         }}
-                                        className="rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-[#9B2C2C] hover:bg-[#FFF1F0]"
+                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-[#9B2C2C] hover:bg-[#FFF1F0]"
                                       >
                                         ปิดใช้งาน
                                       </button>

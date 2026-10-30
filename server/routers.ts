@@ -59,6 +59,8 @@ import {
   deactivateMember,
   getAllUsers,
   setUserStatus,
+  deleteInactiveUser,
+  countPendingUsers,
   updateUserProfile,
   markNotificationRead,
   markAllNotificationsRead,
@@ -471,6 +473,46 @@ export const appRouter = router({
             assignedRole: input.churchRole,
             assignedRoles: roles,
             updatedBy: ctx.user.name || ctx.user.email,
+          },
+        });
+        return { success: true } as const;
+      }),
+    /** How many people signed in with LINE and wait for approval (SUPER_ADMIN only). */
+    pendingCount: adminProcedure.query(async () => ({
+      count: await countPendingUsers(),
+    })),
+    /** Delete a pending or disabled account (SUPER_ADMIN only). */
+    deleteUser: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        if (input.userId === ctx.user.id) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ลบบัญชีของตัวเองไม่ได้",
+          });
+        }
+        const target = (await getAllUsers()).find(u => u.id === input.userId);
+        if (!target) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบผู้ใช้" });
+        }
+        const deleted = await deleteInactiveUser(input.userId);
+        if (!deleted) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ต้องปิดการใช้งานบัญชีก่อน จึงจะลบได้",
+          });
+        }
+        await createAuditLog({
+          churchId: "default",
+          userId: ctx.user.id,
+          action: "delete_user",
+          entity: "user",
+          entityId: input.userId,
+          metadata: {
+            name: target.name,
+            openId: target.openId,
+            status: target.status,
+            churchRole: target.churchRole,
           },
         });
         return { success: true } as const;
