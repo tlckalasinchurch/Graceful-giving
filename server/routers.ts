@@ -21,6 +21,11 @@ import {
   createOffering,
   createWithdrawalRequest,
   DEFAULT_CHURCH_ID,
+  addBankSigner,
+  removeBankSigner,
+  setRequiredBankSigner,
+  listBankSigners,
+  isBankSigner,
   deleteChurchEvent,
   deleteChurchNews,
   deleteExpense,
@@ -415,13 +420,15 @@ export const appRouter = router({
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   auth: router({
-    me: publicProcedure.query(opts => {
+    me: publicProcedure.query(async opts => {
       const user = opts.ctx.user;
       if (!user) return null;
       const roles = getUserRoles(user);
+      const signer = await isBankSigner(user.id);
       return {
         ...user,
         roles,
+        isBankSigner: signer !== null,
       };
     }),
     /** Sign-in state for the login screen. Works for signed-out and pending people. */
@@ -927,6 +934,68 @@ export const appRouter = router({
   }),
 
   // ── Withdrawal Requests ─────────────────────────────────────────────────────
+  // ── Withdrawal bank signers (Part 2) ────────────────────────────────────────
+  bankSigners: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (!canManageFinance(ctx.user) && !(await isBankSigner(ctx.user.id))) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "เฉพาะฝ่ายการเงินและผู้มีอำนาจลงนามเท่านั้น",
+        });
+      }
+      return await listBankSigners(DEFAULT_CHURCH_ID);
+    }),
+    add: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const added = await addBankSigner(input.userId, ctx.user.id);
+        if (added) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_ADD",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { addedUserId: input.userId },
+          });
+        }
+        return { added };
+      }),
+    remove: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const removed = await removeBankSigner(input.userId);
+        if (removed) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_REMOVE",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { removedUserId: input.userId },
+          });
+        }
+        return { removed };
+      }),
+    /** Moves the "ต้องลงนามทุกครั้ง" flag to the given signer. */
+    setRequired: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const moved = await setRequiredBankSigner(input.userId);
+        if (moved) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_REQUIRED",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { requiredUserId: input.userId },
+          });
+        }
+        return { moved };
+      }),
+  }),
+
   withdrawals: router({
     list: protectedProcedure
       .input(z.object({ myOnly: z.boolean().default(false) }).optional())

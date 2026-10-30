@@ -58,6 +58,8 @@ import {
   sessionDeductions,
   sessionDocuments,
   users,
+  bankSigners,
+  withdrawalApprovals,
   withdrawalRequests,
 } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
@@ -1086,6 +1088,109 @@ export async function disburseWithdrawal(
     )
     .returning({ id: withdrawalRequests.id });
   return rows.length > 0;
+}
+
+// ─── Bank signers (Part 2) ────────────────────────────────────────────────────
+
+export async function listBankSigners(churchId = DEFAULT_CHURCH_ID) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select({
+      userId: bankSigners.userId,
+      name: users.name,
+      isRequired: bankSigners.isRequired,
+    })
+    .from(bankSigners)
+    .leftJoin(users, eq(bankSigners.userId, users.id))
+    .where(eq(bankSigners.churchId, churchId))
+    .orderBy(desc(bankSigners.isRequired), desc(bankSigners.createdAt));
+}
+
+/** A signer row, or null when the person is not on the bank account list. */
+export async function isBankSigner(
+  userId: number,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<{ isRequired: boolean } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({ isRequired: bankSigners.isRequired })
+    .from(bankSigners)
+    .where(
+      and(
+        eq(bankSigners.churchId, churchId),
+        eq(bankSigners.userId, userId)
+      )
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function addBankSigner(
+  userId: number,
+  addedBy: number,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = await isBankSigner(userId, churchId);
+  if (existing) return false;
+  await db.insert(bankSigners).values({ churchId, userId, addedBy });
+  return true;
+}
+
+export async function removeBankSigner(
+  userId: number,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db
+    .delete(bankSigners)
+    .where(
+      and(
+        eq(bankSigners.churchId, churchId),
+        eq(bankSigners.userId, userId)
+      )
+    )
+    .returning({ id: bankSigners.id });
+  return rows.length > 0;
+}
+
+/**
+ * Moves the "ต้องลงนามทุกครั้ง" flag to the new signer in one transaction, so
+ * two churches of the sign never hold the flag at once and the flag never sits
+ * on nobody when the move is midway.
+ */
+export async function setRequiredBankSigner(
+  userId: number,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.transaction(async tx => {
+    await tx
+      .update(bankSigners)
+      .set({ isRequired: false })
+      .where(
+        and(
+          eq(bankSigners.churchId, churchId),
+          eq(bankSigners.isRequired, true)
+        )
+      );
+    const rows = await tx
+      .update(bankSigners)
+      .set({ isRequired: true })
+      .where(
+        and(
+          eq(bankSigners.churchId, churchId),
+          eq(bankSigners.userId, userId)
+        )
+      )
+      .returning({ id: bankSigners.id });
+    return rows.length > 0;
+  });
 }
 
 // ─── Members / Notifications / Audit ──────────────────────────────────────────
