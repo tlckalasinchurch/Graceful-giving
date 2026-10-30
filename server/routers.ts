@@ -5,7 +5,6 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { storagePut } from "./storage";
 import {
-  approveWithdrawal,
   createBudgetPlan,
   deleteBudgetPlan,
   getBudgetPlanById,
@@ -14,6 +13,10 @@ import {
   createChurchEvent,
   createChurchNews,
   createAuditLog,
+  getWithdrawalRequestBasic,
+  signWithdrawalRequest,
+  WorkflowError,
+  cancelWithdrawalRequest,
   listAuditLogs,
   createNotification,
   createExpense,
@@ -149,10 +152,6 @@ function canManageFinance(user: User): boolean {
 }
 
 function canViewDonorNames(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "TREASURER");
-}
-
-function canApproveWithdrawals(user: User): boolean {
   return hasAnyRole(user, "SUPER_ADMIN", "TREASURER");
 }
 
@@ -996,14 +995,14 @@ export const appRouter = router({
       }),
   }),
 
+  // ── Withdrawals ──────────────────────────────────────────────────────────────
   withdrawals: router({
     list: protectedProcedure
       .input(z.object({ myOnly: z.boolean().default(false) }).optional())
       .query(async ({ ctx, input }) => {
-        const userId =
-          input?.myOnly || !canManageFinance(ctx.user)
-            ? ctx.user.id
-            : undefined;
+        const seesAll =
+          canManageFinance(ctx.user) || (await isBankSigner(ctx.user.id));
+        const userId = input?.myOnly || !seesAll ? ctx.user.id : undefined;
         return await listWithdrawalRequests(DEFAULT_CHURCH_ID, { userId });
       }),
     create: protectedProcedure
@@ -1026,33 +1025,101 @@ export const appRouter = router({
         } as any);
         return { id };
       }),
-    approve: financeProcedure
+    /** One signer presses one decision. The bank's rule decides the outcome. */
+    sign: protectedProcedure
+      .input(
+        z
+          .object({
+            id: z.number().int().positive(),
+            decision: z.enum(["approved", "rejected"]),
+            note: z.string().trim().max(500).optional(),
+          })
+          // Input parsing runs before the handler, so a rejection without a
+          // reason never reaches the signer's transaction.
+          .superRefine((val, check) => {
+            if (val.decision === "rejected" && !val.note?.trim()) {
+              check.addIssue({
+                code: "custom",
+                message: "กรุณาระบุเหตุผลการปฏิเสธ",
+              });
+            }
+          })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const signer = await isBankSigner(ctx.user.id);
+        if (!signer) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "เฉพาะผู้มีอำนาจลงนามในบัญชีธนาคาร",
+          });
+        }
+        try {
+          const { outcome } = await signWithdrawalRequest(
+            input.id,
+            ctx.user.id,
+            input.decision,
+            input.note?.trim() || null
+          );
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGN",
+            entity: "withdrawal_requests",
+            entityId: input.id,
+            metadata: { decision: input.decision, outcome },
+          });
+          return { outcome };
+        } catch (err) {
+          if (err instanceof WorkflowError) {
+            throw new TRPCError({ code: err.trpcCode, message: err.message });
+          }
+          throw err;
+        }
+      }),
+    /** The requester or a signer may stop a request before it is paid. */
+    cancel: protectedProcedure
       .input(
         z.object({
           id: z.number().int().positive(),
-          action: z.enum(["approved", "rejected"]),
-          note: z.string().trim().max(500).default(""),
+          reason: z.string().trim().min(3).max(500),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!canApproveWithdrawals(ctx.user)) {
+        const request = await getWithdrawalRequestBasic(
+          input.id,
+          DEFAULT_CHURCH_ID
+        );
+        if (!request) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบคำขอเบิก" });
+        }
+        const allowed =
+          request.requestedBy === ctx.user.id ||
+          (await isBankSigner(ctx.user.id)) !== null;
+        if (!allowed) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "คุณไม่มีสิทธิ์อนุมัติคำขอเบิก",
+            message: "เฉพาะผู้ขอเบิกหรือผู้มีอำนาจลงนามเท่านั้นที่ยกเลิกได้",
           });
         }
-        const updated = await approveWithdrawal(
+        const cancelled = await cancelWithdrawalRequest(
           input.id,
           ctx.user.id,
-          input.action,
-          input.note
+          input.reason
         );
-        if (!updated) {
+        if (!cancelled) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "คำขอเบิกนี้ไม่ได้อยู่ในสถานะรออนุมัติ",
+            message: "คำขอเบิกนี้ถูกดำเนินการไปแล้ว ยกเลิกไม่ได้",
           });
         }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CANCEL",
+          entity: "withdrawal_requests",
+          entityId: input.id,
+          metadata: { reason: input.reason },
+        });
         return { success: true } as const;
       }),
     disburse: financeProcedure

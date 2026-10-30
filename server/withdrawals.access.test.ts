@@ -73,10 +73,45 @@ describe("bank signers: who may see and manage the signer list", () => {
   }
 
   it("rejects a user id that is not a positive integer", async () => {
-    const superAdmin: User = { ...member, id: 1, openId: "admin", role: "admin" };
+    const superAdmin: User = {
+      ...member,
+      id: 1,
+      openId: "admin",
+      role: "admin",
+    };
     const caller = appRouter.createCaller(createContext(superAdmin));
     await expect(caller.bankSigners.add({ userId: 0 })).rejects.toMatchObject({
       code: "BAD_REQUEST",
     });
+  });
+});
+
+describe("withdrawals: signing is for the people on the bank account", () => {
+  // Without a database isBankSigner answers null, so a signed-in member is
+  // correctly refused at the gate. Assert only the code.
+  it("refuses a signed-in member who is not a signer", async () => {
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.withdrawals.sign({ id: 1, decision: "approved" })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("demands a note when a signer refuses", async () => {
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.withdrawals.sign({
+        id: 1,
+        // @ts-expect-error note is mandatory with a rejection: the requester
+        // must be able to read why.
+        decision: "rejected",
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("demands a real cancellation reason", async () => {
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.withdrawals.cancel({ id: 1, reason: "a" })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });

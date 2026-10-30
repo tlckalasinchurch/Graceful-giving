@@ -64,6 +64,11 @@ import {
 } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
 import { reconcile } from "@shared/counting";
+import {
+  approvalState,
+  type ApprovalOutcome,
+  type Signature,
+} from "@shared/withdrawals";
 import { ENV } from "./_core/env";
 
 import { runSchemaInit } from "./schema_init";
@@ -1021,10 +1026,40 @@ export async function listWithdrawalRequests(
     .orderBy(desc(withdrawalRequests.createdAt))
     .limit(50);
 
+  const ids = rows.map(r => r.request.id);
+  const signaturesByRequest = new Map<
+    number,
+    Array<
+      Signature & { note: string | null; createdAt: Date; name: string | null }
+    >
+  >();
+  if (ids.length > 0) {
+    const signatureRows = await db
+      .select({ row: withdrawalApprovals, signerName: users.name })
+      .from(withdrawalApprovals)
+      .leftJoin(users, eq(withdrawalApprovals.userId, users.id))
+      .where(inArray(withdrawalApprovals.requestId, ids))
+      .orderBy(asc(withdrawalApprovals.createdAt), asc(withdrawalApprovals.id));
+    for (const s of signatureRows) {
+      const signatures = signaturesByRequest.get(s.row.requestId) ?? [];
+      signatures.push({
+        userId: s.row.userId,
+        name: s.signerName,
+        decision: s.row.decision as "approved" | "rejected",
+        note: s.row.note,
+        createdAt: s.row.createdAt,
+        wasRequiredSigner: s.row.wasRequiredSigner,
+      });
+      signaturesByRequest.set(s.row.requestId, signatures);
+    }
+  }
+
   return rows.map(r => ({
     ...r.request,
     requesterName: r.requesterName,
     amount: parseFloat((r.request.amount as unknown as string) ?? "0"),
+    signatures: signaturesByRequest.get(r.request.id) ?? [],
+    approval: approvalState(signaturesByRequest.get(r.request.id) ?? []),
   }));
 }
 
@@ -1041,29 +1076,179 @@ export async function createWithdrawalRequest(
   return result[0].id;
 }
 
-export async function approveWithdrawal(
+/** A business rule a sign/cancel step broke, reported to tRPC as-is. */
+export class WorkflowError extends Error {
+  constructor(
+    public readonly trpcCode: "NOT_FOUND" | "CONFLICT",
+    message: string
+  ) {
+    super(message);
+    this.name = "WorkflowError";
+  }
+}
+
+/** Walks the error and its causes looking for a Postgres unique violation. */
+function isUniqueViolation(err: unknown): boolean {
+  for (
+    let e: unknown = err;
+    e instanceof Error;
+    e = (e as { cause?: unknown }).cause
+  ) {
+    if ((e as { code?: unknown }).code === "23505") return true;
+  }
+  return false;
+}
+
+export async function getWithdrawalRequestBasic(
   id: number,
-  approverId: number,
-  action: "approved" | "rejected",
-  note: string,
   churchId = DEFAULT_CHURCH_ID
-) {
+): Promise<{ requestedBy: number; status: string } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({
+      requestedBy: withdrawalRequests.requestedBy,
+      status: withdrawalRequests.status,
+    })
+    .from(withdrawalRequests)
+    .where(
+      and(
+        eq(withdrawalRequests.id, id),
+        eq(withdrawalRequests.churchId, churchId)
+      )
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * Records one signer's decision on the request, in one transaction:
+ * load (row-locked, so two simultaneous signers take turns and each sees
+ * the other's committed signature), insert the signature rows with the
+ * signer flag as it stood at that moment, re-run the bank rule, and close
+ * the request with a compare-and-set from `pending`.
+ */
+export async function signWithdrawalRequest(
+  requestId: number,
+  userId: number,
+  decision: "approved" | "rejected",
+  note: string | null,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<{ outcome: ApprovalOutcome }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.transaction(async tx => {
+    const [request] = await tx
+      .select({ status: withdrawalRequests.status })
+      .from(withdrawalRequests)
+      .where(
+        and(
+          eq(withdrawalRequests.id, requestId),
+          eq(withdrawalRequests.churchId, churchId)
+        )
+      )
+      .for("update")
+      .limit(1);
+    if (!request) throw new WorkflowError("NOT_FOUND", "ไม่พบคำขอเบิก");
+    if (request.status !== "pending") {
+      throw new WorkflowError(
+        "CONFLICT",
+        "คำขอเบิกนี้ถูกดำเนินการไปแล้ว เปลี่ยนผลลงนามไม่ได้"
+      );
+    }
+
+    const [signerRow] = await tx
+      .select({ isRequired: bankSigners.isRequired })
+      .from(bankSigners)
+      .where(
+        and(eq(bankSigners.churchId, churchId), eq(bankSigners.userId, userId))
+      )
+      .limit(1);
+
+    try {
+      await tx.insert(withdrawalApprovals).values({
+        churchId,
+        requestId,
+        userId,
+        decision,
+        note,
+        wasRequiredSigner: signerRow?.isRequired === true,
+      });
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        throw new WorkflowError("CONFLICT", "คุณลงนามคำขอนี้แล้ว");
+      }
+      throw err;
+    }
+
+    const sigRows = await tx
+      .select({
+        decision: withdrawalApprovals.decision,
+        wasRequiredSigner: withdrawalApprovals.wasRequiredSigner,
+      })
+      .from(withdrawalApprovals)
+      .where(eq(withdrawalApprovals.requestId, requestId));
+    const state = approvalState(
+      sigRows.map(s => ({
+        decision: s.decision as "approved" | "rejected",
+        wasRequiredSigner: s.wasRequiredSigner,
+        userId: 0,
+      }))
+    );
+
+    if (state.outcome !== "pending") {
+      // Other transactions may only flip the status from `pending`, so the
+      // first signer to complete the rule wins and the rest see CONFLICT.
+      const rows = await tx
+        .update(withdrawalRequests)
+        .set({
+          status: state.outcome,
+          approvedBy: state.outcome === "approved" ? userId : null,
+          approvalDate: state.outcome === "approved" ? new Date() : null,
+          approvalNote: state.outcome === "approved" ? (note ?? null) : null,
+          rejectionReason: state.outcome === "rejected" ? (note ?? null) : null,
+        })
+        .where(
+          and(
+            eq(withdrawalRequests.id, requestId),
+            eq(withdrawalRequests.churchId, churchId),
+            eq(withdrawalRequests.status, "pending")
+          )
+        )
+        .returning({ id: withdrawalRequests.id });
+      if (rows.length === 0) {
+        throw new WorkflowError(
+          "CONFLICT",
+          "คำขอเบิกนี้ถูกดำเนินการไปแล้ว เปลี่ยนผลลงนามไม่ได้"
+        );
+      }
+    }
+
+    return { outcome: state.outcome };
+  });
+}
+
+export async function cancelWithdrawalRequest(
+  id: number,
+  userId: number,
+  reason: string,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<boolean> {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const rows = await db
     .update(withdrawalRequests)
     .set({
-      status: action,
-      approvedBy: approverId,
-      approvalDate: new Date(),
-      approvalNote: action === "approved" ? note : null,
-      rejectionReason: action === "rejected" ? note : null,
+      status: "cancelled",
+      cancelledAt: new Date(),
+      cancelledBy: userId,
+      cancelReason: reason,
     })
     .where(
       and(
         eq(withdrawalRequests.id, id),
         eq(withdrawalRequests.churchId, churchId),
-        eq(withdrawalRequests.status, "pending")
+        inArray(withdrawalRequests.status, ["pending", "approved"])
       )
     )
     .returning({ id: withdrawalRequests.id });
@@ -1118,10 +1303,7 @@ export async function isBankSigner(
     .select({ isRequired: bankSigners.isRequired })
     .from(bankSigners)
     .where(
-      and(
-        eq(bankSigners.churchId, churchId),
-        eq(bankSigners.userId, userId)
-      )
+      and(eq(bankSigners.churchId, churchId), eq(bankSigners.userId, userId))
     )
     .limit(1);
   return rows[0] ?? null;
@@ -1149,10 +1331,7 @@ export async function removeBankSigner(
   const rows = await db
     .delete(bankSigners)
     .where(
-      and(
-        eq(bankSigners.churchId, churchId),
-        eq(bankSigners.userId, userId)
-      )
+      and(eq(bankSigners.churchId, churchId), eq(bankSigners.userId, userId))
     )
     .returning({ id: bankSigners.id });
   return rows.length > 0;
@@ -1183,10 +1362,7 @@ export async function setRequiredBankSigner(
       .update(bankSigners)
       .set({ isRequired: true })
       .where(
-        and(
-          eq(bankSigners.churchId, churchId),
-          eq(bankSigners.userId, userId)
-        )
+        and(eq(bankSigners.churchId, churchId), eq(bankSigners.userId, userId))
       )
       .returning({ id: bankSigners.id });
     return rows.length > 0;

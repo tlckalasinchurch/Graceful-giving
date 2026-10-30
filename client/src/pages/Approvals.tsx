@@ -58,16 +58,6 @@ export default function Approvals() {
     refetch,
   } = trpc.withdrawals.list.useQuery(undefined, { retry: false });
 
-  const approveMutation = trpc.withdrawals.approve.useMutation({
-    onSuccess: () => {
-      toast.success("อนุมัติคำขอเบิกจ่ายเรียบร้อยแล้ว");
-      refetch();
-    },
-    onError: error => {
-      toast.error("ดำเนินการคำขอเบิกไม่สำเร็จ", { description: error.message });
-    },
-  });
-
   const requests = useMemo(() => {
     if (withdrawalsData && withdrawalsData.length > 0) {
       const fundNameById = new Map<number, string>();
@@ -97,22 +87,21 @@ export default function Approvals() {
     return requests.filter(r => r.status === activeTab);
   }, [requests, activeTab]);
 
-  const handleApprove = (id: number) => {
-    approveMutation.mutate({ id, action: "approved" });
+  // Part 2 Task 6 rewrites this page around `withdrawals.sign`; the old
+  // single-approver `withdrawals.approve` procedure is gone.
+  const handleApprove = () => {
+    toast.error(
+      "ระบบอนุมัติกำลังเปลี่ยนเป็นผู้ลงนามในบัญชีธนาคาร เปิดใช้เร็ว ๆ นี้"
+    );
   };
-
   const handleReject = () => {
     if (!rejectReason.trim()) {
       toast.error("กรุณาระบุเหตุผลในการไม่อนุมัติ");
       return;
     }
-    if (selectedReq) {
-      approveMutation.mutate({
-        id: selectedReq.id,
-        action: "rejected",
-        note: rejectReason.trim(),
-      });
-    }
+    toast.error(
+      "ระบบอนุมัติกำลังเปลี่ยนเป็นผู้ลงนามในบัญชีธนาคาร เปิดใช้เร็ว ๆ นี้"
+    );
     setShowRejectModal(false);
     setRejectReason("");
   };
@@ -264,7 +253,7 @@ export default function Approvals() {
                         ไม่อนุมัติ
                       </button>
                       <button
-                        onClick={() => handleApprove(req.id)}
+                        onClick={handleApprove}
                         className="min-h-11 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors shadow-sm"
                       >
                         อนุมัติคำขอ
