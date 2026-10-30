@@ -20,8 +20,6 @@ interface BankRecordsTabProps {
   envelopeTransferTotal: number;
   transferVariance: number;
   actualCashDeposit: number;
-  expectedDeposit: number;
-  depositVariance: number;
   addBankRecord: {
     mutate: (vars: any, options?: any) => void;
     isPending: boolean;
@@ -39,8 +37,6 @@ export function BankRecordsTab({
   envelopeTransferTotal,
   transferVariance,
   actualCashDeposit,
-  expectedDeposit,
-  depositVariance,
   addBankRecord,
   matchPassbook,
 }: BankRecordsTabProps) {
@@ -165,12 +161,6 @@ export function BankRecordsTab({
         <div className="rounded-2xl border border-line bg-white p-4">
           <p className="text-sm text-ink-2">นำเงินสดเข้าฝากจริง</p>
           <MoneyDisplay amount={actualCashDeposit} size="lg" />
-          <p className="mt-1 text-sm text-ink-2">
-            ต้องนำฝาก {fmtBaht(expectedDeposit)}
-          </p>
-          <div className="mt-1">
-            <Variance amount={depositVariance} />
-          </div>
         </div>
       </div>
 

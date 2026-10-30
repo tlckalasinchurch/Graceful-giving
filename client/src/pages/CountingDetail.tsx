@@ -349,11 +349,8 @@ export default function CountingDetail() {
             <MoneyDisplay amount={r.deductionTotal} type="expense" size="lg" />
           </div>
           <div className="rounded-2xl border border-line bg-white p-4 shadow-2xs">
-            <p className="text-sm text-ink-2">ต้องนำฝาก</p>
-            <MoneyDisplay amount={r.expectedDeposit} size="lg" />
-            <div className="mt-1 text-sm">
-              <Variance amount={r.depositVariance} />
-            </div>
+            <p className="text-sm text-ink-2">นำฝาก</p>
+            <MoneyDisplay amount={r.actualCashDeposit} size="lg" />
           </div>
         </section>
 
@@ -418,8 +415,6 @@ export default function CountingDetail() {
             envelopeTransferTotal={r.envelopeTransferTotal}
             transferVariance={r.transferVariance}
             actualCashDeposit={r.actualCashDeposit}
-            expectedDeposit={r.expectedDeposit}
-            depositVariance={r.depositVariance}
             addBankRecord={addBankRecord}
             matchPassbook={matchPassbook}
           />

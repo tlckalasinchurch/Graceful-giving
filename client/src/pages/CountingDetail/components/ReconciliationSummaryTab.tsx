@@ -16,10 +16,8 @@ interface ReconciliationSummaryTabProps {
     envelopeCheckTotal: number;
     cashVariance: number;
     transferVariance: number;
-    depositVariance: number;
     countedCashTotal: number;
     deductionTotal: number;
-    expectedDeposit: number;
     isBalanced: boolean;
   };
   unapprovedDeductions: Array<any>;
@@ -156,23 +154,6 @@ export function ReconciliationSummaryTab({
             </dt>
             <dd>
               <Variance amount={r.transferVariance} />
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4 bg-paper-2 p-4">
-            <dt className="text-sm font-bold text-ink">
-              ผลต่างการฝาก (ฝากจริง − ที่ต้องนำฝาก)
-            </dt>
-            <dd>
-              <Variance amount={r.depositVariance} />
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4 border-t-2 border-line p-4">
-            <dt className="font-bold text-foreground">
-              นับเงินสดได้ − หักเบิก = ยอดนำฝาก
-            </dt>
-            <dd className="text-sm font-bold tabular-nums text-foreground">
-              {fmtBaht(r.countedCashTotal)} − {fmtBaht(r.deductionTotal)} ={" "}
-              {fmtBaht(r.expectedDeposit)}
             </dd>
           </div>
         </dl>

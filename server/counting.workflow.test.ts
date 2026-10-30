@@ -236,7 +236,6 @@ describeDb("counting workflow against a real database", () => {
 
     const detail = await asCounter().counting.get({ id: sessionId });
     expect(detail.reconciliation.deductionTotal).toBe(2000);
-    expect(detail.reconciliation.expectedDeposit).toBe(18000);
     expect(detail.deductions[0].approvedBy).toBe(treasurer.id);
   });
 
@@ -266,7 +265,6 @@ describeDb("counting workflow against a real database", () => {
     const detail = await caller.counting.get({ id: sessionId });
     expect(detail.reconciliation.actualCashDeposit).toBe(18000);
     expect(detail.reconciliation.actualTransferIn).toBe(3000);
-    expect(detail.reconciliation.depositVariance).toBe(0);
     expect(detail.reconciliation.transferVariance).toBe(0);
     expect(detail.reconciliation.isBalanced).toBe(true);
   });
