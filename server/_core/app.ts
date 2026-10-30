@@ -9,8 +9,10 @@ import { registerLineWorker } from "../line/processWorker";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { ENV } from "./env";
+import { reportMissingConfig } from "./config";
 
 export function createApp(): Express {
+  if (ENV.isProduction) reportMissingConfig();
   const app = express();
 
   // CORS — restrict to the configured origin in production; open in dev.

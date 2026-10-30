@@ -58,7 +58,7 @@ describe("auth.logout", () => {
     expect(clearedCookies[0]?.options).toMatchObject({
       maxAge: -1,
       secure: true,
-      sameSite: "none",
+      sameSite: "lax",
       httpOnly: true,
       path: "/",
     });
@@ -66,44 +66,35 @@ describe("auth.logout", () => {
 });
 
 describe("session cookie attributes", () => {
-  /**
-   * SameSite=None is only valid together with Secure. Emitting it on a plain
-   * http origin makes browsers discard the cookie, which silently broke sign-out.
-   */
-  it("uses Lax on an insecure origin", () => {
-    const options = getSessionCookieOptions({
-      protocol: "http",
-      headers: {},
-    } as unknown as Parameters<typeof getSessionCookieOptions>[0]);
-    expect(options.secure).toBe(false);
-    expect(options.sameSite).toBe("lax");
+  const req = (protocol: string, headers: Record<string, string> = {}) =>
+    ({ protocol, headers }) as unknown as Parameters<
+      typeof getSessionCookieOptions
+    >[0];
+
+  it("is Lax on http and https: the session is first-party only", () => {
+    for (const r of [req("http"), req("https")]) {
+      expect(getSessionCookieOptions(r).sameSite).toBe("lax");
+    }
   });
 
-  it("uses None with Secure on https", () => {
-    const options = getSessionCookieOptions({
-      protocol: "https",
-      headers: {},
-    } as unknown as Parameters<typeof getSessionCookieOptions>[0]);
-    expect(options.secure).toBe(true);
-    expect(options.sameSite).toBe("none");
+  it("is Secure on https", () => {
+    expect(getSessionCookieOptions(req("https")).secure).toBe(true);
+  });
+
+  it("is not Secure on plain http", () => {
+    expect(getSessionCookieOptions(req("http")).secure).toBe(false);
   });
 
   it("honours x-forwarded-proto from a proxy", () => {
-    const options = getSessionCookieOptions({
-      protocol: "http",
-      headers: { "x-forwarded-proto": "https" },
-    } as unknown as Parameters<typeof getSessionCookieOptions>[0]);
-    expect(options.secure).toBe(true);
-    expect(options.sameSite).toBe("none");
+    expect(
+      getSessionCookieOptions(req("http", { "x-forwarded-proto": "https" }))
+        .secure
+    ).toBe(true);
   });
 
-  it("never pairs SameSite=None with an insecure cookie", () => {
-    for (const protocol of ["http", "https"]) {
-      const options = getSessionCookieOptions({
-        protocol,
-        headers: {},
-      } as unknown as Parameters<typeof getSessionCookieOptions>[0]);
-      if (options.sameSite === "none") expect(options.secure).toBe(true);
-    }
+  it("is HttpOnly with path /", () => {
+    const o = getSessionCookieOptions(req("https"));
+    expect(o.httpOnly).toBe(true);
+    expect(o.path).toBe("/");
   });
 });

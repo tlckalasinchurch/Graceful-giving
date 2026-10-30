@@ -753,7 +753,13 @@ export default function Settings() {
                                     )}
                                     <NativeSelect
                                       value={u.churchRole || "MEMBER"}
-                                      disabled={isUpdating}
+                                      // Your own role is changed by another super admin.
+                                      disabled={isUpdating || isMe}
+                                      title={
+                                        isMe
+                                          ? "เปลี่ยนบทบาทของตัวเองไม่ได้"
+                                          : undefined
+                                      }
                                       onChange={e =>
                                         handleRoleChange(u.id, e.target.value)
                                       }

@@ -6,6 +6,7 @@ import * as db from "../db";
 import type { User } from "../../drizzle/schema";
 import { getSessionCookieOptions } from "./cookies";
 import { ENV } from "./env";
+import { createRateLimiter } from "./rateLimit";
 import { SESSION_MAX_AGE_MS, signSession } from "./session";
 
 const AUTHORIZE_URL = "https://access.line.me/oauth2/v2.1/authorize";
@@ -151,8 +152,15 @@ function clearStateCookie(req: Request, res: Response) {
   });
 }
 
+// Ten sign-in attempts a minute from one address is plenty for a person.
+const loginLimiter = createRateLimiter({
+  windowMs: 60_000,
+  max: 10,
+  message: "Too many sign-in attempts. Try again in a minute.",
+});
+
 export function registerLineLogin(app: Express) {
-  app.get("/api/auth/line/login", (req, res) => {
+  app.get("/api/auth/line/login", loginLimiter, (req, res) => {
     if (!ENV.lineLoginChannelId || !ENV.lineLoginChannelSecret) {
       res.redirect(302, "/login?error=not_configured");
       return;
@@ -169,7 +177,7 @@ export function registerLineLogin(app: Express) {
     );
   });
 
-  app.get("/api/auth/line/callback", async (req, res) => {
+  app.get("/api/auth/line/callback", loginLimiter, async (req, res) => {
     const fail = (reason: string) => {
       clearStateCookie(req, res);
       res.redirect(302, `/login?error=${reason}`);
