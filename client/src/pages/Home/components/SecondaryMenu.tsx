@@ -35,16 +35,16 @@ const Shortcut = forwardRef<HTMLButtonElement, ShortcutProps>(
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="flex min-h-[88px] w-full flex-col items-center justify-center gap-2 rounded-2xl px-1 py-3 hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand"
+      className="group flex min-h-[92px] w-full flex-col items-center justify-center gap-2 rounded-2xl px-1 py-3 hover:bg-paper transition-all hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand"
       {...rest}
     >
       <span
-        className={`size-11 rounded-2xl flex items-center justify-center ${tile}`}
+        className={`size-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 ${tile}`}
         aria-hidden="true"
       >
         <Icon className="size-5" />
       </span>
-      <span className="text-center text-xs sm:text-sm font-medium text-ink">
+      <span className="text-center text-xs sm:text-sm font-bold text-ink">
         {label}
       </span>
     </button>
@@ -65,7 +65,7 @@ export function SecondaryMenu({
     <div
       role="group"
       aria-label="เมนูลัดอื่น ๆ"
-      className={`grid grid-cols-3 gap-1 w-full ${secondaryTileColsClass}`}
+      className={`grid grid-cols-3 gap-1.5 w-full ${secondaryTileColsClass}`}
     >
       {canOpenReports && (
         <Shortcut
@@ -99,7 +99,7 @@ export function SecondaryMenu({
         <Shortcut
           label="เพิ่มเติม"
           icon={MoreHorizontal}
-          tile="bg-ground text-ink-2"
+          tile="bg-tile-sand text-tile-sand-ink"
         />
       </AppMenu>
     </div>

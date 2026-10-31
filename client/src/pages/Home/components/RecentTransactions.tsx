@@ -29,13 +29,13 @@ export function RecentTransactions({
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="h-full bg-surface rounded-3xl p-2 sm:p-3 fintech-card w-full"
+      className="h-full bg-surface rounded-3xl p-3 sm:p-4 fintech-card w-full"
     >
-      <div className="flex items-center justify-between px-3 pt-2">
-        <h2 className="text-base font-semibold text-ink">รายการล่าสุด</h2>
+      <div className="flex items-center justify-between px-3 pb-1 pt-2">
+        <h2 className="text-base font-bold text-ink">รายการล่าสุด</h2>
         <button
           onClick={onViewAll}
-          className="inline-flex min-h-11 items-center gap-1 rounded-2xl px-2 text-sm font-semibold text-brand-ink hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand"
+          className="inline-flex min-h-10 items-center gap-1 rounded-full bg-tile-lilac/60 px-3 py-1 text-xs sm:text-sm font-bold text-brand-ink hover:bg-tile-lilac transition-colors focus-visible:ring-2 focus-visible:ring-brand"
         >
           <span>ดูทั้งหมด</span>
           <ChevronRight className="size-4" aria-hidden="true" />
@@ -47,14 +47,14 @@ export function RecentTransactions({
           ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
         </p>
       ) : (
-        <ul className="divide-y divide-line">
+        <ul className="divide-y divide-line/60">
           {allTransactions.slice(0, 5).map(tx => {
             const Icon = tx.icon;
             return (
               <li key={tx.id}>
                 <Link
                   href={`/transactions/${tx.id}`}
-                  className="flex min-h-16 items-center justify-between gap-4 rounded-2xl px-3 py-3 hover:bg-ground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                  className="flex min-h-16 items-center justify-between gap-4 rounded-2xl px-3 py-3 hover:bg-paper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                 >
                   <div className="flex min-w-0 items-center gap-3.5">
                     <span
@@ -64,7 +64,7 @@ export function RecentTransactions({
                       <Icon className="size-5" />
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-ink">
+                      <p className="truncate text-sm font-bold text-ink">
                         {tx.title}
                       </p>
                       <p className="truncate text-xs text-ink-2 pt-0.5">

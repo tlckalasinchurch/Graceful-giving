@@ -378,12 +378,12 @@ export default function Settings() {
     >
       <div className="max-w-4xl space-y-6">
         {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-line pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x">
+        <div className="flex items-center gap-1.5 rounded-2xl bg-surface p-1.5 fintech-card overflow-x-auto no-scrollbar touch-pan-x">
           <button
             onClick={() => setActiveTab("church")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "church"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -394,7 +394,7 @@ export default function Settings() {
             onClick={() => setActiveTab("roles")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "roles"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -405,7 +405,7 @@ export default function Settings() {
             onClick={() => setActiveTab("categories")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "categories"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -416,7 +416,7 @@ export default function Settings() {
             onClick={() => setActiveTab("payment")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "payment"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -427,7 +427,7 @@ export default function Settings() {
             onClick={() => setActiveTab("audit")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "audit"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
