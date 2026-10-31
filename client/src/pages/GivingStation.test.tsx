@@ -15,6 +15,10 @@ let payeeInfo: unknown = null;
 vi.mock("@/_core/hooks/useAuth", () => ({
   useAuth: () => ({ user: authUser, logout }),
 }));
+let liffIdFromServer: string | null = null;
+vi.mock("@/lib/liffSignIn", () => ({
+  fetchLiffId: async () => liffIdFromServer,
+}));
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
@@ -103,6 +107,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   window.localStorage.clear();
   posterData = undefined;
+  liffIdFromServer = null;
   authUser = member;
   paymentQr = null;
   payeeInfo = {
@@ -407,6 +412,28 @@ describe("GivingStation poster text", () => {
     expect(
       (screen.getByLabelText(/หัวข้อหลัก \(สีขาว\)/) as HTMLInputElement).value
     ).toBe("ถวายด้วยใจ");
+  });
+
+  it("shows the LINE link when LIFF is on, and sends it in the LINE share", async () => {
+    authUser = treasurer;
+    liffIdFromServer = "123-abc";
+    render(<GivingStation />);
+    fireEvent.click(screen.getByText(/โปสเตอร์ป้าย QR ติดหน้าห้อง/));
+    const field = (await screen.findByLabelText(
+      "ลิงก์สำหรับ LINE"
+    )) as HTMLInputElement;
+    expect(field.value).toBe("https://liff.line.me/123-abc");
+    const line = screen.getByRole("link", { name: "ส่งทาง LINE" });
+    expect(line.getAttribute("href")).toContain(
+      encodeURIComponent("https://liff.line.me/123-abc")
+    );
+  });
+
+  it("shows no LINE link when LIFF is off", () => {
+    authUser = treasurer;
+    render(<GivingStation />);
+    fireEvent.click(screen.getByText(/โปสเตอร์ป้าย QR ติดหน้าห้อง/));
+    expect(screen.queryByLabelText("ลิงก์สำหรับ LINE")).toBeNull();
   });
 
   it("offers the share links to staff, and no save button to a treasurer", () => {

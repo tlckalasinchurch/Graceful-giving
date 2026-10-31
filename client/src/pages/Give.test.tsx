@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let auth: { user: Record<string, unknown> | null; loading: boolean };
@@ -11,8 +11,20 @@ vi.mock("@/_core/hooks/useAuth", () => ({
     isAuthenticated: Boolean(auth.user),
   }),
 }));
+const invalidateMe = vi.fn();
 vi.mock("@/lib/trpc", () => ({
-  trpc: { auth: { status: { useQuery: () => ({ data: status }) } } },
+  trpc: {
+    useUtils: () => ({ auth: { me: { invalidate: invalidateMe } } }),
+    auth: { status: { useQuery: () => ({ data: status }) } },
+  },
+}));
+let liffId: string | null = null;
+let liffResult = "not_in_line";
+const signInWithLiff = vi.fn(async () => liffResult);
+vi.mock("@/lib/liffSignIn", () => ({
+  fetchLiffId: async () => liffId,
+  signInWithLiff: (...args: unknown[]) =>
+    (signInWithLiff as unknown as (...a: unknown[]) => unknown)(...args),
 }));
 vi.mock("./GivingStation", () => ({
   PlainGivingStation: () => <div data-testid="station" />,
@@ -26,6 +38,10 @@ describe("Give (the public giving link)", () => {
   beforeEach(() => {
     auth = { user: null, loading: false };
     status = { state: "signed_out" };
+    liffId = null;
+    liffResult = "not_in_line";
+    signInWithLiff.mockClear();
+    invalidateMe.mockClear();
     window.history.pushState({}, "", "/give");
   });
 
@@ -59,5 +75,48 @@ describe("Give (the public giving link)", () => {
     window.history.pushState({}, "", "/give?error=cancelled");
     render(<Give />);
     expect(screen.getByRole("alert").textContent).toContain("ยกเลิก");
+  });
+
+  describe("inside the LINE app (LIFF)", () => {
+    it("does not start LIFF when the server has no LIFF ID", async () => {
+      render(<Give />);
+      await Promise.resolve();
+      expect(signInWithLiff).not.toHaveBeenCalled();
+      expect(screen.getByRole("link", { name: /LINE/ })).toBeTruthy();
+    });
+
+    it("signs the person in and reloads who they are", async () => {
+      liffId = "123-abc";
+      liffResult = "signed_in";
+      render(<Give />);
+      await waitFor(() => expect(invalidateMe).toHaveBeenCalledTimes(1));
+      expect(signInWithLiff).toHaveBeenCalledWith("123-abc");
+      expect(signInWithLiff).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows the LINE button in an ordinary browser", async () => {
+      liffId = "123-abc";
+      liffResult = "not_in_line";
+      render(<Give />);
+      await waitFor(() => expect(signInWithLiff).toHaveBeenCalled());
+      expect(await screen.findByRole("link", { name: /LINE/ })).toBeTruthy();
+      expect(invalidateMe).not.toHaveBeenCalled();
+    });
+
+    it("falls back to the LINE button when LIFF fails", async () => {
+      liffId = "123-abc";
+      liffResult = "failed";
+      render(<Give />);
+      expect(await screen.findByRole("link", { name: /LINE/ })).toBeTruthy();
+      expect(invalidateMe).not.toHaveBeenCalled();
+    });
+
+    it("keeps the waiting message while LIFF sends the person to sign in", async () => {
+      liffId = "123-abc";
+      liffResult = "redirecting";
+      render(<Give />);
+      expect(await screen.findByRole("status")).toBeTruthy();
+      expect(screen.queryByRole("link")).toBeNull();
+    });
   });
 });

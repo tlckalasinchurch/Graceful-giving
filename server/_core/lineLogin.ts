@@ -116,6 +116,38 @@ export async function fetchLineProfile(
 }
 
 /**
+ * Verifies an ID token from the LIFF app (the LINE app signs the person in).
+ * LINE checks the signature, the expiry and that the token was issued for our
+ * channel. The page cannot forge this, so the server trusts only this result.
+ */
+export async function verifyLiffIdToken(
+  idToken: string,
+  fetchImpl: typeof fetch = fetch
+): Promise<LineProfile> {
+  const verifyRes = await fetchImpl(VERIFY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      id_token: idToken,
+      client_id: ENV.lineLoginChannelId,
+    }),
+  });
+  if (!verifyRes.ok)
+    throw new LineLoginError(`liff id_token verify ${verifyRes.status}`);
+  const claims = (await verifyRes.json()) as {
+    sub?: string;
+    name?: string;
+    picture?: string;
+  };
+  if (!claims.sub) throw new LineLoginError("liff id_token has no sub");
+  return {
+    sub: claims.sub,
+    name: claims.name?.trim() || null,
+    picture: claims.picture ?? null,
+  };
+}
+
+/**
  * Find or create the account for a LINE profile.
  * New people start "pending". Only OWNER_OPEN_ID (or the first user in
  * development) starts active, as SUPER_ADMIN.
@@ -262,6 +294,58 @@ export function registerLineLogin(app: Express) {
     } catch (err) {
       console.error("[LINE Login] failed:", err);
       fail("failed");
+    }
+  });
+}
+
+const liffLimiter = createRateLimiter({
+  windowMs: 60_000,
+  max: 20,
+  message: "Too many sign-in attempts. Try again in a minute.",
+});
+
+/**
+ * Sign-in from inside the LINE app. The /give page runs as a LIFF app there,
+ * so LINE has already signed the person in. The page sends the ID token, the
+ * server verifies it with LINE and sets the same session cookie as the
+ * button flow. Only a person who opened the public giving link gets in this
+ * way, so the account is a giver (active, ordinary MEMBER).
+ */
+export function registerLiffLogin(app: Express) {
+  // The LIFF ID is not a secret. The page needs it to start the LIFF SDK.
+  app.get("/api/auth/liff/config", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ liffId: ENV.lineLiffId || null });
+  });
+
+  app.post("/api/auth/liff/login", liffLimiter, async (req, res) => {
+    const idToken = req.body?.idToken;
+    if (
+      !ENV.lineLoginChannelId ||
+      typeof idToken !== "string" ||
+      idToken.length < 20 ||
+      idToken.length > 4000
+    ) {
+      logLogin("liff sign-in refused", req, { reason: "bad_request" });
+      res.status(400).json({ error: "bad_request" });
+      return;
+    }
+    try {
+      logLogin("liff sign-in started", req);
+      const profile = await verifyLiffIdToken(idToken);
+      const user = await resolveLineUser(profile, { giver: true });
+      res.cookie(COOKIE_NAME, await signSession(user.openId), {
+        ...getSessionCookieOptions(req),
+        maxAge: SESSION_MAX_AGE_MS,
+      });
+      logLogin("liff sign-in succeeded", req, { status: user.status });
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("[LINE Login] liff sign-in failed:", err);
+      logLogin("liff sign-in failed", req, {
+        reason: err instanceof LineLoginError ? err.message : "error",
+      });
+      res.status(401).json({ error: "unauthorized" });
     }
   });
 }
