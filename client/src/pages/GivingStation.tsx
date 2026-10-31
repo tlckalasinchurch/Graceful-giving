@@ -1443,7 +1443,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(lineShareLink)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="py-2 px-3 rounded-xl bg-[#06C755] text-white font-bold text-xs"
+                  className="py-2 px-3 rounded-xl bg-[#06C755] text-black font-bold text-xs"
                 >
                   ส่งทาง LINE
                 </a>
@@ -1543,7 +1543,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             onClick={() =>
               setActiveTab(activeTab === "flow" ? "poster" : "flow")
             }
-            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
           >
             {activeTab === "flow" ? (
               <>

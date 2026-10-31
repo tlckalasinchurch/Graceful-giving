@@ -192,7 +192,7 @@ export default function Expenses() {
           </button>
           <button
             onClick={() => setLocation("/expenses/new")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-ink"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black hover:bg-brand-ink"
           >
             <Plus className="size-4" />
             บันทึกรายจ่าย

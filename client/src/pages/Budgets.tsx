@@ -98,7 +98,7 @@ export default function Budgets() {
         <button
           type="button"
           onClick={() => (showCreate ? closeCreateForm() : setShowCreate(true))}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-ink"
+          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-black shadow-sm transition-colors hover:bg-brand-ink"
         >
           <Plus className="h-4 w-4" />
           ตั้งงบประมาณ

@@ -88,7 +88,7 @@ export default function Ministries() {
                 setShowCreate(true);
               }
             }}
-            className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-xs font-bold text-white"
+            className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-xs font-bold text-black"
           >
             <Plus className="h-4 w-4" />
             เพิ่มฝ่ายงาน

@@ -199,7 +199,7 @@ export default function Counting() {
         <button
           type="button"
           onClick={() => (showCreate ? closeCreate() : setShowCreate(true))}
-          className="min-h-11 inline-flex items-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-bold text-white shadow-[0_6px_16px_-4px_rgba(79,70,229,0.45)] transition-all hover:bg-brand-ink active:scale-95"
+          className="min-h-11 inline-flex items-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-bold text-black shadow-md shadow-brand/25 transition-all hover:bg-brand-ink active:scale-95"
         >
           <Plus className="h-4 w-4" />
           เปิดรอบใหม่
@@ -474,7 +474,7 @@ export default function Counting() {
                         <button
                           type="button"
                           onClick={() => setLocation(`/counting/${session.id}`)}
-                          className="min-h-10 inline-flex items-center gap-1.5 rounded-2xl bg-brand px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-all active:scale-95"
+                          className="min-h-10 inline-flex items-center gap-1.5 rounded-2xl bg-brand px-4 py-2 text-xs font-bold text-black shadow-xs hover:bg-brand-ink transition-all active:scale-95"
                         >
                           <span>นับต่อ</span>
                           <ChevronRight className="h-3.5 w-3.5" />

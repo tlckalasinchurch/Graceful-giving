@@ -23,9 +23,9 @@
   --radius-2xl: 1.25rem;
   --radius-3xl: 1.5rem;
 
-  /* Clean Pastel FinTech Palette:
-     Airy cloud-blue ground, pure white floating cards, deep slate-navy ink,
-     vibrant electric indigo brand, and fresh pastel category tiles. */
+  /* Dark bento palette: matte-black ground, near-black cards, warm off-white
+     ink, orange brand, neon-green accent, and dark category tiles with bright
+     matching ink. Text on the orange brand is black (7.3:1); white fails AA. */
   --color-ground: #050506;
   --color-paper: #161618;
   --color-paper-2: #1f1f22;
@@ -34,13 +34,13 @@
   --color-ink-2: #d6d3d1;
   --color-ink-3: #a8a29e;
   --color-line: #26262a;
-  --color-field: #3f3f46;
+  --color-field: #71717a;
   --color-income: #34d399;
   --color-danger: #fb7185;
   --color-brand: #ff6a00;
   --color-brand-ink: #ff8a3d;
 
-  /* Gen Z Pastel Category Tiles — soft vibrant tints with deep matching hue ink */
+  /* Category tiles — dark tints with bright matching hue ink */
   --color-tile-sky: #0c2a3a;
   --color-tile-sky-ink: #38bdf8;
   --color-tile-mint: #0b2e22;
@@ -106,7 +106,7 @@
   --content-max: 88rem;
 
   --primary: #ff6a00;
-  --primary-foreground: #ffffff;
+  --primary-foreground: #000000;
   --background: #050506;
   --foreground: #f5f5f4;
   --card: #0e0e10;
@@ -122,7 +122,7 @@
   --destructive: #e11d48;
   --destructive-foreground: #ffffff;
   --border: #26262a;
-  --input: #3f3f46;
+  --input: #71717a;
   --ring: #00f58a;
   --radius: 1rem;
 }
@@ -222,14 +222,14 @@ select:focus-visible {
 
 .button-elevation,
 .clay-button-shadow {
-  box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.25);
+  box-shadow: 0 4px 12px -2px rgba(255, 106, 0, 0.25);
 }
 
 .card-elevation-focus,
 .clay-balance-glow {
   box-shadow:
     0 0 0 1px rgba(0, 245, 138, 0.35),
-    0 16px 40px -16px rgba(79, 70, 229, 0.14);
+    0 16px 40px -16px rgba(255, 106, 0, 0.14);
 }
 
 .fintech-card {
@@ -251,7 +251,7 @@ select:focus-visible {
   transform: translateY(-2px);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.2),
-    0 14px 32px -12px rgba(79, 70, 229, 0.14);
+    0 14px 32px -12px rgba(255, 106, 0, 0.14);
 }
 
 .fintech-glass {
@@ -262,7 +262,7 @@ select:focus-visible {
 }
 
 .fintech-glass-dark {
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(5, 5, 6, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);

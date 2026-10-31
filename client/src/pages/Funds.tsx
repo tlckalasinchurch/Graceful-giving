@@ -93,7 +93,7 @@ export default function Funds() {
       action={
         <button
           onClick={() => setShowNewFundModal(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-ink"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black hover:bg-brand-ink"
         >
           <Plus className="size-4" />
           สร้างกองทุนใหม่
@@ -258,7 +258,7 @@ export default function Funds() {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-brand-ink"
+                    className="px-6 py-2.5 rounded-xl bg-primary text-black text-xs font-semibold hover:bg-brand-ink"
                   >
                     สร้างกองทุน
                   </button>

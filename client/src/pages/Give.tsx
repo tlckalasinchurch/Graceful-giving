@@ -116,7 +116,7 @@ export default function Give() {
       ) : (
         <a
           href={GIVE_LOGIN_URL}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl bg-[#06C755] px-4 text-base font-bold text-white hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl bg-[#06C755] px-4 text-base font-bold text-black hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
         >
           <LineMark />
           เข้าสู่ระบบด้วย LINE

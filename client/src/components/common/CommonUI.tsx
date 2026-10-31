@@ -76,7 +76,7 @@ export const EmptyState: React.FC<{
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="min-h-11 mt-2 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-white text-sm font-bold shadow-md shadow-brand/20 transition-all focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-11 mt-2 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-sm font-bold shadow-md shadow-brand/20 transition-all focus-visible:ring-2 focus-visible:ring-brand"
         >
           {actionText}
         </button>
@@ -210,7 +210,7 @@ export const StatusBadge: React.FC<{
         };
       case "posted":
         return {
-          bg: "bg-brand text-white border-brand",
+          bg: "bg-brand text-black border-brand",
           defaultLabel: "ลงบัญชีแล้ว",
         };
       case "closed":
@@ -329,7 +329,7 @@ export const Chip: React.FC<
     aria-pressed={active}
     className={`min-h-11 shrink-0 whitespace-nowrap rounded-2xl border px-4 py-2 text-sm transition-all ${
       active
-        ? "border-brand bg-brand font-bold text-white shadow-sm shadow-brand/20"
+        ? "border-brand bg-brand font-bold text-black shadow-sm shadow-brand/20"
         : "border-line bg-surface font-semibold text-ink-2 hover:bg-paper hover:text-ink"
     } ${className}`}
     {...props}

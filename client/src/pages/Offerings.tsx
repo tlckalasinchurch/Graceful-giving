@@ -130,7 +130,7 @@ export default function Offerings() {
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-white text-xs font-bold button-elevation transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold button-elevation transition-all flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>บันทึกถวายใหม่</span>

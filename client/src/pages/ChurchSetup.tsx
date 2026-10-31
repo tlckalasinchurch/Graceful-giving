@@ -258,7 +258,7 @@ export default function ChurchSetup() {
                         done
                           ? "bg-[#3F9156] text-white"
                           : active
-                            ? "bg-brand-ink text-white"
+                            ? "bg-brand-ink text-black"
                             : "bg-line text-ink-3"
                       }`}
                     >

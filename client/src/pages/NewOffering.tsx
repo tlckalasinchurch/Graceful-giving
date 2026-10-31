@@ -329,7 +329,7 @@ export default function NewOffering() {
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-white font-semibold text-base shadow-[0_1px_3px_hsla(20,80%,30%,0.3)] flex items-center justify-center gap-2"
+            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base shadow-[0_1px_3px_hsla(20,80%,30%,0.3)] flex items-center justify-center gap-2"
           >
             <HandCoins className="w-5 h-5" />
             <span>
@@ -386,7 +386,7 @@ export default function NewOffering() {
               setIsSuccessOpen(false);
               setLocation("/offerings");
             }}
-            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-white font-semibold text-base shadow-[0_1px_3px_hsla(20,80%,30%,0.3)]"
+            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base shadow-[0_1px_3px_hsla(20,80%,30%,0.3)]"
           >
             ดูรายการถวายทั้งหมด
           </button>

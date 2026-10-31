@@ -260,7 +260,7 @@ export function AdminManager() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={openNewNews}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand-ink px-4 py-2.5 text-xs font-bold text-white hover:bg-brand shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand-ink px-4 py-2.5 text-xs font-bold text-black hover:bg-brand shadow-sm active:scale-95 transition"
           >
             <Plus className="size-4" /> ข่าวสารใหม่
           </button>

@@ -25,7 +25,7 @@ pnpm db:push          # drizzle-kit generate && pnpm db:migrate (needs a real DA
 pnpm db:migrate       # apply pending migrations to the database in the environment (see drizzle/README.md)
 ```
 
-Run a single test file: `pnpm exec vitest run server/updates.access.test.ts`. Tests live under `server/` and are named `*.test.ts`; the vitest config only includes `server/**/*.test.ts` and `server/**/*.spec.ts` — client-side tests are not wired up.
+Run a single test file: `pnpm exec vitest run server/updates.access.test.ts`. Tests are named `*.test.ts(x)`. The vitest config includes `server/**/*.test.ts`, `server/**/*.spec.ts` and `client/**/*.{test,spec}.{ts,tsx}`; client tests run in jsdom. `client/src/theme.contrast.test.ts` checks the WCAG contrast of the colour tokens in `client/src/index.css`.
 
 There is no separate lint script; `pnpm check` (tsc) and `pnpm format` (prettier) are the enforced checks. `tsconfig.json` excludes `*.test.ts`.
 
@@ -85,7 +85,7 @@ Supabase also hosts the database (see `DATABASE_URL` above). `@aws-sdk/client-s3
 
 ### Testing
 
-Server-side only (`server/*.test.ts`); client tests are not wired up. Tests run against `appRouter.createCaller(context)` directly, with no HTTP layer — see `server/updates.access.test.ts` or `server/line.inbox.test.ts` for the pattern: build a fake `TrpcContext` with a plain `User` object, call procedures via the caller, and assert on thrown tRPC error codes (`UNAUTHORIZED`/`FORBIDDEN`/`BAD_REQUEST`) for access-control tests.
+Server tests are `server/*.test.ts`. Client tests (`client/**/*.test.tsx`, jsdom) cover pages, hooks and the theme tokens. Server tests run against `appRouter.createCaller(context)` directly, with no HTTP layer — see `server/updates.access.test.ts` or `server/line.inbox.test.ts` for the pattern: build a fake `TrpcContext` with a plain `User` object, call procedures via the caller, and assert on thrown tRPC error codes (`UNAUTHORIZED`/`FORBIDDEN`/`BAD_REQUEST`) for access-control tests.
 
 Two suites are different and need care. `server/counting.workflow.test.ts` and `server/reports.integration.test.ts` hit a real Postgres and **write rows**. They skip themselves unless `DATABASE_URL` is set, which is why `pnpm test` reports skipped files on a normal machine. The app no longer creates tables when it connects, so migrate that database first with `pnpm db:migrate`.
 

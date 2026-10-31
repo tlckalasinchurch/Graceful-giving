@@ -382,7 +382,7 @@ export default function CountingDetail() {
               onClick={() => setTab(id)}
               className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                 tab === id
-                  ? "bg-primary text-white shadow-sm"
+                  ? "bg-primary text-black shadow-sm"
                   : "border border-line bg-surface text-ink-2 hover:bg-paper"
               }`}
             >

@@ -374,7 +374,7 @@ export default function Settings() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand text-black font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
             >
               กลับสู่หน้าหลัก
             </Link>
@@ -551,7 +551,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>
@@ -806,7 +806,7 @@ export default function Settings() {
                                         onClick={() =>
                                           statusMutation.mutate({ userId: u.id, status: "active" })
                                         }
-                                        className="whitespace-nowrap rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#B04412]"
+                                        className="whitespace-nowrap rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-black hover:bg-brand-ink"
                                       >
                                         {u.status === "pending" ? "อนุมัติ" : "เปิดใช้งาน"}
                                       </button>
@@ -1092,7 +1092,7 @@ export default function Settings() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                  className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   <span>{isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลบัญชี"}</span>
