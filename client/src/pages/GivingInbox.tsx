@@ -42,7 +42,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { OFFERING_CATEGORIES, type OfferingCategory } from "@shared/categories";
+import {
+  OFFERING_CATEGORIES,
+  offeringCategoryLabel,
+  type OfferingCategory,
+} from "@shared/categories";
 import { NativeSelect } from "@/components/ui/native-select";
 
 type InboxStatus =
@@ -283,8 +287,18 @@ export default function GivingInbox() {
   const handleSelectSlip = (slip: any) => {
     setSelectedSlipId(slip.id);
     setEditAmount(slip.approvedAmount || slip.extractedAmount || "");
-    setEditFundId(slip.fundId || (fundsQuery.data?.[0]?.id ?? undefined));
-    setEditCategory("general");
+    // Fund and category are the donor's suggestion. The amount is not
+    // prefilled from it: staff read the amount off the slip image.
+    setEditFundId(
+      slip.fundId ||
+        slip.declaredFundId ||
+        (fundsQuery.data?.[0]?.id ?? undefined)
+    );
+    setEditCategory(
+      OFFERING_CATEGORIES.some(c => c.id === slip.declaredCategory)
+        ? slip.declaredCategory
+        : "general"
+    );
     setEditMemberId(slip.matchedMemberId || null);
     setEditReviewNote(slip.reviewNote || "");
   };
@@ -945,6 +959,18 @@ export default function GivingInbox() {
                       ข้อมูลแนะนำจาก AI กรุณาตรวจสอบก่อนบันทึก
                     </span>
                   </div>
+
+                  {currentSlip.declaredAmount && (
+                    <div className="p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-900 text-xs font-medium">
+                      ผู้ถวายแจ้งผ่านจุดถวาย:{" "}
+                      <span className="font-bold tabular-nums">
+                        {formatBaht(Number(currentSlip.declaredAmount))}
+                      </span>
+                      {currentSlip.declaredCategory &&
+                        ` · ${offeringCategoryLabel(currentSlip.declaredCategory)}`}{" "}
+                      (ยังไม่ได้ตรวจสอบ ให้เทียบกับภาพสลิปก่อนอนุมัติ)
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                     <div className="p-2.5 rounded-lg bg-white border border-line/60">

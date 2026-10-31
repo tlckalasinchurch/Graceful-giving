@@ -793,6 +793,13 @@ export const lineSlips = pgTable("line_slips", {
   /** How the match was determined */
   matchMethod: varchar("matchMethod", { length: 30 }),
 
+  // ─── Donor declaration (set when a person submits a slip from the app) ───
+  // What the donor said they gave. Staff still confirm the real values in
+  // review; nothing here credits a fund.
+  declaredAmount: decimal("declaredAmount", { precision: 15, scale: 2 }),
+  declaredCategory: offeringCategoryEnum("declaredCategory"),
+  declaredFundId: integer("declaredFundId"),
+
   // ─── Staff decisions (set during review) ───
   /** Fund to credit — must be a valid finance_accounts.id */
   fundId: integer("fundId"),

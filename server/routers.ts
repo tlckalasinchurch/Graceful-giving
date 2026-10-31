@@ -108,9 +108,15 @@ import {
   linkLineUserToMember,
   getLineInboxStats,
   createManualSlip,
+  countRecentManualSlips,
   rescanLineSlip,
 } from "./db";
 import { runWorkerBatch } from "./line/processWorker";
+import { decodeSlipImage, SlipImageError } from "./line/slipImage";
+import {
+  MAX_GIVING_AMOUNT,
+  MAX_SLIPS_PER_DAY,
+} from "@shared/givingLimits";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
@@ -692,7 +698,7 @@ export const appRouter = router({
     create: financeProcedure
       .input(
         z.object({
-          amount: z.number().positive(),
+          amount: z.number().positive().max(MAX_GIVING_AMOUNT),
           category: offeringCategory.default("general"),
           fundId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(120).optional(),
@@ -2585,6 +2591,103 @@ export const appRouter = router({
             message: err?.message || "ไม่สามารถอัปโหลดสลิปได้",
           });
         }
+      }),
+
+    /**
+     * Any signed-in member submits a transfer slip from the giving station.
+     * It only queues a pending slip with the amount, category and fund the
+     * donor declared. Nothing is credited until a treasurer approves it.
+     */
+    submitSlip: protectedProcedure
+      .input(
+        z.object({
+          base64Data: z.string().min(1, "กรุณาแนบรูปสลิป"),
+          amount: z
+            .number()
+            .positive("กรุณาระบุจำนวนเงินที่ถวาย")
+            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
+          category: offeringCategory,
+          fundId: z.number().int().positive().optional(),
+          donorName: z.string().trim().max(120).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        let image: ReturnType<typeof decodeSlipImage>;
+        try {
+          image = decodeSlipImage(input.base64Data);
+        } catch (err) {
+          if (err instanceof SlipImageError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: err.message });
+          }
+          throw err;
+        }
+
+        if (input.fundId !== undefined) {
+          const funds = await listFinanceAccounts();
+          if (!funds.some(f => f.id === input.fundId)) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "ไม่พบกองทุนที่เลือก",
+            });
+          }
+        }
+
+        const recent = await countRecentManualSlips(
+          ctx.user.id,
+          new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+        if (recent >= MAX_SLIPS_PER_DAY) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "ส่งสลิปครบจำนวนต่อวันแล้ว กรุณาลองใหม่พรุ่งนี้",
+          });
+        }
+
+        let slip: Awaited<ReturnType<typeof createManualSlip>>;
+        try {
+          slip = await createManualSlip({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            userName: ctx.user.name ?? undefined,
+            donorName: input.donorName || ctx.user.name || undefined,
+            imageBuffer: image.buffer,
+            contentType: image.contentType,
+            extension: image.extension,
+            declared: {
+              amount: input.amount.toFixed(2),
+              category: input.category,
+              fundId: input.fundId ?? null,
+            },
+          });
+        } catch (err) {
+          console.error("[submitSlip] Could not store slip:", err);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ไม่สามารถบันทึกสลิปได้ กรุณาลองใหม่อีกครั้ง",
+          });
+        }
+
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CREATE",
+          entity: "line_slip",
+          entityId: slip.id,
+          metadata: {
+            declaredAmount: input.amount,
+            declaredCategory: input.category,
+            declaredFundId: input.fundId ?? null,
+          },
+        });
+
+        // Only staff trigger an inline OCR run; members' slips wait for the cron.
+        if (canManageFinance(ctx.user)) {
+          await runWorkerBatch().catch(err =>
+            console.warn("[submitSlip] Worker error:", err)
+          );
+        }
+
+        return { success: true, slipId: slip.id } as const;
       }),
 
     /**

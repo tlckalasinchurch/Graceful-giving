@@ -9,7 +9,13 @@ import {
   type OfferingCategory,
 } from "@shared/categories";
 import { canManageFinance } from "@shared/roles";
+import { MAX_GIVING_AMOUNT, MAX_SLIP_IMAGE_BYTES } from "@shared/givingLimits";
 import { formatThaiDateTime } from "@/lib/format";
+import {
+  resolveAmount,
+  resolveSubmitMode,
+  type StationSubmission,
+} from "./givingStationFlow";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -38,6 +44,8 @@ import {
 
 type StationTab = "flow" | "poster";
 type FlowStep = 1 | 2 | 3 | 4;
+
+const SLIP_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const DEFAULT_AMOUNTS: Record<OfferingCategory, number> = {
   tithe: 1000,
@@ -81,8 +89,12 @@ export default function GivingStation() {
     useState<Record<OfferingCategory, number>>(DEFAULT_AMOUNTS);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [selectedFundId, setSelectedFundId] = useState<string>("");
-  const [donorName, setDonorName] = useState<string>(user?.name ?? "");
-  const [notes, setNotes] = useState<string>("");
+  // null until the donor types, so the name fills in once `user` has loaded.
+  const [donorNameInput, setDonorNameInput] = useState<string | null>(null);
+  const donorName = donorNameInput ?? user?.name ?? "";
+  // Set only when the server accepted the giving. Step 4 shows this and
+  // nothing else, so the "done" screen cannot appear without a saved record.
+  const [submission, setSubmission] = useState<StationSubmission | null>(null);
   const [slipPreview, setSlipPreview] = useState<string | null>(null);
   const slipInputRef = useRef<HTMLInputElement>(null);
 
@@ -110,67 +122,74 @@ export default function GivingStation() {
   );
   const [customQrImage, setCustomQrImage] = useState<string | null>(null);
   const qrUploadRef = useRef<HTMLInputElement>(null);
+  const posterHasQr = customQrImage !== null || posterQrValue.trim() !== "";
 
   const effectiveFundId = useMemo(() => {
     if (selectedFundId) return Number(selectedFundId);
     return funds[0]?.id ?? 0;
   }, [selectedFundId, funds]);
 
-  const effectiveAmount = useMemo(() => {
-    const parsedCustom = Number(customAmount);
-    if (customAmount.trim() !== "" && parsedCustom > 0) {
-      return parsedCustom;
-    }
-    return amountsByCat[selectedCategory] ?? 300;
-  }, [customAmount, amountsByCat, selectedCategory]);
+  // null when the custom amount is not a usable number.
+  const effectiveAmount = useMemo(
+    () => resolveAmount(customAmount, amountsByCat[selectedCategory] ?? 300),
+    [customAmount, amountsByCat, selectedCategory]
+  );
 
   const canRecordDirectly = canManageFinance(user);
+  const submitMode = resolveSubmitMode({
+    canManageFinance: canRecordDirectly,
+    hasSlip: slipPreview !== null,
+  });
 
-  const uploadSlipMutation = trpc.givingInbox.uploadSlip.useMutation({
-    onSuccess: () => {
-      void utils.givingInbox.invalidate();
-      toast.success("ส่งสลิปถวายสำเร็จ! AI กำลังตรวจสอบข้อมูล");
-      setStep(4);
-    },
+  const submitSlipMutation = trpc.givingInbox.submitSlip.useMutation({
     onError: err => {
-      toast.error(err.message || "อัปโหลดสลิปไม่สำเร็จ");
+      toast.error(err.message || "ส่งสลิปไม่สำเร็จ");
     },
   });
 
   const createOfferingMutation = trpc.offerings.create.useMutation({
-    onSuccess: () => {
-      void Promise.all([
-        utils.offerings.list.invalidate(),
-        utils.finance.summary.invalidate(),
-      ]);
-      toast.success("บันทึกรายการถวายเรียบร้อยแล้ว");
-      setStep(4);
-    },
     onError: err => {
       toast.error(err.message || "บันทึกการถวายไม่สำเร็จ");
     },
   });
 
   const handleSelectPackage = (cat: OfferingCategory) => {
+    if (resolveAmount(customAmount, amountsByCat[cat] ?? 300) === null) {
+      toast.error(
+        `กรุณาระบุจำนวนเงินที่ถูกต้อง (ไม่เกิน ${MAX_GIVING_AMOUNT.toLocaleString()} บาท)`
+      );
+      return;
+    }
     setSelectedCategory(cat);
-    setCustomAmount("");
     setStep(3);
   };
 
   const handleSlipFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
+    // Lets the same file be picked again after an error.
+    input.value = "";
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("กรุณาเลือกไฟล์รูปภาพเท่านั้น");
+    if (!SLIP_IMAGE_TYPES.includes(file.type)) {
+      toast.error("รองรับเฉพาะรูปสลิปแบบ JPEG, PNG หรือ WebP");
+      return;
+    }
+    if (file.size > MAX_SLIP_IMAGE_BYTES) {
+      toast.error(
+        `รูปสลิปต้องมีขนาดไม่เกิน ${(MAX_SLIP_IMAGE_BYTES / 1024 / 1024).toFixed(1)} MB (แนะนำให้แคปหน้าจอสลิปแทนรูปถ่าย)`
+      );
       return;
     }
     const reader = new FileReader();
     reader.onload = () => setSlipPreview(reader.result as string);
+    reader.onerror = () => toast.error("อ่านไฟล์รูปสลิปไม่สำเร็จ");
     reader.readAsDataURL(file);
   };
 
   const handleQrImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
+    input.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast.error("กรุณาเลือกไฟล์รูปภาพ QR Code");
@@ -181,45 +200,78 @@ export default function GivingStation() {
     reader.readAsDataURL(file);
   };
 
-  const handleConfirmGiving = () => {
-    if (effectiveAmount <= 0) {
+  const handleCopyAccount = async (account: string) => {
+    try {
+      await navigator.clipboard.writeText(account);
+      toast.success("คัดลอกเลขบัญชีแล้ว");
+    } catch {
+      toast.error("คัดลอกไม่สำเร็จ กรุณาคัดลอกเลขบัญชีด้วยตนเอง");
+    }
+  };
+
+  const handleConfirmGiving = async () => {
+    if (isSubmitting) return;
+    if (effectiveAmount === null) {
       toast.error("กรุณาระบุจำนวนเงินที่ต้องการถวาย");
       return;
     }
-
-    if (canRecordDirectly && slipPreview) {
-      uploadSlipMutation.mutate({
-        base64Data: slipPreview,
-        donorName:
-          donorName.trim() ||
-          user?.name ||
-          `ถวาย${offeringCategoryLabel(selectedCategory)}`,
-      });
+    if (submitMode === "needs-slip") {
+      toast.error("กรุณาแนบรูปสลิปการโอนก่อนยืนยัน");
       return;
     }
 
-    if (canRecordDirectly && effectiveFundId > 0) {
-      createOfferingMutation.mutate({
-        category: selectedCategory,
-        amount: effectiveAmount,
-        fundId: effectiveFundId,
-        method: "transfer",
-        receiptDate: new Date(),
-        donorName: donorName.trim() || user?.name || undefined,
-        notes:
-          notes.trim() ||
-          `ทำรายการผ่านจุดถวายอัตโนมัติ (GraceBox Station)`,
-      });
+    const name = donorName.trim() || undefined;
+    try {
+      if (submitMode === "slip" && slipPreview) {
+        await submitSlipMutation.mutateAsync({
+          base64Data: slipPreview,
+          amount: effectiveAmount,
+          category: selectedCategory,
+          fundId: effectiveFundId > 0 ? effectiveFundId : undefined,
+          donorName: name,
+        });
+        void utils.givingInbox.invalidate();
+      } else {
+        await createOfferingMutation.mutateAsync({
+          category: selectedCategory,
+          amount: effectiveAmount,
+          fundId: effectiveFundId > 0 ? effectiveFundId : undefined,
+          method: "transfer",
+          receiptDate: new Date(),
+          donorName: name,
+          notes: "ทำรายการผ่านจุดถวายอัตโนมัติ (GraceBox Station)",
+        });
+        void Promise.all([
+          utils.offerings.list.invalidate(),
+          utils.finance.summary.invalidate(),
+        ]);
+      }
+    } catch {
+      // The mutation's onError already showed the reason. Stay on this step.
       return;
     }
 
-    // For general members without direct ledger write permissions, complete the station flow
-    toast.success("ยืนยันข้อมูลการถวายเรียบร้อยแล้ว");
+    setSubmission({
+      mode: submitMode,
+      category: selectedCategory,
+      amount: effectiveAmount,
+    });
+    setSlipPreview(null);
     setStep(4);
   };
 
+  const resetFlow = () => {
+    setSlipPreview(null);
+    setCustomAmount("");
+    setSubmission(null);
+    setStep(1);
+  };
+
   const isSubmitting =
-    uploadSlipMutation.isPending || createOfferingMutation.isPending;
+    submitSlipMutation.isPending || createOfferingMutation.isPending;
+
+  // Step 4 is only valid after a saved submission.
+  const shownStep: FlowStep = step === 4 && !submission ? 1 : step;
 
   const updatedStamp = useMemo(
     () => `อัปเดตล่าสุด ${formatThaiDateTime(new Date())}`,
@@ -229,6 +281,7 @@ export default function GivingStation() {
   return (
     <AppLayout
       activeRoute="/offerings"
+      hideHeaderOnPrint
       eyebrow="GraceBox Station"
       title="จุดถวายทรัพย์อัตโนมัติ & ป้าย QR"
       subtitle="ระบบถวายทรัพย์บริการตนเองสไตล์โมเดิร์น (สแกน -> เลือกยอด -> โอน/แนบสลิป -> ยืนยัน) พร้อมป้าย QR สำหรับพิมพ์ติดหน้าห้อง"
@@ -291,27 +344,32 @@ export default function GivingStation() {
               }`}
             >
               <QrCode className="w-4 h-4" />
-              <span>2. โปสเตอร์ป้าย QR ติดหน้าห้อง (1 สแกน ➔ 2 เลือกประเภท ➔ 3 โอน/สลิป ➔ 4 ขอบคุณพระเจ้า)</span>
+              <span>
+                2. โปสเตอร์ป้าย QR ติดหน้าห้อง (1 สแกน ➔ 2 เลือกประเภท ➔ 3
+                โอน/สลิป ➔ 4 ขอบคุณพระเจ้า)
+              </span>
             </button>
           </div>
 
           {activeTab === "flow" && (
-            <div className="flex items-center justify-center gap-1.5 px-2 py-1">
-              {([1, 2, 3, 4] as FlowStep[]).map(s => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setStep(s)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    step === s
+            <ol
+              aria-label="ขั้นตอนการถวาย"
+              className="flex items-center justify-center gap-1.5 px-2 py-1"
+            >
+              {([1, 2, 3, 4] as FlowStep[]).map(n => (
+                <li
+                  key={n}
+                  aria-current={shownStep === n ? "step" : undefined}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                    shownStep === n
                       ? "bg-[#F97316] text-white"
-                      : "bg-paper text-ink-3 hover:text-ink"
+                      : "bg-paper text-ink-3"
                   }`}
                 >
-                  ขั้นที่ {s}
-                </button>
+                  ขั้นที่ {n}
+                </li>
               ))}
-            </div>
+            </ol>
           )}
         </div>
 
@@ -324,7 +382,7 @@ export default function GivingStation() {
             <div className="rounded-[36px] bg-gradient-to-b from-[#231914] via-[#140F0D] to-[#0B0D13] p-5 sm:p-7 text-white shadow-2xl border border-[#3B2A20] space-y-6 relative overflow-hidden">
               {/* Top Bar: TH Language Pill & Step Back Button */}
               <div className="flex items-center justify-between">
-                {step > 1 ? (
+                {shownStep > 1 && shownStep < 4 ? (
                   <button
                     type="button"
                     onClick={() =>
@@ -332,6 +390,7 @@ export default function GivingStation() {
                     }
                     className="w-11 h-11 rounded-full bg-white/8 hover:bg-white/15 border border-white/15 flex items-center justify-center text-white transition-colors cursor-pointer"
                     title="ย้อนกลับ"
+                    aria-label="ย้อนกลับ"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </button>
@@ -345,7 +404,7 @@ export default function GivingStation() {
               </div>
 
               {/* ── STEP 1: Landing / Status / Give Now (Adapted from Image 2) ── */}
-              {step === 1 && (
+              {shownStep === 1 && (
                 <div className="space-y-6 animate-in fade-in duration-200">
                   <div className="text-center -mt-4">
                     <StationCubeLogo
@@ -356,7 +415,8 @@ export default function GivingStation() {
 
                   {/* Station Breadcrumb */}
                   <div className="text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
-                    GRACEBOX STATION <span className="text-stone-500 mx-1">/</span>{" "}
+                    GRACEBOX STATION{" "}
+                    <span className="text-stone-500 mx-1">/</span>{" "}
                     {churchQuery.data?.name || "SANCTUARY SPACE"}
                   </div>
 
@@ -389,7 +449,7 @@ export default function GivingStation() {
               )}
 
               {/* ── STEP 2: Countdown + Offering Packages (Adapted from Image 3) ── */}
-              {step === 2 && (
+              {shownStep === 2 && (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="text-base font-extrabold text-white tracking-tight px-1">
                     GraceBox Station · {churchQuery.data?.name || "Sanctuary"}
@@ -439,6 +499,8 @@ export default function GivingStation() {
                         <input
                           type="number"
                           min="1"
+                          max={MAX_GIVING_AMOUNT}
+                          inputMode="decimal"
                           placeholder="ระบุจำนวนเงินบาท..."
                           value={customAmount}
                           onChange={e => setCustomAmount(e.target.value)}
@@ -452,9 +514,12 @@ export default function GivingStation() {
                   <div className="space-y-3.5 max-h-[540px] overflow-y-auto pr-1">
                     {OFFERING_CATEGORIES.map(cat => {
                       const currentCatAmount =
-                        customAmount.trim() !== "" && Number(customAmount) > 0
-                          ? Number(customAmount)
-                          : (amountsByCat[cat.id] ?? 300);
+                        resolveAmount(
+                          customAmount,
+                          amountsByCat[cat.id] ?? 300
+                        ) ??
+                        amountsByCat[cat.id] ??
+                        300;
 
                       return (
                         <StationOfferingPackageCard
@@ -481,7 +546,7 @@ export default function GivingStation() {
               )}
 
               {/* ── STEP 3: Confirm & Unlock / Submit Slip (Adapted from Image 1) ── */}
-              {step === 3 && (
+              {shownStep === 3 && (
                 <div className="space-y-5 animate-in fade-in duration-200">
                   {/* Summary Pill */}
                   <div className="rounded-3xl bg-[#1A1412] border border-white/12 p-5 space-y-3">
@@ -508,17 +573,20 @@ export default function GivingStation() {
                         </div>
                       </div>
                       <div className="text-2xl font-black text-[#34D399] tabular-nums">
-                        {effectiveAmount.toLocaleString()} THB
+                        {effectiveAmount === null
+                          ? "—"
+                          : `${effectiveAmount.toLocaleString()} THB`}
                       </div>
                     </div>
 
-                    {/* Bank info if configured */}
-                    {(churchQuery.data?.bankAccount ||
-                      churchQuery.data?.bankName) && (
+                    {/* Bank info. The server hides it from roles that may not see it. */}
+                    {churchQuery.data?.bankAccount ||
+                    churchQuery.data?.bankName ? (
                       <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2 text-xs">
                         <div className="space-y-0.5">
                           <div className="text-stone-400">
-                            {churchQuery.data?.bankName || "บัญชีธนาคารคริสตจักร"}
+                            {churchQuery.data?.bankName ||
+                              "บัญชีธนาคารคริสตจักร"}
                           </div>
                           <div className="font-mono font-bold text-sm text-white">
                             {churchQuery.data?.bankAccount}
@@ -532,12 +600,11 @@ export default function GivingStation() {
                         {churchQuery.data?.bankAccount && (
                           <button
                             type="button"
-                            onClick={() => {
-                              navigator.clipboard.writeText(
+                            onClick={() =>
+                              void handleCopyAccount(
                                 churchQuery.data?.bankAccount || ""
-                              );
-                              toast.success("คัดลอกเลขบัญชีแล้ว");
-                            }}
+                              )
+                            }
                             className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white inline-flex items-center gap-1 cursor-pointer"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -545,16 +612,33 @@ export default function GivingStation() {
                           </button>
                         )}
                       </div>
+                    ) : (
+                      <p className="pt-3 border-t border-white/10 text-xs text-stone-400 leading-relaxed">
+                        เลขบัญชีไม่แสดงในหน้านี้ กรุณาโอนผ่าน QR
+                        หรือบัญชีที่คริสตจักรประกาศ (เช่นที่ป้ายหน้าห้อง)
+                        แล้วกลับมาแนบสลิป
+                      </p>
                     )}
                   </div>
 
                   {/* Unlock / Confirm Modal Card (Adapted directly from Image 1) */}
                   <StationUnlockConfirmCard
                     title="พร้อมยืนยันการถวายแล้วหรือยัง?"
-                    description="เมื่อโอนเงินและแนบสลิปเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อส่งสลิปและยืนยันการถวาย"
-                    buttonLabel="ยืนยันและส่งสลิปถวาย"
+                    description={
+                      submitMode === "ledger"
+                        ? "ไม่ได้แนบสลิป ระบบจะบันทึกรายการถวายเข้าบัญชีทันทีในนามเจ้าหน้าที่การเงิน"
+                        : "เมื่อโอนเงินและแนบสลิปเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อส่งสลิป เหรัญญิกจะตรวจสอบก่อนบันทึกเข้าบัญชี"
+                    }
+                    buttonLabel={
+                      submitMode === "ledger"
+                        ? "บันทึกรายการถวายเข้าบัญชี"
+                        : "ยืนยันและส่งสลิปถวาย"
+                    }
                     loading={isSubmitting}
-                    onConfirm={handleConfirmGiving}
+                    disabled={
+                      submitMode === "needs-slip" || effectiveAmount === null
+                    }
+                    onConfirm={() => void handleConfirmGiving()}
                   >
                     <div className="space-y-3 my-2">
                       {/* Donor Name Input */}
@@ -565,7 +649,7 @@ export default function GivingStation() {
                         <input
                           type="text"
                           value={donorName}
-                          onChange={e => setDonorName(e.target.value)}
+                          onChange={e => setDonorNameInput(e.target.value)}
                           placeholder="เช่น สมชาย สุขใจ หรือ ผู้ถวายนิรนาม"
                           className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-stone-500 focus:outline-none focus:border-[#34D399]"
                         />
@@ -589,7 +673,9 @@ export default function GivingStation() {
                           <span className="text-xs font-bold text-stone-200">
                             {slipPreview
                               ? "เปลี่ยนรูปสลิปที่แนบไว้"
-                              : "แตะเพื่อแนบรูปสลิปการโอน (ถ้ามี)"}
+                              : canRecordDirectly
+                                ? "แตะเพื่อแนบรูปสลิปการโอน (ถ้ามี)"
+                                : "แตะเพื่อแนบรูปสลิปการโอน (จำเป็น)"}
                           </span>
                         </button>
                         {slipPreview && (
@@ -608,48 +694,57 @@ export default function GivingStation() {
               )}
 
               {/* ── STEP 4: Completed State ── */}
-              {step === 4 && (
-                <div className="rounded-[32px] bg-[#1C1613] border border-[#3E2E25] p-7 text-center space-y-5 animate-in zoom-in-95 duration-200">
+              {shownStep === 4 && submission && (
+                <div
+                  role="status"
+                  className="rounded-[32px] bg-[#1C1613] border border-[#3E2E25] p-7 text-center space-y-5 animate-in zoom-in-95 duration-200"
+                >
                   <div className="w-16 h-16 rounded-full bg-[#10B981]/20 border-2 border-[#34D399] text-[#34D399] mx-auto flex items-center justify-center">
-                    <CheckCircle2 className="w-9 h-9" />
+                    <CheckCircle2 className="w-9 h-9" aria-hidden="true" />
                   </div>
 
                   <div className="space-y-1.5">
                     <h3 className="text-2xl font-extrabold text-white">
-                      ขอพระเจ้าทรงอวยพระพร!
+                      ขอบคุณพระเจ้า
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
-                      ระบบได้รับข้อมูลการถวาย{" "}
+                      {submission.mode === "slip"
+                        ? "ระบบได้รับสลิปการถวาย"
+                        : "บันทึกรายการถวาย"}{" "}
                       <span className="font-bold text-white">
-                        {offeringCategoryLabel(selectedCategory)}
+                        {offeringCategoryLabel(submission.category)}
                       </span>{" "}
                       จำนวน{" "}
                       <span className="font-bold text-[#34D399]">
-                        {effectiveAmount.toLocaleString()} THB
+                        {submission.amount.toLocaleString()} THB
                       </span>{" "}
                       เรียบร้อยแล้ว
                     </p>
+                    {submission.mode === "slip" && (
+                      <p className="text-xs text-stone-400 leading-relaxed">
+                        เหรัญญิกจะตรวจสอบสลิปก่อนบันทึกเข้าบัญชี
+                        ยอดจะยังไม่ปรากฏในรายการถวายจนกว่าจะอนุมัติ
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2.5 pt-2">
                     <button
                       type="button"
-                      onClick={() => {
-                        setSlipPreview(null);
-                        setCustomAmount("");
-                        setStep(1);
-                      }}
+                      onClick={resetFlow}
                       className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F97316] to-[#EA580C] text-white font-extrabold text-sm shadow-md cursor-pointer"
                     >
                       ทำรายการถวายใหม่อีกครั้ง
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setLocation("/offerings")}
-                      className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-stone-200 font-bold text-xs cursor-pointer"
-                    >
-                      ดูรายการสมุดบัญชีเงินถวาย
-                    </button>
+                    {canRecordDirectly && (
+                      <button
+                        type="button"
+                        onClick={() => setLocation("/offerings")}
+                        className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-stone-200 font-bold text-xs cursor-pointer"
+                      >
+                        ดูรายการสมุดบัญชีเงินถวาย
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -671,7 +766,8 @@ export default function GivingStation() {
                     <span>ปรับแต่งป้าย QR Code หน้าห้อง</span>
                   </h3>
                   <p className="text-xs text-ink-3 mt-0.5">
-                    แก้ไขข้อความ ลิงก์ QR หรืออัปโหลดรูป QR LINE / พร้อมเพย์จริงเพื่อพิมพ์ติดหน้าห้อง
+                    แก้ไขข้อความ ลิงก์ QR หรืออัปโหลดรูป QR LINE /
+                    พร้อมเพย์จริงเพื่อพิมพ์ติดหน้าห้อง
                   </p>
                 </div>
               </div>
@@ -746,6 +842,7 @@ export default function GivingStation() {
                   <input
                     type="text"
                     value={posterQrValue}
+                    maxLength={500}
                     onChange={e => setPosterQrValue(e.target.value)}
                     className="w-full rounded-xl border border-line px-3 py-2 font-mono text-xs text-ink"
                   />
@@ -855,7 +952,13 @@ export default function GivingStation() {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="flex-1 py-3 px-4 rounded-xl bg-[#F97316] hover:bg-[#EA580C] text-white font-extrabold text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={!posterHasQr}
+                  title={
+                    posterHasQr
+                      ? undefined
+                      : "ใส่ลิงก์หรืออัปโหลดรูป QR Code ก่อนพิมพ์"
+                  }
+                  className="flex-1 py-3 px-4 rounded-xl bg-[#F97316] hover:bg-[#EA580C] disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
                   <span>พิมพ์โปสเตอร์ป้าย QR (A4)</span>

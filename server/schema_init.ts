@@ -413,6 +413,9 @@ export const TABLE_STATEMENTS: string[] = [
     "createdAt" timestamp DEFAULT now() NOT NULL,
     "updatedAt" timestamp DEFAULT now() NOT NULL
   );`,
+  `ALTER TABLE "line_slips" ADD COLUMN IF NOT EXISTS "declaredAmount" numeric(15, 2);`,
+  `ALTER TABLE "line_slips" ADD COLUMN IF NOT EXISTS "declaredCategory" "offering_category";`,
+  `ALTER TABLE "line_slips" ADD COLUMN IF NOT EXISTS "declaredFundId" integer;`,
 
   `CREATE TABLE IF NOT EXISTS "line_processing_jobs" (
     "id" serial PRIMARY KEY NOT NULL,
