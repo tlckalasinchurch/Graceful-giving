@@ -365,6 +365,36 @@ export async function upsertChurchProfile(input: InsertChurchProfile) {
     });
 }
 
+/** The saved poster words as JSON text, or null when none were saved. */
+export async function getStationPosterJson(
+  churchId = DEFAULT_CHURCH_ID
+): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select({ stationPoster: churchProfiles.stationPoster })
+    .from(churchProfiles)
+    .where(eq(churchProfiles.churchId, churchId))
+    .limit(1);
+  return result[0]?.stationPoster ?? null;
+}
+
+/** Saves the poster words. Creates the profile row when there is none. */
+export async function saveStationPosterJson(
+  json: string,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .insert(churchProfiles)
+    .values({ churchId, name: "Grace-giving", stationPoster: json })
+    .onConflictDoUpdate({
+      target: churchProfiles.churchId,
+      set: { stationPoster: json, updatedAt: new Date() },
+    });
+}
+
 export async function markSetupCompleted(churchId = DEFAULT_CHURCH_ID) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

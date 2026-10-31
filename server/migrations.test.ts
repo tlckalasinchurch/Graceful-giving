@@ -104,7 +104,11 @@ describe("migrations on a new database", () => {
     const recorded = await pg.query(
       `select 1 from drizzle."__drizzle_migrations"`
     );
-    expect(recorded.rows).toHaveLength(1);
+    // One row for each migration in the journal. A new migration adds one.
+    expect(recorded.rows).toHaveLength(
+      JSON.parse(readFileSync(join(folder, "meta", "_journal.json"), "utf8"))
+        .entries.length
+    );
   }, 60_000);
 
   it("enforce the financial integrity indexes", async () => {
