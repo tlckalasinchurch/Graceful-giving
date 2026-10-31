@@ -42,6 +42,7 @@ import {
   Copy,
   CreditCard,
   Image as ImageIcon,
+  Camera,
   Printer,
   QrCode,
   Save,
@@ -149,6 +150,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   // How many slips the system turned away for this donor in 24 hours.
   const [failedAttempts, setFailedAttempts] = useState(0);
   const slipInputRef = useRef<HTMLInputElement>(null);
+  const slipCameraRef = useRef<HTMLInputElement>(null);
 
   // Poster Customization State. The words are saved for the whole church.
   const posterQuery = trpc.church.stationPoster.useQuery(undefined, {
@@ -968,6 +970,33 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                               : "แตะเพื่อแนบรูปสลิปการโอน (จำเป็น)"}
                         </span>
                       </button>
+                      {/* Opens the phone camera at once, for a paper slip. */}
+                      <input
+                        ref={slipCameraRef}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        aria-label="ถ่ายรูปสลิปด้วยกล้อง"
+                        onChange={e => void handleSlipFileChange(e)}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => slipCameraRef.current?.click()}
+                        className="mt-2 w-full rounded-2xl border border-white/15 hover:border-[#34D399] bg-white/5 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden"
+                      >
+                        <Camera
+                          className="w-5 h-5 text-[#34D399] shrink-0"
+                          aria-hidden="true"
+                        />
+                        <span className="text-xs font-bold text-stone-200">
+                          ถ่ายรูปสลิปด้วยกล้อง
+                        </span>
+                      </button>
+                      <p className="mt-1.5 text-center text-[11px] text-stone-400">
+                        ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
+                        วางบนพื้นเรียบ ไม่ให้เงาบัง
+                      </p>
                       {slipPreview && (
                         <div className="mt-2 flex justify-center">
                           <img
