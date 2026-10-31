@@ -65,6 +65,7 @@ import {
   withdrawalApprovals,
   withdrawalRequests,
 } from "../drizzle/schema";
+import type { OfferingCategory } from "@shared/categories";
 import type { CountingStatus } from "@shared/counting";
 import { reconcile } from "@shared/counting";
 import {
@@ -74,12 +75,10 @@ import {
 } from "@shared/withdrawals";
 import { ENV } from "./_core/env";
 
-import { runSchemaInit } from "./schema_init";
 import { getSlipSignedUrl, storagePutPrivate } from "./storage";
 import { createHash } from "crypto";
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _schemaInitialized = false;
 
 /**
  * The tenant every query defaults to. The app is single-tenant, but the tests
@@ -118,17 +117,6 @@ export async function getDb() {
       // Eager health-check: `postgres` connects lazily, so verify now to preserve
       // the getDb()-returns-null (never throws) contract on unreachable URLs.
       await client`SELECT 1`;
-
-      if (!_schemaInitialized) {
-        _schemaInitialized = true;
-        try {
-          console.log("[Database] Ensuring tables and schema exist...");
-          await runSchemaInit(client);
-          console.log("[Database] Tables verified/created successfully.");
-        } catch (initErr) {
-          console.warn("[Database] Schema init warning:", initErr);
-        }
-      }
 
       _db = drizzle(client);
     } catch (error) {
@@ -374,6 +362,36 @@ export async function upsertChurchProfile(input: InsertChurchProfile) {
     .onConflictDoUpdate({
       target: churchProfiles.churchId,
       set: { ...updateFields, updatedAt: new Date() },
+    });
+}
+
+/** The saved poster words as JSON text, or null when none were saved. */
+export async function getStationPosterJson(
+  churchId = DEFAULT_CHURCH_ID
+): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select({ stationPoster: churchProfiles.stationPoster })
+    .from(churchProfiles)
+    .where(eq(churchProfiles.churchId, churchId))
+    .limit(1);
+  return result[0]?.stationPoster ?? null;
+}
+
+/** Saves the poster words. Creates the profile row when there is none. */
+export async function saveStationPosterJson(
+  json: string,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .insert(churchProfiles)
+    .values({ churchId, name: "Grace-giving", stationPoster: json })
+    .onConflictDoUpdate({
+      target: churchProfiles.churchId,
+      set: { stationPoster: json, updatedAt: new Date() },
     });
 }
 
@@ -3470,12 +3488,128 @@ export async function getLineInboxStats(churchId = DEFAULT_CHURCH_ID) {
   };
 }
 
+/** Slips this person has submitted from the app since `since`. 0 when no DB. */
+export async function countRecentManualSlips(
+  userId: number,
+  since: Date,
+  churchId: string = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ n: count() })
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`),
+        gte(lineSlips.createdAt, since)
+      )
+    );
+  return Number(row?.n ?? 0);
+}
+
+/** The columns a donor's status view needs, for slips they sent from the app. */
+const donorSlipColumns = {
+  id: lineSlips.id,
+  createdAt: lineSlips.createdAt,
+  status: lineSlips.status,
+  declaredAmount: lineSlips.declaredAmount,
+  declaredCategory: lineSlips.declaredCategory,
+  extractedAmount: lineSlips.extractedAmount,
+  extractedAmountConfidence: lineSlips.extractedAmountConfidence,
+  reviewedBy: lineSlips.reviewedBy,
+  reviewNote: lineSlips.reviewNote,
+  lastErrorMessage: lineSlips.lastErrorMessage,
+  aiData: lineSlips.aiData,
+};
+
+/**
+ * How many slips from `lineUserId` the system itself turned away since
+ * `since`. A slip a treasurer rejected (reviewedBy set) does not count.
+ * `exceptSlipId` leaves out the slip being processed now.
+ */
+export async function countRecentSystemRejectedSlips(
+  lineUserId: string,
+  since: Date,
+  exceptSlipId: number | null = null,
+  churchId: string = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const conditions = [
+    eq(lineSlips.churchId, churchId),
+    eq(lineSlips.lineUserId, lineUserId),
+    eq(lineSlips.status, "rejected"),
+    isNull(lineSlips.reviewedBy),
+    gte(lineSlips.createdAt, since),
+  ];
+  if (exceptSlipId !== null) conditions.push(ne(lineSlips.id, exceptSlipId));
+  const [row] = await db
+    .select({ n: count() })
+    .from(lineSlips)
+    .where(and(...conditions));
+  return Number(row?.n ?? 0);
+}
+
+/** One slip, only if `userId` sent it from the app. */
+export async function getMyManualSlip(
+  slipId: number,
+  userId: number,
+  churchId: string = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db
+    .select(donorSlipColumns)
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.id, slipId),
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`)
+      )
+    )
+    .limit(1);
+  return row ?? null;
+}
+
+/** The slips `userId` sent from the app, newest first. */
+export async function listMyManualSlips(
+  userId: number,
+  limit = 10,
+  churchId: string = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select(donorSlipColumns)
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`)
+      )
+    )
+    .orderBy(desc(lineSlips.createdAt))
+    .limit(limit);
+}
+
 export async function createManualSlip(input: {
   churchId?: string;
   userId: number;
   userName?: string | null;
   donorName?: string;
   imageBuffer: Buffer;
+  /** Defaults to JPEG, which is what the staff upload has always stored. */
+  contentType?: string;
+  extension?: string;
+  /** What the donor said they gave. Staff confirm the real values in review. */
+  declared?: {
+    amount: string;
+    category: OfferingCategory;
+    fundId?: number | null;
+  };
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -3483,12 +3617,13 @@ export async function createManualSlip(input: {
 
   const hash = createHash("sha256").update(input.imageBuffer).digest("hex");
   const dateStr = new Date().toISOString().slice(0, 10);
-  const storageKey = `manual/${churchId}/${input.userId}/${dateStr}/${hash.slice(0, 16)}.jpg`;
+  const extension = input.extension ?? "jpg";
+  const storageKey = `manual/${churchId}/${input.userId}/${dateStr}/${hash.slice(0, 16)}.${extension}`;
 
   const { key } = await storagePutPrivate(
     storageKey,
     input.imageBuffer,
-    "image/jpeg"
+    input.contentType ?? "image/jpeg"
   );
 
   const [slip] = await db
@@ -3503,6 +3638,9 @@ export async function createManualSlip(input: {
       slipHash: hash,
       status: "pending",
       processingAttempts: 0,
+      declaredAmount: input.declared?.amount ?? null,
+      declaredCategory: input.declared?.category ?? null,
+      declaredFundId: input.declared?.fundId ?? null,
     })
     .returning();
 

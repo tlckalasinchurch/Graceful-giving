@@ -46,14 +46,14 @@ export default function Login() {
   const error = errorKey ? (ERRORS[errorKey] ?? ERRORS.failed) : null;
 
   return (
-    <div className="grid min-h-screen bg-[#050506] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <div className="grid min-h-dvh bg-[#050506] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       {/* Editorial panel: the verse the ministry stands on. Desktop only. */}
       <aside className="relative hidden flex-col justify-between bg-[#0E0E10] border-r border-white/[0.07] p-12 text-white lg:flex xl:p-16">
         <div className="flex items-center gap-3">
           <span className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black">
             <Sprout className="size-5" aria-hidden="true" />
           </span>
-          <span className="display text-xl font-black">Grace Giving</span>
+          <span className="display text-xl font-black">Grace Ledger</span>
         </div>
         <figure className="max-w-md space-y-6">
           <p className="eyebrow !text-[#00F58A]">2 โครินธ์ 9:7</p>
@@ -73,7 +73,7 @@ export default function Login() {
               <span className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black">
                 <Sprout className="size-5" aria-hidden="true" />
               </span>
-              <span className="display text-xl font-black text-white">Grace Giving</span>
+              <span className="display text-xl font-black text-white">Grace Ledger</span>
             </div>
             <p className="eyebrow !text-[#00F58A]">Sign in</p>
             <h1 className="display text-5xl font-black text-white">เข้าสู่ระบบ</h1>

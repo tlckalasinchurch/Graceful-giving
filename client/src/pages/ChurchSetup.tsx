@@ -133,8 +133,8 @@ export default function ChurchSetup() {
   }
 
   return (
-    <div className="min-h-screen bg-paper">
-      <div className="mx-auto min-h-screen max-w-[560px] overflow-x-hidden bg-paper pb-32 shadow-[0_0_40px_rgba(112,78,45,0.07)] lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border lg:border-line">
+    <div className="min-h-dvh bg-paper">
+      <div className="mx-auto min-h-dvh max-w-[560px] overflow-x-hidden bg-paper pb-32 shadow-[0_0_40px_rgba(112,78,45,0.07)] lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border lg:border-line">
         {/* Header */}
         <div className="relative overflow-hidden bg-gradient-to-br from-paper-2 via-paper-2 to-paper px-5 pb-6 pt-5 sm:px-8">
           <button

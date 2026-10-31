@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Redirect, Route, Switch, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageChurchSettings } from "@shared/roles";
-import { canAccessRoute } from "@/lib/routeAccess";
+import { canAccessRoute, stationOnlyRedirect } from "@/lib/routeAccess";
 import { trpc } from "@/lib/trpc";
 import { hasSkippedSetup } from "@/lib/setupSkip";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -41,11 +41,13 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Updates = lazy(() => import("./pages/Updates"));
 const GivingInbox = lazy(() => import("./pages/GivingInbox"));
 const GivingStation = lazy(() => import("./pages/GivingStation"));
+const Give = lazy(() => import("./pages/Give"));
 const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
 
 /** Routes reachable without a session. Everything else needs one. */
 const PUBLIC_PATHS = [
   "/login",
+  "/give",
   "/404",
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
 ];
@@ -61,7 +63,7 @@ function normalizePath(path: string) {
  */
 function AuthGate({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const isPublic = PUBLIC_PATHS.includes(normalizePath(location));
 
   useEffect(() => {
@@ -72,12 +74,17 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   if (isPublic) return <>{children}</>;
   if (loading) return <RouteLoading />;
   if (!isAuthenticated) return <RouteLoading />;
+  // An ordinary member sees the giving station and nothing else. This is the
+  // UI side of it; the server still checks every request by role.
+  const stationPath = stationOnlyRedirect(user, location);
+  if (stationPath) return <Redirect to={stationPath} />;
   return <>{children}</>;
 }
 
 const SETUP_EXEMPT_PATHS = [
   "/setup",
   "/login",
+  "/give",
   "/404",
   // Dev-only UI gallery; the route itself is also unmounted in prod (see Router).
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
@@ -223,8 +230,8 @@ function Router() {
 
       <Route path="/offerings" component={Offerings} />
       <Route path="/offerings/new" component={NewOffering} />
+      <Route path="/give" component={Give} />
       <Route path="/giving/station" component={GivingStation} />
-      <Route path="/giving-station" component={GivingStation} />
 
       {/* LINE Giving Inbox */}
       <Route path="/giving/inbox">

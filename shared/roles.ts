@@ -176,3 +176,33 @@ export function canManageBudgets(
     user && (canManageFinance(user) || canManageChurchSettings(user))
   );
 }
+
+/** Roles held by the people who run the church's finances and ministries. */
+const STAFF_ROLES: ReadonlyArray<string> = [
+  "SUPER_ADMIN",
+  "PASTOR",
+  "TREASURER",
+  "DEACON",
+  "COUNTER",
+];
+
+/**
+ * True for an ordinary member: no staff role and not an admin. Such a person
+ * sees only the giving station, not the rest of the app. `roles` is the full
+ * list from auth.me; without it only `churchRole` is checked.
+ */
+export function isStationOnlyUser(
+  user?: {
+    role?: string;
+    churchRole?: string | null;
+    roles?: readonly string[];
+  } | null
+): boolean {
+  if (!user) return false;
+  if (user.role === "admin") return false;
+  const roles =
+    user.roles && user.roles.length > 0
+      ? user.roles
+      : [user.churchRole ?? "MEMBER"];
+  return !roles.some(r => STAFF_ROLES.includes(r));
+}

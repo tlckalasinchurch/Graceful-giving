@@ -274,78 +274,80 @@ export default function Reports() {
               <h2 className="border-b border-line p-4 font-bold text-ink">
                 สรุปตามหมวดหมู่
               </h2>
-              <table className="w-full text-left text-sm">
-                <thead className="border-b border-line bg-paper text-sm font-bold text-ink-2">
-                  <tr>
-                    <th className="p-4">รายการ</th>
-                    <th className="p-4 text-right">จำนวนรายการ</th>
-                    <th className="p-4 text-right">ยอดเงิน</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
-                  <tr className="bg-paper-2/40">
-                    <td colSpan={3} className="p-3 font-bold text-ink">
-                      รายรับ (เงินถวาย)
-                    </td>
-                  </tr>
-                  {summary!.income.length === 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-line bg-paper text-sm font-bold text-ink-2">
                     <tr>
-                      <td colSpan={3} className="p-4 text-ink-2">
-                        ไม่มีรายรับในช่วงเวลานี้
+                      <th className="p-4">รายการ</th>
+                      <th className="p-4 text-right">จำนวนรายการ</th>
+                      <th className="p-4 text-right">ยอดเงิน</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line">
+                    <tr className="bg-paper-2/40">
+                      <td colSpan={3} className="p-3 font-bold text-ink">
+                        รายรับ (เงินถวาย)
                       </td>
                     </tr>
-                  ) : (
-                    summary!.income.map(row => (
-                      <tr key={`income-${row.category}`}>
-                        <td className="py-3 pl-8 pr-4 text-ink-2">
-                          {offeringCategoryLabel(row.category)}
-                        </td>
-                        <td className="p-4 text-right tabular-nums text-ink-2">
-                          {row.count}
-                        </td>
-                        <td className="p-4 text-right font-bold tabular-nums text-[hsl(140_50%_72%)]">
-                          {fmtBaht(row.total)}
+                    {summary!.income.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="p-4 text-ink-2">
+                          ไม่มีรายรับในช่วงเวลานี้
                         </td>
                       </tr>
-                    ))
-                  )}
+                    ) : (
+                      summary!.income.map(row => (
+                        <tr key={`income-${row.category}`}>
+                          <td className="py-3 pl-8 pr-4 text-ink-2">
+                            {offeringCategoryLabel(row.category)}
+                          </td>
+                          <td className="p-4 text-right tabular-nums text-ink-2">
+                            {row.count}
+                          </td>
+                          <td className="p-4 text-right font-bold tabular-nums text-[hsl(140_50%_72%)]">
+                            {fmtBaht(row.total)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
 
-                  <tr className="bg-paper-2/40">
-                    <td colSpan={3} className="p-3 font-bold text-ink">
-                      รายจ่าย
-                    </td>
-                  </tr>
-                  {summary!.expense.length === 0 ? (
-                    <tr>
-                      <td colSpan={3} className="p-4 text-ink-2">
-                        ไม่มีรายจ่ายในช่วงเวลานี้
+                    <tr className="bg-paper-2/40">
+                      <td colSpan={3} className="p-3 font-bold text-ink">
+                        รายจ่าย
                       </td>
                     </tr>
-                  ) : (
-                    summary!.expense.map(row => (
-                      <tr key={`expense-${row.category}`}>
-                        <td className="py-3 pl-8 pr-4 text-ink-2">
-                          {expenseCategoryLabel(row.category)}
-                        </td>
-                        <td className="p-4 text-right tabular-nums text-ink-2">
-                          {row.count}
-                        </td>
-                        <td className="p-4 text-right font-bold tabular-nums text-[hsl(3_71%_72%)]">
-                          {fmtBaht(row.total)}
+                    {summary!.expense.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="p-4 text-ink-2">
+                          ไม่มีรายจ่ายในช่วงเวลานี้
                         </td>
                       </tr>
-                    ))
-                  )}
+                    ) : (
+                      summary!.expense.map(row => (
+                        <tr key={`expense-${row.category}`}>
+                          <td className="py-3 pl-8 pr-4 text-ink-2">
+                            {expenseCategoryLabel(row.category)}
+                          </td>
+                          <td className="p-4 text-right tabular-nums text-ink-2">
+                            {row.count}
+                          </td>
+                          <td className="p-4 text-right font-bold tabular-nums text-[hsl(3_71%_72%)]">
+                            {fmtBaht(row.total)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
 
-                  <tr className="border-t-2 border-line bg-[hsl(132_38%_13%)]/40">
-                    <td className="p-4 font-bold text-ink">คงเหลือสุทธิ</td>
-                    <td className="p-4" />
-                    <td className="p-4 text-right font-bold tabular-nums text-ink">
-                      {fmtBaht(summary!.net)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    <tr className="border-t-2 border-line bg-[hsl(132_38%_13%)]/40">
+                      <td className="p-4 font-bold text-ink">คงเหลือสุทธิ</td>
+                      <td className="p-4" />
+                      <td className="p-4 text-right font-bold tabular-nums text-ink">
+                        {fmtBaht(summary!.net)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </section>
 
             {/* Six month trend */}

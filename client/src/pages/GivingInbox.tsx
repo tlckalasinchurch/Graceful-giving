@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { formatBaht, THAI_LOCALE } from "@/lib/format";
+import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
@@ -42,7 +43,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { OFFERING_CATEGORIES, type OfferingCategory } from "@shared/categories";
+import {
+  OFFERING_CATEGORIES,
+  offeringCategoryLabel,
+  type OfferingCategory,
+} from "@shared/categories";
 import { NativeSelect } from "@/components/ui/native-select";
 
 type InboxStatus =
@@ -283,8 +288,18 @@ export default function GivingInbox() {
   const handleSelectSlip = (slip: any) => {
     setSelectedSlipId(slip.id);
     setEditAmount(slip.approvedAmount || slip.extractedAmount || "");
-    setEditFundId(slip.fundId || (fundsQuery.data?.[0]?.id ?? undefined));
-    setEditCategory("general");
+    // Fund and category are the donor's suggestion. The amount is not
+    // prefilled from it: staff read the amount off the slip image.
+    setEditFundId(
+      slip.fundId ||
+        slip.declaredFundId ||
+        (fundsQuery.data?.[0]?.id ?? undefined)
+    );
+    setEditCategory(
+      OFFERING_CATEGORIES.some(c => c.id === slip.declaredCategory)
+        ? slip.declaredCategory
+        : "general"
+    );
     setEditMemberId(slip.matchedMemberId || null);
     setEditReviewNote(slip.reviewNote || "");
   };
@@ -392,20 +407,19 @@ export default function GivingInbox() {
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    input.value = "";
     if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("กรุณาเลือกไฟล์รูปภาพเท่านั้น (JPG, PNG, WEBP)");
-      return;
+    try {
+      // Same check and shrinking as the giving station.
+      setUploadPreview(await prepareSlipImage(file));
+    } catch (err) {
+      toast.error(
+        err instanceof SlipFileError ? err.message : "แนบรูปสลิปไม่สำเร็จ"
+      );
     }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setUploadPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleUploadSubmit = () => {
@@ -946,6 +960,37 @@ export default function GivingInbox() {
                     </span>
                   </div>
 
+                  {currentSlip.declaredAmount && (
+                    <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-200 text-xs font-medium">
+                      ผู้ถวายแจ้งผ่านจุดถวาย:{" "}
+                      <span className="font-bold tabular-nums">
+                        {formatBaht(Number(currentSlip.declaredAmount))}
+                      </span>
+                      {currentSlip.declaredCategory &&
+                        ` · ${offeringCategoryLabel(currentSlip.declaredCategory)}`}{" "}
+                      {currentSlip.extractedAmount ? (
+                        Math.abs(
+                          Number(currentSlip.declaredAmount) -
+                            Number(currentSlip.extractedAmount)
+                        ) < 0.005 ? (
+                          <span className="block pt-1 font-bold text-emerald-300">
+                            ✓ ตรงกับยอดที่ AI อ่านจากสลิป
+                          </span>
+                        ) : (
+                          <span className="block pt-1 font-bold text-rose-300">
+                            ⚠ ไม่ตรงกับยอดที่ AI อ่านจากสลิป (
+                            {formatBaht(Number(currentSlip.extractedAmount))})
+                            ตรวจภาพสลิปก่อนอนุมัติ
+                          </span>
+                        )
+                      ) : (
+                        <span className="block pt-1">
+                          (ยังไม่ได้ตรวจสอบ ให้เทียบกับภาพสลิปก่อนอนุมัติ)
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                     <div className="p-2.5 rounded-lg bg-surface border border-line/60">
                       <span className="text-ink-3 block text-[11px]">
@@ -998,6 +1043,9 @@ export default function GivingInbox() {
                       </span>
                     </div>
                   </div>
+
+                  <EscalationNote aiData={currentSlip.aiData} />
+                  <ReceiverCheck aiData={currentSlip.aiData} />
 
                   {currentSlip.extractedRef && (
                     <div className="pt-1 text-[11px] text-ink-3 font-mono">
@@ -1282,7 +1330,7 @@ export default function GivingInbox() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                onChange={handleFileChange}
+                onChange={e => void handleFileChange(e)}
                 className="hidden"
               />
 
@@ -1534,5 +1582,69 @@ export default function GivingInbox() {
         </DialogContent>
       </Dialog>
     </AppLayout>
+  );
+}
+
+type ReceiverKind = "match" | "mismatch" | "suspect" | "unknown";
+
+const RECEIVER_NOTE: Record<ReceiverKind, { text: string; cls: string }> = {
+  match: {
+    text: "✓ ตรงกับบัญชีของคริสตจักร",
+    cls: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
+  },
+  mismatch: {
+    text: "⚠ ไม่ตรงกับบัญชีของคริสตจักร ตรวจภาพสลิปก่อนอนุมัติ",
+    cls: "bg-rose-500/10 border-rose-500/30 text-rose-300",
+  },
+  suspect: {
+    text: "⚠ ต่างจากบัญชีคริสตจักร 1 หลัก อาจอ่านผิด ตรวจภาพสลิปก่อนอนุมัติ",
+    cls: "bg-amber-500/10 border-amber-500/30 text-amber-200",
+  },
+  unknown: {
+    text: "ตรวจเทียบอัตโนมัติไม่ได้ (พร้อมเพย์ ปิดเลขมาก หรือยังไม่ได้ตั้งเลขบัญชีคริสตจักร) ให้ดูภาพสลิป",
+    cls: "bg-paper border-line text-ink-2",
+  },
+};
+
+/** The receiver account on the slip, and whether it is the church's account. */
+export function ReceiverCheck({ aiData }: { aiData: unknown }) {
+  const data = (aiData ?? null) as {
+    receiverAccount?: string | null;
+    receiverName?: string | null;
+    receiverBank?: string | null;
+    verification?: { receiver?: ReceiverKind };
+  } | null;
+  // A slip read before this check existed has no result to show.
+  const kind = data?.verification?.receiver;
+  if (!data || !kind) return null;
+  const note = RECEIVER_NOTE[kind];
+  const shown = [data.receiverBank, data.receiverAccount, data.receiverName]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <div className={`p-3 rounded-xl border text-xs font-medium ${note.cls}`}>
+      <div className="font-bold">ผู้รับในสลิป</div>
+      {shown && <div className="font-mono pt-0.5 break-all">{shown}</div>}
+      <div className="pt-1">{note.text}</div>
+    </div>
+  );
+}
+
+/** Shown when the system stopped turning a donor away and left the slip to staff. */
+export function EscalationNote({ aiData }: { aiData: unknown }) {
+  const escalated =
+    (aiData as { verification?: { escalated?: unknown } } | null)?.verification
+      ?.escalated === true;
+  if (!escalated) return null;
+  return (
+    <div
+      role="note"
+      className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs font-medium"
+    >
+      <span className="font-bold">
+        ⚠ ผู้ถวายส่งไม่ผ่านการตรวจอัตโนมัติหลายครั้งใน 24 ชั่วโมง
+      </span>{" "}
+      ระบบจึงไม่ปฏิเสธเอง ให้เทียบภาพสลิปกับยอดและบัญชีที่แจ้งด้วยตาก่อนอนุมัติ
+    </div>
   );
 }

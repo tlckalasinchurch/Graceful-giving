@@ -116,11 +116,51 @@ export async function fetchLineProfile(
 }
 
 /**
+ * Verifies an ID token from the LIFF app (the LINE app signs the person in).
+ * LINE checks the signature, the expiry and that the token was issued for our
+ * channel. The page cannot forge this, so the server trusts only this result.
+ */
+export async function verifyLiffIdToken(
+  idToken: string,
+  fetchImpl: typeof fetch = fetch
+): Promise<LineProfile> {
+  const verifyRes = await fetchImpl(VERIFY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      id_token: idToken,
+      client_id: ENV.lineLoginChannelId,
+    }),
+  });
+  if (!verifyRes.ok)
+    throw new LineLoginError(`liff id_token verify ${verifyRes.status}`);
+  const claims = (await verifyRes.json()) as {
+    sub?: string;
+    name?: string;
+    picture?: string;
+  };
+  if (!claims.sub) throw new LineLoginError("liff id_token has no sub");
+  return {
+    sub: claims.sub,
+    name: claims.name?.trim() || null,
+    picture: claims.picture ?? null,
+  };
+}
+
+/**
  * Find or create the account for a LINE profile.
  * New people start "pending". Only OWNER_OPEN_ID (or the first user in
  * development) starts active, as SUPER_ADMIN.
+ *
+ * `giver` is set when the person signed in from the public giving link (/give).
+ * They start active as an ordinary MEMBER, and a pending account becomes
+ * active. An ordinary member can open the giving page and nothing else. A
+ * disabled account stays disabled.
  */
-export async function resolveLineUser(profile: LineProfile): Promise<User> {
+export async function resolveLineUser(
+  profile: LineProfile,
+  opts: { giver?: boolean } = {}
+): Promise<User> {
   const openId = `line:${profile.sub}`;
   const existing = await db.getUserByOpenId(openId);
   if (existing) {
@@ -128,6 +168,10 @@ export async function resolveLineUser(profile: LineProfile): Promise<User> {
       name: profile.name,
       avatarUrl: profile.picture,
     });
+    if (opts.giver && existing.status === "pending") {
+      await db.setUserStatus(existing.id, "active");
+      return { ...existing, status: "active" };
+    }
     return existing;
   }
 
@@ -138,7 +182,7 @@ export async function resolveLineUser(profile: LineProfile): Promise<User> {
     openId,
     name: profile.name,
     avatarUrl: profile.picture,
-    status: isOwner || isFirstDevUser ? "active" : "pending",
+    status: isOwner || isFirstDevUser || opts.giver ? "active" : "pending",
     isOwner: isOwner || isFirstDevUser,
   });
   if (!created) throw new LineLoginError("could not create user");
@@ -152,6 +196,11 @@ function clearStateCookie(req: Request, res: Response) {
   });
 }
 
+/** Marks a sign-in that started from the public giving link. */
+const GIVER_MARK = "give";
+/** The page the giving link signs a person in to. */
+export const GIVE_PATH = "/give";
+
 // Ten sign-in attempts a minute from one address is plenty for a person.
 const loginLimiter = createRateLimiter({
   windowMs: 60_000,
@@ -159,18 +208,42 @@ const loginLimiter = createRateLimiter({
   message: "Too many sign-in attempts. Try again in a minute.",
 });
 
+/** The first part of a text, so a log line stays short. */
+function clip(value: unknown, max = 160): string {
+  return typeof value === "string" ? value.slice(0, max) : "";
+}
+
+/**
+ * One line in the log for each step of a sign-in, so a failure on someone's
+ * phone can be traced. It holds no code, state, nonce, token or name. The
+ * browser name helps tell an in-app browser from a normal one.
+ */
+function logLogin(
+  message: string,
+  req: Request,
+  fields: Record<string, unknown> = {}
+) {
+  console.info(`[LINE Login] ${message}`, {
+    ...fields,
+    userAgent: clip(req.headers?.["user-agent"], 200),
+  });
+}
+
 export function registerLineLogin(app: Express) {
   app.get("/api/auth/line/login", loginLimiter, (req, res) => {
+    const giver = req.query.next === GIVER_MARK;
+    logLogin("sign-in started", req, { giver });
     if (!ENV.lineLoginChannelId || !ENV.lineLoginChannelSecret) {
-      res.redirect(302, "/login?error=not_configured");
+      res.redirect(302, `${giver ? GIVE_PATH : "/login"}?error=not_configured`);
       return;
     }
     const state = randomBytes(16).toString("hex");
     const nonce = randomBytes(16).toString("hex");
-    res.cookie(STATE_COOKIE, `${state}.${nonce}`, {
-      ...getSessionCookieOptions(req),
-      maxAge: STATE_MAX_AGE_MS,
-    });
+    res.cookie(
+      STATE_COOKIE,
+      `${state}.${nonce}${giver ? `.${GIVER_MARK}` : ""}`,
+      { ...getSessionCookieOptions(req), maxAge: STATE_MAX_AGE_MS }
+    );
     res.redirect(
       302,
       buildAuthorizeUrl({ redirectUri: redirectUriFor(req), state, nonce })
@@ -178,16 +251,26 @@ export function registerLineLogin(app: Express) {
   });
 
   app.get("/api/auth/line/callback", loginLimiter, async (req, res) => {
+    let giver = false;
     const fail = (reason: string) => {
+      // LINE sends error and error_description when it refuses a sign-in, for
+      // example when the channel is still in the Developing status.
+      logLogin("sign-in ended without a session", req, {
+        reason,
+        giver,
+        lineError: clip(req.query.error, 80),
+        lineErrorDescription: clip(req.query.error_description),
+      });
       clearStateCookie(req, res);
-      res.redirect(302, `/login?error=${reason}`);
+      res.redirect(302, `${giver ? GIVE_PATH : "/login"}?error=${reason}`);
     };
     try {
       if (req.query.error) return fail("cancelled");
       const code = typeof req.query.code === "string" ? req.query.code : "";
       const state = typeof req.query.state === "string" ? req.query.state : "";
       const saved = parseCookies(req.headers.cookie ?? "")[STATE_COOKIE] ?? "";
-      const [savedState, nonce] = saved.split(".");
+      const [savedState, nonce, mark] = saved.split(".");
+      giver = mark === GIVER_MARK;
       if (
         !code ||
         !state ||
@@ -199,17 +282,70 @@ export function registerLineLogin(app: Express) {
       }
 
       const profile = await fetchLineProfile(code, redirectUriFor(req), nonce);
-      const user = await resolveLineUser(profile);
+      const user = await resolveLineUser(profile, { giver });
 
       clearStateCookie(req, res);
       res.cookie(COOKIE_NAME, await signSession(user.openId), {
         ...getSessionCookieOptions(req),
         maxAge: SESSION_MAX_AGE_MS,
       });
-      res.redirect(302, "/");
+      logLogin("sign-in succeeded", req, { giver, status: user.status });
+      res.redirect(302, giver ? GIVE_PATH : "/");
     } catch (err) {
       console.error("[LINE Login] failed:", err);
       fail("failed");
+    }
+  });
+}
+
+const liffLimiter = createRateLimiter({
+  windowMs: 60_000,
+  max: 20,
+  message: "Too many sign-in attempts. Try again in a minute.",
+});
+
+/**
+ * Sign-in from inside the LINE app. The /give page runs as a LIFF app there,
+ * so LINE has already signed the person in. The page sends the ID token, the
+ * server verifies it with LINE and sets the same session cookie as the
+ * button flow. Only a person who opened the public giving link gets in this
+ * way, so the account is a giver (active, ordinary MEMBER).
+ */
+export function registerLiffLogin(app: Express) {
+  // The LIFF ID is not a secret. The page needs it to start the LIFF SDK.
+  app.get("/api/auth/liff/config", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ liffId: ENV.lineLiffId || null });
+  });
+
+  app.post("/api/auth/liff/login", liffLimiter, async (req, res) => {
+    const idToken = req.body?.idToken;
+    if (
+      !ENV.lineLoginChannelId ||
+      typeof idToken !== "string" ||
+      idToken.length < 20 ||
+      idToken.length > 4000
+    ) {
+      logLogin("liff sign-in refused", req, { reason: "bad_request" });
+      res.status(400).json({ error: "bad_request" });
+      return;
+    }
+    try {
+      logLogin("liff sign-in started", req);
+      const profile = await verifyLiffIdToken(idToken);
+      const user = await resolveLineUser(profile, { giver: true });
+      res.cookie(COOKIE_NAME, await signSession(user.openId), {
+        ...getSessionCookieOptions(req),
+        maxAge: SESSION_MAX_AGE_MS,
+      });
+      logLogin("liff sign-in succeeded", req, { status: user.status });
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("[LINE Login] liff sign-in failed:", err);
+      logLogin("liff sign-in failed", req, {
+        reason: err instanceof LineLoginError ? err.message : "error",
+      });
+      res.status(401).json({ error: "unauthorized" });
     }
   });
 }

@@ -57,6 +57,8 @@ import {
   listPublishedChurchNews,
   listWithdrawalRequests,
   markSetupCompleted,
+  getStationPosterJson,
+  saveStationPosterJson,
   updateExpense,
   updateOffering,
   voidExpense,
@@ -108,9 +110,22 @@ import {
   linkLineUserToMember,
   getLineInboxStats,
   createManualSlip,
+  countRecentManualSlips,
+  getMyManualSlip,
+  countRecentSystemRejectedSlips,
+  listMyManualSlips,
   rescanLineSlip,
 } from "./db";
 import { runWorkerBatch } from "./line/processWorker";
+import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
+import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
+import { decodeSlipImage, SlipImageError } from "./line/slipImage";
+import { toDonorSlipStatus } from "./line/donorSlipStatus";
+import type { DonorSlipStatus } from "@shared/donorSlip";
+import {
+  MAX_GIVING_AMOUNT,
+  MAX_SLIPS_PER_DAY,
+} from "@shared/givingLimits";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
@@ -396,7 +411,10 @@ function assertCanVerify(user: User) {
   }
 }
 
-/** Everyone sees the church's name and contact details, not its bank account. */
+/**
+ * Everyone sees the church's name and contact details, not its bank account
+ * or PromptPay ID. A donor gets a QR code for the amount they give instead.
+ */
 export function redactChurchProfile<
   T extends {
     bankName: string | null;
@@ -410,7 +428,30 @@ export function redactChurchProfile<
     bankName: null,
     bankAccount: null,
     bankAccountName: null,
+    ...("promptPayId" in profile ? { promptPayId: null } : {}),
   };
+}
+
+/** How long a donor waits for the slip reading before it falls back to the queue. */
+const SLIP_CHECK_WAIT_MS = 8000;
+
+/** Runs the slip worker, but gives up waiting after `ms`. Never throws. */
+async function drainWorkerWithin(ms: number): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<void>(resolve => {
+    timer = setTimeout(resolve, ms);
+  });
+  try {
+    await Promise.race([
+      runWorkerBatch().then(
+        () => undefined,
+        err => console.warn("[submitSlip] Worker error:", err)
+      ),
+      timeout,
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // ─── App Router ───────────────────────────────────────────────────────────────
@@ -597,12 +638,85 @@ export const appRouter = router({
           bankName: z.string().trim().max(120).optional(),
           bankAccount: z.string().trim().max(30).optional(),
           bankAccountName: z.string().trim().max(120).optional(),
+          /** Empty clears it. Left out, it stays as it is. */
+          promptPayId: z
+            .string()
+            .trim()
+            .max(20)
+            .refine(v => v === "" || parsePromptPayId(v) !== null, {
+              message:
+                "เลขพร้อมเพย์ต้องเป็นเบอร์มือถือ 10 หลัก เลขประจำตัว 13 หลัก หรือ e-Wallet 15 หลัก",
+            })
+            .optional(),
           fiscalYearStartMonth: z.number().int().min(1).max(12).default(1),
           motto: z.string().trim().max(280).optional(),
         })
       )
       .mutation(async ({ input }) => {
-        await upsertChurchProfile({ ...input, churchId: DEFAULT_CHURCH_ID });
+        const { promptPayId, ...rest } = input;
+        await upsertChurchProfile({
+          ...rest,
+          churchId: DEFAULT_CHURCH_ID,
+          // "" clears the ID. undefined leaves it alone. Store digits only.
+          ...(promptPayId === undefined
+            ? {}
+            : { promptPayId: parsePromptPayId(promptPayId)?.digits ?? null }),
+        });
+        return { success: true } as const;
+      }),
+    /**
+     * Where to send the money, for a donor who has not paid yet. Any signed-in
+     * member may read it: the church wants donors to see the account. Only
+     * these three fields leave. The PromptPay ID stays on the server.
+     */
+    payeeInfo: protectedProcedure.query(async () => {
+      const profile = await getChurchProfile();
+      if (!profile?.bankAccount) return null;
+      return {
+        bankName: profile.bankName,
+        bankAccount: profile.bankAccount,
+        bankAccountName: profile.bankAccountName,
+      };
+    }),
+    /**
+     * A PromptPay QR payload for `amount`, so the donor scans it with a bank
+     * app and does not type the amount. Null when no PromptPay ID is set. The
+     * ID itself never leaves the server except inside the payload.
+     */
+    paymentQr: protectedProcedure
+      .input(
+        z.object({
+          amount: z.number().positive().max(MAX_GIVING_AMOUNT),
+        })
+      )
+      .query(async ({ input }) => {
+        const profile = await getChurchProfile();
+        const id = profile?.promptPayId
+          ? parsePromptPayId(profile.promptPayId)
+          : null;
+        if (!profile || !id) return null;
+        return {
+          payload: buildPromptPayPayload(id, input.amount),
+          amount: Math.round(input.amount * 100) / 100,
+          payeeName: profile.bankAccountName || profile.name,
+        };
+      }),
+    /** The saved poster words, or the defaults. Any signed-in person may read. */
+    stationPoster: protectedProcedure.query(async () => {
+      return parseStationPoster(await getStationPosterJson());
+    }),
+    /** Saves the poster words. Church leaders only. */
+    saveStationPoster: churchLeaderProcedure
+      .input(stationPosterSchema)
+      .mutation(async ({ input, ctx }) => {
+        await saveStationPosterJson(JSON.stringify(input));
+        await createAuditLog({
+          churchId: "default",
+          userId: ctx.user.id,
+          action: "save_station_poster",
+          entity: "church_profile",
+          metadata: {},
+        });
         return { success: true } as const;
       }),
     completeSetup: churchLeaderProcedure.mutation(async () => {
@@ -692,7 +806,7 @@ export const appRouter = router({
     create: financeProcedure
       .input(
         z.object({
-          amount: z.number().positive(),
+          amount: z.number().positive().max(MAX_GIVING_AMOUNT),
           category: offeringCategory.default("general"),
           fundId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(120).optional(),
@@ -2558,34 +2672,165 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        let image: ReturnType<typeof decodeSlipImage>;
         try {
-          const rawBase64 = input.base64Data.replace(
-            /^data:image\/\w+;base64,/,
-            ""
-          );
-          const buffer = Buffer.from(rawBase64, "base64");
+          image = decodeSlipImage(input.base64Data);
+        } catch (err) {
+          if (err instanceof SlipImageError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: err.message });
+          }
+          throw err;
+        }
 
-          const slip = await createManualSlip({
+        let slip: Awaited<ReturnType<typeof createManualSlip>>;
+        try {
+          slip = await createManualSlip({
             churchId: DEFAULT_CHURCH_ID,
             userId: ctx.user.id,
             userName: ctx.user.name ?? undefined,
             donorName: input.donorName,
-            imageBuffer: buffer,
+            imageBuffer: image.buffer,
+            contentType: image.contentType,
+            extension: image.extension,
           });
-
-          // Run worker batch immediately to extract data with AI
-          await runWorkerBatch().catch(err =>
-            console.warn("[Manual upload] Worker error:", err)
-          );
-
-          return { success: true, slipId: slip.id };
-        } catch (err: any) {
+        } catch (err) {
+          console.error("[uploadSlip] Could not store slip:", err);
           throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: err?.message || "ไม่สามารถอัปโหลดสลิปได้",
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ไม่สามารถอัปโหลดสลิปได้ กรุณาลองใหม่อีกครั้ง",
           });
         }
+
+        // Run worker batch immediately to extract data with AI
+        await runWorkerBatch().catch(err =>
+          console.warn("[Manual upload] Worker error:", err)
+        );
+
+        return { success: true, slipId: slip.id };
       }),
+
+    /**
+     * Any signed-in member submits a transfer slip from the giving station.
+     * It only queues a pending slip with the amount, category and fund the
+     * donor declared. Nothing is credited until a treasurer approves it.
+     */
+    submitSlip: protectedProcedure
+      .input(
+        z.object({
+          base64Data: z.string().min(1, "กรุณาแนบรูปสลิป"),
+          amount: z
+            .number()
+            .positive("กรุณาระบุจำนวนเงินที่ถวาย")
+            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
+          category: offeringCategory,
+          fundId: z.number().int().positive().optional(),
+          donorName: z.string().trim().max(120).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        let image: ReturnType<typeof decodeSlipImage>;
+        try {
+          image = decodeSlipImage(input.base64Data);
+        } catch (err) {
+          if (err instanceof SlipImageError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: err.message });
+          }
+          throw err;
+        }
+
+        if (input.fundId !== undefined) {
+          const funds = await listFinanceAccounts();
+          if (!funds.some(f => f.id === input.fundId)) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "ไม่พบกองทุนที่เลือก",
+            });
+          }
+        }
+
+        const recent = await countRecentManualSlips(
+          ctx.user.id,
+          new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+        if (recent >= MAX_SLIPS_PER_DAY) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "ส่งสลิปครบจำนวนต่อวันแล้ว กรุณาลองใหม่พรุ่งนี้",
+          });
+        }
+
+        let slip: Awaited<ReturnType<typeof createManualSlip>>;
+        try {
+          slip = await createManualSlip({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            userName: ctx.user.name ?? undefined,
+            donorName: input.donorName || ctx.user.name || undefined,
+            imageBuffer: image.buffer,
+            contentType: image.contentType,
+            extension: image.extension,
+            declared: {
+              amount: input.amount.toFixed(2),
+              category: input.category,
+              fundId: input.fundId ?? null,
+            },
+          });
+        } catch (err) {
+          console.error("[submitSlip] Could not store slip:", err);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ไม่สามารถบันทึกสลิปได้ กรุณาลองใหม่อีกครั้ง",
+          });
+        }
+
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CREATE",
+          entity: "line_slip",
+          entityId: slip.id,
+          metadata: {
+            declaredAmount: input.amount,
+            declaredCategory: input.category,
+            declaredFundId: input.fundId ?? null,
+          },
+        });
+
+        // Read the slip now so the donor learns at once whether the amount on
+        // the slip matches the one they chose. If the reading is not done in
+        // time, the job stays queued and the donor sees "checking".
+        await drainWorkerWithin(SLIP_CHECK_WAIT_MS);
+        const row = await getMyManualSlip(slip.id, ctx.user.id);
+        const check = row
+          ? toDonorSlipStatus(row)
+          : ({
+              state: "checking",
+              message: "กำลังตรวจสอบสลิป",
+              slipAmount: null,
+            } satisfies DonorSlipStatus);
+
+        // How many slips the system has turned away for this donor in 24 hours.
+        // The donor sees it, so they know when a person will take over.
+        const failedAttempts = await countRecentSystemRejectedSlips(
+          `manual-${ctx.user.id}`,
+          new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+
+        return { success: true, slipId: slip.id, check, failedAttempts } as const;
+      }),
+
+    /** The caller's own recent slips and what became of them. */
+    mySlips: protectedProcedure.query(async ({ ctx }) => {
+      const rows = await listMyManualSlips(ctx.user.id, 10);
+      return rows.map(row => ({
+        id: row.id,
+        createdAt: row.createdAt,
+        declaredAmount:
+          row.declaredAmount === null ? null : Number(row.declaredAmount),
+        declaredCategory: row.declaredCategory,
+        check: toDonorSlipStatus(row),
+      }));
+    }),
 
     /**
      * Trigger immediate AI re-scan on an existing slip.

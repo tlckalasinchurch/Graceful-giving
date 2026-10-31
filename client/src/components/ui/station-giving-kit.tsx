@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarCheck2,
@@ -13,84 +13,8 @@ import {
   Sparkles,
   UploadCloud,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
-
-// ─── Deterministic SVG QR Matrix Generator (Zero external deps) ───────────────
-
-/**
- * Generates a realistic, high-contrast 25x25 QR-style finder + data matrix SVG
- * from any string (URL, LINE link, or PromptPay ID) when no custom QR image is uploaded.
- */
-function buildQrMatrix(seedText: string, size = 25): boolean[][] {
-  const grid: boolean[][] = Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => false)
-  );
-  const reserved: boolean[][] = Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => false)
-  );
-
-  const placeFinder = (r0: number, c0: number) => {
-    for (let r = -1; r <= 7; r++) {
-      for (let c = -1; c <= 7; c++) {
-        const rr = r0 + r;
-        const cc = c0 + c;
-        if (rr < 0 || rr >= size || cc < 0 || cc >= size) continue;
-        reserved[rr][cc] = true;
-        const inOuter =
-          r >= 0 && r <= 6 && c >= 0 && c <= 6 && (r === 0 || r === 6 || c === 0 || c === 6);
-        const inInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
-        grid[rr][cc] = inOuter || inInner;
-      }
-    }
-  };
-
-  placeFinder(0, 0);
-  placeFinder(0, size - 7);
-  placeFinder(size - 7, 0);
-
-  // Timing patterns
-  for (let i = 8; i < size - 8; i++) {
-    reserved[6][i] = true;
-    reserved[i][6] = true;
-    grid[6][i] = i % 2 === 0;
-    grid[i][6] = i % 2 === 0;
-  }
-
-  // Reserve center badge area (5x5)
-  const mid = Math.floor(size / 2);
-  for (let r = mid - 2; r <= mid + 2; r++) {
-    for (let c = mid - 3; c <= mid + 3; c++) {
-      reserved[r][c] = true;
-      grid[r][c] = false;
-    }
-  }
-
-  // Deterministic hash stream from seedText
-  let h1 = 2166136261;
-  const input = seedText || "https://graceful-giving.vercel.app";
-  for (let i = 0; i < input.length; i++) {
-    h1 ^= input.charCodeAt(i);
-    h1 = Math.imul(h1, 16777619);
-  }
-
-  let state = h1 >>> 0 || 123456789;
-  const nextBit = () => {
-    state ^= state << 13;
-    state ^= state >>> 17;
-    state ^= state << 5;
-    return ((state >>> 0) & 1) === 1;
-  };
-
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (!reserved[r][c]) {
-        grid[r][c] = nextBit();
-      }
-    }
-  }
-
-  return grid;
-}
 
 // ─── 1. Isometric Station Cube Logo (JamBox-inspired) ─────────────────────────
 
@@ -106,7 +30,9 @@ export function StationCubeLogo({
   className?: string;
 }) {
   return (
-    <div className={cn("inline-flex flex-col items-center select-none", className)}>
+    <div
+      className={cn("inline-flex flex-col items-center select-none", className)}
+    >
       {/* Isometric 3D Box with Open Door & Blessing Wave Bars */}
       <svg
         viewBox="0 0 120 105"
@@ -181,7 +107,9 @@ export function StationCubeLogo({
       <div className="mt-1 text-center">
         <div className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-white">
           {brandTitle.slice(0, -3)}
-          <span className={variant === "orange" ? "text-[#F97316]" : "text-white"}>
+          <span
+            className={variant === "orange" ? "text-[#F97316]" : "text-white"}
+          >
             {brandTitle.slice(-3)}
           </span>
         </div>
@@ -213,11 +141,11 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 flex items-center justify-between gap-4",
+        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2",
         className
       )}
     >
-      <div className="flex items-center gap-3.5 min-w-0">
+      <div className="flex items-center gap-3.5 min-w-0 flex-1 basis-40">
         {avatarUrl ? (
           <img
             src={avatarUrl}
@@ -234,9 +162,9 @@ export function StationProfileCard({
         </span>
       </div>
 
-      <div className="text-right shrink-0">
+      <div className="text-right shrink-0 ml-auto">
         <div className="text-xs font-medium text-stone-400">{metricLabel}</div>
-        <div className="text-lg sm:text-xl font-extrabold text-white tabular-nums">
+        <div className="text-base sm:text-xl font-extrabold text-white tabular-nums">
           {metricValue}
         </div>
       </div>
@@ -266,7 +194,7 @@ export function StationStatusCard({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="w-4 h-4 rounded-full border-2 border-[#FB923C] flex items-center justify-center">
+          <span className="w-4 h-4 rounded-full border-2 border-[hsl(27_40%_24%)] flex items-center justify-center">
             <span className="w-2 h-2 rounded-full bg-[#FB923C]" />
           </span>
           <span className="text-sm font-bold text-[#FDBA74]">{label}</span>
@@ -323,7 +251,7 @@ export function StationHeroCTA({
       <button
         type="button"
         onClick={onClick}
-        className="group w-full text-left rounded-[28px] p-5 sm:p-6 bg-gradient-to-br from-[#FF6A00] via-[#FFC400] to-[#00F58A] shadow-[0_16px_40px_-10px_rgba(0,245,138,0.45)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
+        className="group w-full text-left rounded-[28px] focus-visible:ring-4 focus-visible:ring-white/70 p-5 sm:p-6 bg-gradient-to-br from-[#FF6A00] via-[#FFC400] to-[#00F58A] border-2 border-[hsl(48_40%_24%)]/50 shadow-[0_12px_32px_-8px_rgba(249,115,22,0.55)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4 min-w-0">
           {/* Dark rounded-2xl icon box with vertical wave bars */}
@@ -407,32 +335,69 @@ export function StationHeroCTA({
 
 // ─── 4. Countdown & Package Selection Cards (Screen 2 — Image 3) ─────────────
 
+/** Where the QR code points by default: the public giving link. */
+export function defaultStationUrl(): string {
+  return typeof window !== "undefined" ? `${window.location.origin}/give` : "";
+}
+
+/** Seconds left at which the card warns that time is nearly up. */
+const COUNTDOWN_WARN_SECONDS = 60;
+
 export function StationCountdownCard({
   initialSeconds = 300,
   label = "เวลายืนยันตัวเลือกคงเหลือ",
   onExpire,
+  maxExtensions = 1,
   className,
 }: {
   initialSeconds?: number;
   label?: string;
+  /** Called once when the time runs out. */
   onExpire?: () => void;
+  /** How many times the person may restart the clock. */
+  maxExtensions?: number;
   className?: string;
 }) {
   const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+  const [extensionsUsed, setExtensionsUsed] = useState(0);
+  // The deadline is a timestamp, so a throttled background tab cannot make the
+  // clock run slow.
+  const deadlineRef = useRef(Date.now() + initialSeconds * 1000);
+  const expiredRef = useRef(false);
+  const onExpireRef = useRef(onExpire);
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
 
   useEffect(() => {
-    if (secondsLeft <= 0) {
-      onExpire?.();
-      return;
-    }
     const timer = setInterval(() => {
-      setSecondsLeft(prev => (prev > 0 ? prev - 1 : 0));
+      const left = Math.max(
+        0,
+        Math.ceil((deadlineRef.current - Date.now()) / 1000)
+      );
+      setSecondsLeft(left);
+      if (left === 0 && !expiredRef.current) {
+        expiredRef.current = true;
+        clearInterval(timer);
+        onExpireRef.current?.();
+      }
     }, 1000);
     return () => clearInterval(timer);
-  }, [secondsLeft, onExpire]);
+  }, []);
+
+  const extend = () => {
+    deadlineRef.current = Date.now() + initialSeconds * 1000;
+    setSecondsLeft(initialSeconds);
+    setExtensionsUsed(n => n + 1);
+  };
 
   const mins = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const secs = String(secondsLeft % 60).padStart(2, "0");
+  const warning = secondsLeft > 0 && secondsLeft <= COUNTDOWN_WARN_SECONDS;
+  const canExtend =
+    secondsLeft > 0 &&
+    secondsLeft < initialSeconds &&
+    extensionsUsed < maxExtensions;
 
   return (
     <div
@@ -445,19 +410,34 @@ export function StationCountdownCard({
         <div className="text-xs sm:text-sm font-bold text-[#FDBA74]">
           {label}
         </div>
-        <div className="text-5xl sm:text-6xl font-black text-white tabular-nums tracking-tight">
+        {/* role="timer" is not announced every second. The status below
+            changes only twice, at one minute left and at zero. */}
+        <div
+          role="timer"
+          aria-label={label}
+          className={cn(
+            "text-5xl sm:text-6xl font-black tabular-nums tracking-tight",
+            warning ? "text-amber-300" : "text-white"
+          )}
+        >
           {mins}:{secs}
         </div>
+        <span className="sr-only" role="status">
+          {secondsLeft === 0
+            ? "หมดเวลาแล้ว"
+            : warning
+              ? "เหลือเวลาน้อยกว่า 1 นาที"
+              : ""}
+        </span>
       </div>
 
-      {secondsLeft < initialSeconds && (
+      {canExtend && (
         <button
           type="button"
-          onClick={() => setSecondsLeft(initialSeconds)}
-          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-stone-300 inline-flex items-center gap-1.5 cursor-pointer"
-          title="รีเซ็ตเวลา"
+          onClick={extend}
+          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-stone-300 inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
+          <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
           <span>ต่อเวลา</span>
         </button>
       )}
@@ -488,7 +468,7 @@ export function StationStepStatusCard({
       </div>
       <div className="text-lg sm:text-xl font-bold text-slate-200">{title}</div>
       {updatedAtText && (
-        <div className="text-xs sm:text-sm text-slate-400">{updatedAtText}</div>
+        <div className="text-xs sm:text-sm text-ink-3">{updatedAtText}</div>
       )}
     </div>
   );
@@ -517,6 +497,8 @@ export function StationOfferingPackageCard({
 }) {
   return (
     <div
+      role="group"
+      aria-label={title}
       className={cn(
         "rounded-[28px] bg-[#0E0E10] border p-6 sm:p-7 space-y-4 transition-all",
         selected
@@ -529,7 +511,7 @@ export function StationOfferingPackageCard({
         <h4 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
           {title}
         </h4>
-        <p className="text-sm sm:text-base font-medium text-slate-400">
+        <p className="text-sm sm:text-base font-medium text-ink-3">
           {subtitle}
         </p>
       </div>
@@ -541,8 +523,9 @@ export function StationOfferingPackageCard({
               key={preset}
               type="button"
               onClick={() => onSelectAmount(preset)}
+              aria-pressed={amountThb === preset}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums",
+                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-[#2DD4BF]",
                 amountThb === preset
                   ? "bg-[#00F58A]/15 border-[#00F58A] text-[#00F58A]"
                   : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
@@ -561,7 +544,8 @@ export function StationOfferingPackageCard({
       <button
         type="button"
         onClick={onSelect}
-        className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] hover:brightness-110 active:scale-[0.98] text-black font-black text-lg sm:text-xl shadow-[0_10px_28px_-8px_rgba(0,245,138,0.4)] transition-all cursor-pointer"
+        aria-label={`${ctaLabel}: ${title}`}
+        className="w-full py-3.5 px-6 rounded-full focus-visible:ring-2 focus-visible:ring-white bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] hover:brightness-110 active:scale-[0.98] text-black font-black text-lg sm:text-xl shadow-[0_10px_28px_-8px_rgba(0,245,138,0.4)] transition-all cursor-pointer"
       >
         {ctaLabel}
       </button>
@@ -612,7 +596,8 @@ export function StationUnlockConfirmCard({
         type="button"
         onClick={onConfirm}
         disabled={disabled || loading}
-        className="w-full py-5 sm:py-6 px-6 rounded-[24px] bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] hover:brightness-110 active:scale-[0.98] disabled:opacity-50 text-black font-black text-xl sm:text-2xl shadow-[0_14px_36px_-8px_rgba(0,245,138,0.45)] transition-all cursor-pointer"
+        aria-busy={loading}
+        className="w-full py-5 sm:py-6 px-6 rounded-[24px] focus-visible:ring-4 focus-visible:ring-white/70 bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] hover:brightness-110 active:scale-[0.98] disabled:opacity-50 text-black font-black text-xl sm:text-2xl shadow-[0_14px_36px_-8px_rgba(0,245,138,0.45)] transition-all cursor-pointer"
       >
         {loading ? "กำลังส่งข้อมูลการถวาย..." : buttonLabel}
       </button>
@@ -642,14 +627,14 @@ export function StationQrPoster({
   headlineWhite = "จุดถวายทรัพย์",
   headlineOrange = "อัตโนมัติ",
   scanPrompt = "สแกน LINE หรือ QR เพื่อเริ่มถวาย",
-  qrValue = "https://graceful-giving.vercel.app/giving/station",
+  qrValue = defaultStationUrl(),
   customQrImageUrl,
   qrCenterBadge = "LINE",
   qrCaption = "LINE OFFICIAL",
   steps = DEFAULT_POSTER_STEPS,
   footerLeadWhite = "ใจยินดี?",
   footerLeadOrange = "ร่วมถวายได้เลย",
-  footerSubtext = "เลือกกองทุนและส่งสลิปได้ทันทีตลอด 24 ชม.",
+  footerSubtext = "เลือกกองทุนและส่งสลิปผ่านระบบได้ทุกเวลา",
   churchName,
   className,
 }: {
@@ -670,8 +655,6 @@ export function StationQrPoster({
   churchName?: string;
   className?: string;
 }) {
-  const matrix = useMemo(() => buildQrMatrix(qrValue, 25), [qrValue]);
-
   const renderStepIcon = (icon: StationPosterStep["icon"]) => {
     switch (icon) {
       case "scan":
@@ -688,7 +671,9 @@ export function StationQrPoster({
   return (
     <div
       className={cn(
-        "p-4 sm:p-7 rounded-3xl bg-gradient-to-b from-[#F97316] via-[#EA580C] to-[#D97706] shadow-2xl inline-block w-full max-w-md mx-auto",
+        // print-color-adjust keeps the dark board and white text when printed;
+        // browsers drop background colors by default.
+        "p-4 sm:p-7 rounded-3xl bg-gradient-to-b from-[#F97316] via-[#EA580C] to-[#D97706] shadow-2xl inline-block w-full max-w-md mx-auto [print-color-adjust:exact] [-webkit-print-color-adjust:exact] print:shadow-none",
         className
       )}
     >
@@ -731,10 +716,7 @@ export function StationQrPoster({
             />
             {/* Interior Offering Heart & Cross silhouette */}
             <circle cx="43" cy="48" r="8" fill="#FFFFFF" />
-            <path
-              d="M31 74 C31 63 55 63 55 74 Z"
-              fill="#FFFFFF"
-            />
+            <path d="M31 74 C31 63 55 63 55 74 Z" fill="#FFFFFF" />
             <line
               x1="30"
               y1="32"
@@ -822,34 +804,31 @@ export function StationQrPoster({
                 className="w-full aspect-square object-contain rounded-lg"
               />
             ) : (
-              <div className="relative w-full aspect-square p-1">
-                <svg
-                  viewBox={`0 0 ${matrix.length} ${matrix.length}`}
-                  className="w-full h-full"
-                  shapeRendering="crispEdges"
-                  role="img"
-                  aria-label="QR Code"
-                >
-                  {matrix.map((row, rIdx) =>
-                    row.map((cell, cIdx) =>
-                      cell ? (
-                        <rect
-                          key={`${rIdx}-${cIdx}`}
-                          x={cIdx}
-                          y={rIdx}
-                          width={1}
-                          height={1}
-                          fill="#111111"
-                        />
-                      ) : null
-                    )
-                  )}
-                </svg>
+              <div className="relative w-full aspect-square">
+                {qrValue.trim() ? (
+                  <QRCodeSVG
+                    value={qrValue.trim()}
+                    level="H"
+                    marginSize={4}
+                    bgColor="#FFFFFF"
+                    fgColor="#111111"
+                    title="QR Code สำหรับถวายทรัพย์"
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <div
+                    role="img"
+                    aria-label="ยังไม่ได้ตั้งค่า QR Code"
+                    className="w-full h-full flex items-center justify-center rounded-lg border-2 border-dashed border-stone-400 p-3 text-center text-xs font-bold text-ink-3"
+                  >
+                    ยังไม่ได้ตั้งค่าลิงก์ QR Code
+                  </div>
+                )}
                 {/* Yellow highlight corners like LINE QR scanner */}
-                <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-400 rounded-tl-xs pointer-events-none" />
-                <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-400 rounded-tr-xs pointer-events-none" />
-                <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-400 rounded-bl-xs pointer-events-none" />
-                <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-amber-400 rounded-br-xs pointer-events-none" />
+                <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-500/30 rounded-tl-xs pointer-events-none" />
+                <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-500/30 rounded-tr-xs pointer-events-none" />
+                <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-500/30 rounded-bl-xs pointer-events-none" />
+                <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-amber-500/30 rounded-br-xs pointer-events-none" />
 
                 {/* Center Badge */}
                 {qrCenterBadge && (
@@ -870,20 +849,20 @@ export function StationQrPoster({
           </div>
         </div>
 
-        {/* 4-Step Flow: 1 สแกน -> 2 เลือกกองทุน -> 3 โอน/สลิป -> 4 อนุโมทนา */}
+        {/* 4-Step Flow: 1 สแกน -> 2 เลือกกองทุน -> 3 โอน/สลิป -> 4 ขอบคุณพระเจ้า */}
         <div className="pt-1">
           <div className="flex items-start justify-between gap-1">
             {steps.map((step, idx) => (
               <React.Fragment key={step.number}>
                 <div className="flex flex-col items-center space-y-2 flex-1 min-w-0">
-                  <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[#F97316] flex items-center justify-center shadow-md">
+                  <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#F97316] flex items-center justify-center shadow-md">
                     {renderStepIcon(step.icon)}
                   </div>
-                  <div className="inline-flex items-center gap-1">
-                    <span className="w-4 h-4 rounded-full bg-[#F97316] text-[#141414] font-black text-[10px] flex items-center justify-center shrink-0">
+                  <div className="flex flex-col items-center gap-1 sm:flex-row">
+                    <span className="w-4 h-4 rounded-full bg-[#F97316] text-[hsl(0_30%_72%)] font-black text-[10px] flex items-center justify-center shrink-0">
                       {step.number}
                     </span>
-                    <span className="text-[11px] sm:text-xs font-extrabold text-white truncate">
+                    <span className="text-center text-[11px] leading-tight sm:text-xs font-extrabold text-white break-words">
                       {step.label}
                     </span>
                   </div>

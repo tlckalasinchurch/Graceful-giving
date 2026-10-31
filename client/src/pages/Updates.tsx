@@ -20,7 +20,7 @@ export default function Updates() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-paper p-6 text-center text-sm text-ink-3">
+      <div className="min-h-dvh bg-paper p-6 text-center text-sm text-ink-3">
         กำลังตรวจสอบบัญชีผู้ใช้...
       </div>
     );
@@ -28,7 +28,7 @@ export default function Updates() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-paper px-5 py-8">
+      <div className="min-h-dvh bg-paper px-5 py-8">
         <div className="mx-auto max-w-lg">
           <Link
             href="/"
@@ -61,7 +61,7 @@ export default function Updates() {
   }
 
   return (
-    <div className="min-h-screen bg-paper pb-16 text-ink">
+    <div className="min-h-dvh bg-paper pb-16 text-ink">
       <div className="mx-auto max-w-[var(--content-max)] px-5 py-6 sm:px-8 lg:py-10">
         <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
           <div>
