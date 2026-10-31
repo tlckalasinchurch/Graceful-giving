@@ -32,6 +32,7 @@ import {
   resolveSubmitMode,
   type StationSubmission,
 } from "./givingStationFlow";
+import { fetchLiffId } from "@/lib/liffSignIn";
 import { clearDraft, loadDraft, saveDraft } from "./givingDraft";
 import { StationOnlyFrame } from "@/components/layout/StationOnlyFrame";
 import { PromptPayQrCard } from "@/components/ui/promptpay-qr-card";
@@ -235,10 +236,25 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     });
   };
   const givingLink = defaultStationUrl();
+  // The LIFF link opens inside the LINE app and signs the person in. It is the
+  // better link to send in LINE. The ordinary link works everywhere else.
+  const [liffId, setLiffId] = useState<string | null>(null);
+  useEffect(() => {
+    if (stationOnly) return;
+    let active = true;
+    void fetchLiffId().then(id => {
+      if (active) setLiffId(id);
+    });
+    return () => {
+      active = false;
+    };
+  }, [stationOnly]);
+  const liffLink = liffId ? `https://liff.line.me/${liffId}` : null;
+  const lineShareLink = liffLink ?? givingLink;
   const shareText = "ถวายทรัพย์ออนไลน์ ผ่าน LINE";
-  const copyGivingLink = async () => {
+  const copyLink = async (link: string) => {
     try {
-      await navigator.clipboard.writeText(givingLink);
+      await navigator.clipboard.writeText(link);
       toast.success("คัดลอกลิงก์แล้ว");
     } catch {
       toast.error("คัดลอกไม่สำเร็จ ให้กดค้างที่ลิงก์เพื่อคัดลอก");
@@ -1386,17 +1402,42 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 onFocus={e => e.currentTarget.select()}
                 className="w-full rounded-xl border border-line bg-paper px-3 py-2 font-mono text-xs text-ink"
               />
+              {liffLink && (
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-semibold text-ink-3">
+                    ลิงก์สำหรับ LINE: เปิดในแอป LINE และเข้าสู่ระบบให้อัตโนมัติ
+                    ใช้กับ Rich Menu และข้อความในแชต
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      readOnly
+                      aria-label="ลิงก์สำหรับ LINE"
+                      value={liffLink}
+                      onFocus={e => e.currentTarget.select()}
+                      className="min-w-0 flex-1 rounded-xl border border-line bg-paper px-3 py-2 font-mono text-xs text-ink"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void copyLink(liffLink)}
+                      className="shrink-0 py-2 px-3 rounded-xl border border-line text-ink-2 font-bold text-xs flex items-center gap-1.5 cursor-pointer hover:bg-paper-2"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>คัดลอก</span>
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => void copyGivingLink()}
+                  onClick={() => void copyLink(givingLink)}
                   className="py-2 px-3 rounded-xl border border-line text-ink-2 font-bold text-xs flex items-center gap-1.5 cursor-pointer hover:bg-paper-2"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>คัดลอกลิงก์</span>
                 </button>
                 <a
-                  href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(givingLink)}`}
+                  href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(lineShareLink)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-2 px-3 rounded-xl bg-[#06C755] text-white font-bold text-xs"

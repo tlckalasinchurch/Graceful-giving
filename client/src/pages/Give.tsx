@@ -1,5 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { fetchLiffId, signInWithLiff } from "@/lib/liffSignIn";
 import { trpc } from "@/lib/trpc";
+import { useEffect, useRef, useState } from "react";
 import { PlainGivingStation } from "./GivingStation";
 
 /** Sign-in that returns to this page and activates an ordinary member. */
@@ -48,6 +50,27 @@ export default function Give() {
     enabled: !loading && !isAuthenticated,
   });
 
+  // Inside the LINE app the page signs the person in by itself. It tries once.
+  // Outside LINE, or if it fails, the LINE button below is the way in.
+  const utils = trpc.useUtils();
+  const [liffTrying, setLiffTrying] = useState(false);
+  const liffTried = useRef(false);
+  useEffect(() => {
+    if (loading || isAuthenticated || liffTried.current) return;
+    liffTried.current = true;
+    void (async () => {
+      const liffId = await fetchLiffId();
+      if (!liffId) return;
+      setLiffTrying(true);
+      const result = await signInWithLiff(liffId);
+      if (result === "signed_in") {
+        await utils.auth.me.invalidate();
+      }
+      // "redirecting" keeps the message, because the page is about to reload.
+      if (result !== "redirecting") setLiffTrying(false);
+    })();
+  }, [loading, isAuthenticated, utils]);
+
   if (loading) {
     return (
       <GiveShell>
@@ -79,7 +102,11 @@ export default function Give() {
           เข้าสู่ระบบด้วย LINE เพื่อเลือกรายการถวายและแนบสลิปโอนเงิน
         </p>
       </div>
-      {disabled ? (
+      {liffTrying ? (
+        <p role="status" className="text-center text-sm text-stone-300">
+          กำลังเข้าสู่ระบบด้วย LINE…
+        </p>
+      ) : disabled ? (
         <p
           role="alert"
           className="rounded-2xl border border-white/15 bg-white/5 p-4 text-center text-sm text-stone-200"
