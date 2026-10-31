@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { MAX_GIVING_AMOUNT, parseGivingAmount } from "@shared/givingLimits";
-import { resolveAmount, resolveSubmitMode } from "./givingStationFlow";
+import {
+  describeOutcome,
+  resolveAmount,
+  resolveSubmitMode,
+  type StationSubmission,
+} from "./givingStationFlow";
 
 describe("resolveSubmitMode", () => {
   it("sends any attached slip through the slip queue", () => {
@@ -50,5 +55,53 @@ describe("parseGivingAmount", () => {
     expect(parseGivingAmount(Infinity)).toBeNull();
     expect(parseGivingAmount(NaN)).toBeNull();
     expect(parseGivingAmount(0.004)).toBeNull();
+  });
+});
+
+const slip = (check: StationSubmission["check"]): StationSubmission => ({
+  mode: "slip",
+  category: "tithe",
+  amount: 500,
+  check,
+});
+
+describe("describeOutcome", () => {
+  it("says thanks for a ledger entry", () => {
+    const o = describeOutcome({
+      mode: "ledger",
+      category: "general",
+      amount: 300,
+      check: null,
+    });
+    expect(o).toMatchObject({ tone: "success", title: "ขอบคุณพระเจ้า" });
+    expect(o.canRetry).toBe(false);
+  });
+
+  it("says thanks when the slip amount matches", () => {
+    const o = describeOutcome(
+      slip({ state: "verified", message: "ยอดตรง", slipAmount: null })
+    );
+    expect(o).toMatchObject({ tone: "success", title: "ขอบคุณพระเจ้า" });
+    expect(o.message).toContain("ยอดตรง");
+  });
+
+  it("does not say thanks when the slip was turned away", () => {
+    const o = describeOutcome(
+      slip({
+        state: "rejected",
+        message: "ยอดในสลิป 1,000 บาท ไม่ตรงกับยอดที่เลือก 500 บาท",
+        slipAmount: 1000,
+      })
+    );
+    expect(o.tone).toBe("error");
+    expect(o.title).not.toContain("ขอบคุณ");
+    expect(o).toMatchObject({ canRetry: true, slipAmount: 1000 });
+  });
+
+  it("warns about a duplicate slip without offering a retry", () => {
+    const o = describeOutcome(
+      slip({ state: "duplicate", message: "สลิปซ้ำ", slipAmount: null })
+    );
+    expect(o).toMatchObject({ tone: "warning", canRetry: false });
   });
 });

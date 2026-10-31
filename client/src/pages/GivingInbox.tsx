@@ -968,7 +968,26 @@ export default function GivingInbox() {
                       </span>
                       {currentSlip.declaredCategory &&
                         ` · ${offeringCategoryLabel(currentSlip.declaredCategory)}`}{" "}
-                      (ยังไม่ได้ตรวจสอบ ให้เทียบกับภาพสลิปก่อนอนุมัติ)
+                      {currentSlip.extractedAmount ? (
+                        Math.abs(
+                          Number(currentSlip.declaredAmount) -
+                            Number(currentSlip.extractedAmount)
+                        ) < 0.005 ? (
+                          <span className="block pt-1 font-bold text-emerald-700">
+                            ✓ ตรงกับยอดที่ AI อ่านจากสลิป
+                          </span>
+                        ) : (
+                          <span className="block pt-1 font-bold text-rose-700">
+                            ⚠ ไม่ตรงกับยอดที่ AI อ่านจากสลิป (
+                            {formatBaht(Number(currentSlip.extractedAmount))})
+                            ตรวจภาพสลิปก่อนอนุมัติ
+                          </span>
+                        )
+                      ) : (
+                        <span className="block pt-1">
+                          (ยังไม่ได้ตรวจสอบ ให้เทียบกับภาพสลิปก่อนอนุมัติ)
+                        </span>
+                      )}
                     </div>
                   )}
 

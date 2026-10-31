@@ -27,6 +27,7 @@ import {
 } from "../../drizzle/schema";
 import { and, eq, lte, sql } from "drizzle-orm";
 import { getSlipSignedUrl } from "../storage";
+import { checkDeclaredAmount, declaredMismatchReason } from "./declaredCheck";
 import { extractSlipData, requiresReview } from "./slipOcr";
 import {
   checkDuplicateByReference,
@@ -155,6 +156,19 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
     }
   }
 
+  // 5b. A slip sent from the giving station carries the amount the donor
+  // chose. A confident reading that differs turns the slip away, so it cannot
+  // be approved under the wrong amount. The donor sends it again with the
+  // right amount.
+  let autoRejectReason: string | null = null;
+  if (slip.declaredAmount !== null && finalStatus !== "duplicate") {
+    const verdict = checkDeclaredAmount(Number(slip.declaredAmount), extraction);
+    if (verdict.kind === "mismatch") {
+      finalStatus = "rejected";
+      autoRejectReason = declaredMismatchReason(verdict);
+    }
+  }
+
   // 6. Update line_slips with all results
   await db
     .update(lineSlips)
@@ -177,7 +191,11 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
       matchMethod,
       duplicateOfSlipId: duplicateSlipId,
       duplicateOfOfferingId: duplicateOfferingId,
-      lastErrorMessage: duplicateReason,
+      lastErrorMessage: duplicateReason ?? autoRejectReason,
+      // Rejected by the system: no reviewer, the reason is for the donor.
+      ...(autoRejectReason
+        ? { reviewNote: autoRejectReason, reviewedAt: new Date() }
+        : {}),
       processingAttempts: (slip.processingAttempts ?? 0) + 1,
       updatedAt: new Date(),
     })

@@ -1,4 +1,8 @@
-import type { OfferingCategory } from "@shared/categories";
+import {
+  offeringCategoryLabel,
+  type OfferingCategory,
+} from "@shared/categories";
+import type { DonorSlipStatus } from "@shared/donorSlip";
 import { parseGivingAmount } from "@shared/givingLimits";
 
 /**
@@ -12,6 +16,8 @@ export interface StationSubmission {
   mode: SubmitMode;
   category: OfferingCategory;
   amount: number;
+  /** The server's reading of the slip. Null when nothing was sent as a slip. */
+  check: DonorSlipStatus | null;
 }
 
 /**
@@ -34,4 +40,57 @@ export function resolveAmount(
 ): number | null {
   if (customAmount.trim() !== "") return parseGivingAmount(customAmount);
   return parseGivingAmount(presetAmount);
+}
+
+export interface StationOutcome {
+  tone: "success" | "warning" | "error";
+  title: string;
+  message: string;
+  /** True when the donor can fix the problem and send again. */
+  canRetry: boolean;
+  /** The amount read from the slip, offered as the amount to send again with. */
+  slipAmount: number | null;
+}
+
+const baht = (n: number) => `${n.toLocaleString()} THB`;
+
+/** What the last screen says. It only says "thanks" when the slip was not turned away. */
+export function describeOutcome(s: StationSubmission): StationOutcome {
+  const what = `${offeringCategoryLabel(s.category)} ${baht(s.amount)}`;
+  const check = s.check;
+
+  if (s.mode === "ledger" || check === null) {
+    return {
+      tone: "success",
+      title: "ขอบคุณพระเจ้า",
+      message: `บันทึกรายการถวาย ${what} เรียบร้อยแล้ว`,
+      canRetry: false,
+      slipAmount: null,
+    };
+  }
+  if (check.state === "rejected") {
+    return {
+      tone: "error",
+      title: "สลิปไม่ผ่านการตรวจสอบ",
+      message: check.message,
+      canRetry: true,
+      slipAmount: check.slipAmount,
+    };
+  }
+  if (check.state === "duplicate") {
+    return {
+      tone: "warning",
+      title: "สลิปนี้ถูกส่งแล้ว",
+      message: check.message,
+      canRetry: false,
+      slipAmount: null,
+    };
+  }
+  return {
+    tone: "success",
+    title: "ขอบคุณพระเจ้า",
+    message: `ระบบได้รับสลิปถวาย ${what} แล้ว ${check.message}`,
+    canRetry: false,
+    slipAmount: null,
+  };
 }

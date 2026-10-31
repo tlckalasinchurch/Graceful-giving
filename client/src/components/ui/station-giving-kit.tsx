@@ -141,11 +141,11 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "rounded-3xl bg-[#1A1412]/95 border border-white/12 px-5 py-4 flex items-center justify-between gap-4 shadow-lg",
+        "rounded-3xl bg-[#1A1412]/95 border border-white/12 px-5 py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 shadow-lg",
         className
       )}
     >
-      <div className="flex items-center gap-3.5 min-w-0">
+      <div className="flex items-center gap-3.5 min-w-0 flex-1 basis-40">
         {avatarUrl ? (
           <img
             src={avatarUrl}
@@ -162,9 +162,9 @@ export function StationProfileCard({
         </span>
       </div>
 
-      <div className="text-right shrink-0">
+      <div className="text-right shrink-0 ml-auto">
         <div className="text-xs font-medium text-stone-400">{metricLabel}</div>
-        <div className="text-lg sm:text-xl font-extrabold text-white tabular-nums">
+        <div className="text-base sm:text-xl font-extrabold text-white tabular-nums">
           {metricValue}
         </div>
       </div>

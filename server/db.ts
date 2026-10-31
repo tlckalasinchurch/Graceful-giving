@@ -3492,6 +3492,63 @@ export async function countRecentManualSlips(
   return Number(row?.n ?? 0);
 }
 
+/** The columns a donor's status view needs, for slips they sent from the app. */
+const donorSlipColumns = {
+  id: lineSlips.id,
+  createdAt: lineSlips.createdAt,
+  status: lineSlips.status,
+  declaredAmount: lineSlips.declaredAmount,
+  declaredCategory: lineSlips.declaredCategory,
+  extractedAmount: lineSlips.extractedAmount,
+  extractedAmountConfidence: lineSlips.extractedAmountConfidence,
+  reviewedBy: lineSlips.reviewedBy,
+  reviewNote: lineSlips.reviewNote,
+  lastErrorMessage: lineSlips.lastErrorMessage,
+};
+
+/** One slip, only if `userId` sent it from the app. */
+export async function getMyManualSlip(
+  slipId: number,
+  userId: number,
+  churchId: string = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db
+    .select(donorSlipColumns)
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.id, slipId),
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`)
+      )
+    )
+    .limit(1);
+  return row ?? null;
+}
+
+/** The slips `userId` sent from the app, newest first. */
+export async function listMyManualSlips(
+  userId: number,
+  limit = 10,
+  churchId: string = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select(donorSlipColumns)
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`)
+      )
+    )
+    .orderBy(desc(lineSlips.createdAt))
+    .limit(limit);
+}
+
 export async function createManualSlip(input: {
   churchId?: string;
   userId: number;

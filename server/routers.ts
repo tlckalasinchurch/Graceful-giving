@@ -109,10 +109,14 @@ import {
   getLineInboxStats,
   createManualSlip,
   countRecentManualSlips,
+  getMyManualSlip,
+  listMyManualSlips,
   rescanLineSlip,
 } from "./db";
 import { runWorkerBatch } from "./line/processWorker";
 import { decodeSlipImage, SlipImageError } from "./line/slipImage";
+import { toDonorSlipStatus } from "./line/donorSlipStatus";
+import type { DonorSlipStatus } from "@shared/donorSlip";
 import {
   MAX_GIVING_AMOUNT,
   MAX_SLIPS_PER_DAY,
@@ -417,6 +421,28 @@ export function redactChurchProfile<
     bankAccount: null,
     bankAccountName: null,
   };
+}
+
+/** How long a donor waits for the slip reading before it falls back to the queue. */
+const SLIP_CHECK_WAIT_MS = 8000;
+
+/** Runs the slip worker, but gives up waiting after `ms`. Never throws. */
+async function drainWorkerWithin(ms: number): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<void>(resolve => {
+    timer = setTimeout(resolve, ms);
+  });
+  try {
+    await Promise.race([
+      runWorkerBatch().then(
+        () => undefined,
+        err => console.warn("[submitSlip] Worker error:", err)
+      ),
+      timeout,
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // ─── App Router ───────────────────────────────────────────────────────────────
@@ -2688,15 +2714,34 @@ export const appRouter = router({
           },
         });
 
-        // Only staff trigger an inline OCR run; members' slips wait for the cron.
-        if (canManageFinance(ctx.user)) {
-          await runWorkerBatch().catch(err =>
-            console.warn("[submitSlip] Worker error:", err)
-          );
-        }
+        // Read the slip now so the donor learns at once whether the amount on
+        // the slip matches the one they chose. If the reading is not done in
+        // time, the job stays queued and the donor sees "checking".
+        await drainWorkerWithin(SLIP_CHECK_WAIT_MS);
+        const row = await getMyManualSlip(slip.id, ctx.user.id);
+        const check = row
+          ? toDonorSlipStatus(row)
+          : ({
+              state: "checking",
+              message: "กำลังตรวจสอบสลิป",
+              slipAmount: null,
+            } satisfies DonorSlipStatus);
 
-        return { success: true, slipId: slip.id } as const;
+        return { success: true, slipId: slip.id, check } as const;
       }),
+
+    /** The caller's own recent slips and what became of them. */
+    mySlips: protectedProcedure.query(async ({ ctx }) => {
+      const rows = await listMyManualSlips(ctx.user.id, 10);
+      return rows.map(row => ({
+        id: row.id,
+        createdAt: row.createdAt,
+        declaredAmount:
+          row.declaredAmount === null ? null : Number(row.declaredAmount),
+        declaredCategory: row.declaredCategory,
+        check: toDonorSlipStatus(row),
+      }));
+    }),
 
     /**
      * Trigger immediate AI re-scan on an existing slip.
