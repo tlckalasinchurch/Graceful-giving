@@ -176,9 +176,31 @@ const loginLimiter = createRateLimiter({
   message: "Too many sign-in attempts. Try again in a minute.",
 });
 
+/** The first part of a text, so a log line stays short. */
+function clip(value: unknown, max = 160): string {
+  return typeof value === "string" ? value.slice(0, max) : "";
+}
+
+/**
+ * One line in the log for each step of a sign-in, so a failure on someone's
+ * phone can be traced. It holds no code, state, nonce, token or name. The
+ * browser name helps tell an in-app browser from a normal one.
+ */
+function logLogin(
+  message: string,
+  req: Request,
+  fields: Record<string, unknown> = {}
+) {
+  console.info(`[LINE Login] ${message}`, {
+    ...fields,
+    userAgent: clip(req.headers?.["user-agent"], 200),
+  });
+}
+
 export function registerLineLogin(app: Express) {
   app.get("/api/auth/line/login", loginLimiter, (req, res) => {
     const giver = req.query.next === GIVER_MARK;
+    logLogin("sign-in started", req, { giver });
     if (!ENV.lineLoginChannelId || !ENV.lineLoginChannelSecret) {
       res.redirect(302, `${giver ? GIVE_PATH : "/login"}?error=not_configured`);
       return;
@@ -199,6 +221,14 @@ export function registerLineLogin(app: Express) {
   app.get("/api/auth/line/callback", loginLimiter, async (req, res) => {
     let giver = false;
     const fail = (reason: string) => {
+      // LINE sends error and error_description when it refuses a sign-in, for
+      // example when the channel is still in the Developing status.
+      logLogin("sign-in ended without a session", req, {
+        reason,
+        giver,
+        lineError: clip(req.query.error, 80),
+        lineErrorDescription: clip(req.query.error_description),
+      });
       clearStateCookie(req, res);
       res.redirect(302, `${giver ? GIVE_PATH : "/login"}?error=${reason}`);
     };
@@ -227,6 +257,7 @@ export function registerLineLogin(app: Express) {
         ...getSessionCookieOptions(req),
         maxAge: SESSION_MAX_AGE_MS,
       });
+      logLogin("sign-in succeeded", req, { giver, status: user.status });
       res.redirect(302, giver ? GIVE_PATH : "/");
     } catch (err) {
       console.error("[LINE Login] failed:", err);
