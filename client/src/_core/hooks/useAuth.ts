@@ -25,7 +25,9 @@ export function useAuth(options?: UseAuthOptions) {
     } finally {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
-      window.location.href = "/login";
+      // Someone who came in through the giving link goes back to it.
+      window.location.href =
+        window.location.pathname === "/give" ? "/give" : "/login";
     }
   }, [utils]);
 

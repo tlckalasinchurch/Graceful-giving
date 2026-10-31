@@ -119,8 +119,16 @@ export async function fetchLineProfile(
  * Find or create the account for a LINE profile.
  * New people start "pending". Only OWNER_OPEN_ID (or the first user in
  * development) starts active, as SUPER_ADMIN.
+ *
+ * `giver` is set when the person signed in from the public giving link (/give).
+ * They start active as an ordinary MEMBER, and a pending account becomes
+ * active. An ordinary member can open the giving page and nothing else. A
+ * disabled account stays disabled.
  */
-export async function resolveLineUser(profile: LineProfile): Promise<User> {
+export async function resolveLineUser(
+  profile: LineProfile,
+  opts: { giver?: boolean } = {}
+): Promise<User> {
   const openId = `line:${profile.sub}`;
   const existing = await db.getUserByOpenId(openId);
   if (existing) {
@@ -128,6 +136,10 @@ export async function resolveLineUser(profile: LineProfile): Promise<User> {
       name: profile.name,
       avatarUrl: profile.picture,
     });
+    if (opts.giver && existing.status === "pending") {
+      await db.setUserStatus(existing.id, "active");
+      return { ...existing, status: "active" };
+    }
     return existing;
   }
 
@@ -138,7 +150,7 @@ export async function resolveLineUser(profile: LineProfile): Promise<User> {
     openId,
     name: profile.name,
     avatarUrl: profile.picture,
-    status: isOwner || isFirstDevUser ? "active" : "pending",
+    status: isOwner || isFirstDevUser || opts.giver ? "active" : "pending",
     isOwner: isOwner || isFirstDevUser,
   });
   if (!created) throw new LineLoginError("could not create user");
@@ -152,6 +164,11 @@ function clearStateCookie(req: Request, res: Response) {
   });
 }
 
+/** Marks a sign-in that started from the public giving link. */
+const GIVER_MARK = "give";
+/** The page the giving link signs a person in to. */
+export const GIVE_PATH = "/give";
+
 // Ten sign-in attempts a minute from one address is plenty for a person.
 const loginLimiter = createRateLimiter({
   windowMs: 60_000,
@@ -161,16 +178,18 @@ const loginLimiter = createRateLimiter({
 
 export function registerLineLogin(app: Express) {
   app.get("/api/auth/line/login", loginLimiter, (req, res) => {
+    const giver = req.query.next === GIVER_MARK;
     if (!ENV.lineLoginChannelId || !ENV.lineLoginChannelSecret) {
-      res.redirect(302, "/login?error=not_configured");
+      res.redirect(302, `${giver ? GIVE_PATH : "/login"}?error=not_configured`);
       return;
     }
     const state = randomBytes(16).toString("hex");
     const nonce = randomBytes(16).toString("hex");
-    res.cookie(STATE_COOKIE, `${state}.${nonce}`, {
-      ...getSessionCookieOptions(req),
-      maxAge: STATE_MAX_AGE_MS,
-    });
+    res.cookie(
+      STATE_COOKIE,
+      `${state}.${nonce}${giver ? `.${GIVER_MARK}` : ""}`,
+      { ...getSessionCookieOptions(req), maxAge: STATE_MAX_AGE_MS }
+    );
     res.redirect(
       302,
       buildAuthorizeUrl({ redirectUri: redirectUriFor(req), state, nonce })
@@ -178,16 +197,18 @@ export function registerLineLogin(app: Express) {
   });
 
   app.get("/api/auth/line/callback", loginLimiter, async (req, res) => {
+    let giver = false;
     const fail = (reason: string) => {
       clearStateCookie(req, res);
-      res.redirect(302, `/login?error=${reason}`);
+      res.redirect(302, `${giver ? GIVE_PATH : "/login"}?error=${reason}`);
     };
     try {
       if (req.query.error) return fail("cancelled");
       const code = typeof req.query.code === "string" ? req.query.code : "";
       const state = typeof req.query.state === "string" ? req.query.state : "";
       const saved = parseCookies(req.headers.cookie ?? "")[STATE_COOKIE] ?? "";
-      const [savedState, nonce] = saved.split(".");
+      const [savedState, nonce, mark] = saved.split(".");
+      giver = mark === GIVER_MARK;
       if (
         !code ||
         !state ||
@@ -199,14 +220,14 @@ export function registerLineLogin(app: Express) {
       }
 
       const profile = await fetchLineProfile(code, redirectUriFor(req), nonce);
-      const user = await resolveLineUser(profile);
+      const user = await resolveLineUser(profile, { giver });
 
       clearStateCookie(req, res);
       res.cookie(COOKIE_NAME, await signSession(user.openId), {
         ...getSessionCookieOptions(req),
         maxAge: SESSION_MAX_AGE_MS,
       });
-      res.redirect(302, "/");
+      res.redirect(302, giver ? GIVE_PATH : "/");
     } catch (err) {
       console.error("[LINE Login] failed:", err);
       fail("failed");

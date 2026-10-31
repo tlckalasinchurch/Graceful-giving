@@ -335,11 +335,9 @@ export function StationHeroCTA({
 
 // ─── 4. Countdown & Package Selection Cards (Screen 2 — Image 3) ─────────────
 
-/** Where the QR code points by default: this app's own giving station page. */
+/** Where the QR code points by default: the public giving link. */
 export function defaultStationUrl(): string {
-  return typeof window !== "undefined"
-    ? `${window.location.origin}/giving/station`
-    : "";
+  return typeof window !== "undefined" ? `${window.location.origin}/give` : "";
 }
 
 /** Seconds left at which the card warns that time is nearly up. */
