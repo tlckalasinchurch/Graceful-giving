@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import {
+  EMPTY_GUARDED_PROFILE,
+  isProfileDirty,
+  type GuardedProfile,
+} from "./settingsDirty";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   Banknote,
@@ -157,18 +162,12 @@ export default function Settings() {
   const [promptPayId, setPromptPayId] = useState("");
   const [motto, setMotto] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [baseline, setBaseline] = useState({
-    name: "",
-    address: "",
-    phone: "",
-    email: "",
-    pastorName: "",
-    treasurerName: "",
-    motto: "",
-  });
+  const [baseline, setBaseline] = useState<GuardedProfile>(
+    EMPTY_GUARDED_PROFILE
+  );
 
   useEffect(() => {
-    const loaded = {
+    const loaded: GuardedProfile = {
       name: churchProfile?.name || "",
       address: churchProfile?.address || "",
       phone: churchProfile?.phone || "",
@@ -176,6 +175,10 @@ export default function Settings() {
       pastorName: churchProfile?.pastorName || "",
       treasurerName: churchProfile?.treasurerName || "",
       motto: churchProfile?.motto || "",
+      bankName: churchProfile?.bankName || "",
+      bankAccount: churchProfile?.bankAccount || "",
+      bankAccountName: churchProfile?.bankAccountName || "",
+      promptPayId: churchProfile?.promptPayId || "",
     };
     setName(loaded.name);
     setAddress(loaded.address);
@@ -193,14 +196,22 @@ export default function Settings() {
     setBaseline(loaded);
   }, [churchProfile]);
 
-  const isDirty =
-    name !== baseline.name ||
-    address !== baseline.address ||
-    phone !== baseline.phone ||
-    email !== baseline.email ||
-    pastorName !== baseline.pastorName ||
-    treasurerName !== baseline.treasurerName ||
-    motto !== baseline.motto;
+  const isDirty = isProfileDirty(
+    {
+      name,
+      address,
+      phone,
+      email,
+      pastorName,
+      treasurerName,
+      motto,
+      bankName,
+      bankAccount,
+      bankAccountName,
+      promptPayId,
+    },
+    baseline
+  );
   useUnsavedChanges(isDirty);
 
   const updateProfileMutation = trpc.church.updateProfile.useMutation({
