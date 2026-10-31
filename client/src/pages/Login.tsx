@@ -46,7 +46,7 @@ export default function Login() {
   const error = errorKey ? (ERRORS[errorKey] ?? ERRORS.failed) : null;
 
   return (
-    <div className="grid min-h-screen bg-ground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <div className="grid min-h-dvh bg-ground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       {/* Editorial panel: the verse the ministry stands on. Desktop only. */}
       <aside className="relative hidden flex-col justify-between bg-ink p-12 text-surface lg:flex xl:p-16">
         <div className="flex items-center gap-3">

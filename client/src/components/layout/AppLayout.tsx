@@ -168,7 +168,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const mobileColumns = mobileTabs.length + (canRecordOffering ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-ground text-ink flex flex-col font-sans selection:bg-tile-lilac overflow-x-clip">
+    <div className="min-h-dvh bg-ground text-ink flex flex-col font-sans selection:bg-tile-lilac overflow-x-clip">
       <div className="flex-1 flex flex-row w-full min-w-0">
         {/* DESKTOP SIDEBAR (lg: >= 1024px) */}
         <aside className="hidden lg:flex print:hidden! w-64 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface/90 backdrop-blur-xl border-r border-line/80 px-4 py-5 z-30">

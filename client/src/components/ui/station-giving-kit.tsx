@@ -855,14 +855,14 @@ export function StationQrPoster({
             {steps.map((step, idx) => (
               <React.Fragment key={step.number}>
                 <div className="flex flex-col items-center space-y-2 flex-1 min-w-0">
-                  <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[#F97316] flex items-center justify-center shadow-md">
+                  <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#F97316] flex items-center justify-center shadow-md">
                     {renderStepIcon(step.icon)}
                   </div>
-                  <div className="inline-flex items-center gap-1">
+                  <div className="flex flex-col items-center gap-1 sm:flex-row">
                     <span className="w-4 h-4 rounded-full bg-[#F97316] text-[#141414] font-black text-[10px] flex items-center justify-center shrink-0">
                       {step.number}
                     </span>
-                    <span className="text-[11px] sm:text-xs font-extrabold text-white truncate">
+                    <span className="text-center text-[11px] leading-tight sm:text-xs font-extrabold text-white break-words">
                       {step.label}
                     </span>
                   </div>

@@ -172,7 +172,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             </div>
 
             {/* Items Table */}
-            <div className="border border-stone-300 rounded-xl overflow-hidden mb-6">
+            <div className="border border-stone-300 rounded-xl overflow-x-auto mb-6">
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-100 border-b border-stone-300 text-stone-700 font-bold">
                   <tr>
