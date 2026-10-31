@@ -28,8 +28,8 @@ function LineMark() {
 
 function GiveShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#0B0D13] text-white">
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-6 px-5 py-10">
+    <div className="min-h-dvh bg-[#0B0D13] text-white">
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 px-[max(1.25rem,env(safe-area-inset-left))] pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
         {children}
       </main>
     </div>

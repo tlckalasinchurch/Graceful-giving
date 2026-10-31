@@ -290,6 +290,11 @@ select:focus-visible {
 }
 
 @layer base {
+  /* A phone must not enlarge text on its own when it turns sideways. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
   * {
     border-color: var(--color-line);
   }

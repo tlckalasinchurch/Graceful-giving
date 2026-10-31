@@ -17,8 +17,8 @@ export function StationOnlyFrame({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#0B0D13] text-white">
-      <header className="mx-auto flex max-w-md items-center justify-between gap-3 px-4 pt-4">
+    <div className="min-h-dvh bg-[#0B0D13] text-white">
+      <header className="mx-auto flex max-w-md items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] pt-[max(1rem,env(safe-area-inset-top))]">
         <div className="min-w-0">
           <p className="truncate text-sm font-extrabold">
             {churchName || "จุดถวายทรัพย์"}
@@ -36,7 +36,7 @@ export function StationOnlyFrame({
           <span>ออกจากระบบ</span>
         </button>
       </header>
-      <main className="mx-auto w-full max-w-md px-3 py-4 sm:px-4">
+      <main className="mx-auto w-full max-w-md px-[max(0.75rem,env(safe-area-inset-left))] pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-[max(1rem,env(safe-area-inset-left))]">
         {children}
       </main>
     </div>
