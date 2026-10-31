@@ -11,7 +11,9 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "ci": "pnpm check && cross-env DATABASE_URL= POSTGRES_URL= POSTGRES_PRISMA_URL= pnpm test",
-    "db:push": "drizzle-kit generate && drizzle-kit migrate"
+    "db:push": "drizzle-kit generate && pnpm run db:migrate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:migrate:deploy": "tsx scripts/migrate.ts --only-production"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
@@ -84,6 +86,7 @@
   },
   "devDependencies": {
     "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
+    "@electric-sql/pglite": "^0.5.13",
     "@line/line-bot-mcp-server": "^0.5.0",
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.3",

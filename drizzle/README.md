@@ -1,36 +1,91 @@
 # drizzle/
 
-`schema.ts` is the source of truth for tables and columns. `meta/` holds the
-snapshot drizzle-kit compares it with.
+`schema.ts` is the source of truth for tables, columns and indexes. `meta/`
+holds the snapshot that `drizzle-kit generate` compares it with. The SQL files
+here are the migrations, in the order of `meta/_journal.json`.
 
-## Baseline
-
-`0000_baseline.sql` and `meta/0000_snapshot.json` are a baseline taken when
-`church_profiles.promptPayId` was added. The SQL file does nothing on purpose
-(`SELECT 1`): every table already exists. The snapshot records the schema at
-that point, so `pnpm exec drizzle-kit generate` writes only what changed since.
-
-Before this baseline the journal knew only the first migration, so `generate`
-wrote a file that recreated every table (14 `CREATE TABLE`, 8 `CREATE TYPE`)
-and `migrate` failed on the first table that existed. That is why migrations
-`0001` to `0009` were written by hand. Those files are kept in `legacy/` for
-the record. They are not in the journal and are never run.
+The app **does not change the schema when it connects**. Migrations run at
+deploy time. (`server/schema_init.ts`, which used to add columns on every
+connection, was removed. See "Why" below.)
 
 ## Changing the schema
 
-1. Edit `schema.ts`.
-2. Run `pnpm exec drizzle-kit generate --name <what_changed>` (it needs
-   `DATABASE_URL` set to any value; it does not connect). Check that the new
-   file holds only your change.
-3. Apply it with `pnpm exec drizzle-kit migrate` against the target database.
-   That needs a real `DATABASE_URL`, and it is not part of the Vercel build.
-   `pnpm db:push` runs steps 2 and 3 together.
+1. Edit `schema.ts`. A new index goes in the table's index list, not in SQL.
+2. Run `pnpm exec drizzle-kit generate --name <what_changed>`. It needs
+   `DATABASE_URL` set to any value; it does not connect. Check that the new
+   file holds only your change. Do not edit it by hand.
+3. Commit the SQL file and the `meta/` files with the schema change.
+   `server/drizzle.sync.test.ts` fails if you forget, and shows the missing SQL.
+4. Deploy. The production build applies the migration (below). To apply it by
+   hand, or to a test database, run `pnpm db:migrate`.
 
-## Open question: `server/schema_init.ts`
+Write each migration so that the code running before the deploy still works
+with it, for example add a column rather than rename one. The migration runs
+after the build and before the new version goes live.
 
-The app also runs `server/schema_init.ts` every time it connects. It creates
-missing tables and adds missing columns with `IF NOT EXISTS`, and it is how a
-new database gets its tables. The two paths can collide: a generated
-`ADD COLUMN` has no `IF NOT EXISTS`, so it fails if `schema_init.ts` already
-added the column. Until one path is retired, run `migrate` before the code that
-needs the new column is deployed, and do not add the same column to both.
+## How migrations run at deploy
+
+The last step of the Vercel build is `pnpm db:migrate:deploy`
+(`scripts/migrate.ts`, `server/migrate.ts`).
+
+- **Production builds only.** A preview build skips it, because preview and
+  production share one `DATABASE_URL`. A preview of an unmerged branch must not
+  change the live schema. The cost: a preview of a branch that changes the
+  schema runs against the old schema until the branch is merged.
+- **It fails the build when it cannot migrate.** The old version then stays live.
+  All pending migrations run in one transaction, so a failure leaves the
+  database as it was.
+- **It needs a role that owns the tables.** The app connects as `app_user`,
+  which owns only the tables it made itself. Most tables belong to `postgres`,
+  and changing a table needs the owner. Set `DATABASE_URL_MIGRATE` in Vercel,
+  for the Production environment only, to a connection for the owner role.
+  Without it the step falls back to `DATABASE_URL` and fails with a message that
+  says so. With the Supabase pooler, use the transaction-mode URL for the
+  `postgres` user. Do not give this value to the Preview environment.
+- **Two builds at once take turns.** The runner holds a Postgres advisory lock
+  (a transaction-level lock on its own connection) while it migrates. drizzle
+  reads which migration ran last before it opens its own transaction, so
+  without the lock two runners both see the same migrations as pending and the
+  second can fail with duplicate-key errors. The second runner waits for the
+  first, then finds nothing to do. It gives up after 2 minutes with a message.
+  A transaction-level lock is safe behind the transaction pooler. A
+  session-level lock is not, because the pooler hands the session to another
+  client and the lock stays behind. A killed build releases the lock when its
+  connection drops.
+- **Emergency bypass.** Set `SKIP_DB_MIGRATE=1` to build without migrating.
+- **Integrity indexes.** If a unique index that guards a financial rule cannot
+  be created, because the table already holds duplicates, the log names the
+  duplicate rows.
+
+## Two tables belong to another role
+
+`bank_signers` and `withdrawal_approvals` are owned by `app_user`, because the
+old `schema_init.ts` created them while connected as the app. The `postgres`
+role is a member of `app_user` but does not inherit its rights and cannot
+`SET ROLE` to it. So `postgres` cannot alter those two tables. The baseline
+copes: it changes a table only when something is missing from it, and both
+tables are complete.
+
+A future migration that alters either table will fail with
+`must be owner of table`. Before writing one, give the owner role to `postgres`
+or move the ownership, as a database admin. For example, on Postgres 16 and
+later, `GRANT app_user TO postgres WITH INHERIT TRUE, SET TRUE;`. This has not
+been tried on the live database.
+
+## Files
+
+- `0000_baseline.sql`: the whole schema as one script that is safe to run on a
+  new database and on an older one. It adds what is missing and changes
+  nothing else. Generated by `scripts/build-baseline.mjs`. Run that script only
+  to re-baseline, never for an ordinary change.
+- `legacy/`: SQL written by hand before the baseline. Not in the journal, never
+  run. Kept as a record.
+
+## Why `schema_init.ts` was removed
+
+It created missing tables and added missing columns each time the app
+connected. In production the app connects as a role that does not own most
+tables, so its `ALTER TABLE` statements failed with only a warning in the log.
+Sixteen columns, three enum values and one index were missing from the live
+database while the code expected them. A deploy-time migration run by the
+table owner replaces it, and it fails loudly instead.

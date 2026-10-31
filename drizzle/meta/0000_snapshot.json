@@ -1,5 +1,5 @@
 {
-  "id": "583cf5ad-4df6-4a87-9d78-18a05bd7d912",
+  "id": "cc0f8fd9-cbfe-4598-84d2-b9b5733c271a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -58,7 +58,41 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "audit_logs_entity_idx": {
+          "name": "audit_logs_entity_idx",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entity",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entityId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -179,7 +213,24 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "bank_records_withdrawal_uniq": {
+          "name": "bank_records_withdrawal_uniq",
+          "columns": [
+            {
+              "expression": "withdrawalRequestId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"withdrawalRequestId\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -230,7 +281,45 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "bank_signers_user_uniq": {
+          "name": "bank_signers_user_uniq",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bank_signers_required_uniq": {
+          "name": "bank_signers_required_uniq",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"isRequired\" = true",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -1122,7 +1211,29 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "line_jobs_status_idx": {
+          "name": "line_jobs_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -1370,7 +1481,93 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "line_slips_event_uniq": {
+          "name": "line_slips_event_uniq",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lineEventId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "line_slips_hash_idx": {
+          "name": "line_slips_hash_idx",
+          "columns": [
+            {
+              "expression": "slipHash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "line_slips_ref_uniq": {
+          "name": "line_slips_ref_uniq",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "extractedRef",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"extractedRef\" IS NOT NULL AND \"status\" NOT IN ('rejected', 'duplicate', 'failed')",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "line_slips_status_idx": {
+          "name": "line_slips_status_idx",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -1459,7 +1656,23 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "members_church_idx": {
+          "name": "members_church_idx",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -1530,7 +1743,23 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "ministries_church_idx": {
+          "name": "ministries_church_idx",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -1598,7 +1827,35 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "notifications_user_idx": {
+          "name": "notifications_user_idx",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -1839,7 +2096,30 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "offerings_ref_active_uniq": {
+          "name": "offerings_ref_active_uniq",
+          "columns": [
+            {
+              "expression": "churchId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "reference",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"reference\" IS NOT NULL AND \"status\" = 'active'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -2233,7 +2513,29 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "withdrawal_approvals_signer_uniq": {
+          "name": "withdrawal_approvals_signer_uniq",
+          "columns": [
+            {
+              "expression": "requestId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
