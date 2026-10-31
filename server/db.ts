@@ -65,6 +65,7 @@ import {
   withdrawalApprovals,
   withdrawalRequests,
 } from "../drizzle/schema";
+import type { OfferingCategory } from "@shared/categories";
 import type { CountingStatus } from "@shared/counting";
 import { reconcile } from "@shared/counting";
 import {
@@ -3470,12 +3471,42 @@ export async function getLineInboxStats(churchId = DEFAULT_CHURCH_ID) {
   };
 }
 
+/** Slips this person has submitted from the app since `since`. 0 when no DB. */
+export async function countRecentManualSlips(
+  userId: number,
+  since: Date,
+  churchId: string = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ n: count() })
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`),
+        gte(lineSlips.createdAt, since)
+      )
+    );
+  return Number(row?.n ?? 0);
+}
+
 export async function createManualSlip(input: {
   churchId?: string;
   userId: number;
   userName?: string | null;
   donorName?: string;
   imageBuffer: Buffer;
+  /** Defaults to JPEG, which is what the staff upload has always stored. */
+  contentType?: string;
+  extension?: string;
+  /** What the donor said they gave. Staff confirm the real values in review. */
+  declared?: {
+    amount: string;
+    category: OfferingCategory;
+    fundId?: number | null;
+  };
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -3483,12 +3514,13 @@ export async function createManualSlip(input: {
 
   const hash = createHash("sha256").update(input.imageBuffer).digest("hex");
   const dateStr = new Date().toISOString().slice(0, 10);
-  const storageKey = `manual/${churchId}/${input.userId}/${dateStr}/${hash.slice(0, 16)}.jpg`;
+  const extension = input.extension ?? "jpg";
+  const storageKey = `manual/${churchId}/${input.userId}/${dateStr}/${hash.slice(0, 16)}.${extension}`;
 
   const { key } = await storagePutPrivate(
     storageKey,
     input.imageBuffer,
-    "image/jpeg"
+    input.contentType ?? "image/jpeg"
   );
 
   const [slip] = await db
@@ -3503,6 +3535,9 @@ export async function createManualSlip(input: {
       slipHash: hash,
       status: "pending",
       processingAttempts: 0,
+      declaredAmount: input.declared?.amount ?? null,
+      declaredCategory: input.declared?.category ?? null,
+      declaredFundId: input.declared?.fundId ?? null,
     })
     .returning();
 

@@ -135,6 +135,8 @@ interface AppLayoutProps {
   /** Small caps label above the title, e.g. "Ledger". Latin reads best. */
   eyebrow?: string;
   action?: React.ReactNode;
+  /** Leaves the title block off the printed page, e.g. for a poster. */
+  hideHeaderOnPrint?: boolean;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -144,6 +146,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   subtitle,
   eyebrow,
   action,
+  hideHeaderOnPrint = false,
 }) => {
   const [location] = useLocation();
   const navigate = useGuardedNavigate();
@@ -168,7 +171,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     <div className="min-h-screen bg-ground text-ink flex flex-col font-sans selection:bg-tile-lilac overflow-x-clip">
       <div className="flex-1 flex flex-row w-full min-w-0">
         {/* DESKTOP SIDEBAR (lg: >= 1024px) */}
-        <aside className="hidden lg:flex w-64 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface/90 backdrop-blur-xl border-r border-line/80 px-4 py-5 z-30">
+        <aside className="hidden lg:flex print:hidden! w-64 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface/90 backdrop-blur-xl border-r border-line/80 px-4 py-5 z-30">
           <GuardedLink
             href="/"
             aria-label="Grace Ledger หน้าหลัก"
@@ -259,7 +262,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           <header
             className={`flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 ${
               title ? "border-b border-line/80 pb-5 sm:pb-6" : ""
-            }`}
+            } ${hideHeaderOnPrint ? "print:hidden" : ""}`}
           >
             <div className="flex w-full items-center justify-between lg:hidden">
               <AppMenu />
@@ -301,7 +304,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {/* MOBILE BOTTOM BAR */}
       <nav
         aria-label="เมนูนำทางหลักบนมือถือ"
-        className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line/80 bg-surface/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(15,23,42,0.06)] pb-[env(safe-area-inset-bottom)]"
+        className="lg:hidden print:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line/80 bg-surface/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(15,23,42,0.06)] pb-[env(safe-area-inset-bottom)]"
       >
         <div
           className="mx-auto grid max-w-lg items-center px-2 py-1.5"

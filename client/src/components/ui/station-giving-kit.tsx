@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ArrowRight,
   CalendarCheck2,
@@ -13,84 +13,8 @@ import {
   Sparkles,
   UploadCloud,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
-
-// ─── Deterministic SVG QR Matrix Generator (Zero external deps) ───────────────
-
-/**
- * Generates a realistic, high-contrast 25x25 QR-style finder + data matrix SVG
- * from any string (URL, LINE link, or PromptPay ID) when no custom QR image is uploaded.
- */
-function buildQrMatrix(seedText: string, size = 25): boolean[][] {
-  const grid: boolean[][] = Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => false)
-  );
-  const reserved: boolean[][] = Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => false)
-  );
-
-  const placeFinder = (r0: number, c0: number) => {
-    for (let r = -1; r <= 7; r++) {
-      for (let c = -1; c <= 7; c++) {
-        const rr = r0 + r;
-        const cc = c0 + c;
-        if (rr < 0 || rr >= size || cc < 0 || cc >= size) continue;
-        reserved[rr][cc] = true;
-        const inOuter =
-          r >= 0 && r <= 6 && c >= 0 && c <= 6 && (r === 0 || r === 6 || c === 0 || c === 6);
-        const inInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
-        grid[rr][cc] = inOuter || inInner;
-      }
-    }
-  };
-
-  placeFinder(0, 0);
-  placeFinder(0, size - 7);
-  placeFinder(size - 7, 0);
-
-  // Timing patterns
-  for (let i = 8; i < size - 8; i++) {
-    reserved[6][i] = true;
-    reserved[i][6] = true;
-    grid[6][i] = i % 2 === 0;
-    grid[i][6] = i % 2 === 0;
-  }
-
-  // Reserve center badge area (5x5)
-  const mid = Math.floor(size / 2);
-  for (let r = mid - 2; r <= mid + 2; r++) {
-    for (let c = mid - 3; c <= mid + 3; c++) {
-      reserved[r][c] = true;
-      grid[r][c] = false;
-    }
-  }
-
-  // Deterministic hash stream from seedText
-  let h1 = 2166136261;
-  const input = seedText || "https://graceful-giving.vercel.app";
-  for (let i = 0; i < input.length; i++) {
-    h1 ^= input.charCodeAt(i);
-    h1 = Math.imul(h1, 16777619);
-  }
-
-  let state = h1 >>> 0 || 123456789;
-  const nextBit = () => {
-    state ^= state << 13;
-    state ^= state >>> 17;
-    state ^= state << 5;
-    return ((state >>> 0) & 1) === 1;
-  };
-
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (!reserved[r][c]) {
-        grid[r][c] = nextBit();
-      }
-    }
-  }
-
-  return grid;
-}
 
 // ─── 1. Isometric Station Cube Logo (JamBox-inspired) ─────────────────────────
 
@@ -106,7 +30,9 @@ export function StationCubeLogo({
   className?: string;
 }) {
   return (
-    <div className={cn("inline-flex flex-col items-center select-none", className)}>
+    <div
+      className={cn("inline-flex flex-col items-center select-none", className)}
+    >
       {/* Isometric 3D Box with Open Door & Blessing Wave Bars */}
       <svg
         viewBox="0 0 120 105"
@@ -181,7 +107,9 @@ export function StationCubeLogo({
       <div className="mt-1 text-center">
         <div className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-white">
           {brandTitle.slice(0, -3)}
-          <span className={variant === "orange" ? "text-[#F97316]" : "text-white"}>
+          <span
+            className={variant === "orange" ? "text-[#F97316]" : "text-white"}
+          >
             {brandTitle.slice(-3)}
           </span>
         </div>
@@ -670,8 +598,6 @@ export function StationQrPoster({
   churchName?: string;
   className?: string;
 }) {
-  const matrix = useMemo(() => buildQrMatrix(qrValue, 25), [qrValue]);
-
   const renderStepIcon = (icon: StationPosterStep["icon"]) => {
     switch (icon) {
       case "scan":
@@ -688,7 +614,9 @@ export function StationQrPoster({
   return (
     <div
       className={cn(
-        "p-4 sm:p-7 rounded-3xl bg-gradient-to-b from-[#F97316] via-[#EA580C] to-[#D97706] shadow-2xl inline-block w-full max-w-md mx-auto",
+        // print-color-adjust keeps the dark board and white text when printed;
+        // browsers drop background colors by default.
+        "p-4 sm:p-7 rounded-3xl bg-gradient-to-b from-[#F97316] via-[#EA580C] to-[#D97706] shadow-2xl inline-block w-full max-w-md mx-auto [print-color-adjust:exact] [-webkit-print-color-adjust:exact] print:shadow-none",
         className
       )}
     >
@@ -731,10 +659,7 @@ export function StationQrPoster({
             />
             {/* Interior Offering Heart & Cross silhouette */}
             <circle cx="43" cy="48" r="8" fill="#FFFFFF" />
-            <path
-              d="M31 74 C31 63 55 63 55 74 Z"
-              fill="#FFFFFF"
-            />
+            <path d="M31 74 C31 63 55 63 55 74 Z" fill="#FFFFFF" />
             <line
               x1="30"
               y1="32"
@@ -822,29 +747,26 @@ export function StationQrPoster({
                 className="w-full aspect-square object-contain rounded-lg"
               />
             ) : (
-              <div className="relative w-full aspect-square p-1">
-                <svg
-                  viewBox={`0 0 ${matrix.length} ${matrix.length}`}
-                  className="w-full h-full"
-                  shapeRendering="crispEdges"
-                  role="img"
-                  aria-label="QR Code"
-                >
-                  {matrix.map((row, rIdx) =>
-                    row.map((cell, cIdx) =>
-                      cell ? (
-                        <rect
-                          key={`${rIdx}-${cIdx}`}
-                          x={cIdx}
-                          y={rIdx}
-                          width={1}
-                          height={1}
-                          fill="#111111"
-                        />
-                      ) : null
-                    )
-                  )}
-                </svg>
+              <div className="relative w-full aspect-square">
+                {qrValue.trim() ? (
+                  <QRCodeSVG
+                    value={qrValue.trim()}
+                    level="H"
+                    marginSize={4}
+                    bgColor="#FFFFFF"
+                    fgColor="#111111"
+                    title="QR Code สำหรับถวายทรัพย์"
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <div
+                    role="img"
+                    aria-label="ยังไม่ได้ตั้งค่า QR Code"
+                    className="w-full h-full flex items-center justify-center rounded-lg border-2 border-dashed border-stone-400 p-3 text-center text-xs font-bold text-stone-500"
+                  >
+                    ยังไม่ได้ตั้งค่าลิงก์ QR Code
+                  </div>
+                )}
                 {/* Yellow highlight corners like LINE QR scanner */}
                 <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-400 rounded-tl-xs pointer-events-none" />
                 <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-400 rounded-tr-xs pointer-events-none" />
@@ -870,7 +792,7 @@ export function StationQrPoster({
           </div>
         </div>
 
-        {/* 4-Step Flow: 1 สแกน -> 2 เลือกกองทุน -> 3 โอน/สลิป -> 4 อนุโมทนา */}
+        {/* 4-Step Flow: 1 สแกน -> 2 เลือกกองทุน -> 3 โอน/สลิป -> 4 ขอบคุณพระเจ้า */}
         <div className="pt-1">
           <div className="flex items-start justify-between gap-1">
             {steps.map((step, idx) => (
