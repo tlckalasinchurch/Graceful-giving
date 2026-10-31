@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -9,10 +9,15 @@ import {
   type OfferingCategory,
 } from "@shared/categories";
 import {
+  canManageChurchSettings,
   canManageFinance,
   getChurchRoleInfo,
   isStationOnlyUser,
 } from "@shared/roles";
+import {
+  DEFAULT_STATION_POSTER,
+  type StationPoster,
+} from "@shared/stationPoster";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { formatThaiDateTime } from "@/lib/format";
 import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
@@ -27,6 +32,7 @@ import {
   resolveSubmitMode,
   type StationSubmission,
 } from "./givingStationFlow";
+import { clearDraft, loadDraft, saveDraft } from "./givingDraft";
 import { StationOnlyFrame } from "@/components/layout/StationOnlyFrame";
 import { PromptPayQrCard } from "@/components/ui/promptpay-qr-card";
 import {
@@ -38,6 +44,8 @@ import {
   Image as ImageIcon,
   Printer,
   QrCode,
+  Save,
+  Share2,
   RotateCcw,
   Smartphone,
   Sparkles,
@@ -142,24 +150,105 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const slipInputRef = useRef<HTMLInputElement>(null);
 
-  // Poster Customization State
-  const [posterBrandPrefix, setPosterBrandPrefix] = useState("Grace");
-  const [posterBrandHighlight, setPosterBrandHighlight] = useState("Box");
-  const [posterHeadlineWhite, setPosterHeadlineWhite] =
-    useState("จุดถวายทรัพย์");
-  const [posterHeadlineOrange, setPosterHeadlineOrange] = useState("อัตโนมัติ");
+  // Poster Customization State. The words are saved for the whole church.
+  const posterQuery = trpc.church.stationPoster.useQuery(undefined, {
+    retry: false,
+    enabled: !stationOnly,
+  });
+  const [posterBrandPrefix, setPosterBrandPrefix] = useState(
+    DEFAULT_STATION_POSTER.brandPrefix
+  );
+  const [posterBrandHighlight, setPosterBrandHighlight] = useState(
+    DEFAULT_STATION_POSTER.brandHighlight
+  );
+  const [posterHeadlineWhite, setPosterHeadlineWhite] = useState(
+    DEFAULT_STATION_POSTER.headlineWhite
+  );
+  const [posterHeadlineOrange, setPosterHeadlineOrange] = useState(
+    DEFAULT_STATION_POSTER.headlineOrange
+  );
   const [posterScanPrompt, setPosterScanPrompt] = useState(
-    "สแกน LINE หรือ QR เพื่อเริ่มใช้งาน"
+    DEFAULT_STATION_POSTER.scanPrompt
   );
   const [posterQrValue, setPosterQrValue] = useState(defaultStationUrl);
-  const [posterCenterBadge, setPosterCenterBadge] = useState("LINE");
-  const [posterQrCaption, setPosterQrCaption] = useState("LINE OFFICIAL");
-  const [posterFooterWhite, setPosterFooterWhite] = useState("ใจยินดี?");
-  const [posterFooterOrange, setPosterFooterOrange] =
-    useState("ร่วมถวายได้เลย");
-  const [posterFooterSub, setPosterFooterSub] = useState(
-    "เปิดรับถวายทุกกองทุน ส่งสลิปให้เหรัญญิกตรวจสอบก่อนบันทึกเข้าบัญชี"
+  const [posterCenterBadge, setPosterCenterBadge] = useState(
+    DEFAULT_STATION_POSTER.centerBadge
   );
+  const [posterQrCaption, setPosterQrCaption] = useState(
+    DEFAULT_STATION_POSTER.qrCaption
+  );
+  const [posterFooterWhite, setPosterFooterWhite] = useState(
+    DEFAULT_STATION_POSTER.footerWhite
+  );
+  const [posterFooterOrange, setPosterFooterOrange] = useState(
+    DEFAULT_STATION_POSTER.footerOrange
+  );
+  const [posterFooterSub, setPosterFooterSub] = useState(
+    DEFAULT_STATION_POSTER.footerSub
+  );
+  const applyPoster = (p: StationPoster) => {
+    setPosterBrandPrefix(p.brandPrefix);
+    setPosterBrandHighlight(p.brandHighlight);
+    setPosterHeadlineWhite(p.headlineWhite);
+    setPosterHeadlineOrange(p.headlineOrange);
+    setPosterScanPrompt(p.scanPrompt);
+    setPosterQrValue(p.qrValue || defaultStationUrl());
+    setPosterCenterBadge(p.centerBadge);
+    setPosterQrCaption(p.qrCaption);
+    setPosterFooterWhite(p.footerWhite);
+    setPosterFooterOrange(p.footerOrange);
+    setPosterFooterSub(p.footerSub);
+  };
+  // Fill the form once, when the saved words arrive. Later edits stay.
+  const posterLoaded = useRef(false);
+  useEffect(() => {
+    if (!posterQuery.data || posterLoaded.current) return;
+    posterLoaded.current = true;
+    applyPoster(posterQuery.data);
+  }, [posterQuery.data]);
+  const savePosterMutation = trpc.church.saveStationPoster.useMutation({
+    onSuccess: () => {
+      toast.success("บันทึกข้อความป้ายแล้ว");
+      void utils.church.stationPoster.invalidate();
+    },
+    onError: err => toast.error(err.message || "บันทึกข้อความป้ายไม่สำเร็จ"),
+  });
+  const canSavePoster = canManageChurchSettings(user);
+  const savePoster = () => {
+    const link = defaultStationUrl();
+    savePosterMutation.mutate({
+      brandPrefix: posterBrandPrefix,
+      brandHighlight: posterBrandHighlight,
+      headlineWhite: posterHeadlineWhite,
+      headlineOrange: posterHeadlineOrange,
+      scanPrompt: posterScanPrompt,
+      // The giving link is the default, so save it as empty. It then follows
+      // the domain if the domain changes.
+      qrValue: posterQrValue.trim() === link ? "" : posterQrValue,
+      centerBadge: posterCenterBadge,
+      qrCaption: posterQrCaption,
+      footerWhite: posterFooterWhite,
+      footerOrange: posterFooterOrange,
+      footerSub: posterFooterSub,
+    });
+  };
+  const givingLink = defaultStationUrl();
+  const shareText = "ถวายทรัพย์ออนไลน์ ผ่าน LINE";
+  const copyGivingLink = async () => {
+    try {
+      await navigator.clipboard.writeText(givingLink);
+      toast.success("คัดลอกลิงก์แล้ว");
+    } catch {
+      toast.error("คัดลอกไม่สำเร็จ ให้กดค้างที่ลิงก์เพื่อคัดลอก");
+    }
+  };
+  const canNativeShare =
+    typeof navigator !== "undefined" && typeof navigator.share === "function";
+  const nativeShare = () => {
+    navigator
+      .share({ title: shareText, text: shareText, url: givingLink })
+      .catch(() => undefined);
+  };
   const [customQrImage, setCustomQrImage] = useState<string | null>(null);
   const qrUploadRef = useRef<HTMLInputElement>(null);
   const posterHasQr = customQrImage !== null || posterQrValue.trim() !== "";
@@ -203,6 +292,50 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       toast.error(err.message || "บันทึกการถวายไม่สำเร็จ");
     },
   });
+
+  // Bring back the choices after the page reloads, for example when the donor
+  // returns from a bank app. Runs once, when the user is known.
+  const draftRestored = useRef(false);
+  useEffect(() => {
+    if (draftRestored.current || !user) return;
+    draftRestored.current = true;
+    const draft = loadDraft(user.id);
+    if (!draft) return;
+    setSelectedCategory(draft.category);
+    setCustomAmount(String(draft.amount));
+    setSelectedFundId(draft.fundId);
+    setTransferState(draft.transferState);
+    setStep(3);
+  }, [user]);
+  // Keep the draft while the donor is at the confirm step.
+  useEffect(() => {
+    if (!user || !draftRestored.current) return;
+    if (step !== 3) {
+      if (step === 4 || step === 1) clearDraft();
+      return;
+    }
+    const amount = resolveAmount(
+      customAmount,
+      amountsByCat[selectedCategory] ?? 300
+    );
+    if (amount === null) return;
+    saveDraft({
+      userId: user.id,
+      category: selectedCategory,
+      amount,
+      fundId: selectedFundId,
+      transferState,
+      savedAt: Date.now(),
+    });
+  }, [
+    user,
+    step,
+    customAmount,
+    amountsByCat,
+    selectedCategory,
+    selectedFundId,
+    transferState,
+  ]);
 
   const handleSelectPackage = (cat: OfferingCategory) => {
     if (resolveAmount(customAmount, amountsByCat[cat] ?? 300) === null) {
@@ -1183,6 +1316,82 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   onChange={e => setPosterFooterSub(e.target.value)}
                   className="w-full rounded-xl border border-line px-3 py-2 font-semibold text-ink"
                 />
+              </div>
+            </div>
+
+            {canSavePoster && (
+              <div className="pt-3 border-t border-line flex flex-col sm:flex-row gap-2.5">
+                <button
+                  type="button"
+                  onClick={savePoster}
+                  disabled={savePosterMutation.isPending}
+                  className="flex-1 py-3 px-4 rounded-xl bg-ink hover:bg-ink-2 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>
+                    {savePosterMutation.isPending
+                      ? "กำลังบันทึก…"
+                      : "บันทึกข้อความป้าย"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPoster(DEFAULT_STATION_POSTER)}
+                  className="py-3 px-4 rounded-xl border border-line text-ink-2 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-paper-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>ค่าเริ่มต้น</span>
+                </button>
+              </div>
+            )}
+
+            <div className="pt-3 border-t border-line space-y-2.5">
+              <p className="font-bold text-ink-2 text-xs flex items-center gap-1.5">
+                <Share2 className="w-3.5 h-3.5" />
+                <span>แชร์ลิงก์ถวาย (LINE, Facebook และอื่นๆ)</span>
+              </p>
+              <input
+                readOnly
+                aria-label="ลิงก์ถวาย"
+                value={givingLink}
+                onFocus={e => e.currentTarget.select()}
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 font-mono text-xs text-ink"
+              />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void copyGivingLink()}
+                  className="py-2 px-3 rounded-xl border border-line text-ink-2 font-bold text-xs flex items-center gap-1.5 cursor-pointer hover:bg-paper-2"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>คัดลอกลิงก์</span>
+                </button>
+                <a
+                  href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(givingLink)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 px-3 rounded-xl bg-[#06C755] text-white font-bold text-xs"
+                >
+                  ส่งทาง LINE
+                </a>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(givingLink)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 px-3 rounded-xl bg-[#1877F2] text-white font-bold text-xs"
+                >
+                  แชร์ Facebook
+                </a>
+                {canNativeShare && (
+                  <button
+                    type="button"
+                    onClick={nativeShare}
+                    className="py-2 px-3 rounded-xl border border-line text-ink-2 font-bold text-xs flex items-center gap-1.5 cursor-pointer hover:bg-paper-2"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>แชร์ผ่านแอปอื่น</span>
+                  </button>
+                )}
               </div>
             </div>
 

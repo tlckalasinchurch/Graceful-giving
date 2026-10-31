@@ -2,6 +2,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const submitSlip = vi.fn();
+const savePoster = vi.fn();
+// What church.stationPoster returns. Undefined means still loading.
+let posterData: Record<string, string> | undefined;
 const logout = vi.fn();
 let authUser: Record<string, unknown> | null = null;
 // What church.paymentQr returns for an amount. Null means no PromptPay ID is set.
@@ -26,8 +29,15 @@ vi.mock("@/lib/trpc", () => ({
       givingInbox: { invalidate: vi.fn() },
       offerings: { list: { invalidate: vi.fn() } },
       finance: { summary: { invalidate: vi.fn() } },
+      church: { stationPoster: { invalidate: vi.fn() } },
     }),
     church: {
+      stationPoster: {
+        useQuery: () => ({ data: posterData }),
+      },
+      saveStationPoster: {
+        useMutation: () => ({ mutate: savePoster, isPending: false }),
+      },
       payeeInfo: {
         useQuery: () => ({ data: payeeInfo, isLoading: false }),
       },
@@ -91,6 +101,8 @@ async function goToConfirm() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  window.localStorage.clear();
+  posterData = undefined;
   authUser = member;
   paymentQr = null;
   payeeInfo = {
@@ -325,6 +337,71 @@ describe("GivingStation check before every send", () => {
     expect(
       (await screen.findByRole("status", { hidden: false })).textContent
     ).toContain("ส่งไม่ผ่านแล้ว 2 ครั้ง");
+  });
+});
+
+describe("GivingStation after a page reload", () => {
+  it("brings the donor back to the confirm step with the same choices", async () => {
+    const first = render(<GivingStation />);
+    await goToConfirm();
+    first.unmount();
+    // The page reloads, for example when the donor returns from a bank app.
+    render(<GivingStation />);
+    expect(
+      await screen.findByRole("button", { name: "ยืนยันและส่งสลิปถวาย" })
+    ).toBeTruthy();
+    expect(screen.getAllByText(/1,000/).length).toBeGreaterThan(0);
+  });
+
+  it("does not restore a draft of another person", async () => {
+    const first = render(<GivingStation />);
+    await goToConfirm();
+    first.unmount();
+    authUser = { ...member, id: 99 };
+    render(<GivingStation />);
+    expect(screen.getByRole("button", { name: /Give Now/ })).toBeTruthy();
+  });
+});
+
+describe("GivingStation poster text", () => {
+  const superAdmin = {
+    ...member,
+    churchRole: "SUPER_ADMIN",
+    roles: ["SUPER_ADMIN"],
+  };
+
+  it("lets a church leader save the poster text", () => {
+    authUser = superAdmin;
+    render(<GivingStation />);
+    fireEvent.click(screen.getByText(/โปสเตอร์ป้าย QR ติดหน้าห้อง/));
+    fireEvent.click(screen.getByRole("button", { name: /บันทึกข้อความป้าย/ }));
+    expect(savePoster).toHaveBeenCalledTimes(1);
+    expect(savePoster.mock.calls[0][0]).toMatchObject({
+      brandPrefix: "Grace",
+      // The giving link is saved as empty so it follows the domain.
+      qrValue: "",
+    });
+  });
+
+  it("shows the saved text in the form", () => {
+    authUser = superAdmin;
+    posterData = { headlineWhite: "ถวายด้วยใจ" };
+    render(<GivingStation />);
+    fireEvent.click(screen.getByText(/โปสเตอร์ป้าย QR ติดหน้าห้อง/));
+    expect(
+      (screen.getByLabelText(/หัวข้อหลัก \(สีขาว\)/) as HTMLInputElement).value
+    ).toBe("ถวายด้วยใจ");
+  });
+
+  it("offers the share links to staff, and no save button to a treasurer", () => {
+    authUser = treasurer;
+    render(<GivingStation />);
+    fireEvent.click(screen.getByText(/โปสเตอร์ป้าย QR ติดหน้าห้อง/));
+    expect(screen.getByRole("link", { name: "ส่งทาง LINE" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "แชร์ Facebook" })).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: /บันทึกข้อความป้าย/ })
+    ).toBeNull();
   });
 });
 

@@ -215,6 +215,8 @@ export const churchProfiles = pgTable("church_profiles", {
   setupCompleted: boolean("setupCompleted").default(false).notNull(),
   /** Custom verse or motto */
   motto: varchar("motto", { length: 280 }),
+  /** The words on the giving poster, as JSON. See shared/stationPoster.ts. */
+  stationPoster: text("stationPoster"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()

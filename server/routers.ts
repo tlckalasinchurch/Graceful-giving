@@ -57,6 +57,8 @@ import {
   listPublishedChurchNews,
   listWithdrawalRequests,
   markSetupCompleted,
+  getStationPosterJson,
+  saveStationPosterJson,
   updateExpense,
   updateOffering,
   voidExpense,
@@ -116,6 +118,7 @@ import {
 } from "./db";
 import { runWorkerBatch } from "./line/processWorker";
 import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
+import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
 import { decodeSlipImage, SlipImageError } from "./line/slipImage";
 import { toDonorSlipStatus } from "./line/donorSlipStatus";
 import type { DonorSlipStatus } from "@shared/donorSlip";
@@ -697,6 +700,24 @@ export const appRouter = router({
           amount: Math.round(input.amount * 100) / 100,
           payeeName: profile.bankAccountName || profile.name,
         };
+      }),
+    /** The saved poster words, or the defaults. Any signed-in person may read. */
+    stationPoster: protectedProcedure.query(async () => {
+      return parseStationPoster(await getStationPosterJson());
+    }),
+    /** Saves the poster words. Church leaders only. */
+    saveStationPoster: churchLeaderProcedure
+      .input(stationPosterSchema)
+      .mutation(async ({ input, ctx }) => {
+        await saveStationPosterJson(JSON.stringify(input));
+        await createAuditLog({
+          churchId: "default",
+          userId: ctx.user.id,
+          action: "save_station_poster",
+          entity: "church_profile",
+          metadata: {},
+        });
+        return { success: true } as const;
       }),
     completeSetup: churchLeaderProcedure.mutation(async () => {
       await markSetupCompleted();
