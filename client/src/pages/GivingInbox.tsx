@@ -1044,6 +1044,8 @@ export default function GivingInbox() {
                     </div>
                   </div>
 
+                  <ReceiverCheck aiData={currentSlip.aiData} />
+
                   {currentSlip.extractedRef && (
                     <div className="pt-1 text-[11px] text-stone-500 font-mono">
                       หมายเลขอ้างอิงสลิป: {currentSlip.extractedRef}
@@ -1579,5 +1581,50 @@ export default function GivingInbox() {
         </DialogContent>
       </Dialog>
     </AppLayout>
+  );
+}
+
+type ReceiverKind = "match" | "mismatch" | "suspect" | "unknown";
+
+const RECEIVER_NOTE: Record<ReceiverKind, { text: string; cls: string }> = {
+  match: {
+    text: "✓ ตรงกับบัญชีของคริสตจักร",
+    cls: "bg-emerald-50 border-emerald-200 text-emerald-800",
+  },
+  mismatch: {
+    text: "⚠ ไม่ตรงกับบัญชีของคริสตจักร ตรวจภาพสลิปก่อนอนุมัติ",
+    cls: "bg-rose-50 border-rose-300 text-rose-800",
+  },
+  suspect: {
+    text: "⚠ ต่างจากบัญชีคริสตจักร 1 หลัก อาจอ่านผิด ตรวจภาพสลิปก่อนอนุมัติ",
+    cls: "bg-amber-50 border-amber-300 text-amber-900",
+  },
+  unknown: {
+    text: "ตรวจเทียบอัตโนมัติไม่ได้ (พร้อมเพย์ ปิดเลขมาก หรือยังไม่ได้ตั้งเลขบัญชีคริสตจักร) ให้ดูภาพสลิป",
+    cls: "bg-stone-50 border-stone-200 text-stone-700",
+  },
+};
+
+/** The receiver account on the slip, and whether it is the church's account. */
+export function ReceiverCheck({ aiData }: { aiData: unknown }) {
+  const data = (aiData ?? null) as {
+    receiverAccount?: string | null;
+    receiverName?: string | null;
+    receiverBank?: string | null;
+    verification?: { receiver?: ReceiverKind };
+  } | null;
+  // A slip read before this check existed has no result to show.
+  const kind = data?.verification?.receiver;
+  if (!data || !kind) return null;
+  const note = RECEIVER_NOTE[kind];
+  const shown = [data.receiverBank, data.receiverAccount, data.receiverName]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <div className={`p-3 rounded-xl border text-xs font-medium ${note.cls}`}>
+      <div className="font-bold">ผู้รับในสลิป</div>
+      {shown && <div className="font-mono pt-0.5 break-all">{shown}</div>}
+      <div className="pt-1">{note.text}</div>
+    </div>
   );
 }

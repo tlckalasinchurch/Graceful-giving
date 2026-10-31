@@ -11,6 +11,15 @@ export interface SlipRowForDonor {
   reviewedBy: number | null;
   reviewNote: string | null;
   lastErrorMessage: string | null;
+  /** The OCR result plus the checks the worker made. */
+  aiData?: unknown;
+}
+
+/** Which check turned the slip away, as stored by the worker. */
+function autoRejectKind(aiData: unknown): "amount" | "receiver" | null {
+  const kind = (aiData as { verification?: { autoReject?: unknown } } | null)
+    ?.verification?.autoReject;
+  return kind === "amount" || kind === "receiver" ? kind : null;
 }
 
 function amountMatches(row: SlipRowForDonor): boolean {
@@ -34,16 +43,19 @@ export function toDonorSlipStatus(row: SlipRowForDonor): DonorSlipStatus {
       // Only the system's own reason is shown. A treasurer's note may hold
       // details meant for staff.
       const bySystem = row.reviewedBy === null;
+      // The slip amount is offered as the amount to send again with only
+      // when the amount was the problem.
+      const amountWasWrong =
+        bySystem &&
+        autoRejectKind(row.aiData) !== "receiver" &&
+        row.extractedAmount !== null;
       return {
         state: "rejected",
         message:
           bySystem && row.reviewNote
             ? row.reviewNote
             : "สลิปนี้ไม่ผ่านการตรวจสอบ กรุณาติดต่อเจ้าหน้าที่",
-        slipAmount:
-          bySystem && row.extractedAmount !== null
-            ? Number(row.extractedAmount)
-            : null,
+        slipAmount: amountWasWrong ? Number(row.extractedAmount) : null,
       };
     }
     case "duplicate":
