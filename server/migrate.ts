@@ -125,43 +125,95 @@ export function explainMigrationError(err: unknown): {
   return { message, failedIndex: index ?? null };
 }
 
-/** Applies every pending migration in one transaction. Throws on failure. */
+/**
+ * Two production builds can reach the migration at the same time. drizzle reads
+ * which migration ran last before it starts its own transaction, so both would
+ * decide the same migrations are pending and run them together. Against a new
+ * database that fails with duplicate-key errors. The runners take turns through
+ * a Postgres advisory lock instead.
+ */
+const LOCK_NAME = "graceful-giving:migrations";
+
+/** How long a runner waits for another runner to finish. */
+const LOCK_WAIT_MS = 120_000;
+
+/**
+ * Applies every pending migration in one transaction. Throws on failure.
+ *
+ * The lock is held by a transaction on its own connection while the migration
+ * runs on another. A transaction-level lock is safe behind a transaction
+ * pooler. A session-level lock is not: the pooler hands the Postgres session to
+ * another client and the lock would stay behind. The lock is released when the
+ * lock transaction ends or its connection drops, so a killed build cannot leave
+ * it held.
+ */
 export async function runMigrations(opts: {
   url: string;
   folder?: string;
   log?: (line: string) => void;
+  /** How long to wait for another runner. Only tests change it. */
+  lockWaitMs?: number;
 }): Promise<void> {
   const log = opts.log ?? (() => {});
-  const client = postgres(opts.url, {
-    max: 1,
-    prepare: false,
-    connect_timeout: 30,
-    onnotice: () => {},
-  });
-  try {
-    await migrate(drizzle(client), {
-      migrationsFolder: opts.folder ?? join(process.cwd(), "drizzle"),
+  const lockWaitMs = opts.lockWaitMs ?? LOCK_WAIT_MS;
+  const connect = () =>
+    postgres(opts.url, {
+      max: 1,
+      prepare: false,
+      connect_timeout: 30,
+      onnotice: () => {},
     });
-  } catch (err) {
-    const { message, failedIndex } = explainMigrationError(err);
-    const guard = failedIndex ? INTEGRITY_INDEXES[failedIndex] : undefined;
-    if (guard) {
-      log(
-        `INTEGRITY INDEX "${failedIndex}" COULD NOT BE CREATED: ${guard.guards}.`
-      );
+  const lockClient = connect();
+  const client = connect();
+  try {
+    await lockClient.begin(async tx => {
+      await tx.unsafe(`SET LOCAL lock_timeout = '${lockWaitMs}ms'`);
       try {
-        const rows = await client.unsafe(guard.findBlockingRows);
-        if (rows.length > 0) {
-          log(
-            `It is blocked by ${rows.length} duplicate group(s): ${JSON.stringify(rows)}`
+        await tx.unsafe(
+          `SELECT pg_advisory_xact_lock(hashtext('${LOCK_NAME}'))`
+        );
+      } catch (err) {
+        if ((err as { code?: string }).code === "55P03") {
+          throw new Error(
+            `Another migration has been running for more than ${lockWaitMs / 1000} seconds. ` +
+              `Run the build again when it has finished.`
           );
         }
-      } catch (diagErr) {
-        log(`Could not look for the blocking rows: ${String(diagErr)}`);
+        throw err;
       }
-    }
-    throw new Error(message);
+      // The migration's own statements may wait for locks as long as they need.
+      await tx.unsafe(`SET LOCAL lock_timeout = 0`);
+      log("Holding the migration lock.");
+
+      try {
+        await migrate(drizzle(client), {
+          migrationsFolder: opts.folder ?? join(process.cwd(), "drizzle"),
+        });
+      } catch (err) {
+        const { message, failedIndex } = explainMigrationError(err);
+        const guard = failedIndex ? INTEGRITY_INDEXES[failedIndex] : undefined;
+        if (guard) {
+          log(
+            `INTEGRITY INDEX "${failedIndex}" COULD NOT BE CREATED: ${guard.guards}.`
+          );
+          try {
+            const rows = await client.unsafe(guard.findBlockingRows);
+            if (rows.length > 0) {
+              log(
+                `It is blocked by ${rows.length} duplicate group(s): ${JSON.stringify(rows)}`
+              );
+            }
+          } catch (diagErr) {
+            log(`Could not look for the blocking rows: ${String(diagErr)}`);
+          }
+        }
+        throw new Error(message);
+      }
+    });
   } finally {
-    await client.end({ timeout: 5 });
+    await Promise.allSettled([
+      client.end({ timeout: 5 }),
+      lockClient.end({ timeout: 5 }),
+    ]);
   }
 }

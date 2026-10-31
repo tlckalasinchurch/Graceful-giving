@@ -42,6 +42,16 @@ The last step of the Vercel build is `pnpm db:migrate:deploy`
   Without it the step falls back to `DATABASE_URL` and fails with a message that
   says so. With the Supabase pooler, use the transaction-mode URL for the
   `postgres` user. Do not give this value to the Preview environment.
+- **Two builds at once take turns.** The runner holds a Postgres advisory lock
+  (a transaction-level lock on its own connection) while it migrates. drizzle
+  reads which migration ran last before it opens its own transaction, so
+  without the lock two runners both see the same migrations as pending and the
+  second can fail with duplicate-key errors. The second runner waits for the
+  first, then finds nothing to do. It gives up after 2 minutes with a message.
+  A transaction-level lock is safe behind the transaction pooler. A
+  session-level lock is not, because the pooler hands the session to another
+  client and the lock stays behind. A killed build releases the lock when its
+  connection drops.
 - **Emergency bypass.** Set `SKIP_DB_MIGRATE=1` to build without migrating.
 - **Integrity indexes.** If a unique index that guards a financial rule cannot
   be created, because the table already holds duplicates, the log names the
