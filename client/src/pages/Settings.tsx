@@ -342,8 +342,8 @@ export default function Settings() {
   if (!isSuperAdmin(user)) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto my-12 bg-white rounded-2xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
+        <div className="max-w-xl mx-auto my-12 bg-surface rounded-2xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-rose-500/15 border-2 border-rose-500/30 mx-auto flex items-center justify-center text-rose-400">
             <Lock className="w-8 h-8" />
           </div>
           <h2 className="text-xl font-bold text-ink">
@@ -351,7 +351,7 @@ export default function Settings() {
           </h2>
           <p className="text-sm text-ink-3">
             หน้านี้สงวนไว้สำหรับ{" "}
-            <strong className="text-amber-800 font-bold">
+            <strong className="text-amber-300 font-bold">
               ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
             </strong>{" "}
             เท่านั้น
@@ -398,7 +398,7 @@ export default function Settings() {
                 : "text-ink-3 hover:text-ink"
             }`}
           >
-            <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
+            <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>บทบาทและสิทธิ์</span>
           </button>
           <button
@@ -409,7 +409,7 @@ export default function Settings() {
                 : "text-ink-3 hover:text-ink"
             }`}
           >
-            <Banknote className="w-4 h-4 text-amber-600 shrink-0" />
+            <Banknote className="w-4 h-4 text-amber-400 shrink-0" />
             <span>หมวดหมู่บัญชี</span>
           </button>
           <button
@@ -439,7 +439,7 @@ export default function Settings() {
         {/* Tab 1: Church Profile Form */}
         {activeTab === "church" && (
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
               <h3 className="text-base font-bold text-ink flex items-center gap-2">
                 <Building className="w-5 h-5 text-brand" />
                 ข้อมูลทั่วไปของคริสตจักร
@@ -548,7 +548,7 @@ export default function Settings() {
 
         {/* Account and sign out */}
         {activeTab === "church" && (
-          <section className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
             <h3 className="text-base font-bold text-ink">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-ink-2">
@@ -558,7 +558,7 @@ export default function Settings() {
                 <p>{user?.email || "ไม่ระบุอีเมล"}</p>
                 <p className="mt-1">
                   บทบาทในระบบ:{" "}
-                  <span className="font-bold text-emerald-700">
+                  <span className="font-bold text-emerald-300">
                     {getChurchRoleInfo(user?.churchRole).badgeLabel}
                   </span>
                 </p>
@@ -574,7 +574,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-colors hover:bg-rose-100"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300 transition-colors hover:bg-rose-500/15"
                 >
                   <LogOut className="h-4 w-4" />
                   ออกจากระบบ
@@ -588,7 +588,7 @@ export default function Settings() {
         {activeTab === "roles" && (
           <div className="space-y-6">
             {/* User Management Table */}
-            <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line/60 pb-5">
                 <div>
                   <h3 className="text-lg font-bold text-ink flex items-center gap-2">
@@ -602,12 +602,12 @@ export default function Settings() {
                 </div>
                 {user?.churchRole === "SUPER_ADMIN" ||
                 user?.role === "admin" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 self-start sm:self-auto">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 self-start sm:self-auto">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                     คุณมีสิทธิ์กำหนดบทบาท
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 self-start sm:self-auto">
                     เฉพาะผู้ดูแลระบบสูงสุดที่สามารถเปลี่ยนสิทธิ์ได้
                   </span>
                 )}
@@ -713,17 +713,17 @@ export default function Settings() {
                                 <div className="font-bold text-ink flex items-center gap-2">
                                   <span>{u.name || "ไม่ระบุชื่อ"}</span>
                                   {isMe && (
-                                    <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full border border-amber-300">
+                                    <span className="text-[10px] bg-amber-500/15 text-amber-300 font-semibold px-2 py-0.5 rounded-full border border-amber-500/30">
                                       คุณ
                                     </span>
                                   )}
                                   {u.status === "pending" && (
-                                    <span className="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full border border-sky-300">
+                                    <span className="text-[10px] bg-sky-500/15 text-sky-300 font-semibold px-2 py-0.5 rounded-full border border-sky-500/30">
                                       รออนุมัติ
                                     </span>
                                   )}
                                   {u.status === "disabled" && (
-                                    <span className="text-[10px] bg-red-100 text-red-800 font-semibold px-2 py-0.5 rounded-full border border-red-300">
+                                    <span className="text-[10px] bg-red-500/15 text-red-300 font-semibold px-2 py-0.5 rounded-full border border-red-500/30">
                                       ปิดใช้งาน
                                     </span>
                                   )}
@@ -835,7 +835,7 @@ export default function Settings() {
                                           );
                                           if (ok) statusMutation.mutate({ userId: u.id, status: "disabled" });
                                         }}
-                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-[#9B2C2C] hover:bg-[#FFF1F0]"
+                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-[hsl(0_56%_72%)] hover:bg-[hsl(4_45%_13%)]"
                                       >
                                         ปิดใช้งาน
                                       </button>
@@ -858,10 +858,10 @@ export default function Settings() {
             </div>
 
             {/* Structure and Appointed Roles Reference */}
-            <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
               <div>
                 <h3 className="text-lg font-bold text-ink flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-emerald-600" />
+                  <Shield className="w-5 h-5 text-emerald-400" />
                   โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ
                 </h3>
                 <p className="text-xs text-ink-3 mt-1">
@@ -881,11 +881,11 @@ export default function Settings() {
                         <span className="font-bold text-base text-ink">
                           {r.title}
                         </span>
-                        <span className="ml-2.5 font-mono text-xs text-ink-3 bg-white px-2.5 py-0.5 rounded-md border border-line">
+                        <span className="ml-2.5 font-mono text-xs text-ink-3 bg-surface px-2.5 py-0.5 rounded-md border border-line">
                           {r.role}
                         </span>
                       </div>
-                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-white text-ink border-line self-start sm:self-auto">
+                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-surface text-ink border-line self-start sm:self-auto">
                         ผู้รับผิดชอบ:{" "}
                         <span className="text-brand font-bold">
                           {r.appointee}
@@ -904,7 +904,7 @@ export default function Settings() {
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-ink-2">
                         {r.duties.map((duty, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
-                            <span className="text-emerald-600 font-bold">
+                            <span className="text-emerald-400 font-bold">
                               •
                             </span>
                             <span>{duty}</span>
@@ -921,9 +921,9 @@ export default function Settings() {
 
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
-          <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
             <h3 className="text-base font-bold text-ink flex items-center gap-2">
-              <Banknote className="w-5 h-5 text-amber-600" />
+              <Banknote className="w-5 h-5 text-amber-400" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
             </h3>
 
@@ -973,14 +973,14 @@ export default function Settings() {
         {/* Tab 4: Payment */}
         {activeTab === "payment" && (
           <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
             <h3 className="text-base font-bold text-ink flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-brand" />
               บัญชีรับเงินถวาย
             </h3>
 
             <div className="p-4 rounded-2xl bg-paper-2/50 border border-line flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-14 h-14 bg-white rounded-2xl border border-line shadow-inner flex items-center justify-center shrink-0">
+              <div className="w-14 h-14 bg-surface rounded-2xl border border-line shadow-inner flex items-center justify-center shrink-0">
                 <CreditCard className="w-7 h-7 text-brand" />
               </div>
 
@@ -1012,7 +1012,7 @@ export default function Settings() {
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (
-          <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line/60 pb-5">
               <div>
                 <h3 className="text-lg font-bold text-ink flex items-center gap-2">
@@ -1133,13 +1133,13 @@ export default function Settings() {
                           });
 
                           let actionBadge = (
-                            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-300">
+                            <span className="px-2.5 py-1 rounded-full bg-paper-2 text-ink-2 font-mono text-[11px] border border-field">
                               {log.action}
                             </span>
                           );
                           if (log.action === "AUTH_SET_CHURCH_ROLE") {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] border border-emerald-300">
+                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
                                 👑 เปลี่ยนบทบาทผู้ใช้
                               </span>
                             );
@@ -1179,7 +1179,7 @@ export default function Settings() {
                               <td className="py-3.5 px-3 text-ink-2 max-w-sm">
                                 {log.metadata ? (
                                   <div
-                                    className="font-mono text-[11px] bg-slate-50 p-1.5 rounded-lg border border-slate-200 truncate max-w-[280px]"
+                                    className="font-mono text-[11px] bg-paper p-1.5 rounded-lg border border-line truncate max-w-[280px]"
                                     title={JSON.stringify(
                                       log.metadata,
                                       null,

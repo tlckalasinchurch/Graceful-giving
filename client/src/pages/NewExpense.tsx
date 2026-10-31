@@ -545,7 +545,7 @@ export default function NewExpense() {
                       setReceiptUrl(null);
                       setReceiptFileName("");
                     }}
-                    className="text-xs text-red-600 hover:underline font-medium px-3 py-1.5"
+                    className="text-xs text-red-400 hover:underline font-medium px-3 py-1.5"
                   >
                     ลบไฟล์
                   </button>
@@ -634,7 +634,7 @@ export default function NewExpense() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-ink-3">จำนวนเงิน:</span>
-                  <span className="font-bold text-red-600 text-sm">
+                  <span className="font-bold text-red-400 text-sm">
                     {formatBaht(-parseFloat(amount.replace(/,/g, "") || "0"))}
                   </span>
                 </div>

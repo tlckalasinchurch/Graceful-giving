@@ -167,7 +167,7 @@ export function BankSignersSection() {
                       }
                     }}
                     disabled={removeSignerMutation.isPending}
-                    className="px-3.5 py-2 rounded-2xl bg-tile-rose hover:bg-rose-200/70 text-tile-rose-ink text-xs font-bold transition-colors disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-2xl bg-tile-rose hover:bg-rose-500/25 text-tile-rose-ink text-xs font-bold transition-colors disabled:opacity-50"
                   >
                     นำออก
                   </button>

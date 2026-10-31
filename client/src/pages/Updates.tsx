@@ -37,7 +37,7 @@ export default function Updates() {
             <ArrowLeft className="size-4" />
             กลับหน้าหลัก
           </Link>
-          <div className="mt-16 rounded-2xl border border-line bg-white p-8 text-center shadow-[0_12px_30px_rgba(94,70,42,0.07)]">
+          <div className="mt-16 rounded-2xl border border-line bg-surface p-8 text-center shadow-[0_12px_30px_rgba(94,70,42,0.07)]">
             <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-paper-2 text-brand-ink">
               <Bell className="size-8" />
             </div>
@@ -73,7 +73,7 @@ export default function Updates() {
               กลับหน้าหลัก
             </Link>
             <div className="mt-4 flex items-center gap-3">
-              <div className="grid size-12 place-items-center rounded-2xl bg-[#e7f1fb] text-[#3c6f9e]">
+              <div className="grid size-12 place-items-center rounded-2xl bg-[hsl(210_45%_13%)] text-[hsl(209_45%_72%)]">
                 <Megaphone className="size-6" />
               </div>
               <div>
@@ -86,7 +86,7 @@ export default function Updates() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-line bg-white/75 px-3.5 py-2 text-xs text-ink-2">
+          <div className="flex items-center gap-2 rounded-full border border-line bg-white/10 px-3.5 py-2 text-xs text-ink-2">
             <Sparkles className="size-4 text-brand-ink" />
             <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
           </div>
@@ -97,7 +97,7 @@ export default function Updates() {
             onClick={() => setActiveTab("feed")}
             className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
               activeTab === "feed"
-                ? "bg-white text-brand-ink shadow-sm"
+                ? "bg-surface text-brand-ink shadow-sm"
                 : "text-ink-3 hover:text-ink-2"
             }`}
           >
@@ -108,7 +108,7 @@ export default function Updates() {
               onClick={() => setActiveTab("manage")}
               className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
                 activeTab === "manage"
-                  ? "bg-white text-brand-ink shadow-sm"
+                  ? "bg-surface text-brand-ink shadow-sm"
                   : "text-ink-3 hover:text-ink-2"
               }`}
             >

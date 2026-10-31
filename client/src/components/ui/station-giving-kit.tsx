@@ -213,7 +213,7 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "rounded-3xl bg-[#1A1412]/95 border border-white/12 px-5 py-4 flex items-center justify-between gap-4 shadow-lg",
+        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 flex items-center justify-between gap-4",
         className
       )}
     >
@@ -260,7 +260,7 @@ export function StationStatusCard({
   return (
     <div
       className={cn(
-        "rounded-3xl bg-[#1A1412]/95 border border-white/12 px-5 py-4 space-y-2.5 shadow-lg",
+        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 space-y-2.5",
         className
       )}
     >
@@ -315,7 +315,7 @@ export function StationHeroCTA({
     <div className={cn("space-y-3", className)}>
       <div className="space-y-0.5">
         <div className="text-sm font-bold text-[#FB923C]">{eyebrow}</div>
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        <h3 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.05]">
           {headline}
         </h3>
       </div>
@@ -323,7 +323,7 @@ export function StationHeroCTA({
       <button
         type="button"
         onClick={onClick}
-        className="group w-full text-left rounded-[28px] p-5 sm:p-6 bg-gradient-to-br from-[#FBBF24] via-[#F97316] to-[#EA580C] border-2 border-[#FDE68A]/50 shadow-[0_12px_32px_-8px_rgba(249,115,22,0.55)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
+        className="group w-full text-left rounded-[28px] p-5 sm:p-6 bg-gradient-to-br from-[#FF6A00] via-[#FFC400] to-[#00F58A] shadow-[0_16px_40px_-10px_rgba(0,245,138,0.45)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4 min-w-0">
           {/* Dark rounded-2xl icon box with vertical wave bars */}
@@ -437,7 +437,7 @@ export function StationCountdownCard({
   return (
     <div
       className={cn(
-        "rounded-3xl bg-[#0D1017] border border-white/10 px-5 py-4 flex items-center justify-between gap-4",
+        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 flex items-center justify-between gap-4",
         className
       )}
     >
@@ -445,7 +445,7 @@ export function StationCountdownCard({
         <div className="text-xs sm:text-sm font-bold text-[#FDBA74]">
           {label}
         </div>
-        <div className="text-3xl sm:text-4xl font-extrabold text-white tabular-nums tracking-tight">
+        <div className="text-5xl sm:text-6xl font-black text-white tabular-nums tracking-tight">
           {mins}:{secs}
         </div>
       </div>
@@ -479,7 +479,7 @@ export function StationStepStatusCard({
   return (
     <div
       className={cn(
-        "rounded-3xl bg-[#0D1017] border border-white/10 px-5 py-4 space-y-1.5",
+        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 space-y-1.5",
         className
       )}
     >
@@ -518,15 +518,15 @@ export function StationOfferingPackageCard({
   return (
     <div
       className={cn(
-        "rounded-3xl bg-[#0D1017] border p-5 sm:p-6 space-y-4 transition-all",
+        "rounded-[28px] bg-[#0E0E10] border p-6 sm:p-7 space-y-4 transition-all",
         selected
-          ? "border-[#2DD4BF] ring-2 ring-[#2DD4BF]/30"
-          : "border-white/10 hover:border-white/20",
+          ? "border-[#00F58A] ring-2 ring-[#00F58A]/25"
+          : "border-white/[0.07] hover:border-white/20",
         className
       )}
     >
       <div className="space-y-1">
-        <h4 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        <h4 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
           {title}
         </h4>
         <p className="text-sm sm:text-base font-medium text-slate-400">
@@ -544,7 +544,7 @@ export function StationOfferingPackageCard({
               className={cn(
                 "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums",
                 amountThb === preset
-                  ? "bg-[#14B8A6]/20 border-[#2DD4BF] text-[#5EEAD4]"
+                  ? "bg-[#00F58A]/15 border-[#00F58A] text-[#00F58A]"
                   : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
               )}
             >
@@ -554,14 +554,14 @@ export function StationOfferingPackageCard({
         </div>
       )}
 
-      <div className="text-xl sm:text-2xl font-extrabold text-[#FEF3C7] tabular-nums">
+      <div className="text-3xl sm:text-4xl font-black text-[#FFC400] tabular-nums">
         {amountThb.toLocaleString()} THB
       </div>
 
       <button
         type="button"
         onClick={onSelect}
-        className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#22C55E] via-[#14B8A6] to-[#2563EB] hover:brightness-110 active:scale-[0.99] text-[#041E19] font-extrabold text-base sm:text-lg shadow-[0_8px_24px_-6px_rgba(20,184,166,0.5)] transition-all cursor-pointer"
+        className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] hover:brightness-110 active:scale-[0.98] text-black font-black text-lg sm:text-xl shadow-[0_10px_28px_-8px_rgba(0,245,138,0.4)] transition-all cursor-pointer"
       >
         {ctaLabel}
       </button>
@@ -593,7 +593,7 @@ export function StationUnlockConfirmCard({
   return (
     <div
       className={cn(
-        "rounded-[32px] bg-[#1C1613] border border-[#3E2E25] p-6 sm:p-8 text-center space-y-5 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.7)]",
+        "rounded-[32px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:p-8 text-center space-y-5",
         className
       )}
     >
@@ -612,7 +612,7 @@ export function StationUnlockConfirmCard({
         type="button"
         onClick={onConfirm}
         disabled={disabled || loading}
-        className="w-full py-5 sm:py-6 px-6 rounded-[24px] bg-gradient-to-b from-[#34D399] via-[#10B981] to-[#059669] hover:brightness-105 active:scale-[0.99] disabled:opacity-50 text-[#052E16] font-extrabold text-lg sm:text-xl shadow-[0_12px_30px_-6px_rgba(16,185,129,0.45)] transition-all cursor-pointer"
+        className="w-full py-5 sm:py-6 px-6 rounded-[24px] bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] hover:brightness-110 active:scale-[0.98] disabled:opacity-50 text-black font-black text-xl sm:text-2xl shadow-[0_14px_36px_-8px_rgba(0,245,138,0.45)] transition-all cursor-pointer"
       >
         {loading ? "กำลังส่งข้อมูลการถวาย..." : buttonLabel}
       </button>

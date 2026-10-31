@@ -102,7 +102,7 @@ export default function Funds() {
     >
       <div className="space-y-6">
         {/* Overview */}
-        <div className="rounded-2xl border border-line bg-white p-5">
+        <div className="rounded-2xl border border-line bg-surface p-5">
           <p className="text-sm font-medium text-ink-3">ยอดเงินรวมทุกกองทุน</p>
           <div className="mt-1">
             <MoneyDisplay amount={totalFundsBalance} size="xl" />
@@ -115,7 +115,7 @@ export default function Funds() {
         {/* Funds Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {fundsList.length === 0 && (
-            <p className="md:col-span-2 lg:col-span-3 py-12 text-center text-sm text-ink-3 bg-white rounded-2xl border border-dashed border-line">
+            <p className="md:col-span-2 lg:col-span-3 py-12 text-center text-sm text-ink-3 bg-surface rounded-2xl border border-dashed border-line">
               ยังไม่มีข้อมูลกองทุนจากระบบ
             </p>
           )}
@@ -125,7 +125,7 @@ export default function Funds() {
             return (
               <div
                 key={f.id}
-                className="bg-white rounded-2xl border border-line p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+                className="bg-surface rounded-2xl border border-line p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
                 onClick={() => setLocation(`/funds/${f.id}`)}
               >
                 <div className="space-y-4">
@@ -183,7 +183,7 @@ export default function Funds() {
         {/* Create Fund Modal */}
         {showNewFundModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-surface rounded-2xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b border-line pb-3">
                 <h3 className="text-lg font-bold text-foreground">
                   สร้างกองทุนใหม่

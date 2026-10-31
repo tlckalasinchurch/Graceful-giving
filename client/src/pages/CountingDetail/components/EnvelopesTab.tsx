@@ -116,7 +116,7 @@ export function EnvelopesTab({
       {editable && (
         <form
           onSubmit={submitEnvelope}
-          className="rounded-2xl border border-line bg-white p-5 shadow-sm md:p-6"
+          className="rounded-2xl border border-line bg-surface p-5 shadow-sm md:p-6"
         >
           <h2 className="mb-4 font-bold text-foreground">บันทึกซองถวาย</h2>
           <div className="grid gap-4 md:grid-cols-3">
@@ -211,7 +211,7 @@ export function EnvelopesTab({
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="mt-1 w-full rounded-xl border border-line p-3 text-base font-bold tabular-nums text-[#1F5C33]"
+                className="mt-1 w-full rounded-xl border border-line p-3 text-base font-bold tabular-nums text-[hsl(140_50%_72%)]"
               />
             </label>
             <div className="flex items-end gap-2">
@@ -249,7 +249,7 @@ export function EnvelopesTab({
         </form>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
         <div className="flex items-center justify-between border-b border-line p-4">
           <h2 className="font-bold text-foreground">
             ซองในรอบนี้ ({envelopes.length})
@@ -302,7 +302,7 @@ export function EnvelopesTab({
                         aria-label="ลบซองนี้"
                         onClick={() => void handleRemoveEnvelope(envelope)}
                         disabled={removeEnvelope.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-[#FDECEA] disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-[hsl(6_45%_13%)] disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

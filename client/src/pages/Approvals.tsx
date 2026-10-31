@@ -357,7 +357,7 @@ export default function Approvals() {
                                 setShowRejectModal(true);
                               }}
                               disabled={signMutation.isPending}
-                              className="min-h-11 px-4 py-2 rounded-2xl bg-tile-rose hover:bg-rose-200/70 text-tile-rose-ink text-xs font-bold transition-colors disabled:opacity-50"
+                              className="min-h-11 px-4 py-2 rounded-2xl bg-tile-rose hover:bg-rose-500/25 text-tile-rose-ink text-xs font-bold transition-colors disabled:opacity-50"
                             >
                               ไม่อนุมัติ
                             </button>

@@ -15,7 +15,7 @@ interface ChurchNewsSheetProps {
 export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="bg-white border-l border-line w-full sm:max-w-lg p-6 sm:p-8 overflow-y-auto">
+      <SheetContent className="bg-surface border-l border-line w-full sm:max-w-lg p-6 sm:p-8 overflow-y-auto">
         <SheetHeader className="mb-6">
           <SheetTitle className="text-xl sm:text-2xl font-bold text-ink-2 flex items-center gap-3">
             <BookOpen className="w-6 h-6 text-primary" />
@@ -40,8 +40,8 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
             </p>
           </div>
 
-          <div className="p-5 sm:p-6 rounded-2xl bg-[#E4F3E7] border-2 border-[#D2EAC7] space-y-3 shadow-xs">
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#9BCBA5] text-white inline-block">
+          <div className="p-5 sm:p-6 rounded-2xl bg-[hsl(132_38%_13%)] border-2 border-[hsl(101_40%_24%)] space-y-3 shadow-xs">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[hsl(133_32%_13%)] text-white inline-block">
               รายงานพันธกิจ
             </span>
             <h4 className="text-lg sm:text-xl font-bold text-income">

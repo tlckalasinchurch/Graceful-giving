@@ -22,7 +22,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-line overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-surface w-full max-w-2xl rounded-2xl shadow-2xl border border-line overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-paper border-b border-line">
           <div>
@@ -40,7 +40,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
               href={receiptUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-line text-ink-2 hover:bg-paper-2 text-xs font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-medium transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>เปิดลิงก์เต็ม</span>
@@ -55,14 +55,14 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
         </div>
 
         {/* Body Preview */}
-        <div className="p-4 sm:p-6 flex-1 overflow-y-auto flex items-center justify-center bg-stone-100 min-h-[300px]">
+        <div className="p-4 sm:p-6 flex-1 overflow-y-auto flex items-center justify-center bg-paper min-h-[300px]">
           {isPdf ? (
-            <div className="text-center p-8 bg-white rounded-2xl border border-stone-200 shadow-xs max-w-sm">
+            <div className="text-center p-8 bg-surface rounded-2xl border border-line shadow-xs max-w-sm">
               <FileText className="w-16 h-16 text-brand mx-auto mb-3" />
-              <p className="font-bold text-sm text-stone-800">
+              <p className="font-bold text-sm text-ink">
                 เอกสารแนบรูปแบบ PDF
               </p>
-              <p className="text-xs text-stone-500 mt-1 mb-4">
+              <p className="text-xs text-ink-3 mt-1 mb-4">
                 ไฟล์เอกสาร PDF เก็บไว้ใน Supabase Storage อย่างปลอดภัย
               </p>
               <a
@@ -76,7 +76,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
               </a>
             </div>
           ) : (
-            <div className="max-w-full max-h-[70vh] flex items-center justify-center overflow-hidden rounded-xl border border-stone-200 bg-white p-2">
+            <div className="max-w-full max-h-[70vh] flex items-center justify-center overflow-hidden rounded-xl border border-line bg-surface p-2">
               <img
                 src={receiptUrl}
                 alt="Receipt Full Preview"

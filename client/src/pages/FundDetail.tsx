@@ -74,7 +74,7 @@ export default function FundDetail() {
                     "ฟังก์ชันโอนเงินจะเปิดใช้เมื่อมี workflow จากระบบรองรับ"
                   )
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-line text-ink-2 text-sm font-medium"
+                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface border border-line text-ink-2 text-sm font-medium"
               >
                 <ArrowRightLeft className="w-4 h-4 text-brand" />
                 โอนเงินระหว่างกองทุน
@@ -91,7 +91,7 @@ export default function FundDetail() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-2xl border border-line/80">
+            <div className="bg-surface p-4 rounded-2xl border border-line/80">
               <p className="text-xs text-ink-3 font-medium">
                 ยอดคงเหลือสุทธิ
               </p>
@@ -100,7 +100,7 @@ export default function FundDetail() {
                 ยอดจริงจากบัญชีกองทุน
               </p>
             </div>
-            <div className="bg-white p-4 rounded-2xl border border-line/80">
+            <div className="bg-surface p-4 rounded-2xl border border-line/80">
               <p className="text-xs text-ink-3 font-medium">ประเภทกองทุน</p>
               <p className="text-2xl font-bold text-ink mt-1">
                 {fund.type}
@@ -111,7 +111,7 @@ export default function FundDetail() {
             </div>
           </div>
         </section>
-        <section className="bg-white rounded-2xl border border-line p-6 shadow-sm">
+        <section className="bg-surface rounded-2xl border border-line p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Wallet className="w-5 h-5 text-brand" />
             <h2 className="text-base font-bold text-ink">

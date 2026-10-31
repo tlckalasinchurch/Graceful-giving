@@ -237,7 +237,7 @@ export default function GivingStation() {
           <button
             type="button"
             onClick={() => setLocation("/offerings")}
-            className="px-3.5 py-2 rounded-2xl bg-white border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>กลับหน้าถวายทรัพย์</span>
@@ -266,7 +266,7 @@ export default function GivingStation() {
     >
       <div className="space-y-6">
         {/* ── Mode Switcher Bar (Hidden when printing poster) ── */}
-        <div className="bg-white rounded-2xl p-2 border border-line flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-2xs print:hidden">
+        <div className="bg-surface rounded-2xl p-2 border border-line flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-2xs print:hidden">
           <div className="grid grid-cols-2 gap-1.5 flex-1">
             <button
               type="button"
@@ -319,9 +319,9 @@ export default function GivingStation() {
             TAB 1: INTERACTIVE MOBILE FLOW (Adapted from JamBox Screens 1, 2, 3)
            ══════════════════════════════════════════════════════════════════════ */}
         {activeTab === "flow" && (
-          <div className="max-w-md mx-auto">
+          <div className="max-w-md lg:max-w-5xl mx-auto">
             {/* Dark Mobile Station Shell */}
-            <div className="rounded-[36px] bg-gradient-to-b from-[#231914] via-[#140F0D] to-[#0B0D13] p-5 sm:p-7 text-white shadow-2xl border border-[#3B2A20] space-y-6 relative overflow-hidden">
+            <div className="rounded-[36px] bg-[#050506] p-5 sm:p-8 text-white border border-white/[0.06] space-y-6 relative overflow-hidden">
               {/* Top Bar: TH Language Pill & Step Back Button */}
               <div className="flex items-center justify-between">
                 {step > 1 ? (
@@ -346,8 +346,8 @@ export default function GivingStation() {
 
               {/* ── STEP 1: Landing / Status / Give Now (Adapted from Image 2) ── */}
               {step === 1 && (
-                <div className="space-y-6 animate-in fade-in duration-200">
-                  <div className="text-center -mt-4">
+                <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 animate-in fade-in duration-200">
+                  <div className="lg:col-span-6 text-center -mt-4">
                     <StationCubeLogo
                       brandTitle="GraceBox"
                       subtitle="AUTOMATED CHURCH GIVING STATION"
@@ -355,7 +355,7 @@ export default function GivingStation() {
                   </div>
 
                   {/* Station Breadcrumb */}
-                  <div className="text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
+                  <div className="lg:col-span-6 text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
                     GRACEBOX STATION <span className="text-stone-500 mx-1">/</span>{" "}
                     {churchQuery.data?.name || "SANCTUARY SPACE"}
                   </div>
@@ -366,6 +366,7 @@ export default function GivingStation() {
                     avatarUrl={user?.avatarUrl}
                     metricLabel="สถานะผู้ถวาย"
                     metricValue={user?.churchRole || "MEMBER"}
+                    className="lg:col-span-3"
                   />
 
                   {/* Room / Station Availability Card */}
@@ -374,6 +375,7 @@ export default function GivingStation() {
                     statusBadgeText="พร้อมรับถวาย"
                     statusDetail="เปิดรับถวายออนไลน์และสแกนสลิปอัตโนมัติ"
                     isAvailable={true}
+                    className="lg:col-span-3"
                   />
 
                   {/* Big Orange Gradient CTA (Jam Now -> Give Now) */}
@@ -384,14 +386,15 @@ export default function GivingStation() {
                     buttonSubtitle="เริ่มถวายทันที"
                     helperText="ถ้าต้องการถวายเจาะจงกองทุน กดเพื่อเลือกหมวดหมู่ · ทำรายการได้ทันที"
                     onClick={() => setStep(2)}
+                    className="lg:col-span-6 pt-2"
                   />
                 </div>
               )}
 
               {/* ── STEP 2: Countdown + Offering Packages (Adapted from Image 3) ── */}
               {step === 2 && (
-                <div className="space-y-4 animate-in fade-in duration-200">
-                  <div className="text-base font-extrabold text-white tracking-tight px-1">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                  <div className="lg:col-span-2 text-xl font-black text-white tracking-tight px-1">
                     GraceBox Station · {churchQuery.data?.name || "Sanctuary"}
                   </div>
 
@@ -409,7 +412,7 @@ export default function GivingStation() {
                   />
 
                   {/* Fund Selector & Custom Amount Box */}
-                  <div className="rounded-3xl bg-[#0D1017] border border-white/10 p-4 space-y-3">
+                  <div className="lg:col-span-2 rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-5 space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-[#FDBA74] block">
@@ -449,7 +452,7 @@ export default function GivingStation() {
                   </div>
 
                   {/* Offering Package Cards (1 hr / 320 THB style) */}
-                  <div className="space-y-3.5 max-h-[540px] overflow-y-auto pr-1">
+                  <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {OFFERING_CATEGORIES.map(cat => {
                       const currentCatAmount =
                         customAmount.trim() !== "" && Number(customAmount) > 0
@@ -484,7 +487,7 @@ export default function GivingStation() {
               {step === 3 && (
                 <div className="space-y-5 animate-in fade-in duration-200">
                   {/* Summary Pill */}
-                  <div className="rounded-3xl bg-[#1A1412] border border-white/12 p-5 space-y-3">
+                  <div className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-6 space-y-3">
                     <div className="flex items-center justify-between text-xs font-bold text-[#FDBA74]">
                       <span>สรุปรายการถวายทรัพย์</span>
                       <button
@@ -507,7 +510,7 @@ export default function GivingStation() {
                             "กองทุนหลักคริสตจักร"}
                         </div>
                       </div>
-                      <div className="text-2xl font-black text-[#34D399] tabular-nums">
+                      <div className="text-4xl font-black text-[#00F58A] tabular-nums">
                         {effectiveAmount.toLocaleString()} THB
                       </div>
                     </div>
@@ -609,7 +612,7 @@ export default function GivingStation() {
 
               {/* ── STEP 4: Completed State ── */}
               {step === 4 && (
-                <div className="rounded-[32px] bg-[#1C1613] border border-[#3E2E25] p-7 text-center space-y-5 animate-in zoom-in-95 duration-200">
+                <div className="rounded-[32px] bg-[#0E0E10] border border-white/[0.07] p-7 text-center space-y-5 animate-in zoom-in-95 duration-200">
                   <div className="w-16 h-16 rounded-full bg-[#10B981]/20 border-2 border-[#34D399] text-[#34D399] mx-auto flex items-center justify-center">
                     <CheckCircle2 className="w-9 h-9" />
                   </div>
@@ -639,7 +642,7 @@ export default function GivingStation() {
                         setCustomAmount("");
                         setStep(1);
                       }}
-                      className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F97316] to-[#EA580C] text-white font-extrabold text-sm shadow-md cursor-pointer"
+                      className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black font-black text-base cursor-pointer"
                     >
                       ทำรายการถวายใหม่อีกครั้ง
                     </button>
@@ -663,7 +666,7 @@ export default function GivingStation() {
         {activeTab === "poster" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Column: Poster Customizer (Hidden when printing) */}
-            <div className="lg:col-span-5 bg-white rounded-2xl border border-line p-6 space-y-5 shadow-xs print:hidden">
+            <div className="lg:col-span-5 bg-surface rounded-2xl border border-line p-6 space-y-5 shadow-xs print:hidden">
               <div className="flex items-center justify-between border-b border-line pb-4">
                 <div>
                   <h3 className="text-base font-bold text-ink flex items-center gap-2">
@@ -780,7 +783,7 @@ export default function GivingStation() {
                       <button
                         type="button"
                         onClick={() => setCustomQrImage(null)}
-                        className="px-3 py-2.5 rounded-xl border border-line text-danger font-bold hover:bg-rose-50 cursor-pointer"
+                        className="px-3 py-2.5 rounded-xl border border-line text-danger font-bold hover:bg-rose-500/100/10 cursor-pointer"
                       >
                         ใช้ QR อัตโนมัติ
                       </button>

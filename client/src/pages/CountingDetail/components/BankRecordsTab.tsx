@@ -112,7 +112,7 @@ export function BankRecordsTab({
             }
           );
         }}
-        className="rounded-2xl border border-line bg-white p-5 shadow-sm md:p-6"
+        className="rounded-2xl border border-line bg-surface p-5 shadow-sm md:p-6"
       >
         <h2 className="mb-4 font-bold text-foreground">บันทึกรายการธนาคาร</h2>
         <div className="grid gap-4 md:grid-cols-4">
@@ -185,7 +185,7 @@ export function BankRecordsTab({
       </form>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-line bg-white p-4">
+        <div className="rounded-2xl border border-line bg-surface p-4">
           <p className="text-sm text-ink-2">เงินโอนเข้าบัญชีจริง</p>
           <MoneyDisplay amount={actualTransferIn} type="income" size="lg" />
           <p className="mt-1 text-sm text-ink-2">
@@ -195,13 +195,13 @@ export function BankRecordsTab({
             <Variance amount={transferVariance} />
           </div>
         </div>
-        <div className="rounded-2xl border border-line bg-white p-4">
+        <div className="rounded-2xl border border-line bg-surface p-4">
           <p className="text-sm text-ink-2">นำเงินสดเข้าฝากจริง</p>
           <MoneyDisplay amount={actualCashDeposit} size="lg" />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
         <h2 className="border-b border-line p-4 font-bold text-foreground">
           รายการธนาคาร ({bankRecords.length})
         </h2>
@@ -246,7 +246,7 @@ export function BankRecordsTab({
                       type="button"
                       onClick={() => void handleMatchPassbook(record)}
                       disabled={matchPassbook.isPending}
-                      className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
+                      className="min-h-11 rounded-xl border border-[hsl(133_32%_24%)] bg-[hsl(132_38%_13%)] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
                     >
                       กระทบสมุด
                     </button>

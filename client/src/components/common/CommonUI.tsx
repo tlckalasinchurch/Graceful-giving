@@ -97,7 +97,7 @@ export const ErrorState: React.FC<{
   className = "",
 }) => (
   <div
-    className={`py-12 px-6 rounded-3xl bg-tile-rose/50 border border-rose-200 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+    className={`py-12 px-6 rounded-3xl bg-tile-rose/50 border border-rose-500/30 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     role="alert"
   >
     <div className="w-12 h-12 rounded-2xl bg-tile-rose text-tile-rose-ink flex items-center justify-center text-xl font-bold shadow-2xs">
@@ -150,17 +150,17 @@ export const StatusBadge: React.FC<{
       case "approved":
       case "completed":
         return {
-          bg: "bg-tile-mint text-tile-mint-ink border-emerald-200",
+          bg: "bg-tile-mint text-tile-mint-ink border-emerald-500/30",
           defaultLabel: "อนุมัติแล้ว",
         };
       case "active":
         return {
-          bg: "bg-tile-mint text-tile-mint-ink border-emerald-200",
+          bg: "bg-tile-mint text-tile-mint-ink border-emerald-500/30",
           defaultLabel: "ใช้งานอยู่",
         };
       case "rejected":
         return {
-          bg: "bg-tile-rose text-tile-rose-ink border-rose-200",
+          bg: "bg-tile-rose text-tile-rose-ink border-rose-500/30",
           defaultLabel: "ปฏิเสธ / ยกเลิก",
         };
       case "inactive":
@@ -175,12 +175,12 @@ export const StatusBadge: React.FC<{
         };
       case "submitted":
         return {
-          bg: "bg-tile-sky text-tile-sky-ink border-sky-200",
+          bg: "bg-tile-sky text-tile-sky-ink border-sky-500/30",
           defaultLabel: "ส่งตรวจสอบแล้ว",
         };
       case "needs_review":
         return {
-          bg: "bg-tile-peach text-tile-peach-ink border-orange-200",
+          bg: "bg-tile-peach text-tile-peach-ink border-orange-500/30",
           defaultLabel: "ต้องตรวจสอบ",
         };
       case "unknown":
@@ -195,17 +195,17 @@ export const StatusBadge: React.FC<{
         };
       case "counting":
         return {
-          bg: "bg-tile-sand text-tile-sand-ink border-amber-200",
+          bg: "bg-tile-sand text-tile-sand-ink border-amber-500/30",
           defaultLabel: "กำลังนับ",
         };
       case "counted":
         return {
-          bg: "bg-tile-sky text-tile-sky-ink border-sky-200",
+          bg: "bg-tile-sky text-tile-sky-ink border-sky-500/30",
           defaultLabel: "รอตรวจสอบ",
         };
       case "verified":
         return {
-          bg: "bg-tile-lilac text-tile-lilac-ink border-purple-200",
+          bg: "bg-tile-lilac text-tile-lilac-ink border-purple-500/30",
           defaultLabel: "ตรวจสอบแล้ว",
         };
       case "posted":
@@ -221,7 +221,7 @@ export const StatusBadge: React.FC<{
       case "pending":
       default:
         return {
-          bg: "bg-tile-sand text-tile-sand-ink border-amber-200",
+          bg: "bg-tile-sand text-tile-sand-ink border-amber-500/30",
           defaultLabel: "รอดำเนินการ",
         };
     }

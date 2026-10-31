@@ -59,9 +59,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)",
     appointee: "พณ.ท่านหม่อมหลวงราชวงศ์สุริยงค์ บาลเพ็ชร",
     badgeStyle: {
-      bg: "bg-amber-100",
-      text: "text-amber-900",
-      border: "border-amber-300",
+      bg: "bg-amber-500/15",
+      text: "text-amber-200",
+      border: "border-amber-500/30",
       icon: "👑",
     },
     summary:
@@ -79,9 +79,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "เหรัญญิกคริสตจักร (TREASURER)",
     appointee: "สุดารัตน์ จิณเซ่ง, อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
-      bg: "bg-emerald-100",
-      text: "text-emerald-900",
-      border: "border-emerald-300",
+      bg: "bg-emerald-500/15",
+      text: "text-emerald-200",
+      border: "border-emerald-500/30",
       icon: "💰",
     },
     summary:
@@ -122,8 +122,8 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "ผู้รับผิดชอบฝ่าย",
     appointee: "อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
-      bg: "bg-[#F2C9BE]",
-      text: "text-[#7A2A20]",
+      bg: "bg-[hsl(13_45%_13%)]",
+      text: "text-[hsl(7_58%_72%)]",
       border: "border-[#E06250]",
       icon: "🤝",
     },
@@ -143,9 +143,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "กรรมการนับเงิน / ทีมนับเงินถวาย (COUNTER)",
     appointee: "สุดารัตน์ จิณเซ่ง (และผู้ได้รับมอบหมายประจำสัปดาห์)",
     badgeStyle: {
-      bg: "bg-orange-100",
-      text: "text-orange-900",
-      border: "border-orange-300",
+      bg: "bg-orange-500/15",
+      text: "text-orange-200",
+      border: "border-orange-500/30",
       icon: "📝",
     },
     summary:
@@ -163,9 +163,9 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
     title: "สมาชิกคริสตจักร (MEMBER)",
     appointee: "สมาชิกคริสตจักรทั่วไป",
     badgeStyle: {
-      bg: "bg-stone-100",
-      text: "text-stone-800",
-      border: "border-stone-300",
+      bg: "bg-paper",
+      text: "text-ink",
+      border: "border-field",
       icon: "👤",
     },
     summary:
@@ -288,7 +288,7 @@ export default function Profile() {
     >
       <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6">
         {/* ── PROFILE HERO: Logged-in User's Actual Profile & ID Card Action ──── */}
-        <section className="bg-white rounded-2xl sm:rounded-2xl border border-line p-4 sm:p-6 md:p-8 shadow-xs relative overflow-hidden">
+        <section className="bg-surface rounded-2xl sm:rounded-2xl border border-line p-4 sm:p-6 md:p-8 shadow-xs relative overflow-hidden">
 
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left relative z-10">
@@ -382,7 +382,7 @@ export default function Profile() {
         {canCountOfferings(user) && (
           <section className="bg-gradient-to-r from-paper to-paper-2 rounded-2xl sm:rounded-2xl border border-line p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 border border-orange-200 text-orange-700 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-orange-500/15 border border-orange-500/30 text-orange-300 flex items-center justify-center shrink-0 shadow-xs">
                 <Coins className="w-6 h-6" />
               </div>
               <div>
@@ -406,16 +406,16 @@ export default function Profile() {
         )}
 
         {isSuperAdmin(user) && (
-          <section className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl sm:rounded-2xl border border-amber-200 p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <section className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl sm:rounded-2xl border border-amber-500/30 p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-amber-950">
+                <h3 className="text-base font-bold text-amber-200">
                   แผงควบคุมผู้ดูแลระบบ
                 </h3>
-                <p className="text-xs text-amber-800/80">
+                <p className="text-xs text-amber-300/80">
                   จัดการสิทธิ์ผู้ใช้งาน ตรวจสอบประวัติการใช้งาน
                   และตั้งค่าคริสตจักร
                 </p>
@@ -432,7 +432,7 @@ export default function Profile() {
         )}
 
         {/* ── SECTION: โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ ── */}
-        <section className="bg-white rounded-2xl sm:rounded-2xl border border-line p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-xs">
+        <section className="bg-surface rounded-2xl sm:rounded-2xl border border-line p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-xs">
           <div className="border-b border-line/60 pb-3 sm:pb-4">
             <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-paper-2 text-ink-2 border border-line mb-2">
               <Award className="w-3.5 h-3.5 text-brand" />
@@ -451,7 +451,7 @@ export default function Profile() {
             {OFFICIAL_CHURCH_ROSTER.map((roster, idx) => (
               <div
                 key={roster.role}
-                className="rounded-2xl border border-line bg-white hover:bg-white p-4 sm:p-5 space-y-3 transition-all hover:shadow-xs flex flex-col justify-between"
+                className="rounded-2xl border border-line bg-surface hover:bg-surface p-4 sm:p-5 space-y-3 transition-all hover:shadow-xs flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
@@ -486,7 +486,7 @@ export default function Profile() {
                           key={rIdx}
                           className="text-xs text-ink flex items-start gap-1.5"
                         >
-                          <span className="text-emerald-600 font-bold mt-0.5">
+                          <span className="text-emerald-400 font-bold mt-0.5">
                             •
                           </span>
                           <span>{resp}</span>
@@ -501,7 +501,7 @@ export default function Profile() {
         </section>
 
         {/* ── SECTION: ข้อมูลบัญชีและทางเลือกความปลอดภัย ─────────────────────── */}
-        <section className="rounded-2xl sm:rounded-2xl border border-line bg-white p-4 sm:p-6 md:p-8 shadow-xs space-y-4">
+        <section className="rounded-2xl sm:rounded-2xl border border-line bg-surface p-4 sm:p-6 md:p-8 shadow-xs space-y-4">
           <h3 className="text-base font-bold text-ink">
             บัญชีผู้ใช้และความปลอดภัย
           </h3>
@@ -515,7 +515,7 @@ export default function Profile() {
               </p>
               <p className="text-ink-3 mt-0.5">
                 ระดับสิทธิ์ปัจจุบัน:{" "}
-                <strong className="text-emerald-800 font-bold">
+                <strong className="text-emerald-300 font-bold">
                   {userRoleInfo.labelWithCode}
                 </strong>
               </p>
@@ -531,7 +531,7 @@ export default function Profile() {
                   await logout();
                 }
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-colors hover:bg-rose-100 active:scale-95"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300 transition-colors hover:bg-rose-500/15 active:scale-95"
             >
               <LogOut className="h-4 w-4" />
               ออกจากระบบ
@@ -543,17 +543,17 @@ export default function Profile() {
       {/* ── MODAL 1: ดูโปรไฟล์ / บัตรประจำตัวคริสตจักร (Digital ID Card) ──────── */}
       {showIdCardModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl sm:rounded-2xl border border-line max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
+          <div className="bg-surface rounded-2xl sm:rounded-2xl border border-line max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowIdCardModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-stone-100 text-ink-2 transition-colors min-h-10 min-w-10 flex items-center justify-center"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-paper text-ink-2 transition-colors min-h-10 min-w-10 flex items-center justify-center"
               aria-label="ปิดหน้าต่าง"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="text-center space-y-1 pt-1 sm:pt-2">
-              <span className="px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-[#E4F3E7] text-[#4F6E28] uppercase tracking-wider">
+              <span className="px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-[hsl(132_38%_13%)] text-[hsl(87_47%_72%)] uppercase tracking-wider">
                 Digital Church Member Card
               </span>
               <h3 className="text-lg sm:text-xl font-bold text-ink pt-1">
@@ -571,7 +571,7 @@ export default function Profile() {
                   className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover shadow-md border-3 border-brand"
                 />
               ) : (
-                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-white shadow-md border-3 border-brand flex items-center justify-center text-2xl sm:text-3xl font-bold text-ink-2">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-surface shadow-md border-3 border-brand flex items-center justify-center text-2xl sm:text-3xl font-bold text-ink-2">
                   {user?.name ? user.name.slice(0, 1) : "ศ"}
                 </div>
               )}
@@ -589,7 +589,7 @@ export default function Profile() {
               </div>
 
               {/* QR Code */}
-              <div className="p-3 sm:p-4 bg-white rounded-2xl border border-line inline-block shadow-2xs">
+              <div className="p-3 sm:p-4 bg-surface rounded-2xl border border-line inline-block shadow-2xs">
                 <QrCode className="w-24 h-24 sm:w-28 sm:h-28 text-ink mx-auto" />
                 <p className="text-[10px] text-ink-3 font-mono mt-1 font-bold">
                   ID: GL-
@@ -610,7 +610,7 @@ export default function Profile() {
                   <span className="text-[10px] text-ink-3">
                     สถานะสมาชิก:
                   </span>
-                  <p className="font-bold text-emerald-700">
+                  <p className="font-bold text-emerald-300">
                     ยืนยันแล้ว (Active)
                   </p>
                 </div>
@@ -639,10 +639,10 @@ export default function Profile() {
       {/* ── MODAL 2: แก้ไขโปรไฟล์ (Edit Profile Dialog) ───────────────────── */}
       {showEditProfileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl sm:rounded-2xl border border-line max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
+          <div className="bg-surface rounded-2xl sm:rounded-2xl border border-line max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowEditProfileModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-stone-100 text-ink-2 transition-colors min-h-10 min-w-10 flex items-center justify-center"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-paper text-ink-2 transition-colors min-h-10 min-w-10 flex items-center justify-center"
               aria-label="ปิดหน้าต่าง"
             >
               <X className="w-5 h-5" />

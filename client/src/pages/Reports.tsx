@@ -129,7 +129,7 @@ export default function Reports() {
           type="button"
           onClick={handleExportCsv}
           disabled={!hasData}
-          className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink-2 transition-colors hover:bg-paper-2 disabled:opacity-50"
+          className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm font-bold text-ink-2 transition-colors hover:bg-paper-2 disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
           ส่งออก CSV
@@ -160,7 +160,7 @@ export default function Reports() {
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                   tab === id
                     ? "bg-brand text-white shadow-sm"
-                    : "border border-line bg-white text-ink-2 hover:bg-paper"
+                    : "border border-line bg-surface text-ink-2 hover:bg-paper"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -195,7 +195,7 @@ export default function Reports() {
             onRetry={() => summaryQuery.refetch()}
           />
         ) : tab === "funds" ? (
-          <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+          <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
             <h2 className="border-b border-line p-4 font-bold text-ink">
               ยอดคงเหลือแต่ละกองทุน
             </h2>
@@ -240,7 +240,7 @@ export default function Reports() {
           <>
             {/* Totals */}
             <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-line bg-white p-5 shadow-2xs">
+              <div className="rounded-2xl border border-line bg-surface p-5 shadow-2xs">
                 <p className="text-sm text-ink-2">รายรับรวม</p>
                 <MoneyDisplay
                   amount={summary!.totalIncome}
@@ -248,7 +248,7 @@ export default function Reports() {
                   size="lg"
                 />
               </div>
-              <div className="rounded-2xl border border-line bg-white p-5 shadow-2xs">
+              <div className="rounded-2xl border border-line bg-surface p-5 shadow-2xs">
                 <p className="text-sm text-ink-2">รายจ่ายรวม</p>
                 <MoneyDisplay
                   amount={summary!.totalExpense}
@@ -256,7 +256,7 @@ export default function Reports() {
                   size="lg"
                 />
               </div>
-              <div className="rounded-2xl border border-line bg-white p-5 shadow-2xs">
+              <div className="rounded-2xl border border-line bg-surface p-5 shadow-2xs">
                 <p className="text-sm text-ink-2">คงเหลือสุทธิ</p>
                 <MoneyDisplay
                   amount={summary!.net}
@@ -270,7 +270,7 @@ export default function Reports() {
             </section>
 
             {/* Statement by category */}
-            <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+            <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
               <h2 className="border-b border-line p-4 font-bold text-ink">
                 สรุปตามหมวดหมู่
               </h2>
@@ -303,7 +303,7 @@ export default function Reports() {
                         <td className="p-4 text-right tabular-nums text-ink-2">
                           {row.count}
                         </td>
-                        <td className="p-4 text-right font-bold tabular-nums text-[#1F5C33]">
+                        <td className="p-4 text-right font-bold tabular-nums text-[hsl(140_50%_72%)]">
                           {fmtBaht(row.total)}
                         </td>
                       </tr>
@@ -330,14 +330,14 @@ export default function Reports() {
                         <td className="p-4 text-right tabular-nums text-ink-2">
                           {row.count}
                         </td>
-                        <td className="p-4 text-right font-bold tabular-nums text-[#B3261E]">
+                        <td className="p-4 text-right font-bold tabular-nums text-[hsl(3_71%_72%)]">
                           {fmtBaht(row.total)}
                         </td>
                       </tr>
                     ))
                   )}
 
-                  <tr className="border-t-2 border-line bg-[#E4F3E7]/40">
+                  <tr className="border-t-2 border-line bg-[hsl(132_38%_13%)]/40">
                     <td className="p-4 font-bold text-ink">คงเหลือสุทธิ</td>
                     <td className="p-4" />
                     <td className="p-4 text-right font-bold tabular-nums text-ink">
@@ -349,18 +349,18 @@ export default function Reports() {
             </section>
 
             {/* Six month trend */}
-            <section className="rounded-2xl border border-line bg-white p-6 shadow-sm">
+            <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm">
               <div className="mb-4 flex flex-col gap-2 border-b border-line/60 pb-4 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="font-bold text-ink">
                   เปรียบเทียบ 6 เดือนล่าสุด
                 </h2>
                 <div className="flex items-center gap-4 text-sm font-bold text-ink">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[#9BCBA5]" />
+                    <span className="h-3 w-3 rounded-md bg-[hsl(133_32%_13%)]" />
                     รายรับ
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[#F4C4BE]" />
+                    <span className="h-3 w-3 rounded-md bg-[hsl(7_45%_13%)]" />
                     รายจ่าย
                   </span>
                 </div>
@@ -383,14 +383,14 @@ export default function Reports() {
                           style={{
                             height: `${(month.income / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[#9BCBA5] sm:w-8"
+                          className="w-4 rounded-t-lg bg-[hsl(133_32%_13%)] sm:w-8"
                           title={`รายรับ ${fmtBaht(month.income)}`}
                         />
                         <div
                           style={{
                             height: `${(month.expense / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[#F4C4BE] sm:w-8"
+                          className="w-4 rounded-t-lg bg-[hsl(7_45%_13%)] sm:w-8"
                           title={`รายจ่าย ${fmtBaht(month.expense)}`}
                         />
                       </div>

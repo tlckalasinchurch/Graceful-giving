@@ -120,7 +120,7 @@ export default function MemberDetail() {
         ) : (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8"
+            className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8"
           >
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
@@ -150,7 +150,7 @@ export default function MemberDetail() {
                     deactivate.mutate({ id });
                   }
                 }}
-                className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 disabled:opacity-50 cursor-pointer"
+                className="min-h-11 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-300 disabled:opacity-50 cursor-pointer"
               >
                 ปิดใช้งาน
               </button>

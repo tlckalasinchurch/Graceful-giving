@@ -266,7 +266,7 @@ export function AdminManager() {
           </button>
           <button
             onClick={openNewEvent}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-line bg-white px-4 py-2.5 text-xs font-bold text-brand-ink hover:bg-paper shadow-sm active:scale-95 transition"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-line bg-surface px-4 py-2.5 text-xs font-bold text-brand-ink hover:bg-paper shadow-sm active:scale-95 transition"
           >
             <CalendarDays className="size-4" /> กิจกรรมใหม่
           </button>
@@ -280,16 +280,16 @@ export function AdminManager() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="ค้นหาชื่อข่าวสารหรือกิจกรรม..."
-          className="w-full rounded-2xl border border-line bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-ink-2 focus:border-brand-ink focus:outline-none"
+          className="w-full rounded-2xl border border-line bg-surface py-2.5 pl-10 pr-4 text-xs font-medium text-ink-2 focus:border-brand-ink focus:outline-none"
         />
       </div>
 
       {isLoading ? (
-        <div className="mt-5 h-20 animate-pulse rounded-2xl bg-white/70" />
+        <div className="mt-5 h-20 animate-pulse rounded-2xl bg-white/10" />
       ) : (
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           {/* Admin News List */}
-          <div className="rounded-2xl border border-line bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-line bg-surface p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-bold text-ink-2">ข่าวสารทั้งหมด</p>
               <span className="text-xs font-semibold text-ink-3">
@@ -326,7 +326,7 @@ export function AdminManager() {
                       </button>
                       <button
                         aria-label={`ลบข่าวสาร ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-danger hover:bg-[#ffefec]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-danger hover:bg-[hsl(9_45%_13%)]"
                         onClick={() => setDeletingNews(item)}
                       >
                         <Trash2 className="size-4" />
@@ -334,7 +334,7 @@ export function AdminManager() {
                       <StatusPill status={item.status} />
                       {item.status === "draft" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-[#2e7d52] hover:underline"
+                          className="min-h-11 px-2 text-xs font-bold text-[hsl(147_46%_72%)] hover:underline"
                           onClick={() =>
                             setNewsStatus.mutate({
                               id: item.id,
@@ -370,7 +370,7 @@ export function AdminManager() {
           </div>
 
           {/* Admin Events List */}
-          <div className="rounded-2xl border border-line bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-line bg-surface p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-bold text-ink-2">กิจกรรมทั้งหมด</p>
               <span className="text-xs font-semibold text-ink-3">
@@ -385,14 +385,14 @@ export function AdminManager() {
                     className="flex flex-wrap items-center justify-between gap-2 py-3"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#e7f1fb] text-[#3c6f9e]">
+                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[hsl(210_45%_13%)] text-[hsl(209_45%_72%)]">
                         <CalendarDays className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-ink-2">
                           {item.title}
                         </p>
-                        <p className="text-[11px] text-[#3b6d9c]">
+                        <p className="text-[11px] text-[hsl(209_45%_72%)]">
                           {formatEventDate(item.startsAt)}
                         </p>
                       </div>
@@ -400,14 +400,14 @@ export function AdminManager() {
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         aria-label={`แก้ไขกิจกรรม ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[#3c6f9e] hover:bg-[#eef6ff]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-[hsl(209_45%_72%)] hover:bg-[hsl(212_45%_13%)]"
                         onClick={() => beginEventEdit(item)}
                       >
                         <PencilLine className="size-4" />
                       </button>
                       <button
                         aria-label={`ลบกิจกรรม ${item.title}`}
-                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-danger hover:bg-[#ffefec]"
+                        className="grid min-h-11 min-w-11 place-items-center rounded-lg text-danger hover:bg-[hsl(9_45%_13%)]"
                         onClick={() => setDeletingEvent(item)}
                       >
                         <Trash2 className="size-4" />
@@ -415,7 +415,7 @@ export function AdminManager() {
                       <StatusPill status={item.status} />
                       {item.status === "draft" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-[#2e7d52] hover:underline"
+                          className="min-h-11 px-2 text-xs font-bold text-[hsl(147_46%_72%)] hover:underline"
                           onClick={() =>
                             setEventStatus.mutate({
                               id: item.id,
@@ -479,12 +479,12 @@ export function AdminManager() {
         open={!!deletingNews}
         onOpenChange={open => !open && setDeletingNews(null)}
       >
-        <DialogContent className="w-full max-w-sm rounded-2xl border-line bg-white p-6 shadow-2xl">
+        <DialogContent className="w-full max-w-sm rounded-2xl border-line bg-surface p-6 shadow-2xl">
           {deletingNews && (
             <>
               <DialogHeader className="text-left">
                 <div className="flex items-center gap-3 text-danger">
-                  <div className="grid size-11 place-items-center rounded-2xl bg-[#ffefec]">
+                  <div className="grid size-11 place-items-center rounded-2xl bg-[hsl(9_45%_13%)]">
                     <AlertTriangle className="size-6" />
                   </div>
                   <div>
@@ -497,7 +497,7 @@ export function AdminManager() {
                   </div>
                 </div>
               </DialogHeader>
-              <p className="mt-3 rounded-xl bg-[#fff5f3] p-3 text-xs font-semibold text-[#824f49]">
+              <p className="mt-3 rounded-xl bg-[hsl(10_45%_13%)] p-3 text-xs font-semibold text-[hsl(6_30%_72%)]">
                 ต้องการลบ &ldquo;{deletingNews.title}&rdquo; ออกจากระบบหรือไม่?
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -527,12 +527,12 @@ export function AdminManager() {
         open={!!deletingEvent}
         onOpenChange={open => !open && setDeletingEvent(null)}
       >
-        <DialogContent className="w-full max-w-sm rounded-2xl border-line bg-white p-6 shadow-2xl">
+        <DialogContent className="w-full max-w-sm rounded-2xl border-line bg-surface p-6 shadow-2xl">
           {deletingEvent && (
             <>
               <DialogHeader className="text-left">
                 <div className="flex items-center gap-3 text-danger">
-                  <div className="grid size-11 place-items-center rounded-2xl bg-[#ffefec]">
+                  <div className="grid size-11 place-items-center rounded-2xl bg-[hsl(9_45%_13%)]">
                     <AlertTriangle className="size-6" />
                   </div>
                   <div>
@@ -545,7 +545,7 @@ export function AdminManager() {
                   </div>
                 </div>
               </DialogHeader>
-              <p className="mt-3 rounded-xl bg-[#fff5f3] p-3 text-xs font-semibold text-[#824f49]">
+              <p className="mt-3 rounded-xl bg-[hsl(10_45%_13%)] p-3 text-xs font-semibold text-[hsl(6_30%_72%)]">
                 ต้องการลบกิจกรรม &ldquo;{deletingEvent.title}&rdquo; หรือไม่?
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3">
