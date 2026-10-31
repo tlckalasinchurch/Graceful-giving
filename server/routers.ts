@@ -2564,33 +2564,41 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        let image: ReturnType<typeof decodeSlipImage>;
         try {
-          const rawBase64 = input.base64Data.replace(
-            /^data:image\/\w+;base64,/,
-            ""
-          );
-          const buffer = Buffer.from(rawBase64, "base64");
+          image = decodeSlipImage(input.base64Data);
+        } catch (err) {
+          if (err instanceof SlipImageError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: err.message });
+          }
+          throw err;
+        }
 
-          const slip = await createManualSlip({
+        let slip: Awaited<ReturnType<typeof createManualSlip>>;
+        try {
+          slip = await createManualSlip({
             churchId: DEFAULT_CHURCH_ID,
             userId: ctx.user.id,
             userName: ctx.user.name ?? undefined,
             donorName: input.donorName,
-            imageBuffer: buffer,
+            imageBuffer: image.buffer,
+            contentType: image.contentType,
+            extension: image.extension,
           });
-
-          // Run worker batch immediately to extract data with AI
-          await runWorkerBatch().catch(err =>
-            console.warn("[Manual upload] Worker error:", err)
-          );
-
-          return { success: true, slipId: slip.id };
-        } catch (err: any) {
+        } catch (err) {
+          console.error("[uploadSlip] Could not store slip:", err);
           throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: err?.message || "ไม่สามารถอัปโหลดสลิปได้",
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ไม่สามารถอัปโหลดสลิปได้ กรุณาลองใหม่อีกครั้ง",
           });
         }
+
+        // Run worker batch immediately to extract data with AI
+        await runWorkerBatch().catch(err =>
+          console.warn("[Manual upload] Worker error:", err)
+        );
+
+        return { success: true, slipId: slip.id };
       }),
 
     /**

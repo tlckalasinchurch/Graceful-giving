@@ -157,6 +157,42 @@ describe("givingInbox.submitSlip", () => {
   });
 });
 
+describe("givingInbox.uploadSlip (staff)", () => {
+  it("stores a valid image with its real type", async () => {
+    const caller = appRouter.createCaller(createContext(treasurer));
+    await expect(
+      caller.givingInbox.uploadSlip({ base64Data: PNG_B64 })
+    ).resolves.toEqual({ success: true, slipId: 99 });
+    expect(db.createManualSlip).toHaveBeenCalledWith(
+      expect.objectContaining({ contentType: "image/png", extension: "png" })
+    );
+  });
+
+  it("refuses data that is not an image", async () => {
+    const caller = appRouter.createCaller(createContext(treasurer));
+    const html = Buffer.from("<html></html>").toString("base64");
+    await expect(
+      caller.givingInbox.uploadSlip({
+        base64Data: `data:image/png;base64,${html}`,
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(db.createManualSlip).not.toHaveBeenCalled();
+  });
+
+  it("hides storage errors behind a generic message", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(db.createManualSlip).mockRejectedValue(
+      new Error("Supabase key sk-secret rejected")
+    );
+    const caller = appRouter.createCaller(createContext(treasurer));
+    const err = await caller.givingInbox
+      .uploadSlip({ base64Data: PNG_B64 })
+      .catch(e => e);
+    expect(err.code).toBe("INTERNAL_SERVER_ERROR");
+    expect(err.message).not.toContain("sk-secret");
+  });
+});
+
 describe("existing slip endpoints stay finance-only", () => {
   it("still blocks a member from uploadSlip and offerings.create", async () => {
     const caller = appRouter.createCaller(createContext(member));

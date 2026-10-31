@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarCheck2,
@@ -251,7 +251,7 @@ export function StationHeroCTA({
       <button
         type="button"
         onClick={onClick}
-        className="group w-full text-left rounded-[28px] p-5 sm:p-6 bg-gradient-to-br from-[#FBBF24] via-[#F97316] to-[#EA580C] border-2 border-[#FDE68A]/50 shadow-[0_12px_32px_-8px_rgba(249,115,22,0.55)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
+        className="group w-full text-left rounded-[28px] focus-visible:ring-4 focus-visible:ring-white/70 p-5 sm:p-6 bg-gradient-to-br from-[#FBBF24] via-[#F97316] to-[#EA580C] border-2 border-[#FDE68A]/50 shadow-[0_12px_32px_-8px_rgba(249,115,22,0.55)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4 min-w-0">
           {/* Dark rounded-2xl icon box with vertical wave bars */}
@@ -335,32 +335,71 @@ export function StationHeroCTA({
 
 // ─── 4. Countdown & Package Selection Cards (Screen 2 — Image 3) ─────────────
 
+/** Where the QR code points by default: this app's own giving station page. */
+export function defaultStationUrl(): string {
+  return typeof window !== "undefined"
+    ? `${window.location.origin}/giving/station`
+    : "";
+}
+
+/** Seconds left at which the card warns that time is nearly up. */
+const COUNTDOWN_WARN_SECONDS = 60;
+
 export function StationCountdownCard({
   initialSeconds = 300,
   label = "เวลายืนยันตัวเลือกคงเหลือ",
   onExpire,
+  maxExtensions = 1,
   className,
 }: {
   initialSeconds?: number;
   label?: string;
+  /** Called once when the time runs out. */
   onExpire?: () => void;
+  /** How many times the person may restart the clock. */
+  maxExtensions?: number;
   className?: string;
 }) {
   const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+  const [extensionsUsed, setExtensionsUsed] = useState(0);
+  // The deadline is a timestamp, so a throttled background tab cannot make the
+  // clock run slow.
+  const deadlineRef = useRef(Date.now() + initialSeconds * 1000);
+  const expiredRef = useRef(false);
+  const onExpireRef = useRef(onExpire);
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
 
   useEffect(() => {
-    if (secondsLeft <= 0) {
-      onExpire?.();
-      return;
-    }
     const timer = setInterval(() => {
-      setSecondsLeft(prev => (prev > 0 ? prev - 1 : 0));
+      const left = Math.max(
+        0,
+        Math.ceil((deadlineRef.current - Date.now()) / 1000)
+      );
+      setSecondsLeft(left);
+      if (left === 0 && !expiredRef.current) {
+        expiredRef.current = true;
+        clearInterval(timer);
+        onExpireRef.current?.();
+      }
     }, 1000);
     return () => clearInterval(timer);
-  }, [secondsLeft, onExpire]);
+  }, []);
+
+  const extend = () => {
+    deadlineRef.current = Date.now() + initialSeconds * 1000;
+    setSecondsLeft(initialSeconds);
+    setExtensionsUsed(n => n + 1);
+  };
 
   const mins = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const secs = String(secondsLeft % 60).padStart(2, "0");
+  const warning = secondsLeft > 0 && secondsLeft <= COUNTDOWN_WARN_SECONDS;
+  const canExtend =
+    secondsLeft > 0 &&
+    secondsLeft < initialSeconds &&
+    extensionsUsed < maxExtensions;
 
   return (
     <div
@@ -373,19 +412,34 @@ export function StationCountdownCard({
         <div className="text-xs sm:text-sm font-bold text-[#FDBA74]">
           {label}
         </div>
-        <div className="text-3xl sm:text-4xl font-extrabold text-white tabular-nums tracking-tight">
+        {/* role="timer" is not announced every second. The status below
+            changes only twice, at one minute left and at zero. */}
+        <div
+          role="timer"
+          aria-label={label}
+          className={cn(
+            "text-3xl sm:text-4xl font-extrabold tabular-nums tracking-tight",
+            warning ? "text-amber-300" : "text-white"
+          )}
+        >
           {mins}:{secs}
         </div>
+        <span className="sr-only" role="status">
+          {secondsLeft === 0
+            ? "หมดเวลาแล้ว"
+            : warning
+              ? "เหลือเวลาน้อยกว่า 1 นาที"
+              : ""}
+        </span>
       </div>
 
-      {secondsLeft < initialSeconds && (
+      {canExtend && (
         <button
           type="button"
-          onClick={() => setSecondsLeft(initialSeconds)}
-          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-stone-300 inline-flex items-center gap-1.5 cursor-pointer"
-          title="รีเซ็ตเวลา"
+          onClick={extend}
+          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-stone-300 inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
+          <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
           <span>ต่อเวลา</span>
         </button>
       )}
@@ -445,6 +499,8 @@ export function StationOfferingPackageCard({
 }) {
   return (
     <div
+      role="group"
+      aria-label={title}
       className={cn(
         "rounded-3xl bg-[#0D1017] border p-5 sm:p-6 space-y-4 transition-all",
         selected
@@ -469,8 +525,9 @@ export function StationOfferingPackageCard({
               key={preset}
               type="button"
               onClick={() => onSelectAmount(preset)}
+              aria-pressed={amountThb === preset}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums",
+                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-[#2DD4BF]",
                 amountThb === preset
                   ? "bg-[#14B8A6]/20 border-[#2DD4BF] text-[#5EEAD4]"
                   : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
@@ -489,7 +546,8 @@ export function StationOfferingPackageCard({
       <button
         type="button"
         onClick={onSelect}
-        className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#22C55E] via-[#14B8A6] to-[#2563EB] hover:brightness-110 active:scale-[0.99] text-[#041E19] font-extrabold text-base sm:text-lg shadow-[0_8px_24px_-6px_rgba(20,184,166,0.5)] transition-all cursor-pointer"
+        aria-label={`${ctaLabel}: ${title}`}
+        className="w-full py-3.5 px-6 rounded-full focus-visible:ring-2 focus-visible:ring-white bg-gradient-to-r from-[#22C55E] via-[#14B8A6] to-[#2563EB] hover:brightness-110 active:scale-[0.99] text-[#041E19] font-extrabold text-base sm:text-lg shadow-[0_8px_24px_-6px_rgba(20,184,166,0.5)] transition-all cursor-pointer"
       >
         {ctaLabel}
       </button>
@@ -540,7 +598,8 @@ export function StationUnlockConfirmCard({
         type="button"
         onClick={onConfirm}
         disabled={disabled || loading}
-        className="w-full py-5 sm:py-6 px-6 rounded-[24px] bg-gradient-to-b from-[#34D399] via-[#10B981] to-[#059669] hover:brightness-105 active:scale-[0.99] disabled:opacity-50 text-[#052E16] font-extrabold text-lg sm:text-xl shadow-[0_12px_30px_-6px_rgba(16,185,129,0.45)] transition-all cursor-pointer"
+        aria-busy={loading}
+        className="w-full py-5 sm:py-6 px-6 rounded-[24px] focus-visible:ring-4 focus-visible:ring-white/70 bg-gradient-to-b from-[#34D399] via-[#10B981] to-[#059669] hover:brightness-105 active:scale-[0.99] disabled:opacity-50 text-[#052E16] font-extrabold text-lg sm:text-xl shadow-[0_12px_30px_-6px_rgba(16,185,129,0.45)] transition-all cursor-pointer"
       >
         {loading ? "กำลังส่งข้อมูลการถวาย..." : buttonLabel}
       </button>
@@ -570,14 +629,14 @@ export function StationQrPoster({
   headlineWhite = "จุดถวายทรัพย์",
   headlineOrange = "อัตโนมัติ",
   scanPrompt = "สแกน LINE หรือ QR เพื่อเริ่มถวาย",
-  qrValue = "https://graceful-giving.vercel.app/giving/station",
+  qrValue = defaultStationUrl(),
   customQrImageUrl,
   qrCenterBadge = "LINE",
   qrCaption = "LINE OFFICIAL",
   steps = DEFAULT_POSTER_STEPS,
   footerLeadWhite = "ใจยินดี?",
   footerLeadOrange = "ร่วมถวายได้เลย",
-  footerSubtext = "เลือกกองทุนและส่งสลิปได้ทันทีตลอด 24 ชม.",
+  footerSubtext = "เลือกกองทุนและส่งสลิปผ่านระบบได้ทุกเวลา",
   churchName,
   className,
 }: {

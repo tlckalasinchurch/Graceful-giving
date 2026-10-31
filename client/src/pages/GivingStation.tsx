@@ -8,9 +8,10 @@ import {
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
-import { canManageFinance } from "@shared/roles";
-import { MAX_GIVING_AMOUNT, MAX_SLIP_IMAGE_BYTES } from "@shared/givingLimits";
+import { canManageFinance, getChurchRoleInfo } from "@shared/roles";
+import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { formatThaiDateTime } from "@/lib/format";
+import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
 import {
   resolveAmount,
   resolveSubmitMode,
@@ -32,6 +33,7 @@ import {
 import { toast } from "sonner";
 import {
   StationCountdownCard,
+  defaultStationUrl,
   StationCubeLogo,
   StationHeroCTA,
   StationOfferingPackageCard,
@@ -44,8 +46,6 @@ import {
 
 type StationTab = "flow" | "poster";
 type FlowStep = 1 | 2 | 3 | 4;
-
-const SLIP_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const DEFAULT_AMOUNTS: Record<OfferingCategory, number> = {
   tithe: 1000,
@@ -81,6 +81,8 @@ export default function GivingStation() {
     retry: false,
   });
   const funds = fundOptionsQuery.data ?? [];
+  // Loading counts as ready. Only a failed load blocks the flow.
+  const stationReady = !churchQuery.isError && !fundOptionsQuery.isError;
 
   // Flow State
   const [selectedCategory, setSelectedCategory] =
@@ -99,10 +101,6 @@ export default function GivingStation() {
   const slipInputRef = useRef<HTMLInputElement>(null);
 
   // Poster Customization State
-  const defaultStationUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/giving/station`
-      : "https://graceful-giving.vercel.app/giving/station";
   const [posterBrandPrefix, setPosterBrandPrefix] = useState("Grace");
   const [posterBrandHighlight, setPosterBrandHighlight] = useState("Box");
   const [posterHeadlineWhite, setPosterHeadlineWhite] =
@@ -118,7 +116,7 @@ export default function GivingStation() {
   const [posterFooterOrange, setPosterFooterOrange] =
     useState("ร่วมถวายได้เลย");
   const [posterFooterSub, setPosterFooterSub] = useState(
-    "เปิดรับถวายทุกกองทุน ส่งสลิปตรวจสอบอัตโนมัติทันที"
+    "เปิดรับถวายทุกกองทุน ส่งสลิปให้เหรัญญิกตรวจสอบก่อนบันทึกเข้าบัญชี"
   );
   const [customQrImage, setCustomQrImage] = useState<string | null>(null);
   const qrUploadRef = useRef<HTMLInputElement>(null);
@@ -164,26 +162,22 @@ export default function GivingStation() {
     setStep(3);
   };
 
-  const handleSlipFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSlipFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const input = e.target;
     const file = input.files?.[0];
     // Lets the same file be picked again after an error.
     input.value = "";
     if (!file) return;
-    if (!SLIP_IMAGE_TYPES.includes(file.type)) {
-      toast.error("รองรับเฉพาะรูปสลิปแบบ JPEG, PNG หรือ WebP");
-      return;
-    }
-    if (file.size > MAX_SLIP_IMAGE_BYTES) {
+    try {
+      // Shrinks a large phone photo so it fits the server limit.
+      setSlipPreview(await prepareSlipImage(file));
+    } catch (err) {
       toast.error(
-        `รูปสลิปต้องมีขนาดไม่เกิน ${(MAX_SLIP_IMAGE_BYTES / 1024 / 1024).toFixed(1)} MB (แนะนำให้แคปหน้าจอสลิปแทนรูปถ่าย)`
+        err instanceof SlipFileError ? err.message : "แนบรูปสลิปไม่สำเร็จ"
       );
-      return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setSlipPreview(reader.result as string);
-    reader.onerror = () => toast.error("อ่านไฟล์รูปสลิปไม่สำเร็จ");
-    reader.readAsDataURL(file);
   };
 
   const handleQrImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,6 +252,13 @@ export default function GivingStation() {
     });
     setSlipPreview(null);
     setStep(4);
+  };
+
+  const handleCountdownExpire = () => {
+    // Never wipe the form while a submission is on its way to the server.
+    if (isSubmitting) return;
+    toast.info("หมดเวลาทำรายการ กรุณาเริ่มใหม่อีกครั้ง");
+    resetFlow();
   };
 
   const resetFlow = () => {
@@ -403,6 +404,16 @@ export default function GivingStation() {
                 </div>
               </div>
 
+              {/* One 5-minute timer for steps 2 and 3. It stays mounted when the
+                  person moves between them. Expiry clears the form. */}
+              {(shownStep === 2 || shownStep === 3) && (
+                <StationCountdownCard
+                  initialSeconds={300}
+                  label="เวลาทำรายการคงเหลือ"
+                  onExpire={handleCountdownExpire}
+                />
+              )}
+
               {/* ── STEP 1: Landing / Status / Give Now (Adapted from Image 2) ── */}
               {shownStep === 1 && (
                 <div className="space-y-6 animate-in fade-in duration-200">
@@ -425,15 +436,21 @@ export default function GivingStation() {
                     userName={user?.name || donorName || "ผู้ถวายด้วยใจยินดี"}
                     avatarUrl={user?.avatarUrl}
                     metricLabel="สถานะผู้ถวาย"
-                    metricValue={user?.churchRole || "MEMBER"}
+                    metricValue={getChurchRoleInfo(user?.churchRole).label}
                   />
 
                   {/* Room / Station Availability Card */}
                   <StationStatusCard
                     label="สถานะจุดถวาย"
-                    statusBadgeText="พร้อมรับถวาย"
-                    statusDetail="เปิดรับถวายออนไลน์และสแกนสลิปอัตโนมัติ"
-                    isAvailable={true}
+                    statusBadgeText={
+                      stationReady ? "พร้อมรับถวาย" : "ระบบไม่พร้อม"
+                    }
+                    statusDetail={
+                      stationReady
+                        ? "ส่งสลิปการถวายให้เหรัญญิกตรวจสอบได้ทุกเวลา"
+                        : "โหลดข้อมูลคริสตจักรไม่สำเร็จ กรุณาลองใหม่ภายหลัง"
+                    }
+                    isAvailable={stationReady}
                   />
 
                   {/* Big Orange Gradient CTA (Jam Now -> Give Now) */}
@@ -443,7 +460,13 @@ export default function GivingStation() {
                     buttonTitle="Give Now"
                     buttonSubtitle="เริ่มถวายทันที"
                     helperText="ถ้าต้องการถวายเจาะจงกองทุน กดเพื่อเลือกหมวดหมู่ · ทำรายการได้ทันที"
-                    onClick={() => setStep(2)}
+                    onClick={() =>
+                      stationReady
+                        ? setStep(2)
+                        : toast.error(
+                            "ระบบยังไม่พร้อมรับถวาย กรุณาลองใหม่ภายหลัง"
+                          )
+                    }
                   />
                 </div>
               )}
@@ -454,12 +477,6 @@ export default function GivingStation() {
                   <div className="text-base font-extrabold text-white tracking-tight px-1">
                     GraceBox Station · {churchQuery.data?.name || "Sanctuary"}
                   </div>
-
-                  {/* 5-Minute Countdown Timer */}
-                  <StationCountdownCard
-                    initialSeconds={297}
-                    label="เวลายืนยันตัวเลือกคงเหลือ"
-                  />
 
                   {/* Selection Status Card */}
                   <StationStepStatusCard
@@ -472,13 +489,17 @@ export default function GivingStation() {
                   <div className="rounded-3xl bg-[#0D1017] border border-white/10 p-4 space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-[#FDBA74] block">
+                        <label
+                          htmlFor="station-fund"
+                          className="text-xs font-bold text-[#FDBA74] block"
+                        >
                           เข้ากองทุนคริสตจักร
                         </label>
                         <select
+                          id="station-fund"
                           value={selectedFundId}
                           onChange={e => setSelectedFundId(e.target.value)}
-                          className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-[#2DD4BF]"
+                          className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
                         >
                           {funds.length === 0 ? (
                             <option value="">กองทุนทั่วไปของคริสตจักร</option>
@@ -493,10 +514,14 @@ export default function GivingStation() {
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-[#FDBA74] block">
+                        <label
+                          htmlFor="station-custom-amount"
+                          className="text-xs font-bold text-[#FDBA74] block"
+                        >
                           หรือระบุยอดเอง (THB)
                         </label>
                         <input
+                          id="station-custom-amount"
                           type="number"
                           min="1"
                           max={MAX_GIVING_AMOUNT}
@@ -504,7 +529,7 @@ export default function GivingStation() {
                           placeholder="ระบุจำนวนเงินบาท..."
                           value={customAmount}
                           onChange={e => setCustomAmount(e.target.value)}
-                          className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white placeholder:text-slate-500 focus:outline-none focus:border-[#2DD4BF]"
+                          className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
                         />
                       </div>
                     </div>
@@ -643,15 +668,20 @@ export default function GivingStation() {
                     <div className="space-y-3 my-2">
                       {/* Donor Name Input */}
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-stone-300 block">
+                        <label
+                          htmlFor="station-donor-name"
+                          className="text-xs font-bold text-stone-300 block"
+                        >
                           ชื่อผู้ถวาย (ไม่ระบุเพื่อถวายนิรนามได้)
                         </label>
                         <input
+                          id="station-donor-name"
                           type="text"
+                          maxLength={120}
                           value={donorName}
                           onChange={e => setDonorNameInput(e.target.value)}
                           placeholder="เช่น สมชาย สุขใจ หรือ ผู้ถวายนิรนาม"
-                          className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-stone-500 focus:outline-none focus:border-[#34D399]"
+                          className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-stone-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34D399]"
                         />
                       </div>
 
@@ -660,8 +690,9 @@ export default function GivingStation() {
                         <input
                           ref={slipInputRef}
                           type="file"
-                          accept="image/*"
-                          onChange={handleSlipFileChange}
+                          accept="image/jpeg,image/png,image/webp"
+                          aria-label="รูปสลิปการโอน"
+                          onChange={e => void handleSlipFileChange(e)}
                           className="hidden"
                         />
                         <button
@@ -775,10 +806,14 @@ export default function GivingStation() {
               <div className="space-y-4 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-bold text-ink-2 block">
+                    <label
+                      htmlFor="poster-posterBrandPrefix"
+                      className="font-bold text-ink-2 block"
+                    >
                       ชื่อแบรนด์ (สีขาว)
                     </label>
                     <input
+                      id="poster-posterBrandPrefix"
                       type="text"
                       value={posterBrandPrefix}
                       onChange={e => setPosterBrandPrefix(e.target.value)}
@@ -786,10 +821,14 @@ export default function GivingStation() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-bold text-ink-2 block">
+                    <label
+                      htmlFor="poster-posterBrandHighlight"
+                      className="font-bold text-ink-2 block"
+                    >
                       ชื่อแบรนด์ (สีส้ม)
                     </label>
                     <input
+                      id="poster-posterBrandHighlight"
                       type="text"
                       value={posterBrandHighlight}
                       onChange={e => setPosterBrandHighlight(e.target.value)}
@@ -800,10 +839,14 @@ export default function GivingStation() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-bold text-ink-2 block">
+                    <label
+                      htmlFor="poster-posterHeadlineWhite"
+                      className="font-bold text-ink-2 block"
+                    >
                       หัวข้อหลัก (สีขาว)
                     </label>
                     <input
+                      id="poster-posterHeadlineWhite"
                       type="text"
                       value={posterHeadlineWhite}
                       onChange={e => setPosterHeadlineWhite(e.target.value)}
@@ -811,10 +854,14 @@ export default function GivingStation() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-bold text-ink-2 block">
+                    <label
+                      htmlFor="poster-posterHeadlineOrange"
+                      className="font-bold text-ink-2 block"
+                    >
                       หัวข้อเน้น (สีส้ม)
                     </label>
                     <input
+                      id="poster-posterHeadlineOrange"
                       type="text"
                       value={posterHeadlineOrange}
                       onChange={e => setPosterHeadlineOrange(e.target.value)}
@@ -824,10 +871,14 @@ export default function GivingStation() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-ink-2 block">
+                  <label
+                    htmlFor="poster-posterScanPrompt"
+                    className="font-bold text-ink-2 block"
+                  >
                     ข้อความเหนือ QR Code
                   </label>
                   <input
+                    id="poster-posterScanPrompt"
                     type="text"
                     value={posterScanPrompt}
                     onChange={e => setPosterScanPrompt(e.target.value)}
@@ -836,10 +887,14 @@ export default function GivingStation() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-ink-2 block">
+                  <label
+                    htmlFor="poster-posterQrValue"
+                    className="font-bold text-ink-2 block"
+                  >
                     ลิงก์สำหรับสร้าง QR Code (เช่น ลิงก์ LINE OA หรือหน้าถวาย)
                   </label>
                   <input
+                    id="poster-posterQrValue"
                     type="text"
                     value={posterQrValue}
                     maxLength={500}
@@ -850,13 +905,17 @@ export default function GivingStation() {
 
                 {/* Upload Custom QR Image */}
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink-2 block">
+                  <span
+                    id="poster-qr-image-label"
+                    className="font-bold text-ink-2 block"
+                  >
                     หรืออัปโหลดรูป QR จริง (LINE Official / PromptPay)
-                  </label>
+                  </span>
                   <input
                     ref={qrUploadRef}
                     type="file"
                     accept="image/*"
+                    aria-labelledby="poster-qr-image-label"
                     onChange={handleQrImageUpload}
                     className="hidden"
                   />
@@ -864,6 +923,7 @@ export default function GivingStation() {
                     <button
                       type="button"
                       onClick={() => qrUploadRef.current?.click()}
+                      aria-describedby="poster-qr-image-label"
                       className="flex-1 py-2.5 px-3 rounded-xl border border-dashed border-brand bg-paper hover:bg-paper-2 text-brand font-bold flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <ImageIcon className="w-4 h-4" />
@@ -887,10 +947,14 @@ export default function GivingStation() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-bold text-ink-2 block">
+                    <label
+                      htmlFor="poster-posterCenterBadge"
+                      className="font-bold text-ink-2 block"
+                    >
                       ป้ายตรงกลาง QR
                     </label>
                     <input
+                      id="poster-posterCenterBadge"
                       type="text"
                       value={posterCenterBadge}
                       onChange={e => setPosterCenterBadge(e.target.value)}
@@ -898,10 +962,14 @@ export default function GivingStation() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-bold text-ink-2 block">
+                    <label
+                      htmlFor="poster-posterQrCaption"
+                      className="font-bold text-ink-2 block"
+                    >
                       ข้อความใต้กรอบ QR
                     </label>
                     <input
+                      id="poster-posterQrCaption"
                       type="text"
                       value={posterQrCaption}
                       onChange={e => setPosterQrCaption(e.target.value)}
@@ -912,10 +980,14 @@ export default function GivingStation() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-bold text-ink-2 block">
+                    <label
+                      htmlFor="poster-posterFooterWhite"
+                      className="font-bold text-ink-2 block"
+                    >
                       ข้อความท้ายป้าย (ขาว)
                     </label>
                     <input
+                      id="poster-posterFooterWhite"
                       type="text"
                       value={posterFooterWhite}
                       onChange={e => setPosterFooterWhite(e.target.value)}
@@ -923,10 +995,14 @@ export default function GivingStation() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-bold text-ink-2 block">
+                    <label
+                      htmlFor="poster-posterFooterOrange"
+                      className="font-bold text-ink-2 block"
+                    >
                       ข้อความท้ายป้าย (ส้ม)
                     </label>
                     <input
+                      id="poster-posterFooterOrange"
                       type="text"
                       value={posterFooterOrange}
                       onChange={e => setPosterFooterOrange(e.target.value)}
@@ -936,10 +1012,14 @@ export default function GivingStation() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-ink-2 block">
+                  <label
+                    htmlFor="poster-posterFooterSub"
+                    className="font-bold text-ink-2 block"
+                  >
                     คำอธิบายบรรทัดล่างสุด
                   </label>
                   <input
+                    id="poster-posterFooterSub"
                     type="text"
                     value={posterFooterSub}
                     onChange={e => setPosterFooterSub(e.target.value)}

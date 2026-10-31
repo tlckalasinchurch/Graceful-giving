@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { formatBaht, THAI_LOCALE } from "@/lib/format";
+import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
@@ -406,20 +407,19 @@ export default function GivingInbox() {
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    input.value = "";
     if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("กรุณาเลือกไฟล์รูปภาพเท่านั้น (JPG, PNG, WEBP)");
-      return;
+    try {
+      // Same check and shrinking as the giving station.
+      setUploadPreview(await prepareSlipImage(file));
+    } catch (err) {
+      toast.error(
+        err instanceof SlipFileError ? err.message : "แนบรูปสลิปไม่สำเร็จ"
+      );
     }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setUploadPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleUploadSubmit = () => {
@@ -1308,7 +1308,7 @@ export default function GivingInbox() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                onChange={handleFileChange}
+                onChange={e => void handleFileChange(e)}
                 className="hidden"
               />
 

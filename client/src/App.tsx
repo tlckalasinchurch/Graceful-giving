@@ -224,7 +224,6 @@ function Router() {
       <Route path="/offerings" component={Offerings} />
       <Route path="/offerings/new" component={NewOffering} />
       <Route path="/giving/station" component={GivingStation} />
-      <Route path="/giving-station" component={GivingStation} />
 
       {/* LINE Giving Inbox */}
       <Route path="/giving/inbox">
