@@ -78,11 +78,22 @@ const PRESET_CHOICES: Record<OfferingCategory, number[]> = {
   special: [100, 300, 500, 1000],
 };
 
+/** The route component at /giving/station. */
 export default function GivingStation() {
+  return <GivingStationView />;
+}
+
+/** The donor flow in the plain frame, for any role. Used by /give. */
+export function PlainGivingStation() {
+  return <GivingStationView plain />;
+}
+
+function GivingStationView({ plain = false }: { plain?: boolean }) {
   const [, setLocation] = useLocation();
   const { user, logout } = useAuth();
-  // An ordinary member sees only the donor flow, in a plain frame.
-  const stationOnly = isStationOnlyUser(user);
+  // An ordinary member, or anyone on /give, sees only the donor flow, in a
+  // plain frame.
+  const stationOnly = plain || isStationOnlyUser(user);
   const utils = trpc.useUtils();
 
   const [activeTabState, setActiveTab] = useState<StationTab>("flow");

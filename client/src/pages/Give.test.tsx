@@ -15,10 +15,7 @@ vi.mock("@/lib/trpc", () => ({
   trpc: { auth: { status: { useQuery: () => ({ data: status }) } } },
 }));
 vi.mock("./GivingStation", () => ({
-  default: () => <div data-testid="station" />,
-}));
-vi.mock("wouter", () => ({
-  Redirect: ({ to }: { to: string }) => <div data-testid="redirect">{to}</div>,
+  PlainGivingStation: () => <div data-testid="station" />,
 }));
 
 import Give from "./Give";
@@ -45,10 +42,10 @@ describe("Give (the public giving link)", () => {
     expect(screen.getByTestId("station")).toBeTruthy();
   });
 
-  it("sends staff to the giving page inside the full app", () => {
+  it("shows staff the same plain giving page, not the full app", () => {
     auth.user = { role: "user", churchRole: "TREASURER", roles: ["TREASURER"] };
     render(<Give />);
-    expect(screen.getByTestId("redirect").textContent).toBe("/giving/station");
+    expect(screen.getByTestId("station")).toBeTruthy();
   });
 
   it("offers no sign-in to a disabled account", () => {
