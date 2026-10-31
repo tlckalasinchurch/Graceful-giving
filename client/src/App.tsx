@@ -163,8 +163,8 @@ function RoleGuard({
   if (!user || !canAccess(user)) {
     return (
       <div className="min-h-screen bg-paper flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
+        <div className="max-w-md w-full bg-surface rounded-3xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-rose-500/15 border-2 border-rose-500/30 mx-auto flex items-center justify-center text-rose-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-8 h-8"

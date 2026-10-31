@@ -112,7 +112,7 @@ export function DeductionsTab({
               }
             );
           }}
-          className="rounded-2xl border border-line bg-white p-5 shadow-sm md:p-6"
+          className="rounded-2xl border border-line bg-surface p-5 shadow-sm md:p-6"
         >
           <h2 className="mb-4 font-bold text-foreground">
             บันทึกรายการหักเบิก
@@ -207,7 +207,7 @@ export function DeductionsTab({
         </form>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
         <div className="flex items-center justify-between border-b border-line p-4">
           <h2 className="font-bold text-foreground">
             รายการหักเบิก ({deductions.length})
@@ -246,7 +246,7 @@ export function DeductionsTab({
                           void handleRemoveDeduction(deduction)
                         }
                         disabled={removeDeduction.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-[#FDECEA] disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-[hsl(6_45%_13%)] disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -265,7 +265,7 @@ export function DeductionsTab({
                           approveDeduction.mutate({ id: deduction.id })
                         }
                         disabled={approveDeduction.isPending}
-                        className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
+                        className="min-h-11 rounded-xl border border-[hsl(133_32%_24%)] bg-[hsl(132_38%_13%)] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
                       >
                         อนุมัติรายการนี้
                       </button>

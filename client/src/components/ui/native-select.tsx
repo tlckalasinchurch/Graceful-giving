@@ -36,7 +36,7 @@ export const NativeSelect = React.forwardRef<
       aria-invalid={invalid || undefined}
       className={cn(
         "min-h-11 w-full appearance-none rounded-2xl border border-line",
-        "bg-white py-2.5 pl-4 pr-10 text-sm text-ink",
+        "bg-surface py-2.5 pl-4 pr-10 text-sm text-ink",
         "focus:border-brand focus:outline-none",
         "disabled:cursor-not-allowed disabled:opacity-50",
         invalid && "border-danger",

@@ -46,22 +46,22 @@ export default function Login() {
   const error = errorKey ? (ERRORS[errorKey] ?? ERRORS.failed) : null;
 
   return (
-    <div className="grid min-h-dvh bg-ground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <div className="grid min-h-dvh bg-[#050506] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       {/* Editorial panel: the verse the ministry stands on. Desktop only. */}
-      <aside className="relative hidden flex-col justify-between bg-ink p-12 text-surface lg:flex xl:p-16">
+      <aside className="relative hidden flex-col justify-between bg-[#0E0E10] border-r border-white/[0.07] p-12 text-white lg:flex xl:p-16">
         <div className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-surface text-ink">
+          <span className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black">
             <Sprout className="size-5" aria-hidden="true" />
           </span>
-          <span className="display text-xl">Grace Ledger</span>
+          <span className="display text-xl font-black">Grace Ledger</span>
         </div>
         <figure className="max-w-md space-y-6">
-          <p className="eyebrow !text-surface/60">2 โครินธ์ 9:7</p>
-          <blockquote className="display text-4xl leading-snug xl:text-5xl">
+          <p className="eyebrow !text-[#00F58A]">2 โครินธ์ 9:7</p>
+          <blockquote className="display text-4xl font-black leading-tight xl:text-6xl">
             “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
           </blockquote>
         </figure>
-        <p className="text-sm text-surface/60">
+        <p className="text-sm text-white/60">
           ระบบบัญชีการเงินคริสตจักร · เพื่อพันธกิจของพระเจ้า
         </p>
       </aside>
@@ -70,26 +70,26 @@ export default function Login() {
         <div className="w-full max-w-sm">
           <div className="mb-10 space-y-3">
             <div className="flex items-center gap-3 lg:hidden">
-              <span className="flex size-10 items-center justify-center rounded-xl bg-ink text-surface">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black">
                 <Sprout className="size-5" aria-hidden="true" />
               </span>
-              <span className="display text-xl text-ink">Grace Ledger</span>
+              <span className="display text-xl font-black text-white">Grace Ledger</span>
             </div>
-            <p className="eyebrow">Sign in</p>
-            <h1 className="display text-4xl text-ink">เข้าสู่ระบบ</h1>
-            <p className="text-sm text-ink-2">
+            <p className="eyebrow !text-[#00F58A]">Sign in</p>
+            <h1 className="display text-5xl font-black text-white">เข้าสู่ระบบ</h1>
+            <p className="text-sm text-white/60">
               ใช้บัญชี LINE ของคุณ ผู้ดูแลระบบจะอนุมัติสิทธิ์ให้ในครั้งแรก
             </p>
           </div>
 
           {state === "pending" || state === "disabled" ? (
-            <div className="space-y-4 rounded-xl border border-line bg-surface p-6">
-              <p className="display text-xl text-ink">
+            <div className="space-y-4 rounded-[28px] border border-white/[0.07] bg-[#0E0E10] p-6">
+              <p className="display text-xl font-black text-white">
                 {state === "pending"
                   ? "รอผู้ดูแลระบบอนุมัติ"
                   : "บัญชีนี้ถูกปิดการใช้งาน"}
               </p>
-              <p className="text-sm text-ink-2">
+              <p className="text-sm text-white/60">
                 {state === "pending"
                   ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน โปรดแจ้งผู้ดูแลระบบของคริสตจักรให้อนุมัติบัญชีของคุณ แล้วกลับมาเปิดหน้านี้อีกครั้ง`
                   : "โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
@@ -97,7 +97,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => void logout()}
-                className="w-full rounded-lg border border-field px-4 py-3 text-sm font-medium text-ink hover:bg-paper-2"
+                className="w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-bold text-white hover:bg-white/10"
               >
                 ออกจากระบบ
               </button>
@@ -106,17 +106,17 @@ export default function Login() {
             <div className="space-y-4">
               <a
                 href="/api/auth/line/login"
-                className="flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-[#06C755] px-4 text-sm font-semibold text-white hover:brightness-95"
+                className="flex min-h-16 w-full items-center justify-center gap-3 rounded-[28px] bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] px-4 text-lg font-black text-black shadow-[0_14px_36px_-10px_rgba(0,245,138,0.45)] hover:brightness-110 active:scale-[0.98] transition-all"
               >
                 <LineMark />
                 เข้าสู่ระบบด้วย LINE
               </a>
               {error && (
-                <p role="alert" className="text-sm text-danger">
+                <p role="alert" className="text-sm text-rose-400">
                   {error}
                 </p>
               )}
-              <p className="border-t border-line pt-4 text-xs text-ink-3">
+              <p className="border-t border-white/10 pt-4 text-xs text-white/50">
                 ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
                 โปรดติดต่อผู้ดูแลระบบของคริสตจักร
               </p>

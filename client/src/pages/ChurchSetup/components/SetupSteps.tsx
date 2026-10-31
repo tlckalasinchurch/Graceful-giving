@@ -47,7 +47,7 @@ export function TextField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/20 disabled:opacity-60"
+        className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/20 disabled:opacity-60"
       />
     </div>
   );
@@ -76,7 +76,7 @@ export function Step1({
           onChange={e => set({ address: e.target.value })}
           placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
           rows={3}
-          className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
+          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -141,11 +141,11 @@ export function Step2({
           onChange={e => set({ motto: e.target.value })}
           placeholder="เช่น 2 โครินธ์ 9:7 · ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก"
           rows={2}
-          className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
+          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
         />
       </div>
-      <div className="rounded-2xl border border-[#dceeff] bg-[#eef7ff] p-4">
-        <p className="text-xs font-bold text-[#336a8c]">
+      <div className="rounded-2xl border border-[hsl(209_40%_24%)] bg-[hsl(208_45%_13%)] p-4">
+        <p className="text-xs font-bold text-[hsl(203_47%_72%)]">
           💡 เกี่ยวกับบทบาทผู้ใช้
         </p>
         <p className="mt-1 text-xs text-[#477caa]">
@@ -205,9 +205,9 @@ export function Step3({
         onChange={v => set({ bankAccountName: v })}
         placeholder="คริสตจักร..."
       />
-      <div className="rounded-2xl border border-[#e5f3da] bg-[#f1fae9] p-4">
-        <p className="text-xs font-bold text-[#4a7c2e]">🔒 ความปลอดภัย</p>
-        <p className="mt-1 text-xs text-[#3F9156]">
+      <div className="rounded-2xl border border-[hsl(94_40%_24%)] bg-[hsl(92_45%_13%)] p-4">
+        <p className="text-xs font-bold text-[hsl(98_46%_72%)]">🔒 ความปลอดภัย</p>
+        <p className="mt-1 text-xs text-[hsl(137_39%_72%)]">
           ข้อมูลบัญชีธนาคารจะถูกเก็บเป็นความลับ — เข้าถึงได้เฉพาะ TREASURER และ
           SUPER_ADMIN เท่านั้น
         </p>
@@ -246,7 +246,7 @@ export function Step4({
               className={`flex min-h-[48px] items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${
                 selected
                   ? "border-brand-ink bg-paper-2 text-brand-ink"
-                  : "border-line bg-white text-ink-2 hover:bg-paper"
+                  : "border-line bg-surface text-ink-2 hover:bg-paper"
               }`}
             >
               <span
@@ -283,7 +283,7 @@ export function Step5({ data }: { data: SetupData }) {
       {data.funds.map((fund, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3.5"
+          className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5"
         >
           <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-paper-2 text-brand-ink">
             <WalletCards className="size-5" />
@@ -292,10 +292,10 @@ export function Step5({ data }: { data: SetupData }) {
             <p className="text-sm font-bold text-ink-2">{fund.name}</p>
             <p className="text-xs text-ink-2">{fund.description}</p>
           </div>
-          <Check className="size-4 shrink-0 text-[#3F9156]" />
+          <Check className="size-4 shrink-0 text-[hsl(137_39%_72%)]" />
         </div>
       ))}
-      <div className="rounded-2xl border border-paper-2 bg-[#fffde9] p-4">
+      <div className="rounded-2xl border border-paper-2 bg-[hsl(55_45%_13%)] p-4">
         <p className="text-xs font-bold text-brand">
           💡 สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
@@ -342,10 +342,10 @@ export function Step6({
           onChange={e => set({ budgetYear: Number(e.target.value) })}
           min={2000}
           max={2100}
-          className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink-2 focus:border-brand-ink focus:outline-none"
+          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 focus:border-brand-ink focus:outline-none"
         />
       </div>
-      <div className="rounded-2xl border border-paper-2 bg-[#fffde9] p-4 space-y-2">
+      <div className="rounded-2xl border border-paper-2 bg-[hsl(55_45%_13%)] p-4 space-y-2">
         <p className="text-xs font-bold text-brand">
           📅 ตัวอย่างรอบปีงบประมาณ
         </p>
@@ -366,19 +366,19 @@ export function Step7() {
       role: "SUPER_ADMIN",
       label: "ผู้ดูแลระบบสูงสุด",
       desc: "เข้าถึงได้ทุกอย่าง รวมถึงข้อมูลผู้ถวายและการตั้งค่า",
-      color: "bg-[#ffe1dc] text-[#c15b4c]",
+      color: "bg-[hsl(9_45%_13%)] text-[#c15b4c]",
     },
     {
       role: "PASTOR",
       label: "ศิษยาภิบาล / ผู้นำ",
       desc: "ดูรายงานการเงิน อนุมัติคำขอ แต่ไม่เห็นชื่อผู้ถวาย",
-      color: "bg-[#dceeff] text-[#4a83b7]",
+      color: "bg-[hsl(209_45%_13%)] text-[#4a83b7]",
     },
     {
       role: "TREASURER",
       label: "เหรัญญิก / ผู้ดูแลการเงิน",
       desc: "บันทึกและดูรายการทั้งหมด รวมถึงชื่อผู้ถวาย",
-      color: "bg-[#e5f3da] text-[#3F9156]",
+      color: "bg-[hsl(94_45%_13%)] text-[hsl(137_39%_72%)]",
     },
     {
       role: "MEMBER",
@@ -395,7 +395,7 @@ export function Step7() {
       {roles.map(({ role, label, desc, color }) => (
         <div
           key={role}
-          className="flex items-start gap-3 rounded-2xl border border-line bg-white p-3.5"
+          className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-3.5"
         >
           <span
             className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-bold ${color}`}
@@ -408,9 +408,9 @@ export function Step7() {
           </div>
         </div>
       ))}
-      <div className="rounded-2xl border border-[#ddf0e6] bg-[#eafaf1] p-4">
-        <p className="text-xs font-bold text-[#2c7b4c]">🔐 การกำหนดสิทธิ์</p>
-        <p className="mt-1 text-xs text-[#336a4f]">
+      <div className="rounded-2xl border border-[hsl(148_39%_24%)] bg-[hsl(146_45%_13%)] p-4">
+        <p className="text-xs font-bold text-[hsl(144_47%_72%)]">🔐 การกำหนดสิทธิ์</p>
+        <p className="mt-1 text-xs text-[hsl(151_35%_72%)]">
           ไปที่ เมนู → โปรไฟล์ผู้ใช้ → กำหนดบทบาท
           หลังจากตั้งค่าคริสตจักรเสร็จแล้ว
         </p>
@@ -437,7 +437,7 @@ export function Step8({ data }: { data: SetupData }) {
   ];
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-line bg-white overflow-hidden">
+      <div className="rounded-2xl border border-line bg-surface overflow-hidden">
         {summaryItems.map(({ label, value }, i) => (
           <div
             key={label}
@@ -452,10 +452,10 @@ export function Step8({ data }: { data: SetupData }) {
           </div>
         ))}
       </div>
-      <div className="rounded-2xl border border-[#d3eed8] bg-[#eefaf0] p-4 text-center">
-        <Heart className="mx-auto mb-2 size-8 text-[#2c7b4c]" fill="#2c7b4c" />
-        <p className="text-sm font-bold text-[#1f623a]">พร้อมเริ่มต้นใช้งาน!</p>
-        <p className="mt-1 text-xs text-[#358253]">
+      <div className="rounded-2xl border border-[hsl(131_40%_24%)] bg-[hsl(130_45%_13%)] p-4 text-center">
+        <Heart className="mx-auto mb-2 size-8 text-[hsl(144_47%_72%)]" fill="#2c7b4c" />
+        <p className="text-sm font-bold text-[hsl(144_52%_72%)]">พร้อมเริ่มต้นใช้งาน!</p>
+        <p className="mt-1 text-xs text-[hsl(143_42%_72%)]">
           ระบบจะบันทึกข้อมูลและนำคุณไปยังหน้าแดชบอร์ด
         </p>
       </div>

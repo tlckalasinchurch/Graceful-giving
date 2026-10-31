@@ -140,7 +140,7 @@ export default function ChurchSetup() {
           <button
             onClick={skipSetup}
             aria-label="กลับหน้าหลัก"
-            className="absolute right-5 top-5 grid size-9 place-items-center rounded-full bg-white/70 text-ink-3 hover:bg-white transition"
+            className="absolute right-5 top-5 grid size-9 place-items-center rounded-full bg-white/10 text-ink-3 hover:bg-surface transition"
           >
             <X className="size-4" />
           </button>
@@ -197,7 +197,7 @@ export default function ChurchSetup() {
 
         {/* Step Card */}
         <div className="px-4 pt-4 sm:px-6">
-          <div className="rounded-2xl border border-line bg-white px-5 py-6 shadow-[0_8px_24px_rgba(94,70,42,0.06)] sm:px-7">
+          <div className="rounded-2xl border border-line bg-surface px-5 py-6 shadow-[0_8px_24px_rgba(94,70,42,0.06)] sm:px-7">
             {/* Step Header */}
             <div className="mb-5 flex items-center gap-3">
               <span
@@ -232,7 +232,7 @@ export default function ChurchSetup() {
 
         {/* All Steps Overview (collapsed) */}
         <div className="px-4 pt-3 sm:px-6">
-          <details className="group rounded-2xl border border-line bg-white overflow-hidden">
+          <details className="group rounded-2xl border border-line bg-surface overflow-hidden">
             <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-xs font-bold text-ink-2 select-none">
               <span className="flex items-center gap-2">
                 <Settings2 className="size-4 text-brand-ink" />
@@ -273,7 +273,7 @@ export default function ChurchSetup() {
                       <p className="text-[10px] text-ink-3">{s.subtitle}</p>
                     </div>
                     {done && (
-                      <Check className="ml-auto size-3.5 shrink-0 text-[#3F9156]" />
+                      <Check className="ml-auto size-3.5 shrink-0 text-[hsl(137_39%_72%)]" />
                     )}
                   </button>
                 );
@@ -290,7 +290,7 @@ export default function ChurchSetup() {
             {step > 1 && (
               <button
                 onClick={back}
-                className="min-h-[48px] flex-1 rounded-2xl border border-line bg-white text-sm font-bold text-ink-2 hover:bg-paper-2 active:scale-[0.98] transition"
+                className="min-h-[48px] flex-1 rounded-2xl border border-line bg-surface text-sm font-bold text-ink-2 hover:bg-paper-2 active:scale-[0.98] transition"
               >
                 ← ย้อนกลับ
               </button>

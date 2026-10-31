@@ -245,7 +245,7 @@ export default function TransactionDetail() {
                 if (isEditing && !confirmDiscardChanges(isDirty)) return;
                 setIsEditing(value => !value);
               }}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-[#E4F3E7] text-income text-xs font-bold border border-[#C2E3C9] flex items-center gap-1.5"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-[hsl(132_38%_13%)] text-income text-xs font-bold border border-[hsl(133_37%_24%)] flex items-center gap-1.5"
             >
               <Pencil className="w-4 h-4" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
@@ -268,7 +268,7 @@ export default function TransactionDetail() {
                 if (isExpense) deleteExpense.mutate({ id: recordId });
               }}
               disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="min-h-11 px-3.5 py-2 rounded-2xl bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              className="min-h-11 px-3.5 py-2 rounded-2xl bg-rose-500/10 text-rose-300 text-xs font-bold border border-rose-500/30 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
             >
               <Ban className="w-4 h-4" />
               <span>ยกเลิกรายการ</span>
@@ -294,7 +294,7 @@ export default function TransactionDetail() {
           onAction={() => setLocation("/transactions")}
         />
       ) : (
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-line card-elevation-sm space-y-6">
+        <div className="bg-surface rounded-2xl p-6 sm:p-8 border border-line card-elevation-sm space-y-6">
           {isEditing && (
             <form
               onSubmit={submitEdit}
@@ -383,7 +383,7 @@ export default function TransactionDetail() {
             <Detail label="เลขอ้างอิง" value={transaction.refCode} />
           </div>
           {transaction.notes && (
-            <div className="rounded-2xl bg-white border border-line/70 p-4">
+            <div className="rounded-2xl bg-surface border border-line/70 p-4">
               <p className="text-xs text-ink-3">หมายเหตุ</p>
               <p className="text-sm text-ink mt-1">{transaction.notes}</p>
             </div>
@@ -391,7 +391,7 @@ export default function TransactionDetail() {
 
           {/* Receipt Attachment from Supabase Storage */}
           {transaction.receiptUrl && (
-            <div className="rounded-2xl bg-white border border-line/70 p-5 space-y-3">
+            <div className="rounded-2xl bg-surface border border-line/70 p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-ink-2 flex items-center gap-1.5">
                   <Paperclip className="w-4 h-4 text-brand" />
@@ -399,7 +399,7 @@ export default function TransactionDetail() {
                 </span>
                 <button
                   onClick={() => setShowReceiptModal(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-200 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-300 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/15 px-3 py-1.5 rounded-xl border border-emerald-500/30 transition-colors"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>เปิดดูหลักฐานเต็มจอ</span>
@@ -408,12 +408,12 @@ export default function TransactionDetail() {
 
               <div
                 onClick={() => setShowReceiptModal(true)}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity shadow-xs group relative"
+                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-line bg-paper flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity shadow-xs group relative"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">
                     <FileText className="w-12 h-12 text-brand mx-auto mb-2" />
-                    <span className="text-xs font-bold text-stone-700">
+                    <span className="text-xs font-bold text-ink-2">
                       เอกสารแนบ PDF
                     </span>
                     <p className="text-[10px] text-stone-400 mt-1">
@@ -485,7 +485,7 @@ function Detail({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="bg-white p-4 rounded-2xl border border-line/70 space-y-1">
+    <div className="bg-surface p-4 rounded-2xl border border-line/70 space-y-1">
       <span className="text-xs text-ink-3 block">{label}</span>
       <span className="text-sm font-bold text-ink-2 flex items-center gap-1.5">
         {icon}

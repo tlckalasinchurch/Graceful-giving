@@ -7,7 +7,7 @@ describe("HeroSection", () => {
     render(<HeroSection />);
 
     const section = screen.getByRole("region", {
-      name: "Grace-giving ส่วนต้อนรับ",
+      name: "Grace Giving ส่วนต้อนรับ",
     });
     expect(section).toBeInTheDocument();
   });
@@ -16,7 +16,7 @@ describe("HeroSection", () => {
     render(<HeroSection />);
 
     expect(screen.getByText("Grace")).toBeInTheDocument();
-    expect(screen.getByText("Ledger")).toBeInTheDocument();
+    expect(screen.getByText("Giving")).toBeInTheDocument();
     expect(
       screen.getByText("การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า")
     ).toBeInTheDocument();

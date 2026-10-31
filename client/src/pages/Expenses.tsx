@@ -138,21 +138,21 @@ export default function Expenses() {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "utilities":
-        return { icon: Zap, color: "bg-amber-100 text-amber-800" };
+        return { icon: Zap, color: "bg-amber-500/15 text-amber-300" };
       case "ministry":
-        return { icon: Users, color: "bg-[#FDECEA] text-[#E06250]" };
+        return { icon: Users, color: "bg-[hsl(6_45%_13%)] text-[#E06250]" };
       case "pastoral":
-        return { icon: Cross, color: "bg-emerald-100 text-emerald-800" };
+        return { icon: Cross, color: "bg-emerald-500/15 text-emerald-300" };
       case "admin":
         return { icon: Receipt, color: "bg-paper text-ink-2" };
       case "building":
-        return { icon: Building, color: "bg-orange-100 text-orange-800" };
+        return { icon: Building, color: "bg-orange-500/15 text-orange-300" };
       case "worship":
         return { icon: GraduationCap, color: "bg-paper-2 text-brand-ink" };
       case "welfare":
-        return { icon: HeartHandshake, color: "bg-rose-100 text-rose-800" };
+        return { icon: HeartHandshake, color: "bg-rose-500/15 text-rose-300" };
       default:
-        return { icon: Receipt, color: "bg-stone-100 text-stone-700" };
+        return { icon: Receipt, color: "bg-paper text-ink-2" };
     }
   };
 
@@ -185,7 +185,7 @@ export default function Expenses() {
         <>
           <button
             onClick={exportCSV}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 text-sm font-medium text-ink-2 hover:bg-paper-2"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-medium text-ink-2 hover:bg-paper-2"
           >
             <Download className="size-4" />
             ส่งออก CSV
@@ -269,7 +269,7 @@ export default function Expenses() {
             onAction={() => setLocation("/expenses/new")}
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-line bg-white">
+          <div className="overflow-hidden rounded-2xl border border-line bg-surface">
             {/* Desktop Table View */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-sm text-ink">
@@ -368,7 +368,7 @@ export default function Expenses() {
                                     title: e.description,
                                   })
                                 }
-                                className="inline-flex size-10 items-center justify-center rounded-lg text-income hover:bg-[#E4F3E7]"
+                                className="inline-flex size-10 items-center justify-center rounded-lg text-income hover:bg-[hsl(132_38%_13%)]"
                                 title="ดูสลิป/ใบเสร็จ"
                                 aria-label={`ดูสลิปของ ${e.description}`}
                               >
@@ -452,7 +452,7 @@ export default function Expenses() {
                               title: e.description,
                             })
                           }
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-medium"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-medium"
                         >
                           <Paperclip className="w-3 h-3" />
                           <span>ดูสลิป</span>
@@ -460,7 +460,7 @@ export default function Expenses() {
                       )}
                       <button
                         onClick={() => setSelectedVoucher(toVoucher(e))}
-                        className="min-h-11 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-ink-2 border border-stone-200 text-xs font-medium"
+                        className="min-h-11 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-paper text-ink-2 border border-line text-xs font-medium"
                       >
                         <Printer className="w-3 h-3 text-primary" />
                         <span>พิมพ์ใบสำคัญ</span>
@@ -506,7 +506,7 @@ function MetricCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-white p-5">
+    <div className="rounded-2xl border border-line bg-surface p-5">
       <div className="mb-2 flex items-center justify-between text-ink-3">
         <span className="text-sm font-medium">{label}</span>
         <Icon className="size-4" />

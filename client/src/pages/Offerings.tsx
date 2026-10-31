@@ -116,7 +116,7 @@ export default function Offerings() {
         <div className="flex items-center gap-2">
           <button
             onClick={exportCSV}
-            className="px-3.5 py-2 rounded-2xl bg-white border border-line text-ink-2 hover:bg-paper-2/70 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2/70 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
           >
             <Download className="w-3.5 h-3.5" />
             <span>ส่งออก CSV</span>
@@ -139,13 +139,13 @@ export default function Offerings() {
       }
     >
       {/* 1. Header Banner with 3D Offering Box Illustration */}
-      <div className="bg-white rounded-2xl p-5 sm:p-7 border border-line shadow-xs flex flex-col sm:flex-row items-center justify-between gap-5">
+      <div className="bg-surface rounded-2xl p-5 sm:p-7 border border-line shadow-xs flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-2 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 border border-line text-xs font-bold text-ink-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-line text-xs font-bold text-ink-2">
             <Sparkles className="w-3.5 h-3.5 text-brand" />
             <span>ยอดถวายรวมเดือนนี้</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#1F5C33]">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[hsl(140_50%_72%)]">
             <MoneyDisplay amount={totalAmount} type="income" size="xl" />
           </h2>
           <p className="text-xs text-ink-3">
@@ -153,7 +153,7 @@ export default function Offerings() {
           </p>
         </div>
 
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-white p-1.5 border border-line shadow-xs shrink-0">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-surface p-1.5 border border-line shadow-xs shrink-0">
           <Illustration
             src="/illustrations/offering_box.jpg"
             alt="กล่องถวาย"
@@ -165,7 +165,7 @@ export default function Offerings() {
       </div>
 
       {/* 2. Filter Bar */}
-      <div className="bg-white rounded-2xl p-4 md:p-5 border border-line card-elevation-sm">
+      <div className="bg-surface rounded-2xl p-4 md:p-5 border border-line card-elevation-sm">
         <FilterBar
           searchPlaceholder="ค้นหาประเภทถวายหรือกองทุน..."
           searchValue={searchTerm}
@@ -216,7 +216,7 @@ export default function Offerings() {
           onAction={() => setLocation("/offerings/new")}
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-line card-elevation-sm divide-y divide-line/60 overflow-hidden">
+        <div className="bg-surface rounded-2xl border border-line card-elevation-sm divide-y divide-line/60 overflow-hidden">
           {filtered.map(o => (
             <div
               key={o.id}
@@ -224,7 +224,7 @@ export default function Offerings() {
               className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-paper/70 cursor-pointer transition-colors"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-12 h-12 rounded-2xl bg-[#E4F3E7] text-income flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-12 h-12 rounded-2xl bg-[hsl(132_38%_13%)] text-income flex items-center justify-center shrink-0 shadow-2xs">
                   <HandCoins className="w-6 h-6 stroke-[2.2]" />
                 </div>
                 <div className="min-w-0">
@@ -259,7 +259,7 @@ export default function Offerings() {
                       notes: o.notes || undefined,
                     });
                   }}
-                  className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-stone-100 hover:bg-paper-2 hover:border-brand text-ink-2 border border-stone-200 transition-colors shadow-2xs"
+                  className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-paper hover:bg-paper-2 hover:border-brand text-ink-2 border border-line transition-colors shadow-2xs"
                   title="พิมพ์ใบเสร็จเงินถวาย"
                 >
                   <Printer className="w-4 h-4 text-brand" />

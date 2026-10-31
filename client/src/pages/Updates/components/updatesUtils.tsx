@@ -101,7 +101,7 @@ export function downloadICS(event: {
 
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line bg-white/65 px-6 py-12 text-center">
+    <div className="rounded-2xl border border-dashed border-line bg-white/5 px-6 py-12 text-center">
       <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-paper-2 text-brand">
         {type === "news" ? (
           <Megaphone className="size-7" strokeWidth={1.5} />
@@ -126,9 +126,9 @@ export function EmptyPanel({ type }: { type: "news" | "events" }) {
 export function StatusPill({ status }: { status: string }) {
   const styles =
     status === "published"
-      ? "bg-[#e6f4e8] text-[#2c7244]"
+      ? "bg-[hsl(129_39%_13%)] text-[hsl(141_44%_72%)]"
       : status === "cancelled" || status === "archived"
-        ? "bg-[#f9e5e2] text-[#aa4e46]"
+        ? "bg-[hsl(8_45%_13%)] text-[#aa4e46]"
         : "bg-paper-2 text-brand";
   const label =
     status === "published"

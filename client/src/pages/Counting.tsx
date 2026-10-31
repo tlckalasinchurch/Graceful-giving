@@ -498,7 +498,7 @@ export default function Counting() {
                           title="ลบรอบนับเงินค้างนี้อย่างถาวร"
                           onClick={() => handleDeleteSession(session)}
                           disabled={deleteSession.isPending}
-                          className="min-h-10 inline-flex items-center gap-1 rounded-2xl bg-tile-rose px-3.5 py-2 text-xs font-bold text-tile-rose-ink hover:bg-rose-200/70 transition-colors disabled:opacity-50"
+                          className="min-h-10 inline-flex items-center gap-1 rounded-2xl bg-tile-rose px-3.5 py-2 text-xs font-bold text-tile-rose-ink hover:bg-rose-500/25 transition-colors disabled:opacity-50"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>ลบรอบค้าง</span>

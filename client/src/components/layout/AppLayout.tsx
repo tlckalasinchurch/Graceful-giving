@@ -174,7 +174,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         <aside className="hidden lg:flex print:hidden! w-64 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface/90 backdrop-blur-xl border-r border-line/80 px-4 py-5 z-30">
           <GuardedLink
             href="/"
-            aria-label="Grace Ledger หน้าหลัก"
+            aria-label="Grace Giving หน้าหลัก"
             className="flex items-center gap-3 rounded-2xl px-1.5 py-1.5 hover:bg-paper/60 transition-colors"
           >
             <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-white shadow-md shadow-brand/25">

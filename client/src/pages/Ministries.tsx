@@ -100,7 +100,7 @@ export default function Ministries() {
         {canManage && showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-line bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-line bg-surface p-6 shadow-sm"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-ink">เพิ่มฝ่ายงานใหม่</h2>
@@ -186,15 +186,15 @@ export default function Ministries() {
                 key={ministry.id}
                 type="button"
                 onClick={() => setLocation(`/ministries/${ministry.id}`)}
-                className="rounded-2xl border border-line bg-white p-5 text-left shadow-sm hover:bg-paper"
+                className="rounded-2xl border border-line bg-surface p-5 text-left shadow-sm hover:bg-paper"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-ink">{ministry.name}</h2>
                   <span
                     className={`rounded-full px-2 py-1 text-[11px] ${
                       ministry.status === "active"
-                        ? "bg-[#E4F3E7] text-ink"
-                        : "bg-stone-100 text-stone-600"
+                        ? "bg-[hsl(132_38%_13%)] text-ink"
+                        : "bg-paper text-ink-2"
                     }`}
                   >
                     {ministry.status === "active" ? "ดำเนินการ" : "พักงาน"}

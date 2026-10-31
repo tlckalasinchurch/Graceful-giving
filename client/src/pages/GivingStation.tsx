@@ -528,7 +528,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         className={`rounded-2xl p-2 border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden ${
           stationOnly
             ? "bg-white/5 border-white/10"
-            : "bg-white border-line shadow-2xs"
+            : "bg-surface border-line shadow-2xs"
         }`}
       >
         {!stationOnly && (
@@ -592,9 +592,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             TAB 1: INTERACTIVE MOBILE FLOW (Adapted from JamBox Screens 1, 2, 3)
            ══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "flow" && (
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md lg:max-w-5xl mx-auto">
           {/* Dark Mobile Station Shell */}
-          <div className="rounded-[36px] bg-gradient-to-b from-[#231914] via-[#140F0D] to-[#0B0D13] p-5 sm:p-7 text-white shadow-2xl border border-[#3B2A20] space-y-6 relative overflow-hidden">
+          <div className="rounded-[36px] bg-[#050506] p-5 sm:p-8 text-white border border-white/[0.06] space-y-6 relative overflow-hidden">
             {/* Top Bar: TH Language Pill & Step Back Button */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
@@ -630,8 +630,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
             {/* ── STEP 1: Landing / Status / Give Now (Adapted from Image 2) ── */}
             {shownStep === 1 && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="text-center -mt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 animate-in fade-in duration-200">
+                <div className="lg:col-span-6 text-center -mt-4">
                   <StationCubeLogo
                     brandTitle="GraceBox"
                     subtitle="AUTOMATED CHURCH GIVING STATION"
@@ -639,9 +639,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 </div>
 
                 {/* Station Breadcrumb */}
-                <div className="text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
+                <div className="lg:col-span-6 text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
                   GRACEBOX STATION{" "}
-                  <span className="text-stone-500 mx-1">/</span>{" "}
+                  <span className="text-ink-3 mx-1">/</span>{" "}
                   {churchQuery.data?.name || "SANCTUARY SPACE"}
                 </div>
 
@@ -651,6 +651,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   avatarUrl={user?.avatarUrl}
                   metricLabel="สถานะผู้ถวาย"
                   metricValue={getChurchRoleInfo(user?.churchRole).label}
+                  className="lg:col-span-3"
                 />
 
                 {/* Room / Station Availability Card */}
@@ -665,10 +666,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       : "โหลดข้อมูลคริสตจักรไม่สำเร็จ กรุณาลองใหม่ภายหลัง"
                   }
                   isAvailable={stationReady}
+                  className="lg:col-span-3"
                 />
 
                 {/* Big Orange Gradient CTA (Jam Now -> Give Now) */}
                 <StationHeroCTA
+                  className="lg:col-span-6 pt-2"
                   eyebrow="เริ่มใช้งาน"
                   headline="พร้อมถวายทรัพย์เลยไหม?"
                   buttonTitle="Give Now"
@@ -683,17 +686,17 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   }
                 />
 
-                <MySlipHistory
+                <div className="lg:col-span-6"><MySlipHistory
                   items={mySlipsQuery.data}
                   loading={mySlipsQuery.isLoading}
-                />
+                /></div>
               </div>
             )}
 
             {/* ── STEP 2: Countdown + Offering Packages (Adapted from Image 3) ── */}
             {shownStep === 2 && (
-              <div className="space-y-4 animate-in fade-in duration-200">
-                <div className="text-base font-extrabold text-white tracking-tight px-1">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                <div className="lg:col-span-2 text-xl font-black text-white tracking-tight px-1">
                   GraceBox Station · {churchQuery.data?.name || "Sanctuary"}
                 </div>
 
@@ -705,7 +708,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 />
 
                 {/* Fund Selector & Custom Amount Box */}
-                <div className="rounded-3xl bg-[#0D1017] border border-white/10 p-4 space-y-3">
+                <div className="lg:col-span-2 rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-5 space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label
@@ -748,14 +751,14 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         placeholder="ระบุจำนวนเงินบาท..."
                         value={customAmount}
                         onChange={e => setCustomAmount(e.target.value)}
-                        className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                        className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white placeholder:text-ink-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Offering Package Cards (1 hr / 320 THB style) */}
-                <div className="space-y-3.5 max-h-[540px] overflow-y-auto pr-1">
+                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {OFFERING_CATEGORIES.map(cat => {
                     const currentCatAmount =
                       resolveAmount(
@@ -793,7 +796,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             {shownStep === 3 && (
               <div className="space-y-5 animate-in fade-in duration-200">
                 {/* Summary Pill */}
-                <div className="rounded-3xl bg-[#1A1412] border border-white/12 p-5 space-y-3">
+                <div className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-5 space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold text-[#FDBA74]">
                     <span>สรุปรายการถวายทรัพย์</span>
                     <button
@@ -816,7 +819,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           "กองทุนหลักคริสตจักร"}
                       </div>
                     </div>
-                    <div className="text-2xl font-black text-[#34D399] tabular-nums">
+                    <div className="text-4xl font-black text-[#00F58A] tabular-nums">
                       {effectiveAmount === null
                         ? "—"
                         : `${effectiveAmount.toLocaleString()} THB`}
@@ -827,7 +830,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 {/* Has the donor paid yet? */}
                 <section
                   aria-label="สถานะการโอนเงิน"
-                  className="rounded-3xl bg-[#1A1412] border border-white/12 p-4 space-y-3"
+                  className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 space-y-3"
                 >
                   <h3 className="text-xs font-bold text-[#FDBA74]">
                     โอนเงินแล้วหรือยัง?
@@ -866,7 +869,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     {payee ? (
                       <section
                         aria-label="บัญชีรับถวาย"
-                        className="rounded-3xl bg-[#1A1412] border border-white/12 p-4 flex items-center justify-between gap-3 text-xs"
+                        className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 flex items-center justify-between gap-3 text-xs"
                       >
                         <div className="space-y-0.5 min-w-0">
                           <div className="text-stone-400">
@@ -895,7 +898,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     ) : (
                       !paymentQr &&
                       !payeeQuery.isLoading && (
-                        <p className="rounded-3xl bg-[#1A1412] border border-white/12 p-4 text-xs text-stone-400 leading-relaxed">
+                        <p className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 text-xs text-stone-400 leading-relaxed">
                           คริสตจักรยังไม่ได้ตั้งค่าบัญชีรับถวายในระบบ
                           กรุณาสอบถามเจ้าหน้าที่ แล้วกลับมาแนบสลิป
                         </p>
@@ -1039,15 +1042,15 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   outcome.tone === "success"
                     ? "bg-[#10B981]/20 border-[#34D399] text-[#34D399]"
                     : outcome.tone === "warning"
-                      ? "bg-amber-500/20 border-amber-400 text-amber-300"
-                      : "bg-rose-500/20 border-rose-400 text-rose-300";
+                      ? "bg-amber-500/20 border-amber-500/30 text-amber-300"
+                      : "bg-rose-500/20 border-rose-500/30 text-rose-300";
                 const Icon =
                   outcome.tone === "success" ? CheckCircle2 : AlertTriangle;
                 const slipAmount = outcome.slipAmount;
                 return (
                   <div
                     role={outcome.tone === "error" ? "alert" : "status"}
-                    className="rounded-[32px] bg-[#1C1613] border border-[#3E2E25] p-7 text-center space-y-5 animate-in zoom-in-95 duration-200"
+                    className="rounded-[32px] bg-[#0E0E10] border border-white/[0.07] p-7 text-center space-y-5 animate-in zoom-in-95 duration-200"
                   >
                     <div
                       className={`w-16 h-16 rounded-full border-2 mx-auto flex items-center justify-center ${toneStyle}`}
@@ -1071,7 +1074,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                             <button
                               type="button"
                               onClick={() => retryWithSlipAmount(slipAmount)}
-                              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F97316] to-[#EA580C] text-white font-extrabold text-sm shadow-md cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
+                              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black font-black text-base cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
                             >
                               ใช้ยอด {slipAmount.toLocaleString()} THB
                               ตามสลิปแล้วส่งใหม่
@@ -1125,7 +1128,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {activeTab === "poster" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Poster Customizer (Hidden when printing) */}
-          <div className="lg:col-span-5 bg-white rounded-2xl border border-line p-6 space-y-5 shadow-xs print:hidden">
+          <div className="lg:col-span-5 bg-surface rounded-2xl border border-line p-6 space-y-5 shadow-xs print:hidden">
             <div className="flex items-center justify-between border-b border-line pb-4">
               <div>
                 <h3 className="text-base font-bold text-ink flex items-center gap-2">
@@ -1273,7 +1276,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     <button
                       type="button"
                       onClick={() => setCustomQrImage(null)}
-                      className="px-3 py-2.5 rounded-xl border border-line text-danger font-bold hover:bg-rose-50 cursor-pointer"
+                      className="px-3 py-2.5 rounded-xl border border-line text-danger font-bold hover:bg-rose-500/10 cursor-pointer"
                     >
                       ใช้ QR อัตโนมัติ
                     </button>
@@ -1530,7 +1533,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           <button
             type="button"
             onClick={() => setLocation("/offerings")}
-            className="px-3.5 py-2 rounded-2xl bg-white border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>กลับหน้าถวายทรัพย์</span>
@@ -1598,7 +1601,7 @@ function MySlipHistory({
   return (
     <section
       aria-label="รายการถวายล่าสุดของฉัน"
-      className="rounded-3xl bg-[#0D1017] border border-white/10 p-4 space-y-2.5"
+      className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 space-y-2.5"
     >
       <h3 className="text-xs font-bold text-[#FDBA74]">
         รายการที่ส่งสลิปล่าสุดของฉัน
