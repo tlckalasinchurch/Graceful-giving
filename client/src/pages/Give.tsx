@@ -1,8 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { isStationOnlyUser } from "@shared/roles";
-import { Redirect } from "wouter";
-import GivingStation from "./GivingStation";
+import { PlainGivingStation } from "./GivingStation";
 
 /** Sign-in that returns to this page and activates an ordinary member. */
 export const GIVE_LOGIN_URL = "/api/auth/line/login?next=give";
@@ -44,7 +42,7 @@ function GiveShell({ children }: { children: React.ReactNode }) {
  * no link to any other page.
  */
 export default function Give() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const statusQuery = trpc.auth.status.useQuery(undefined, {
     retry: false,
     enabled: !loading && !isAuthenticated,
@@ -61,12 +59,9 @@ export default function Give() {
   }
 
   if (isAuthenticated) {
-    // Staff have the full app; the giving page is one of its pages.
-    return isStationOnlyUser(user) ? (
-      <GivingStation />
-    ) : (
-      <Redirect to="/giving/station" />
-    );
+    // Every signed-in person sees the same plain giving page here, staff too.
+    // Staff manage the station at /giving/station inside the full app.
+    return <PlainGivingStation />;
   }
 
   const disabled = statusQuery.data?.state === "disabled";
