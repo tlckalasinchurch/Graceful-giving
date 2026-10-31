@@ -67,6 +67,42 @@ describe("the public giving link sign-in", () => {
     }));
   });
 
+  it("logs each step without secrets, so a failure can be traced", async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    const routes = setup();
+    const res = makeRes();
+    routes["/api/auth/line/login"](
+      {
+        ...req({ next: "give" }),
+        headers: { host: "church.test", "user-agent": "Line/14.0 Android" },
+      },
+      res
+    );
+    // LINE refuses the sign-in, for example when the channel is in Developing.
+    const cb = makeRes();
+    await routes["/api/auth/line/callback"](
+      req(
+        {
+          error: "access_denied",
+          error_description: "The channel is in developing status",
+          code: "SECRET-CODE",
+          state: "SECRET-STATE",
+        },
+        `line_oauth=${res.cookies.line_oauth}`
+      ),
+      cb
+    );
+    const lines = info.mock.calls.map(c => JSON.stringify(c));
+    expect(lines.some(l => l.includes("sign-in started"))).toBe(true);
+    const ended = lines.find(l => l.includes("sign-in ended"));
+    expect(ended).toContain("cancelled");
+    expect(ended).toContain("access_denied");
+    expect(ended).toContain("developing status");
+    expect(ended).not.toContain("SECRET");
+    expect(lines.join("")).not.toContain(res.cookies.line_oauth);
+    info.mockRestore();
+  });
+
   it("marks the sign-in state when it starts from /give", () => {
     const routes = setup();
     const res = makeRes();

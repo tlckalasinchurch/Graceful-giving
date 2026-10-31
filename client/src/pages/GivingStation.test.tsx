@@ -133,6 +133,22 @@ describe("GivingStation for an ordinary member", () => {
     expect(submitSlip).not.toHaveBeenCalled();
   });
 
+  it("lets the donor take the slip photo with the camera", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
+    );
+    const camera = (await screen.findByLabelText(
+      "ถ่ายรูปสลิปด้วยกล้อง"
+    )) as HTMLInputElement;
+    // The back camera opens at once on a phone.
+    expect(camera.getAttribute("capture")).toBe("environment");
+    expect(camera.accept).toBe("image/*");
+    fireEvent.change(camera, { target: { files: [png()] } });
+    expect(await screen.findByAltText("สลิปที่แนบ")).toBeTruthy();
+  });
+
   it("says thanks only after the server accepts a matching slip", async () => {
     submitSlip.mockResolvedValue({
       success: true,
