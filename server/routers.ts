@@ -110,10 +110,12 @@ import {
   createManualSlip,
   countRecentManualSlips,
   getMyManualSlip,
+  countRecentSystemRejectedSlips,
   listMyManualSlips,
   rescanLineSlip,
 } from "./db";
 import { runWorkerBatch } from "./line/processWorker";
+import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
 import { decodeSlipImage, SlipImageError } from "./line/slipImage";
 import { toDonorSlipStatus } from "./line/donorSlipStatus";
 import type { DonorSlipStatus } from "@shared/donorSlip";
@@ -406,7 +408,10 @@ function assertCanVerify(user: User) {
   }
 }
 
-/** Everyone sees the church's name and contact details, not its bank account. */
+/**
+ * Everyone sees the church's name and contact details, not its bank account
+ * or PromptPay ID. A donor gets a QR code for the amount they give instead.
+ */
 export function redactChurchProfile<
   T extends {
     bankName: string | null;
@@ -420,6 +425,7 @@ export function redactChurchProfile<
     bankName: null,
     bankAccount: null,
     bankAccountName: null,
+    ...("promptPayId" in profile ? { promptPayId: null } : {}),
   };
 }
 
@@ -629,13 +635,68 @@ export const appRouter = router({
           bankName: z.string().trim().max(120).optional(),
           bankAccount: z.string().trim().max(30).optional(),
           bankAccountName: z.string().trim().max(120).optional(),
+          /** Empty clears it. Left out, it stays as it is. */
+          promptPayId: z
+            .string()
+            .trim()
+            .max(20)
+            .refine(v => v === "" || parsePromptPayId(v) !== null, {
+              message:
+                "เลขพร้อมเพย์ต้องเป็นเบอร์มือถือ 10 หลัก เลขประจำตัว 13 หลัก หรือ e-Wallet 15 หลัก",
+            })
+            .optional(),
           fiscalYearStartMonth: z.number().int().min(1).max(12).default(1),
           motto: z.string().trim().max(280).optional(),
         })
       )
       .mutation(async ({ input }) => {
-        await upsertChurchProfile({ ...input, churchId: DEFAULT_CHURCH_ID });
+        const { promptPayId, ...rest } = input;
+        await upsertChurchProfile({
+          ...rest,
+          churchId: DEFAULT_CHURCH_ID,
+          // "" clears the ID. undefined leaves it alone. Store digits only.
+          ...(promptPayId === undefined
+            ? {}
+            : { promptPayId: parsePromptPayId(promptPayId)?.digits ?? null }),
+        });
         return { success: true } as const;
+      }),
+    /**
+     * Where to send the money, for a donor who has not paid yet. Any signed-in
+     * member may read it: the church wants donors to see the account. Only
+     * these three fields leave. The PromptPay ID stays on the server.
+     */
+    payeeInfo: protectedProcedure.query(async () => {
+      const profile = await getChurchProfile();
+      if (!profile?.bankAccount) return null;
+      return {
+        bankName: profile.bankName,
+        bankAccount: profile.bankAccount,
+        bankAccountName: profile.bankAccountName,
+      };
+    }),
+    /**
+     * A PromptPay QR payload for `amount`, so the donor scans it with a bank
+     * app and does not type the amount. Null when no PromptPay ID is set. The
+     * ID itself never leaves the server except inside the payload.
+     */
+    paymentQr: protectedProcedure
+      .input(
+        z.object({
+          amount: z.number().positive().max(MAX_GIVING_AMOUNT),
+        })
+      )
+      .query(async ({ input }) => {
+        const profile = await getChurchProfile();
+        const id = profile?.promptPayId
+          ? parsePromptPayId(profile.promptPayId)
+          : null;
+        if (!profile || !id) return null;
+        return {
+          payload: buildPromptPayPayload(id, input.amount),
+          amount: Math.round(input.amount * 100) / 100,
+          payeeName: profile.bankAccountName || profile.name,
+        };
       }),
     completeSetup: churchLeaderProcedure.mutation(async () => {
       await markSetupCompleted();
@@ -2727,7 +2788,14 @@ export const appRouter = router({
               slipAmount: null,
             } satisfies DonorSlipStatus);
 
-        return { success: true, slipId: slip.id, check } as const;
+        // How many slips the system has turned away for this donor in 24 hours.
+        // The donor sees it, so they know when a person will take over.
+        const failedAttempts = await countRecentSystemRejectedSlips(
+          `manual-${ctx.user.id}`,
+          new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+
+        return { success: true, slipId: slip.id, check, failedAttempts } as const;
       }),
 
     /** The caller's own recent slips and what became of them. */

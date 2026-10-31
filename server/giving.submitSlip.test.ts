@@ -9,6 +9,7 @@ vi.mock("./db", async importOriginal => {
     countRecentManualSlips: vi.fn(),
     getMyManualSlip: vi.fn(),
     listMyManualSlips: vi.fn(),
+    countRecentSystemRejectedSlips: vi.fn(),
     createAuditLog: vi.fn(),
     listFinanceAccounts: vi.fn(),
   };
@@ -65,6 +66,7 @@ beforeEach(() => {
   vi.mocked(db.createManualSlip).mockResolvedValue({ id: 99 } as never);
   vi.mocked(db.getMyManualSlip).mockResolvedValue(null);
   vi.mocked(db.listMyManualSlips).mockResolvedValue([]);
+  vi.mocked(db.countRecentSystemRejectedSlips).mockResolvedValue(0);
 });
 
 const slipRow = (over: Record<string, unknown> = {}) => ({
@@ -128,6 +130,17 @@ describe("givingInbox.submitSlip", () => {
     const caller = appRouter.createCaller(createContext(member));
     const { check } = await caller.givingInbox.submitSlip(validInput);
     expect(check).toMatchObject({ state: "rejected", slipAmount: 1000 });
+  });
+
+  it("tells the donor how many slips the system has turned away in 24 hours", async () => {
+    vi.mocked(db.countRecentSystemRejectedSlips).mockResolvedValue(2);
+    const caller = appRouter.createCaller(createContext(member));
+    const result = await caller.givingInbox.submitSlip(validInput);
+    expect(result.failedAttempts).toBe(2);
+    expect(db.countRecentSystemRejectedSlips).toHaveBeenCalledWith(
+      `manual-${member.id}`,
+      expect.any(Date)
+    );
   });
 
   it("falls back to 'checking' when the slip is not readable in time", async () => {

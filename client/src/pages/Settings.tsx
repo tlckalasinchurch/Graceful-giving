@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import {
+  EMPTY_GUARDED_PROFILE,
+  isProfileDirty,
+  type GuardedProfile,
+} from "./settingsDirty";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   Banknote,
@@ -154,20 +159,15 @@ export default function Settings() {
   const [bankName, setBankName] = useState("");
   const [bankAccount, setBankAccount] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
+  const [promptPayId, setPromptPayId] = useState("");
   const [motto, setMotto] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [baseline, setBaseline] = useState({
-    name: "",
-    address: "",
-    phone: "",
-    email: "",
-    pastorName: "",
-    treasurerName: "",
-    motto: "",
-  });
+  const [baseline, setBaseline] = useState<GuardedProfile>(
+    EMPTY_GUARDED_PROFILE
+  );
 
   useEffect(() => {
-    const loaded = {
+    const loaded: GuardedProfile = {
       name: churchProfile?.name || "",
       address: churchProfile?.address || "",
       phone: churchProfile?.phone || "",
@@ -175,6 +175,10 @@ export default function Settings() {
       pastorName: churchProfile?.pastorName || "",
       treasurerName: churchProfile?.treasurerName || "",
       motto: churchProfile?.motto || "",
+      bankName: churchProfile?.bankName || "",
+      bankAccount: churchProfile?.bankAccount || "",
+      bankAccountName: churchProfile?.bankAccountName || "",
+      promptPayId: churchProfile?.promptPayId || "",
     };
     setName(loaded.name);
     setAddress(loaded.address);
@@ -187,18 +191,27 @@ export default function Settings() {
     setBankName(churchProfile?.bankName || "");
     setBankAccount(churchProfile?.bankAccount || "");
     setBankAccountName(churchProfile?.bankAccountName || "");
+    setPromptPayId(churchProfile?.promptPayId || "");
     setMotto(loaded.motto);
     setBaseline(loaded);
   }, [churchProfile]);
 
-  const isDirty =
-    name !== baseline.name ||
-    address !== baseline.address ||
-    phone !== baseline.phone ||
-    email !== baseline.email ||
-    pastorName !== baseline.pastorName ||
-    treasurerName !== baseline.treasurerName ||
-    motto !== baseline.motto;
+  const isDirty = isProfileDirty(
+    {
+      name,
+      address,
+      phone,
+      email,
+      pastorName,
+      treasurerName,
+      motto,
+      bankName,
+      bankAccount,
+      bankAccountName,
+      promptPayId,
+    },
+    baseline
+  );
   useUnsavedChanges(isDirty);
 
   const updateProfileMutation = trpc.church.updateProfile.useMutation({
@@ -235,6 +248,7 @@ export default function Settings() {
       bankName,
       bankAccount,
       bankAccountName,
+      promptPayId,
       fiscalYearStartMonth: churchProfile?.fiscalYearStartMonth ?? 1,
       motto,
     });
@@ -1005,6 +1019,86 @@ export default function Settings() {
                 </p>
               </div>
             </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
+              <p className="text-ink-3 leading-relaxed">
+                ระบบใช้ข้อมูลนี้ตรวจว่าสลิปโอนเข้าบัญชีของคริสตจักรจริง
+                และสร้าง QR พร้อมเพย์ที่ใส่ยอดไว้แล้วให้ผู้ถวายสแกนจ่ายในแอปธนาคาร
+                ผู้ถวายเห็นเลขบัญชีนี้ในหน้าถวายเมื่อยังไม่ได้โอน ส่วนเลขพร้อมเพย์ไม่แสดง เห็นเฉพาะใน QR
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="set-bank-name" className="font-semibold text-ink">
+                    ธนาคาร
+                  </label>
+                  <input
+                    id="set-bank-name"
+                    type="text"
+                    maxLength={120}
+                    value={bankName}
+                    onChange={e => setBankName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm text-ink"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="set-bank-account" className="font-semibold text-ink">
+                    เลขที่บัญชี
+                  </label>
+                  <input
+                    id="set-bank-account"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={30}
+                    value={bankAccount}
+                    onChange={e => setBankAccount(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm font-mono text-ink"
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label htmlFor="set-bank-account-name" className="font-semibold text-ink">
+                    ชื่อบัญชี
+                  </label>
+                  <input
+                    id="set-bank-account-name"
+                    type="text"
+                    maxLength={120}
+                    value={bankAccountName}
+                    onChange={e => setBankAccountName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm text-ink"
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label htmlFor="set-promptpay" className="font-semibold text-ink">
+                    เลขพร้อมเพย์ของคริสตจักร
+                  </label>
+                  <input
+                    id="set-promptpay"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={20}
+                    value={promptPayId}
+                    onChange={e => setPromptPayId(e.target.value)}
+                    aria-describedby="set-promptpay-help"
+                    placeholder="เบอร์มือถือ 10 หลัก หรือเลขประจำตัวผู้เสียภาษี 13 หลัก"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm font-mono text-ink"
+                  />
+                  <p id="set-promptpay-help" className="text-ink-3">
+                    ต้องตรงกับพร้อมเพย์ที่ลงทะเบียนไว้กับธนาคาร เว้นว่างไว้ถ้าไม่ใช้
+                    ระบบจะไม่สร้าง QR พร้อมเพย์
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลบัญชี"}</span>
+                </button>
+              </div>
+            </form>
           </div>
           <BankSignersSection />
         </div>

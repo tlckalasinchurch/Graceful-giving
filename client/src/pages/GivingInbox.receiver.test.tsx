@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/trpc", () => ({ trpc: {} }));
 vi.mock("@/components/layout/AppLayout", () => ({ AppLayout: () => null }));
 
-import { ReceiverCheck } from "./GivingInbox";
+import { EscalationNote, ReceiverCheck } from "./GivingInbox";
 
 const aiData = (receiver: string) => ({
   receiverAccount: "xxx-x-x6789-x",
@@ -39,5 +39,19 @@ describe("ReceiverCheck", () => {
     expect(container.firstChild).toBeNull();
     const { container: c2 } = render(<ReceiverCheck aiData={null} />);
     expect(c2.firstChild).toBeNull();
+  });
+});
+
+describe("EscalationNote", () => {
+  it("tells staff the system stopped rejecting this donor", () => {
+    render(<EscalationNote aiData={{ verification: { escalated: true } }} />);
+    expect(screen.getByRole("note").textContent).toContain("หลายครั้ง");
+  });
+
+  it("shows nothing for a normal slip", () => {
+    const { container } = render(
+      <EscalationNote aiData={{ verification: { escalated: false } }} />
+    );
+    expect(container.firstChild).toBeNull();
   });
 });

@@ -199,6 +199,12 @@ export const churchProfiles = pgTable("church_profiles", {
   bankName: varchar("bankName", { length: 120 }),
   bankAccount: varchar("bankAccount", { length: 30 }),
   bankAccountName: varchar("bankAccountName", { length: 120 }),
+  /**
+   * PromptPay ID donors pay to: a 10-digit mobile number, a 13-digit national
+   * or tax ID, or a 15-digit e-wallet ID. Digits only. Hidden from members, who
+   * get only a QR code for the amount they give.
+   */
+  promptPayId: varchar("promptPayId", { length: 20 }),
   /** Month (1-12) when the fiscal year starts */
   fiscalYearStartMonth: integer("fiscalYearStartMonth").default(1).notNull(),
   logoUrl: varchar("logoUrl", { length: 500 }),

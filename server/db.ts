@@ -3507,6 +3507,34 @@ const donorSlipColumns = {
   aiData: lineSlips.aiData,
 };
 
+/**
+ * How many slips from `lineUserId` the system itself turned away since
+ * `since`. A slip a treasurer rejected (reviewedBy set) does not count.
+ * `exceptSlipId` leaves out the slip being processed now.
+ */
+export async function countRecentSystemRejectedSlips(
+  lineUserId: string,
+  since: Date,
+  exceptSlipId: number | null = null,
+  churchId: string = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const conditions = [
+    eq(lineSlips.churchId, churchId),
+    eq(lineSlips.lineUserId, lineUserId),
+    eq(lineSlips.status, "rejected"),
+    isNull(lineSlips.reviewedBy),
+    gte(lineSlips.createdAt, since),
+  ];
+  if (exceptSlipId !== null) conditions.push(ne(lineSlips.id, exceptSlipId));
+  const [row] = await db
+    .select({ n: count() })
+    .from(lineSlips)
+    .where(and(...conditions));
+  return Number(row?.n ?? 0);
+}
+
 /** One slip, only if `userId` sent it from the app. */
 export async function getMyManualSlip(
   slipId: number,

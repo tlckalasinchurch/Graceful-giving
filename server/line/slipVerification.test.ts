@@ -30,6 +30,7 @@ const run = (over: {
   extraction?: Partial<SlipExtraction>;
   churchAccount?: string | null;
   isDuplicate?: boolean;
+  escalate?: boolean;
 }) =>
   verifySlip({
     declaredAmount:
@@ -38,6 +39,7 @@ const run = (over: {
     churchAccount:
       over.churchAccount === undefined ? CHURCH : over.churchAccount,
     isDuplicate: over.isDuplicate ?? false,
+    escalate: over.escalate,
   });
 
 describe("verifySlip: station slips", () => {
@@ -47,6 +49,7 @@ describe("verifySlip: station slips", () => {
       receiver: "match",
       autoReject: null,
       reviewWarning: null,
+      escalated: false,
     });
   });
 
@@ -88,7 +91,32 @@ describe("verifySlip: station slips", () => {
     expect(v.reviewWarning).toContain("ตรวจภาพสลิป");
   });
 
-  it("cannot compare a PromptPay slip, and never rejects it", () => {
+  it("compares a PromptPay slip with the church PromptPay ID", () => {
+    const slip = {
+      receiverAccountType: "promptpay" as const,
+      receiverAccount: "081-xxx-5678",
+    };
+    expect(
+      verifySlip({
+        declaredAmount: 500,
+        extraction: extraction(slip),
+        churchAccount: CHURCH,
+        churchPromptPayId: "0812345678",
+        isDuplicate: false,
+      }).receiver
+    ).toBe("match");
+    const wrong = verifySlip({
+      declaredAmount: 500,
+      extraction: extraction({ ...slip, receiverAccount: "099-xxx-1111" }),
+      churchAccount: CHURCH,
+      churchPromptPayId: "0812345678",
+      isDuplicate: false,
+    });
+    expect(wrong.receiver).toBe("mismatch");
+    expect(wrong.autoReject?.kind).toBe("receiver");
+  });
+
+  it("does not compare a PromptPay slip with the bank account, and never rejects it", () => {
     const v = run({
       extraction: {
         receiverAccountType: "promptpay",
@@ -131,5 +159,39 @@ describe("verifySlip: other slips (LINE bot, staff upload)", () => {
     expect(v.receiver).toBe("mismatch");
     expect(v.autoReject).toBeNull();
     expect(v.reviewWarning).toContain("ไม่ตรงกับบัญชี");
+  });
+});
+
+describe("verifySlip: a donor turned away too often", () => {
+  it("hands a would-be rejection to a person, with the reason", () => {
+    const v = run({ escalate: true, extraction: { amount: 900 } });
+    expect(v.autoReject).toBeNull();
+    expect(v.escalated).toBe(true);
+    expect(v.reviewWarning).toContain("ไม่ตรงกับยอดที่เลือก");
+    expect(v.reviewWarning).toContain("หลายครั้ง");
+    // The finding itself is kept for staff.
+    expect(v.amount).toBe("mismatch");
+  });
+
+  it("does the same for a wrong receiver account", () => {
+    const v = run({
+      escalate: true,
+      extraction: { receiverAccount: "xxx-x-x1234-x" },
+    });
+    expect(v.autoReject).toBeNull();
+    expect(v.escalated).toBe(true);
+    expect(v.receiver).toBe("mismatch");
+  });
+
+  it("does not flag a slip that passes", () => {
+    const v = run({ escalate: true });
+    expect(v.escalated).toBe(false);
+    expect(v.reviewWarning).toBeNull();
+  });
+
+  it("changes nothing for a donor who has not been turned away often", () => {
+    const v = run({ escalate: false, extraction: { amount: 900 } });
+    expect(v.autoReject?.kind).toBe("amount");
+    expect(v.escalated).toBe(false);
   });
 });
