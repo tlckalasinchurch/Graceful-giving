@@ -358,11 +358,11 @@ export default function Reports() {
                 </h2>
                 <div className="flex items-center gap-4 text-sm font-bold text-ink">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[hsl(133_32%_13%)]" />
+                    <span className="h-3 w-3 rounded-md bg-[#34d399]" />
                     รายรับ
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[hsl(7_45%_13%)]" />
+                    <span className="h-3 w-3 rounded-md bg-[#fb7185]" />
                     รายจ่าย
                   </span>
                 </div>
@@ -385,14 +385,14 @@ export default function Reports() {
                           style={{
                             height: `${(month.income / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[hsl(133_32%_13%)] sm:w-8"
+                          className="w-4 rounded-t-lg bg-[#34d399] sm:w-8"
                           title={`รายรับ ${fmtBaht(month.income)}`}
                         />
                         <div
                           style={{
                             height: `${(month.expense / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[hsl(7_45%_13%)] sm:w-8"
+                          className="w-4 rounded-t-lg bg-[#fb7185] sm:w-8"
                           title={`รายจ่าย ${fmtBaht(month.expense)}`}
                         />
                       </div>
