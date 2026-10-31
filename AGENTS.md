@@ -25,7 +25,7 @@ There is no lint script; typecheck + prettier are the enforced checks.
 
 - **No GitHub Actions.** `vercel.json` sets `buildCommand` to `pnpm run ci && pnpm run build`, so typecheck or test failures block deploy.
 - `pnpm ci` deliberately **blanks `DATABASE_URL`, `POSTGRES_URL`, `POSTGRES_PRISMA_URL`**: Vercel build env sets them, and integration suites would otherwise run against the live DB. Keep that guard intact.
-- Schema changes: edit `drizzle/schema.ts`, then `pnpm db:push`. Never hand-write migration SQL.
+- Schema changes: edit `drizzle/schema.ts`, then `pnpm db:push` (generate + migrate). Never hand-write migration SQL. The drizzle journal was re-baselined, so `generate` now writes only the change. Read `drizzle/README.md` first: `server/schema_init.ts` also adds columns at runtime, and the two can collide.
 
 ## Environment
 

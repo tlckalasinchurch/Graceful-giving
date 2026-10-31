@@ -30,16 +30,17 @@ describe("category source of truth", () => {
     ]);
   });
 
-  it("is also what the generated migration created", () => {
-    const sql = read("drizzle/0000_peaceful_the_watchers.sql");
-    const match = sql.match(
-      /CREATE TYPE "public"\."expense_category" AS ENUM\(([^)]*)\)/
-    );
-    expect(match).not.toBeNull();
-    const fromSql = match![1]
-      .split(",")
-      .map(v => v.trim().replace(/^'|'$/g, ""));
-    expect(fromSql).toEqual([...EXPENSE_CATEGORY_IDS]);
+  it("is also what the drizzle snapshot records", () => {
+    // The snapshot is what `drizzle-kit generate` compares the schema with.
+    const snapshot = JSON.parse(read("drizzle/meta/0000_snapshot.json")) as {
+      enums: Record<string, { values: string[] }>;
+    };
+    expect(snapshot.enums["public.expense_category"].values).toEqual([
+      ...EXPENSE_CATEGORY_IDS,
+    ]);
+    expect(snapshot.enums["public.offering_category"].values).toEqual([
+      ...OFFERING_CATEGORY_IDS,
+    ]);
   });
 });
 
