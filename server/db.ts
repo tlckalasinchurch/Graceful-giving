@@ -75,12 +75,10 @@ import {
 } from "@shared/withdrawals";
 import { ENV } from "./_core/env";
 
-import { runSchemaInit } from "./schema_init";
 import { getSlipSignedUrl, storagePutPrivate } from "./storage";
 import { createHash } from "crypto";
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _schemaInitialized = false;
 
 /**
  * The tenant every query defaults to. The app is single-tenant, but the tests
@@ -119,17 +117,6 @@ export async function getDb() {
       // Eager health-check: `postgres` connects lazily, so verify now to preserve
       // the getDb()-returns-null (never throws) contract on unreachable URLs.
       await client`SELECT 1`;
-
-      if (!_schemaInitialized) {
-        _schemaInitialized = true;
-        try {
-          console.log("[Database] Ensuring tables and schema exist...");
-          await runSchemaInit(client);
-          console.log("[Database] Tables verified/created successfully.");
-        } catch (initErr) {
-          console.warn("[Database] Schema init warning:", initErr);
-        }
-      }
 
       _db = drizzle(client);
     } catch (error) {

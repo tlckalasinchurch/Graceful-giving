@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "pnpm run ci && pnpm run build",
+  "buildCommand": "pnpm run ci && pnpm run build && pnpm run db:migrate:deploy",
   "outputDirectory": "dist/public",
   "crons": [
     {

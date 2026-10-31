@@ -1,6 +1,8 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   decimal,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -8,6 +10,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -241,7 +244,9 @@ export const members = pgTable("members", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    index("members_church_idx").on(t.churchId),
+  ]);
 
 export type Member = typeof members.$inferSelect;
 export type InsertMember = typeof members.$inferInsert;
@@ -266,7 +271,9 @@ export const ministries = pgTable("ministries", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    index("ministries_church_idx").on(t.churchId),
+  ]);
 
 export type Ministry = typeof ministries.$inferSelect;
 export type InsertMinistry = typeof ministries.$inferInsert;
@@ -282,7 +289,9 @@ export const notifications = pgTable("notifications", {
   link: varchar("link", { length: 500 }),
   readAt: timestamp("readAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, t => [
+    index("notifications_user_idx").on(t.churchId, t.userId, t.createdAt),
+  ]);
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
@@ -297,7 +306,9 @@ export const auditLogs = pgTable("audit_logs", {
   entityId: integer("entityId"),
   metadata: jsonb("metadata"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, t => [
+    index("audit_logs_entity_idx").on(t.churchId, t.entity, t.entityId, t.createdAt),
+  ]);
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
@@ -354,7 +365,12 @@ export const offerings = pgTable("offerings", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    /** Financial integrity backstop: one active offering per bank reference. */
+    uniqueIndex("offerings_ref_active_uniq")
+      .on(t.churchId, t.reference)
+      .where(sql`"reference" IS NOT NULL AND "status" = 'active'`),
+  ]);
 
 export type Offering = typeof offerings.$inferSelect;
 export type InsertOffering = typeof offerings.$inferInsert;
@@ -648,7 +664,12 @@ export const bankRecords = pgTable("bank_records", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    /** A withdrawal request lands in the counting round exactly once. */
+    uniqueIndex("bank_records_withdrawal_uniq")
+      .on(t.withdrawalRequestId)
+      .where(sql`"withdrawalRequestId" IS NOT NULL`),
+  ]);
 
 /**
  * Evidence for the session. Files live in the church's Google Drive; only the
@@ -704,7 +725,13 @@ export const bankSigners = pgTable("bank_signers", {
   isRequired: boolean("isRequired").default(false).notNull(),
   addedBy: integer("addedBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, t => [
+    uniqueIndex("bank_signers_user_uniq").on(t.churchId, t.userId),
+    /** At most one signer who must sign every time, per church. */
+    uniqueIndex("bank_signers_required_uniq")
+      .on(t.churchId)
+      .where(sql`"isRequired" = true`),
+  ]);
 
 export type BankSigner = typeof bankSigners.$inferSelect;
 export type InsertBankSigner = typeof bankSigners.$inferInsert;
@@ -720,7 +747,10 @@ export const withdrawalApprovals = pgTable("withdrawal_approvals", {
   /** Captured at signing time so later signer-list changes cannot alter the outcome. */
   wasRequiredSigner: boolean("wasRequiredSigner").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, t => [
+    /** One signature row per signer per request. */
+    uniqueIndex("withdrawal_approvals_signer_uniq").on(t.requestId, t.userId),
+  ]);
 
 export type WithdrawalApproval = typeof withdrawalApprovals.$inferSelect;
 export type InsertWithdrawalApproval = typeof withdrawalApprovals.$inferInsert;
@@ -824,7 +854,20 @@ export const lineSlips = pgTable("line_slips", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    /** Idempotency: one LINE event creates one slip. */
+    uniqueIndex("line_slips_event_uniq").on(t.churchId, t.lineEventId),
+    /** Duplicate detection level 2: same image hash. */
+    index("line_slips_hash_idx").on(t.slipHash),
+    /** Duplicate detection level 1: one live slip per bank reference. */
+    uniqueIndex("line_slips_ref_uniq")
+      .on(t.churchId, t.extractedRef)
+      .where(
+        sql`"extractedRef" IS NOT NULL AND "status" NOT IN ('rejected', 'duplicate', 'failed')`
+      ),
+    /** Status dashboard: slips per church by status and age. */
+    index("line_slips_status_idx").on(t.churchId, t.status, t.createdAt),
+  ]);
 
 export type LineSlip = typeof lineSlips.$inferSelect;
 export type InsertLineSlip = typeof lineSlips.$inferInsert;
@@ -848,7 +891,10 @@ export const lineProcessingJobs = pgTable("line_processing_jobs", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    /** Worker polling: queued jobs by age. */
+    index("line_jobs_status_idx").on(t.status, t.createdAt),
+  ]);
 
 export type LineProcessingJob = typeof lineProcessingJobs.$inferSelect;
 export type InsertLineProcessingJob = typeof lineProcessingJobs.$inferInsert;
