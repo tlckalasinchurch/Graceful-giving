@@ -3504,6 +3504,7 @@ const donorSlipColumns = {
   reviewedBy: lineSlips.reviewedBy,
   reviewNote: lineSlips.reviewNote,
   lastErrorMessage: lineSlips.lastErrorMessage,
+  aiData: lineSlips.aiData,
 };
 
 /** One slip, only if `userId` sent it from the app. */

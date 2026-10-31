@@ -44,6 +44,32 @@ describe("toDonorSlipStatus", () => {
     expect(r.message).toContain("ไม่ตรงกับยอดที่เลือก");
   });
 
+  it("offers no slip amount when the receiver account was the problem", () => {
+    const r = toDonorSlipStatus(
+      row({
+        status: "rejected",
+        extractedAmount: "500.00",
+        reviewNote: "บัญชีผู้รับในสลิปไม่ตรงกับบัญชีของคริสตจักร",
+        aiData: { verification: { autoReject: "receiver" } },
+      })
+    );
+    expect(r.state).toBe("rejected");
+    expect(r.slipAmount).toBeNull();
+    expect(r.message).toContain("บัญชีผู้รับ");
+  });
+
+  it("still offers the slip amount when the amount was the problem", () => {
+    const r = toDonorSlipStatus(
+      row({
+        status: "rejected",
+        extractedAmount: "1000.00",
+        reviewNote: "ยอดไม่ตรง",
+        aiData: { verification: { autoReject: "amount" } },
+      })
+    );
+    expect(r.slipAmount).toBe(1000);
+  });
+
   it("hides a treasurer's rejection note", () => {
     const r = toDonorSlipStatus(
       row({
