@@ -45,7 +45,7 @@ No `.env` is committed. Required variables (read in `server/_core/env.ts`):
 - `client/` — Vite root. React 19 SPA, path alias `@` → `client/src`, `@shared` → `shared`, `@assets` → `attached_assets`.
 - `server/` — Express + tRPC backend. Domain logic (`routers.ts`, `db.ts`, `storage.ts`) sits at the top of `server/`; framework plumbing (auth, context, vite dev middleware, oauth, the SDK client) lives under `server/_core/` — treat `_core` as scaffolding you extend carefully, not where new business features go.
 - `shared/` — Code imported by both client and server: constants, error helpers, `shared/const.ts` (cookie name, OAuth state encode/decode, error message strings shared with the tRPC error codes on the client).
-- `drizzle/` — `schema.ts` (source of truth for tables/types) and `relations.ts`, plus generated SQL migrations and `meta/` snapshots. Edit `schema.ts`, then run `pnpm db:push` to generate+apply migrations — do not hand-write migration SQL.
+- `drizzle/` — `schema.ts` (source of truth for tables/types) and `relations.ts`, plus generated SQL migrations and `meta/` snapshots. Edit `schema.ts`, then run `pnpm db:push` to generate+apply migrations — do not hand-write migration SQL. The journal is baselined (`drizzle/0000_baseline.sql`), so `generate` writes only the change; see `drizzle/README.md` for how this interacts with `server/schema_init.ts`.
 
 ### Request flow
 

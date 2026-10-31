@@ -1,9 +1,243 @@
 {
-  "id": "c7a5b4a7-31ed-4fb9-8fc9-524b2fee40b1",
+  "id": "583cf5ad-4df6-4a87-9d78-18a05bd7d912",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.audit_logs": {
+      "name": "audit_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity": {
+          "name": "entity",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entityId": {
+          "name": "entityId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bank_records": {
+      "name": "bank_records",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sessionId": {
+          "name": "sessionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'demo-church'"
+        },
+        "type": {
+          "name": "type",
+          "type": "bank_record_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transferredBy": {
+          "name": "transferredBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transferredByName": {
+          "name": "transferredByName",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bankRef": {
+          "name": "bankRef",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "occurredAt": {
+          "name": "occurredAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "passbookMatched": {
+          "name": "passbookMatched",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "passbookDate": {
+          "name": "passbookDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "matchedBy": {
+          "name": "matchedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recordedBy": {
+          "name": "recordedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "withdrawalRequestId": {
+          "name": "withdrawalRequestId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bank_signers": {
+      "name": "bank_signers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "isRequired": {
+          "name": "isRequired",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "addedBy": {
+          "name": "addedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.budget_plans": {
       "name": "budget_plans",
       "schema": "",
@@ -55,6 +289,65 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.cash_counts": {
+      "name": "cash_counts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sessionId": {
+          "name": "sessionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "denomination": {
+          "name": "denomination",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "cash_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "createdAt": {
           "name": "createdAt",
@@ -343,6 +636,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "promptPayId": {
+          "name": "promptPayId",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "fiscalYearStartMonth": {
           "name": "fiscalYearStartMonth",
           "type": "integer",
@@ -396,6 +695,169 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.counting_sessions": {
+      "name": "counting_sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'demo-church'"
+        },
+        "serviceDate": {
+          "name": "serviceDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "serviceRound": {
+          "name": "serviceRound",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "serviceName": {
+          "name": "serviceName",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "counting_session_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'counting'"
+        },
+        "countedBy": {
+          "name": "countedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "countSubmittedAt": {
+          "name": "countSubmittedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verifiedBy": {
+          "name": "verifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verifiedAt": {
+          "name": "verifiedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "postedBy": {
+          "name": "postedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "postedAt": {
+          "name": "postedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "closedAt": {
+          "name": "closedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "varianceNote": {
+          "name": "varianceNote",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "varianceApprovedBy": {
+          "name": "varianceApprovedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "openingCash": {
+          "name": "openingCash",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "openingBank": {
+          "name": "openingBank",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "closingBank": {
+          "name": "closingBank",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cashOnHandActual": {
+          "name": "cashOnHandActual",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "passbookBalance": {
+          "name": "passbookBalance",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "passbookBalanceDate": {
+          "name": "passbookBalanceDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -464,6 +926,12 @@
         "receiptRef": {
           "name": "receiptRef",
           "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "receiptUrl": {
+          "name": "receiptUrl",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -590,6 +1058,671 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.line_processing_jobs": {
+      "name": "line_processing_jobs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slipId": {
+          "name": "slipId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'demo-church'"
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'queued'"
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "lastAttemptAt": {
+          "name": "lastAttemptAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "errorMessage": {
+          "name": "errorMessage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.line_slips": {
+      "name": "line_slips",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'demo-church'"
+        },
+        "lineUserId": {
+          "name": "lineUserId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lineDisplayName": {
+          "name": "lineDisplayName",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lineEventId": {
+          "name": "lineEventId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slipImageKey": {
+          "name": "slipImageKey",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slipHash": {
+          "name": "slipHash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "line_slip_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "processingAttempts": {
+          "name": "processingAttempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "lastErrorMessage": {
+          "name": "lastErrorMessage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aiRawText": {
+          "name": "aiRawText",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aiData": {
+          "name": "aiData",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedAmount": {
+          "name": "extractedAmount",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedAmountConfidence": {
+          "name": "extractedAmountConfidence",
+          "type": "numeric(4, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedDate": {
+          "name": "extractedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedDateConfidence": {
+          "name": "extractedDateConfidence",
+          "type": "numeric(4, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedRef": {
+          "name": "extractedRef",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedRefConfidence": {
+          "name": "extractedRefConfidence",
+          "type": "numeric(4, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedSenderName": {
+          "name": "extractedSenderName",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedSenderConfidence": {
+          "name": "extractedSenderConfidence",
+          "type": "numeric(4, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extractedBank": {
+          "name": "extractedBank",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duplicateOfSlipId": {
+          "name": "duplicateOfSlipId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duplicateOfOfferingId": {
+          "name": "duplicateOfOfferingId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "matchedMemberId": {
+          "name": "matchedMemberId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "matchedMemberName": {
+          "name": "matchedMemberName",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "matchedConfidence": {
+          "name": "matchedConfidence",
+          "type": "numeric(4, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "matchMethod": {
+          "name": "matchMethod",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "declaredAmount": {
+          "name": "declaredAmount",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "declaredCategory": {
+          "name": "declaredCategory",
+          "type": "offering_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "declaredFundId": {
+          "name": "declaredFundId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fundId": {
+          "name": "fundId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approvedAmount": {
+          "name": "approvedAmount",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviewedBy": {
+          "name": "reviewedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviewedAt": {
+          "name": "reviewedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviewNote": {
+          "name": "reviewNote",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approvedOfferingId": {
+          "name": "approvedOfferingId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.members": {
+      "name": "members",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(320)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "member_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "envelopeNo": {
+          "name": "envelopeNo",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avatarUrl": {
+          "name": "avatarUrl",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lineUserId": {
+          "name": "lineUserId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ministries": {
+      "name": "ministries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "leaderName": {
+          "name": "leaderName",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meetingSchedule": {
+          "name": "meetingSchedule",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "ministry_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.notifications": {
+      "name": "notifications",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link": {
+          "name": "link",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "readAt": {
+          "name": "readAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.offering_envelopes": {
+      "name": "offering_envelopes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sessionId": {
+          "name": "sessionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'demo-church'"
+        },
+        "envelopeNo": {
+          "name": "envelopeNo",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "memberId": {
+          "name": "memberId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "donorName": {
+          "name": "donorName",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isAnonymous": {
+          "name": "isAnonymous",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "category": {
+          "name": "category",
+          "type": "offering_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'general'"
+        },
+        "fundId": {
+          "name": "fundId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "method": {
+          "name": "method",
+          "type": "offering_method",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'cash'"
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reference": {
+          "name": "reference",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recordedBy": {
+          "name": "recordedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.offerings": {
       "name": "offerings",
       "schema": "",
@@ -638,6 +1771,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "sessionId": {
+          "name": "sessionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "receiptDate": {
           "name": "receiptDate",
           "type": "timestamp",
@@ -665,6 +1804,20 @@
           "primaryKey": false,
           "notNull": false
         },
+        "status": {
+          "name": "status",
+          "type": "offering_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "voidedAt": {
+          "name": "voidedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
         "recordedBy": {
           "name": "recordedBy",
           "type": "integer",
@@ -680,6 +1833,215 @@
         },
         "updatedAt": {
           "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.session_deductions": {
+      "name": "session_deductions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sessionId": {
+          "name": "sessionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'demo-church'"
+        },
+        "purpose": {
+          "name": "purpose",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(15, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "paidTo": {
+          "name": "paidTo",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "requestedBy": {
+          "name": "requestedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "approvedBy": {
+          "name": "approvedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approvedAt": {
+          "name": "approvedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category": {
+          "name": "category",
+          "type": "expense_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'other'"
+        },
+        "fundId": {
+          "name": "fundId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expenseId": {
+          "name": "expenseId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.session_documents": {
+      "name": "session_documents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sessionId": {
+          "name": "sessionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'demo-church'"
+        },
+        "kind": {
+          "name": "kind",
+          "type": "session_document_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'other'"
+        },
+        "fileName": {
+          "name": "fileName",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mimeType": {
+          "name": "mimeType",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fileSize": {
+          "name": "fileSize",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "driveFileId": {
+          "name": "driveFileId",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fileUrl": {
+          "name": "fileUrl",
+          "type": "varchar(600)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "drivePath": {
+          "name": "drivePath",
+          "type": "varchar(300)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deductionId": {
+          "name": "deductionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bankRecordId": {
+          "name": "bankRecordId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uploadedBy": {
+          "name": "uploadedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -742,6 +2104,43 @@
           "primaryKey": false,
           "notNull": false
         },
+        "churchRoles": {
+          "name": "churchRoles",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "avatarUrl": {
+          "name": "avatarUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "department": {
+          "name": "department",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bio": {
+          "name": "bio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -776,6 +2175,68 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.withdrawal_approvals": {
+      "name": "withdrawal_approvals",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "churchId": {
+          "name": "churchId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "requestId": {
+          "name": "requestId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "decision": {
+          "name": "decision",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wasRequiredSigner": {
+          "name": "wasRequiredSigner",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -865,6 +2326,36 @@
           "primaryKey": false,
           "notNull": false
         },
+        "disbursedAt": {
+          "name": "disbursedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "disbursedBy": {
+          "name": "disbursedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelledAt": {
+          "name": "cancelledAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelledBy": {
+          "name": "cancelledBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelReason": {
+          "name": "cancelReason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -890,6 +2381,36 @@
     }
   },
   "enums": {
+    "public.bank_record_type": {
+      "name": "bank_record_type",
+      "schema": "public",
+      "values": [
+        "transfer_in",
+        "cash_deposit",
+        "withdrawal",
+        "other_in",
+        "other_out"
+      ]
+    },
+    "public.cash_kind": {
+      "name": "cash_kind",
+      "schema": "public",
+      "values": [
+        "note",
+        "coin"
+      ]
+    },
+    "public.counting_session_status": {
+      "name": "counting_session_status",
+      "schema": "public",
+      "values": [
+        "counting",
+        "counted",
+        "verified",
+        "posted",
+        "closed"
+      ]
+    },
     "public.event_status": {
       "name": "event_status",
       "schema": "public",
@@ -919,7 +2440,8 @@
       "values": [
         "draft",
         "approved",
-        "paid"
+        "paid",
+        "voided"
       ]
     },
     "public.finance_account_type": {
@@ -932,6 +2454,38 @@
         "building",
         "welfare",
         "special"
+      ]
+    },
+    "public.line_slip_status": {
+      "name": "line_slip_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "processing",
+        "extracted",
+        "needs_review",
+        "matched",
+        "duplicate",
+        "approved",
+        "rejected",
+        "failed"
+      ]
+    },
+    "public.member_status": {
+      "name": "member_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "inactive",
+        "pending"
+      ]
+    },
+    "public.ministry_status": {
+      "name": "ministry_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "inactive"
       ]
     },
     "public.news_category": {
@@ -974,6 +2528,27 @@
         "check"
       ]
     },
+    "public.offering_status": {
+      "name": "offering_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "voided"
+      ]
+    },
+    "public.session_document_kind": {
+      "name": "session_document_kind",
+      "schema": "public",
+      "values": [
+        "count_sheet",
+        "envelope_photo",
+        "deposit_slip",
+        "transfer_slip",
+        "passbook_page",
+        "deduction_receipt",
+        "other"
+      ]
+    },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
@@ -989,7 +2564,8 @@
         "pending",
         "approved",
         "rejected",
-        "disbursed"
+        "disbursed",
+        "cancelled"
       ]
     }
   },
