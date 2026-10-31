@@ -42,7 +42,10 @@ const UNGATED = [
   "/profile",
 ];
 
-const asUser = (churchRole: ChurchRole) => ({ role: "user", churchRole });
+const asUser = (churchRole: ChurchRole, isBankSigner = false) =>
+  isBankSigner
+    ? { role: "user", churchRole, isBankSigner: true }
+    : { role: "user", churchRole };
 
 describe("route access matrix", () => {
   for (const [path, allowedRoles] of Object.entries(ALLOWED)) {
@@ -84,5 +87,16 @@ describe("route access matrix", () => {
     for (const role of ROLES) {
       expect(canAccessRoute("/withdrawals/new", asUser(role))).toBe(true);
     }
+  });
+
+  // Signing access: a MEMBER named on the bank account must be able to open
+  // /approvals to press their signature, while an ordinary member keeps
+  // meeting the same wall as before.
+  it("lets a MEMBER who is a bank signer open /approvals", () => {
+    expect(canAccessRoute("/approvals", asUser("MEMBER", true))).toBe(true);
+  });
+
+  it("still denies /approvals to a MEMBER who is not a signer", () => {
+    expect(canAccessRoute("/approvals", asUser("MEMBER"))).toBe(false);
   });
 });

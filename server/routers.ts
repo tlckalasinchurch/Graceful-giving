@@ -5,7 +5,6 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { storagePut } from "./storage";
 import {
-  approveWithdrawal,
   createBudgetPlan,
   deleteBudgetPlan,
   getBudgetPlanById,
@@ -14,6 +13,10 @@ import {
   createChurchEvent,
   createChurchNews,
   createAuditLog,
+  getWithdrawalRequestBasic,
+  signWithdrawalRequest,
+  WorkflowError,
+  cancelWithdrawalRequest,
   listAuditLogs,
   createNotification,
   createExpense,
@@ -21,6 +24,11 @@ import {
   createOffering,
   createWithdrawalRequest,
   DEFAULT_CHURCH_ID,
+  addBankSigner,
+  removeBankSigner,
+  setRequiredBankSigner,
+  listBankSigners,
+  isBankSigner,
   deleteChurchEvent,
   deleteChurchNews,
   deleteExpense,
@@ -73,7 +81,11 @@ import {
   listCountingSessions,
   getCountingSession,
   getCountingSessionDetail,
+  findEarlierUnpostedSession,
+  resolveOpeningBalances,
+  setCountingCarryFields,
   createCountingSession,
+  attachPendingWithdrawals,
   setCountingSessionStatus,
   addOfferingEnvelope,
   updateOfferingEnvelope,
@@ -102,7 +114,11 @@ import { runWorkerBatch } from "./line/processWorker";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
-import { canTransition, isEditable } from "@shared/counting";
+import {
+  BANK_RECORD_TYPES,
+  canTransition,
+  isEditable,
+} from "@shared/counting";
 import {
   EXPENSE_CATEGORY_IDS,
   OFFERING_CATEGORY_IDS,
@@ -137,10 +153,6 @@ function canManageFinance(user: User): boolean {
 }
 
 function canViewDonorNames(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "TREASURER");
-}
-
-function canApproveWithdrawals(user: User): boolean {
   return hasAnyRole(user, "SUPER_ADMIN", "TREASURER");
 }
 
@@ -356,6 +368,16 @@ function assertCountEditable(status: CountingStatus) {
   }
 }
 
+/** Posted and closed rounds are part of the books; their figures are fixed. */
+function assertNotPosted(status: CountingStatus) {
+  if (status === "posted" || status === "closed") {
+    throw new TRPCError({
+      code: "CONFLICT",
+      message: "รอบนี้ลงบัญชีแล้ว แก้ไขยอดไม่ได้",
+    });
+  }
+}
+
 function assertCanCount(user: User) {
   if (!canCountOfferings(user)) {
     throw new TRPCError({
@@ -398,13 +420,15 @@ export const appRouter = router({
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   auth: router({
-    me: publicProcedure.query(opts => {
+    me: publicProcedure.query(async opts => {
       const user = opts.ctx.user;
       if (!user) return null;
       const roles = getUserRoles(user);
+      const signer = await isBankSigner(user.id);
       return {
         ...user,
         roles,
+        isBankSigner: signer !== null,
       };
     }),
     /** Sign-in state for the login screen. Works for signed-out and pending people. */
@@ -910,14 +934,76 @@ export const appRouter = router({
   }),
 
   // ── Withdrawal Requests ─────────────────────────────────────────────────────
+  // ── Withdrawal bank signers (Part 2) ────────────────────────────────────────
+  bankSigners: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (!canManageFinance(ctx.user) && !(await isBankSigner(ctx.user.id))) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "เฉพาะฝ่ายการเงินและผู้มีอำนาจลงนามเท่านั้น",
+        });
+      }
+      return await listBankSigners(DEFAULT_CHURCH_ID);
+    }),
+    add: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const added = await addBankSigner(input.userId, ctx.user.id);
+        if (added) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_ADD",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { addedUserId: input.userId },
+          });
+        }
+        return { added };
+      }),
+    remove: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const removed = await removeBankSigner(input.userId);
+        if (removed) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_REMOVE",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { removedUserId: input.userId },
+          });
+        }
+        return { removed };
+      }),
+    /** Moves the "ต้องลงนามทุกครั้ง" flag to the given signer. */
+    setRequired: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const moved = await setRequiredBankSigner(input.userId);
+        if (moved) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_REQUIRED",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { requiredUserId: input.userId },
+          });
+        }
+        return { moved };
+      }),
+  }),
+
+  // ── Withdrawals ──────────────────────────────────────────────────────────────
   withdrawals: router({
     list: protectedProcedure
       .input(z.object({ myOnly: z.boolean().default(false) }).optional())
       .query(async ({ ctx, input }) => {
-        const userId =
-          input?.myOnly || !canManageFinance(ctx.user)
-            ? ctx.user.id
-            : undefined;
+        const seesAll =
+          canManageFinance(ctx.user) || (await isBankSigner(ctx.user.id));
+        const userId = input?.myOnly || !seesAll ? ctx.user.id : undefined;
         return await listWithdrawalRequests(DEFAULT_CHURCH_ID, { userId });
       }),
     create: protectedProcedure
@@ -940,46 +1026,122 @@ export const appRouter = router({
         } as any);
         return { id };
       }),
-    approve: financeProcedure
+    /** One signer presses one decision. The bank's rule decides the outcome. */
+    sign: protectedProcedure
+      .input(
+        z
+          .object({
+            id: z.number().int().positive(),
+            decision: z.enum(["approved", "rejected"]),
+            note: z.string().trim().max(500).optional(),
+          })
+          // Input parsing runs before the handler, so a rejection without a
+          // reason never reaches the signer's transaction.
+          .superRefine((val, check) => {
+            if (val.decision === "rejected" && !val.note?.trim()) {
+              check.addIssue({
+                code: "custom",
+                message: "กรุณาระบุเหตุผลการปฏิเสธ",
+              });
+            }
+          })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const signer = await isBankSigner(ctx.user.id);
+        if (!signer) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "เฉพาะผู้มีอำนาจลงนามในบัญชีธนาคาร",
+          });
+        }
+        try {
+          const { outcome } = await signWithdrawalRequest(
+            input.id,
+            ctx.user.id,
+            input.decision,
+            input.note?.trim() || null
+          );
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGN",
+            entity: "withdrawal_requests",
+            entityId: input.id,
+            metadata: { decision: input.decision, outcome },
+          });
+          return { outcome };
+        } catch (err) {
+          if (err instanceof WorkflowError) {
+            throw new TRPCError({ code: err.trpcCode, message: err.message });
+          }
+          throw err;
+        }
+      }),
+    /** The requester or a signer may stop a request before it is paid. */
+    cancel: protectedProcedure
       .input(
         z.object({
           id: z.number().int().positive(),
-          action: z.enum(["approved", "rejected"]),
-          note: z.string().trim().max(500).default(""),
+          reason: z.string().trim().min(3).max(500),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!canApproveWithdrawals(ctx.user)) {
+        const request = await getWithdrawalRequestBasic(
+          input.id,
+          DEFAULT_CHURCH_ID
+        );
+        if (!request) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบคำขอเบิก" });
+        }
+        const allowed =
+          request.requestedBy === ctx.user.id ||
+          (await isBankSigner(ctx.user.id)) !== null;
+        if (!allowed) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "คุณไม่มีสิทธิ์อนุมัติคำขอเบิก",
+            message: "เฉพาะผู้ขอเบิกหรือผู้มีอำนาจลงนามเท่านั้นที่ยกเลิกได้",
           });
         }
-        const updated = await approveWithdrawal(
+        const cancelled = await cancelWithdrawalRequest(
           input.id,
           ctx.user.id,
-          input.action,
-          input.note
+          input.reason
         );
-        if (!updated) {
+        if (!cancelled) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "คำขอเบิกนี้ไม่ได้อยู่ในสถานะรออนุมัติ",
+            message: "คำขอเบิกนี้ถูกดำเนินการไปแล้ว ยกเลิกไม่ได้",
           });
         }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CANCEL",
+          entity: "withdrawal_requests",
+          entityId: input.id,
+          metadata: { reason: input.reason },
+        });
         return { success: true } as const;
       }),
     disburse: financeProcedure
       .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ input }) => {
-        const updated = await disburseWithdrawal(input.id);
-        if (!updated) {
+      .mutation(async ({ ctx, input }) => {
+        const res = await disburseWithdrawal(input.id, ctx.user.id);
+        if (!res) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "ต้องอนุมัติคำขอเบิกก่อนจ่ายเงิน",
           });
         }
-        return { success: true } as const;
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "DISBURSE",
+          entity: "withdrawal_requests",
+          entityId: input.id,
+          metadata: { attachedSessionId: res.attachedSessionId },
+        });
+        return { success: true, sessionId: res.attachedSessionId };
       }),
   }),
 
@@ -1455,6 +1617,10 @@ export const appRouter = router({
           notes: input.notes ?? null,
           countedBy: ctx.user.id,
         });
+        // A paid withdrawal request that waited for a round flows into this
+        // one now, exactly once, before anyone counts anything.
+        const session = await getCountingSession(id);
+        if (session) await attachPendingWithdrawals(session);
         await createAuditLog({
           churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
@@ -1677,7 +1843,7 @@ export const appRouter = router({
       .input(
         z.object({
           sessionId: z.number().int().positive(),
-          type: z.enum(["transfer_in", "cash_deposit"]),
+          type: z.enum(BANK_RECORD_TYPES),
           amount: z.number().positive(),
           transferredBy: z.number().int().positive().optional(),
           transferredByName: z.string().trim().max(180).optional(),
@@ -1729,6 +1895,88 @@ export const appRouter = router({
             message: "ไม่พบรายการธนาคาร",
           });
         }
+        return { success: true } as const;
+      }),
+
+    /** Opening balances for the first round, entered once by finance. */
+    setOpeningBalances: financeProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          openingCash: z.number().nonnegative(),
+          openingBank: z.number(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const session = await requireCountingSession(input.id);
+        assertNotPosted(session.status);
+        if (await resolveOpeningBalances(session)) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "รอบนี้มียอดยกมาแล้ว",
+          });
+        }
+        const saved = await setCountingCarryFields(input.id, {
+          openingCash: input.openingCash.toFixed(2),
+          openingBank: input.openingBank.toFixed(2),
+        });
+        if (!saved) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "สถานะรอบเปลี่ยนไปแล้ว กรุณาโหลดข้อมูลใหม่",
+          });
+        }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "SET_OPENING",
+          entity: "counting_session",
+          entityId: input.id,
+          metadata: input,
+        });
+        return { success: true } as const;
+      }),
+
+    /** The cash actually left in the box, and the latest passbook balance. */
+    setClosingFigures: financeProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          cashOnHandActual: z.number().nonnegative().nullable().optional(),
+          passbookBalance: z.number().nullable().optional(),
+          passbookBalanceDate: z.coerce.date().nullable().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const session = await requireCountingSession(input.id);
+        assertNotPosted(session.status);
+        const money = (value: number | null) =>
+          value === null ? null : value.toFixed(2);
+        const saved = await setCountingCarryFields(input.id, {
+          ...(input.cashOnHandActual !== undefined && {
+            cashOnHandActual: money(input.cashOnHandActual),
+          }),
+          ...(input.passbookBalance !== undefined && {
+            passbookBalance: money(input.passbookBalance),
+          }),
+          ...(input.passbookBalanceDate !== undefined && {
+            passbookBalanceDate: input.passbookBalanceDate,
+          }),
+        });
+        if (!saved) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "สถานะรอบเปลี่ยนไปแล้ว กรุณาโหลดข้อมูลใหม่",
+          });
+        }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "SET_CLOSING",
+          entity: "counting_session",
+          entityId: input.id,
+          metadata: input,
+        });
         return { success: true } as const;
       }),
 
@@ -1921,6 +2169,34 @@ export const appRouter = router({
           });
         }
 
+        // Each round carries in what the one before carried out, so rounds
+        // post in order or the chain breaks.
+        const earlier = await findEarlierUnpostedSession(detail.session);
+        if (earlier) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `ต้องลงบัญชีรอบวันที่ ${earlier.serviceDate.toISOString().slice(0, 10)} รอบที่ ${earlier.serviceRound} ก่อน`,
+          });
+        }
+        const r = detail.reconciliation;
+        if (
+          !r.hasCarryForward ||
+          r.openingCash === null ||
+          r.openingBank === null ||
+          r.closingBankExpected === null
+        ) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ต้องกรอกยอดยกมาก่อนลงบัญชี",
+          });
+        }
+        if (r.cashOnHandActual === null) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ต้องนับเงินสดคงเหลือในกล่องก่อนลงบัญชี",
+          });
+        }
+
         const note = input.varianceNote?.trim() || detail.session.varianceNote;
         if (!detail.reconciliation.isBalanced && !note) {
           throw new TRPCError({
@@ -1937,7 +2213,11 @@ export const appRouter = router({
           );
         }
 
-        const result = await postCountingSession(input.id, ctx.user.id);
+        const result = await postCountingSession(input.id, ctx.user.id, {
+          openingCash: r.openingCash,
+          openingBank: r.openingBank,
+          closingBank: r.closingBankExpected,
+        });
         if (!result) {
           throw new TRPCError({
             code: "CONFLICT",
@@ -2009,7 +2289,9 @@ export const appRouter = router({
             message:
               res.reason === "NOT_FOUND"
                 ? "ไม่พบรอบนับเงินถวาย"
-                : "ไม่สามารถลบรอบนี้ได้",
+                : res.reason === "HAS_WITHDRAWALS"
+                  ? "รอบนี้มียอดถอนจากคำขอเบิก ลบรอบไม่ได้ ให้จัดการคำขอเบิกก่อน"
+                  : "ไม่สามารถลบรอบนี้ได้",
           });
         }
         await createAuditLog({

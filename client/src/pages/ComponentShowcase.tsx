@@ -141,6 +141,17 @@ import { Slider } from "@/components/ui/slider";
 import { ArrowFillButton } from "@/components/ui/arrow-fill-button";
 import { FlipText } from "@/components/ui/flip-text";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import {
+  StationCountdownCard,
+  StationCubeLogo,
+  StationHeroCTA,
+  StationOfferingPackageCard,
+  StationProfileCard,
+  StationQrPoster,
+  StationStatusCard,
+  StationStepStatusCard,
+  StationUnlockConfirmCard,
+} from "@/components/ui/station-giving-kit";
 import { Switch } from "@/components/ui/switch";
 import {
   Table,
@@ -1423,6 +1434,57 @@ export default function ComponentsShowcase() {
                       readability)
                     </p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+          {/* JamBox Station — Adapted Giving Kit Section */}
+          <section className="space-y-4">
+            <h3 className="text-2xl font-semibold">
+              GraceBox Station — Adapted Self-Service Giving & QR Poster Kit
+            </h3>
+            <Card>
+              <CardContent className="pt-6 space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                  <div className="rounded-3xl bg-[#18120E] p-6 space-y-5 text-white">
+                    <div className="text-center">
+                      <StationCubeLogo />
+                    </div>
+                    <StationProfileCard
+                      userName="junior"
+                      metricLabel="สถานะผู้ถวาย"
+                      metricValue="MEMBER"
+                    />
+                    <StationStatusCard />
+                    <StationHeroCTA
+                      onClick={() =>
+                        sonnerToast.success("เริ่มเข้าสู่ขั้นตอนเลือกประเภทถวาย")
+                      }
+                    />
+                  </div>
+
+                  <div className="rounded-3xl bg-[#0B0D13] p-6 space-y-4 text-white">
+                    <StationCountdownCard initialSeconds={297} />
+                    <StationStepStatusCard updatedAtText="อัปเดตล่าสุด วันนี้" />
+                    <StationOfferingPackageCard
+                      title="ถวายสิบลด (Tithe)"
+                      subtitle="พร้อมเริ่มทำรายการและส่งสลิปได้ทันที"
+                      amountThb={1000}
+                      presetAmounts={[300, 500, 1000, 2000]}
+                      onSelect={() =>
+                        sonnerToast.info("เปิดหน้าสรุปการถวาย")
+                      }
+                    />
+                    <StationUnlockConfirmCard
+                      onConfirm={() =>
+                        sonnerToast.success("ยืนยันและส่งสลิปถวายเรียบร้อยแล้ว!")
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-4 flex justify-center">
+                  <StationQrPoster />
                 </div>
               </CardContent>
             </Card>

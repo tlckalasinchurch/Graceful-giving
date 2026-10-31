@@ -23,14 +23,14 @@ export const LoadingSkeleton: React.FC<{
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className={`w-full ${height} rounded-2xl bg-ground animate-pulse border border-line p-4 flex items-center gap-4`}
+          className={`w-full ${height} rounded-3xl bg-surface animate-pulse border border-line p-4 flex items-center gap-4`}
         >
-          <div className="w-14 h-14 rounded-2xl bg-line shrink-0" />
+          <div className="w-14 h-14 rounded-2xl bg-paper-2 shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="w-1/3 h-4 rounded-md bg-line" />
-            <div className="w-1/2 h-3 rounded-md bg-line" />
+            <div className="w-1/3 h-4 rounded-lg bg-paper-2" />
+            <div className="w-1/2 h-3 rounded-lg bg-paper" />
           </div>
-          <div className="w-20 h-6 rounded-md bg-line" />
+          <div className="w-20 h-6 rounded-xl bg-paper-2" />
         </div>
       ))}
     </div>
@@ -58,9 +58,9 @@ export const EmptyState: React.FC<{
 }) => {
   return (
     <div
-      className={`py-12 px-6 rounded-2xl bg-surface fintech-card flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+      className={`py-12 px-6 rounded-3xl bg-surface fintech-card flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     >
-      <div className="size-20 rounded-2xl overflow-hidden bg-ground shrink-0">
+      <div className="size-20 rounded-2xl overflow-hidden bg-tile-lilac p-1 shadow-xs shrink-0">
         <Illustration
           src={illustrationSrc}
           alt={illustrationAlt}
@@ -70,13 +70,13 @@ export const EmptyState: React.FC<{
         />
       </div>
       <div className="space-y-1 max-w-sm">
-        <h3 className="text-base font-semibold text-ink">{title}</h3>
+        <h3 className="text-base font-bold text-ink">{title}</h3>
         <p className="text-sm text-ink-3 leading-relaxed">{description}</p>
       </div>
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="min-h-11 mt-2 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-11 mt-2 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-white text-sm font-bold shadow-md shadow-brand/20 transition-all focus-visible:ring-2 focus-visible:ring-brand"
         >
           {actionText}
         </button>
@@ -97,21 +97,21 @@ export const ErrorState: React.FC<{
   className = "",
 }) => (
   <div
-    className={`py-12 px-6 rounded-2xl bg-[#FFF8F6] border border-[#F7D5CD] flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+    className={`py-12 px-6 rounded-3xl bg-tile-rose/50 border border-rose-200 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     role="alert"
   >
-    <div className="w-12 h-12 rounded-full bg-[#FDECEA] text-danger flex items-center justify-center text-xl font-bold">
+    <div className="w-12 h-12 rounded-2xl bg-tile-rose text-tile-rose-ink flex items-center justify-center text-xl font-bold shadow-2xs">
       !
     </div>
     <div className="space-y-1 max-w-sm">
-      <h3 className="text-base font-bold text-[#7C2A1E]">{title}</h3>
+      <h3 className="text-base font-bold text-tile-rose-ink">{title}</h3>
       <p className="text-sm text-ink-2 leading-relaxed">{description}</p>
     </div>
     {onRetry && (
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-11 rounded-xl bg-danger hover:bg-danger px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+        className="min-h-11 rounded-2xl bg-danger hover:opacity-90 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all"
       >
         ลองใหม่
       </button>
@@ -150,78 +150,78 @@ export const StatusBadge: React.FC<{
       case "approved":
       case "completed":
         return {
-          bg: "bg-[#E4F3E7] text-[#2D6622] border-[#C3E4B8]",
+          bg: "bg-tile-mint text-tile-mint-ink border-emerald-200",
           defaultLabel: "อนุมัติแล้ว",
         };
       case "active":
         return {
-          bg: "bg-[#E4F3E7] text-[#2D6622] border-[#C3E4B8]",
+          bg: "bg-tile-mint text-tile-mint-ink border-emerald-200",
           defaultLabel: "ใช้งานอยู่",
         };
       case "rejected":
         return {
-          bg: "bg-[#FEECEB] text-[#B92A20] border-[#F8C8C5]",
+          bg: "bg-tile-rose text-tile-rose-ink border-rose-200",
           defaultLabel: "ปฏิเสธ / ยกเลิก",
         };
       case "inactive":
         return {
-          bg: "bg-stone-100 text-stone-600 border-stone-200",
+          bg: "bg-paper-2 text-ink-2 border-line",
           defaultLabel: "ปิดใช้งาน",
         };
       case "draft":
         return {
-          bg: "bg-stone-100 text-stone-700 border-stone-200",
+          bg: "bg-paper-2 text-ink-2 border-line",
           defaultLabel: "ฉบับร่าง",
         };
       case "submitted":
         return {
-          bg: "bg-[#EAF2FB] text-[#1E5282] border-[#C7DCF3]",
+          bg: "bg-tile-sky text-tile-sky-ink border-sky-200",
           defaultLabel: "ส่งตรวจสอบแล้ว",
         };
       case "needs_review":
         return {
-          bg: "bg-tile-peach text-tile-peach-ink border-tile-peach",
+          bg: "bg-tile-peach text-tile-peach-ink border-orange-200",
           defaultLabel: "ต้องตรวจสอบ",
         };
       case "unknown":
         return {
-          bg: "bg-stone-100 text-stone-600 border-stone-200",
+          bg: "bg-paper-2 text-ink-2 border-line",
           defaultLabel: "ไม่ทราบสถานะ",
         };
       case "voided":
         return {
-          bg: "bg-stone-100 text-stone-600 border-stone-200",
+          bg: "bg-paper-2 text-ink-3 border-line",
           defaultLabel: "ยกเลิกรายการ",
         };
       case "counting":
         return {
-          bg: "bg-tile-peach text-tile-peach-ink border-tile-peach",
+          bg: "bg-tile-sand text-tile-sand-ink border-amber-200",
           defaultLabel: "กำลังนับ",
         };
       case "counted":
         return {
-          bg: "bg-[#EAF2FB] text-[#1E5282] border-[#C7DCF3]",
+          bg: "bg-tile-sky text-tile-sky-ink border-sky-200",
           defaultLabel: "รอตรวจสอบ",
         };
       case "verified":
         return {
-          bg: "bg-[#E4F3E7] text-[#2D6622] border-[#C3E4B8]",
+          bg: "bg-tile-lilac text-tile-lilac-ink border-purple-200",
           defaultLabel: "ตรวจสอบแล้ว",
         };
       case "posted":
         return {
-          bg: "bg-[#1F5C33] text-white border-[#1F5C33]",
+          bg: "bg-brand text-white border-brand",
           defaultLabel: "ลงบัญชีแล้ว",
         };
       case "closed":
         return {
-          bg: "bg-stone-200 text-stone-700 border-stone-300",
+          bg: "bg-paper-2 text-ink-2 border-line",
           defaultLabel: "ปิดรอบแล้ว",
         };
       case "pending":
       default:
         return {
-          bg: "bg-tile-peach text-tile-peach-ink border-tile-peach",
+          bg: "bg-tile-sand text-tile-sand-ink border-amber-200",
           defaultLabel: "รอดำเนินการ",
         };
     }
@@ -231,7 +231,7 @@ export const StatusBadge: React.FC<{
 
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-semibold border ${style.bg} ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-full text-xs font-bold border ${style.bg} ${className}`}
     >
       <span
         className="w-1.5 h-1.5 shrink-0 rounded-full bg-current"
@@ -250,32 +250,21 @@ export const MoneyDisplay: React.FC<{
   size?: "sm" | "base" | "md" | "lg" | "xl";
   className?: string;
 }> = ({ amount, type = "neutral", size = "md", className = "" }) => {
-  const isPositive = type === "income" || (type === "neutral" && amount > 0);
-  const isNegative = type === "expense" || (type === "neutral" && amount < 0);
-
-  // Quiet money polarity: income is green, ordinary spending stays in ink.
-  // Red is reserved for a balance that has gone below zero.
   const getColor = () => {
     if (type === "income") return "text-income";
     if (type === "neutral" && amount < 0) return "text-danger";
     return "text-ink";
   };
 
-  // Each size carries its own weight. The base class used to set font-bold
-  // as well, so two font-weight utilities landed on the same element and the
-  // winner depended on Tailwind's output order rather than on this switch.
-  // Satang sizes come from the same type scale, one or two steps down.
   const SIZES = {
-    sm: { whole: "text-sm font-semibold", satang: "" },
-    base: { whole: "text-base font-semibold", satang: "text-sm" },
-    md: { whole: "text-lg md:text-xl font-semibold", satang: "text-sm" },
-    lg: { whole: "text-2xl md:text-3xl font-semibold", satang: "text-base" },
-    xl: { whole: "text-3xl md:text-4xl font-semibold", satang: "text-xl" },
+    sm: { whole: "text-sm font-bold", satang: "" },
+    base: { whole: "text-base font-bold", satang: "text-sm" },
+    md: { whole: "text-lg md:text-xl font-bold", satang: "text-sm" },
+    lg: { whole: "text-2xl md:text-3xl font-extrabold", satang: "text-base" },
+    xl: { whole: "text-3xl md:text-4xl font-extrabold", satang: "text-xl" },
   } as const;
   const sizeStyle = SIZES[size];
 
-  // Neutral amounts keep their own sign: a negative balance must read as
-  // negative, not as its absolute value.
   const prefix =
     type === "income" ? "+" : type === "expense" ? "−" : amount < 0 ? "−" : "";
   const formatted = formatAmount(Math.abs(amount));
@@ -284,9 +273,6 @@ export const MoneyDisplay: React.FC<{
   const satang = dot === -1 ? "" : formatted.slice(dot);
   const satangColor = type === "income" ? "" : "text-ink-3";
 
-  // The "฿" is its own element with a small gap. Run together with the
-  // digits, the glyph's ink overlaps the first numeral, and separating it
-  // also keeps the digits themselves aligned down a table column.
   return (
     <span
       className={`money whitespace-nowrap font-sans ${getColor()} ${sizeStyle.whole} ${className}`}
@@ -311,10 +297,10 @@ export const PageHeader: React.FC<{
 }> = ({ title, subtitle, action, className = "" }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl p-5 md:p-6 border border-line card-elevation-sm ${className}`}
+      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface rounded-3xl p-5 md:p-6 fintech-card ${className}`}
     >
       <div className="min-w-0">
-        <h1 className="text-xl md:text-2xl font-bold text-ink-2 tracking-tight break-words">
+        <h1 className="text-xl md:text-2xl font-extrabold text-ink tracking-tight break-words">
           {title}
         </h1>
         {subtitle && (
@@ -332,34 +318,29 @@ export const PageHeader: React.FC<{
 
 // ─── 6. Chip ─────────────────────────────────────────────────────────────────
 
-/**
- * The small pill used for filters and for quick-amount presets.
- *
- * Several screens had their own copy of this button, and most of those copies
- * were 26–36px tall — under the 44px the rest of the app uses as its minimum
- * touch target, and awkward to hit on a phone. Defining it once keeps the
- * height, the radius and the selected state the same everywhere.
- */
 export const Chip: React.FC<
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
     active?: boolean;
-    /** Right-hand count, e.g. the number of rows a filter would keep. */
     count?: number;
   }
 > = ({ active = false, count, className = "", children, ...props }) => (
   <button
     type="button"
     aria-pressed={active}
-    className={`min-h-11 shrink-0 whitespace-nowrap rounded-2xl border px-3.5 py-2 text-sm transition-colors ${
+    className={`min-h-11 shrink-0 whitespace-nowrap rounded-2xl border px-4 py-2 text-sm transition-all ${
       active
-        ? "border-brand bg-tile-peach font-semibold text-tile-peach-ink"
-        : "border-field bg-surface font-medium text-ink hover:bg-ground"
+        ? "border-brand bg-brand font-bold text-white shadow-sm shadow-brand/20"
+        : "border-line bg-surface font-semibold text-ink-2 hover:bg-paper hover:text-ink"
     } ${className}`}
     {...props}
   >
     {children}
     {count !== undefined && (
-      <span className="money ml-1.5 font-normal">{count}</span>
+      <span
+        className={`money ml-1.5 font-medium ${active ? "text-white/90" : "text-ink-3"}`}
+      >
+        {count}
+      </span>
     )}
   </button>
 );
@@ -388,7 +369,7 @@ export const FilterBar: React.FC<{
       {/* Search Input */}
       <div className="relative w-full">
         <Search
-          className="pointer-events-none w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2"
+          className="pointer-events-none w-4 h-4 text-ink-3 absolute left-4 top-1/2 -translate-y-1/2"
           aria-hidden="true"
         />
         <input
@@ -397,7 +378,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full pl-9 pr-4 py-2.5 rounded-xl bg-surface border border-field text-base md:text-sm text-ink placeholder-ink-3 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/30"
+          className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface border border-line shadow-2xs text-base md:text-sm text-ink placeholder-ink-3 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/30"
         />
       </div>
 
@@ -435,27 +416,18 @@ export const FilterBar: React.FC<{
 
 // ─── 8. Back Link ────────────────────────────────────────────────────────────
 
-/**
- * "Back to the list" control, shown at the top of every detail and entry page.
- *
- * Ten pages each wrote their own, in six different styles — three shapes, two
- * type sizes, and four of them below the 44px minimum touch target. Because
- * this is the control a user reaches for after deciding not to save, it has
- * to look and behave the same wherever it appears.
- */
 export const BackLink: React.FC<{
   label: string;
   onClick: () => void;
-  /** "plain" drops the pill for pages that sit it beside a status tag. */
   variant?: "pill" | "plain";
   className?: string;
 }> = ({ label, onClick, variant = "pill", className = "" }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`min-h-11 inline-flex items-center gap-1.5 text-sm font-medium transition-colors ${
+    className={`min-h-11 inline-flex items-center gap-1.5 text-sm font-semibold transition-all ${
       variant === "pill"
-        ? "rounded-2xl border border-field bg-surface px-3.5 py-2 text-ink hover:bg-ground"
+        ? "rounded-2xl border border-line bg-surface px-4 py-2 text-ink shadow-2xs hover:bg-paper"
         : "text-ink-2 hover:text-ink"
     } ${className}`}
   >
@@ -489,9 +461,9 @@ export const ConfirmDialog: React.FC<{
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm bg-surface border-line rounded-2xl p-6 text-ink">
+      <DialogContent className="max-w-sm bg-surface border-line rounded-3xl p-6 text-ink shadow-xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-ink-2">
+          <DialogTitle className="text-lg font-extrabold text-ink">
             {title}
           </DialogTitle>
           <DialogDescription className="text-sm text-ink-2 leading-relaxed">
@@ -503,7 +475,7 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="flex-1 py-2.5 rounded-xl bg-ground text-ink-2 font-bold text-xs border border-line"
+            className="flex-1 py-2.5 rounded-2xl bg-paper text-ink-2 font-bold text-xs border border-line hover:bg-paper-2"
           >
             {cancelText}
           </button>
@@ -511,9 +483,9 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`flex-1 py-2.5 rounded-xl text-white font-bold text-xs button-elevation transition-all ${
+            className={`flex-1 py-2.5 rounded-2xl text-white font-bold text-xs button-elevation transition-all ${
               variant === "danger"
-                ? "bg-danger hover:bg-danger"
+                ? "bg-danger hover:opacity-90"
                 : "bg-brand hover:bg-brand-ink"
             }`}
           >

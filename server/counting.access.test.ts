@@ -284,3 +284,46 @@ describe("counting: delete and reset session permissions", () => {
     });
   });
 });
+
+describe("counting: carry-forward figures stay with finance", () => {
+  for (const [label, user] of [
+    ["member", member],
+    ["counter", counter],
+  ] as const) {
+    it(`blocks a ${label} from setting opening balances`, async () => {
+      const caller = appRouter.createCaller(createContext(user));
+      await expect(
+        caller.counting.setOpeningBalances({
+          id: 1,
+          openingCash: 0,
+          openingBank: 0,
+        })
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    });
+
+    it(`blocks a ${label} from recording the cash box and passbook`, async () => {
+      const caller = appRouter.createCaller(createContext(user));
+      await expect(
+        caller.counting.setClosingFigures({ id: 1, cashOnHandActual: 0 })
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    });
+  }
+
+  it("rejects a negative cash-box count", async () => {
+    const caller = appRouter.createCaller(createContext(treasurer));
+    await expect(
+      caller.counting.setClosingFigures({ id: 1, cashOnHandActual: -1 })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("rejects a negative opening cash balance", async () => {
+    const caller = appRouter.createCaller(createContext(treasurer));
+    await expect(
+      caller.counting.setOpeningBalances({
+        id: 1,
+        openingCash: -1,
+        openingBank: 0,
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+});

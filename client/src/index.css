@@ -1,60 +1,58 @@
-@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Noto+Serif+Thai:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Manrope has no Thai glyphs, so Latin and digits render in Manrope and
-     Thai falls through to IBM Plex Sans Thai. */
-  --font-sans: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
-  /* Editorial display face for titles and the headline figure. Newsreader
-     covers Latin and digits; Noto Serif Thai takes over for Thai glyphs. */
-  --font-display: "Newsreader", "Noto Serif Thai", Georgia, serif;
-  --font-serif: "Newsreader", "Noto Serif Thai", Georgia, serif;
+  /* Modern geometric FinTech sans-serif: Plus Jakarta Sans & Manrope for Latin/digits,
+     IBM Plex Sans Thai for crisp, modern Thai typography. */
+  --font-sans:
+    "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-display:
+    "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-serif:
+    "Plus Jakarta Sans", "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-script: "Caveat", cursive;
-  /* Card 14px; inner controls step down 10 / 8 / 5. */
-  --radius-sm: 0.1875rem;
-  --radius-md: 0.25rem;
-  --radius-lg: 0.3125rem;
-  --radius-xl: 0.5rem;
-  --radius-2xl: 0.625rem;
-  --radius-3xl: 0.875rem;
 
-  /* Editorial minimal palette: warm paper ground, white surfaces, near-black
-     ink, one accent. Text pairs are checked against white and ground:
-     ink 17.6:1, ink-2 9.2:1, ink-3 5.6:1 (5.1:1 on ground), income 5.3:1,
-     danger 5.9:1. `field` is the input outline (3:1, WCAG 1.4.11); `line`
-     only divides. */
-  --color-ground: #f6f4ef;
-  --color-paper: #f6f4ef;
-  --color-paper-2: #efece4;
+  /* Generous Gen Z FinTech squircle radii (Make by KBank / Revolut style) */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+
+  /* Clean Pastel FinTech Palette:
+     Airy cloud-blue ground, pure white floating cards, deep slate-navy ink,
+     vibrant electric indigo brand, and fresh pastel category tiles. */
+  --color-ground: #f4f7fb;
+  --color-paper: #eef3f9;
+  --color-paper-2: #e3ebf6;
   --color-surface: #ffffff;
-  --color-ink: #16140f;
-  --color-ink-2: #4a463e;
-  --color-ink-3: #6b665c;
-  --color-line: #e3dfd5;
-  --color-field: #8c8678;
-  --color-income: #2f7a45;
-  --color-danger: #c41c29;
-  --color-brand: #c94f16;
-  --color-brand-ink: #9f3b0f;
+  --color-ink: #0f172a;
+  --color-ink-2: #334155;
+  --color-ink-3: #64748b;
+  --color-line: #e2e8f0;
+  --color-field: #cbd5e1;
+  --color-income: #059669;
+  --color-danger: #e11d48;
+  --color-brand: #4f46e5;
+  --color-brand-ink: #3730a3;
 
-  /* Category tiles. Most are neutral so the single accent stays meaningful;
-     peach is the accent tint, mint is money in, rose is a warning. Dark text
-     on each is ≥7:1. */
-  --color-tile-sky: #ece9e0;
-  --color-tile-sky-ink: #3a362f;
-  --color-tile-mint: #e4efe7;
-  --color-tile-mint-ink: #1d5a32;
-  --color-tile-peach: #f8e9de;
-  --color-tile-peach-ink: #8a3510;
-  --color-tile-lilac: #ece9e0;
-  --color-tile-lilac-ink: #3a362f;
-  --color-tile-sand: #efece4;
-  --color-tile-sand-ink: #4a463e;
-  --color-tile-rose: #fae6e3;
-  --color-tile-rose-ink: #8f1a24;
+  /* Gen Z Pastel Category Tiles — soft vibrant tints with deep matching hue ink */
+  --color-tile-sky: #e0f2fe;
+  --color-tile-sky-ink: #0369a1;
+  --color-tile-mint: #d1fae5;
+  --color-tile-mint-ink: #047857;
+  --color-tile-peach: #ffedd5;
+  --color-tile-peach-ink: #c2410c;
+  --color-tile-lilac: #f3e8ff;
+  --color-tile-lilac-ink: #6d28d9;
+  --color-tile-sand: #fef3c7;
+  --color-tile-sand-ink: #b45309;
+  --color-tile-rose: #ffe4e6;
+  --color-tile-rose-ink: #be123c;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -78,16 +76,16 @@
 
   /* Custom Grace-giving Brand Colors (Semantic Tokens) */
   --color-brand-bg: var(--background);
-  --color-brand-cream: #fff4d6;
-  --color-brand-sage: #e4c98f;
-  --color-brand-lightsage: #fff8ea;
-  --color-brand-peach: #f6c09b;
-  --color-brand-orange: #fc6c26;
-  --color-brand-sky: #d9c7ed;
-  --color-brand-brown: #51443a;
+  --color-brand-cream: #fef3c7;
+  --color-brand-sage: #c7d2fe;
+  --color-brand-lightsage: #eef2ff;
+  --color-brand-peach: #fed7aa;
+  --color-brand-orange: #4f46e5;
+  --color-brand-sky: #e0e7ff;
+  --color-brand-brown: #1e1b4b;
   --color-brand-dark: var(--foreground);
-  --color-brand-muted: #807266;
-  --color-brand-border: #e7dcc8;
+  --color-brand-muted: #64748b;
+  --color-brand-border: #e2e8f0;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -104,40 +102,29 @@
 }
 
 :root {
-  /* Height of the fixed mobile bottom navigation (AppLayout.tsx), used to
-     keep page content clear of it below the lg: breakpoint. Any page that
-     adds its own fixed/sticky bottom bar on mobile must clear this same
-     value plus its own height, instead of guessing a pixel offset. */
-  --mobile-nav-clearance: 5rem;
-
-  /* Widest the page content column is allowed to get (AppLayout.tsx). Without
-     a ceiling, a ledger row on a 1920px monitor puts its date at the far left
-     and its amount at the far right with half a metre of empty space between
-     them, which is unreadable. The sidebar sits outside this width. */
+  --mobile-nav-clearance: 5.5rem;
   --content-max: 88rem;
 
-  /* shadcn roles mapped onto the pastel-consumer tokens above. #C94F16 is
-     the one warm brand colour: it carries white button text at 4.6:1. */
-  --primary: #c94f16;
+  --primary: #4f46e5;
   --primary-foreground: #ffffff;
-  --background: #f6f4ef;
-  --foreground: #16140f;
+  --background: #f4f7fb;
+  --foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #16140f;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #16140f;
-  --secondary: #efece4;
-  --secondary-foreground: #16140f;
-  --muted: #efece4;
-  --muted-foreground: #5a564d;
-  --accent: #efece4;
-  --accent-foreground: #16140f;
-  --destructive: #c41c29;
+  --popover-foreground: #0f172a;
+  --secondary: #eef3f9;
+  --secondary-foreground: #0f172a;
+  --muted: #eef3f9;
+  --muted-foreground: #64748b;
+  --accent: #e0e7ff;
+  --accent-foreground: #3730a3;
+  --destructive: #e11d48;
   --destructive-foreground: #ffffff;
-  --border: #e3dfd5;
-  --input: #8c8678;
-  --ring: #c94f16;
-  --radius: 0.625rem;
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #4f46e5;
+  --radius: 1rem;
 }
 
 * {
@@ -152,8 +139,14 @@ html {
 body {
   margin: 0;
   background-color: var(--background);
+  background-image:
+    radial-gradient(at 0% 0%, rgba(224, 231, 255, 0.55) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(209, 250, 229, 0.45) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(243, 232, 255, 0.4) 0px, transparent 50%);
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  font-family:
+    "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -165,7 +158,7 @@ body {
 .money {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 button:focus-visible,
@@ -177,28 +170,31 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* Editorial building blocks ------------------------------------------------ */
+/* Modern FinTech building blocks ------------------------------------------- */
 
-/* A small label above a title: Latin caps with wide tracking, quiet colour. */
 .eyebrow {
-  font-size: 0.6875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.72rem;
   line-height: 1;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-ink-3);
+  color: var(--color-brand);
+  background-color: #eef2ff;
+  padding: 0.35rem 0.7rem;
+  border-radius: 9999px;
 }
 
-/* Titles use the serif and sit tight; digits stay lining so a figure reads as a figure. */
 .display {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 800;
+  letter-spacing: -0.025em;
   line-height: 1.15;
   font-variant-numeric: lining-nums;
 }
 
-/* A 1px rule that separates sections instead of a box around each. */
 .rule {
   border-top: 1px solid var(--color-line);
 }
@@ -214,68 +210,68 @@ select:focus-visible {
   }
 }
 
-/* Surfaces are separated by a 1px hairline, not by a shadow. The legacy
-   shadow class names stay so existing markup keeps working. */
+/* Soft floating FinTech surfaces */
 .card-elevation-sm,
 .clay-card-shadow,
 .inset-bevel-subtle,
 .clay-inset-bevel {
-  box-shadow: 0 0 0 1px var(--color-line);
+  box-shadow:
+    0 0 0 1px rgba(226, 232, 240, 0.85),
+    0 4px 16px -4px rgba(15, 23, 42, 0.04);
 }
 
 .button-elevation,
 .clay-button-shadow {
-  box-shadow: none;
+  box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.25);
 }
 
-/* The one focal figure on a page gets a slightly stronger edge. */
 .card-elevation-focus,
 .clay-balance-glow {
   box-shadow:
-    0 0 0 1px var(--color-line),
-    0 12px 32px -20px rgba(22, 20, 15, 0.18);
+    0 0 0 1px rgba(199, 210, 254, 0.8),
+    0 16px 40px -16px rgba(79, 70, 229, 0.14);
 }
 
 .fintech-card {
   container-type: inline-size;
-  box-shadow: 0 0 0 1px var(--color-line);
+  box-shadow:
+    0 0 0 1px rgba(226, 232, 240, 0.85),
+    0 8px 24px -6px rgba(15, 23, 42, 0.04),
+    0 2px 6px -1px rgba(15, 23, 42, 0.02);
 }
 
 .fintech-card-hover {
-  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.18s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease;
 }
 
 .fintech-card-hover:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow:
-    0 0 0 1px var(--color-field),
-    0 10px 28px -18px rgba(22, 20, 15, 0.22);
+    0 0 0 1px rgba(165, 180, 252, 0.9),
+    0 14px 32px -12px rgba(79, 70, 229, 0.14);
 }
 
 .fintech-glass {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(231, 220, 200, 0.75);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .fintech-glass-dark {
-  background: rgba(23, 19, 17, 0.9);
+  background: rgba(15, 23, 42, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Staggered entrance for above-the-fold Home sections (hero, balance,
-   summary cards, primary actions) — first-impression polish only, not
-   used below the fold. `both` fill-mode holds the from-state pre-animation
-   so content doesn't flash visible before its delay elapses. */
 @keyframes fade-slide-up {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -284,7 +280,7 @@ select:focus-visible {
 }
 
 .animate-fade-up {
-  animation: fade-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fade-slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -299,8 +295,8 @@ select:focus-visible {
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
-  [type="button"]:not(:disabled),
-  [type="submit"]:not(:disabled),
+  [type="button"]:not([disabled]),
+  [type="submit"]:not([disabled]),
   a[href] {
     cursor: pointer;
   }
@@ -329,11 +325,11 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #d3cec2;
+  background: #cbd5e1;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #aba596;
+  background: #94a3b8;
 }
 
 /* ============================================

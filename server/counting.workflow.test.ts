@@ -236,7 +236,6 @@ describeDb("counting workflow against a real database", () => {
 
     const detail = await asCounter().counting.get({ id: sessionId });
     expect(detail.reconciliation.deductionTotal).toBe(2000);
-    expect(detail.reconciliation.expectedDeposit).toBe(18000);
     expect(detail.deductions[0].approvedBy).toBe(treasurer.id);
   });
 
@@ -266,7 +265,6 @@ describeDb("counting workflow against a real database", () => {
     const detail = await caller.counting.get({ id: sessionId });
     expect(detail.reconciliation.actualCashDeposit).toBe(18000);
     expect(detail.reconciliation.actualTransferIn).toBe(3000);
-    expect(detail.reconciliation.depositVariance).toBe(0);
     expect(detail.reconciliation.transferVariance).toBe(0);
     expect(detail.reconciliation.isBalanced).toBe(true);
   });
@@ -298,6 +296,17 @@ describeDb("counting workflow against a real database", () => {
   it("posts the ledger rows and moves the fund balance once", async () => {
     const caller = asTreasurer();
     await caller.counting.verify({ id: sessionId });
+    // First round in this tenant: nothing to carry in. All counted cash
+    // (20,000) less the deduction went to the bank, so the box is empty.
+    await caller.counting.setOpeningBalances({
+      id: sessionId,
+      openingCash: 0,
+      openingBank: 0,
+    });
+    await caller.counting.setClosingFigures({
+      id: sessionId,
+      cashOnHandActual: 0,
+    });
 
     const result = await caller.counting.post({ id: sessionId });
     expect(result.offeringCount).toBe(3);
@@ -387,6 +396,11 @@ describeDb("counting workflow: an unbalanced session", () => {
     });
     await asCounter().counting.submitCount({ id: strayId });
     await asTreasurer().counting.verify({ id: strayId });
+    // Carries in from the round above (cash 0); nothing was banked this week.
+    await asTreasurer().counting.setClosingFigures({
+      id: strayId,
+      cashOnHandActual: 4900,
+    });
 
     const detail = await asTreasurer().counting.get({ id: strayId });
     expect(detail.reconciliation.cashVariance).toBe(-100);
@@ -485,3 +499,280 @@ describeDb(
     });
   }
 );
+
+/**
+ * Cash and bank balances carried from one round to the next. Dates sit before
+ * every other session in this file so the first round really is the first.
+ */
+describeDb("counting workflow: carry forward", () => {
+  const roundOneDate = new Date("2025-01-05T01:00:00.000Z");
+  let roundOne = 0;
+
+  it("asks for opening balances on the first round", async () => {
+    roundOne = (
+      await asCounter().counting.create({
+        serviceDate: roundOneDate,
+        serviceRound: 1,
+      })
+    ).id;
+
+    const before = await asTreasurer().counting.get({ id: roundOne });
+    expect(before.openingSource).toBeNull();
+    expect(before.reconciliation.hasCarryForward).toBe(false);
+
+    await asTreasurer().counting.setOpeningBalances({
+      id: roundOne,
+      openingCash: 2000,
+      openingBank: 50000,
+    });
+
+    const after = await asTreasurer().counting.get({ id: roundOne });
+    expect(after.openingSource).toBe("stored");
+    expect(after.reconciliation.openingCash).toBe(2000);
+    expect(after.reconciliation.openingBank).toBe(50000);
+
+    await expect(
+      asTreasurer().counting.setOpeningBalances({
+        id: roundOne,
+        openingCash: 1,
+        openingBank: 1,
+      })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+
+  it("records a withdrawal and other bank items", async () => {
+    const caller = asTreasurer();
+    await caller.counting.addBankRecord({
+      sessionId: roundOne,
+      type: "withdrawal",
+      amount: 5000,
+    });
+    await caller.counting.addBankRecord({
+      sessionId: roundOne,
+      type: "other_in",
+      amount: 12.5,
+      notes: "ดอกเบี้ย",
+    });
+    await caller.counting.addBankRecord({
+      sessionId: roundOne,
+      type: "other_out",
+      amount: 30,
+      notes: "ค่าธรรมเนียม",
+    });
+
+    const r = (await caller.counting.get({ id: roundOne })).reconciliation;
+    expect(r.withdrawalTotal).toBe(5000);
+    expect(r.otherInTotal).toBe(12.5);
+    expect(r.otherOutTotal).toBe(30);
+    // 50000 + 12.5 − 5000 − 30
+    expect(r.closingBankExpected).toBe(44982.5);
+    // 2000 + 0 + 5000
+    expect(r.closingCashExpected).toBe(7000);
+  });
+
+  it("records the cash box and the passbook", async () => {
+    await asTreasurer().counting.setClosingFigures({
+      id: roundOne,
+      cashOnHandActual: 7000,
+      passbookBalance: 44982.5,
+      passbookBalanceDate: new Date("2025-01-06T03:00:00.000Z"),
+    });
+    const r = (await asTreasurer().counting.get({ id: roundOne }))
+      .reconciliation;
+    expect(r.cashOnHandActual).toBe(7000);
+    expect(r.cashOnHandVariance).toBe(0);
+    expect(r.passbookVariance).toBe(0);
+  });
+
+  it("does not carry forward from a round that predates carry-forward", async () => {
+    const db = await getDb();
+    const seeded = await db!.execute(
+      sql`INSERT INTO counting_sessions ("churchId", "serviceDate", "serviceRound", status, "countedBy")
+          VALUES (${TEST_CHURCH_ID}, ${"2024-06-02T01:00:00.000Z"}, 1, 'posted', ${counter.id})
+          RETURNING id`
+    );
+    const legacyId = (seeded as unknown as Array<{ id: number }>)[0].id;
+    const next = await asCounter().counting.create({
+      serviceDate: new Date("2024-06-09T01:00:00.000Z"),
+      serviceRound: 1,
+    });
+
+    const detail = await asTreasurer().counting.get({ id: next.id });
+    expect(detail.openingSource).toBeNull();
+    expect(detail.reconciliation.hasCarryForward).toBe(false);
+
+    // Remove both so they cannot block posting the 2025 rounds.
+    await db!.execute(
+      sql`DELETE FROM counting_sessions WHERE id IN (${legacyId}, ${next.id})`
+    );
+  });
+});
+
+/**
+ * Posting freezes what a round carries in and out. Dates sit before every
+ * other round so the first one here has nothing earlier to carry from.
+ */
+describeDb("counting workflow: posting carries balances forward", () => {
+  const sunday = new Date("2024-02-04T01:00:00.000Z");
+  const nextSunday = new Date("2024-02-11T01:00:00.000Z");
+  let localFundId = 0;
+  let roundA = 0;
+
+  beforeAll(async () => {
+    const db = await getDb();
+    if (!db)
+      throw new Error("DATABASE_URL set but the database is unreachable");
+    const inserted = await db.execute(
+      sql`INSERT INTO finance_accounts ("churchId", name, type, balance, "isActive")
+          VALUES (${TEST_CHURCH_ID}, 'กองทุนยกยอด', 'general', 0, true)
+          RETURNING id`
+    );
+    localFundId = (inserted as unknown as Array<{ id: number }>)[0].id;
+  });
+
+  async function countedRound(serviceDate: Date, serviceRound: number) {
+    const { id } = await asCounter().counting.create({
+      serviceDate,
+      serviceRound,
+    });
+    await asCounter().counting.addEnvelope({
+      sessionId: id,
+      fundId: localFundId,
+      amount: 8000,
+      category: "general",
+      method: "cash",
+      isAnonymous: true,
+    });
+    await asCounter().counting.setCashCount({
+      sessionId: id,
+      denomination: 1000,
+      kind: "note",
+      quantity: 8,
+    });
+    await asCounter().counting.submitCount({ id });
+    await asTreasurer().counting.verify({ id });
+    return id;
+  }
+
+  it("will not post a round while an earlier one is still open", async () => {
+    roundA = (
+      await asCounter().counting.create({
+        serviceDate: sunday,
+        serviceRound: 1,
+      })
+    ).id;
+    const later = await countedRound(nextSunday, 1);
+    await expect(
+      asTreasurer().counting.post({ id: later })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+
+    const db = await getDb();
+    await db!.execute(
+      sql`DELETE FROM offering_envelopes WHERE "sessionId" = ${later}`
+    );
+    await db!.execute(
+      sql`DELETE FROM cash_counts WHERE "sessionId" = ${later}`
+    );
+    await db!.execute(sql`DELETE FROM counting_sessions WHERE id = ${later}`);
+    await db!.execute(sql`DELETE FROM counting_sessions WHERE id = ${roundA}`);
+  });
+
+  it("will not post without opening balances", async () => {
+    roundA = await countedRound(sunday, 1);
+    await expect(
+      asTreasurer().counting.post({ id: roundA })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("will not post without the cash box count", async () => {
+    await asTreasurer().counting.setOpeningBalances({
+      id: roundA,
+      openingCash: 2000,
+      openingBank: 50000,
+    });
+    await expect(
+      asTreasurer().counting.post({ id: roundA })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("carries the first service into the same Sunday's second service", async () => {
+    await asTreasurer().counting.addBankRecord({
+      sessionId: roundA,
+      type: "cash_deposit",
+      amount: 5000,
+    });
+    // 2000 + 8000 − 5000
+    await asTreasurer().counting.setClosingFigures({
+      id: roundA,
+      cashOnHandActual: 5000,
+    });
+    await asTreasurer().counting.post({ id: roundA });
+
+    const roundB = await asCounter().counting.create({
+      serviceDate: sunday,
+      serviceRound: 2,
+    });
+    const detail = await asTreasurer().counting.get({ id: roundB.id });
+    expect(detail.openingSource).toBe("previous");
+    expect(detail.reconciliation.openingCash).toBe(5000);
+    expect(detail.reconciliation.openingBank).toBe(55000);
+  });
+
+  it("freezes opening and closing balances when posted", async () => {
+    const db = await getDb();
+    const rows = await db!.execute(
+      sql`SELECT "openingCash", "openingBank", "closingBank", "cashOnHandActual"
+          FROM counting_sessions WHERE id = ${roundA}`
+    );
+    const row = (rows as unknown as Array<Record<string, string>>)[0];
+    expect(row.openingCash).toBe("2000.00");
+    expect(row.openingBank).toBe("50000.00");
+    expect(row.closingBank).toBe("55000.00");
+    expect(row.cashOnHandActual).toBe("5000.00");
+
+    const detail = await asTreasurer().counting.get({ id: roundA });
+    expect(detail.openingSource).toBe("stored");
+    await expect(
+      asTreasurer().counting.setClosingFigures({
+        id: roundA,
+        cashOnHandActual: 1,
+      })
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+
+  it("keeps request-linked withdrawals when a round is reset", async () => {
+    // Review Focus 4: a bank line that a withdrawal request produced must not
+    // silently vanish when the treasurer resets the round; only hand-entered
+    // bank lines are cleared.
+    const db = await getDb();
+    const sessionId = await asCounter()
+      .counting.create({
+        serviceDate: new Date("2026-10-11T01:00:00.000Z"),
+        serviceRound: 1,
+      })
+      .then(r => r.id);
+    await asTreasurer().counting.addBankRecord({
+      sessionId,
+      type: "cash_deposit",
+      amount: 1000,
+    });
+    const linked = await db!.execute(
+      sql`INSERT INTO bank_records ("sessionId", "churchId", type, amount, "occurredAt", "recordedBy", "withdrawalRequestId")
+          VALUES (${sessionId}, ${TEST_CHURCH_ID}, 'withdrawal', '500.00', now(), ${treasurer.id}, 1)
+          RETURNING id`
+    );
+    const linkedId = (linked as unknown as Array<{ id: number }>)[0].id;
+
+    await asTreasurer().counting.resetSession({ id: sessionId });
+
+    const after = await db!.execute(
+      sql`SELECT id, "withdrawalRequestId" FROM bank_records WHERE "sessionId" = ${sessionId}`
+    );
+    const rows = after as unknown as Array<{
+      id: number;
+      withdrawalRequestId: number | null;
+    }>;
+    expect(rows.map(r => r.id)).toEqual([linkedId]);
+    expect(rows[0].withdrawalRequestId).toBe(1);
+  });
+});

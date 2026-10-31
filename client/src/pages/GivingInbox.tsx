@@ -465,6 +465,16 @@ export default function GivingInbox() {
             <span className="hidden sm:inline">LINE บอท</span>
           </button>
 
+          <button
+            type="button"
+            onClick={() => setLocation("/giving/station")}
+            className="px-3.5 py-2 rounded-2xl bg-[#18120E] hover:bg-[#271D17] text-[#F97316] border border-[#3E2C23] text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+            title="เปิดป้าย QR Code สำหรับติดหน้าห้องและหน้าถวายอัตโนมัติ"
+          >
+            <QrCode className="w-3.5 h-3.5 text-[#F97316]" />
+            <span className="hidden sm:inline">ป้าย QR หน้าห้อง</span>
+          </button>
+
           {/* 3. Manual Test Upload Button */}
           <button
             type="button"
@@ -1403,7 +1413,27 @@ export default function GivingInbox() {
               </ol>
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex items-center justify-between gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLineInfoModal(false);
+                  setLocation("/giving/station");
+                }}
+                className="px-4 py-2.5 rounded-xl bg-[#18120E] text-[#F97316] font-bold text-xs shadow-xs hover:bg-[#271D17] flex items-center gap-1.5 cursor-pointer"
+              >
+                <QrCode className="w-4 h-4" />
+                <span>เปิดโปสเตอร์ป้าย QR ติดหน้าห้อง</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLineInfoModal(false)}
+                className="px-6 py-2.5 rounded-xl bg-brand text-white font-bold text-sm shadow-xs hover:bg-brand-ink"
+              >
+                เข้าใจแล้ว
+              </button>
+            </div>
+            <div className="hidden">
               <button
                 type="button"
                 onClick={() => setShowLineInfoModal(false)}

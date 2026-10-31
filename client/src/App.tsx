@@ -40,6 +40,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Updates = lazy(() => import("./pages/Updates"));
 const GivingInbox = lazy(() => import("./pages/GivingInbox"));
+const GivingStation = lazy(() => import("./pages/GivingStation"));
 const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
 
 /** Routes reachable without a session. Everything else needs one. */
@@ -222,6 +223,8 @@ function Router() {
 
       <Route path="/offerings" component={Offerings} />
       <Route path="/offerings/new" component={NewOffering} />
+      <Route path="/giving/station" component={GivingStation} />
+      <Route path="/giving-station" component={GivingStation} />
 
       {/* LINE Giving Inbox */}
       <Route path="/giving/inbox">
