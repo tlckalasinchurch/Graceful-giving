@@ -19,6 +19,7 @@ describe("stationOnlyRedirect", () => {
     expect(stationOnlyRedirect(member, "/giving/station")).toBeNull();
     expect(stationOnlyRedirect(member, "/giving/station/")).toBeNull();
     expect(stationOnlyRedirect(member, "/404")).toBeNull();
+    expect(stationOnlyRedirect(member, "/give")).toBeNull();
   });
 
   it.each(["SUPER_ADMIN", "PASTOR", "TREASURER", "DEACON", "COUNTER"])(

@@ -41,11 +41,13 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Updates = lazy(() => import("./pages/Updates"));
 const GivingInbox = lazy(() => import("./pages/GivingInbox"));
 const GivingStation = lazy(() => import("./pages/GivingStation"));
+const Give = lazy(() => import("./pages/Give"));
 const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
 
 /** Routes reachable without a session. Everything else needs one. */
 const PUBLIC_PATHS = [
   "/login",
+  "/give",
   "/404",
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
 ];
@@ -82,6 +84,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 const SETUP_EXEMPT_PATHS = [
   "/setup",
   "/login",
+  "/give",
   "/404",
   // Dev-only UI gallery; the route itself is also unmounted in prod (see Router).
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
@@ -227,6 +230,7 @@ function Router() {
 
       <Route path="/offerings" component={Offerings} />
       <Route path="/offerings/new" component={NewOffering} />
+      <Route path="/give" component={Give} />
       <Route path="/giving/station" component={GivingStation} />
 
       {/* LINE Giving Inbox */}
