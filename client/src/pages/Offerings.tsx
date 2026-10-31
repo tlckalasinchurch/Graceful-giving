@@ -14,6 +14,7 @@ import {
   HandCoins,
   Heart,
   Plus,
+  QrCode,
   Sparkles,
   Printer,
 } from "lucide-react";
@@ -119,6 +120,13 @@ export default function Offerings() {
           >
             <Download className="w-3.5 h-3.5" />
             <span>ส่งออก CSV</span>
+          </button>
+          <button
+            onClick={() => setLocation("/giving/station")}
+            className="px-3.5 py-2 rounded-2xl bg-[#18120E] hover:bg-[#271D17] text-[#F97316] border border-[#3E2C23] text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            <span>ป้าย QR & จุดถวาย</span>
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
