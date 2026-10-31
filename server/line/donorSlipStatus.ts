@@ -22,6 +22,13 @@ function autoRejectKind(aiData: unknown): "amount" | "receiver" | null {
   return kind === "amount" || kind === "receiver" ? kind : null;
 }
 
+function isEscalated(aiData: unknown): boolean {
+  return (
+    (aiData as { verification?: { escalated?: unknown } } | null)?.verification
+      ?.escalated === true
+  );
+}
+
 function amountMatches(row: SlipRowForDonor): boolean {
   if (row.declaredAmount === null || row.extractedAmount === null) return false;
   const conf = Number(row.extractedAmountConfidence ?? 0);
@@ -72,6 +79,14 @@ export function toDonorSlipStatus(row: SlipRowForDonor): DonorSlipStatus {
         slipAmount: null,
       };
     default:
+      if (isEscalated(row.aiData)) {
+        return {
+          state: "in_review",
+          message:
+            "ได้รับสลิปแล้ว เพราะไม่ผ่านการตรวจอัตโนมัติหลายครั้ง ระบบส่งให้เจ้าหน้าที่ตรวจสอบเอง",
+          slipAmount: null,
+        };
+      }
       return amountMatches(row)
         ? {
             state: "verified",

@@ -15,6 +15,12 @@ export const MAX_SLIP_IMAGE_BYTES = 3.5 * 1024 * 1024;
 /** Slips one person may submit from the app in 24 hours. */
 export const MAX_SLIPS_PER_DAY = 20;
 
+/**
+ * After this many slips the system turned away within 24 hours, the next one
+ * goes to a person instead of being turned away again.
+ */
+export const MAX_AUTO_REJECTS = 3;
+
 /** Rounds to whole satang and rejects values that are not a usable amount. */
 export function parseGivingAmount(value: unknown): number | null {
   const n = typeof value === "number" ? value : Number(value);

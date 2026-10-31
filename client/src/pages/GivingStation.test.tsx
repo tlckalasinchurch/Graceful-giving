@@ -4,6 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const submitSlip = vi.fn();
 const logout = vi.fn();
 let authUser: Record<string, unknown> | null = null;
+// What church.paymentQr returns for an amount. Null means no PromptPay ID is set.
+let paymentQr: ((amount: number) => unknown) | null = null;
+// What church.payeeInfo returns. Null means no bank account is set.
+let payeeInfo: unknown = null;
 
 vi.mock("@/_core/hooks/useAuth", () => ({
   useAuth: () => ({ user: authUser, logout }),
@@ -24,6 +28,14 @@ vi.mock("@/lib/trpc", () => ({
       finance: { summary: { invalidate: vi.fn() } },
     }),
     church: {
+      payeeInfo: {
+        useQuery: () => ({ data: payeeInfo, isLoading: false }),
+      },
+      paymentQr: {
+        useQuery: (input: { amount: number }) => ({
+          data: paymentQr ? paymentQr(input.amount) : null,
+        }),
+      },
       getProfile: {
         useQuery: () => ({ data: { name: "คริสตจักรทดสอบ" }, isError: false }),
       },
@@ -80,6 +92,12 @@ async function goToConfirm() {
 beforeEach(() => {
   vi.clearAllMocks();
   authUser = member;
+  paymentQr = null;
+  payeeInfo = {
+    bankName: "กสิกรไทย",
+    bankAccount: "123-4-56789-0",
+    bankAccountName: "คริสตจักรทดสอบ",
+  };
 });
 
 describe("GivingStation for an ordinary member", () => {
@@ -107,6 +125,7 @@ describe("GivingStation for an ordinary member", () => {
     submitSlip.mockResolvedValue({
       success: true,
       slipId: 1,
+      failedAttempts: 0,
       check: {
         state: "verified",
         message: "ยอดตรงกับที่เลือก",
@@ -130,6 +149,7 @@ describe("GivingStation for an ordinary member", () => {
     submitSlip.mockResolvedValue({
       success: true,
       slipId: 2,
+      failedAttempts: 1,
       check: {
         state: "rejected",
         message: "ยอดในสลิป 1,500 บาท ไม่ตรงกับยอดที่เลือก 1,000 บาท",
@@ -148,9 +168,163 @@ describe("GivingStation for an ordinary member", () => {
     fireEvent.click(
       screen.getByRole("button", { name: /ใช้ยอด 1,500 THB ตามสลิป/ })
     );
-    await waitFor(() => expect(screen.getByText(/1,500 THB/)).toBeTruthy());
+    // Back on step 3, the check list shows the slip amount.
+    await waitFor(() =>
+      expect(
+        screen.getByRole("region", { name: "ตรวจรายการก่อนส่ง" }).textContent
+      ).toContain("1,500 THB")
+    );
     // The slip is still attached, so it can be sent again at once.
     expect(screen.getByAltText("สลิปที่แนบ")).toBeTruthy();
+  });
+});
+
+describe("GivingStation PromptPay QR", () => {
+  const qrFor = (amount: number) => ({
+    payload: `PAYLOAD-${amount}`,
+    amount,
+    payeeName: "คริสตจักรทดสอบ",
+  });
+
+  it("shows a QR for the chosen amount in step 3 when the church has a PromptPay ID", async () => {
+    paymentQr = qrFor;
+    render(<GivingStation />);
+    await goToConfirm();
+    expect(
+      await screen.findByRole("region", { name: "QR พร้อมเพย์สำหรับถวาย" })
+    ).toBeTruthy();
+    // The tithe preset is 1,000 THB.
+    expect(screen.getByTitle("QR พร้อมเพย์ 1,000 บาท")).toBeTruthy();
+    expect(screen.getByText(/ไม่ต้องพิมพ์ยอดเอง/)).toBeTruthy();
+  });
+
+  it("shows no QR, and the old note, when no PromptPay ID is set", async () => {
+    paymentQr = null;
+    render(<GivingStation />);
+    await goToConfirm();
+    expect(
+      screen.queryByRole("region", { name: "QR พร้อมเพย์สำหรับถวาย" })
+    ).toBeNull();
+    // With no QR the account number is still shown.
+    expect(screen.getByText("123-4-56789-0")).toBeTruthy();
+  });
+
+  it("never shows a QR for a different amount than the one chosen", async () => {
+    paymentQr = () => qrFor(7);
+    render(<GivingStation />);
+    await goToConfirm();
+    expect(
+      screen.queryByRole("region", { name: "QR พร้อมเพย์สำหรับถวาย" })
+    ).toBeNull();
+  });
+});
+
+describe("GivingStation step 3: paid or not yet", () => {
+  it("shows the account to pay when the donor has not paid", async () => {
+    render(<GivingStation />);
+    await goToConfirm();
+    const account = await screen.findByRole("region", { name: "บัญชีรับถวาย" });
+    expect(account.textContent).toContain("123-4-56789-0");
+    expect(account.textContent).toContain("กสิกรไทย");
+    expect(screen.getByText(/แล้วกลับมาที่หน้านี้เพื่อแนบสลิป/)).toBeTruthy();
+  });
+
+  it("hides the account and QR once the donor says they have paid", async () => {
+    paymentQr = amount => ({
+      payload: `PAYLOAD-${amount}`,
+      amount,
+      payeeName: "คริสตจักรทดสอบ",
+    });
+    render(<GivingStation />);
+    await goToConfirm();
+    fireEvent.click(screen.getByRole("button", { name: "โอนแล้ว" }));
+    expect(screen.queryByRole("region", { name: "บัญชีรับถวาย" })).toBeNull();
+    expect(
+      screen.queryByRole("region", { name: "QR พร้อมเพย์สำหรับถวาย" })
+    ).toBeNull();
+    // The slip and the check list are still there.
+    expect(screen.getByLabelText("รูปสลิปการโอน")).toBeTruthy();
+    expect(
+      screen.getByRole("region", { name: "ตรวจรายการก่อนส่ง" })
+    ).toBeTruthy();
+  });
+
+  it("says so when the church has no account set", async () => {
+    payeeInfo = null;
+    render(<GivingStation />);
+    await goToConfirm();
+    expect(screen.getByText(/ยังไม่ได้ตั้งค่าบัญชีรับถวาย/)).toBeTruthy();
+  });
+
+  it("has no countdown on step 3, where the donor may be paying", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
+    );
+    await screen.findByRole("region", { name: "สถานะการโอนเงิน" });
+    expect(screen.queryByRole("timer")).toBeNull();
+  });
+});
+
+describe("GivingStation check before every send", () => {
+  it("lists what will be sent and blocks the send until a slip is attached", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
+    );
+    const list = await screen.findByRole("region", {
+      name: "ตรวจรายการก่อนส่ง",
+    });
+    expect(list.textContent).toContain("1,000 THB");
+    expect(list.textContent).toContain("ยังไม่ได้แนบสลิป");
+    const send = screen.getByRole("button", { name: "ยืนยันและส่งสลิปถวาย" });
+    expect((send as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.change(screen.getByLabelText("รูปสลิปการโอน"), {
+      target: { files: [png()] },
+    });
+    await screen.findByAltText("สลิปที่แนบ");
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "ยืนยันและส่งสลิปถวาย",
+          }) as HTMLButtonElement
+        ).disabled
+      ).toBe(false)
+    );
+    expect(
+      screen.getByRole("region", { name: "ตรวจรายการก่อนส่ง" }).textContent
+    ).toContain("แนบแล้ว");
+  });
+
+  it("counts failed attempts toward the hand-over to staff", async () => {
+    submitSlip.mockResolvedValue({
+      success: true,
+      slipId: 4,
+      failedAttempts: 2,
+      check: {
+        state: "rejected",
+        message: "ยอดในสลิป 1,500 บาท ไม่ตรงกับยอดที่เลือก 1,000 บาท",
+        slipAmount: 1500,
+      },
+    });
+    render(<GivingStation />);
+    await goToConfirm();
+    fireEvent.click(
+      screen.getByRole("button", { name: "ยืนยันและส่งสลิปถวาย" })
+    );
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("ส่งไม่ผ่านแล้ว 2 ครั้ง");
+    expect(alert.textContent).toContain("ครบ 3 ครั้ง");
+
+    // Back on step 3 the count is still shown.
+    fireEvent.click(screen.getByRole("button", { name: /เปลี่ยนรูปสลิป/ }));
+    expect(
+      (await screen.findByRole("status", { hidden: false })).textContent
+    ).toContain("ส่งไม่ผ่านแล้ว 2 ครั้ง");
   });
 });
 

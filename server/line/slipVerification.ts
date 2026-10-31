@@ -16,6 +16,11 @@ export interface SlipVerification {
   autoReject: { kind: VerificationKind; reason: string } | null;
   /** Set when a person must look at the slip, with the reason. */
   reviewWarning: string | null;
+  /**
+   * True when the slip would have been turned away but the donor has already
+   * been turned away too often, so a person decides instead.
+   */
+  escalated: boolean;
 }
 
 export const RECEIVER_MISMATCH_REASON =
@@ -27,9 +32,20 @@ export function verifySlip(input: {
   extraction: SlipExtraction;
   /** The church's bank account number, or null when none is set. */
   churchAccount: string | null;
+  /** The church's PromptPay ID (digits), or null when none is set. */
+  churchPromptPayId?: string | null;
   isDuplicate: boolean;
+  /** The donor's earlier slips were turned away MAX_AUTO_REJECTS times or more. */
+  escalate?: boolean;
 }): SlipVerification {
-  const { declaredAmount, extraction, churchAccount, isDuplicate } = input;
+  const {
+    declaredAmount,
+    extraction,
+    churchAccount,
+    churchPromptPayId,
+    isDuplicate,
+    escalate = false,
+  } = input;
   // Only a slip sent from the giving station, where the donor chose the
   // amount, is turned away by the system. Other slips are flagged for staff.
   const fromStation = declaredAmount !== null;
@@ -44,12 +60,15 @@ export function verifySlip(input: {
     }
   }
 
-  // A PromptPay slip shows a phone or ID number, not the bank account, so the
-  // two cannot be compared.
-  let receiver: ReceiverVerdict =
+  // A PromptPay slip shows a phone or ID number, not the bank account, so it
+  // is compared with the church's PromptPay ID. Any other slip is compared
+  // with the bank account.
+  let receiver: ReceiverVerdict = compareReceiverAccount(
+    extraction.receiverAccount,
     extraction.receiverAccountType === "promptpay"
-      ? { kind: "unknown", reason: "unreadable" }
-      : compareReceiverAccount(extraction.receiverAccount, churchAccount);
+      ? (churchPromptPayId ?? null)
+      : churchAccount
+  );
   // A reading the OCR is unsure about is never grounds to turn a slip away.
   if (
     receiver.kind === "mismatch" &&
@@ -72,5 +91,19 @@ export function verifySlip(input: {
     }
   }
 
-  return { amount, receiver: receiver.kind, autoReject, reviewWarning };
+  // Too many turned away: a person decides, with the reason in front of them.
+  let escalated = false;
+  if (autoReject && escalate) {
+    escalated = true;
+    reviewWarning = `${autoReject.reason} (ผู้ถวายส่งไม่ผ่านการตรวจอัตโนมัติหลายครั้ง ให้เจ้าหน้าที่ตรวจภาพสลิปกับยอดที่แจ้งด้วยตา)`;
+    autoReject = null;
+  }
+
+  return {
+    amount,
+    receiver: receiver.kind,
+    autoReject,
+    reviewWarning,
+    escalated,
+  };
 }

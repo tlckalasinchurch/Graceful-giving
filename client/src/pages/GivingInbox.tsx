@@ -1044,6 +1044,7 @@ export default function GivingInbox() {
                     </div>
                   </div>
 
+                  <EscalationNote aiData={currentSlip.aiData} />
                   <ReceiverCheck aiData={currentSlip.aiData} />
 
                   {currentSlip.extractedRef && (
@@ -1625,6 +1626,25 @@ export function ReceiverCheck({ aiData }: { aiData: unknown }) {
       <div className="font-bold">ผู้รับในสลิป</div>
       {shown && <div className="font-mono pt-0.5 break-all">{shown}</div>}
       <div className="pt-1">{note.text}</div>
+    </div>
+  );
+}
+
+/** Shown when the system stopped turning a donor away and left the slip to staff. */
+export function EscalationNote({ aiData }: { aiData: unknown }) {
+  const escalated =
+    (aiData as { verification?: { escalated?: unknown } } | null)?.verification
+      ?.escalated === true;
+  if (!escalated) return null;
+  return (
+    <div
+      role="note"
+      className="p-3 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs font-medium"
+    >
+      <span className="font-bold">
+        ⚠ ผู้ถวายส่งไม่ผ่านการตรวจอัตโนมัติหลายครั้งใน 24 ชั่วโมง
+      </span>{" "}
+      ระบบจึงไม่ปฏิเสธเอง ให้เทียบภาพสลิปกับยอดและบัญชีที่แจ้งด้วยตาก่อนอนุมัติ
     </div>
   );
 }

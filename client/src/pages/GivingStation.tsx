@@ -18,12 +18,17 @@ import { formatThaiDateTime } from "@/lib/format";
 import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
 import type { DonorSlipState, DonorSlipStatus } from "@shared/donorSlip";
 import {
+  buildSendChecklist,
+  canSend,
+  type ChecklistItem,
   describeOutcome,
+  failedAttemptsNote,
   resolveAmount,
   resolveSubmitMode,
   type StationSubmission,
 } from "./givingStationFlow";
 import { StationOnlyFrame } from "@/components/layout/StationOnlyFrame";
+import { PromptPayQrCard } from "@/components/ui/promptpay-qr-card";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -92,6 +97,12 @@ export default function GivingStation() {
     retry: false,
   });
   const funds = fundOptionsQuery.data ?? [];
+  // Where to pay, for a donor who has not paid yet.
+  const payeeQuery = trpc.church.payeeInfo.useQuery(undefined, {
+    enabled: step === 3,
+    retry: false,
+  });
+  const payee = payeeQuery.data ?? null;
   const mySlipsQuery = trpc.givingInbox.mySlips.useQuery(undefined, {
     retry: false,
   });
@@ -112,6 +123,12 @@ export default function GivingStation() {
   // nothing else, so the "done" screen cannot appear without a saved record.
   const [submission, setSubmission] = useState<StationSubmission | null>(null);
   const [slipPreview, setSlipPreview] = useState<string | null>(null);
+  // Has the donor paid yet? "not_yet" shows where to pay. "done" goes to the slip.
+  const [transferState, setTransferState] = useState<"not_yet" | "done">(
+    "not_yet"
+  );
+  // How many slips the system turned away for this donor in 24 hours.
+  const [failedAttempts, setFailedAttempts] = useState(0);
   const slipInputRef = useRef<HTMLInputElement>(null);
 
   // Poster Customization State
@@ -146,6 +163,17 @@ export default function GivingStation() {
     () => resolveAmount(customAmount, amountsByCat[selectedCategory] ?? 300),
     [customAmount, amountsByCat, selectedCategory]
   );
+
+  // A PromptPay QR with the chosen amount, once the donor reaches step 3. Null
+  // when the church has not set a PromptPay ID.
+  const paymentQrQuery = trpc.church.paymentQr.useQuery(
+    { amount: effectiveAmount ?? 1 },
+    { enabled: step === 3 && effectiveAmount !== null, retry: false }
+  );
+  const paymentQr =
+    effectiveAmount !== null && paymentQrQuery.data?.amount === effectiveAmount
+      ? paymentQrQuery.data
+      : null;
 
   const canRecordDirectly = canManageFinance(user);
   const submitMode = resolveSubmitMode({
@@ -230,6 +258,7 @@ export default function GivingStation() {
 
     const name = donorName.trim() || undefined;
     let check: StationSubmission["check"] = null;
+    let failedAttemptsAfter = failedAttempts;
     try {
       if (submitMode === "slip" && slipPreview) {
         const result = await submitSlipMutation.mutateAsync({
@@ -240,6 +269,8 @@ export default function GivingStation() {
           donorName: name,
         });
         check = result.check;
+        failedAttemptsAfter = result.failedAttempts;
+        setFailedAttempts(result.failedAttempts);
         void utils.givingInbox.invalidate();
       } else {
         await createOfferingMutation.mutateAsync({
@@ -266,6 +297,8 @@ export default function GivingStation() {
       category: selectedCategory,
       amount: effectiveAmount,
       check,
+      failedAttempts:
+        check?.state === "rejected" ? failedAttemptsAfter : undefined,
     });
     if (check?.state === "rejected") {
       // Keep the slip so the donor can send it again with the right amount.
@@ -299,11 +332,21 @@ export default function GivingStation() {
   };
 
   const resetFlow = () => {
+    setTransferState("not_yet");
     setSlipPreview(null);
     setCustomAmount("");
     setSubmission(null);
     setStep(1);
   };
+
+  const checklist = buildSendChecklist({
+    category: selectedCategory,
+    amount: effectiveAmount,
+    donorName,
+    hasSlip: slipPreview !== null,
+    slipOptional: canRecordDirectly,
+  });
+  const attemptsNote = failedAttemptsNote(failedAttempts);
 
   const isSubmitting =
     submitSlipMutation.isPending || createOfferingMutation.isPending;
@@ -413,9 +456,9 @@ export default function GivingStation() {
               </div>
             </div>
 
-            {/* One 5-minute timer for steps 2 and 3. It stays mounted when the
-                  person moves between them. Expiry clears the form. */}
-            {(shownStep === 2 || shownStep === 3) && (
+            {/* A 5-minute timer for choosing. It is not on step 3, where a donor
+                may be in a bank app paying. Expiry clears the form. */}
+            {shownStep === 2 && (
               <StationCountdownCard
                 initialSeconds={300}
                 label="เวลาทำรายการคงเหลือ"
@@ -617,47 +660,104 @@ export default function GivingStation() {
                         : `${effectiveAmount.toLocaleString()} THB`}
                     </div>
                   </div>
+                </div>
 
-                  {/* Bank info. The server hides it from roles that may not see it. */}
-                  {churchQuery.data?.bankAccount ||
-                  churchQuery.data?.bankName ? (
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2 text-xs">
-                      <div className="space-y-0.5">
-                        <div className="text-stone-400">
-                          {churchQuery.data?.bankName || "บัญชีธนาคารคริสตจักร"}
-                        </div>
-                        <div className="font-mono font-bold text-sm text-white">
-                          {churchQuery.data?.bankAccount}
-                        </div>
-                        {churchQuery.data?.bankAccountName && (
+                {/* Has the donor paid yet? */}
+                <section
+                  aria-label="สถานะการโอนเงิน"
+                  className="rounded-3xl bg-[#1A1412] border border-white/12 p-4 space-y-3"
+                >
+                  <h3 className="text-xs font-bold text-[#FDBA74]">
+                    โอนเงินแล้วหรือยัง?
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(
+                      [
+                        ["not_yet", "ยังไม่ได้โอน"],
+                        ["done", "โอนแล้ว"],
+                      ] as const
+                    ).map(([value, label]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        aria-pressed={transferState === value}
+                        onClick={() => setTransferState(value)}
+                        className={`min-h-11 rounded-2xl border text-sm font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF] ${
+                          transferState === value
+                            ? "border-[#2DD4BF] bg-[#14B8A6]/20 text-[#5EEAD4]"
+                            : "border-white/15 bg-white/5 text-stone-300 hover:bg-white/10"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-stone-400 leading-relaxed">
+                    {transferState === "not_yet"
+                      ? "โอนตามบัญชีหรือ QR ด้านล่าง แล้วกลับมาที่หน้านี้เพื่อแนบสลิปยืนยันยอด"
+                      : "แนบสลิปและตรวจรายการด้านล่างเพื่อยืนยันยอดที่โอน"}
+                  </p>
+                </section>
+
+                {transferState === "not_yet" && (
+                  <>
+                    {payee ? (
+                      <section
+                        aria-label="บัญชีรับถวาย"
+                        className="rounded-3xl bg-[#1A1412] border border-white/12 p-4 flex items-center justify-between gap-3 text-xs"
+                      >
+                        <div className="space-y-0.5 min-w-0">
                           <div className="text-stone-400">
-                            {churchQuery.data.bankAccountName}
+                            {payee.bankName || "บัญชีธนาคารคริสตจักร"}
                           </div>
-                        )}
-                      </div>
-                      {churchQuery.data?.bankAccount && (
+                          <div className="font-mono font-bold text-base text-white break-all">
+                            {payee.bankAccount}
+                          </div>
+                          {payee.bankAccountName && (
+                            <div className="text-stone-400">
+                              {payee.bankAccountName}
+                            </div>
+                          )}
+                        </div>
                         <button
                           type="button"
                           onClick={() =>
-                            void handleCopyAccount(
-                              churchQuery.data?.bankAccount || ""
-                            )
+                            void handleCopyAccount(payee.bankAccount)
                           }
-                          className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white inline-flex items-center gap-1 cursor-pointer"
+                          className="shrink-0 min-h-11 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white inline-flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
                         >
-                          <Copy className="w-3.5 h-3.5" />
+                          <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                           <span>คัดลอก</span>
                         </button>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="pt-3 border-t border-white/10 text-xs text-stone-400 leading-relaxed">
-                      เลขบัญชีไม่แสดงในหน้านี้ กรุณาโอนผ่าน QR
-                      หรือบัญชีที่คริสตจักรประกาศ (เช่นที่ป้ายหน้าห้อง)
-                      แล้วกลับมาแนบสลิป
-                    </p>
-                  )}
-                </div>
+                      </section>
+                    ) : (
+                      !paymentQr &&
+                      !payeeQuery.isLoading && (
+                        <p className="rounded-3xl bg-[#1A1412] border border-white/12 p-4 text-xs text-stone-400 leading-relaxed">
+                          คริสตจักรยังไม่ได้ตั้งค่าบัญชีรับถวายในระบบ
+                          กรุณาสอบถามเจ้าหน้าที่ แล้วกลับมาแนบสลิป
+                        </p>
+                      )
+                    )}
+
+                    {paymentQr && (
+                      <PromptPayQrCard
+                        payload={paymentQr.payload}
+                        amount={paymentQr.amount}
+                        payeeName={paymentQr.payeeName}
+                      />
+                    )}
+                  </>
+                )}
+
+                {attemptsNote && (
+                  <p
+                    role="status"
+                    className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-3 text-xs text-amber-200 leading-relaxed"
+                  >
+                    {attemptsNote}
+                  </p>
+                )}
 
                 {/* Unlock / Confirm Modal Card (Adapted directly from Image 1) */}
                 <StationUnlockConfirmCard
@@ -674,7 +774,9 @@ export default function GivingStation() {
                   }
                   loading={isSubmitting}
                   disabled={
-                    submitMode === "needs-slip" || effectiveAmount === null
+                    submitMode === "needs-slip" ||
+                    effectiveAmount === null ||
+                    !canSend(checklist)
                   }
                   onConfirm={() => void handleConfirmGiving()}
                 >
@@ -732,6 +834,8 @@ export default function GivingStation() {
                         </div>
                       )}
                     </div>
+
+                    <SendChecklist items={checklist} />
                   </div>
                 </StationUnlockConfirmCard>
               </div>
@@ -1237,6 +1341,41 @@ function MySlipHistory({
             </li>
           );
         })}
+      </ul>
+    </section>
+  );
+}
+
+/** What will be sent and what is missing, shown before every send. */
+function SendChecklist({ items }: { items: ChecklistItem[] }) {
+  return (
+    <section
+      aria-label="ตรวจรายการก่อนส่ง"
+      className="rounded-2xl bg-black/30 border border-white/10 p-3 space-y-2"
+    >
+      <h4 className="text-xs font-bold text-stone-300">ตรวจรายการก่อนส่ง</h4>
+      <ul className="space-y-1.5">
+        {items.map(item => (
+          <li key={item.id} className="flex items-start gap-2 text-xs">
+            {item.ok ? (
+              <CheckCircle2
+                className="mt-0.5 size-4 shrink-0 text-[#34D399]"
+                aria-label="ผ่าน"
+              />
+            ) : (
+              <AlertTriangle
+                className="mt-0.5 size-4 shrink-0 text-amber-300"
+                aria-label="ยังไม่ผ่าน"
+              />
+            )}
+            <div className="min-w-0">
+              <span className="font-bold text-stone-200">{item.label}: </span>
+              <span className={item.ok ? "text-stone-300" : "text-amber-200"}>
+                {item.detail}
+              </span>
+            </div>
+          </li>
+        ))}
       </ul>
     </section>
   );

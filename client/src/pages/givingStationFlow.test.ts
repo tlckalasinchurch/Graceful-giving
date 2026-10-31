@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { MAX_GIVING_AMOUNT, parseGivingAmount } from "@shared/givingLimits";
 import {
+  buildSendChecklist,
+  canSend,
   describeOutcome,
+  failedAttemptsNote,
   resolveAmount,
   resolveSubmitMode,
   type StationSubmission,
@@ -103,5 +106,101 @@ describe("describeOutcome", () => {
       slip({ state: "duplicate", message: "สลิปซ้ำ", slipAmount: null })
     );
     expect(o).toMatchObject({ tone: "warning", canRetry: false });
+  });
+});
+
+describe("buildSendChecklist", () => {
+  const base = {
+    category: "tithe" as const,
+    amount: 500,
+    donorName: "สมชาย",
+    hasSlip: true,
+    slipOptional: false,
+  };
+
+  it("passes when the amount is valid and a slip is attached", () => {
+    const items = buildSendChecklist(base);
+    expect(items.map(i => i.id)).toEqual([
+      "category",
+      "amount",
+      "name",
+      "slip",
+    ]);
+    expect(items.every(i => i.ok)).toBe(true);
+    expect(canSend(items)).toBe(true);
+  });
+
+  it("blocks the send when a member has no slip, and says what to do", () => {
+    const items = buildSendChecklist({ ...base, hasSlip: false });
+    expect(canSend(items)).toBe(false);
+    expect(items.find(i => i.id === "slip")?.detail).toContain("แนบสลิป");
+  });
+
+  it("lets staff send without a slip", () => {
+    const items = buildSendChecklist({
+      ...base,
+      hasSlip: false,
+      slipOptional: true,
+    });
+    expect(canSend(items)).toBe(true);
+    expect(items.find(i => i.id === "slip")?.detail).toContain("ทันที");
+  });
+
+  it("blocks the send for a bad amount", () => {
+    const items = buildSendChecklist({ ...base, amount: null });
+    expect(canSend(items)).toBe(false);
+    expect(items.find(i => i.id === "amount")?.ok).toBe(false);
+  });
+
+  it("never blocks on the name, and shows an anonymous gift as such", () => {
+    const items = buildSendChecklist({ ...base, donorName: "  " });
+    expect(canSend(items)).toBe(true);
+    expect(items.find(i => i.id === "name")?.detail).toContain("นิรนาม");
+  });
+});
+
+describe("failedAttemptsNote", () => {
+  it("says nothing before the first failure", () => {
+    expect(failedAttemptsNote(0)).toBeNull();
+  });
+
+  it("counts toward the hand-over to staff", () => {
+    expect(failedAttemptsNote(1)).toContain("ครบ 3 ครั้ง");
+    expect(failedAttemptsNote(2)).toContain("ส่งไม่ผ่านแล้ว 2 ครั้ง");
+  });
+
+  it("says staff will check once the limit is reached", () => {
+    expect(failedAttemptsNote(3)).toContain("เจ้าหน้าที่จะตรวจสอบเอง");
+    expect(failedAttemptsNote(3)).not.toContain("หากไม่ผ่านครบ");
+  });
+});
+
+describe("describeOutcome with failed attempts", () => {
+  it("adds the count to a rejection message", () => {
+    const o = describeOutcome({
+      mode: "slip",
+      category: "tithe",
+      amount: 500,
+      check: { state: "rejected", message: "ยอดไม่ตรง", slipAmount: 900 },
+      failedAttempts: 2,
+    });
+    expect(o.message).toContain("ยอดไม่ตรง");
+    expect(o.message).toContain("ส่งไม่ผ่านแล้ว 2 ครั้ง");
+  });
+
+  it("says thanks and that staff will check after a hand-over", () => {
+    const o = describeOutcome({
+      mode: "slip",
+      category: "tithe",
+      amount: 500,
+      check: {
+        state: "in_review",
+        message: "ส่งให้เจ้าหน้าที่ตรวจสอบเอง",
+        slipAmount: null,
+      },
+      failedAttempts: 3,
+    });
+    expect(o.tone).toBe("success");
+    expect(o.message).toContain("เจ้าหน้าที่ตรวจสอบเอง");
   });
 });

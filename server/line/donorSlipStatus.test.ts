@@ -70,6 +70,18 @@ describe("toDonorSlipStatus", () => {
     expect(r.slipAmount).toBe(1000);
   });
 
+  it("tells the donor a person will check when the system handed it over", () => {
+    const r = toDonorSlipStatus(
+      row({
+        status: "needs_review",
+        extractedAmount: "900.00",
+        aiData: { verification: { escalated: true } },
+      })
+    );
+    expect(r.state).toBe("in_review");
+    expect(r.message).toContain("เจ้าหน้าที่ตรวจสอบเอง");
+  });
+
   it("hides a treasurer's rejection note", () => {
     const r = toDonorSlipStatus(
       row({
