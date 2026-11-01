@@ -50,6 +50,7 @@ export const OFFERING_CATEGORY_IDS = [
   "land",
   "party",
   "venue_rent",
+  "tithe",
 ] as const satisfies readonly string[];
 
 export type OfferingCategory = (typeof OFFERING_CATEGORY_IDS)[number];
@@ -65,6 +66,7 @@ export const OFFERING_CATEGORIES: ReadonlyArray<
   { id: "land", label: "ที่ดิน" },
   { id: "party", label: "ปาร์ตี้" },
   { id: "venue_rent", label: "ค่าเช่าสถานนมัสการ" },
+  { id: "tithe", label: "สิบลด" },
 ];
 
 /**
@@ -74,7 +76,6 @@ export const OFFERING_CATEGORIES: ReadonlyArray<
  */
 export const LEGACY_OFFERING_CATEGORY_LABELS: Readonly<Record<string, string>> =
   {
-    tithe: "สิบลด",
     general: "ถวายทั่วไป",
     building: "สร้างอาคาร",
     welfare: "สงเคราะห์",

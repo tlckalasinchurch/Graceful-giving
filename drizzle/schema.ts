@@ -25,7 +25,7 @@ export const financeAccountTypeEnum = pgEnum("finance_account_type", [
   "welfare",
   "special",
 ]);
-// "tithe", "general", "building" and "welfare" are legacy: Postgres cannot drop
+// "general", "building" and "welfare" are legacy: Postgres cannot drop
 // an enum value, and old rows still use them. New entries use the other ids.
 export const offeringCategoryEnum = pgEnum("offering_category", [
   "tithe",

@@ -6,7 +6,7 @@ import {
 } from "@shared/categories";
 
 describe("offering categories", () => {
-  it("offers the eight categories the church uses, in order", () => {
+  it("offers the nine categories the church uses, in order", () => {
     expect(OFFERING_CATEGORIES.map(c => c.label)).toEqual([
       "เงินสด",
       "ค่าข้าว",
@@ -16,6 +16,7 @@ describe("offering categories", () => {
       "ที่ดิน",
       "ปาร์ตี้",
       "ค่าเช่าสถานนมัสการ",
+      "สิบลด",
     ]);
   });
 
@@ -25,8 +26,12 @@ describe("offering categories", () => {
   });
 
   it("still labels retired ids on old rows, but does not accept them as input", () => {
-    expect(offeringCategoryLabel("tithe")).toBe("สิบลด");
     expect(offeringCategoryLabel("general")).toBe("ถวายทั่วไป");
-    expect(isOfferingCategory("tithe")).toBe(false);
+    expect(isOfferingCategory("general")).toBe(false);
+  });
+
+  it("offers tithe as a current category", () => {
+    expect(isOfferingCategory("tithe")).toBe(true);
+    expect(offeringCategoryLabel("tithe")).toBe("สิบลด");
   });
 });
