@@ -195,3 +195,47 @@ describe("verifySlip: a donor turned away too often", () => {
     expect(v.escalated).toBe(false);
   });
 });
+
+describe("verifySlip: transfer date", () => {
+  const now = new Date("2026-11-01T05:00:00Z");
+  const runAt = (over: Partial<SlipExtraction>, isDuplicate = false) =>
+    verifySlip({
+      declaredAmount: 500,
+      extraction: extraction(over),
+      churchAccount: CHURCH,
+      isDuplicate,
+      now,
+    });
+
+  it("passes a slip dated today", () => {
+    expect(runAt({ transferDate: "2026-11-01" }).reviewWarning).toBeNull();
+  });
+
+  it("warns, but does not turn away, a slip older than a month", () => {
+    const v = runAt({ transferDate: "2026-09-01" });
+    expect(v.reviewWarning).toContain("เก่าเกิน");
+    expect(v.autoReject).toBeNull();
+  });
+
+  it("warns about a date in the future", () => {
+    expect(runAt({ transferDate: "2026-12-25" }).reviewWarning).toContain(
+      "อนาคต"
+    );
+  });
+
+  it("ignores a date the OCR is unsure about", () => {
+    expect(
+      runAt({ transferDate: "2025-01-01", dateConfidence: 0.4 }).reviewWarning
+    ).toBeNull();
+  });
+
+  it("adds the date warning to another warning", () => {
+    const v = runAt({
+      transferDate: "2026-09-01",
+      receiverAccount: "xxx-x-x1234-x",
+      receiverAccountConfidence: 0.5,
+    });
+    expect(v.reviewWarning).toContain("บัญชีผู้รับ");
+    expect(v.reviewWarning).toContain("เก่าเกิน");
+  });
+});

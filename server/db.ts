@@ -9,9 +9,11 @@ import {
   inArray,
   isNotNull,
   isNull,
+  like,
   lt,
   lte,
   ne,
+  or,
   sql,
   sum,
   type SQL,
@@ -68,6 +70,7 @@ import {
 import type { OfferingCategory } from "@shared/categories";
 import type { CountingStatus } from "@shared/counting";
 import { reconcile } from "@shared/counting";
+import { resolveLedgerName } from "@shared/ledgerName";
 import {
   approvalState,
   type ApprovalOutcome,
@@ -76,7 +79,7 @@ import {
 import { ENV } from "./_core/env";
 
 import { getSlipSignedUrl, storagePutPrivate } from "./storage";
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -3002,6 +3005,41 @@ export interface ListLineSlipsFilter {
   offset?: number;
 }
 
+/**
+ * Adds `submitterLineId`: the sender's real LINE user id. A slip sent from the
+ * app stores `manual-<userId>` as its sender, so the id comes from the account
+ * (`users.openId` is `line:<LINE userId>`). A slip from the LINE chat already
+ * holds the real id.
+ */
+async function withSubmitterLineIds<
+  T extends { lineUserId: string; submittedByUserId: number | null },
+>(rows: T[]): Promise<Array<T & { submitterLineId: string | null }>> {
+  const db = await getDb();
+  const ids = Array.from(
+    new Set(
+      rows.map(r => r.submittedByUserId).filter((v): v is number => v !== null)
+    )
+  );
+  const byId = new Map<number, string>();
+  if (db && ids.length > 0) {
+    const found = await db
+      .select({ id: users.id, openId: users.openId })
+      .from(users)
+      .where(inArray(users.id, ids));
+    for (const u of found) {
+      if (u.openId.startsWith("line:")) byId.set(u.id, u.openId.slice(5));
+    }
+  }
+  return rows.map(r => ({
+    ...r,
+    submitterLineId: r.lineUserId.startsWith("manual-")
+      ? r.submittedByUserId !== null
+        ? (byId.get(r.submittedByUserId) ?? null)
+        : null
+      : r.lineUserId,
+  }));
+}
+
 export async function listLineSlips(
   churchId = DEFAULT_CHURCH_ID,
   filters: ListLineSlipsFilter = {}
@@ -3030,8 +3068,9 @@ export async function listLineSlips(
     .offset(offset);
 
   // Generate signed URLs for slip images so frontend can render securely without public bucket
+  const withIds = await withSubmitterLineIds(rows);
   const items = await Promise.all(
-    rows.map(async slip => {
+    withIds.map(async slip => {
       let signedUrl = "";
       try {
         if (slip.slipImageKey) {
@@ -3078,8 +3117,9 @@ export async function getLineSlipById(
     console.warn(`[getLineSlipById] Failed to sign URL for slip #${id}:`, e);
   }
 
+  const [withId] = await withSubmitterLineIds([slip]);
   return {
-    ...slip,
+    ...withId,
     signedImageUrl,
   };
 }
@@ -3095,6 +3135,8 @@ export interface ApproveLineSlipInput {
   category?: string;
   receiptDate?: Date;
   reviewNote?: string;
+  /** Required for an entry sent without a slip: the bank balance was checked. */
+  confirmedBankCheck?: boolean;
 }
 
 /**
@@ -3190,8 +3232,13 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
       );
     }
 
-    // 3. Resolve donor name
-    let donorName = input.donorName?.trim() || null;
+    // 3. Resolve the name for the books. Who sent it stays in its own columns.
+    if (slip.source === "no_slip" && !input.confirmedBankCheck) {
+      throw new Error(
+        "รายการที่ส่งโดยไม่มีสลิปต้องยืนยันก่อนว่าตรวจกับยอดเข้าบัญชีธนาคารแล้ว"
+      );
+    }
+    let memberName: string | null = null;
     if (input.memberId) {
       const [member] = await tx
         .select({ id: members.id, name: members.name })
@@ -3200,14 +3247,17 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
           and(eq(members.id, input.memberId), eq(members.churchId, churchId))
         )
         .limit(1);
-      if (member && !donorName) {
-        donorName = member.name;
-      }
+      memberName = member?.name ?? null;
     }
-    if (!donorName) {
-      donorName =
-        slip.extractedSenderName || slip.lineDisplayName || "ผู้ถวายผ่าน LINE";
-    }
+    const { name: donorName, source: nameSource } = resolveLedgerName({
+      reviewerName: input.donorName,
+      memberName,
+      slipName: slip.extractedSenderName,
+      typedName: slip.typedDonorName,
+      lineName: slip.submittedByName ?? slip.lineDisplayName,
+    });
+    const submittedByName =
+      slip.submittedByName ?? slip.lineDisplayName ?? null;
 
     // 4. Create Offering in offerings table (Official Financial Ledger)
     const [offering] = await tx
@@ -3219,12 +3269,18 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
         fundId: input.fundId,
         donorName,
         donorMemberId: input.memberId ?? null,
-        receiptDate: input.receiptDate ?? slip.extractedDate ?? new Date(),
+        receiptDate:
+          input.receiptDate ??
+          slip.extractedDate ??
+          slip.declaredDate ??
+          new Date(),
         method: "transfer",
         reference: slip.extractedRef || `LINE-${slip.id}`,
         notes:
-          `[LINE Slip #${slip.id}] ${input.reviewNote ? input.reviewNote : ""}`.trim(),
+          `[${slip.source === "no_slip" ? "ไม่มีสลิป" : "LINE Slip"} #${slip.id}] ${input.reviewNote ? input.reviewNote : ""}`.trim(),
         recordedBy: input.approvedBy,
+        submittedByUserId: slip.submittedByUserId ?? null,
+        submittedByName,
         status: "active",
       })
       .returning({ id: offerings.id });
@@ -3265,6 +3321,9 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
         fundName: fund.name,
         memberId: input.memberId,
         donorName,
+        nameSource,
+        slipSource: slip.source,
+        submittedByUserId: slip.submittedByUserId ?? null,
         slipRef: slip.extractedRef,
       },
     });
@@ -3273,6 +3332,8 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
       success: true,
       slipId: input.slipId,
       offeringId: offering.id,
+      submittedByUserId: slip.submittedByUserId ?? null,
+      amount: input.amount,
     };
   });
 }
@@ -3334,7 +3395,11 @@ export async function rejectLineSlip(input: RejectLineSlipInput) {
       },
     });
 
-    return { success: true, slipId: input.slipId };
+    return {
+      success: true,
+      slipId: input.slipId,
+      submittedByUserId: slip.submittedByUserId ?? null,
+    };
   });
 }
 
@@ -3522,6 +3587,7 @@ const donorSlipColumns = {
   reviewNote: lineSlips.reviewNote,
   lastErrorMessage: lineSlips.lastErrorMessage,
   aiData: lineSlips.aiData,
+  source: lineSlips.source,
 };
 
 /**
@@ -3610,6 +3676,8 @@ export async function createManualSlip(input: {
     category: OfferingCategory;
     fundId?: number | null;
   };
+  /** The name the donor typed in the form. Kept apart from the LINE name. */
+  typedDonorName?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -3633,6 +3701,9 @@ export async function createManualSlip(input: {
       lineUserId: `manual-${input.userId}`,
       lineDisplayName:
         input.donorName || `อัปโหลดโดย ${input.userName || "เจ้าหน้าที่"}`,
+      submittedByUserId: input.userId,
+      submittedByName: input.userName ?? null,
+      typedDonorName: input.typedDonorName?.trim() || null,
       lineEventId: `manual-${Date.now()}-${hash.slice(0, 8)}`,
       slipImageKey: key,
       slipHash: hash,
@@ -3654,6 +3725,151 @@ export async function createManualSlip(input: {
   return slip;
 }
 
+/** Thrown when the same entry is already waiting, so the donor sends it once. */
+export class DuplicateEntryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "DuplicateEntryError";
+  }
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * A giving sent without a slip. It joins the same review queue as a slip and
+ * credits nothing until a treasurer checks it against the bank and approves.
+ *
+ * Same person, amount, category and date, not turned away, in the last 24
+ * hours: refused, because it is the same entry sent twice. The same name,
+ * amount and date from anyone else is allowed, but the treasurer sees a
+ * warning, because two people can give the same sum on the same day.
+ */
+export async function createNoSlipEntry(input: {
+  churchId?: string;
+  userId: number;
+  userName?: string | null;
+  donorName: string;
+  amount: string;
+  category: OfferingCategory;
+  fundId?: number | null;
+  transferDate: Date;
+  now?: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const churchId = input.churchId ?? DEFAULT_CHURCH_ID;
+  const now = input.now ?? new Date();
+  const lineUserId = `manual-${input.userId}`;
+  const dayStart = new Date(input.transferDate);
+  dayStart.setUTCHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart.getTime() + DAY_MS);
+
+  const [same] = await db
+    .select({ id: lineSlips.id })
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, lineUserId),
+        eq(lineSlips.source, "no_slip"),
+        eq(lineSlips.declaredAmount, input.amount),
+        eq(lineSlips.declaredCategory, input.category),
+        gte(lineSlips.declaredDate, dayStart),
+        lt(lineSlips.declaredDate, dayEnd),
+        ne(lineSlips.status, "rejected"),
+        gte(lineSlips.createdAt, new Date(now.getTime() - DAY_MS))
+      )
+    )
+    .limit(1);
+  if (same) {
+    throw new DuplicateEntryError(
+      "ส่งรายการนี้ไปแล้ว กำลังรอเหรัญญิกตรวจสอบ ไม่ต้องส่งซ้ำ"
+    );
+  }
+
+  // Same name, amount and date from someone else: warn, do not block.
+  const [similar] = await db
+    .select({ id: lineSlips.id })
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        ne(lineSlips.lineUserId, lineUserId),
+        sql`lower(${lineSlips.typedDonorName}) = ${input.donorName.toLowerCase()}`,
+        eq(lineSlips.declaredAmount, input.amount),
+        gte(lineSlips.declaredDate, dayStart),
+        lt(lineSlips.declaredDate, dayEnd),
+        ne(lineSlips.status, "rejected")
+      )
+    )
+    .limit(1);
+  const [ledgerTwin] = await db
+    .select({ id: offerings.id })
+    .from(offerings)
+    .where(
+      and(
+        eq(offerings.churchId, churchId),
+        eq(offerings.status, "active"),
+        sql`lower(${offerings.donorName}) = ${input.donorName.toLowerCase()}`,
+        eq(offerings.amount, input.amount),
+        gte(offerings.receiptDate, dayStart),
+        lt(offerings.receiptDate, dayEnd)
+      )
+    )
+    .limit(1);
+  const warning =
+    similar || ledgerTwin
+      ? "พบรายการที่ชื่อ ยอด และวันที่เหมือนกันแล้ว (อาจซ้ำ) ตรวจกับยอดเข้าบัญชีธนาคารก่อนอนุมัติ"
+      : null;
+
+  const token = randomUUID();
+  const hash = createHash("sha256").update(`no-slip:${token}`).digest("hex");
+  const [row] = await db
+    .insert(lineSlips)
+    .values({
+      churchId,
+      lineUserId,
+      lineDisplayName: input.userName || null,
+      lineEventId: `manual-${now.getTime()}-${hash.slice(0, 8)}`,
+      slipImageKey: "",
+      slipHash: hash,
+      status: "needs_review",
+      source: "no_slip",
+      processingAttempts: 0,
+      declaredAmount: input.amount,
+      declaredCategory: input.category,
+      declaredFundId: input.fundId ?? null,
+      declaredDate: dayStart,
+      submittedByUserId: input.userId,
+      submittedByName: input.userName ?? null,
+      typedDonorName: input.donorName,
+      lastErrorMessage: warning,
+    })
+    .returning();
+  return { slip: row, warning };
+}
+
+/** Active people who may approve giving: finance roles and admins. */
+export async function listFinanceUserIds(): Promise<number[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(
+      and(
+        eq(users.status, "active"),
+        or(
+          eq(users.role, "admin"),
+          inArray(users.churchRole, ["SUPER_ADMIN", "TREASURER"]),
+          like(users.churchRoles, "%SUPER_ADMIN%"),
+          like(users.churchRoles, "%TREASURER%")
+        )
+      )
+    );
+  return rows.map(r => r.id);
+}
+
 export async function rescanLineSlip(
   slipId: number,
   churchId = DEFAULT_CHURCH_ID
@@ -3666,12 +3882,16 @@ export async function rescanLineSlip(
       id: lineSlips.id,
       status: lineSlips.status,
       approvedOfferingId: lineSlips.approvedOfferingId,
+      source: lineSlips.source,
     })
     .from(lineSlips)
     .where(and(eq(lineSlips.id, slipId), eq(lineSlips.churchId, churchId)))
     .limit(1);
 
   if (!slip) throw new Error(`ไม่พบสลิป #${slipId}`);
+  if (slip.source === "no_slip") {
+    throw new Error(`รายการ #${slipId} ไม่มีรูปสลิป จึงสแกนด้วย AI ไม่ได้`);
+  }
 
   // Resetting a booked slip to "pending" would show an offering that is already in
   // the ledger as unapproved in the inbox.

@@ -285,10 +285,28 @@ export default function GivingInbox() {
   const [editCategory, setEditCategory] = useState<OfferingCategory>("cash");
   const [editMemberId, setEditMemberId] = useState<number | null>(null);
   const [editReviewNote, setEditReviewNote] = useState<string>("");
+  // The name that goes in the books. Prefilled from the slip, the treasurer may fix it.
+  const [editDonorName, setEditDonorName] = useState<string>("");
+  // An entry without a slip needs this ticked before it can be approved.
+  const [confirmBank, setConfirmBank] = useState<boolean>(false);
 
   const handleSelectSlip = (slip: any) => {
     setSelectedSlipId(slip.id);
-    setEditAmount(slip.approvedAmount || slip.extractedAmount || "");
+    setEditAmount(
+      slip.approvedAmount ||
+        slip.extractedAmount ||
+        (slip.source === "no_slip" ? slip.declaredAmount : "") ||
+        ""
+    );
+    setEditDonorName(
+      slip.matchedMemberName ||
+        slip.extractedSenderName ||
+        slip.typedDonorName ||
+        slip.submittedByName ||
+        slip.lineDisplayName ||
+        ""
+    );
+    setConfirmBank(false);
     // Fund and category are the donor's suggestion. The amount is not
     // prefilled from it: staff read the amount off the slip image.
     setEditFundId(
@@ -320,13 +338,18 @@ export default function GivingInbox() {
       return;
     }
 
+    if (currentSlip.source === "no_slip" && !confirmBank) {
+      Swal.error(
+        "ยังไม่ได้ยืนยันการตรวจ",
+        "รายการนี้ไม่มีสลิป กรุณาตรวจกับยอดเข้าบัญชีธนาคารแล้วติ๊กยืนยันก่อนอนุมัติ"
+      );
+      return;
+    }
+
     const confirmed = await Swal.confirm(
       "ยืนยันการอนุมัติการถวาย",
       `คุณกำลังจะอนุมัติเงินถวายจำนวน ${amountNum.toLocaleString()} บาท จาก ${
-        currentSlip.matchedMemberName ||
-        currentSlip.extractedSenderName ||
-        currentSlip.lineDisplayName ||
-        "ผู้ถวาย"
+        editDonorName.trim() || "ผู้ถวาย"
       } เข้ากองทุนที่เลือก`,
       "อนุมัติและบันทึก"
     );
@@ -339,17 +362,24 @@ export default function GivingInbox() {
       fundId: editFundId,
       category: editCategory,
       memberId: editMemberId,
-      donorName:
-        currentSlip.matchedMemberName || currentSlip.extractedSenderName,
+      donorName: editDonorName.trim() || undefined,
       reviewNote: editReviewNote,
+      confirmedBankCheck: confirmBank,
       receiptDate: currentSlip.extractedDate
         ? new Date(currentSlip.extractedDate)
-        : new Date(),
+        : currentSlip.declaredDate
+          ? new Date(currentSlip.declaredDate)
+          : new Date(),
     });
   };
 
   const handleQuickApprove = async (e: React.MouseEvent, slip: any) => {
     e.stopPropagation();
+    // An entry without a slip is never approved in one tap. Open it to check.
+    if (slip.source === "no_slip") {
+      handleSelectSlip(slip);
+      return;
+    }
     const amountNum = parseFloat(slip.extractedAmount || "0");
     const defaultFundId = fundsQuery.data?.[0]?.id;
 
@@ -374,7 +404,11 @@ export default function GivingInbox() {
       fundId: defaultFundId,
       category: "cash",
       memberId: slip.matchedMemberId,
-      donorName: slip.matchedMemberName || slip.extractedSenderName,
+      donorName:
+        slip.matchedMemberName ||
+        slip.extractedSenderName ||
+        slip.typedDonorName ||
+        undefined,
       receiptDate: slip.extractedDate
         ? new Date(slip.extractedDate)
         : new Date(),
@@ -766,11 +800,22 @@ export default function GivingInbox() {
                             <div className="font-bold text-base text-ink truncate">
                               {slip.matchedMemberName ||
                                 slip.extractedSenderName ||
+                                slip.typedDonorName ||
                                 slip.lineDisplayName ||
                                 "ผู้ถวาย"}
                             </div>
                             <div className="text-xs text-ink-3 flex items-center gap-1.5 mt-0.5 truncate">
-                              <span>{slip.lineDisplayName || "ผู้ใช้"}</span>
+                              {slip.source === "no_slip" && (
+                                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/40 text-amber-200 text-[10px] font-bold shrink-0">
+                                  ไม่มีสลิป
+                                </span>
+                              )}
+                              <span>
+                                ส่งโดย{" "}
+                                {slip.submittedByName ||
+                                  slip.lineDisplayName ||
+                                  "ผู้ใช้"}
+                              </span>
                               {slip.extractedBank && (
                                 <>
                                   <span>•</span>
@@ -785,7 +830,9 @@ export default function GivingInbox() {
                           <div className="text-lg font-bold text-brand">
                             {slip.extractedAmount
                               ? formatBaht(Number(slip.extractedAmount))
-                              : "—"}
+                              : slip.source === "no_slip" && slip.declaredAmount
+                                ? formatBaht(Number(slip.declaredAmount))
+                                : "—"}
                           </div>
                           <span
                             className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-bold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
@@ -915,6 +962,43 @@ export default function GivingInbox() {
                   </div>
                 )}
 
+                {/* Who sent it. Never overwritten by the name in the books. */}
+                <div className="rounded-xl border border-line bg-surface p-3 text-xs space-y-1">
+                  <div className="font-bold text-ink-2">ผู้ส่งรายการ</div>
+                  <div className="text-ink">
+                    {currentSlip.submittedByName ||
+                      currentSlip.lineDisplayName ||
+                      "—"}
+                    {currentSlip.submitterLineId && (
+                      <span className="text-ink-3 break-all">
+                        {" "}
+                        · LINE ID: {currentSlip.submitterLineId}
+                      </span>
+                    )}
+                  </div>
+                  {currentSlip.typedDonorName && (
+                    <div className="text-ink-3">
+                      ชื่อที่ผู้ถวายพิมพ์: {currentSlip.typedDonorName}
+                    </div>
+                  )}
+                  {currentSlip.source === "no_slip" && (
+                    <div className="text-amber-200 font-bold">
+                      ส่งโดยไม่มีสลิป · วันที่โอนที่แจ้ง:{" "}
+                      {currentSlip.declaredDate
+                        ? new Date(currentSlip.declaredDate).toLocaleDateString(
+                            THAI_LOCALE
+                          )
+                        : "—"}
+                    </div>
+                  )}
+                  {currentSlip.lastErrorMessage &&
+                    currentSlip.status !== "rejected" && (
+                      <div className="text-amber-200">
+                        ⚠ {currentSlip.lastErrorMessage}
+                      </div>
+                    )}
+                </div>
+
                 {/* ── 1. หลักฐาน (Evidence) ── */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -941,7 +1025,9 @@ export default function GivingInbox() {
                       />
                     ) : (
                       <div className="py-16 text-xs text-stone-400">
-                        ไม่มีรูปภาพสลิป
+                        {currentSlip.source === "no_slip"
+                          ? "ผู้ถวายไม่ได้แนบสลิป ตรวจกับยอดเข้าบัญชีธนาคารก่อนอนุมัติ"
+                          : "ไม่มีรูปภาพสลิป"}
                       </div>
                     )}
                   </div>
@@ -1140,6 +1226,30 @@ export default function GivingInbox() {
                       )}
                     </div>
 
+                    {/* Name in the books */}
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <label
+                        htmlFor="inbox-ledger-name"
+                        className="text-xs font-bold text-ink-2"
+                      >
+                        ชื่อที่ลงบัญชีถวาย{" "}
+                        <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        id="inbox-ledger-name"
+                        type="text"
+                        maxLength={120}
+                        value={editDonorName}
+                        onChange={e => setEditDonorName(e.target.value)}
+                        disabled={currentSlip.status === "approved"}
+                        className="min-h-11 w-full text-sm rounded-xl border border-line bg-surface p-2.5 focus:ring-2 focus:ring-brand focus:outline-none"
+                      />
+                      <p className="text-[11px] text-ink-3">
+                        ระบบใส่ชื่อบนสลิปให้ ชื่อบนสลิปธนาคารมักถูกปิดบังบางส่วน
+                        แก้เป็นชื่อเต็มได้ ผู้ส่งรายการยังบันทึกแยกไว้เสมอ
+                      </p>
+                    </div>
+
                     {/* Fund Account */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-ink-2">
@@ -1225,6 +1335,20 @@ export default function GivingInbox() {
                         </span>
                       </div>
                     )}
+                    {currentSlip.source === "no_slip" && (
+                      <label className="flex items-start gap-2.5 p-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-xs text-amber-100 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={confirmBank}
+                          onChange={e => setConfirmBank(e.target.checked)}
+                          className="mt-0.5 w-4 h-4 shrink-0"
+                        />
+                        <span>
+                          ตรวจกับยอดเข้าบัญชีธนาคารแล้ว
+                          ว่ามีเงินจำนวนนี้เข้ามาจริง ในวันที่และชื่อที่แจ้ง
+                        </span>
+                      </label>
+                    )}
                     <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
                       <button
                         type="button"
@@ -1243,7 +1367,8 @@ export default function GivingInbox() {
                         disabled={
                           approveMutation.isPending ||
                           rejectMutation.isPending ||
-                          currentSlip.status === "duplicate"
+                          currentSlip.status === "duplicate" ||
+                          (currentSlip.source === "no_slip" && !confirmBank)
                         }
                         className="min-h-11 w-full sm:w-auto px-7 py-2.5 rounded-xl bg-[#2D6A2E] hover:bg-[#235324] text-white font-bold text-sm shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                       >

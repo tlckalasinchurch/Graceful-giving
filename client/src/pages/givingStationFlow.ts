@@ -3,14 +3,21 @@ import {
   type OfferingCategory,
 } from "@shared/categories";
 import type { DonorSlipStatus } from "@shared/donorSlip";
-import { MAX_AUTO_REJECTS, parseGivingAmount } from "@shared/givingLimits";
+import {
+  MAX_AUTO_REJECTS,
+  TRANSFER_DATE_MESSAGE,
+  checkTransferDate,
+  parseGivingAmount,
+} from "@shared/givingLimits";
 
 /**
  * How a confirmed giving reaches the books:
  * - "slip": a pending slip for a treasurer to approve. Any member can do this.
  * - "ledger": a finance role records it straight into the offerings ledger.
+ * - "no-slip": a member sends the details without an image. It waits for a
+ *   treasurer to check it against the bank. Nothing is credited before that.
  */
-export type SubmitMode = "slip" | "ledger";
+export type SubmitMode = "slip" | "ledger" | "no-slip";
 
 export interface StationSubmission {
   mode: SubmitMode;
@@ -24,15 +31,15 @@ export interface StationSubmission {
 
 /**
  * Picks the submit route. A slip image always goes through the slip queue so
- * its amount, category and fund are kept. Without an image only a finance role
- * may write to the ledger; everyone else must attach a slip.
+ * its amount, category and fund are kept. Without an image a finance role
+ * writes to the ledger, and everyone else sends the details for review.
  */
 export function resolveSubmitMode(opts: {
   canManageFinance: boolean;
   hasSlip: boolean;
-}): SubmitMode | "needs-slip" {
+}): SubmitMode {
   if (opts.hasSlip) return "slip";
-  return opts.canManageFinance ? "ledger" : "needs-slip";
+  return opts.canManageFinance ? "ledger" : "no-slip";
 }
 
 /** The amount the donor chose: a valid custom value wins over the preset. */
@@ -60,6 +67,16 @@ const baht = (n: number) => `${n.toLocaleString()} THB`;
 export function describeOutcome(s: StationSubmission): StationOutcome {
   const what = `${offeringCategoryLabel(s.category)} ${baht(s.amount)}`;
   const check = s.check;
+
+  if (s.mode === "no-slip") {
+    return {
+      tone: "success",
+      title: "ได้รับข้อมูลแล้ว",
+      message: `ส่งรายการถวาย ${what} ให้เหรัญญิกแล้ว ยังไม่นับเข้าบัญชีจนกว่าเหรัญญิกตรวจกับยอดเข้าบัญชีธนาคาร คุณจะได้รับแจ้งเมื่อตรวจเสร็จ`,
+      canRetry: false,
+      slipAmount: null,
+    };
+  }
 
   if (s.mode === "ledger" || check === null) {
     return {
@@ -99,7 +116,7 @@ export function describeOutcome(s: StationSubmission): StationOutcome {
 }
 
 export interface ChecklistItem {
-  id: "category" | "amount" | "name" | "slip";
+  id: "category" | "amount" | "name" | "date" | "slip";
   label: string;
   ok: boolean;
   /** What was found, or what to fix. */
@@ -110,19 +127,25 @@ export interface ChecklistItem {
 
 /**
  * The list shown before every send. A person sees exactly what will go out and
- * what is missing. The server checks the slip again after the send.
+ * what is missing. The server checks it again after the send.
+ *
+ * Without a slip a member must give a name and the transfer date, because a
+ * treasurer has nothing else to check the entry against.
  */
 export function buildSendChecklist(input: {
   category: OfferingCategory;
   amount: number | null;
   donorName: string;
   hasSlip: boolean;
-  /** Staff may record without a slip. Others must attach one. */
-  slipOptional: boolean;
+  mode: SubmitMode;
+  /** The transfer date as `YYYY-MM-DD`. Used only without a slip. */
+  transferDate?: string;
+  now?: Date;
 }): ChecklistItem[] {
-  const { category, amount, donorName, hasSlip, slipOptional } = input;
+  const { category, amount, donorName, hasSlip, mode } = input;
   const name = donorName.trim();
-  return [
+  const noSlip = mode === "no-slip";
+  const items: ChecklistItem[] = [
     {
       id: "category",
       label: "หมวดการถวาย",
@@ -143,22 +166,48 @@ export function buildSendChecklist(input: {
     {
       id: "name",
       label: "ชื่อผู้ถวาย",
-      ok: true,
-      detail: name === "" ? "ไม่ระบุชื่อ (ถวายนิรนาม)" : name,
-      required: false,
-    },
-    {
-      id: "slip",
-      label: "สลิปการโอน",
-      ok: hasSlip || slipOptional,
-      detail: hasSlip
-        ? "แนบแล้ว ระบบจะตรวจยอดและบัญชีผู้รับหลังกดส่ง"
-        : slipOptional
-          ? "ไม่ได้แนบ จะบันทึกเข้าบัญชีทันที"
-          : "ยังไม่ได้แนบสลิป โอนเงินก่อน แล้วแนบสลิปที่นี่",
-      required: true,
+      ok: noSlip ? name.length >= 2 : true,
+      detail: noSlip
+        ? name.length >= 2
+          ? name
+          : "ระบุชื่อผู้ถวายให้เหรัญญิกตรวจกับบัญชีธนาคาร"
+        : name === ""
+          ? "ไม่ระบุชื่อ (ใช้ชื่อบนสลิปที่ระบบอ่านได้)"
+          : name,
+      required: noSlip,
     },
   ];
+
+  if (noSlip) {
+    const raw = input.transferDate ?? "";
+    const parsed = raw ? new Date(raw) : new Date(Number.NaN);
+    const problem = checkTransferDate(parsed, input.now ?? new Date());
+    items.push({
+      id: "date",
+      label: "วันที่โอน",
+      ok: problem === null,
+      detail:
+        problem === null
+          ? raw
+          : raw === ""
+            ? "ระบุวันที่โอนเงิน"
+            : TRANSFER_DATE_MESSAGE[problem],
+      required: true,
+    });
+  }
+
+  items.push({
+    id: "slip",
+    label: "สลิปการโอน",
+    ok: true,
+    detail: hasSlip
+      ? "แนบแล้ว ระบบจะตรวจยอดและบัญชีผู้รับหลังกดส่ง"
+      : mode === "ledger"
+        ? "ไม่ได้แนบ จะบันทึกเข้าบัญชีทันที"
+        : "ไม่ได้แนบสลิป รายการจะรอเหรัญญิกตรวจกับยอดเข้าบัญชีธนาคารก่อนนับยอด",
+    required: false,
+  });
+  return items;
 }
 
 /** True when every required item is ok. */

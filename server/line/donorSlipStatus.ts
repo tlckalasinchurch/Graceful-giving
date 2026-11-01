@@ -13,6 +13,8 @@ export interface SlipRowForDonor {
   lastErrorMessage: string | null;
   /** The OCR result plus the checks the worker made. */
   aiData?: unknown;
+  /** "no_slip" when the donor sent the details without an image. */
+  source?: string;
 }
 
 /** Which check turned the slip away, as stored by the worker. */
@@ -79,6 +81,14 @@ export function toDonorSlipStatus(row: SlipRowForDonor): DonorSlipStatus {
         slipAmount: null,
       };
     default:
+      if (row.source === "no_slip") {
+        return {
+          state: "in_review",
+          message:
+            "ได้รับข้อมูลแล้ว ยังไม่นับเข้าบัญชีจนกว่าเหรัญญิกตรวจกับยอดเข้าบัญชีธนาคาร",
+          slipAmount: null,
+        };
+      }
       if (isEscalated(row.aiData)) {
         return {
           state: "in_review",

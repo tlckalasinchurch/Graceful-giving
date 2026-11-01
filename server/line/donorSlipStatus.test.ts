@@ -103,3 +103,28 @@ describe("toDonorSlipStatus", () => {
     );
   });
 });
+
+describe("toDonorSlipStatus: an entry without a slip", () => {
+  const row = {
+    status: "needs_review",
+    source: "no_slip",
+    declaredAmount: "170.00",
+    extractedAmount: null,
+    extractedAmountConfidence: null,
+    reviewedBy: null,
+    reviewNote: null,
+    lastErrorMessage: null,
+  };
+
+  it("says it waits for the bank check and is not counted yet", () => {
+    const s = toDonorSlipStatus(row);
+    expect(s.state).toBe("in_review");
+    expect(s.message).toContain("ยังไม่นับเข้าบัญชี");
+  });
+
+  it("still reports approved once the treasurer approves", () => {
+    expect(toDonorSlipStatus({ ...row, status: "approved" }).state).toBe(
+      "approved"
+    );
+  });
+});
