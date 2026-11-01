@@ -133,12 +133,7 @@ export default function TransactionDetail() {
       return {
         id: txId,
         refCode: `OFF-${item.id}`,
-        title:
-          item.category === "tithe"
-            ? "ถวายสิบลด"
-            : item.category === "mission"
-              ? "ถวายพันธกิจ"
-              : "ถวายทั่วไป",
+        title: offeringCategoryLabel(item.category),
         amount: item.amount,
         type: "income" as const,
         date: item.receiptDate,
@@ -233,7 +228,7 @@ export default function TransactionDetail() {
           {transaction && (
             <button
               onClick={() => setShowVoucher(true)}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-paper-2 hover:bg-brand hover:text-white text-ink-2 text-xs font-bold border border-line flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-paper-2 hover:bg-brand hover:text-black text-ink-2 text-xs font-bold border border-line flex items-center gap-1.5 transition-colors shadow-2xs"
             >
               <Printer className="w-4 h-4" />
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>

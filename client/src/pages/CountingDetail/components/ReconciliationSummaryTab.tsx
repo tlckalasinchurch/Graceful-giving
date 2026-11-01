@@ -201,7 +201,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={() => submitCount.mutate({ id: sessionId })}
               disabled={submitCount.isPending}
-              className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className="min-h-11 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-black disabled:opacity-50"
             >
               ส่งนับให้ตรวจสอบ
             </button>

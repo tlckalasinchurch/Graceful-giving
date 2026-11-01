@@ -807,7 +807,7 @@ export const appRouter = router({
       .input(
         z.object({
           amount: z.number().positive().max(MAX_GIVING_AMOUNT),
-          category: offeringCategory.default("general"),
+          category: offeringCategory.default("cash"),
           fundId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(120).optional(),
           receiptDate: z.coerce.date().optional(),
@@ -1754,7 +1754,7 @@ export const appRouter = router({
           memberId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(180).optional(),
           isAnonymous: z.boolean().default(false),
-          category: offeringCategory.default("general"),
+          category: offeringCategory.default("cash"),
           fundId: z.number().int().positive(),
           method: paymentMethod.default("cash"),
           amount: z.number().positive(),

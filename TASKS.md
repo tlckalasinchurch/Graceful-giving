@@ -84,6 +84,25 @@ Notes:
 
 ## Active queue
 
+### TASK-012 — Dark theme accessibility audit
+Status: COMPLETED
+Type: VERIFY
+Objective:
+Fix contrast defects that PR #73 (dark bento theme) introduced, and guard them.
+Acceptance Criteria:
+- Text on the orange brand colour is black (7.3:1). White gave 2.87:1.
+- Form control borders reach 3:1 against the card surface.
+- Text on the LINE green button is black (white gave 2.3:1).
+- Old indigo shadows and the stale palette comment are removed.
+- A test fails when a token drops below its contrast target.
+Verification:
+- `pnpm run ci`: PASS — 658 passed, 56 skipped
+- `inspect.mjs --app` on the production build for `/login` and `/give`: contrast FAIL cleared.
+Notes:
+- `/login` still reports a gradient button. It is the bento brand signature and was kept on purpose.
+- Pages behind sign-in are NOT VERIFIED in a browser: the inspector cannot sign in.
+
+
 ### TASK-009 — Frontend finance flow and accessibility hardening
 Status: COMPLETED
 Type: VERIFY

@@ -25,7 +25,7 @@ export default function NotFound() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
             onClick={() => setLocation("/")}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-ink px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-ink px-6 py-3 text-sm font-bold text-black shadow-sm transition hover:bg-brand"
           >
             <Home className="size-4" />
             กลับหน้าหลัก

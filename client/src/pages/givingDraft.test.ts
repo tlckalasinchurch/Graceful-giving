@@ -9,7 +9,7 @@ import {
 
 const draft: GivingDraft = {
   userId: 7,
-  category: "tithe",
+  category: "land",
   amount: 500,
   fundId: "3",
   transferState: "done",

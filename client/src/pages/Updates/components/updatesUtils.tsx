@@ -183,7 +183,7 @@ export function SubmitButtons({
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-brand-ink py-3 text-sm font-bold text-white hover:bg-brand disabled:opacity-60 shadow-sm"
+        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-brand-ink py-3 text-sm font-bold text-black hover:bg-brand disabled:opacity-60 shadow-sm"
       >
         {pending ? (
           <Clock3 className="size-4 animate-spin" />

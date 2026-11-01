@@ -139,7 +139,7 @@ describeDb("counting workflow against a real database", () => {
       envelopeNo: "012",
       fundId,
       amount: 12000,
-      category: "tithe",
+      category: "land",
       method: "cash",
       isAnonymous: false,
     });
@@ -147,7 +147,7 @@ describeDb("counting workflow against a real database", () => {
       sessionId,
       fundId,
       amount: 8000,
-      category: "general",
+      category: "cash",
       method: "cash",
       isAnonymous: true,
     });
@@ -383,7 +383,7 @@ describeDb("counting workflow: an unbalanced session", () => {
       sessionId: strayId,
       fundId,
       amount: 5000,
-      category: "general",
+      category: "cash",
       method: "cash",
       isAnonymous: true,
     });
@@ -469,7 +469,7 @@ describeDb(
     it("adds an offering to the fund balance", async () => {
       const created = await treasurerCaller().offerings.create({
         amount: 1500,
-        category: "general",
+        category: "cash",
         fundId: localFundId,
         method: "cash",
       });
@@ -639,7 +639,7 @@ describeDb("counting workflow: posting carries balances forward", () => {
       sessionId: id,
       fundId: localFundId,
       amount: 8000,
-      category: "general",
+      category: "cash",
       method: "cash",
       isAnonymous: true,
     });

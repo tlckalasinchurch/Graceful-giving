@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   OFFERING_CATEGORIES,
+  isOfferingCategory,
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
@@ -281,7 +282,7 @@ export default function GivingInbox() {
   const currentSlip = selectedSlipQuery.data;
   const [editAmount, setEditAmount] = useState<string>("");
   const [editFundId, setEditFundId] = useState<number | undefined>(undefined);
-  const [editCategory, setEditCategory] = useState<OfferingCategory>("general");
+  const [editCategory, setEditCategory] = useState<OfferingCategory>("cash");
   const [editMemberId, setEditMemberId] = useState<number | null>(null);
   const [editReviewNote, setEditReviewNote] = useState<string>("");
 
@@ -296,9 +297,9 @@ export default function GivingInbox() {
         (fundsQuery.data?.[0]?.id ?? undefined)
     );
     setEditCategory(
-      OFFERING_CATEGORIES.some(c => c.id === slip.declaredCategory)
+      slip.declaredCategory && isOfferingCategory(slip.declaredCategory)
         ? slip.declaredCategory
-        : "general"
+        : "cash"
     );
     setEditMemberId(slip.matchedMemberId || null);
     setEditReviewNote(slip.reviewNote || "");
@@ -371,7 +372,7 @@ export default function GivingInbox() {
       slipId: slip.id,
       amount: amountNum,
       fundId: defaultFundId,
-      category: "general",
+      category: "cash",
       memberId: slip.matchedMemberId,
       donorName: slip.matchedMemberName || slip.extractedSenderName,
       receiptDate: slip.extractedDate
@@ -493,7 +494,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setShowUploadModal(true)}
-            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-white text-xs font-bold button-elevation transition-all flex items-center gap-1.5 shadow-xs"
+            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold button-elevation transition-all flex items-center gap-1.5 shadow-xs"
           >
             <UploadCloud className="w-4 h-4" />
             <span>อัปโหลดสลิป</span>
@@ -581,9 +582,7 @@ export default function GivingInbox() {
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-ink-2">
-                อนุมัติแล้ว
-              </span>
+              <span className="text-xs font-bold text-ink-2">อนุมัติแล้ว</span>
               <Check className="w-4 h-4 text-ink-2" />
             </div>
             <div className="text-2xl font-bold text-ink-2 mt-1 tabular-nums">
@@ -675,7 +674,7 @@ export default function GivingInbox() {
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(true)}
-                  className="px-6 py-3 rounded-xl bg-brand hover:bg-brand-ink text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-sm shadow-md transition-all flex items-center gap-2"
                 >
                   <UploadCloud className="w-4 h-4" />{" "}
                   ทดลองอัปโหลดสลิปจากเครื่องเดี๋ยวนี้
@@ -1388,7 +1387,7 @@ export default function GivingInbox() {
                 type="button"
                 onClick={handleUploadSubmit}
                 disabled={!uploadPreview || uploadSlipMutation.isPending}
-                className="px-6 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-white font-bold text-sm shadow-md disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-sm shadow-md disabled:opacity-50 flex items-center gap-2"
               >
                 {uploadSlipMutation.isPending
                   ? "กำลังประมวลผล..."
@@ -1476,7 +1475,7 @@ export default function GivingInbox() {
               <button
                 type="button"
                 onClick={() => setShowLineInfoModal(false)}
-                className="px-6 py-2.5 rounded-xl bg-brand text-white font-bold text-sm shadow-xs hover:bg-brand-ink"
+                className="px-6 py-2.5 rounded-xl bg-brand text-black font-bold text-sm shadow-xs hover:bg-brand-ink"
               >
                 เข้าใจแล้ว
               </button>
@@ -1485,7 +1484,7 @@ export default function GivingInbox() {
               <button
                 type="button"
                 onClick={() => setShowLineInfoModal(false)}
-                className="px-6 py-2.5 rounded-xl bg-brand text-white font-bold text-sm shadow-xs hover:bg-brand-ink"
+                className="px-6 py-2.5 rounded-xl bg-brand text-black font-bold text-sm shadow-xs hover:bg-brand-ink"
               >
                 เข้าใจแล้ว
               </button>

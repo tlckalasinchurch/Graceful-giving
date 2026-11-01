@@ -211,7 +211,7 @@ export function BankSignersSection() {
                 });
               }
             }}
-            className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-white text-xs font-bold transition-all shadow-sm shrink-0"
+            className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-black text-xs font-bold transition-all shadow-sm shrink-0"
           >
             {addSignerMutation.isPending ? "กำลังเพิ่ม..." : "เพิ่มผู้ลงนาม"}
           </button>

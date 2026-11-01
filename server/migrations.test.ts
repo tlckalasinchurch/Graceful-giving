@@ -5,7 +5,7 @@
  * what proves the migrations build the schema the code expects, and that they
  * bring an older database up to date without breaking it.
  */
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
@@ -13,8 +13,13 @@ import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterEach, describe, expect, it } from "vitest";
 
 const folder = join(import.meta.dirname, "..", "drizzle");
+// The newest snapshot describes the schema the code expects today.
+const latestSnapshot = readdirSync(join(folder, "meta"))
+  .filter(f => f.endsWith("_snapshot.json"))
+  .sort()
+  .at(-1)!;
 const snapshot = JSON.parse(
-  readFileSync(join(folder, "meta", "0000_snapshot.json"), "utf8")
+  readFileSync(join(folder, "meta", latestSnapshot), "utf8")
 ) as {
   tables: Record<
     string,

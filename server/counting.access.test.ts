@@ -91,7 +91,7 @@ describe("counting: pastors do not touch the offering figures", () => {
         fundId: 1,
         amount: 500,
         isAnonymous: false,
-        category: "general",
+        category: "cash",
         method: "cash",
       })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
@@ -159,7 +159,7 @@ describe("counting: input validation", () => {
         fundId: 1,
         amount: 0,
         isAnonymous: false,
-        category: "general",
+        category: "cash",
         method: "cash",
       })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -169,7 +169,7 @@ describe("counting: input validation", () => {
         fundId: 1,
         amount: -100,
         isAnonymous: false,
-        category: "general",
+        category: "cash",
         method: "cash",
       })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -183,7 +183,7 @@ describe("counting: input validation", () => {
         sessionId: 1,
         amount: 500,
         isAnonymous: false,
-        category: "general",
+        category: "cash",
         method: "cash",
       })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });

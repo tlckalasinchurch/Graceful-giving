@@ -10,6 +10,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   EXPENSE_CATEGORY_IDS,
+  LEGACY_OFFERING_CATEGORY_LABELS,
   OFFERING_CATEGORY_IDS,
 } from "@shared/categories";
 import { expenseCategoryEnum, offeringCategoryEnum } from "../drizzle/schema";
@@ -24,23 +25,36 @@ describe("category source of truth", () => {
     ]);
   });
 
-  it("matches the Postgres offering enum exactly", () => {
-    expect([...OFFERING_CATEGORY_IDS]).toEqual([
-      ...offeringCategoryEnum.enumValues,
-    ]);
+  it("matches the Postgres offering enum: current ids plus legacy ids", () => {
+    // Postgres cannot drop an enum value, so retired ids stay in the enum.
+    const all = [
+      ...OFFERING_CATEGORY_IDS,
+      ...Object.keys(LEGACY_OFFERING_CATEGORY_LABELS),
+    ];
+    expect([...all].sort()).toEqual(
+      [...offeringCategoryEnum.enumValues].sort()
+    );
+    for (const id of OFFERING_CATEGORY_IDS) {
+      expect(LEGACY_OFFERING_CATEGORY_LABELS).not.toHaveProperty(id);
+    }
   });
 
   it("is also what the drizzle snapshot records", () => {
     // The snapshot is what `drizzle-kit generate` compares the schema with.
-    const snapshot = JSON.parse(read("drizzle/meta/0000_snapshot.json")) as {
+    const snapshot = JSON.parse(read("drizzle/meta/0002_snapshot.json")) as {
       enums: Record<string, { values: string[] }>;
     };
     expect(snapshot.enums["public.expense_category"].values).toEqual([
       ...EXPENSE_CATEGORY_IDS,
     ]);
-    expect(snapshot.enums["public.offering_category"].values).toEqual([
-      ...OFFERING_CATEGORY_IDS,
-    ]);
+    expect(
+      [...snapshot.enums["public.offering_category"].values].sort()
+    ).toEqual(
+      [
+        ...OFFERING_CATEGORY_IDS,
+        ...Object.keys(LEGACY_OFFERING_CATEGORY_LABELS),
+      ].sort()
+    );
   });
 });
 

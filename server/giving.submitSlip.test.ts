@@ -54,7 +54,7 @@ const PNG_B64 = Buffer.from([
 const validInput = {
   base64Data: `data:image/png;base64,${PNG_B64}`,
   amount: 500,
-  category: "tithe" as const,
+  category: "land" as const,
 };
 
 beforeEach(() => {
@@ -74,7 +74,7 @@ const slipRow = (over: Record<string, unknown> = {}) => ({
   createdAt: new Date("2026-10-31T00:00:00Z"),
   status: "needs_review",
   declaredAmount: "500.00",
-  declaredCategory: "tithe",
+  declaredCategory: "land",
   extractedAmount: "500.00",
   extractedAmountConfidence: "0.950",
   reviewedBy: null,
@@ -105,7 +105,7 @@ describe("givingInbox.submitSlip", () => {
         userId: member.id,
         contentType: "image/png",
         extension: "png",
-        declared: { amount: "500.00", category: "tithe", fundId: 7 },
+        declared: { amount: "500.00", category: "land", fundId: 7 },
       })
     );
     // The slip is read right away so the donor sees the check at once.
@@ -297,7 +297,7 @@ describe("existing slip endpoints stay finance-only", () => {
       caller.givingInbox.uploadSlip({ base64Data: PNG_B64 })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(
-      caller.offerings.create({ amount: 100, category: "general" })
+      caller.offerings.create({ amount: 100, category: "cash" })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });

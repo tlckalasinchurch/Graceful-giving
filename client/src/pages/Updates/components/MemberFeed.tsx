@@ -112,7 +112,7 @@ export function MemberFeed() {
               onClick={() => setNewsCategoryFilter(cat)}
               className={`min-h-11 rounded-full px-3.5 py-2 text-xs font-bold transition-all ${
                 newsCategoryFilter === cat
-                  ? "bg-brand-ink text-white shadow-sm"
+                  ? "bg-brand-ink text-black shadow-sm"
                   : "bg-white/10 text-ink-2 hover:bg-surface hover:text-ink-2 border border-line"
               }`}
             >
@@ -274,7 +274,7 @@ export function MemberFeed() {
               <div className="mt-6 flex justify-end border-t border-line pt-4">
                 <button
                   onClick={() => setSelectedNews(null)}
-                  className="rounded-xl bg-brand-ink px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-brand focus:outline-none focus:ring-2 focus:ring-brand-ink"
+                  className="rounded-xl bg-brand-ink px-6 py-2.5 text-sm font-bold text-black shadow-sm hover:bg-brand focus:outline-none focus:ring-2 focus:ring-brand-ink"
                 >
                   ปิดหน้าต่าง
                 </button>

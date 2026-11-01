@@ -116,7 +116,7 @@ function SidebarLink({
       aria-current={active ? "page" : undefined}
       className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
         active
-          ? "bg-brand font-bold text-white shadow-sm shadow-brand/25"
+          ? "bg-brand font-bold text-black shadow-sm shadow-brand/25"
           : "font-medium text-ink-2 hover:bg-paper hover:text-ink"
       }`}
     >
@@ -177,7 +177,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             aria-label="Grace Giving หน้าหลัก"
             className="flex items-center gap-3 rounded-2xl px-1.5 py-1.5 hover:bg-paper/60 transition-colors"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-white shadow-md shadow-brand/25">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-black shadow-md shadow-brand/25">
               <Sprout className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
@@ -193,7 +193,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {canRecordOffering && (
             <button
               onClick={() => navigate("/offerings/new")}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-white shadow-md shadow-brand/25 hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black shadow-md shadow-brand/25 hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
               บันทึกการถวาย
@@ -327,7 +327,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               aria-label="บันทึกการถวายใหม่"
               className="flex min-h-14 flex-col items-center justify-center gap-1"
             >
-              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-white shadow-md shadow-brand/30">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black shadow-md shadow-brand/30">
                 <Plus className="size-5 stroke-[2.5]" />
               </span>
               <span className="text-xs font-bold leading-none text-brand">

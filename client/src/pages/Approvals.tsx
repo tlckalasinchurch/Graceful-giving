@@ -180,7 +180,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-white shadow-[0_6px_16px_-4px_rgba(79,70,229,0.45)] hover:bg-brand-ink transition-all"
+          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black shadow-md shadow-brand/25 hover:bg-brand-ink transition-all"
         >
           <Banknote className="size-4" />
           ยื่นคำขอเบิกเงิน
@@ -375,7 +375,7 @@ export default function Approvals() {
                           <button
                             onClick={() => handleDisburse(req)}
                             disabled={disburseMutation.isPending}
-                            className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink text-white text-xs font-bold transition-all shadow-sm disabled:opacity-50"
+                            className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all shadow-sm disabled:opacity-50"
                           >
                             จ่ายแล้ว
                           </button>
