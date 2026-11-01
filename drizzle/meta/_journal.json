@@ -29,6 +29,13 @@
       "when": 1793515240626,
       "tag": "0003_slip_submitter",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793516228188,
+      "tag": "0004_slip_split_items",
+      "breakpoints": true
     }
   ]
 }

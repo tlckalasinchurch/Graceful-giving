@@ -49,6 +49,14 @@ import {
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
+import { SplitEditor } from "@/components/giving/SplitEditor";
+import {
+  draftsProblem,
+  parseDrafts,
+  startSplit,
+  type SplitDraft,
+} from "@/lib/splitDraft";
+import { SPLIT_MESSAGE } from "@shared/givingSplit";
 import { NativeSelect } from "@/components/ui/native-select";
 
 type InboxStatus =
@@ -289,6 +297,8 @@ export default function GivingInbox() {
   const [editDonorName, setEditDonorName] = useState<string>("");
   // An entry without a slip needs this ticked before it can be approved.
   const [confirmBank, setConfirmBank] = useState<boolean>(false);
+  // Set when one transfer is split over several categories. Null: one category.
+  const [editSplit, setEditSplit] = useState<SplitDraft[] | null>(null);
 
   const handleSelectSlip = (slip: any) => {
     setSelectedSlipId(slip.id);
@@ -307,6 +317,19 @@ export default function GivingInbox() {
         ""
     );
     setConfirmBank(false);
+    // The donor's own split, if the transfer pays for several categories.
+    const declared = Array.isArray(slip.declaredItems)
+      ? (slip.declaredItems as Array<{ category: string; amount: number }>)
+      : [];
+    setEditSplit(
+      declared.length >= 2 &&
+        declared.every(d => isOfferingCategory(d.category))
+        ? declared.map(d => ({
+            category: d.category as OfferingCategory,
+            amount: String(d.amount),
+          }))
+        : null
+    );
     // Fund and category are the donor's suggestion. The amount is not
     // prefilled from it: staff read the amount off the slip image.
     setEditFundId(
@@ -338,6 +361,14 @@ export default function GivingInbox() {
       return;
     }
 
+    if (editSplit) {
+      const problem = draftsProblem(editSplit, amountNum);
+      if (problem) {
+        Swal.error("แบ่งยอดไม่ถูกต้อง", SPLIT_MESSAGE[problem]);
+        return;
+      }
+    }
+
     if (currentSlip.source === "no_slip" && !confirmBank) {
       Swal.error(
         "ยังไม่ได้ยืนยันการตรวจ",
@@ -361,6 +392,7 @@ export default function GivingInbox() {
       amount: amountNum,
       fundId: editFundId,
       category: editCategory,
+      items: editSplit ? parseDrafts(editSplit) : undefined,
       memberId: editMemberId,
       donorName: editDonorName.trim() || undefined,
       reviewNote: editReviewNote,
@@ -376,7 +408,10 @@ export default function GivingInbox() {
   const handleQuickApprove = async (e: React.MouseEvent, slip: any) => {
     e.stopPropagation();
     // An entry without a slip is never approved in one tap. Open it to check.
-    if (slip.source === "no_slip") {
+    if (
+      slip.source === "no_slip" ||
+      (Array.isArray(slip.declaredItems) && slip.declaredItems.length >= 2)
+    ) {
       handleSelectSlip(slip);
       return;
     }
@@ -402,7 +437,10 @@ export default function GivingInbox() {
       slipId: slip.id,
       amount: amountNum,
       fundId: defaultFundId,
-      category: "cash",
+      category:
+        slip.declaredCategory && isOfferingCategory(slip.declaredCategory)
+          ? slip.declaredCategory
+          : "cash",
       memberId: slip.matchedMemberId,
       donorName:
         slip.matchedMemberName ||
@@ -805,6 +843,12 @@ export default function GivingInbox() {
                                 "ผู้ถวาย"}
                             </div>
                             <div className="text-xs text-ink-3 flex items-center gap-1.5 mt-0.5 truncate">
+                              {Array.isArray(slip.declaredItems) &&
+                                slip.declaredItems.length >= 2 && (
+                                  <span className="px-1.5 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/40 text-sky-200 text-[10px] font-bold shrink-0">
+                                    แบ่ง {slip.declaredItems.length} ประเภท
+                                  </span>
+                                )}
                               {slip.source === "no_slip" && (
                                 <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/40 text-amber-200 text-[10px] font-bold shrink-0">
                                   ไม่มีสลิป
@@ -1051,8 +1095,21 @@ export default function GivingInbox() {
                       <span className="font-bold tabular-nums">
                         {formatBaht(Number(currentSlip.declaredAmount))}
                       </span>
-                      {currentSlip.declaredCategory &&
-                        ` · ${offeringCategoryLabel(currentSlip.declaredCategory)}`}{" "}
+                      {Array.isArray(currentSlip.declaredItems) &&
+                      currentSlip.declaredItems.length >= 2
+                        ? ` · แบ่ง ${(
+                            currentSlip.declaredItems as Array<{
+                              category: string;
+                              amount: number;
+                            }>
+                          )
+                            .map(
+                              d =>
+                                `${offeringCategoryLabel(d.category)} ${Number(d.amount).toLocaleString()}`
+                            )
+                            .join(" + ")}`
+                        : currentSlip.declaredCategory &&
+                          ` · ${offeringCategoryLabel(currentSlip.declaredCategory)}`}{" "}
                       {currentSlip.extractedAmount ? (
                         Math.abs(
                           Number(currentSlip.declaredAmount) -
@@ -1284,25 +1341,61 @@ export default function GivingInbox() {
                       />
                     </div>
 
-                    {/* Category */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-ink-2">
-                        ประเภทการถวาย
-                      </label>
-                      <NativeSelect
-                        value={editCategory}
-                        onChange={e =>
-                          setEditCategory(e.target.value as OfferingCategory)
-                        }
-                        disabled={currentSlip.status === "approved"}
-                        className="focus:ring-2 focus:ring-brand"
-                      >
-                        {OFFERING_CATEGORIES.map(c => (
-                          <option key={c.id} value={c.id}>
-                            {c.label}
-                          </option>
-                        ))}
-                      </NativeSelect>
+                    {/* Category, or one transfer split over several categories */}
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-xs font-bold text-ink-2">
+                          {editSplit
+                            ? "แบ่งยอดตามประเภทการถวาย"
+                            : "ประเภทการถวาย"}
+                        </label>
+                        {!editSplit && currentSlip.status !== "approved" && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const total = parseFloat(editAmount);
+                              if (!total || total <= 0) {
+                                toast.error("ใส่ยอดเงินก่อนแบ่งยอด");
+                                return;
+                              }
+                              setEditSplit(startSplit(editCategory, total));
+                            }}
+                            className="min-h-11 px-2 text-[11px] font-bold text-brand underline underline-offset-2"
+                          >
+                            แบ่งเป็นหลายประเภท
+                          </button>
+                        )}
+                      </div>
+                      {editSplit ? (
+                        <SplitEditor
+                          idPrefix="inbox-split"
+                          lines={editSplit}
+                          total={parseFloat(editAmount) || null}
+                          onChange={setEditSplit}
+                          onCancel={() => {
+                            setEditCategory(
+                              editSplit[0]?.category ?? editCategory
+                            );
+                            setEditSplit(null);
+                          }}
+                          disabled={currentSlip.status === "approved"}
+                        />
+                      ) : (
+                        <NativeSelect
+                          value={editCategory}
+                          onChange={e =>
+                            setEditCategory(e.target.value as OfferingCategory)
+                          }
+                          disabled={currentSlip.status === "approved"}
+                          className="focus:ring-2 focus:ring-brand"
+                        >
+                          {OFFERING_CATEGORIES.map(c => (
+                            <option key={c.id} value={c.id}>
+                              {c.label}
+                            </option>
+                          ))}
+                        </NativeSelect>
+                      )}
                     </div>
                   </div>
 

@@ -4,6 +4,12 @@ import {
 } from "@shared/categories";
 import type { DonorSlipStatus } from "@shared/donorSlip";
 import {
+  SPLIT_MESSAGE,
+  type SplitLine,
+  type SplitProblem,
+} from "@shared/givingSplit";
+import { describeLines } from "@/lib/splitDraft";
+import {
   MAX_AUTO_REJECTS,
   TRANSFER_DATE_MESSAGE,
   checkTransferDate,
@@ -27,6 +33,8 @@ export interface StationSubmission {
   check: DonorSlipStatus | null;
   /** Slips the system has turned away for this donor in 24 hours. */
   failedAttempts?: number;
+  /** Set when one transfer was split over several categories. */
+  splitCount?: number;
 }
 
 /**
@@ -65,7 +73,10 @@ const baht = (n: number) => `${n.toLocaleString()} THB`;
 
 /** What the last screen says. It only says "thanks" when the slip was not turned away. */
 export function describeOutcome(s: StationSubmission): StationOutcome {
-  const what = `${offeringCategoryLabel(s.category)} ${baht(s.amount)}`;
+  const what =
+    s.splitCount && s.splitCount > 1
+      ? `${baht(s.amount)} (แบ่ง ${s.splitCount} ประเภท)`
+      : `${offeringCategoryLabel(s.category)} ${baht(s.amount)}`;
   const check = s.check;
 
   if (s.mode === "no-slip") {
@@ -116,7 +127,7 @@ export function describeOutcome(s: StationSubmission): StationOutcome {
 }
 
 export interface ChecklistItem {
-  id: "category" | "amount" | "name" | "date" | "slip";
+  id: "category" | "amount" | "split" | "name" | "date" | "slip";
   label: string;
   ok: boolean;
   /** What was found, or what to fix. */
@@ -141,6 +152,8 @@ export function buildSendChecklist(input: {
   /** The transfer date as `YYYY-MM-DD`. Used only without a slip. */
   transferDate?: string;
   now?: Date;
+  /** Set when the donor splits the transfer over several categories. */
+  split?: { lines: SplitLine[]; problem: SplitProblem | null };
 }): ChecklistItem[] {
   const { category, amount, donorName, hasSlip, mode } = input;
   const name = donorName.trim();
@@ -150,7 +163,9 @@ export function buildSendChecklist(input: {
       id: "category",
       label: "หมวดการถวาย",
       ok: true,
-      detail: offeringCategoryLabel(category),
+      detail: input.split
+        ? `แบ่งยอด ${input.split.lines.length} ประเภท`
+        : offeringCategoryLabel(category),
       required: true,
     },
     {
@@ -177,6 +192,20 @@ export function buildSendChecklist(input: {
       required: noSlip,
     },
   ];
+
+  if (input.split) {
+    const { lines, problem } = input.split;
+    items.splice(2, 0, {
+      id: "split",
+      label: "แบ่งยอด",
+      ok: problem === null,
+      detail:
+        problem === null
+          ? describeLines(lines, offeringCategoryLabel)
+          : SPLIT_MESSAGE[problem],
+      required: true,
+    });
+  }
 
   if (noSlip) {
     const raw = input.transferDate ?? "";

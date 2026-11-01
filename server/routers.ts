@@ -124,6 +124,12 @@ import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
 import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
 import { decodeSlipImage, SlipImageError } from "./line/slipImage";
 import { toDonorSlipStatus } from "./line/donorSlipStatus";
+import {
+  MAX_SPLIT_LINES,
+  MIN_SPLIT_LINES,
+  SPLIT_MESSAGE,
+  checkSplit,
+} from "@shared/givingSplit";
 import type { DonorSlipStatus } from "@shared/donorSlip";
 import {
   MAX_GIVING_AMOUNT,
@@ -335,6 +341,31 @@ const eventStatus = z.enum(["draft", "published", "cancelled"]);
 // Built from the shared category source of truth, so the API can never accept
 // a value the database enum would reject, or reject one the UI offers.
 const offeringCategory = z.enum(OFFERING_CATEGORY_IDS);
+
+const splitLine = z.object({
+  category: offeringCategory,
+  amount: z
+    .number()
+    .positive("ยอดของแต่ละประเภทต้องมากกว่า 0")
+    .max(MAX_GIVING_AMOUNT),
+});
+/** One transfer that pays for several categories. */
+const splitItems = z.array(splitLine).min(MIN_SPLIT_LINES).max(MAX_SPLIT_LINES);
+
+/** Throws BAD_REQUEST when the split does not add up to the transfer amount. */
+function assertSplitSound(
+  items: Array<{ category: string; amount: number }> | undefined,
+  total: number
+): void {
+  if (!items) return;
+  const problem = checkSplit(items as never, total);
+  if (problem) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: SPLIT_MESSAGE[problem],
+    });
+  }
+}
 const expenseCategory = z.enum(EXPENSE_CATEGORY_IDS);
 const expenseStatus = z.enum(["draft", "approved", "paid"]);
 const paymentMethod = z.enum(["cash", "transfer", "check"]);
@@ -2610,6 +2641,8 @@ export const appRouter = router({
           receiptDate: z.coerce.date().optional(),
           reviewNote: z.string().optional(),
           confirmedBankCheck: z.boolean().optional(),
+          /** One line, or two or more to split the transfer by category. */
+          items: z.array(splitLine).min(1).max(MAX_SPLIT_LINES).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -2626,6 +2659,7 @@ export const appRouter = router({
             receiptDate: input.receiptDate,
             reviewNote: input.reviewNote,
             confirmedBankCheck: input.confirmedBankCheck,
+            items: input.items,
           });
           await notifyDonorOfDecision({
             userId: result.submittedByUserId,
@@ -2798,11 +2832,14 @@ export const appRouter = router({
             .positive("กรุณาระบุจำนวนเงินที่ถวาย")
             .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
           category: offeringCategory,
+          /** Set when one transfer pays for several categories. */
+          items: splitItems.optional(),
           fundId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(120).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
+        assertSplitSound(input.items, input.amount);
         let image: ReturnType<typeof decodeSlipImage>;
         try {
           image = decodeSlipImage(input.base64Data);
@@ -2848,8 +2885,9 @@ export const appRouter = router({
             extension: image.extension,
             declared: {
               amount: input.amount.toFixed(2),
-              category: input.category,
+              category: input.items?.[0].category ?? input.category,
               fundId: input.fundId ?? null,
+              items: input.items ?? null,
             },
           });
         } catch (err) {
@@ -2868,7 +2906,8 @@ export const appRouter = router({
           entityId: slip.id,
           metadata: {
             declaredAmount: input.amount,
-            declaredCategory: input.category,
+            declaredCategory: input.items?.[0].category ?? input.category,
+            declaredItems: input.items ?? null,
             declaredFundId: input.fundId ?? null,
           },
         });
@@ -2920,6 +2959,7 @@ export const appRouter = router({
             .positive("กรุณาระบุจำนวนเงินที่ถวาย")
             .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
           category: offeringCategory,
+          items: splitItems.optional(),
           fundId: z.number().int().positive().optional(),
           donorName: z
             .string()
@@ -2930,6 +2970,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        assertSplitSound(input.items, input.amount);
         const problem = checkTransferDate(input.transferDate);
         if (problem) {
           throw new TRPCError({
@@ -2967,7 +3008,8 @@ export const appRouter = router({
             userName: ctx.user.name ?? undefined,
             donorName: input.donorName,
             amount: input.amount.toFixed(2),
-            category: input.category,
+            category: input.items?.[0].category ?? input.category,
+            items: input.items ?? null,
             fundId: input.fundId ?? null,
             transferDate: input.transferDate,
           });
@@ -2991,7 +3033,8 @@ export const appRouter = router({
           metadata: {
             source: "no_slip",
             declaredAmount: input.amount,
-            declaredCategory: input.category,
+            declaredCategory: input.items?.[0].category ?? input.category,
+            declaredItems: input.items ?? null,
             declaredFundId: input.fundId ?? null,
             declaredDate: input.transferDate.toISOString().slice(0, 10),
             possibleDuplicate: created.warning !== null,

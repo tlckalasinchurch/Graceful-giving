@@ -260,3 +260,78 @@ describe("givingInbox.approve and reject tell the donor", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });
+
+describe("one transfer, several categories", () => {
+  const items = [
+    { category: "tithe" as const, amount: 700 },
+    { category: "mission" as const, amount: 300 },
+  ];
+
+  it("keeps the split on an entry without a slip, with the first category as the main one", async () => {
+    await appRouter.createCaller(ctx(member)).givingInbox.submitWithoutSlip({
+      ...valid(),
+      amount: 1000,
+      category: "tithe",
+      items,
+    });
+    expect(db.createNoSlipEntry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: "1000.00",
+        category: "tithe",
+        items,
+      })
+    );
+  });
+
+  it("refuses a split that does not add up to the transfer", async () => {
+    await expect(
+      appRouter.createCaller(ctx(member)).givingInbox.submitWithoutSlip({
+        ...valid(),
+        amount: 1000,
+        items: [items[0], { category: "mission", amount: 200 }],
+      })
+    ).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+      message: expect.stringContaining("ผลรวม"),
+    });
+    expect(db.createNoSlipEntry).not.toHaveBeenCalled();
+  });
+
+  it("refuses the same category twice and a one-line split", async () => {
+    const caller = appRouter.createCaller(ctx(member));
+    await expect(
+      caller.givingInbox.submitWithoutSlip({
+        ...valid(),
+        amount: 1000,
+        items: [items[0], { category: "tithe", amount: 300 }],
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    await expect(
+      caller.givingInbox.submitWithoutSlip({
+        ...valid(),
+        amount: 1000,
+        items: [{ category: "tithe", amount: 1000 }],
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("passes the treasurer's split to the approval", async () => {
+    vi.mocked(db.approveLineSlip).mockResolvedValue({
+      success: true,
+      slipId: 55,
+      offeringId: 8,
+      offeringIds: [8, 9],
+      submittedByUserId: 301,
+      amount: 1000,
+    } as never);
+    await appRouter.createCaller(ctx(treasurer)).givingInbox.approve({
+      slipId: 55,
+      fundId: 7,
+      amount: 1000,
+      items,
+    });
+    expect(db.approveLineSlip).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 1000, items })
+    );
+  });
+});

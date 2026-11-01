@@ -266,3 +266,48 @@ describe("describeOutcome with failed attempts", () => {
     expect(o.message).toContain("เจ้าหน้าที่ตรวจสอบเอง");
   });
 });
+
+describe("a split over several categories", () => {
+  const base = {
+    category: "tithe" as const,
+    amount: 1000,
+    donorName: "สมชาย",
+    hasSlip: true,
+    mode: "slip" as const,
+  };
+  const lines = [
+    { category: "tithe" as const, amount: 700 },
+    { category: "mission" as const, amount: 300 },
+  ];
+
+  it("adds a split item that passes when the lines add up", () => {
+    const items = buildSendChecklist({
+      ...base,
+      split: { lines, problem: null },
+    });
+    const split = items.find(i => i.id === "split");
+    expect(split?.ok).toBe(true);
+    expect(split?.detail).toBe("สิบลด 700 + พันธกิจ 300");
+    expect(canSend(items)).toBe(true);
+  });
+
+  it("blocks the send and says why when the lines do not add up", () => {
+    const items = buildSendChecklist({
+      ...base,
+      split: { lines, problem: "total_mismatch" },
+    });
+    expect(canSend(items)).toBe(false);
+    expect(items.find(i => i.id === "split")?.detail).toContain("ผลรวม");
+  });
+
+  it("names the split in the last screen", () => {
+    const o = describeOutcome({
+      mode: "slip",
+      category: "tithe",
+      amount: 1000,
+      splitCount: 2,
+      check: { state: "verified", message: "ตรงกัน", slipAmount: null },
+    });
+    expect(o.message).toContain("แบ่ง 2 ประเภท");
+  });
+});

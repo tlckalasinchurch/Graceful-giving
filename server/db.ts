@@ -72,6 +72,12 @@ import type { CountingStatus } from "@shared/counting";
 import { reconcile } from "@shared/counting";
 import { resolveLedgerName } from "@shared/ledgerName";
 import {
+  SPLIT_MESSAGE,
+  checkSplit,
+  splitReference,
+  type SplitLine,
+} from "@shared/givingSplit";
+import {
   approvalState,
   type ApprovalOutcome,
   type Signature,
@@ -3137,6 +3143,12 @@ export interface ApproveLineSlipInput {
   reviewNote?: string;
   /** Required for an entry sent without a slip: the bank balance was checked. */
   confirmedBankCheck?: boolean;
+  /**
+   * One transfer, several categories. Two or more lines make a split: one
+   * offering per line, and the lines must add up to `amount`. One line is the
+   * same as `category`. Without it the donor's own split, if any, is used.
+   */
+  items?: SplitLine[];
 }
 
 /**
@@ -3259,33 +3271,68 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
     const submittedByName =
       slip.submittedByName ?? slip.lineDisplayName ?? null;
 
-    // 4. Create Offering in offerings table (Official Financial Ledger)
-    const [offering] = await tx
-      .insert(offerings)
-      .values({
-        churchId,
-        amount: String(input.amount),
-        category: (input.category as any) || "cash",
-        fundId: input.fundId,
-        donorName,
-        donorMemberId: input.memberId ?? null,
-        receiptDate:
-          input.receiptDate ??
-          slip.extractedDate ??
-          slip.declaredDate ??
-          new Date(),
-        method: "transfer",
-        reference: slip.extractedRef || `LINE-${slip.id}`,
-        notes:
-          `[${slip.source === "no_slip" ? "ไม่มีสลิป" : "LINE Slip"} #${slip.id}] ${input.reviewNote ? input.reviewNote : ""}`.trim(),
-        recordedBy: input.approvedBy,
-        submittedByUserId: slip.submittedByUserId ?? null,
-        submittedByName,
-        status: "active",
-      })
-      .returning({ id: offerings.id });
+    // 4. Work out the lines: a split, or one line.
+    let lines: SplitLine[];
+    if (input.items && input.items.length >= 2) {
+      lines = input.items;
+    } else if (input.items && input.items.length === 1) {
+      lines = [{ category: input.items[0].category, amount: input.amount }];
+    } else if (
+      !input.category &&
+      Array.isArray(slip.declaredItems) &&
+      slip.declaredItems.length >= 2
+    ) {
+      lines = slip.declaredItems as SplitLine[];
+    } else {
+      lines = [
+        {
+          category: (input.category as OfferingCategory) || "cash",
+          amount: input.amount,
+        },
+      ];
+    }
+    if (lines.length >= 2) {
+      const problem = checkSplit(lines, input.amount);
+      if (problem) throw new Error(SPLIT_MESSAGE[problem]);
+    }
+    const isSplit = lines.length >= 2;
 
-    // 5. Update fund balance in finance_accounts
+    // 5. Create the offerings in the ledger (the financial source of truth).
+    // The ledger allows one active offering per bank reference, so the lines of
+    // a split get `#2`, `#3` after the reference.
+    const baseRef = slip.extractedRef || `LINE-${slip.id}`;
+    const offeringIds: number[] = [];
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
+      const [offering] = await tx
+        .insert(offerings)
+        .values({
+          churchId,
+          amount: String(line.amount),
+          category: line.category,
+          fundId: input.fundId,
+          donorName,
+          donorMemberId: input.memberId ?? null,
+          receiptDate:
+            input.receiptDate ??
+            slip.extractedDate ??
+            slip.declaredDate ??
+            new Date(),
+          method: "transfer",
+          reference: splitReference(baseRef, index),
+          notes:
+            `[${slip.source === "no_slip" ? "ไม่มีสลิป" : "LINE Slip"} #${slip.id}${isSplit ? ` แบ่งยอด ${index + 1}/${lines.length}` : ""}] ${input.reviewNote ? input.reviewNote : ""}`.trim(),
+          recordedBy: input.approvedBy,
+          submittedByUserId: slip.submittedByUserId ?? null,
+          submittedByName,
+          status: "active",
+        })
+        .returning({ id: offerings.id });
+      offeringIds.push(offering.id);
+    }
+    const offering = { id: offeringIds[0] };
+
+    // Update fund balance in finance_accounts, once for the whole transfer
     await tx.execute(
       sql`UPDATE finance_accounts SET balance = balance + ${input.amount} WHERE id = ${input.fundId} AND "churchId" = ${churchId}`
     );
@@ -3323,6 +3370,8 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
         donorName,
         nameSource,
         slipSource: slip.source,
+        offeringIds,
+        split: isSplit ? lines : null,
         submittedByUserId: slip.submittedByUserId ?? null,
         slipRef: slip.extractedRef,
       },
@@ -3332,6 +3381,7 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
       success: true,
       slipId: input.slipId,
       offeringId: offering.id,
+      offeringIds,
       submittedByUserId: slip.submittedByUserId ?? null,
       amount: input.amount,
     };
@@ -3675,6 +3725,8 @@ export async function createManualSlip(input: {
     amount: string;
     category: OfferingCategory;
     fundId?: number | null;
+    /** Two or more lines when one transfer pays for several categories. */
+    items?: SplitLine[] | null;
   };
   /** The name the donor typed in the form. Kept apart from the LINE name. */
   typedDonorName?: string;
@@ -3712,6 +3764,7 @@ export async function createManualSlip(input: {
       declaredAmount: input.declared?.amount ?? null,
       declaredCategory: input.declared?.category ?? null,
       declaredFundId: input.declared?.fundId ?? null,
+      declaredItems: input.declared?.items ?? null,
     })
     .returning();
 
@@ -3753,6 +3806,8 @@ export async function createNoSlipEntry(input: {
   category: OfferingCategory;
   fundId?: number | null;
   transferDate: Date;
+  /** Two or more lines when one transfer pays for several categories. */
+  items?: SplitLine[] | null;
   now?: Date;
 }) {
   const db = await getDb();
@@ -3840,6 +3895,7 @@ export async function createNoSlipEntry(input: {
       declaredCategory: input.category,
       declaredFundId: input.fundId ?? null,
       declaredDate: dayStart,
+      declaredItems: input.items ?? null,
       submittedByUserId: input.userId,
       submittedByName: input.userName ?? null,
       typedDonorName: input.donorName,

@@ -849,6 +849,13 @@ export const lineSlips = pgTable("line_slips", {
   declaredAmount: decimal("declaredAmount", { precision: 15, scale: 2 }),
   declaredCategory: offeringCategoryEnum("declaredCategory"),
   declaredFundId: integer("declaredFundId"),
+  /**
+   * When one transfer pays for several categories: `[{category, amount}]`.
+   * Null for a single category. `declaredAmount` is then the total.
+   */
+  declaredItems: jsonb("declaredItems").$type<
+    Array<{ category: string; amount: number }>
+  >(),
   /** The date the donor says the transfer was made (entries without a slip). */
   declaredDate: timestamp("declaredDate"),
   /** "slip": an image was attached. "no_slip": the donor sent the details only. */

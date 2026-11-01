@@ -191,6 +191,79 @@ describe("GivingStation for an ordinary member", () => {
     expect((send as HTMLButtonElement).disabled).toBe(true);
   });
 
+  it("splits one transfer over two categories and sends the lines", async () => {
+    submitWithoutSlip.mockResolvedValue({
+      success: true,
+      slipId: 10,
+      failedAttempts: 0,
+      check: { state: "in_review", message: "รอตรวจ", slipAmount: null },
+    });
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: /แบ่งยอดถวายหลายประเภท/ })
+    );
+    // One line holds the whole amount, so a split of one line cannot be sent.
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "ส่งให้เหรัญญิกตรวจสอบ",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+
+    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 1"), {
+      target: { value: "700" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "เพิ่มประเภทอื่น" }));
+    // The new line takes what is left.
+    expect(
+      (screen.getByLabelText("ยอดประเภทที่ 2") as HTMLInputElement).value
+    ).toBe("300");
+    expect(screen.getByRole("status").textContent).toContain("✓");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
+    );
+    expect(await screen.findByText("ได้รับข้อมูลแล้ว")).toBeTruthy();
+    const sent = submitWithoutSlip.mock.calls[0][0];
+    expect(sent.amount).toBe(1000);
+    expect(sent.items).toHaveLength(2);
+    expect(sent.items[0]).toEqual({ category: "land", amount: 700 });
+    expect(sent.items[1].amount).toBe(300);
+    expect(sent.items[1].category).not.toBe("land");
+  });
+
+  it("blocks the send when the split lines do not add up to the transfer", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: /แบ่งยอดถวายหลายประเภท/ })
+    );
+    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 1"), {
+      target: { value: "700" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "เพิ่มประเภทอื่น" }));
+    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 2"), {
+      target: { value: "200" },
+    });
+    expect(screen.getByRole("status").textContent).toContain("ผลรวม");
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "ส่งให้เหรัญญิกตรวจสอบ",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+    expect(submitWithoutSlip).not.toHaveBeenCalled();
+  });
+
   it("lets the donor take the slip photo with the camera", async () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
