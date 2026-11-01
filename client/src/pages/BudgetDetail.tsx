@@ -162,7 +162,7 @@ export default function BudgetDetail() {
           />
         ) : (
           <>
-            <section className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8">
+            <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
               <h1 className="text-2xl font-bold text-ink">
                 {budgetCategoryLabel(query.data.category)}
               </h1>
@@ -208,7 +208,7 @@ export default function BudgetDetail() {
 
             <form
               onSubmit={submit}
-              className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8"
+              className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8"
             >
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-bold text-ink">แก้ไขงบประมาณ</h2>
@@ -216,7 +216,7 @@ export default function BudgetDetail() {
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50"
+                  className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-bold text-rose-300 disabled:opacity-50"
                 >
                   <Trash2 className="h-4 w-4" />
                   ลบงบประมาณ
@@ -236,7 +236,7 @@ export default function BudgetDetail() {
               </button>
             </form>
 
-            <section className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8">
+            <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
               <h2 className="font-bold text-ink">
                 รายจ่ายที่นับในงบนี้ ({query.data.expenseCount} รายการ)
               </h2>

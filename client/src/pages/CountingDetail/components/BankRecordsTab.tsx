@@ -4,24 +4,36 @@ import { MoneyDisplay } from "@/components/common/CommonUI";
 import { fmtBaht, Variance } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Swal } from "@/lib/sweetalert";
+import type { BankRecordType } from "@shared/counting";
+
+const BANK_RECORD_LABELS: Record<BankRecordType, string> = {
+  cash_deposit: "นำเงินสดเข้าฝาก",
+  transfer_in: "สมาชิกโอนเข้าบัญชี",
+  withdrawal: "ถอนเงินสดจากธนาคาร",
+  other_in: "เงินเข้าอื่นๆ (ดอกเบี้ย ฯลฯ)",
+  other_out: "เงินออกอื่นๆ (ค่าธรรมเนียม โอนจ่ายบิล)",
+};
+
+/** Fees, interest and bills need a written reason; the amount alone says nothing. */
+const needsNote = (type: BankRecordType) =>
+  type === "other_in" || type === "other_out";
 
 interface BankRecordsTabProps {
   sessionId: number;
   bankRecords: Array<{
     id: number;
     sessionId: number;
-    type: "transfer_in" | "cash_deposit" | string;
+    type: string;
     amount: number;
     transferredByName?: string | null;
     bankRef?: string | null;
+    notes?: string | null;
     passbookMatched: boolean;
   }>;
   actualTransferIn: number;
   envelopeTransferTotal: number;
   transferVariance: number;
   actualCashDeposit: number;
-  expectedDeposit: number;
-  depositVariance: number;
   addBankRecord: {
     mutate: (vars: any, options?: any) => void;
     isPending: boolean;
@@ -39,14 +51,11 @@ export function BankRecordsTab({
   envelopeTransferTotal,
   transferVariance,
   actualCashDeposit,
-  expectedDeposit,
-  depositVariance,
   addBankRecord,
   matchPassbook,
 }: BankRecordsTabProps) {
-  const [bType, setBType] = useState<"transfer_in" | "cash_deposit">(
-    "cash_deposit"
-  );
+  const [bType, setBType] = useState<BankRecordType>("cash_deposit");
+  const [bNotes, setBNotes] = useState("");
   const [bAmount, setBAmount] = useState("");
   const [bName, setBName] = useState("");
   const [bRef, setBRef] = useState("");
@@ -80,6 +89,10 @@ export function BankRecordsTab({
             toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
             return;
           }
+          if (needsNote(bType) && !bNotes.trim()) {
+            toast.error("กรุณาระบุรายละเอียดของรายการนี้");
+            return;
+          }
           addBankRecord.mutate(
             {
               sessionId,
@@ -87,17 +100,19 @@ export function BankRecordsTab({
               amount: value,
               transferredByName: bName.trim() || undefined,
               bankRef: bRef.trim() || undefined,
+              notes: bNotes.trim() || undefined,
             },
             {
               onSuccess: () => {
                 setBAmount("");
                 setBName("");
                 setBRef("");
+                setBNotes("");
               },
             }
           );
         }}
-        className="rounded-2xl border border-line bg-white p-5 shadow-sm md:p-6"
+        className="rounded-2xl border border-line bg-surface p-5 shadow-sm md:p-6"
       >
         <h2 className="mb-4 font-bold text-foreground">บันทึกรายการธนาคาร</h2>
         <div className="grid gap-4 md:grid-cols-4">
@@ -108,8 +123,13 @@ export function BankRecordsTab({
               onChange={e => setBType(e.target.value as typeof bType)}
               className="mt-1"
             >
-              <option value="cash_deposit">นำเงินสดเข้าฝาก</option>
-              <option value="transfer_in">สมาชิกโอนเข้าบัญชี</option>
+              {(
+                Object.entries(BANK_RECORD_LABELS) as [BankRecordType, string][]
+              ).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </NativeSelect>
           </label>
           <label className="text-sm font-semibold text-ink-2">
@@ -142,6 +162,19 @@ export function BankRecordsTab({
             />
           </label>
         </div>
+        {needsNote(bType) && (
+          <label className="mt-4 block text-sm font-semibold text-ink-2">
+            รายละเอียด *
+            <input
+              value={bNotes}
+              required
+              maxLength={500}
+              onChange={e => setBNotes(e.target.value)}
+              placeholder="เช่น ค่าธรรมเนียมรายปี, ค่าไฟเดือนตุลาคม"
+              className="mt-1 w-full rounded-xl border border-line p-3 text-sm font-normal text-foreground"
+            />
+          </label>
+        )}
         <button
           type="submit"
           disabled={addBankRecord.isPending}
@@ -152,7 +185,7 @@ export function BankRecordsTab({
       </form>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-line bg-white p-4">
+        <div className="rounded-2xl border border-line bg-surface p-4">
           <p className="text-sm text-ink-2">เงินโอนเข้าบัญชีจริง</p>
           <MoneyDisplay amount={actualTransferIn} type="income" size="lg" />
           <p className="mt-1 text-sm text-ink-2">
@@ -162,19 +195,13 @@ export function BankRecordsTab({
             <Variance amount={transferVariance} />
           </div>
         </div>
-        <div className="rounded-2xl border border-line bg-white p-4">
+        <div className="rounded-2xl border border-line bg-surface p-4">
           <p className="text-sm text-ink-2">นำเงินสดเข้าฝากจริง</p>
           <MoneyDisplay amount={actualCashDeposit} size="lg" />
-          <p className="mt-1 text-sm text-ink-2">
-            ต้องนำฝาก {fmtBaht(expectedDeposit)}
-          </p>
-          <div className="mt-1">
-            <Variance amount={depositVariance} />
-          </div>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
         <h2 className="border-b border-line p-4 font-bold text-foreground">
           รายการธนาคาร ({bankRecords.length})
         </h2>
@@ -191,12 +218,13 @@ export function BankRecordsTab({
               >
                 <div className="min-w-0">
                   <p className="font-bold text-foreground">
-                    {record.type === "cash_deposit"
-                      ? "นำเงินสดเข้าฝาก"
-                      : "สมาชิกโอนเข้าบัญชี"}
+                    {BANK_RECORD_LABELS[record.type as BankRecordType] ??
+                      record.type}
                   </p>
                   <p className="text-sm text-ink-2">
-                    {record.transferredByName || "ไม่ระบุผู้โอน"}
+                    {needsNote(record.type as BankRecordType)
+                      ? record.notes
+                      : record.transferredByName || "ไม่ระบุผู้โอน"}
                     {record.bankRef ? ` · ${record.bankRef}` : ""}
                   </p>
                   <p className="mt-1 text-sm">
@@ -218,7 +246,7 @@ export function BankRecordsTab({
                       type="button"
                       onClick={() => void handleMatchPassbook(record)}
                       disabled={matchPassbook.isPending}
-                      className="min-h-11 rounded-xl border border-[#9BCBA5] bg-[#E4F3E7] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
+                      className="min-h-11 rounded-xl border border-[hsl(133_32%_24%)] bg-[hsl(132_38%_13%)] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
                     >
                       กระทบสมุด
                     </button>

@@ -147,9 +147,12 @@ describe("deployment headers", () => {
     expect(headers["Permissions-Policy"]).toContain("camera=()");
   });
 
-  it("has a CSP that allows no inline or remote script and no framing", () => {
+  it("has a CSP that allows no inline script, one remote script host and no framing", () => {
     const csp = headers["Content-Security-Policy"];
-    expect(csp).toContain("script-src 'self'");
+    // The LIFF SDK loads its extension scripts from LINE's CDN. That is the
+    // only remote script host. Any other host fails this test on purpose.
+    const scriptSrc = /script-src([^;]*)/.exec(csp)?.[1].trim().split(/\s+/);
+    expect(scriptSrc).toEqual(["'self'", "https://static.line-scdn.net"]);
     expect(csp).not.toMatch(/script-src[^;]*unsafe-inline/);
     expect(csp).not.toMatch(/script-src[^;]*unsafe-eval/);
     expect(csp).toContain("frame-ancestors 'none'");

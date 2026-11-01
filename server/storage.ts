@@ -6,8 +6,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 const SUPABASE_STORAGE_BUCKET =
   process.env.SUPABASE_STORAGE_BUCKET ?? "receipts";
 /** Private bucket for LINE slip images — financial data, never public */
-const SUPABASE_SLIP_BUCKET =
-  process.env.SUPABASE_SLIP_BUCKET ?? "slips";
+const SUPABASE_SLIP_BUCKET = process.env.SUPABASE_SLIP_BUCKET ?? "slips";
 
 function getSupabaseConfig() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -15,7 +14,22 @@ function getSupabaseConfig() {
       "Storage config missing: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY"
     );
   }
-  return { url: SUPABASE_URL.replace(/\/+$/, ""), key: SUPABASE_SERVICE_ROLE_KEY };
+  return {
+    url: SUPABASE_URL.replace(/\/+$/, ""),
+    key: SUPABASE_SERVICE_ROLE_KEY,
+  };
+}
+
+/**
+ * Auth headers for Supabase Storage. Every key goes in both `apikey` and
+ * `Authorization: Bearer`, with the same value, as supabase-js does. A new
+ * `sb_secret_...` key is not a JWT. The Supabase gateway reads it from `apikey`
+ * and passes a JWT on, but Storage still needs the `Authorization` header to be
+ * present: without it Storage answers "headers must have required property
+ * 'authorization'". With only `Authorization`, it answers "Invalid Compact JWS".
+ */
+export function storageAuthHeaders(apiKey: string): Record<string, string> {
+  return { apikey: apiKey, Authorization: `Bearer ${apiKey}` };
 }
 
 function appendHashSuffix(relKey: string): string {
@@ -47,7 +61,7 @@ export async function storagePut(
   const resp = await fetch(uploadUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      ...storageAuthHeaders(apiKey),
       "Content-Type": contentType,
       "x-upsert": "true",
     },
@@ -75,7 +89,7 @@ export async function storageGetSignedUrl(relKey: string): Promise<string> {
   const resp = await fetch(signUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      ...storageAuthHeaders(apiKey),
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ expiresIn: 3600 }),
@@ -118,7 +132,7 @@ export async function storageDelete(relKey: string): Promise<void> {
   const resp = await fetch(deleteUrl, {
     method: "DELETE",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      ...storageAuthHeaders(apiKey),
     },
   });
 
@@ -146,7 +160,7 @@ export async function storagePutPrivate(
   const resp = await fetch(uploadUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      ...storageAuthHeaders(apiKey),
       "Content-Type": contentType,
       "x-upsert": "true",
     },
@@ -175,7 +189,7 @@ export async function getSlipSignedUrl(slipImageKey: string): Promise<string> {
   const resp = await fetch(signUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      ...storageAuthHeaders(apiKey),
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ expiresIn: 3600 }),
@@ -183,9 +197,7 @@ export async function getSlipSignedUrl(slipImageKey: string): Promise<string> {
 
   if (!resp.ok) {
     const msg = await resp.text().catch(() => resp.statusText);
-    throw new Error(
-      `Supabase slip signed URL failed (${resp.status}): ${msg}`
-    );
+    throw new Error(`Supabase slip signed URL failed (${resp.status}): ${msg}`);
   }
 
   const result = (await resp.json()) as { signedURL?: string };

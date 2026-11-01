@@ -5,8 +5,36 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1789397406610,
-      "tag": "0000_peaceful_the_watchers",
+      "when": 1793426209621,
+      "tag": "0000_baseline",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793443036482,
+      "tag": "0001_station_poster",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793492397571,
+      "tag": "0002_add_offering_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793515240626,
+      "tag": "0003_slip_submitter",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793516228188,
+      "tag": "0004_slip_split_items",
       "breakpoints": true
     }
   ]

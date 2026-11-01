@@ -29,17 +29,17 @@ function SummaryCard({
   footnote: ReactNode;
 }) {
   return (
-    <article className="min-w-0 rounded-3xl bg-surface p-5 fintech-card flex items-start gap-4">
+    <article className="min-w-0 rounded-3xl bg-surface p-5 sm:p-6 fintech-card flex items-start gap-4 transition-transform hover:-translate-y-0.5">
       <span
-        className={`size-11 shrink-0 rounded-2xl flex items-center justify-center ${tile}`}
+        className={`size-12 shrink-0 rounded-2xl flex items-center justify-center shadow-xs ${tile}`}
         aria-hidden="true"
       >
         {icon}
       </span>
       <div className="min-w-0 flex-1 space-y-1">
-        <h3 className="text-sm font-medium text-ink-2">{label}</h3>
+        <h3 className="text-xs sm:text-sm font-bold text-ink-2">{label}</h3>
         {amount}
-        <p className="text-xs text-ink-3">{footnote}</p>
+        <p className="text-xs font-medium text-ink-3">{footnote}</p>
       </div>
     </article>
   );
@@ -63,11 +63,13 @@ export function FinancialSummaryRow({
     sign: string
   ): ReactNode =>
     isBalanceLoading ? (
-      <div className="h-8 w-28 rounded-2xl bg-ground animate-pulse" />
+      <div className="h-8 w-28 rounded-2xl bg-paper animate-pulse" />
     ) : (
-      <p className={`money text-2xl font-semibold leading-tight ${tone}`}>
+      <p
+        className={`display money text-2xl font-bold leading-tight tracking-tight ${tone}`}
+      >
         {showBalance && value !== undefined
-          ? `${sign}฿ ${formatAmount(Math.abs(value), 0)}`
+          ? `${sign}฿\u202F${formatAmount(Math.abs(value), 0)}`
           : "—"}
       </p>
     );
@@ -87,7 +89,7 @@ export function FinancialSummaryRow({
       />
       <SummaryCard
         label="รายจ่ายเดือนนี้"
-        tile="bg-tile-sand text-tile-sand-ink"
+        tile="bg-tile-rose text-tile-rose-ink"
         icon={<ReceiptText className="size-5" />}
         amount={figure(monthlyExpense, "text-ink", "")}
         footnote={`${trendArrow(expenseTrend)} ${trendValue(expenseTrend)} จากเดือนที่แล้ว`}

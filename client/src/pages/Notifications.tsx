@@ -35,7 +35,7 @@ export default function Notifications() {
           type="button"
           onClick={() => markAllRead.mutate()}
           disabled={markAllRead.isPending || !query.data?.some(n => !n.readAt)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-4 text-sm font-medium text-ink-2 hover:bg-paper-2 disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-medium text-ink-2 hover:bg-paper-2 disabled:opacity-50"
         >
           <CheckCheck className="size-4" />
           อ่านแล้วทั้งหมด
@@ -69,7 +69,7 @@ export default function Notifications() {
                   if (!item.readAt) markRead.mutate({ id: item.id });
                   if (item.link) setLocation(item.link);
                 }}
-                className={`relative w-full rounded-2xl border bg-white p-4 pl-8 text-left hover:bg-paper ${item.readAt ? "border-line" : "border-[#F9D2AE]"}`}
+                className={`relative w-full rounded-2xl border bg-surface p-4 pl-8 text-left hover:bg-paper ${item.readAt ? "border-line" : "border-[hsl(29_40%_24%)]"}`}
               >
                 {!item.readAt && (
                   <span

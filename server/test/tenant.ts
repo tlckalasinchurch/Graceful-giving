@@ -30,6 +30,8 @@ const TENANT_TABLES = [
   "counting_sessions",
   "line_processing_jobs",
   "line_slips",
+  "withdrawal_approvals",
+  "bank_signers",
   "withdrawal_requests",
   "budget_plans",
   "notifications",

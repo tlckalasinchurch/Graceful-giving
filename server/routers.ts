@@ -5,7 +5,6 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { storagePut } from "./storage";
 import {
-  approveWithdrawal,
   createBudgetPlan,
   deleteBudgetPlan,
   getBudgetPlanById,
@@ -14,13 +13,25 @@ import {
   createChurchEvent,
   createChurchNews,
   createAuditLog,
+  getWithdrawalRequestBasic,
+  signWithdrawalRequest,
+  WorkflowError,
+  cancelWithdrawalRequest,
   listAuditLogs,
   createNotification,
+  createNoSlipEntry,
+  DuplicateEntryError,
+  listFinanceUserIds,
   createExpense,
   createFinanceAccount,
   createOffering,
   createWithdrawalRequest,
   DEFAULT_CHURCH_ID,
+  addBankSigner,
+  removeBankSigner,
+  setRequiredBankSigner,
+  listBankSigners,
+  isBankSigner,
   deleteChurchEvent,
   deleteChurchNews,
   deleteExpense,
@@ -49,6 +60,8 @@ import {
   listPublishedChurchNews,
   listWithdrawalRequests,
   markSetupCompleted,
+  getStationPosterJson,
+  saveStationPosterJson,
   updateExpense,
   updateOffering,
   voidExpense,
@@ -73,7 +86,11 @@ import {
   listCountingSessions,
   getCountingSession,
   getCountingSessionDetail,
+  findEarlierUnpostedSession,
+  resolveOpeningBalances,
+  setCountingCarryFields,
   createCountingSession,
+  attachPendingWithdrawals,
   setCountingSessionStatus,
   addOfferingEnvelope,
   updateOfferingEnvelope,
@@ -96,13 +113,38 @@ import {
   linkLineUserToMember,
   getLineInboxStats,
   createManualSlip,
+  countRecentManualSlips,
+  getMyManualSlip,
+  countRecentSystemRejectedSlips,
+  listMyManualSlips,
   rescanLineSlip,
 } from "./db";
 import { runWorkerBatch } from "./line/processWorker";
+import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
+import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
+import { decodeSlipImage, SlipImageError } from "./line/slipImage";
+import { toDonorSlipStatus } from "./line/donorSlipStatus";
+import { extractSlipData } from "./line/slipOcr";
+import { toSlipReading } from "./line/slipReading";
+import { UNREADABLE_SLIP } from "@shared/slipReading";
+import {
+  MAX_SPLIT_LINES,
+  MIN_SPLIT_LINES,
+  SPLIT_MESSAGE,
+  checkSplit,
+} from "@shared/givingSplit";
+import type { DonorSlipStatus } from "@shared/donorSlip";
+import {
+  MAX_GIVING_AMOUNT,
+  MAX_SLIPS_PER_DAY,
+  checkTransferDate,
+  TRANSFER_DATE_MESSAGE,
+  MAX_SLIP_READS_PER_5_MIN,
+} from "@shared/givingLimits";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
-import { canTransition, isEditable } from "@shared/counting";
+import { BANK_RECORD_TYPES, canTransition, isEditable } from "@shared/counting";
 import {
   EXPENSE_CATEGORY_IDS,
   OFFERING_CATEGORY_IDS,
@@ -137,10 +179,6 @@ function canManageFinance(user: User): boolean {
 }
 
 function canViewDonorNames(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "TREASURER");
-}
-
-function canApproveWithdrawals(user: User): boolean {
   return hasAnyRole(user, "SUPER_ADMIN", "TREASURER");
 }
 
@@ -310,6 +348,31 @@ const eventStatus = z.enum(["draft", "published", "cancelled"]);
 // Built from the shared category source of truth, so the API can never accept
 // a value the database enum would reject, or reject one the UI offers.
 const offeringCategory = z.enum(OFFERING_CATEGORY_IDS);
+
+const splitLine = z.object({
+  category: offeringCategory,
+  amount: z
+    .number()
+    .positive("ยอดของแต่ละประเภทต้องมากกว่า 0")
+    .max(MAX_GIVING_AMOUNT),
+});
+/** One transfer that pays for several categories. */
+const splitItems = z.array(splitLine).min(MIN_SPLIT_LINES).max(MAX_SPLIT_LINES);
+
+/** Throws BAD_REQUEST when the split does not add up to the transfer amount. */
+function assertSplitSound(
+  items: Array<{ category: string; amount: number }> | undefined,
+  total: number
+): void {
+  if (!items) return;
+  const problem = checkSplit(items as never, total);
+  if (problem) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: SPLIT_MESSAGE[problem],
+    });
+  }
+}
 const expenseCategory = z.enum(EXPENSE_CATEGORY_IDS);
 const expenseStatus = z.enum(["draft", "approved", "paid"]);
 const paymentMethod = z.enum(["cash", "transfer", "check"]);
@@ -359,6 +422,16 @@ function assertCountEditable(status: CountingStatus) {
   }
 }
 
+/** Posted and closed rounds are part of the books; their figures are fixed. */
+function assertNotPosted(status: CountingStatus) {
+  if (status === "posted" || status === "closed") {
+    throw new TRPCError({
+      code: "CONFLICT",
+      message: "รอบนี้ลงบัญชีแล้ว แก้ไขยอดไม่ได้",
+    });
+  }
+}
+
 function assertCanCount(user: User) {
   if (!canCountOfferings(user)) {
     throw new TRPCError({
@@ -377,7 +450,10 @@ function assertCanVerify(user: User) {
   }
 }
 
-/** Everyone sees the church's name and contact details, not its bank account. */
+/**
+ * Everyone sees the church's name and contact details, not its bank account
+ * or PromptPay ID. A donor gets a QR code for the amount they give instead.
+ */
 export function redactChurchProfile<
   T extends {
     bankName: string | null;
@@ -391,8 +467,110 @@ export function redactChurchProfile<
     bankName: null,
     bankAccount: null,
     bankAccountName: null,
+    ...("promptPayId" in profile ? { promptPayId: null } : {}),
   };
 }
+
+/** How long a donor waits for the slip reading before it falls back to the queue. */
+const SLIP_CHECK_WAIT_MS = 8000;
+
+/** Runs the slip worker, but gives up waiting after `ms`. Never throws. */
+async function drainWorkerWithin(ms: number): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<void>(resolve => {
+    timer = setTimeout(resolve, ms);
+  });
+  try {
+    await Promise.race([
+      runWorkerBatch().then(
+        () => undefined,
+        err => console.warn("[submitSlip] Worker error:", err)
+      ),
+      timeout,
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Tells every finance user a new entry waits for review. A failed
+ * notification never fails the donor's submission.
+ */
+async function notifyFinanceOfNewEntry(opts: {
+  slipId: number;
+  from: string;
+  amount: number;
+  kind: "slip" | "no_slip";
+}): Promise<void> {
+  try {
+    const ids = await listFinanceUserIds();
+    const what =
+      opts.kind === "no_slip"
+        ? "รายการถวายที่ไม่มีสลิป (ต้องตรวจกับยอดเข้าบัญชี)"
+        : "สลิปถวาย";
+    await Promise.all(
+      ids.map(userId =>
+        createNotification({
+          userId,
+          type: "giving_review",
+          title: "มีรายการถวายรอตรวจสอบ",
+          description: `${opts.from} ส่ง${what} ${opts.amount.toLocaleString()} บาท`,
+          link: "/giving/inbox",
+        })
+      )
+    );
+  } catch (err) {
+    console.warn("[notify] Could not notify finance users:", err);
+  }
+}
+
+/** Tells the donor what the treasurer decided. Never throws. */
+async function notifyDonorOfDecision(opts: {
+  userId: number | null;
+  decision: "approved" | "rejected";
+  amount?: number;
+  reason?: string;
+}): Promise<void> {
+  if (opts.userId === null) return;
+  try {
+    await createNotification({
+      userId: opts.userId,
+      type:
+        opts.decision === "approved" ? "giving_approved" : "giving_rejected",
+      title:
+        opts.decision === "approved"
+          ? "บันทึกการถวายของคุณเข้าบัญชีแล้ว"
+          : "รายการถวายของคุณไม่ได้รับการอนุมัติ",
+      description:
+        opts.decision === "approved"
+          ? `เหรัญญิกบันทึกยอด ${(opts.amount ?? 0).toLocaleString()} บาทแล้ว ขอบคุณพระเจ้า`
+          : `เหตุผล: ${opts.reason ?? "ข้อมูลไม่ถูกต้อง"} กรุณาติดต่อเจ้าหน้าที่หรือส่งใหม่`,
+      link: "/giving/station",
+    });
+  } catch (err) {
+    console.warn("[notify] Could not notify the donor:", err);
+  }
+}
+
+/** Slip readings per person, per server instance. A guard against runaway use. */
+const slipReadTimes = new Map<number, number[]>();
+
+function allowSlipRead(userId: number, now = Date.now()): boolean {
+  const recent = (slipReadTimes.get(userId) ?? []).filter(
+    t => now - t < 5 * 60 * 1000
+  );
+  if (recent.length >= MAX_SLIP_READS_PER_5_MIN) {
+    slipReadTimes.set(userId, recent);
+    return false;
+  }
+  recent.push(now);
+  slipReadTimes.set(userId, recent);
+  return true;
+}
+
+/** How long a donor waits for the AI to read a slip before the form is left to them. */
+const SLIP_READ_TIMEOUT_MS = 20_000;
 
 // ─── App Router ───────────────────────────────────────────────────────────────
 
@@ -401,13 +579,15 @@ export const appRouter = router({
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   auth: router({
-    me: publicProcedure.query(opts => {
+    me: publicProcedure.query(async opts => {
       const user = opts.ctx.user;
       if (!user) return null;
       const roles = getUserRoles(user);
+      const signer = await isBankSigner(user.id);
       return {
         ...user,
         roles,
+        isBankSigner: signer !== null,
       };
     }),
     /** Sign-in state for the login screen. Works for signed-out and pending people. */
@@ -576,12 +756,85 @@ export const appRouter = router({
           bankName: z.string().trim().max(120).optional(),
           bankAccount: z.string().trim().max(30).optional(),
           bankAccountName: z.string().trim().max(120).optional(),
+          /** Empty clears it. Left out, it stays as it is. */
+          promptPayId: z
+            .string()
+            .trim()
+            .max(20)
+            .refine(v => v === "" || parsePromptPayId(v) !== null, {
+              message:
+                "เลขพร้อมเพย์ต้องเป็นเบอร์มือถือ 10 หลัก เลขประจำตัว 13 หลัก หรือ e-Wallet 15 หลัก",
+            })
+            .optional(),
           fiscalYearStartMonth: z.number().int().min(1).max(12).default(1),
           motto: z.string().trim().max(280).optional(),
         })
       )
       .mutation(async ({ input }) => {
-        await upsertChurchProfile({ ...input, churchId: DEFAULT_CHURCH_ID });
+        const { promptPayId, ...rest } = input;
+        await upsertChurchProfile({
+          ...rest,
+          churchId: DEFAULT_CHURCH_ID,
+          // "" clears the ID. undefined leaves it alone. Store digits only.
+          ...(promptPayId === undefined
+            ? {}
+            : { promptPayId: parsePromptPayId(promptPayId)?.digits ?? null }),
+        });
+        return { success: true } as const;
+      }),
+    /**
+     * Where to send the money, for a donor who has not paid yet. Any signed-in
+     * member may read it: the church wants donors to see the account. Only
+     * these three fields leave. The PromptPay ID stays on the server.
+     */
+    payeeInfo: protectedProcedure.query(async () => {
+      const profile = await getChurchProfile();
+      if (!profile?.bankAccount) return null;
+      return {
+        bankName: profile.bankName,
+        bankAccount: profile.bankAccount,
+        bankAccountName: profile.bankAccountName,
+      };
+    }),
+    /**
+     * A PromptPay QR payload for `amount`, so the donor scans it with a bank
+     * app and does not type the amount. Null when no PromptPay ID is set. The
+     * ID itself never leaves the server except inside the payload.
+     */
+    paymentQr: protectedProcedure
+      .input(
+        z.object({
+          amount: z.number().positive().max(MAX_GIVING_AMOUNT),
+        })
+      )
+      .query(async ({ input }) => {
+        const profile = await getChurchProfile();
+        const id = profile?.promptPayId
+          ? parsePromptPayId(profile.promptPayId)
+          : null;
+        if (!profile || !id) return null;
+        return {
+          payload: buildPromptPayPayload(id, input.amount),
+          amount: Math.round(input.amount * 100) / 100,
+          payeeName: profile.bankAccountName || profile.name,
+        };
+      }),
+    /** The saved poster words, or the defaults. Any signed-in person may read. */
+    stationPoster: protectedProcedure.query(async () => {
+      return parseStationPoster(await getStationPosterJson());
+    }),
+    /** Saves the poster words. Church leaders only. */
+    saveStationPoster: churchLeaderProcedure
+      .input(stationPosterSchema)
+      .mutation(async ({ input, ctx }) => {
+        await saveStationPosterJson(JSON.stringify(input));
+        await createAuditLog({
+          churchId: "default",
+          userId: ctx.user.id,
+          action: "save_station_poster",
+          entity: "church_profile",
+          metadata: {},
+        });
         return { success: true } as const;
       }),
     completeSetup: churchLeaderProcedure.mutation(async () => {
@@ -671,8 +924,8 @@ export const appRouter = router({
     create: financeProcedure
       .input(
         z.object({
-          amount: z.number().positive(),
-          category: offeringCategory.default("general"),
+          amount: z.number().positive().max(MAX_GIVING_AMOUNT),
+          category: offeringCategory.default("cash"),
           fundId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(120).optional(),
           receiptDate: z.coerce.date().optional(),
@@ -913,14 +1166,76 @@ export const appRouter = router({
   }),
 
   // ── Withdrawal Requests ─────────────────────────────────────────────────────
+  // ── Withdrawal bank signers (Part 2) ────────────────────────────────────────
+  bankSigners: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (!canManageFinance(ctx.user) && !(await isBankSigner(ctx.user.id))) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "เฉพาะฝ่ายการเงินและผู้มีอำนาจลงนามเท่านั้น",
+        });
+      }
+      return await listBankSigners(DEFAULT_CHURCH_ID);
+    }),
+    add: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const added = await addBankSigner(input.userId, ctx.user.id);
+        if (added) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_ADD",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { addedUserId: input.userId },
+          });
+        }
+        return { added };
+      }),
+    remove: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const removed = await removeBankSigner(input.userId);
+        if (removed) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_REMOVE",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { removedUserId: input.userId },
+          });
+        }
+        return { removed };
+      }),
+    /** Moves the "ต้องลงนามทุกครั้ง" flag to the given signer. */
+    setRequired: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) => {
+        const moved = await setRequiredBankSigner(input.userId);
+        if (moved) {
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGNER_REQUIRED",
+            entity: "bank_signers",
+            entityId: input.userId,
+            metadata: { requiredUserId: input.userId },
+          });
+        }
+        return { moved };
+      }),
+  }),
+
+  // ── Withdrawals ──────────────────────────────────────────────────────────────
   withdrawals: router({
     list: protectedProcedure
       .input(z.object({ myOnly: z.boolean().default(false) }).optional())
       .query(async ({ ctx, input }) => {
-        const userId =
-          input?.myOnly || !canManageFinance(ctx.user)
-            ? ctx.user.id
-            : undefined;
+        const seesAll =
+          canManageFinance(ctx.user) || (await isBankSigner(ctx.user.id));
+        const userId = input?.myOnly || !seesAll ? ctx.user.id : undefined;
         return await listWithdrawalRequests(DEFAULT_CHURCH_ID, { userId });
       }),
     create: protectedProcedure
@@ -943,46 +1258,122 @@ export const appRouter = router({
         } as any);
         return { id };
       }),
-    approve: financeProcedure
+    /** One signer presses one decision. The bank's rule decides the outcome. */
+    sign: protectedProcedure
+      .input(
+        z
+          .object({
+            id: z.number().int().positive(),
+            decision: z.enum(["approved", "rejected"]),
+            note: z.string().trim().max(500).optional(),
+          })
+          // Input parsing runs before the handler, so a rejection without a
+          // reason never reaches the signer's transaction.
+          .superRefine((val, check) => {
+            if (val.decision === "rejected" && !val.note?.trim()) {
+              check.addIssue({
+                code: "custom",
+                message: "กรุณาระบุเหตุผลการปฏิเสธ",
+              });
+            }
+          })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const signer = await isBankSigner(ctx.user.id);
+        if (!signer) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "เฉพาะผู้มีอำนาจลงนามในบัญชีธนาคาร",
+          });
+        }
+        try {
+          const { outcome } = await signWithdrawalRequest(
+            input.id,
+            ctx.user.id,
+            input.decision,
+            input.note?.trim() || null
+          );
+          await createAuditLog({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            action: "SIGN",
+            entity: "withdrawal_requests",
+            entityId: input.id,
+            metadata: { decision: input.decision, outcome },
+          });
+          return { outcome };
+        } catch (err) {
+          if (err instanceof WorkflowError) {
+            throw new TRPCError({ code: err.trpcCode, message: err.message });
+          }
+          throw err;
+        }
+      }),
+    /** The requester or a signer may stop a request before it is paid. */
+    cancel: protectedProcedure
       .input(
         z.object({
           id: z.number().int().positive(),
-          action: z.enum(["approved", "rejected"]),
-          note: z.string().trim().max(500).default(""),
+          reason: z.string().trim().min(3).max(500),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!canApproveWithdrawals(ctx.user)) {
+        const request = await getWithdrawalRequestBasic(
+          input.id,
+          DEFAULT_CHURCH_ID
+        );
+        if (!request) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบคำขอเบิก" });
+        }
+        const allowed =
+          request.requestedBy === ctx.user.id ||
+          (await isBankSigner(ctx.user.id)) !== null;
+        if (!allowed) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "คุณไม่มีสิทธิ์อนุมัติคำขอเบิก",
+            message: "เฉพาะผู้ขอเบิกหรือผู้มีอำนาจลงนามเท่านั้นที่ยกเลิกได้",
           });
         }
-        const updated = await approveWithdrawal(
+        const cancelled = await cancelWithdrawalRequest(
           input.id,
           ctx.user.id,
-          input.action,
-          input.note
+          input.reason
         );
-        if (!updated) {
+        if (!cancelled) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "คำขอเบิกนี้ไม่ได้อยู่ในสถานะรออนุมัติ",
+            message: "คำขอเบิกนี้ถูกดำเนินการไปแล้ว ยกเลิกไม่ได้",
           });
         }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CANCEL",
+          entity: "withdrawal_requests",
+          entityId: input.id,
+          metadata: { reason: input.reason },
+        });
         return { success: true } as const;
       }),
     disburse: financeProcedure
       .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ input }) => {
-        const updated = await disburseWithdrawal(input.id);
-        if (!updated) {
+      .mutation(async ({ ctx, input }) => {
+        const res = await disburseWithdrawal(input.id, ctx.user.id);
+        if (!res) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "ต้องอนุมัติคำขอเบิกก่อนจ่ายเงิน",
           });
         }
-        return { success: true } as const;
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "DISBURSE",
+          entity: "withdrawal_requests",
+          entityId: input.id,
+          metadata: { attachedSessionId: res.attachedSessionId },
+        });
+        return { success: true, sessionId: res.attachedSessionId };
       }),
   }),
 
@@ -1458,6 +1849,10 @@ export const appRouter = router({
           notes: input.notes ?? null,
           countedBy: ctx.user.id,
         });
+        // A paid withdrawal request that waited for a round flows into this
+        // one now, exactly once, before anyone counts anything.
+        const session = await getCountingSession(id);
+        if (session) await attachPendingWithdrawals(session);
         await createAuditLog({
           churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
@@ -1477,7 +1872,7 @@ export const appRouter = router({
           memberId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(180).optional(),
           isAnonymous: z.boolean().default(false),
-          category: offeringCategory.default("general"),
+          category: offeringCategory.default("cash"),
           fundId: z.number().int().positive(),
           method: paymentMethod.default("cash"),
           amount: z.number().positive(),
@@ -1680,7 +2075,7 @@ export const appRouter = router({
       .input(
         z.object({
           sessionId: z.number().int().positive(),
-          type: z.enum(["transfer_in", "cash_deposit"]),
+          type: z.enum(BANK_RECORD_TYPES),
           amount: z.number().positive(),
           transferredBy: z.number().int().positive().optional(),
           transferredByName: z.string().trim().max(180).optional(),
@@ -1732,6 +2127,88 @@ export const appRouter = router({
             message: "ไม่พบรายการธนาคาร",
           });
         }
+        return { success: true } as const;
+      }),
+
+    /** Opening balances for the first round, entered once by finance. */
+    setOpeningBalances: financeProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          openingCash: z.number().nonnegative(),
+          openingBank: z.number(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const session = await requireCountingSession(input.id);
+        assertNotPosted(session.status);
+        if (await resolveOpeningBalances(session)) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "รอบนี้มียอดยกมาแล้ว",
+          });
+        }
+        const saved = await setCountingCarryFields(input.id, {
+          openingCash: input.openingCash.toFixed(2),
+          openingBank: input.openingBank.toFixed(2),
+        });
+        if (!saved) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "สถานะรอบเปลี่ยนไปแล้ว กรุณาโหลดข้อมูลใหม่",
+          });
+        }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "SET_OPENING",
+          entity: "counting_session",
+          entityId: input.id,
+          metadata: input,
+        });
+        return { success: true } as const;
+      }),
+
+    /** The cash actually left in the box, and the latest passbook balance. */
+    setClosingFigures: financeProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          cashOnHandActual: z.number().nonnegative().nullable().optional(),
+          passbookBalance: z.number().nullable().optional(),
+          passbookBalanceDate: z.coerce.date().nullable().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const session = await requireCountingSession(input.id);
+        assertNotPosted(session.status);
+        const money = (value: number | null) =>
+          value === null ? null : value.toFixed(2);
+        const saved = await setCountingCarryFields(input.id, {
+          ...(input.cashOnHandActual !== undefined && {
+            cashOnHandActual: money(input.cashOnHandActual),
+          }),
+          ...(input.passbookBalance !== undefined && {
+            passbookBalance: money(input.passbookBalance),
+          }),
+          ...(input.passbookBalanceDate !== undefined && {
+            passbookBalanceDate: input.passbookBalanceDate,
+          }),
+        });
+        if (!saved) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "สถานะรอบเปลี่ยนไปแล้ว กรุณาโหลดข้อมูลใหม่",
+          });
+        }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "SET_CLOSING",
+          entity: "counting_session",
+          entityId: input.id,
+          metadata: input,
+        });
         return { success: true } as const;
       }),
 
@@ -1924,6 +2401,34 @@ export const appRouter = router({
           });
         }
 
+        // Each round carries in what the one before carried out, so rounds
+        // post in order or the chain breaks.
+        const earlier = await findEarlierUnpostedSession(detail.session);
+        if (earlier) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `ต้องลงบัญชีรอบวันที่ ${earlier.serviceDate.toISOString().slice(0, 10)} รอบที่ ${earlier.serviceRound} ก่อน`,
+          });
+        }
+        const r = detail.reconciliation;
+        if (
+          !r.hasCarryForward ||
+          r.openingCash === null ||
+          r.openingBank === null ||
+          r.closingBankExpected === null
+        ) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ต้องกรอกยอดยกมาก่อนลงบัญชี",
+          });
+        }
+        if (r.cashOnHandActual === null) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ต้องนับเงินสดคงเหลือในกล่องก่อนลงบัญชี",
+          });
+        }
+
         const note = input.varianceNote?.trim() || detail.session.varianceNote;
         if (!detail.reconciliation.isBalanced && !note) {
           throw new TRPCError({
@@ -1940,7 +2445,11 @@ export const appRouter = router({
           );
         }
 
-        const result = await postCountingSession(input.id, ctx.user.id);
+        const result = await postCountingSession(input.id, ctx.user.id, {
+          openingCash: r.openingCash,
+          openingBank: r.openingBank,
+          closingBank: r.closingBankExpected,
+        });
         if (!result) {
           throw new TRPCError({
             code: "CONFLICT",
@@ -2012,7 +2521,9 @@ export const appRouter = router({
             message:
               res.reason === "NOT_FOUND"
                 ? "ไม่พบรอบนับเงินถวาย"
-                : "ไม่สามารถลบรอบนี้ได้",
+                : res.reason === "HAS_WITHDRAWALS"
+                  ? "รอบนี้มียอดถอนจากคำขอเบิก ลบรอบไม่ได้ ให้จัดการคำขอเบิกก่อน"
+                  : "ไม่สามารถลบรอบนี้ได้",
           });
         }
         await createAuditLog({
@@ -2155,11 +2666,14 @@ export const appRouter = router({
           category: offeringCategory.optional(),
           receiptDate: z.coerce.date().optional(),
           reviewNote: z.string().optional(),
+          confirmedBankCheck: z.boolean().optional(),
+          /** One line, or two or more to split the transfer by category. */
+          items: z.array(splitLine).min(1).max(MAX_SPLIT_LINES).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          return await approveLineSlip({
+          const result = await approveLineSlip({
             slipId: input.slipId,
             churchId: DEFAULT_CHURCH_ID,
             approvedBy: ctx.user.id,
@@ -2170,7 +2684,15 @@ export const appRouter = router({
             category: input.category,
             receiptDate: input.receiptDate,
             reviewNote: input.reviewNote,
+            confirmedBankCheck: input.confirmedBankCheck,
+            items: input.items,
           });
+          await notifyDonorOfDecision({
+            userId: result.submittedByUserId,
+            decision: "approved",
+            amount: result.amount,
+          });
+          return result;
         } catch (err: any) {
           const msg = err?.message || "เกิดข้อผิดพลาดในการอนุมัติสลิป";
           if (msg.includes("ได้รับการอนุมัติไปแล้ว")) {
@@ -2192,12 +2714,18 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          return await rejectLineSlip({
+          const result = await rejectLineSlip({
             slipId: input.slipId,
             churchId: DEFAULT_CHURCH_ID,
             reviewedBy: ctx.user.id,
             reason: input.reason,
           });
+          await notifyDonorOfDecision({
+            userId: result.submittedByUserId,
+            decision: "rejected",
+            reason: input.reason,
+          });
+          return result;
         } catch (err: any) {
           throw new TRPCError({
             code: "BAD_REQUEST",
@@ -2279,34 +2807,338 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        let image: ReturnType<typeof decodeSlipImage>;
         try {
-          const rawBase64 = input.base64Data.replace(
-            /^data:image\/\w+;base64,/,
-            ""
-          );
-          const buffer = Buffer.from(rawBase64, "base64");
+          image = decodeSlipImage(input.base64Data);
+        } catch (err) {
+          if (err instanceof SlipImageError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: err.message });
+          }
+          throw err;
+        }
 
-          const slip = await createManualSlip({
+        let slip: Awaited<ReturnType<typeof createManualSlip>>;
+        try {
+          slip = await createManualSlip({
             churchId: DEFAULT_CHURCH_ID,
             userId: ctx.user.id,
             userName: ctx.user.name ?? undefined,
             donorName: input.donorName,
-            imageBuffer: buffer,
+            imageBuffer: image.buffer,
+            contentType: image.contentType,
+            extension: image.extension,
           });
-
-          // Run worker batch immediately to extract data with AI
-          await runWorkerBatch().catch(err =>
-            console.warn("[Manual upload] Worker error:", err)
-          );
-
-          return { success: true, slipId: slip.id };
-        } catch (err: any) {
+        } catch (err) {
+          console.error("[uploadSlip] Could not store slip:", err);
           throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: err?.message || "ไม่สามารถอัปโหลดสลิปได้",
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ไม่สามารถอัปโหลดสลิปได้ กรุณาลองใหม่อีกครั้ง",
           });
         }
+
+        // Run worker batch immediately to extract data with AI
+        await runWorkerBatch().catch(err =>
+          console.warn("[Manual upload] Worker error:", err)
+        );
+
+        return { success: true, slipId: slip.id };
       }),
+
+    /**
+     * Any signed-in member submits a transfer slip from the giving station.
+     * It only queues a pending slip with the amount, category and fund the
+     * donor declared. Nothing is credited until a treasurer approves it.
+     */
+    submitSlip: protectedProcedure
+      .input(
+        z.object({
+          base64Data: z.string().min(1, "กรุณาแนบรูปสลิป"),
+          amount: z
+            .number()
+            .positive("กรุณาระบุจำนวนเงินที่ถวาย")
+            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
+          category: offeringCategory,
+          /** Set when one transfer pays for several categories. */
+          items: splitItems.optional(),
+          fundId: z.number().int().positive().optional(),
+          donorName: z.string().trim().max(120).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        assertSplitSound(input.items, input.amount);
+        let image: ReturnType<typeof decodeSlipImage>;
+        try {
+          image = decodeSlipImage(input.base64Data);
+        } catch (err) {
+          if (err instanceof SlipImageError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: err.message });
+          }
+          throw err;
+        }
+
+        if (input.fundId !== undefined) {
+          const funds = await listFinanceAccounts();
+          if (!funds.some(f => f.id === input.fundId)) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "ไม่พบกองทุนที่เลือก",
+            });
+          }
+        }
+
+        const recent = await countRecentManualSlips(
+          ctx.user.id,
+          new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+        if (recent >= MAX_SLIPS_PER_DAY) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "ส่งสลิปครบจำนวนต่อวันแล้ว กรุณาลองใหม่พรุ่งนี้",
+          });
+        }
+
+        let slip: Awaited<ReturnType<typeof createManualSlip>>;
+        try {
+          slip = await createManualSlip({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            userName: ctx.user.name ?? undefined,
+            // The LINE name stays as the sender. The typed name is kept apart.
+            donorName: ctx.user.name || undefined,
+            typedDonorName: input.donorName || undefined,
+            imageBuffer: image.buffer,
+            contentType: image.contentType,
+            extension: image.extension,
+            declared: {
+              amount: input.amount.toFixed(2),
+              category: input.items?.[0].category ?? input.category,
+              fundId: input.fundId ?? null,
+              items: input.items ?? null,
+            },
+          });
+        } catch (err) {
+          console.error("[submitSlip] Could not store slip:", err);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ไม่สามารถบันทึกสลิปได้ กรุณาลองใหม่อีกครั้ง",
+          });
+        }
+
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CREATE",
+          entity: "line_slip",
+          entityId: slip.id,
+          metadata: {
+            declaredAmount: input.amount,
+            declaredCategory: input.items?.[0].category ?? input.category,
+            declaredItems: input.items ?? null,
+            declaredFundId: input.fundId ?? null,
+          },
+        });
+        await notifyFinanceOfNewEntry({
+          slipId: slip.id,
+          from: ctx.user.name ?? "สมาชิก",
+          amount: input.amount,
+          kind: "slip",
+        });
+
+        // Read the slip now so the donor learns at once whether the amount on
+        // the slip matches the one they chose. If the reading is not done in
+        // time, the job stays queued and the donor sees "checking".
+        await drainWorkerWithin(SLIP_CHECK_WAIT_MS);
+        const row = await getMyManualSlip(slip.id, ctx.user.id);
+        const check = row
+          ? toDonorSlipStatus(row)
+          : ({
+              state: "checking",
+              message: "กำลังตรวจสอบสลิป",
+              slipAmount: null,
+            } satisfies DonorSlipStatus);
+
+        // How many slips the system has turned away for this donor in 24 hours.
+        // The donor sees it, so they know when a person will take over.
+        const failedAttempts = await countRecentSystemRejectedSlips(
+          `manual-${ctx.user.id}`,
+          new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+
+        return {
+          success: true,
+          slipId: slip.id,
+          check,
+          failedAttempts,
+        } as const;
+      }),
+
+    /**
+     * A member sends the details of a transfer without a slip image. The entry
+     * waits in the review queue. Nothing is credited until a treasurer checks
+     * it against the bank and approves.
+     */
+    submitWithoutSlip: protectedProcedure
+      .input(
+        z.object({
+          amount: z
+            .number()
+            .positive("กรุณาระบุจำนวนเงินที่ถวาย")
+            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
+          category: offeringCategory,
+          items: splitItems.optional(),
+          fundId: z.number().int().positive().optional(),
+          donorName: z
+            .string()
+            .trim()
+            .min(2, "กรุณาระบุชื่อผู้ถวาย อย่างน้อย 2 ตัวอักษร")
+            .max(120),
+          transferDate: z.coerce.date(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        assertSplitSound(input.items, input.amount);
+        const problem = checkTransferDate(input.transferDate);
+        if (problem) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: TRANSFER_DATE_MESSAGE[problem],
+          });
+        }
+
+        if (input.fundId !== undefined) {
+          const funds = await listFinanceAccounts();
+          if (!funds.some(f => f.id === input.fundId)) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "ไม่พบกองทุนที่เลือก",
+            });
+          }
+        }
+
+        const recent = await countRecentManualSlips(
+          ctx.user.id,
+          new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+        if (recent >= MAX_SLIPS_PER_DAY) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "ส่งรายการครบจำนวนต่อวันแล้ว กรุณาลองใหม่พรุ่งนี้",
+          });
+        }
+
+        let created: Awaited<ReturnType<typeof createNoSlipEntry>>;
+        try {
+          created = await createNoSlipEntry({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            userName: ctx.user.name ?? undefined,
+            donorName: input.donorName,
+            amount: input.amount.toFixed(2),
+            category: input.items?.[0].category ?? input.category,
+            items: input.items ?? null,
+            fundId: input.fundId ?? null,
+            transferDate: input.transferDate,
+          });
+        } catch (err) {
+          if (err instanceof DuplicateEntryError) {
+            throw new TRPCError({ code: "CONFLICT", message: err.message });
+          }
+          console.error("[submitWithoutSlip] Could not store entry:", err);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ไม่สามารถบันทึกรายการได้ กรุณาลองใหม่อีกครั้ง",
+          });
+        }
+
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CREATE",
+          entity: "line_slip",
+          entityId: created.slip.id,
+          metadata: {
+            source: "no_slip",
+            declaredAmount: input.amount,
+            declaredCategory: input.items?.[0].category ?? input.category,
+            declaredItems: input.items ?? null,
+            declaredFundId: input.fundId ?? null,
+            declaredDate: input.transferDate.toISOString().slice(0, 10),
+            possibleDuplicate: created.warning !== null,
+          },
+        });
+        await notifyFinanceOfNewEntry({
+          slipId: created.slip.id,
+          from: ctx.user.name ?? "สมาชิก",
+          amount: input.amount,
+          kind: "no_slip",
+        });
+
+        return {
+          success: true,
+          slipId: created.slip.id,
+          check: toDonorSlipStatus(created.slip),
+          failedAttempts: 0,
+        } as const;
+      }),
+
+    /**
+     * Reads a slip the moment the donor attaches it, so the form can fill in
+     * the amount, the name and the date. Nothing is stored and nothing is
+     * credited. A reading that fails or is slow returns "unreadable", never an
+     * error, so the donor can always fill the form by hand.
+     */
+    readSlip: protectedProcedure
+      .input(z.object({ base64Data: z.string().min(1) }))
+      .mutation(async ({ ctx, input }) => {
+        let image: ReturnType<typeof decodeSlipImage>;
+        try {
+          image = decodeSlipImage(input.base64Data);
+        } catch (err) {
+          if (err instanceof SlipImageError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: err.message });
+          }
+          throw err;
+        }
+        if (!allowSlipRead(ctx.user.id)) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message:
+              "อ่านสลิปบ่อยเกินไป กรุณากรอกข้อมูลเองหรือลองใหม่ในอีกสักครู่",
+          });
+        }
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try {
+          const dataUrl = `data:${image.contentType};base64,${image.buffer.toString("base64")}`;
+          const extraction = await Promise.race([
+            extractSlipData(dataUrl),
+            new Promise<never>((_, reject) => {
+              timer = setTimeout(
+                () => reject(new Error("slip reading timed out")),
+                SLIP_READ_TIMEOUT_MS
+              );
+            }),
+          ]);
+          return toSlipReading(extraction);
+        } catch (err) {
+          console.warn("[readSlip] Could not read the slip:", err);
+          return UNREADABLE_SLIP;
+        } finally {
+          clearTimeout(timer);
+        }
+      }),
+
+    /** The caller's own recent slips and what became of them. */
+    mySlips: protectedProcedure.query(async ({ ctx }) => {
+      const rows = await listMyManualSlips(ctx.user.id, 10);
+      return rows.map(row => ({
+        id: row.id,
+        createdAt: row.createdAt,
+        declaredAmount:
+          row.declaredAmount === null ? null : Number(row.declaredAmount),
+        declaredCategory: row.declaredCategory,
+        check: toDonorSlipStatus(row),
+      }));
+    }),
 
     /**
      * Trigger immediate AI re-scan on an existing slip.

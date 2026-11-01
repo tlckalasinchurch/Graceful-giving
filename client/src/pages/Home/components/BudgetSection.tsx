@@ -38,10 +38,10 @@ export function BudgetSection({
       className="h-full bg-surface rounded-3xl p-5 sm:p-6 fintech-card space-y-4 w-full"
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-ink">แผนการใช้จ่าย</h2>
+        <h2 className="text-base font-bold text-ink">แผนการใช้จ่าย</h2>
         <button
           onClick={onOpenBudgets}
-          className="inline-flex min-h-11 items-center gap-1 rounded-2xl px-2 text-sm font-semibold text-brand-ink hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand"
+          className="inline-flex min-h-10 items-center gap-1 rounded-full bg-tile-lilac/60 px-3 py-1 text-xs sm:text-sm font-bold text-brand-ink hover:bg-tile-lilac transition-colors focus-visible:ring-2 focus-visible:ring-brand"
         >
           <span>ดูงบประมาณ</span>
           <ChevronRight className="size-4" aria-hidden="true" />
@@ -52,8 +52,8 @@ export function BudgetSection({
         <div className="space-y-4" aria-hidden="true">
           {[0, 1].map(i => (
             <div key={i} className="space-y-2 animate-pulse">
-              <div className="h-4 w-1/2 rounded-lg bg-ground" />
-              <div className="h-2.5 w-full rounded-full bg-ground" />
+              <div className="h-4 w-1/2 rounded-lg bg-paper" />
+              <div className="h-2.5 w-full rounded-full bg-paper" />
             </div>
           ))}
         </div>
@@ -77,7 +77,7 @@ export function BudgetSection({
             <li key={plan.id} className="space-y-2">
               <div className="flex items-baseline justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-ink">
+                  <p className="truncate text-sm font-bold text-ink">
                     {budgetCategoryLabel(plan.category)}
                   </p>
                   <p className="text-xs text-ink-3">
@@ -85,7 +85,7 @@ export function BudgetSection({
                   </p>
                 </div>
                 <p className="money shrink-0 text-xs sm:text-sm text-ink-2">
-                  <span className="font-semibold text-ink">
+                  <span className="font-bold text-ink">
                     {formatBaht(plan.actualAmount, 0)}
                   </span>
                   {" / "}
@@ -102,7 +102,9 @@ export function BudgetSection({
       )}
 
       {hiddenCount > 0 && (
-        <p className="text-xs text-ink-3">และอีก {hiddenCount} แผน</p>
+        <p className="text-xs font-medium text-ink-3">
+          และอีก {hiddenCount} แผน
+        </p>
       )}
     </section>
   );

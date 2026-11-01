@@ -221,7 +221,7 @@ export default function Transactions() {
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="min-h-11 px-4 rounded-2xl bg-brand hover:bg-brand-ink text-white text-sm font-semibold shadow-[0_1px_3px_hsla(20,80%,30%,0.3)] flex items-center gap-1.5"
+            className="min-h-11 px-4 rounded-2xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold shadow-[0_1px_3px_hsla(20,80%,30%,0.3)] flex items-center gap-1.5"
           >
             <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
             <span>บันทึกใหม่</span>

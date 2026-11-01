@@ -39,6 +39,17 @@ export interface SlipExtraction {
   bankName: string | null;
   /** Receiver account name (null if absent) */
   receiverName: string | null;
+  /**
+   * Receiver account number as printed. Masked digits stay as x, X or *.
+   * Optional so slips read before this field existed still parse.
+   */
+  receiverAccount?: string | null;
+  /** 0.0–1.0 confidence for the receiver account number */
+  receiverAccountConfidence?: number;
+  /** "promptpay" when the slip shows a phone or ID number, not a bank account */
+  receiverAccountType?: "bank_account" | "promptpay" | null;
+  /** Receiver bank name (null if unreadable) */
+  receiverBank?: string | null;
   /** AI notes or caveats */
   notes: string | null;
 }
@@ -75,6 +86,10 @@ const SYSTEM_PROMPT = `คุณคือระบบอ่านและดึ
 - referenceConfidence: ความมั่นใจหมายเลขอ้างอิง 0.0–1.0
 - bankName: ชื่อธนาคารต้นทาง หรือ null
 - receiverName: ชื่อผู้รับ หรือ null
+- receiverAccount: เลขบัญชีหรือเลขพร้อมเพย์ของผู้รับตามที่พิมพ์บนสลิป ให้คงอักขระที่ถูกปิดบังไว้เป็น x ห้ามเดาหรือเติมตัวเลขที่ถูกปิด หรือ null
+- receiverAccountConfidence: ความมั่นใจเลขบัญชีผู้รับ 0.0–1.0
+- receiverAccountType: "bank_account" ถ้าเป็นเลขบัญชีธนาคาร, "promptpay" ถ้าเป็นเบอร์โทรหรือเลขประจำตัวพร้อมเพย์, หรือ null ถ้าไม่แน่ใจ
+- receiverBank: ชื่อธนาคารปลายทาง หรือ null
 - notes: หมายเหตุถ้ารูปไม่ชัดหรือมีข้อสังเกต หรือ null
 
 **กฎ**:
@@ -98,6 +113,13 @@ const OUTPUT_SCHEMA = {
       referenceConfidence: { type: "number", minimum: 0, maximum: 1 },
       bankName: { type: ["string", "null"] },
       receiverName: { type: ["string", "null"] },
+      receiverAccount: { type: ["string", "null"] },
+      receiverAccountConfidence: { type: "number", minimum: 0, maximum: 1 },
+      receiverAccountType: {
+        type: ["string", "null"],
+        enum: ["bank_account", "promptpay", null],
+      },
+      receiverBank: { type: ["string", "null"] },
       notes: { type: ["string", "null"] },
     },
     required: [
@@ -105,7 +127,10 @@ const OUTPUT_SCHEMA = {
       "transferDate", "transferTime", "dateConfidence",
       "senderName", "senderConfidence",
       "referenceNumber", "referenceConfidence",
-      "bankName", "receiverName", "notes",
+      "bankName", "receiverName",
+      "receiverAccount", "receiverAccountConfidence",
+      "receiverAccountType", "receiverBank",
+      "notes",
     ],
     additionalProperties: false,
   },

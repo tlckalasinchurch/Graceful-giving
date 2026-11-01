@@ -118,7 +118,7 @@ export function parseBudgetForm(values: BudgetFormValues):
 }
 
 const inputClass =
-  "mt-1 min-h-11 w-full rounded-xl border border-line bg-white p-3 text-base font-normal text-ink md:text-sm";
+  "mt-1 min-h-11 w-full rounded-xl border border-line bg-surface p-3 text-base font-normal text-ink md:text-sm";
 
 export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;

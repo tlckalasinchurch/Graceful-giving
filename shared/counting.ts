@@ -59,9 +59,29 @@ export interface DeductionInput {
   amount: number;
 }
 
+export const BANK_RECORD_TYPES = [
+  "transfer_in",
+  "cash_deposit",
+  "withdrawal",
+  "other_in",
+  "other_out",
+] as const;
+
+export type BankRecordType = (typeof BANK_RECORD_TYPES)[number];
+
 export interface BankRecordInput {
   amount: number;
-  type: "transfer_in" | "cash_deposit";
+  type: BankRecordType;
+}
+
+/** Balances carried between rounds. null = not known for this round. */
+export interface CarryForwardInput {
+  openingCash: number | null;
+  openingBank: number | null;
+  /** เงินสดในกล่องที่นับได้จริงหลังจ่ายและฝากแล้ว */
+  cashOnHandActual: number | null;
+  /** ยอดล่าสุดในสมุดบัญชี */
+  passbookBalance: number | null;
 }
 
 export interface ReconciliationInput {
@@ -69,6 +89,7 @@ export interface ReconciliationInput {
   cashCounts: readonly CashCountInput[];
   deductions: readonly DeductionInput[];
   bankRecords: readonly BankRecordInput[];
+  carry?: CarryForwardInput;
 }
 
 /** Every figure is baht; variances are signed (positive = เกิน, negative = ขาด). */
@@ -82,22 +103,50 @@ export interface Reconciliation {
   countedCashTotal: number;
   /** นับได้ − ซองเงินสด */
   cashVariance: number;
-  /** ยอดหักเบิกจากถุงถวาย */
+  /** ยอดหักเบิกค่าใช้จ่าย */
   deductionTotal: number;
-  /** นับได้ − หักเบิก = ยอดที่ต้องนำฝาก */
-  expectedDeposit: number;
   actualCashDeposit: number;
-  /** ฝากจริง − ที่ต้องนำฝาก */
-  depositVariance: number;
   actualTransferIn: number;
   /** เข้าบัญชีจริง − ซองโอน */
   transferVariance: number;
-  /** true when all three variances are zero. */
+  withdrawalTotal: number;
+  otherInTotal: number;
+  otherOutTotal: number;
+  /** true when both opening balances are known. */
+  hasCarryForward: boolean;
+  openingCash: number | null;
+  openingBank: number | null;
+  /** ยกมา + ถวายเงินสด + ถอน − หักเบิก − ฝาก */
+  closingCashExpected: number | null;
+  cashOnHandActual: number | null;
+  /** นับในกล่องได้จริง − ที่ควรเหลือ */
+  cashOnHandVariance: number | null;
+  /** ยกมา + โอนเข้า + ฝาก + เข้าอื่นๆ − ถอน − ออกอื่นๆ */
+  closingBankExpected: number | null;
+  passbookBalance: number | null;
+  /** สมุดบัญชี − ที่ควรเป็น; informational, never part of isBalanced */
+  passbookVariance: number | null;
+  /** Count, transfers and (when carried forward) the cash box all agree. */
   isBalanced: boolean;
 }
 
 function sumSatang(values: readonly number[]): number {
   return values.reduce((total, value) => total + toSatang(value), 0);
+}
+
+function sumBank(
+  records: readonly BankRecordInput[],
+  type: BankRecordType
+): number {
+  return sumSatang(records.filter(r => r.type === type).map(r => r.amount));
+}
+
+function toBahtOrNull(satang: number | null): number | null {
+  return satang === null ? null : toBaht(satang);
+}
+
+function toSatangOrNull(baht: number | null | undefined): number | null {
+  return baht === null || baht === undefined ? null : toSatang(baht);
 }
 
 export function reconcile(input: ReconciliationInput): Reconciliation {
@@ -118,18 +167,34 @@ export function reconcile(input: ReconciliationInput): Reconciliation {
   );
 
   const deductions = sumSatang(input.deductions.map(d => d.amount));
-  const expectedDeposit = countedCash - deductions;
 
-  const cashDeposit = sumSatang(
-    input.bankRecords.filter(r => r.type === "cash_deposit").map(r => r.amount)
-  );
-  const transferIn = sumSatang(
-    input.bankRecords.filter(r => r.type === "transfer_in").map(r => r.amount)
-  );
+  const cashDeposit = sumBank(input.bankRecords, "cash_deposit");
+  const transferIn = sumBank(input.bankRecords, "transfer_in");
+  const withdrawal = sumBank(input.bankRecords, "withdrawal");
+  const otherIn = sumBank(input.bankRecords, "other_in");
+  const otherOut = sumBank(input.bankRecords, "other_out");
 
   const cashVariance = countedCash - envelopeCash;
-  const depositVariance = cashDeposit - expectedDeposit;
   const transferVariance = transferIn - envelopeTransfer;
+
+  const openingCash = toSatangOrNull(input.carry?.openingCash);
+  const openingBank = toSatangOrNull(input.carry?.openingBank);
+  const cashOnHand = toSatangOrNull(input.carry?.cashOnHandActual);
+  const passbook = toSatangOrNull(input.carry?.passbookBalance);
+  const hasCarryForward = openingCash !== null && openingBank !== null;
+
+  const closingCash = hasCarryForward
+    ? openingCash + countedCash + withdrawal - deductions - cashDeposit
+    : null;
+  const closingBank = hasCarryForward
+    ? openingBank + transferIn + cashDeposit + otherIn - withdrawal - otherOut
+    : null;
+  const cashOnHandVariance =
+    closingCash !== null && cashOnHand !== null
+      ? cashOnHand - closingCash
+      : null;
+  const passbookVariance =
+    closingBank !== null && passbook !== null ? passbook - closingBank : null;
 
   return {
     offeringTotal: toBaht(offeringTotal),
@@ -139,28 +204,30 @@ export function reconcile(input: ReconciliationInput): Reconciliation {
     countedCashTotal: toBaht(countedCash),
     cashVariance: toBaht(cashVariance),
     deductionTotal: toBaht(deductions),
-    expectedDeposit: toBaht(expectedDeposit),
     actualCashDeposit: toBaht(cashDeposit),
-    depositVariance: toBaht(depositVariance),
     actualTransferIn: toBaht(transferIn),
     transferVariance: toBaht(transferVariance),
+    withdrawalTotal: toBaht(withdrawal),
+    otherInTotal: toBaht(otherIn),
+    otherOutTotal: toBaht(otherOut),
+    hasCarryForward,
+    openingCash: toBahtOrNull(openingCash),
+    openingBank: toBahtOrNull(openingBank),
+    closingCashExpected: toBahtOrNull(closingCash),
+    cashOnHandActual: toBahtOrNull(cashOnHand),
+    cashOnHandVariance: toBahtOrNull(cashOnHandVariance),
+    closingBankExpected: toBahtOrNull(closingBank),
+    passbookBalance: toBahtOrNull(passbook),
+    passbookVariance: toBahtOrNull(passbookVariance),
+    // The cash box is the invariant the church audits against:
+    // เงินสดยกมา + ถวายเงินสด + ถอนจากธนาคาร − หักเบิก − นำฝาก = เงินสดยกไป
+    // and the cash actually in the box must equal it. The passbook can lag the
+    // round by weeks, so its difference is shown but never blocks posting.
     isBalanced:
-      cashVariance === 0 && depositVariance === 0 && transferVariance === 0,
+      cashVariance === 0 &&
+      transferVariance === 0 &&
+      (!hasCarryForward || cashOnHandVariance === 0),
   };
-}
-
-/**
- * The invariant the church audits against:
- * ยอดถวายเงินสด − ยอดหักเบิก = ยอดนำฝากธนาคาร
- *
- * Checked against the counted cash rather than the envelope total, because the
- * counted cash is what physically went into the deposit bag.
- */
-export function checkDepositIdentity(r: Reconciliation): boolean {
-  return (
-    toSatang(r.countedCashTotal) - toSatang(r.deductionTotal) ===
-    toSatang(r.actualCashDeposit)
-  );
 }
 
 export const COUNTING_STATUSES = [

@@ -3,6 +3,9 @@ export const ENV = {
   // the Messaging API channel so a person has one userId in both.
   lineLoginChannelId: process.env.LINE_LOGIN_CHANNEL_ID ?? "",
   lineLoginChannelSecret: process.env.LINE_LOGIN_CHANNEL_SECRET ?? "",
+  // LIFF app ID (LINE Login channel, LIFF tab). Not a secret. With it, a person who
+  // opens /give inside the LINE app is signed in with no button. Empty turns it off.
+  lineLiffId: process.env.LINE_LIFF_ID ?? "",
   // Public origin registered as the LINE callback host, e.g. https://graceful-giving.vercel.app
   appUrl: (process.env.APP_URL ?? "").replace(/\/+$/, ""),
 

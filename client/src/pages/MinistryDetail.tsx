@@ -134,7 +134,7 @@ export default function MinistryDetail() {
         ) : canManage ? (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8"
+            className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8"
           >
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -151,7 +151,7 @@ export default function MinistryDetail() {
                   type="button"
                   disabled={update.isPending}
                   onClick={() => update.mutate({ id, status: "active" })}
-                  className="min-h-11 rounded-2xl border border-[#B8E2AB] bg-[#E4F3E7] px-4 py-2 text-sm font-bold text-[#1F5C33] disabled:opacity-50"
+                  className="min-h-11 rounded-2xl border border-[hsl(106_40%_24%)] bg-[hsl(132_38%_13%)] px-4 py-2 text-sm font-bold text-[hsl(140_50%_72%)] disabled:opacity-50"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -171,7 +171,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 disabled:opacity-50"
+                  className="min-h-11 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-bold text-rose-300 disabled:opacity-50"
                 >
                   พักงานฝ่าย
                 </button>
@@ -225,7 +225,7 @@ export default function MinistryDetail() {
             </button>
           </form>
         ) : (
-          <section className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h1 className="text-2xl font-bold text-ink">
                 {query.data.name}
@@ -233,8 +233,8 @@ export default function MinistryDetail() {
               <span
                 className={`rounded-full px-2.5 py-1 text-[11px] ${
                   query.data.status === "active"
-                    ? "bg-[#E4F3E7] text-ink"
-                    : "bg-stone-100 text-stone-600"
+                    ? "bg-[hsl(132_38%_13%)] text-ink"
+                    : "bg-paper text-ink-2"
                 }`}
               >
                 {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}

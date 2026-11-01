@@ -7,14 +7,16 @@ import {
   canViewReports,
   hasChurchRole,
   type RoleUser,
+  isStationOnlyUser,
   isSuperAdmin,
 } from "@shared/roles";
 
 /**
  * auth.me returns the full role set of the person, so routes and menus judge
- * the complete set rather than only the primary churchRole.
+ * the complete set rather than only the primary churchRole. Bank signers
+ * carry their own flag, granted outside the church-role list.
  */
-type AuthUser = RoleUser | null | undefined;
+type AuthUser = (RoleUser & { isBankSigner?: boolean }) | null | undefined;
 
 /**
  * Single source of truth for which role can open which section, keyed by
@@ -36,7 +38,10 @@ export const ROUTE_ACCESS: Record<string, (user: AuthUser) => boolean> = {
   "/funds": u => canManageFinance(u) || canManageChurchSettings(u),
   "/budgets": canManageBudgets,
   "/reports": canViewReports,
-  "/approvals": u => canManageFinance(u) || canManageChurchSettings(u),
+  "/approvals": u =>
+    canManageFinance(u) ||
+    canManageChurchSettings(u) ||
+    u?.isBankSigner === true,
   "/members": u =>
     hasChurchRole(u, "SUPER_ADMIN", "PASTOR", "TREASURER", "DEACON"),
 };
@@ -44,4 +49,21 @@ export const ROUTE_ACCESS: Record<string, (user: AuthUser) => boolean> = {
 export function canAccessRoute(basePath: string, user: AuthUser): boolean {
   const check = ROUTE_ACCESS[basePath];
   return check ? check(user) : true;
+}
+
+/** The only pages an ordinary member can open: the giving station. */
+export const STATION_ONLY_PATHS = ["/giving/station", "/give", "/404"];
+
+/**
+ * Where to send a signed-in person who is on `path`, or null to leave them be.
+ * An ordinary member goes to the giving station from every other page. Staff
+ * are never moved.
+ */
+export function stationOnlyRedirect(
+  user: Parameters<typeof isStationOnlyUser>[0],
+  path: string
+): string | null {
+  if (!isStationOnlyUser(user)) return null;
+  const clean = path.length > 1 ? path.replace(/\/+$/, "") : path;
+  return STATION_ONLY_PATHS.includes(clean) ? null : "/giving/station";
 }

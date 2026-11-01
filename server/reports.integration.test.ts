@@ -184,14 +184,14 @@ describeDb("reports read real rows", () => {
     const api = caller();
     const tithe = await api.offerings.create({
       amount: 12000,
-      category: "tithe",
+      category: "land",
       fundId,
       method: "cash",
       receiptDate: inRange,
     });
     const general = await api.offerings.create({
       amount: 3000,
-      category: "general",
+      category: "cash",
       fundId,
       method: "cash",
       receiptDate: inRange,
@@ -213,8 +213,8 @@ describeDb("reports read real rows", () => {
     expect(summary.net).toBe(13500);
     expect(summary.transactionCount).toBe(3);
 
-    const titheRow = summary.income.find(r => r.category === "tithe");
-    expect(titheRow).toEqual({ category: "tithe", total: 12000, count: 1 });
+    const titheRow = summary.income.find(r => r.category === "land");
+    expect(titheRow).toEqual({ category: "land", total: 12000, count: 1 });
     const utilityRow = summary.expense.find(r => r.category === "utilities");
     expect(utilityRow).toEqual({
       category: "utilities",

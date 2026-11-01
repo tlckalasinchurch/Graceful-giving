@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import {
+  EMPTY_GUARDED_PROFILE,
+  isProfileDirty,
+  type GuardedProfile,
+} from "./settingsDirty";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   Banknote,
@@ -31,6 +36,7 @@ import { EXPENSE_CATEGORIES, OFFERING_CATEGORIES } from "@shared/categories";
 import { isSuperAdmin, getChurchRoleInfo, CHURCH_ROLES } from "@shared/roles";
 import { NativeSelect } from "@/components/ui/native-select";
 import { THAI_LOCALE } from "@/lib/format";
+import { BankSignersSection } from "./Settings/BankSignersSection";
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -153,20 +159,15 @@ export default function Settings() {
   const [bankName, setBankName] = useState("");
   const [bankAccount, setBankAccount] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
+  const [promptPayId, setPromptPayId] = useState("");
   const [motto, setMotto] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [baseline, setBaseline] = useState({
-    name: "",
-    address: "",
-    phone: "",
-    email: "",
-    pastorName: "",
-    treasurerName: "",
-    motto: "",
-  });
+  const [baseline, setBaseline] = useState<GuardedProfile>(
+    EMPTY_GUARDED_PROFILE
+  );
 
   useEffect(() => {
-    const loaded = {
+    const loaded: GuardedProfile = {
       name: churchProfile?.name || "",
       address: churchProfile?.address || "",
       phone: churchProfile?.phone || "",
@@ -174,6 +175,10 @@ export default function Settings() {
       pastorName: churchProfile?.pastorName || "",
       treasurerName: churchProfile?.treasurerName || "",
       motto: churchProfile?.motto || "",
+      bankName: churchProfile?.bankName || "",
+      bankAccount: churchProfile?.bankAccount || "",
+      bankAccountName: churchProfile?.bankAccountName || "",
+      promptPayId: churchProfile?.promptPayId || "",
     };
     setName(loaded.name);
     setAddress(loaded.address);
@@ -186,18 +191,27 @@ export default function Settings() {
     setBankName(churchProfile?.bankName || "");
     setBankAccount(churchProfile?.bankAccount || "");
     setBankAccountName(churchProfile?.bankAccountName || "");
+    setPromptPayId(churchProfile?.promptPayId || "");
     setMotto(loaded.motto);
     setBaseline(loaded);
   }, [churchProfile]);
 
-  const isDirty =
-    name !== baseline.name ||
-    address !== baseline.address ||
-    phone !== baseline.phone ||
-    email !== baseline.email ||
-    pastorName !== baseline.pastorName ||
-    treasurerName !== baseline.treasurerName ||
-    motto !== baseline.motto;
+  const isDirty = isProfileDirty(
+    {
+      name,
+      address,
+      phone,
+      email,
+      pastorName,
+      treasurerName,
+      motto,
+      bankName,
+      bankAccount,
+      bankAccountName,
+      promptPayId,
+    },
+    baseline
+  );
   useUnsavedChanges(isDirty);
 
   const updateProfileMutation = trpc.church.updateProfile.useMutation({
@@ -234,6 +248,7 @@ export default function Settings() {
       bankName,
       bankAccount,
       bankAccountName,
+      promptPayId,
       fiscalYearStartMonth: churchProfile?.fiscalYearStartMonth ?? 1,
       motto,
     });
@@ -341,8 +356,8 @@ export default function Settings() {
   if (!isSuperAdmin(user)) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto my-12 bg-white rounded-2xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
+        <div className="max-w-xl mx-auto my-12 bg-surface rounded-2xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-rose-500/15 border-2 border-rose-500/30 mx-auto flex items-center justify-center text-rose-400">
             <Lock className="w-8 h-8" />
           </div>
           <h2 className="text-xl font-bold text-ink">
@@ -350,7 +365,7 @@ export default function Settings() {
           </h2>
           <p className="text-sm text-ink-3">
             หน้านี้สงวนไว้สำหรับ{" "}
-            <strong className="text-amber-800 font-bold">
+            <strong className="text-amber-300 font-bold">
               ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
             </strong>{" "}
             เท่านั้น
@@ -359,7 +374,7 @@ export default function Settings() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand text-black font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
             >
               กลับสู่หน้าหลัก
             </Link>
@@ -377,12 +392,12 @@ export default function Settings() {
     >
       <div className="max-w-4xl space-y-6">
         {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-line pb-1 overflow-x-auto no-scrollbar -mx-1 px-1 touch-pan-x">
+        <div className="flex items-center gap-1.5 rounded-2xl bg-surface p-1.5 fintech-card overflow-x-auto no-scrollbar touch-pan-x">
           <button
             onClick={() => setActiveTab("church")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "church"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -393,29 +408,29 @@ export default function Settings() {
             onClick={() => setActiveTab("roles")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "roles"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
-            <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
+            <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>บทบาทและสิทธิ์</span>
           </button>
           <button
             onClick={() => setActiveTab("categories")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "categories"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
-            <Banknote className="w-4 h-4 text-amber-600 shrink-0" />
+            <Banknote className="w-4 h-4 text-amber-400 shrink-0" />
             <span>หมวดหมู่บัญชี</span>
           </button>
           <button
             onClick={() => setActiveTab("payment")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "payment"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -426,7 +441,7 @@ export default function Settings() {
             onClick={() => setActiveTab("audit")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "audit"
-                ? "bg-paper-2 text-ink border border-line shadow-2xs"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -438,7 +453,7 @@ export default function Settings() {
         {/* Tab 1: Church Profile Form */}
         {activeTab === "church" && (
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
               <h3 className="text-base font-bold text-ink flex items-center gap-2">
                 <Building className="w-5 h-5 text-brand" />
                 ข้อมูลทั่วไปของคริสตจักร
@@ -536,7 +551,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>
@@ -547,7 +562,7 @@ export default function Settings() {
 
         {/* Account and sign out */}
         {activeTab === "church" && (
-          <section className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
             <h3 className="text-base font-bold text-ink">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-ink-2">
@@ -557,7 +572,7 @@ export default function Settings() {
                 <p>{user?.email || "ไม่ระบุอีเมล"}</p>
                 <p className="mt-1">
                   บทบาทในระบบ:{" "}
-                  <span className="font-bold text-emerald-700">
+                  <span className="font-bold text-emerald-300">
                     {getChurchRoleInfo(user?.churchRole).badgeLabel}
                   </span>
                 </p>
@@ -573,7 +588,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 transition-colors hover:bg-rose-100"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300 transition-colors hover:bg-rose-500/15"
                 >
                   <LogOut className="h-4 w-4" />
                   ออกจากระบบ
@@ -587,7 +602,7 @@ export default function Settings() {
         {activeTab === "roles" && (
           <div className="space-y-6">
             {/* User Management Table */}
-            <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line/60 pb-5">
                 <div>
                   <h3 className="text-lg font-bold text-ink flex items-center gap-2">
@@ -601,12 +616,12 @@ export default function Settings() {
                 </div>
                 {user?.churchRole === "SUPER_ADMIN" ||
                 user?.role === "admin" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 self-start sm:self-auto">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 self-start sm:self-auto">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                     คุณมีสิทธิ์กำหนดบทบาท
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 self-start sm:self-auto">
                     เฉพาะผู้ดูแลระบบสูงสุดที่สามารถเปลี่ยนสิทธิ์ได้
                   </span>
                 )}
@@ -712,17 +727,17 @@ export default function Settings() {
                                 <div className="font-bold text-ink flex items-center gap-2">
                                   <span>{u.name || "ไม่ระบุชื่อ"}</span>
                                   {isMe && (
-                                    <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full border border-amber-300">
+                                    <span className="text-[10px] bg-amber-500/15 text-amber-300 font-semibold px-2 py-0.5 rounded-full border border-amber-500/30">
                                       คุณ
                                     </span>
                                   )}
                                   {u.status === "pending" && (
-                                    <span className="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full border border-sky-300">
+                                    <span className="text-[10px] bg-sky-500/15 text-sky-300 font-semibold px-2 py-0.5 rounded-full border border-sky-500/30">
                                       รออนุมัติ
                                     </span>
                                   )}
                                   {u.status === "disabled" && (
-                                    <span className="text-[10px] bg-red-100 text-red-800 font-semibold px-2 py-0.5 rounded-full border border-red-300">
+                                    <span className="text-[10px] bg-red-500/15 text-red-300 font-semibold px-2 py-0.5 rounded-full border border-red-500/30">
                                       ปิดใช้งาน
                                     </span>
                                   )}
@@ -791,7 +806,7 @@ export default function Settings() {
                                         onClick={() =>
                                           statusMutation.mutate({ userId: u.id, status: "active" })
                                         }
-                                        className="whitespace-nowrap rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#B04412]"
+                                        className="whitespace-nowrap rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-black hover:bg-brand-ink"
                                       >
                                         {u.status === "pending" ? "อนุมัติ" : "เปิดใช้งาน"}
                                       </button>
@@ -834,7 +849,7 @@ export default function Settings() {
                                           );
                                           if (ok) statusMutation.mutate({ userId: u.id, status: "disabled" });
                                         }}
-                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-[#9B2C2C] hover:bg-[#FFF1F0]"
+                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-[hsl(0_56%_72%)] hover:bg-[hsl(4_45%_13%)]"
                                       >
                                         ปิดใช้งาน
                                       </button>
@@ -857,10 +872,10 @@ export default function Settings() {
             </div>
 
             {/* Structure and Appointed Roles Reference */}
-            <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
               <div>
                 <h3 className="text-lg font-bold text-ink flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-emerald-600" />
+                  <Shield className="w-5 h-5 text-emerald-400" />
                   โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ
                 </h3>
                 <p className="text-xs text-ink-3 mt-1">
@@ -880,11 +895,11 @@ export default function Settings() {
                         <span className="font-bold text-base text-ink">
                           {r.title}
                         </span>
-                        <span className="ml-2.5 font-mono text-xs text-ink-3 bg-white px-2.5 py-0.5 rounded-md border border-line">
+                        <span className="ml-2.5 font-mono text-xs text-ink-3 bg-surface px-2.5 py-0.5 rounded-md border border-line">
                           {r.role}
                         </span>
                       </div>
-                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-white text-ink border-line self-start sm:self-auto">
+                      <div className="text-xs font-semibold px-3 py-1 rounded-full border bg-surface text-ink border-line self-start sm:self-auto">
                         ผู้รับผิดชอบ:{" "}
                         <span className="text-brand font-bold">
                           {r.appointee}
@@ -903,7 +918,7 @@ export default function Settings() {
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-ink-2">
                         {r.duties.map((duty, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
-                            <span className="text-emerald-600 font-bold">
+                            <span className="text-emerald-400 font-bold">
                               •
                             </span>
                             <span>{duty}</span>
@@ -920,9 +935,9 @@ export default function Settings() {
 
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
-          <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
             <h3 className="text-base font-bold text-ink flex items-center gap-2">
-              <Banknote className="w-5 h-5 text-amber-600" />
+              <Banknote className="w-5 h-5 text-amber-400" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
             </h3>
 
@@ -971,14 +986,15 @@ export default function Settings() {
 
         {/* Tab 4: Payment */}
         {activeTab === "payment" && (
-          <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="space-y-6">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
             <h3 className="text-base font-bold text-ink flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-brand" />
               บัญชีรับเงินถวาย
             </h3>
 
             <div className="p-4 rounded-2xl bg-paper-2/50 border border-line flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-14 h-14 bg-white rounded-2xl border border-line shadow-inner flex items-center justify-center shrink-0">
+              <div className="w-14 h-14 bg-surface rounded-2xl border border-line shadow-inner flex items-center justify-center shrink-0">
                 <CreditCard className="w-7 h-7 text-brand" />
               </div>
 
@@ -1003,12 +1019,94 @@ export default function Settings() {
                 </p>
               </div>
             </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
+              <p className="text-ink-3 leading-relaxed">
+                ระบบใช้ข้อมูลนี้ตรวจว่าสลิปโอนเข้าบัญชีของคริสตจักรจริง
+                และสร้าง QR พร้อมเพย์ที่ใส่ยอดไว้แล้วให้ผู้ถวายสแกนจ่ายในแอปธนาคาร
+                ผู้ถวายเห็นเลขบัญชีนี้ในหน้าถวายเมื่อยังไม่ได้โอน ส่วนเลขพร้อมเพย์ไม่แสดง เห็นเฉพาะใน QR
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="set-bank-name" className="font-semibold text-ink">
+                    ธนาคาร
+                  </label>
+                  <input
+                    id="set-bank-name"
+                    type="text"
+                    maxLength={120}
+                    value={bankName}
+                    onChange={e => setBankName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm text-ink"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="set-bank-account" className="font-semibold text-ink">
+                    เลขที่บัญชี
+                  </label>
+                  <input
+                    id="set-bank-account"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={30}
+                    value={bankAccount}
+                    onChange={e => setBankAccount(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm font-mono text-ink"
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label htmlFor="set-bank-account-name" className="font-semibold text-ink">
+                    ชื่อบัญชี
+                  </label>
+                  <input
+                    id="set-bank-account-name"
+                    type="text"
+                    maxLength={120}
+                    value={bankAccountName}
+                    onChange={e => setBankAccountName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm text-ink"
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label htmlFor="set-promptpay" className="font-semibold text-ink">
+                    เลขพร้อมเพย์ของคริสตจักร
+                  </label>
+                  <input
+                    id="set-promptpay"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={20}
+                    value={promptPayId}
+                    onChange={e => setPromptPayId(e.target.value)}
+                    aria-describedby="set-promptpay-help"
+                    placeholder="เบอร์มือถือ 10 หลัก หรือเลขประจำตัวผู้เสียภาษี 13 หลัก"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm font-mono text-ink"
+                  />
+                  <p id="set-promptpay-help" className="text-ink-3">
+                    ต้องตรงกับพร้อมเพย์ที่ลงทะเบียนไว้กับธนาคาร เว้นว่างไว้ถ้าไม่ใช้
+                    ระบบจะไม่สร้าง QR พร้อมเพย์
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลบัญชี"}</span>
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+          <BankSignersSection />
+        </div>
+      )}
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (
-          <div className="bg-white rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line/60 pb-5">
               <div>
                 <h3 className="text-lg font-bold text-ink flex items-center gap-2">
@@ -1129,13 +1227,13 @@ export default function Settings() {
                           });
 
                           let actionBadge = (
-                            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-300">
+                            <span className="px-2.5 py-1 rounded-full bg-paper-2 text-ink-2 font-mono text-[11px] border border-field">
                               {log.action}
                             </span>
                           );
                           if (log.action === "AUTH_SET_CHURCH_ROLE") {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] border border-emerald-300">
+                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
                                 👑 เปลี่ยนบทบาทผู้ใช้
                               </span>
                             );
@@ -1175,7 +1273,7 @@ export default function Settings() {
                               <td className="py-3.5 px-3 text-ink-2 max-w-sm">
                                 {log.metadata ? (
                                   <div
-                                    className="font-mono text-[11px] bg-slate-50 p-1.5 rounded-lg border border-slate-200 truncate max-w-[280px]"
+                                    className="font-mono text-[11px] bg-paper p-1.5 rounded-lg border border-line truncate max-w-[280px]"
                                     title={JSON.stringify(
                                       log.metadata,
                                       null,

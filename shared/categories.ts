@@ -42,12 +42,15 @@ export const EXPENSE_CATEGORIES: ReadonlyArray<
 ];
 
 export const OFFERING_CATEGORY_IDS = [
-  "tithe",
-  "general",
+  "cash",
+  "meal",
+  "memorial",
   "mission",
-  "building",
-  "welfare",
   "special",
+  "land",
+  "party",
+  "venue_rent",
+  "tithe",
 ] as const satisfies readonly string[];
 
 export type OfferingCategory = (typeof OFFERING_CATEGORY_IDS)[number];
@@ -55,13 +58,28 @@ export type OfferingCategory = (typeof OFFERING_CATEGORY_IDS)[number];
 export const OFFERING_CATEGORIES: ReadonlyArray<
   CategoryOption<OfferingCategory>
 > = [
-  { id: "tithe", label: "สิบลด" },
-  { id: "general", label: "ถวายทั่วไป" },
-  { id: "mission", label: "พันธกิจและการประกาศ" },
-  { id: "building", label: "สร้างอาคาร" },
-  { id: "welfare", label: "สงเคราะห์" },
+  { id: "cash", label: "เงินสด" },
+  { id: "meal", label: "ค่าข้าว" },
+  { id: "memorial", label: "อนุสรณ์ฯ" },
+  { id: "mission", label: "พันธกิจ" },
   { id: "special", label: "ถวายพิเศษ" },
+  { id: "land", label: "ที่ดิน" },
+  { id: "party", label: "ปาร์ตี้" },
+  { id: "venue_rent", label: "ค่าเช่าสถานนมัสการ" },
+  { id: "tithe", label: "สิบลด" },
 ];
+
+/**
+ * Ids that old rows still hold. The Postgres enum keeps them (it cannot drop a
+ * value), but the entry forms no longer offer them. They only supply a label
+ * so a historic row reads in Thai instead of showing the raw id.
+ */
+export const LEGACY_OFFERING_CATEGORY_LABELS: Readonly<Record<string, string>> =
+  {
+    general: "ถวายทั่วไป",
+    building: "สร้างอาคาร",
+    welfare: "สงเคราะห์",
+  };
 
 /**
  * Falls back to the raw id rather than to a catch-all label, so an unmapped
@@ -72,7 +90,11 @@ export function expenseCategoryLabel(id: string): string {
 }
 
 export function offeringCategoryLabel(id: string): string {
-  return OFFERING_CATEGORIES.find(c => c.id === id)?.label ?? id;
+  return (
+    OFFERING_CATEGORIES.find(c => c.id === id)?.label ??
+    LEGACY_OFFERING_CATEGORY_LABELS[id] ??
+    id
+  );
 }
 
 export function isExpenseCategory(id: string): id is ExpenseCategory {

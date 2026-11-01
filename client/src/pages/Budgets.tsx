@@ -98,7 +98,7 @@ export default function Budgets() {
         <button
           type="button"
           onClick={() => (showCreate ? closeCreateForm() : setShowCreate(true))}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-ink"
+          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-black shadow-sm transition-colors hover:bg-brand-ink"
         >
           <Plus className="h-4 w-4" />
           ตั้งงบประมาณ
@@ -108,7 +108,7 @@ export default function Budgets() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div
-            className="flex items-center gap-1 rounded-xl border border-line bg-white p-1"
+            className="flex items-center gap-1 rounded-xl border border-line bg-surface p-1"
             role="group"
             aria-label="เลือกปีงบประมาณ"
           >
@@ -141,7 +141,7 @@ export default function Budgets() {
         {showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-line bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-line bg-surface p-6 shadow-sm"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-ink">
@@ -187,7 +187,7 @@ export default function Budgets() {
               <SummaryCard
                 label="อยู่ในงบ"
                 value={counts.ok}
-                className="text-[#1F5C33]"
+                className="text-[hsl(140_50%_72%)]"
               />
               <SummaryCard
                 label="ใกล้เต็มงบ"
@@ -207,7 +207,7 @@ export default function Budgets() {
                   key={plan.id}
                   type="button"
                   onClick={() => setLocation(`/budgets/${plan.id}`)}
-                  className="rounded-2xl border border-line bg-white p-5 text-left shadow-sm hover:bg-paper"
+                  className="rounded-2xl border border-line bg-surface p-5 text-left shadow-sm hover:bg-paper"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -261,7 +261,7 @@ function SummaryCard({
   className: string;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-line bg-surface p-4 shadow-sm">
       <p className="text-xs font-semibold text-ink-3">{label}</p>
       <p
         className={`mt-1 text-xl font-bold tabular-nums md:text-2xl ${className}`}

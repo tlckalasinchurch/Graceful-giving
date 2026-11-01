@@ -71,7 +71,7 @@ export function CashCountTab({
 
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
         <div className="border-b border-line p-4">
           <h2 className="font-bold text-foreground">ใบนับธนบัตรและเหรียญ</h2>
           <p className="mt-1 text-sm text-ink-2">

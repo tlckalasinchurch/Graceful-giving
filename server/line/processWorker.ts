@@ -19,7 +19,11 @@
 
 import type { Request, Response, Express } from "express";
 import { ENV } from "../_core/env";
-import { getDb } from "../db";
+import {
+  countRecentSystemRejectedSlips,
+  getChurchProfile,
+  getDb,
+} from "../db";
 import {
   lineSlips,
   lineProcessingJobs,
@@ -27,6 +31,8 @@ import {
 } from "../../drizzle/schema";
 import { and, eq, lte, sql } from "drizzle-orm";
 import { getSlipSignedUrl } from "../storage";
+import { MAX_AUTO_REJECTS } from "../../shared/givingLimits";
+import { verifySlip } from "./slipVerification";
 import { extractSlipData, requiresReview } from "./slipOcr";
 import {
   checkDuplicateByReference,
@@ -56,6 +62,22 @@ function isAuthorizedCron(req: Request): boolean {
 }
 
 // ─── Single job processor ─────────────────────────────────────────────────────
+
+/** Where the church receives giving, or nulls if not set or unreadable. */
+async function getChurchPayee(
+  churchId: string
+): Promise<{ bankAccount: string | null; promptPayId: string | null }> {
+  try {
+    const profile = await getChurchProfile(churchId);
+    return {
+      bankAccount: profile?.bankAccount ?? null,
+      promptPayId: profile?.promptPayId ?? null,
+    };
+  } catch (err) {
+    console.warn("[Worker] Could not read the church payee details:", err);
+    return { bankAccount: null, promptPayId: null };
+  }
+}
 
 async function processJob(jobId: number, slipId: number): Promise<void> {
   const db = await getDb();
@@ -155,13 +177,52 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
     }
   }
 
+  // 5b. Checks against what we know. A slip sent from the giving station
+  // carries the amount the donor chose. A confident reading that differs, or a
+  // receiver account that is not the church's, turns the slip away so it
+  // cannot be approved. The donor sends it again. Any other slip with a
+  // doubtful receiver account goes to staff with a warning.
+  const payee = await getChurchPayee(slip.churchId);
+  // A donor turned away too often gets a person, not another automatic no.
+  const escalate =
+    slip.declaredAmount !== null &&
+    (await countRecentSystemRejectedSlips(
+      slip.lineUserId,
+      new Date(Date.now() - 24 * 60 * 60 * 1000),
+      slip.id,
+      slip.churchId
+    ).catch(() => 0)) >= MAX_AUTO_REJECTS;
+  const verification = verifySlip({
+    declaredAmount:
+      slip.declaredAmount !== null ? Number(slip.declaredAmount) : null,
+    extraction,
+    churchAccount: payee.bankAccount,
+    churchPromptPayId: payee.promptPayId,
+    isDuplicate: finalStatus === "duplicate",
+    escalate,
+  });
+  const autoRejectReason = verification.autoReject?.reason ?? null;
+  if (verification.autoReject) {
+    finalStatus = "rejected";
+  } else if (verification.reviewWarning && finalStatus !== "duplicate") {
+    finalStatus = "needs_review";
+  }
+
   // 6. Update line_slips with all results
   await db
     .update(lineSlips)
     .set({
       status: finalStatus,
       aiRawText: extraction.rawText,
-      aiData: extraction as unknown as Record<string, unknown>,
+      aiData: {
+        ...extraction,
+        verification: {
+          amount: verification.amount,
+          receiver: verification.receiver,
+          autoReject: verification.autoReject?.kind ?? null,
+          escalated: verification.escalated,
+        },
+      } as unknown as Record<string, unknown>,
       extractedAmount: extraction.amount !== null ? String(extraction.amount) : null,
       extractedAmountConfidence: String(extraction.amountConfidence),
       extractedDate: extraction.transferDate ? new Date(extraction.transferDate) : null,
@@ -177,7 +238,12 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
       matchMethod,
       duplicateOfSlipId: duplicateSlipId,
       duplicateOfOfferingId: duplicateOfferingId,
-      lastErrorMessage: duplicateReason,
+      lastErrorMessage:
+        duplicateReason ?? autoRejectReason ?? verification.reviewWarning,
+      // Rejected by the system: no reviewer, the reason is for the donor.
+      ...(autoRejectReason
+        ? { reviewNote: autoRejectReason, reviewedAt: new Date() }
+        : {}),
       processingAttempts: (slip.processingAttempts ?? 0) + 1,
       updatedAt: new Date(),
     })

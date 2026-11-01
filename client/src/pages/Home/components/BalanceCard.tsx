@@ -24,13 +24,13 @@ function BalanceAmount({
   const formatted = formatAmount(Math.abs(value));
   const dot = formatted.lastIndexOf(".");
   return (
-    <span className={negative ? "text-danger" : "text-ink"}>
+    <span className={negative ? "text-rose-400" : "text-white"}>
       {negative && "−"}
-      <span className="mr-2 text-2xl font-medium text-ink-3 sm:text-3xl">
+      <span className="mr-2 text-2xl font-semibold text-[#00F58A] sm:text-3xl">
         ฿
       </span>
       {formatted.slice(0, dot)}
-      <span className="text-2xl text-ink-3 sm:text-3xl">
+      <span className="text-2xl font-medium text-white/40 sm:text-3xl">
         {formatted.slice(dot)}
       </span>
     </span>
@@ -53,11 +53,26 @@ export function BalanceCard({
     <section
       aria-label="ยอดเงินคงเหลือรวม"
       style={{ animationDelay: "90ms" }}
-      className="animate-fade-up h-full rounded-3xl bg-surface p-6 sm:p-8 fintech-card flex flex-col justify-between gap-8 w-full"
+      className="animate-fade-up relative overflow-hidden h-full rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:p-8 flex flex-col justify-between gap-8 w-full"
     >
-      <div className="flex items-start justify-between gap-4">
+      {/* Subtle Pastel FinTech Glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-20 -right-20 size-52 rounded-full bg-[#00F58A]/15 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-16 left-10 size-44 rounded-full bg-[#FF6A00]/15 blur-3xl"
+      />
+
+      <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-2">
-          <h2 className="text-sm font-medium text-ink-2">ยอดเงินคงเหลือรวม</h2>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-3 py-1">
+            <span className="size-2 rounded-full bg-[#00F58A]" aria-hidden="true" />
+            <h2 className="text-xs sm:text-sm font-bold text-white/80">
+              ยอดเงินคงเหลือรวม
+            </h2>
+          </div>
           {isBalanceLoading && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-lilac px-2.5 py-1 text-xs font-semibold text-tile-lilac-ink">
               <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
@@ -75,7 +90,7 @@ export function BalanceCard({
         </div>
         <button
           onClick={() => setShowBalance(!showBalance)}
-          className="size-11 shrink-0 inline-flex items-center justify-center rounded-full bg-ground text-ink-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand"
+          className="size-11 shrink-0 inline-flex items-center justify-center rounded-2xl bg-white/[0.08] text-white hover:bg-white/15 transition-colors focus-visible:ring-2 focus-visible:ring-[#00F58A]"
           aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
           aria-pressed={!showBalance}
         >
@@ -89,35 +104,35 @@ export function BalanceCard({
 
       {isBalanceLoading ? (
         <div
-          className="h-10 sm:h-11 w-56 sm:w-72 rounded-2xl bg-ground animate-pulse"
+          className="relative h-12 sm:h-14 w-56 sm:w-72 rounded-2xl bg-white/10 animate-pulse"
           aria-hidden="true"
         />
       ) : (
-        <p className="display money whitespace-nowrap text-4xl font-semibold leading-none sm:text-5xl lg:text-6xl">
+        <p className="relative display money whitespace-nowrap text-4xl font-bold tracking-tight leading-none sm:text-5xl lg:text-6xl">
           {!hasSummaryData ? (
-            <span className="text-ink-3">—</span>
+            <span className="text-white/40">—</span>
           ) : showBalance ? (
             <BalanceAmount
               value={animatedBalance}
               negative={!isPositiveBalance}
             />
           ) : (
-            <span className="text-ink-2" aria-label="ยอดเงินถูกซ่อน">
+            <span className="text-white/60" aria-label="ยอดเงินถูกซ่อน">
               ฿ ••••••
             </span>
           )}
         </p>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="relative flex flex-wrap items-center justify-between gap-3">
         {isBalanceLoading ? (
-          <span className="text-sm text-ink-2">กำลังตรวจสอบยอดเงินล่าสุด…</span>
+          <span className="text-sm text-white/60">กำลังตรวจสอบยอดเงินล่าสุด…</span>
         ) : isPositiveBalance ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-mint px-3 py-1 text-xs sm:text-sm font-semibold text-tile-mint-ink">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00F58A]/15 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-[#00F58A]">
             ขอบคุณพระเจ้าสำหรับทุกการถวาย ♥
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-rose px-3 py-1 text-xs sm:text-sm font-semibold text-tile-rose-ink">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-rose px-3.5 py-1.5 text-xs sm:text-sm font-bold text-tile-rose-ink">
             ยอดคงเหลือติดลบ — ควรตรวจสอบรายจ่าย
           </span>
         )}
@@ -125,7 +140,7 @@ export function BalanceCard({
         {canOpenReports && (
           <button
             onClick={onOpenReports}
-            className="inline-flex min-h-11 items-center gap-1 rounded-2xl px-2 text-sm font-semibold text-brand-ink hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand"
+            className="inline-flex min-h-10 items-center gap-1 rounded-full bg-white/[0.08] px-3.5 py-1.5 text-sm font-bold text-white hover:bg-white/15 transition-colors focus-visible:ring-2 focus-visible:ring-[#00F58A]"
           >
             ดูรายละเอียด
             <ChevronRight className="size-4" aria-hidden="true" />

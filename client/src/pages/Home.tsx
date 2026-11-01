@@ -97,7 +97,7 @@ export default function Home() {
   const canViewBudgets = canAccessRoute("/budgets", user);
   // withdrawals.list returns every request only to finance roles, and only
   // they can approve, so the to-do row is limited to them.
-  const canApproveWithdrawals = canManageFinance(user);
+  const isSigner = Boolean(user?.isBankSigner);
   // Balances, totals and the ledger are for finance roles and church leaders;
   // the server refuses everyone else, so the dashboard does not ask.
   const canSeeFinance = canViewFinanceRecords(user);
@@ -105,7 +105,7 @@ export default function Home() {
   // Only the super admin approves new sign-ins.
   const canApproveUsers = isSuperAdmin(user);
   const hasTaskSources =
-    canAccessInbox || canApproveWithdrawals || canOpenCounting || canApproveUsers;
+    canAccessInbox || isSigner || canOpenCounting || canApproveUsers;
 
   const today = new Date();
   const budgetYear = today.getFullYear();
@@ -153,7 +153,7 @@ export default function Home() {
 
   const { data: withdrawalsData, isLoading: withdrawalsLoading } =
     trpc.withdrawals.list.useQuery(undefined, {
-      enabled: canApproveWithdrawals,
+      enabled: isSigner,
       retry: false,
       staleTime: 15_000,
     });
@@ -185,8 +185,12 @@ export default function Home() {
     () =>
       buildTaskItems({
         slipsToReview: canAccessInbox ? inboxStats?.reviewRequired : undefined,
-        pendingWithdrawals: canApproveWithdrawals
-          ? withdrawalsData?.filter(w => w.status === "pending").length
+        pendingWithdrawals: isSigner
+          ? withdrawalsData?.filter(
+              w =>
+                w.status === "pending" &&
+                !w.signatures?.some(s => s.userId === user?.id)
+            ).length
           : undefined,
         countingStatuses: canOpenCounting
           ? countingData?.map(s => s.status)
@@ -195,7 +199,8 @@ export default function Home() {
       }),
     [
       canAccessInbox,
-      canApproveWithdrawals,
+      isSigner,
+      user?.id,
       canOpenCounting,
       canApproveUsers,
       inboxStats,

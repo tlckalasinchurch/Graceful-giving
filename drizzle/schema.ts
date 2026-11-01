@@ -1,6 +1,8 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   decimal,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -8,6 +10,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -22,6 +25,8 @@ export const financeAccountTypeEnum = pgEnum("finance_account_type", [
   "welfare",
   "special",
 ]);
+// "general", "building" and "welfare" are legacy: Postgres cannot drop
+// an enum value, and old rows still use them. New entries use the other ids.
 export const offeringCategoryEnum = pgEnum("offering_category", [
   "tithe",
   "general",
@@ -29,6 +34,12 @@ export const offeringCategoryEnum = pgEnum("offering_category", [
   "building",
   "welfare",
   "special",
+  "cash",
+  "meal",
+  "memorial",
+  "land",
+  "party",
+  "venue_rent",
 ]);
 export const offeringMethodEnum = pgEnum("offering_method", [
   "cash",
@@ -60,6 +71,7 @@ export const withdrawalStatusEnum = pgEnum("withdrawal_status", [
   "approved",
   "rejected",
   "disbursed",
+  "cancelled",
 ]);
 export const newsCategoryEnum = pgEnum("news_category", [
   "announcement",
@@ -99,6 +111,12 @@ export const bankRecordTypeEnum = pgEnum("bank_record_type", [
   "transfer_in",
   /** The treasurer banked counted cash. */
   "cash_deposit",
+  /** Cash drawn from the bank into the cash box. */
+  "withdrawal",
+  /** Interest or any other money the bank credits. */
+  "other_in",
+  /** Bank fees, bills paid by transfer, any other debit. */
+  "other_out",
 ]);
 export const sessionDocumentKindEnum = pgEnum("session_document_kind", [
   "count_sheet",
@@ -192,6 +210,12 @@ export const churchProfiles = pgTable("church_profiles", {
   bankName: varchar("bankName", { length: 120 }),
   bankAccount: varchar("bankAccount", { length: 30 }),
   bankAccountName: varchar("bankAccountName", { length: 120 }),
+  /**
+   * PromptPay ID donors pay to: a 10-digit mobile number, a 13-digit national
+   * or tax ID, or a 15-digit e-wallet ID. Digits only. Hidden from members, who
+   * get only a QR code for the amount they give.
+   */
+  promptPayId: varchar("promptPayId", { length: 20 }),
   /** Month (1-12) when the fiscal year starts */
   fiscalYearStartMonth: integer("fiscalYearStartMonth").default(1).notNull(),
   logoUrl: varchar("logoUrl", { length: 500 }),
@@ -199,6 +223,8 @@ export const churchProfiles = pgTable("church_profiles", {
   setupCompleted: boolean("setupCompleted").default(false).notNull(),
   /** Custom verse or motto */
   motto: varchar("motto", { length: 280 }),
+  /** The words on the giving poster, as JSON. See shared/stationPoster.ts. */
+  stationPoster: text("stationPoster"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
@@ -228,7 +254,9 @@ export const members = pgTable("members", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    index("members_church_idx").on(t.churchId),
+  ]);
 
 export type Member = typeof members.$inferSelect;
 export type InsertMember = typeof members.$inferInsert;
@@ -253,7 +281,9 @@ export const ministries = pgTable("ministries", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    index("ministries_church_idx").on(t.churchId),
+  ]);
 
 export type Ministry = typeof ministries.$inferSelect;
 export type InsertMinistry = typeof ministries.$inferInsert;
@@ -269,7 +299,9 @@ export const notifications = pgTable("notifications", {
   link: varchar("link", { length: 500 }),
   readAt: timestamp("readAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, t => [
+    index("notifications_user_idx").on(t.churchId, t.userId, t.createdAt),
+  ]);
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
@@ -284,7 +316,9 @@ export const auditLogs = pgTable("audit_logs", {
   entityId: integer("entityId"),
   metadata: jsonb("metadata"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, t => [
+    index("audit_logs_entity_idx").on(t.churchId, t.entity, t.entityId, t.createdAt),
+  ]);
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
@@ -336,12 +370,21 @@ export const offerings = pgTable("offerings", {
   status: offeringStatusEnum("status").default("active").notNull(),
   voidedAt: timestamp("voidedAt"),
   recordedBy: integer("recordedBy").notNull(),
+  /** users.id of the person who sent the giving from the app, when known. */
+  submittedByUserId: integer("submittedByUserId"),
+  /** Their LINE name when they sent it. */
+  submittedByName: varchar("submittedByName", { length: 180 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    /** Financial integrity backstop: one active offering per bank reference. */
+    uniqueIndex("offerings_ref_active_uniq")
+      .on(t.churchId, t.reference)
+      .where(sql`"reference" IS NOT NULL AND "status" = 'active'`),
+  ]);
 
 export type Offering = typeof offerings.$inferSelect;
 export type InsertOffering = typeof offerings.$inferInsert;
@@ -391,6 +434,12 @@ export const withdrawalRequests = pgTable("withdrawal_requests", {
   approvalDate: timestamp("approvalDate"),
   approvalNote: text("approvalNote"),
   rejectionReason: text("rejectionReason"),
+  /** When a signer pressed "paid" and the request entered a counting round. */
+  disbursedAt: timestamp("disbursedAt"),
+  disbursedBy: integer("disbursedBy"),
+  cancelledAt: timestamp("cancelledAt"),
+  cancelledBy: integer("cancelledBy"),
+  cancelReason: text("cancelReason"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
@@ -507,6 +556,16 @@ export const countingSessions = pgTable("counting_sessions", {
   varianceNote: text("varianceNote"),
   varianceApprovedBy: integer("varianceApprovedBy"),
   notes: text("notes"),
+  /** Carried in from the previous round; frozen when this round posts. */
+  openingCash: decimal("openingCash", { precision: 15, scale: 2 }),
+  openingBank: decimal("openingBank", { precision: 15, scale: 2 }),
+  /** Bank balance carried out, frozen at post. Cash carried out is cashOnHandActual. */
+  closingBank: decimal("closingBank", { precision: 15, scale: 2 }),
+  /** Cash actually in the box after the round's payments and deposits. */
+  cashOnHandActual: decimal("cashOnHandActual", { precision: 15, scale: 2 }),
+  /** Latest balance printed in the passbook, for comparison only. */
+  passbookBalance: decimal("passbookBalance", { precision: 15, scale: 2 }),
+  passbookBalanceDate: timestamp("passbookBalanceDate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
@@ -612,12 +671,19 @@ export const bankRecords = pgTable("bank_records", {
   matchedBy: integer("matchedBy"),
   recordedBy: integer("recordedBy").notNull(),
   notes: text("notes"),
+  /** The withdrawal request that produced this record; null for a hand-entered record. */
+  withdrawalRequestId: integer("withdrawalRequestId"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    /** A withdrawal request lands in the counting round exactly once. */
+    uniqueIndex("bank_records_withdrawal_uniq")
+      .on(t.withdrawalRequestId)
+      .where(sql`"withdrawalRequestId" IS NOT NULL`),
+  ]);
 
 /**
  * Evidence for the session. Files live in the church's Google Drive; only the
@@ -658,6 +724,50 @@ export type BankRecord = typeof bankRecords.$inferSelect;
 export type InsertBankRecord = typeof bankRecords.$inferInsert;
 export type SessionDocument = typeof sessionDocuments.$inferSelect;
 export type InsertSessionDocument = typeof sessionDocuments.$inferInsert;
+
+// ─── Withdrawal Bank Signers (Part 2) ────────────────────────────────────────
+
+/**
+ * People named on the church's bank account. A withdrawal request is approved
+ * only when the required signer approves and the approvals total at least two.
+ */
+export const bankSigners = pgTable("bank_signers", {
+  id: serial("id").primaryKey(),
+  churchId: varchar("churchId", { length: 64 }).notNull(),
+  userId: integer("userId").notNull(),
+  /** "ต้องลงนามทุกครั้ง" — at most one signer per church carries this flag. */
+  isRequired: boolean("isRequired").default(false).notNull(),
+  addedBy: integer("addedBy"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, t => [
+    uniqueIndex("bank_signers_user_uniq").on(t.churchId, t.userId),
+    /** At most one signer who must sign every time, per church. */
+    uniqueIndex("bank_signers_required_uniq")
+      .on(t.churchId)
+      .where(sql`"isRequired" = true`),
+  ]);
+
+export type BankSigner = typeof bankSigners.$inferSelect;
+export type InsertBankSigner = typeof bankSigners.$inferInsert;
+
+/** One row per signer per withdrawal request — every signature is evidence. */
+export const withdrawalApprovals = pgTable("withdrawal_approvals", {
+  id: serial("id").primaryKey(),
+  churchId: varchar("churchId", { length: 64 }).notNull(),
+  requestId: integer("requestId").notNull(),
+  userId: integer("userId").notNull(),
+  decision: varchar("decision", { length: 10 }).notNull(),
+  note: text("note"),
+  /** Captured at signing time so later signer-list changes cannot alter the outcome. */
+  wasRequiredSigner: boolean("wasRequiredSigner").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, t => [
+    /** One signature row per signer per request. */
+    uniqueIndex("withdrawal_approvals_signer_uniq").on(t.requestId, t.userId),
+  ]);
+
+export type WithdrawalApproval = typeof withdrawalApprovals.$inferSelect;
+export type InsertWithdrawalApproval = typeof withdrawalApprovals.$inferInsert;
 
 // ─── LINE Slip Giving Inbox ───────────────────────────────────────────────────
 
@@ -733,6 +843,32 @@ export const lineSlips = pgTable("line_slips", {
   /** How the match was determined */
   matchMethod: varchar("matchMethod", { length: 30 }),
 
+  // ─── Donor declaration (set when a person submits a slip from the app) ───
+  // What the donor said they gave. Staff still confirm the real values in
+  // review; nothing here credits a fund.
+  declaredAmount: decimal("declaredAmount", { precision: 15, scale: 2 }),
+  declaredCategory: offeringCategoryEnum("declaredCategory"),
+  declaredFundId: integer("declaredFundId"),
+  /**
+   * When one transfer pays for several categories: `[{category, amount}]`.
+   * Null for a single category. `declaredAmount` is then the total.
+   */
+  declaredItems: jsonb("declaredItems").$type<
+    Array<{ category: string; amount: number }>
+  >(),
+  /** The date the donor says the transfer was made (entries without a slip). */
+  declaredDate: timestamp("declaredDate"),
+  /** "slip": an image was attached. "no_slip": the donor sent the details only. */
+  source: varchar("source", { length: 16 }).default("slip").notNull(),
+
+  // ─── Who sent it, kept apart from the name that goes in the books ───
+  /** users.id of the signed-in person who sent it from the app. */
+  submittedByUserId: integer("submittedByUserId"),
+  /** The sender's LINE name when it was sent. Never overwritten. */
+  submittedByName: varchar("submittedByName", { length: 180 }),
+  /** The name the donor typed in the form. */
+  typedDonorName: varchar("typedDonorName", { length: 180 }),
+
   // ─── Staff decisions (set during review) ───
   /** Fund to credit — must be a valid finance_accounts.id */
   fundId: integer("fundId"),
@@ -751,7 +887,20 @@ export const lineSlips = pgTable("line_slips", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    /** Idempotency: one LINE event creates one slip. */
+    uniqueIndex("line_slips_event_uniq").on(t.churchId, t.lineEventId),
+    /** Duplicate detection level 2: same image hash. */
+    index("line_slips_hash_idx").on(t.slipHash),
+    /** Duplicate detection level 1: one live slip per bank reference. */
+    uniqueIndex("line_slips_ref_uniq")
+      .on(t.churchId, t.extractedRef)
+      .where(
+        sql`"extractedRef" IS NOT NULL AND "status" NOT IN ('rejected', 'duplicate', 'failed')`
+      ),
+    /** Status dashboard: slips per church by status and age. */
+    index("line_slips_status_idx").on(t.churchId, t.status, t.createdAt),
+  ]);
 
 export type LineSlip = typeof lineSlips.$inferSelect;
 export type InsertLineSlip = typeof lineSlips.$inferInsert;
@@ -775,7 +924,10 @@ export const lineProcessingJobs = pgTable("line_processing_jobs", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-});
+}, t => [
+    /** Worker polling: queued jobs by age. */
+    index("line_jobs_status_idx").on(t.status, t.createdAt),
+  ]);
 
 export type LineProcessingJob = typeof lineProcessingJobs.$inferSelect;
 export type InsertLineProcessingJob = typeof lineProcessingJobs.$inferInsert;

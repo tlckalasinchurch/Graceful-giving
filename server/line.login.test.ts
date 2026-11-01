@@ -5,6 +5,7 @@ const dbMock = vi.hoisted(() => ({
   getAllUsers: vi.fn(),
   createLineUser: vi.fn(),
   touchLineUser: vi.fn(),
+  setUserStatus: vi.fn(),
 }));
 vi.mock("./db", () => dbMock);
 
@@ -157,6 +158,49 @@ describe("resolveLineUser", () => {
     expect(dbMock.createLineUser).toHaveBeenCalledWith(
       expect.objectContaining({ status: "pending", isOwner: false })
     );
+  });
+
+  describe("from the public giving link", () => {
+    it("creates a new person as an active ordinary member", async () => {
+      dbMock.getUserByOpenId.mockResolvedValue(undefined);
+      await resolveLineUser(profile, { giver: true });
+      expect(dbMock.createLineUser).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "active", isOwner: false })
+      );
+    });
+
+    it("activates a person who was pending", async () => {
+      dbMock.getUserByOpenId.mockResolvedValue({
+        id: 5,
+        openId: "line:U1",
+        status: "pending",
+      });
+      const user = await resolveLineUser(profile, { giver: true });
+      expect(dbMock.setUserStatus).toHaveBeenCalledWith(5, "active");
+      expect(user.status).toBe("active");
+    });
+
+    it("never re-enables a disabled account", async () => {
+      dbMock.getUserByOpenId.mockResolvedValue({
+        id: 5,
+        openId: "line:U1",
+        status: "disabled",
+      });
+      const user = await resolveLineUser(profile, { giver: true });
+      expect(dbMock.setUserStatus).not.toHaveBeenCalled();
+      expect(user.status).toBe("disabled");
+    });
+
+    it("leaves an active staff account as it is", async () => {
+      dbMock.getUserByOpenId.mockResolvedValue({
+        id: 5,
+        openId: "line:U1",
+        status: "active",
+        churchRole: "TREASURER",
+      });
+      await resolveLineUser(profile, { giver: true });
+      expect(dbMock.setUserStatus).not.toHaveBeenCalled();
+    });
   });
 
   it("creates OWNER_OPEN_ID as an active SUPER_ADMIN", async () => {

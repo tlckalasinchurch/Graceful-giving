@@ -75,6 +75,13 @@ describe("buildTaskItems", () => {
     expect(items.map(i => i.count)).toEqual([4, 2, 1]);
   });
 
+  it("tells the signer the withdrawals row waits for their signature", () => {
+    const items = buildTaskItems({ ...none, pendingWithdrawals: 2 });
+    expect(items).toHaveLength(1);
+    expect(items[0].title).toBe("คำขอเบิกเงินรอลงนามของคุณ");
+    expect(items[0].description).toContain("ผู้ลงนามบัญชีธนาคาร");
+  });
+
   it("counts only unfinished counting sessions and describes each stage", () => {
     const [item] = buildTaskItems({
       ...none,

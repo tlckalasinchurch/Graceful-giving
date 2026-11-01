@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Redirect, Route, Switch, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageChurchSettings } from "@shared/roles";
-import { canAccessRoute } from "@/lib/routeAccess";
+import { canAccessRoute, stationOnlyRedirect } from "@/lib/routeAccess";
 import { trpc } from "@/lib/trpc";
 import { hasSkippedSetup } from "@/lib/setupSkip";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -40,11 +40,14 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Updates = lazy(() => import("./pages/Updates"));
 const GivingInbox = lazy(() => import("./pages/GivingInbox"));
+const GivingStation = lazy(() => import("./pages/GivingStation"));
+const Give = lazy(() => import("./pages/Give"));
 const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
 
 /** Routes reachable without a session. Everything else needs one. */
 const PUBLIC_PATHS = [
   "/login",
+  "/give",
   "/404",
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
 ];
@@ -60,7 +63,7 @@ function normalizePath(path: string) {
  */
 function AuthGate({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const isPublic = PUBLIC_PATHS.includes(normalizePath(location));
 
   useEffect(() => {
@@ -71,12 +74,17 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   if (isPublic) return <>{children}</>;
   if (loading) return <RouteLoading />;
   if (!isAuthenticated) return <RouteLoading />;
+  // An ordinary member sees the giving station and nothing else. This is the
+  // UI side of it; the server still checks every request by role.
+  const stationPath = stationOnlyRedirect(user, location);
+  if (stationPath) return <Redirect to={stationPath} />;
   return <>{children}</>;
 }
 
 const SETUP_EXEMPT_PATHS = [
   "/setup",
   "/login",
+  "/give",
   "/404",
   // Dev-only UI gallery; the route itself is also unmounted in prod (see Router).
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
@@ -155,8 +163,8 @@ function RoleGuard({
   if (!user || !canAccess(user)) {
     return (
       <div className="min-h-screen bg-paper flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-200 mx-auto flex items-center justify-center text-rose-600">
+        <div className="max-w-md w-full bg-surface rounded-3xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-rose-500/15 border-2 border-rose-500/30 mx-auto flex items-center justify-center text-rose-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-8 h-8"
@@ -176,7 +184,7 @@ function RoleGuard({
           <div className="pt-2">
             <a
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-brand text-white font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-brand text-black font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
             >
               กลับสู่หน้าหลัก
             </a>
@@ -250,6 +258,8 @@ function Router() {
           <NewOffering />
         </RoleGuard>
       </Route>
+      <Route path="/give" component={Give} />
+      <Route path="/giving/station" component={GivingStation} />
 
       {/* LINE Giving Inbox */}
       <Route path="/giving/inbox">

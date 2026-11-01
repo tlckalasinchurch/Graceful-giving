@@ -6,11 +6,17 @@ import {
   desc,
   eq,
   gte,
+  inArray,
+  isNotNull,
+  isNull,
+  like,
   lt,
   lte,
   ne,
+  or,
   sql,
   sum,
+  type SQL,
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
@@ -31,6 +37,7 @@ import {
   InsertChurchEvent,
   InsertChurchNews,
   InsertChurchProfile,
+  CountingSession,
   InsertCountingSession,
   InsertExpense,
   InsertFinanceAccount,
@@ -56,18 +63,31 @@ import {
   sessionDeductions,
   sessionDocuments,
   users,
+  bankSigners,
+  withdrawalApprovals,
   withdrawalRequests,
 } from "../drizzle/schema";
+import type { OfferingCategory } from "@shared/categories";
 import type { CountingStatus } from "@shared/counting";
 import { reconcile } from "@shared/counting";
+import { resolveLedgerName } from "@shared/ledgerName";
+import {
+  SPLIT_MESSAGE,
+  checkSplit,
+  splitReference,
+  type SplitLine,
+} from "@shared/givingSplit";
+import {
+  approvalState,
+  type ApprovalOutcome,
+  type Signature,
+} from "@shared/withdrawals";
 import { ENV } from "./_core/env";
 
-import { runSchemaInit } from "./schema_init";
 import { getSlipSignedUrl, storagePutPrivate } from "./storage";
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _schemaInitialized = false;
 
 /**
  * The tenant every query defaults to. The app is single-tenant, but the tests
@@ -75,6 +95,10 @@ let _schemaInitialized = false;
  * read or delete the application's rows.
  */
 export const DEFAULT_CHURCH_ID = process.env.CHURCH_ID || "demo-church";
+
+/** The transaction handle a passed-in `db.transaction` callback receives. */
+type Database = NonNullable<Awaited<ReturnType<typeof getDb>>>;
+type CountingTx = Parameters<Parameters<Database["transaction"]>[0]>[0];
 
 // A test tenant reaching production would point every read and write at an
 // empty tenant: the app would serve a church with no members, no funds and no
@@ -102,17 +126,6 @@ export async function getDb() {
       // Eager health-check: `postgres` connects lazily, so verify now to preserve
       // the getDb()-returns-null (never throws) contract on unreachable URLs.
       await client`SELECT 1`;
-
-      if (!_schemaInitialized) {
-        _schemaInitialized = true;
-        try {
-          console.log("[Database] Ensuring tables and schema exist...");
-          await runSchemaInit(client);
-          console.log("[Database] Tables verified/created successfully.");
-        } catch (initErr) {
-          console.warn("[Database] Schema init warning:", initErr);
-        }
-      }
 
       _db = drizzle(client);
     } catch (error) {
@@ -358,6 +371,36 @@ export async function upsertChurchProfile(input: InsertChurchProfile) {
     .onConflictDoUpdate({
       target: churchProfiles.churchId,
       set: { ...updateFields, updatedAt: new Date() },
+    });
+}
+
+/** The saved poster words as JSON text, or null when none were saved. */
+export async function getStationPosterJson(
+  churchId = DEFAULT_CHURCH_ID
+): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select({ stationPoster: churchProfiles.stationPoster })
+    .from(churchProfiles)
+    .where(eq(churchProfiles.churchId, churchId))
+    .limit(1);
+  return result[0]?.stationPoster ?? null;
+}
+
+/** Saves the poster words. Creates the profile row when there is none. */
+export async function saveStationPosterJson(
+  json: string,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db
+    .insert(churchProfiles)
+    .values({ churchId, name: "Grace-giving", stationPoster: json })
+    .onConflictDoUpdate({
+      target: churchProfiles.churchId,
+      set: { stationPoster: json, updatedAt: new Date() },
     });
 }
 
@@ -1017,10 +1060,40 @@ export async function listWithdrawalRequests(
     .orderBy(desc(withdrawalRequests.createdAt))
     .limit(50);
 
+  const ids = rows.map(r => r.request.id);
+  const signaturesByRequest = new Map<
+    number,
+    Array<
+      Signature & { note: string | null; createdAt: Date; name: string | null }
+    >
+  >();
+  if (ids.length > 0) {
+    const signatureRows = await db
+      .select({ row: withdrawalApprovals, signerName: users.name })
+      .from(withdrawalApprovals)
+      .leftJoin(users, eq(withdrawalApprovals.userId, users.id))
+      .where(inArray(withdrawalApprovals.requestId, ids))
+      .orderBy(asc(withdrawalApprovals.createdAt), asc(withdrawalApprovals.id));
+    for (const s of signatureRows) {
+      const signatures = signaturesByRequest.get(s.row.requestId) ?? [];
+      signatures.push({
+        userId: s.row.userId,
+        name: s.signerName,
+        decision: s.row.decision as "approved" | "rejected",
+        note: s.row.note,
+        createdAt: s.row.createdAt,
+        wasRequiredSigner: s.row.wasRequiredSigner,
+      });
+      signaturesByRequest.set(s.row.requestId, signatures);
+    }
+  }
+
   return rows.map(r => ({
     ...r.request,
     requesterName: r.requesterName,
     amount: parseFloat((r.request.amount as unknown as string) ?? "0"),
+    signatures: signaturesByRequest.get(r.request.id) ?? [],
+    approval: approvalState(signaturesByRequest.get(r.request.id) ?? []),
   }));
 }
 
@@ -1037,29 +1110,179 @@ export async function createWithdrawalRequest(
   return result[0].id;
 }
 
-export async function approveWithdrawal(
+/** A business rule a sign/cancel step broke, reported to tRPC as-is. */
+export class WorkflowError extends Error {
+  constructor(
+    public readonly trpcCode: "NOT_FOUND" | "CONFLICT",
+    message: string
+  ) {
+    super(message);
+    this.name = "WorkflowError";
+  }
+}
+
+/** Walks the error and its causes looking for a Postgres unique violation. */
+function isUniqueViolation(err: unknown): boolean {
+  for (
+    let e: unknown = err;
+    e instanceof Error;
+    e = (e as { cause?: unknown }).cause
+  ) {
+    if ((e as { code?: unknown }).code === "23505") return true;
+  }
+  return false;
+}
+
+export async function getWithdrawalRequestBasic(
   id: number,
-  approverId: number,
-  action: "approved" | "rejected",
-  note: string,
   churchId = DEFAULT_CHURCH_ID
-) {
+): Promise<{ requestedBy: number; status: string } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({
+      requestedBy: withdrawalRequests.requestedBy,
+      status: withdrawalRequests.status,
+    })
+    .from(withdrawalRequests)
+    .where(
+      and(
+        eq(withdrawalRequests.id, id),
+        eq(withdrawalRequests.churchId, churchId)
+      )
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * Records one signer's decision on the request, in one transaction:
+ * load (row-locked, so two simultaneous signers take turns and each sees
+ * the other's committed signature), insert the signature rows with the
+ * signer flag as it stood at that moment, re-run the bank rule, and close
+ * the request with a compare-and-set from `pending`.
+ */
+export async function signWithdrawalRequest(
+  requestId: number,
+  userId: number,
+  decision: "approved" | "rejected",
+  note: string | null,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<{ outcome: ApprovalOutcome }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.transaction(async tx => {
+    const [request] = await tx
+      .select({ status: withdrawalRequests.status })
+      .from(withdrawalRequests)
+      .where(
+        and(
+          eq(withdrawalRequests.id, requestId),
+          eq(withdrawalRequests.churchId, churchId)
+        )
+      )
+      .for("update")
+      .limit(1);
+    if (!request) throw new WorkflowError("NOT_FOUND", "ไม่พบคำขอเบิก");
+    if (request.status !== "pending") {
+      throw new WorkflowError(
+        "CONFLICT",
+        "คำขอเบิกนี้ถูกดำเนินการไปแล้ว เปลี่ยนผลลงนามไม่ได้"
+      );
+    }
+
+    const [signerRow] = await tx
+      .select({ isRequired: bankSigners.isRequired })
+      .from(bankSigners)
+      .where(
+        and(eq(bankSigners.churchId, churchId), eq(bankSigners.userId, userId))
+      )
+      .limit(1);
+
+    try {
+      await tx.insert(withdrawalApprovals).values({
+        churchId,
+        requestId,
+        userId,
+        decision,
+        note,
+        wasRequiredSigner: signerRow?.isRequired === true,
+      });
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        throw new WorkflowError("CONFLICT", "คุณลงนามคำขอนี้แล้ว");
+      }
+      throw err;
+    }
+
+    const sigRows = await tx
+      .select({
+        decision: withdrawalApprovals.decision,
+        wasRequiredSigner: withdrawalApprovals.wasRequiredSigner,
+      })
+      .from(withdrawalApprovals)
+      .where(eq(withdrawalApprovals.requestId, requestId));
+    const state = approvalState(
+      sigRows.map(s => ({
+        decision: s.decision as "approved" | "rejected",
+        wasRequiredSigner: s.wasRequiredSigner,
+        userId: 0,
+      }))
+    );
+
+    if (state.outcome !== "pending") {
+      // Other transactions may only flip the status from `pending`, so the
+      // first signer to complete the rule wins and the rest see CONFLICT.
+      const rows = await tx
+        .update(withdrawalRequests)
+        .set({
+          status: state.outcome,
+          approvedBy: state.outcome === "approved" ? userId : null,
+          approvalDate: state.outcome === "approved" ? new Date() : null,
+          approvalNote: state.outcome === "approved" ? (note ?? null) : null,
+          rejectionReason: state.outcome === "rejected" ? (note ?? null) : null,
+        })
+        .where(
+          and(
+            eq(withdrawalRequests.id, requestId),
+            eq(withdrawalRequests.churchId, churchId),
+            eq(withdrawalRequests.status, "pending")
+          )
+        )
+        .returning({ id: withdrawalRequests.id });
+      if (rows.length === 0) {
+        throw new WorkflowError(
+          "CONFLICT",
+          "คำขอเบิกนี้ถูกดำเนินการไปแล้ว เปลี่ยนผลลงนามไม่ได้"
+        );
+      }
+    }
+
+    return { outcome: state.outcome };
+  });
+}
+
+export async function cancelWithdrawalRequest(
+  id: number,
+  userId: number,
+  reason: string,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<boolean> {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const rows = await db
     .update(withdrawalRequests)
     .set({
-      status: action,
-      approvedBy: approverId,
-      approvalDate: new Date(),
-      approvalNote: action === "approved" ? note : null,
-      rejectionReason: action === "rejected" ? note : null,
+      status: "cancelled",
+      cancelledAt: new Date(),
+      cancelledBy: userId,
+      cancelReason: reason,
     })
     .where(
       and(
         eq(withdrawalRequests.id, id),
         eq(withdrawalRequests.churchId, churchId),
-        eq(withdrawalRequests.status, "pending")
+        inArray(withdrawalRequests.status, ["pending", "approved"])
       )
     )
     .returning({ id: withdrawalRequests.id });
@@ -1068,22 +1291,255 @@ export async function approveWithdrawal(
 
 export async function disburseWithdrawal(
   id: number,
+  disbursedBy: number,
   churchId = DEFAULT_CHURCH_ID
-) {
+): Promise<{ attachedSessionId: number | null } | null> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.transaction(async tx => {
+    // The `approved` guard makes this a compare-and-set: only finance roles
+    // reach here, but two treasurers pressing together must not pay twice.
+    const rows = await tx
+      .update(withdrawalRequests)
+      .set({ status: "disbursed", disbursedAt: new Date(), disbursedBy })
+      .where(
+        and(
+          eq(withdrawalRequests.id, id),
+          eq(withdrawalRequests.churchId, churchId),
+          eq(withdrawalRequests.status, "approved")
+        )
+      )
+      .returning({ id: withdrawalRequests.id });
+    if (rows.length === 0) return null;
+    const attachedSessionId = await attachWithdrawalToCounting(
+      id,
+      tx,
+      churchId
+    );
+    return { attachedSessionId };
+  });
+}
+
+/**
+ * "Date" means the calendar date in Asia/Bangkok, because the counting rounds
+ * are planned by Thai Sundays, not UTC days.
+ */
+function bangkokDate(expr: SQL) {
+  return sql`(${expr} AT TIME ZONE 'Asia/Bangkok')::date`;
+}
+
+/**
+ * Lays a paid withdrawal request into the first counting round whose Bangkok
+ * date is on or after the payout date, ordered by the round tuple. The request
+ * row is locked and the partial unique index on `bank_records.withdrawalRequestId`
+ * keeps a payout from landing twice, however the races interleave.
+ *
+ * Must be called inside the caller's transaction. Returns the round id the
+ * line landed in, or null when nothing was attached (no open round yet, or
+ * another transaction just won the attach).
+ */
+export async function attachWithdrawalToCounting(
+  requestId: number,
+  tx: CountingTx,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<number | null> {
+  const [request] = await tx
+    .select({
+      amount: withdrawalRequests.amount,
+      purpose: withdrawalRequests.purpose,
+      status: withdrawalRequests.status,
+      disbursedAt: withdrawalRequests.disbursedAt,
+      disbursedBy: withdrawalRequests.disbursedBy,
+    })
+    .from(withdrawalRequests)
+    .where(
+      and(
+        eq(withdrawalRequests.id, requestId),
+        eq(withdrawalRequests.churchId, churchId)
+      )
+    )
+    .for("update")
+    .limit(1);
+  if (!request || request.status !== "disbursed" || !request.disbursedAt) {
+    return null;
+  }
+
+  const existing = await tx
+    .select({ sessionId: bankRecords.sessionId })
+    .from(bankRecords)
+    .where(eq(bankRecords.withdrawalRequestId, requestId))
+    .limit(1);
+  if (existing[0]) return null; // Already attached; do not attach twice.
+
+  const [target] = await tx
+    .select({ id: countingSessions.id })
+    .from(countingSessions)
+    .where(
+      and(
+        eq(countingSessions.churchId, churchId),
+        inArray(countingSessions.status, ["counting", "counted", "verified"]),
+        sql`${bangkokDate(sql`${countingSessions.serviceDate}`)} >= ${bangkokDate(sql`${request.disbursedAt}::timestamp`)}`
+      )
+    )
+    .orderBy(
+      asc(countingSessions.serviceDate),
+      asc(countingSessions.serviceRound),
+      asc(countingSessions.id)
+    )
+    .limit(1);
+  if (!target) return null;
+
+  const inserted = await tx
+    .insert(bankRecords)
+    .values({
+      sessionId: target.id,
+      churchId,
+      type: "withdrawal",
+      amount: request.amount,
+      occurredAt: request.disbursedAt,
+      recordedBy: request.disbursedBy ?? 0,
+      notes: request.purpose,
+      withdrawalRequestId: requestId,
+    })
+    // The index is the backstop when two concurrent attaches pass the read.
+    .onConflictDoNothing()
+    .returning({ id: bankRecords.id });
+  if (inserted.length === 0) return null;
+  return target.id;
+}
+
+/**
+ * When a new counting round opens, every request paid earlier that has no
+ * bank line yet (and whose payout date has come) flows in exactly once.
+ * Returns how many were attached.
+ */
+export async function attachPendingWithdrawals(
+  session: CountingSession,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.transaction(async tx => {
+    const candidates = await tx
+      .select({ id: withdrawalRequests.id })
+      .from(withdrawalRequests)
+      .leftJoin(
+        bankRecords,
+        eq(bankRecords.withdrawalRequestId, withdrawalRequests.id)
+      )
+      .where(
+        and(
+          eq(withdrawalRequests.churchId, churchId),
+          eq(withdrawalRequests.status, "disbursed"),
+          isNull(bankRecords.withdrawalRequestId),
+          sql`${bangkokDate(sql`${withdrawalRequests.disbursedAt}`)} <= ${bangkokDate(sql`${session.serviceDate}::timestamp`)}`
+        )
+      );
+    let attached = 0;
+    for (const candidate of candidates) {
+      const landing = await attachWithdrawalToCounting(
+        candidate.id,
+        tx,
+        churchId
+      );
+      if (landing !== null) attached += 1;
+    }
+    return attached;
+  });
+}
+
+// ─── Bank signers (Part 2) ────────────────────────────────────────────────────
+
+export async function listBankSigners(churchId = DEFAULT_CHURCH_ID) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select({
+      userId: bankSigners.userId,
+      name: users.name,
+      isRequired: bankSigners.isRequired,
+    })
+    .from(bankSigners)
+    .leftJoin(users, eq(bankSigners.userId, users.id))
+    .where(eq(bankSigners.churchId, churchId))
+    .orderBy(desc(bankSigners.isRequired), desc(bankSigners.createdAt));
+}
+
+/** A signer row, or null when the person is not on the bank account list. */
+export async function isBankSigner(
+  userId: number,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<{ isRequired: boolean } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({ isRequired: bankSigners.isRequired })
+    .from(bankSigners)
+    .where(
+      and(eq(bankSigners.churchId, churchId), eq(bankSigners.userId, userId))
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function addBankSigner(
+  userId: number,
+  addedBy: number,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = await isBankSigner(userId, churchId);
+  if (existing) return false;
+  await db.insert(bankSigners).values({ churchId, userId, addedBy });
+  return true;
+}
+
+export async function removeBankSigner(
+  userId: number,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<boolean> {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const rows = await db
-    .update(withdrawalRequests)
-    .set({ status: "disbursed" })
+    .delete(bankSigners)
     .where(
-      and(
-        eq(withdrawalRequests.id, id),
-        eq(withdrawalRequests.churchId, churchId),
-        eq(withdrawalRequests.status, "approved")
-      )
+      and(eq(bankSigners.churchId, churchId), eq(bankSigners.userId, userId))
     )
-    .returning({ id: withdrawalRequests.id });
+    .returning({ id: bankSigners.id });
   return rows.length > 0;
+}
+
+/**
+ * Moves the "ต้องลงนามทุกครั้ง" flag to the new signer in one transaction, so
+ * two churches of the sign never hold the flag at once and the flag never sits
+ * on nobody when the move is midway.
+ */
+export async function setRequiredBankSigner(
+  userId: number,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.transaction(async tx => {
+    await tx
+      .update(bankSigners)
+      .set({ isRequired: false })
+      .where(
+        and(
+          eq(bankSigners.churchId, churchId),
+          eq(bankSigners.isRequired, true)
+        )
+      );
+    const rows = await tx
+      .update(bankSigners)
+      .set({ isRequired: true })
+      .where(
+        and(eq(bankSigners.churchId, churchId), eq(bankSigners.userId, userId))
+      )
+      .returning({ id: bankSigners.id });
+    return rows.length > 0;
+  });
 }
 
 // ─── Members / Notifications / Audit ──────────────────────────────────────────
@@ -1770,6 +2226,130 @@ export async function getCountingSession(
   return rows[0] ?? null;
 }
 
+/** Sessions are ordered by Sunday, then service round, then id. */
+function countingSessionsBefore(session: CountingSession) {
+  return sql`(${countingSessions.serviceDate}, ${countingSessions.serviceRound}, ${countingSessions.id}) < (${session.serviceDate}, ${session.serviceRound}, ${session.id})`;
+}
+
+/** The latest posted or closed session before `session`. */
+export async function findPreviousPostedSession(
+  session: CountingSession,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(countingSessions)
+    .where(
+      and(
+        eq(countingSessions.churchId, churchId),
+        inArray(countingSessions.status, ["posted", "closed"]),
+        countingSessionsBefore(session)
+      )
+    )
+    .orderBy(
+      desc(countingSessions.serviceDate),
+      desc(countingSessions.serviceRound),
+      desc(countingSessions.id)
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/** The earliest session before `session` that has not been posted yet. */
+export async function findEarlierUnpostedSession(
+  session: CountingSession,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(countingSessions)
+    .where(
+      and(
+        eq(countingSessions.churchId, churchId),
+        inArray(countingSessions.status, ["counting", "counted", "verified"]),
+        countingSessionsBefore(session)
+      )
+    )
+    .orderBy(
+      asc(countingSessions.serviceDate),
+      asc(countingSessions.serviceRound),
+      asc(countingSessions.id)
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * Where a session's opening balances come from: its own stored figures (set by
+ * hand on the first round, or frozen when it posted), else what the previous
+ * posted round carried out. null when neither exists, including when the
+ * previous round predates carry-forward and never recorded a closing balance.
+ */
+export async function resolveOpeningBalances(
+  session: CountingSession,
+  churchId = DEFAULT_CHURCH_ID
+): Promise<{
+  openingCash: number;
+  openingBank: number;
+  source: "stored" | "previous";
+} | null> {
+  if (session.openingCash !== null && session.openingBank !== null) {
+    return {
+      openingCash: num(session.openingCash),
+      openingBank: num(session.openingBank),
+      source: "stored",
+    };
+  }
+  const previous = await findPreviousPostedSession(session, churchId);
+  if (
+    !previous ||
+    previous.cashOnHandActual === null ||
+    previous.closingBank === null
+  ) {
+    return null;
+  }
+  return {
+    openingCash: num(previous.cashOnHandActual),
+    openingBank: num(previous.closingBank),
+    source: "previous",
+  };
+}
+
+/** Writes carry-forward fields on a session that has not been posted. */
+export async function setCountingCarryFields(
+  id: number,
+  fields: Partial<
+    Pick<
+      InsertCountingSession,
+      | "openingCash"
+      | "openingBank"
+      | "cashOnHandActual"
+      | "passbookBalance"
+      | "passbookBalanceDate"
+    >
+  >,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db
+    .update(countingSessions)
+    .set(fields)
+    .where(
+      and(
+        eq(countingSessions.id, id),
+        eq(countingSessions.churchId, churchId),
+        inArray(countingSessions.status, ["counting", "counted", "verified"])
+      )
+    )
+    .returning({ id: countingSessions.id });
+  return rows.length > 0;
+}
+
 /**
  * The session with every part needed to reconcile it. Returns null when the
  * session does not exist, so callers can map that to NOT_FOUND.
@@ -1819,6 +2399,7 @@ export async function getCountingSessionDetail(
   }));
   const deductions = deductionRows.map(r => ({ ...r, amount: num(r.amount) }));
   const bank = bankRows.map(r => ({ ...r, amount: num(r.amount) }));
+  const opening = await resolveOpeningBalances(session, churchId);
 
   return {
     session,
@@ -1827,11 +2408,24 @@ export async function getCountingSessionDetail(
     deductions,
     bankRecords: bank,
     documents: documentRows,
+    openingSource: opening?.source ?? null,
     reconciliation: reconcile({
       envelopes,
       cashCounts: cash,
       deductions,
       bankRecords: bank,
+      carry: {
+        openingCash: opening?.openingCash ?? null,
+        openingBank: opening?.openingBank ?? null,
+        cashOnHandActual:
+          session.cashOnHandActual === null
+            ? null
+            : num(session.cashOnHandActual),
+        passbookBalance:
+          session.passbookBalance === null
+            ? null
+            : num(session.passbookBalance),
+      },
     }),
   };
 }
@@ -2059,16 +2653,26 @@ export async function addSessionDocument(
 export async function postCountingSession(
   id: number,
   postedBy: number,
+  carry: { openingCash: number; openingBank: number; closingBank: number },
   churchId = DEFAULT_CHURCH_ID
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
 
   return db.transaction(async tx => {
-    // Compare-and-set on `verified` so a session can never post twice.
+    // Compare-and-set on `verified` so a session can never post twice. The
+    // carried balances are frozen in the same write, so the next round reads
+    // exactly what this one closed with.
     const claimed = await tx
       .update(countingSessions)
-      .set({ status: "posted", postedBy, postedAt: new Date() })
+      .set({
+        status: "posted",
+        postedBy,
+        postedAt: new Date(),
+        openingCash: carry.openingCash.toFixed(2),
+        openingBank: carry.openingBank.toFixed(2),
+        closingBank: carry.closingBank.toFixed(2),
+      })
       .where(
         and(
           eq(countingSessions.id, id),
@@ -2177,6 +2781,21 @@ export async function deleteCountingSession(
       return { success: false, reason: "ALREADY_POSTED" as const };
     }
 
+    // A bank line that a withdrawal request produced survives the round; its
+    // request still points here, so the session cannot simply vanish.
+    const linkedWithRounds = await tx
+      .select({ id: bankRecords.id })
+      .from(bankRecords)
+      .where(
+        and(
+          eq(bankRecords.sessionId, id),
+          isNotNull(bankRecords.withdrawalRequestId)
+        )
+      );
+    if (linkedWithRounds.length > 0) {
+      return { success: false, reason: "HAS_WITHDRAWALS" as const };
+    }
+
     // Cascade delete related records in reverse dependency order:
     await tx.delete(sessionDocuments).where(eq(sessionDocuments.sessionId, id));
     await tx.delete(bankRecords).where(eq(bankRecords.sessionId, id));
@@ -2229,9 +2848,17 @@ export async function resetCountingSession(
       return { success: false, reason: "ALREADY_POSTED" as const };
     }
 
-    // Clear child data for fresh recount
+    // Reset child data for a fresh recount, but never a bank line that a
+    // withdrawal request produced: that record is an audit trail, not scratch.
     await tx.delete(sessionDocuments).where(eq(sessionDocuments.sessionId, id));
-    await tx.delete(bankRecords).where(eq(bankRecords.sessionId, id));
+    await tx
+      .delete(bankRecords)
+      .where(
+        and(
+          eq(bankRecords.sessionId, id),
+          isNull(bankRecords.withdrawalRequestId)
+        )
+      );
     await tx
       .delete(sessionDeductions)
       .where(eq(sessionDeductions.sessionId, id));
@@ -2384,6 +3011,41 @@ export interface ListLineSlipsFilter {
   offset?: number;
 }
 
+/**
+ * Adds `submitterLineId`: the sender's real LINE user id. A slip sent from the
+ * app stores `manual-<userId>` as its sender, so the id comes from the account
+ * (`users.openId` is `line:<LINE userId>`). A slip from the LINE chat already
+ * holds the real id.
+ */
+async function withSubmitterLineIds<
+  T extends { lineUserId: string; submittedByUserId: number | null },
+>(rows: T[]): Promise<Array<T & { submitterLineId: string | null }>> {
+  const db = await getDb();
+  const ids = Array.from(
+    new Set(
+      rows.map(r => r.submittedByUserId).filter((v): v is number => v !== null)
+    )
+  );
+  const byId = new Map<number, string>();
+  if (db && ids.length > 0) {
+    const found = await db
+      .select({ id: users.id, openId: users.openId })
+      .from(users)
+      .where(inArray(users.id, ids));
+    for (const u of found) {
+      if (u.openId.startsWith("line:")) byId.set(u.id, u.openId.slice(5));
+    }
+  }
+  return rows.map(r => ({
+    ...r,
+    submitterLineId: r.lineUserId.startsWith("manual-")
+      ? r.submittedByUserId !== null
+        ? (byId.get(r.submittedByUserId) ?? null)
+        : null
+      : r.lineUserId,
+  }));
+}
+
 export async function listLineSlips(
   churchId = DEFAULT_CHURCH_ID,
   filters: ListLineSlipsFilter = {}
@@ -2412,8 +3074,9 @@ export async function listLineSlips(
     .offset(offset);
 
   // Generate signed URLs for slip images so frontend can render securely without public bucket
+  const withIds = await withSubmitterLineIds(rows);
   const items = await Promise.all(
-    rows.map(async slip => {
+    withIds.map(async slip => {
       let signedUrl = "";
       try {
         if (slip.slipImageKey) {
@@ -2460,8 +3123,9 @@ export async function getLineSlipById(
     console.warn(`[getLineSlipById] Failed to sign URL for slip #${id}:`, e);
   }
 
+  const [withId] = await withSubmitterLineIds([slip]);
   return {
-    ...slip,
+    ...withId,
     signedImageUrl,
   };
 }
@@ -2477,6 +3141,14 @@ export interface ApproveLineSlipInput {
   category?: string;
   receiptDate?: Date;
   reviewNote?: string;
+  /** Required for an entry sent without a slip: the bank balance was checked. */
+  confirmedBankCheck?: boolean;
+  /**
+   * One transfer, several categories. Two or more lines make a split: one
+   * offering per line, and the lines must add up to `amount`. One line is the
+   * same as `category`. Without it the donor's own split, if any, is used.
+   */
+  items?: SplitLine[];
 }
 
 /**
@@ -2572,8 +3244,13 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
       );
     }
 
-    // 3. Resolve donor name
-    let donorName = input.donorName?.trim() || null;
+    // 3. Resolve the name for the books. Who sent it stays in its own columns.
+    if (slip.source === "no_slip" && !input.confirmedBankCheck) {
+      throw new Error(
+        "รายการที่ส่งโดยไม่มีสลิปต้องยืนยันก่อนว่าตรวจกับยอดเข้าบัญชีธนาคารแล้ว"
+      );
+    }
+    let memberName: string | null = null;
     if (input.memberId) {
       const [member] = await tx
         .select({ id: members.id, name: members.name })
@@ -2582,36 +3259,80 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
           and(eq(members.id, input.memberId), eq(members.churchId, churchId))
         )
         .limit(1);
-      if (member && !donorName) {
-        donorName = member.name;
-      }
+      memberName = member?.name ?? null;
     }
-    if (!donorName) {
-      donorName =
-        slip.extractedSenderName || slip.lineDisplayName || "ผู้ถวายผ่าน LINE";
+    const { name: donorName, source: nameSource } = resolveLedgerName({
+      reviewerName: input.donorName,
+      memberName,
+      slipName: slip.extractedSenderName,
+      typedName: slip.typedDonorName,
+      lineName: slip.submittedByName ?? slip.lineDisplayName,
+    });
+    const submittedByName =
+      slip.submittedByName ?? slip.lineDisplayName ?? null;
+
+    // 4. Work out the lines: a split, or one line.
+    let lines: SplitLine[];
+    if (input.items && input.items.length >= 2) {
+      lines = input.items;
+    } else if (input.items && input.items.length === 1) {
+      lines = [{ category: input.items[0].category, amount: input.amount }];
+    } else if (
+      !input.category &&
+      Array.isArray(slip.declaredItems) &&
+      slip.declaredItems.length >= 2
+    ) {
+      lines = slip.declaredItems as SplitLine[];
+    } else {
+      lines = [
+        {
+          category: (input.category as OfferingCategory) || "cash",
+          amount: input.amount,
+        },
+      ];
     }
+    if (lines.length >= 2) {
+      const problem = checkSplit(lines, input.amount);
+      if (problem) throw new Error(SPLIT_MESSAGE[problem]);
+    }
+    const isSplit = lines.length >= 2;
 
-    // 4. Create Offering in offerings table (Official Financial Ledger)
-    const [offering] = await tx
-      .insert(offerings)
-      .values({
-        churchId,
-        amount: String(input.amount),
-        category: (input.category as any) || "general",
-        fundId: input.fundId,
-        donorName,
-        donorMemberId: input.memberId ?? null,
-        receiptDate: input.receiptDate ?? slip.extractedDate ?? new Date(),
-        method: "transfer",
-        reference: slip.extractedRef || `LINE-${slip.id}`,
-        notes:
-          `[LINE Slip #${slip.id}] ${input.reviewNote ? input.reviewNote : ""}`.trim(),
-        recordedBy: input.approvedBy,
-        status: "active",
-      })
-      .returning({ id: offerings.id });
+    // 5. Create the offerings in the ledger (the financial source of truth).
+    // The ledger allows one active offering per bank reference, so the lines of
+    // a split get `#2`, `#3` after the reference.
+    const baseRef = slip.extractedRef || `LINE-${slip.id}`;
+    const offeringIds: number[] = [];
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
+      const [offering] = await tx
+        .insert(offerings)
+        .values({
+          churchId,
+          amount: String(line.amount),
+          category: line.category,
+          fundId: input.fundId,
+          donorName,
+          donorMemberId: input.memberId ?? null,
+          receiptDate:
+            input.receiptDate ??
+            slip.extractedDate ??
+            slip.declaredDate ??
+            new Date(),
+          method: "transfer",
+          reference: splitReference(baseRef, index),
+          notes:
+            `[${slip.source === "no_slip" ? "ไม่มีสลิป" : "LINE Slip"} #${slip.id}${isSplit ? ` แบ่งยอด ${index + 1}/${lines.length}` : ""}] ${input.reviewNote ? input.reviewNote : ""}`.trim(),
+          recordedBy: input.approvedBy,
+          submittedByUserId: slip.submittedByUserId ?? null,
+          submittedByName,
+          status: "active",
+        })
+        .returning({ id: offerings.id });
+      offeringIds.push(offering.id);
+    }
+    const offering = { id: offeringIds[0] };
 
-    // 5. Update fund balance in finance_accounts
+    // Update fund balance in finance_accounts, once for the whole transfer
     await tx.execute(
       sql`UPDATE finance_accounts SET balance = balance + ${input.amount} WHERE id = ${input.fundId} AND "churchId" = ${churchId}`
     );
@@ -2647,6 +3368,11 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
         fundName: fund.name,
         memberId: input.memberId,
         donorName,
+        nameSource,
+        slipSource: slip.source,
+        offeringIds,
+        split: isSplit ? lines : null,
+        submittedByUserId: slip.submittedByUserId ?? null,
         slipRef: slip.extractedRef,
       },
     });
@@ -2655,6 +3381,9 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
       success: true,
       slipId: input.slipId,
       offeringId: offering.id,
+      offeringIds,
+      submittedByUserId: slip.submittedByUserId ?? null,
+      amount: input.amount,
     };
   });
 }
@@ -2716,7 +3445,11 @@ export async function rejectLineSlip(input: RejectLineSlipInput) {
       },
     });
 
-    return { success: true, slipId: input.slipId };
+    return {
+      success: true,
+      slipId: input.slipId,
+      submittedByUserId: slip.submittedByUserId ?? null,
+    };
   });
 }
 
@@ -2870,12 +3603,133 @@ export async function getLineInboxStats(churchId = DEFAULT_CHURCH_ID) {
   };
 }
 
+/** Slips this person has submitted from the app since `since`. 0 when no DB. */
+export async function countRecentManualSlips(
+  userId: number,
+  since: Date,
+  churchId: string = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ n: count() })
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`),
+        gte(lineSlips.createdAt, since)
+      )
+    );
+  return Number(row?.n ?? 0);
+}
+
+/** The columns a donor's status view needs, for slips they sent from the app. */
+const donorSlipColumns = {
+  id: lineSlips.id,
+  createdAt: lineSlips.createdAt,
+  status: lineSlips.status,
+  declaredAmount: lineSlips.declaredAmount,
+  declaredCategory: lineSlips.declaredCategory,
+  extractedAmount: lineSlips.extractedAmount,
+  extractedAmountConfidence: lineSlips.extractedAmountConfidence,
+  reviewedBy: lineSlips.reviewedBy,
+  reviewNote: lineSlips.reviewNote,
+  lastErrorMessage: lineSlips.lastErrorMessage,
+  aiData: lineSlips.aiData,
+  source: lineSlips.source,
+};
+
+/**
+ * How many slips from `lineUserId` the system itself turned away since
+ * `since`. A slip a treasurer rejected (reviewedBy set) does not count.
+ * `exceptSlipId` leaves out the slip being processed now.
+ */
+export async function countRecentSystemRejectedSlips(
+  lineUserId: string,
+  since: Date,
+  exceptSlipId: number | null = null,
+  churchId: string = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const conditions = [
+    eq(lineSlips.churchId, churchId),
+    eq(lineSlips.lineUserId, lineUserId),
+    eq(lineSlips.status, "rejected"),
+    isNull(lineSlips.reviewedBy),
+    gte(lineSlips.createdAt, since),
+  ];
+  if (exceptSlipId !== null) conditions.push(ne(lineSlips.id, exceptSlipId));
+  const [row] = await db
+    .select({ n: count() })
+    .from(lineSlips)
+    .where(and(...conditions));
+  return Number(row?.n ?? 0);
+}
+
+/** One slip, only if `userId` sent it from the app. */
+export async function getMyManualSlip(
+  slipId: number,
+  userId: number,
+  churchId: string = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db
+    .select(donorSlipColumns)
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.id, slipId),
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`)
+      )
+    )
+    .limit(1);
+  return row ?? null;
+}
+
+/** The slips `userId` sent from the app, newest first. */
+export async function listMyManualSlips(
+  userId: number,
+  limit = 10,
+  churchId: string = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select(donorSlipColumns)
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, `manual-${userId}`)
+      )
+    )
+    .orderBy(desc(lineSlips.createdAt))
+    .limit(limit);
+}
+
 export async function createManualSlip(input: {
   churchId?: string;
   userId: number;
   userName?: string | null;
   donorName?: string;
   imageBuffer: Buffer;
+  /** Defaults to JPEG, which is what the staff upload has always stored. */
+  contentType?: string;
+  extension?: string;
+  /** What the donor said they gave. Staff confirm the real values in review. */
+  declared?: {
+    amount: string;
+    category: OfferingCategory;
+    fundId?: number | null;
+    /** Two or more lines when one transfer pays for several categories. */
+    items?: SplitLine[] | null;
+  };
+  /** The name the donor typed in the form. Kept apart from the LINE name. */
+  typedDonorName?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -2883,12 +3737,13 @@ export async function createManualSlip(input: {
 
   const hash = createHash("sha256").update(input.imageBuffer).digest("hex");
   const dateStr = new Date().toISOString().slice(0, 10);
-  const storageKey = `manual/${churchId}/${input.userId}/${dateStr}/${hash.slice(0, 16)}.jpg`;
+  const extension = input.extension ?? "jpg";
+  const storageKey = `manual/${churchId}/${input.userId}/${dateStr}/${hash.slice(0, 16)}.${extension}`;
 
   const { key } = await storagePutPrivate(
     storageKey,
     input.imageBuffer,
-    "image/jpeg"
+    input.contentType ?? "image/jpeg"
   );
 
   const [slip] = await db
@@ -2898,11 +3753,18 @@ export async function createManualSlip(input: {
       lineUserId: `manual-${input.userId}`,
       lineDisplayName:
         input.donorName || `อัปโหลดโดย ${input.userName || "เจ้าหน้าที่"}`,
+      submittedByUserId: input.userId,
+      submittedByName: input.userName ?? null,
+      typedDonorName: input.typedDonorName?.trim() || null,
       lineEventId: `manual-${Date.now()}-${hash.slice(0, 8)}`,
       slipImageKey: key,
       slipHash: hash,
       status: "pending",
       processingAttempts: 0,
+      declaredAmount: input.declared?.amount ?? null,
+      declaredCategory: input.declared?.category ?? null,
+      declaredFundId: input.declared?.fundId ?? null,
+      declaredItems: input.declared?.items ?? null,
     })
     .returning();
 
@@ -2914,6 +3776,154 @@ export async function createManualSlip(input: {
   });
 
   return slip;
+}
+
+/** Thrown when the same entry is already waiting, so the donor sends it once. */
+export class DuplicateEntryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "DuplicateEntryError";
+  }
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * A giving sent without a slip. It joins the same review queue as a slip and
+ * credits nothing until a treasurer checks it against the bank and approves.
+ *
+ * Same person, amount, category and date, not turned away, in the last 24
+ * hours: refused, because it is the same entry sent twice. The same name,
+ * amount and date from anyone else is allowed, but the treasurer sees a
+ * warning, because two people can give the same sum on the same day.
+ */
+export async function createNoSlipEntry(input: {
+  churchId?: string;
+  userId: number;
+  userName?: string | null;
+  donorName: string;
+  amount: string;
+  category: OfferingCategory;
+  fundId?: number | null;
+  transferDate: Date;
+  /** Two or more lines when one transfer pays for several categories. */
+  items?: SplitLine[] | null;
+  now?: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const churchId = input.churchId ?? DEFAULT_CHURCH_ID;
+  const now = input.now ?? new Date();
+  const lineUserId = `manual-${input.userId}`;
+  const dayStart = new Date(input.transferDate);
+  dayStart.setUTCHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart.getTime() + DAY_MS);
+
+  const [same] = await db
+    .select({ id: lineSlips.id })
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, lineUserId),
+        eq(lineSlips.source, "no_slip"),
+        eq(lineSlips.declaredAmount, input.amount),
+        eq(lineSlips.declaredCategory, input.category),
+        gte(lineSlips.declaredDate, dayStart),
+        lt(lineSlips.declaredDate, dayEnd),
+        ne(lineSlips.status, "rejected"),
+        gte(lineSlips.createdAt, new Date(now.getTime() - DAY_MS))
+      )
+    )
+    .limit(1);
+  if (same) {
+    throw new DuplicateEntryError(
+      "ส่งรายการนี้ไปแล้ว กำลังรอเหรัญญิกตรวจสอบ ไม่ต้องส่งซ้ำ"
+    );
+  }
+
+  // Same name, amount and date from someone else: warn, do not block.
+  const [similar] = await db
+    .select({ id: lineSlips.id })
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        ne(lineSlips.lineUserId, lineUserId),
+        sql`lower(${lineSlips.typedDonorName}) = ${input.donorName.toLowerCase()}`,
+        eq(lineSlips.declaredAmount, input.amount),
+        gte(lineSlips.declaredDate, dayStart),
+        lt(lineSlips.declaredDate, dayEnd),
+        ne(lineSlips.status, "rejected")
+      )
+    )
+    .limit(1);
+  const [ledgerTwin] = await db
+    .select({ id: offerings.id })
+    .from(offerings)
+    .where(
+      and(
+        eq(offerings.churchId, churchId),
+        eq(offerings.status, "active"),
+        sql`lower(${offerings.donorName}) = ${input.donorName.toLowerCase()}`,
+        eq(offerings.amount, input.amount),
+        gte(offerings.receiptDate, dayStart),
+        lt(offerings.receiptDate, dayEnd)
+      )
+    )
+    .limit(1);
+  const warning =
+    similar || ledgerTwin
+      ? "พบรายการที่ชื่อ ยอด และวันที่เหมือนกันแล้ว (อาจซ้ำ) ตรวจกับยอดเข้าบัญชีธนาคารก่อนอนุมัติ"
+      : null;
+
+  const token = randomUUID();
+  const hash = createHash("sha256").update(`no-slip:${token}`).digest("hex");
+  const [row] = await db
+    .insert(lineSlips)
+    .values({
+      churchId,
+      lineUserId,
+      lineDisplayName: input.userName || null,
+      lineEventId: `manual-${now.getTime()}-${hash.slice(0, 8)}`,
+      slipImageKey: "",
+      slipHash: hash,
+      status: "needs_review",
+      source: "no_slip",
+      processingAttempts: 0,
+      declaredAmount: input.amount,
+      declaredCategory: input.category,
+      declaredFundId: input.fundId ?? null,
+      declaredDate: dayStart,
+      declaredItems: input.items ?? null,
+      submittedByUserId: input.userId,
+      submittedByName: input.userName ?? null,
+      typedDonorName: input.donorName,
+      lastErrorMessage: warning,
+    })
+    .returning();
+  return { slip: row, warning };
+}
+
+/** Active people who may approve giving: finance roles and admins. */
+export async function listFinanceUserIds(): Promise<number[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(
+      and(
+        eq(users.status, "active"),
+        or(
+          eq(users.role, "admin"),
+          inArray(users.churchRole, ["SUPER_ADMIN", "TREASURER"]),
+          like(users.churchRoles, "%SUPER_ADMIN%"),
+          like(users.churchRoles, "%TREASURER%")
+        )
+      )
+    );
+  return rows.map(r => r.id);
 }
 
 export async function rescanLineSlip(
@@ -2928,12 +3938,16 @@ export async function rescanLineSlip(
       id: lineSlips.id,
       status: lineSlips.status,
       approvedOfferingId: lineSlips.approvedOfferingId,
+      source: lineSlips.source,
     })
     .from(lineSlips)
     .where(and(eq(lineSlips.id, slipId), eq(lineSlips.churchId, churchId)))
     .limit(1);
 
   if (!slip) throw new Error(`ไม่พบสลิป #${slipId}`);
+  if (slip.source === "no_slip") {
+    throw new Error(`รายการ #${slipId} ไม่มีรูปสลิป จึงสแกนด้วย AI ไม่ได้`);
+  }
 
   // Resetting a booked slip to "pending" would show an offering that is already in
   // the ledger as unapproved in the inbox.

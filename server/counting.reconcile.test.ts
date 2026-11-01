@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   THB_DENOMINATIONS,
   canTransition,
-  checkDepositIdentity,
   isEditable,
   reconcile,
   toSatang,
@@ -34,7 +33,146 @@ describe("THB denominations", () => {
   });
 });
 
-describe("reconcile: the church's audit invariant", () => {
+describe("reconcile: cash and bank carry forward", () => {
+  const sunday = {
+    envelopes: [{ amount: 8000, method: "cash" as const }],
+    cashCounts: [{ denomination: 1000, kind: "note" as const, quantity: 8 }],
+    deductions: [{ amount: 1500 }],
+  };
+
+  it("keeps part of the cash and deposits the rest", () => {
+    const r = reconcile({
+      ...sunday,
+      bankRecords: [{ amount: 5000, type: "cash_deposit" }],
+      carry: {
+        openingCash: 2000,
+        openingBank: 50000,
+        cashOnHandActual: 3500,
+        passbookBalance: null,
+      },
+    });
+    // 2000 + 8000 + 0 − 1500 − 5000
+    expect(r.closingCashExpected).toBe(3500);
+    expect(r.cashOnHandVariance).toBe(0);
+    expect(r.closingBankExpected).toBe(55000);
+    expect(r.passbookVariance).toBeNull();
+    expect(r.isBalanced).toBe(true);
+  });
+
+  it("withdraws from the bank to cover a heavy week", () => {
+    const r = reconcile({
+      ...sunday,
+      deductions: [{ amount: 12000 }],
+      bankRecords: [{ amount: 5000, type: "withdrawal" }],
+      carry: {
+        openingCash: 0,
+        openingBank: 50000,
+        cashOnHandActual: 1000,
+        passbookBalance: 45000,
+      },
+    });
+    // 0 + 8000 + 5000 − 12000
+    expect(r.closingCashExpected).toBe(1000);
+    expect(r.withdrawalTotal).toBe(5000);
+    expect(r.closingBankExpected).toBe(45000);
+    expect(r.passbookVariance).toBe(0);
+  });
+
+  it("counts fees, interest and bills on the bank side only", () => {
+    const r = reconcile({
+      ...sunday,
+      deductions: [],
+      bankRecords: [
+        { amount: 12.5, type: "other_in" },
+        { amount: 30, type: "other_out" },
+      ],
+      carry: {
+        openingCash: 0,
+        openingBank: 1000,
+        cashOnHandActual: 8000,
+        passbookBalance: null,
+      },
+    });
+    expect(r.otherInTotal).toBe(12.5);
+    expect(r.otherOutTotal).toBe(30);
+    expect(r.closingBankExpected).toBe(982.5);
+    expect(r.closingCashExpected).toBe(8000);
+  });
+
+  it("reports a short cash box as a negative variance and unbalanced", () => {
+    const r = reconcile({
+      ...sunday,
+      bankRecords: [],
+      carry: {
+        openingCash: 0,
+        openingBank: 0,
+        cashOnHandActual: 6000,
+        passbookBalance: null,
+      },
+    });
+    expect(r.cashOnHandVariance).toBe(-500);
+    expect(r.isBalanced).toBe(false);
+  });
+
+  it("shows a negative expected cash instead of clamping", () => {
+    const r = reconcile({
+      ...sunday,
+      deductions: [{ amount: 20000 }],
+      bankRecords: [],
+      carry: {
+        openingCash: 0,
+        openingBank: 0,
+        cashOnHandActual: 0,
+        passbookBalance: null,
+      },
+    });
+    expect(r.closingCashExpected).toBe(-12000);
+    expect(r.cashOnHandVariance).toBe(12000);
+  });
+
+  it("stays exact with satang in the opening figures", () => {
+    const r = reconcile({
+      ...sunday,
+      deductions: [],
+      bankRecords: [],
+      carry: {
+        openingCash: 1000.75,
+        openingBank: 0.25,
+        cashOnHandActual: 9000.75,
+        passbookBalance: 0.25,
+      },
+    });
+    expect(r.closingCashExpected).toBe(9000.75);
+    expect(r.cashOnHandVariance).toBe(0);
+    expect(r.passbookVariance).toBe(0);
+  });
+
+  it("leaves carry-forward figures empty for a round without an opening", () => {
+    const r = reconcile({ ...sunday, bankRecords: [] });
+    expect(r.hasCarryForward).toBe(false);
+    expect(r.closingCashExpected).toBeNull();
+    expect(r.closingBankExpected).toBeNull();
+    expect(r.cashOnHandVariance).toBeNull();
+    expect(r.isBalanced).toBe(true);
+  });
+
+  it("does not let a passbook difference unbalance the round", () => {
+    const r = reconcile({
+      ...sunday,
+      bankRecords: [],
+      carry: {
+        openingCash: 0,
+        openingBank: 0,
+        cashOnHandActual: 6500,
+        passbookBalance: 999,
+      },
+    });
+    expect(r.passbookVariance).toBe(999);
+    expect(r.isBalanced).toBe(true);
+  });
+});
+
+describe("reconcile: count against envelopes", () => {
   // ถวาย 20,000 → เบิก 2,000 → ฝาก 18,000
   it("balances the worked example from the treasurer", () => {
     const result = reconcile({
@@ -54,11 +192,8 @@ describe("reconcile: the church's audit invariant", () => {
     expect(result.countedCashTotal).toBe(20000);
     expect(result.cashVariance).toBe(0);
     expect(result.deductionTotal).toBe(2000);
-    expect(result.expectedDeposit).toBe(18000);
     expect(result.actualCashDeposit).toBe(18000);
-    expect(result.depositVariance).toBe(0);
     expect(result.isBalanced).toBe(true);
-    expect(checkDepositIdentity(result)).toBe(true);
   });
 
   it("reports a shortfall when the count is under the envelopes", () => {
@@ -83,21 +218,6 @@ describe("reconcile: the church's audit invariant", () => {
 
     expect(result.cashVariance).toBe(200);
     expect(result.isBalanced).toBe(false);
-  });
-
-  it("flags a deposit that does not match cash minus deductions", () => {
-    const result = reconcile({
-      envelopes: [{ amount: 20000, method: "cash" }],
-      cashCounts: [{ denomination: 1000, kind: "note", quantity: 20 }],
-      deductions: [{ amount: 2000 }],
-      // Treasurer banked the full amount and forgot the deduction.
-      bankRecords: [{ amount: 20000, type: "cash_deposit" }],
-    });
-
-    expect(result.expectedDeposit).toBe(18000);
-    expect(result.depositVariance).toBe(2000);
-    expect(result.isBalanced).toBe(false);
-    expect(checkDepositIdentity(result)).toBe(false);
   });
 
   it("keeps transfers out of the cash count and checks them separately", () => {
