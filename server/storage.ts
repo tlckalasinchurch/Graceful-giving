@@ -21,15 +21,15 @@ function getSupabaseConfig() {
 }
 
 /**
- * Auth headers for Supabase Storage. The new `sb_secret_...` keys are not JWTs:
- * they go in `apikey` only, and a JWT-shaped `Authorization` header makes the
- * gateway answer "Invalid Compact JWS". The old `service_role` key is a JWT,
- * so it also goes in `Authorization`.
+ * Auth headers for Supabase Storage. Every key goes in both `apikey` and
+ * `Authorization: Bearer`, with the same value, as supabase-js does. A new
+ * `sb_secret_...` key is not a JWT. The Supabase gateway reads it from `apikey`
+ * and passes a JWT on, but Storage still needs the `Authorization` header to be
+ * present: without it Storage answers "headers must have required property
+ * 'authorization'". With only `Authorization`, it answers "Invalid Compact JWS".
  */
 export function storageAuthHeaders(apiKey: string): Record<string, string> {
-  return apiKey.startsWith("eyJ")
-    ? { apikey: apiKey, Authorization: `Bearer ${apiKey}` }
-    : { apikey: apiKey };
+  return { apikey: apiKey, Authorization: `Bearer ${apiKey}` };
 }
 
 function appendHashSuffix(relKey: string): string {
