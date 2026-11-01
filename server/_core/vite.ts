@@ -4,7 +4,6 @@ import { type Server } from "http";
 import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -13,9 +12,12 @@ export async function setupVite(app: Express, server: Server) {
     allowedHosts: true as const,
   };
 
+  // vite.config.ts exports a factory via defineConfig(...). Vite resolves the
+  // config file itself (and merges these inline options on top), so there is no
+  // need to import it — spreading the imported function would yield a config
+  // without root/alias/plugins and break module resolution in dev.
   const vite = await createViteServer({
-    ...viteConfig,
-    configFile: false,
+    configFile: path.resolve(import.meta.dirname, "..", "..", "vite.config.ts"),
     server: serverOptions,
     appType: "custom",
   });

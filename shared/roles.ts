@@ -84,58 +84,52 @@ export function getChurchRoleInfo(role?: string | null): ChurchRoleInfo {
   return CHURCH_ROLES.MEMBER;
 }
 
-export function isSuperAdmin(
-  user?: { role?: string; churchRole?: string | null } | null
+/**
+ * The user shape the client receives from auth.me. A person may hold more
+ * than one church role (primary `churchRole` plus secondary entries in
+ * `roles`, which auth.me populates from the `churchRoles` column).
+ */
+export interface RoleUser {
+  role?: string;
+  churchRole?: string | null;
+  /** Every church role the user holds, as returned by auth.me. */
+  roles?: string[] | null;
+}
+
+/**
+ * True when the user holds any of the listed church roles across their whole
+ * role set (primary and secondary). The coarse admin flag matches any role,
+ * mirroring hasAnyRole on the server (server/routers.ts).
+ */
+export function hasChurchRole(
+  user?: RoleUser | null,
+  ...wanted: ChurchRole[]
 ): boolean {
-  return Boolean(
-    user && (user.churchRole === "SUPER_ADMIN" || user.role === "admin")
+  if (!user) return false;
+  if (user.role === "admin") return true;
+  return wanted.some(
+    r => user.churchRole === r || user.roles?.includes(r) === true
   );
 }
 
-export function canManageChurchSettings(
-  user?: { role?: string; churchRole?: string | null } | null
-): boolean {
-  return Boolean(
-    user &&
-      (user.churchRole === "SUPER_ADMIN" ||
-        user.churchRole === "PASTOR" ||
-        user.role === "admin")
-  );
+export function isSuperAdmin(user?: RoleUser | null): boolean {
+  return hasChurchRole(user, "SUPER_ADMIN");
 }
 
-export function canManageFinance(
-  user?: { role?: string; churchRole?: string | null } | null
-): boolean {
-  return Boolean(
-    user &&
-      (user.churchRole === "SUPER_ADMIN" ||
-        user.churchRole === "TREASURER" ||
-        user.role === "admin")
-  );
+export function canManageChurchSettings(user?: RoleUser | null): boolean {
+  return hasChurchRole(user, "SUPER_ADMIN", "PASTOR");
 }
 
-export function canCountOfferings(
-  user?: { role?: string; churchRole?: string | null } | null
-): boolean {
-  return Boolean(
-    user &&
-      (user.churchRole === "SUPER_ADMIN" ||
-        user.churchRole === "TREASURER" ||
-        user.churchRole === "COUNTER" ||
-        user.role === "admin")
-  );
+export function canManageFinance(user?: RoleUser | null): boolean {
+  return hasChurchRole(user, "SUPER_ADMIN", "TREASURER");
 }
 
-export function canViewReports(
-  user?: { role?: string; churchRole?: string | null } | null
-): boolean {
-  return Boolean(
-    user &&
-      (user.churchRole === "SUPER_ADMIN" ||
-        user.churchRole === "PASTOR" ||
-        user.churchRole === "TREASURER" ||
-        user.role === "admin")
-  );
+export function canCountOfferings(user?: RoleUser | null): boolean {
+  return hasChurchRole(user, "SUPER_ADMIN", "TREASURER", "COUNTER");
+}
+
+export function canViewReports(user?: RoleUser | null): boolean {
+  return hasChurchRole(user, "SUPER_ADMIN", "PASTOR", "TREASURER");
 }
 
 /**
@@ -143,12 +137,8 @@ export function canViewReports(
  * role is defined above as overseeing ministry and service work. Reading the
  * ministry list stays open to every signed-in member.
  */
-export function canManageMinistries(
-  user?: { role?: string; churchRole?: string | null } | null
-): boolean {
-  return Boolean(
-    user && (canManageChurchSettings(user) || user.churchRole === "DEACON")
-  );
+export function canManageMinistries(user?: RoleUser | null): boolean {
+  return hasChurchRole(user, "SUPER_ADMIN", "PASTOR", "DEACON");
 }
 
 /**
@@ -157,9 +147,7 @@ export function canManageMinistries(
  * (canViewFinanceRecords in server/routers.ts); this copy only decides what
  * the UI offers.
  */
-export function canViewFinanceRecords(
-  user?: { role?: string; churchRole?: string | null } | null
-): boolean {
+export function canViewFinanceRecords(user?: RoleUser | null): boolean {
   return Boolean(
     user && (canManageFinance(user) || canManageChurchSettings(user))
   );
@@ -169,9 +157,7 @@ export function canViewFinanceRecords(
  * Budget plans are compared against recorded spending, so both reading and
  * writing them stay with the treasurer, the pastor and the super admin.
  */
-export function canManageBudgets(
-  user?: { role?: string; churchRole?: string | null } | null
-): boolean {
+export function canManageBudgets(user?: RoleUser | null): boolean {
   return Boolean(
     user && (canManageFinance(user) || canManageChurchSettings(user))
   );

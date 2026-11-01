@@ -206,8 +206,22 @@ function Router() {
       <Route path="/setup" component={ChurchSetup} />
 
       {/* Transactions & Ledgers */}
-      <Route path="/transactions" component={Transactions} />
-      <Route path="/transactions/:id" component={TransactionDetail} />
+      <Route path="/transactions">
+        <RoleGuard
+          canAccess={u => canAccessRoute("/transactions", u)}
+          message="สมุดรายการสงวนไว้สำหรับเหรัญญิกหรือผู้มีสิทธิ์จัดการการเงินเท่านั้น"
+        >
+          <Transactions />
+        </RoleGuard>
+      </Route>
+      <Route path="/transactions/:id">
+        <RoleGuard
+          canAccess={u => canAccessRoute("/transactions", u)}
+          message="สมุดรายการสงวนไว้สำหรับเหรัญญิกหรือผู้มีสิทธิ์จัดการการเงินเท่านั้น"
+        >
+          <TransactionDetail />
+        </RoleGuard>
+      </Route>
 
       {/* Offerings */}
       {/* Weekly offering count */}
@@ -228,8 +242,22 @@ function Router() {
         </RoleGuard>
       </Route>
 
-      <Route path="/offerings" component={Offerings} />
-      <Route path="/offerings/new" component={NewOffering} />
+      <Route path="/offerings">
+        <RoleGuard
+          canAccess={u => canAccessRoute("/offerings", u)}
+          message="สมุดบัญชีเงินถวายสงวนไว้สำหรับเหรัญญิกหรือผู้มีสิทธิ์จัดการการเงินเท่านั้น"
+        >
+          <Offerings />
+        </RoleGuard>
+      </Route>
+      <Route path="/offerings/new">
+        <RoleGuard
+          canAccess={u => canAccessRoute("/offerings/new", u)}
+          message="การบันทึกรายการถวายทรัพย์สงวนไว้สำหรับเหรัญญิกหรือผู้มีสิทธิ์จัดการการเงินเท่านั้น"
+        >
+          <NewOffering />
+        </RoleGuard>
+      </Route>
       <Route path="/give" component={Give} />
       <Route path="/giving/station" component={GivingStation} />
 

@@ -85,6 +85,23 @@ describe("auth.pendingCount and auth.deleteUser", () => {
     await expect(c.auth.pendingCount()).resolves.toEqual({ count: 3 });
   });
 
+  // A person granted SUPER_ADMIN alongside another role (persisted in the
+  // comma-separated churchRoles column) is a full admin, even when their
+  // primary churchRole is not SUPER_ADMIN.
+  it("accepts a secondary super admin as an admin", async () => {
+    dbMock.countPendingUsers.mockResolvedValue(1);
+    dbMock.deleteInactiveUser.mockResolvedValue(true);
+    const counterAndSuperAdmin = {
+      ...member,
+      churchRoles: "COUNTER,SUPER_ADMIN",
+    };
+    const c = appRouter.createCaller(ctx(counterAndSuperAdmin));
+    await expect(c.auth.pendingCount()).resolves.toEqual({ count: 1 });
+    await expect(c.auth.deleteUser({ userId: 7 })).resolves.toEqual({
+      success: true,
+    });
+  });
+
   it("refuses to delete the caller's own account", async () => {
     const c = appRouter.createCaller(ctx(admin));
     await expect(c.auth.deleteUser({ userId: 1 })).rejects.toMatchObject({

@@ -5,14 +5,18 @@ import {
   canManageFinance,
   canViewFinanceRecords,
   canViewReports,
+  hasChurchRole,
+  type RoleUser,
   isStationOnlyUser,
   isSuperAdmin,
 } from "@shared/roles";
 
-type AuthUser =
-  | { role?: string; churchRole?: string | null; isBankSigner?: boolean }
-  | null
-  | undefined;
+/**
+ * auth.me returns the full role set of the person, so routes and menus judge
+ * the complete set rather than only the primary churchRole. Bank signers
+ * carry their own flag, granted outside the church-role list.
+ */
+type AuthUser = (RoleUser & { isBankSigner?: boolean }) | null | undefined;
 
 /**
  * Single source of truth for which role can open which section, keyed by
@@ -39,9 +43,7 @@ export const ROUTE_ACCESS: Record<string, (user: AuthUser) => boolean> = {
     canManageChurchSettings(u) ||
     u?.isBankSigner === true,
   "/members": u =>
-    canManageChurchSettings(u) ||
-    canManageFinance(u) ||
-    u?.churchRole === "DEACON",
+    hasChurchRole(u, "SUPER_ADMIN", "PASTOR", "TREASURER", "DEACON"),
 };
 
 export function canAccessRoute(basePath: string, user: AuthUser): boolean {
