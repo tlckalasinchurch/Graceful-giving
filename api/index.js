@@ -69,7 +69,13 @@ var offeringCategoryEnum = pgEnum("offering_category", [
   "mission",
   "building",
   "welfare",
-  "special"
+  "special",
+  "cash",
+  "meal",
+  "memorial",
+  "land",
+  "party",
+  "venue_rent"
 ]);
 var offeringMethodEnum = pgEnum("offering_method", [
   "cash",
@@ -2686,7 +2692,7 @@ async function approveLineSlip(input) {
     const [offering] = await tx.insert(offerings).values({
       churchId,
       amount: String(input.amount),
-      category: input.category || "general",
+      category: input.category || "cash",
       fundId: input.fundId,
       donorName,
       donorMemberId: input.memberId ?? null,
@@ -4957,12 +4963,14 @@ var EXPENSE_CATEGORY_IDS = [
   "other"
 ];
 var OFFERING_CATEGORY_IDS = [
-  "tithe",
-  "general",
+  "cash",
+  "meal",
+  "memorial",
   "mission",
-  "building",
-  "welfare",
-  "special"
+  "special",
+  "land",
+  "party",
+  "venue_rent"
 ];
 
 // server/routers.ts
@@ -5507,7 +5515,7 @@ var appRouter = router({
     create: financeProcedure.input(
       z3.object({
         amount: z3.number().positive().max(MAX_GIVING_AMOUNT),
-        category: offeringCategory.default("general"),
+        category: offeringCategory.default("cash"),
         fundId: z3.number().int().positive().optional(),
         donorName: z3.string().trim().max(120).optional(),
         receiptDate: z3.coerce.date().optional(),
@@ -6305,7 +6313,7 @@ var appRouter = router({
         memberId: z3.number().int().positive().optional(),
         donorName: z3.string().trim().max(180).optional(),
         isAnonymous: z3.boolean().default(false),
-        category: offeringCategory.default("general"),
+        category: offeringCategory.default("cash"),
         fundId: z3.number().int().positive(),
         method: paymentMethod.default("cash"),
         amount: z3.number().positive(),
