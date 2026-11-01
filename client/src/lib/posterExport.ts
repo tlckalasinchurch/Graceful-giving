@@ -1,4 +1,4 @@
-import { toJpeg, toPng } from "html-to-image";
+import { toCanvas, toJpeg, toPng } from "html-to-image";
 
 export type PosterPaper = "A4" | "A5";
 export type PosterImageType = "png" | "jpeg";
@@ -73,6 +73,51 @@ export async function renderPosterImage(
   return type === "jpeg"
     ? toJpeg(node, { ...IMAGE_OPTIONS, quality: 0.95 })
     : toPng(node, IMAGE_OPTIONS);
+}
+
+/** Draws the poster into an image file. A Blob is more reliable to save than a data URL. */
+export async function renderPosterBlob(
+  node: HTMLElement,
+  type: PosterImageType
+): Promise<Blob> {
+  const canvas = await toCanvas(node, IMAGE_OPTIONS);
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      blob =>
+        blob ? resolve(blob) : reject(new Error("สร้างไฟล์รูปไม่สำเร็จ")),
+      type === "jpeg" ? "image/jpeg" : "image/png",
+      0.95
+    );
+  });
+}
+
+/** Starts a file download from a Blob URL. The caller owns the URL and revokes it. */
+export function downloadObjectUrl(objectUrl: string, fileName: string): void {
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = fileName;
+  link.rel = "noopener";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+/** True when this browser can hand the image to the share sheet (most phones). */
+export function canShareImage(blob: Blob, fileName: string): boolean {
+  if (typeof navigator === "undefined" || !navigator.canShare) return false;
+  try {
+    return navigator.canShare({
+      files: [new File([blob], fileName, { type: blob.type })],
+    });
+  } catch {
+    return false;
+  }
+}
+
+export async function shareImage(blob: Blob, fileName: string): Promise<void> {
+  await navigator.share({
+    files: [new File([blob], fileName, { type: blob.type })],
+  });
 }
 
 export function downloadDataUrl(dataUrl: string, fileName: string): void {
