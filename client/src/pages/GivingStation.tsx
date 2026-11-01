@@ -41,6 +41,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Copy,
+  Download,
   CreditCard,
   Image as ImageIcon,
   Camera,
@@ -54,6 +55,14 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  downloadDataUrl,
+  posterFileName,
+  printPosterImage,
+  renderPosterImage,
+  type PosterImageType,
+  type PosterPaper,
+} from "@/lib/posterExport";
 import {
   StationCountdownCard,
   defaultStationUrl,
@@ -274,6 +283,39 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const [customQrImage, setCustomQrImage] = useState<string | null>(null);
   const qrUploadRef = useRef<HTMLInputElement>(null);
   const posterHasQr = customQrImage !== null || posterQrValue.trim() !== "";
+  const posterRef = useRef<HTMLDivElement>(null);
+  const [posterBusy, setPosterBusy] = useState(false);
+
+  /** Saves the poster as an image, or prints it on one sheet of A5 or A4. */
+  const exportPoster = async (
+    action:
+      | { kind: "save"; type: PosterImageType }
+      | { kind: "print"; paper: PosterPaper }
+  ) => {
+    const node = posterRef.current;
+    if (!node || posterBusy) return;
+    setPosterBusy(true);
+    try {
+      const url = await renderPosterImage(
+        node,
+        action.kind === "save" ? action.type : "png"
+      );
+      if (action.kind === "save") {
+        downloadDataUrl(url, posterFileName(action.type));
+        toast.success("บันทึกรูปโปสเตอร์แล้ว");
+      } else {
+        await printPosterImage(url, action.paper);
+      }
+    } catch (err) {
+      toast.error(
+        err instanceof Error && err.message
+          ? err.message
+          : "สร้างรูปโปสเตอร์ไม่สำเร็จ ลองใหม่อีกครั้ง"
+      );
+    } finally {
+      setPosterBusy(false);
+    }
+  };
 
   const effectiveFundId = useMemo(() => {
     if (selectedFundId) return Number(selectedFundId);
@@ -644,8 +686,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
                 {/* Station Breadcrumb */}
                 <div className="lg:col-span-6 text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
-                  GRACEBOX STATION{" "}
-                  <span className="text-ink-3 mx-1">/</span>{" "}
+                  GRACEBOX STATION <span className="text-ink-3 mx-1">/</span>{" "}
                   {churchQuery.data?.name || "SANCTUARY SPACE"}
                 </div>
 
@@ -690,10 +731,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   }
                 />
 
-                <div className="lg:col-span-6"><MySlipHistory
-                  items={mySlipsQuery.data}
-                  loading={mySlipsQuery.isLoading}
-                /></div>
+                <div className="lg:col-span-6">
+                  <MySlipHistory
+                    items={mySlipsQuery.data}
+                    loading={mySlipsQuery.isLoading}
+                  />
+                </div>
               </div>
             )}
 
@@ -1472,41 +1515,90 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-line flex flex-col sm:flex-row gap-2.5">
-              <button
-                type="button"
-                onClick={() => window.print()}
-                disabled={!posterHasQr}
-                title={
-                  posterHasQr
-                    ? undefined
-                    : "ใส่ลิงก์หรืออัปโหลดรูป QR Code ก่อนพิมพ์"
-                }
-                className="flex-1 py-3 px-4 rounded-xl bg-[#F97316] hover:bg-[#EA580C] disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Printer className="w-4 h-4" />
-                <span>พิมพ์โปสเตอร์ป้าย QR (A4)</span>
-              </button>
+            <div className="pt-3 border-t border-line space-y-2.5">
+              <p className="text-xs font-bold text-ink-2">
+                บันทึกหรือพิมพ์โปสเตอร์
+              </p>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    void exportPoster({ kind: "save", type: "png" })
+                  }
+                  disabled={!posterHasQr || posterBusy}
+                  className="min-h-11 rounded-xl border border-line text-ink font-bold text-sm hover:bg-paper-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>บันทึกเป็น PNG</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    void exportPoster({ kind: "save", type: "jpeg" })
+                  }
+                  disabled={!posterHasQr || posterBusy}
+                  className="min-h-11 rounded-xl border border-line text-ink font-bold text-sm hover:bg-paper-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>บันทึกเป็น JPG</span>
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    void exportPoster({ kind: "print", paper: "A5" })
+                  }
+                  disabled={!posterHasQr || posterBusy}
+                  className="min-h-11 rounded-xl bg-brand hover:bg-brand-ink text-black font-extrabold text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>พิมพ์ A5 (1 หน้า)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    void exportPoster({ kind: "print", paper: "A4" })
+                  }
+                  disabled={!posterHasQr || posterBusy}
+                  className="min-h-11 rounded-xl border border-line text-ink font-bold text-sm hover:bg-paper-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>พิมพ์ A4 (1 หน้า)</span>
+                </button>
+              </div>
+              {posterBusy && (
+                <p role="status" className="text-xs text-ink-3">
+                  กำลังสร้างรูปโปสเตอร์...
+                </p>
+              )}
+              {!posterHasQr && (
+                <p className="text-xs text-ink-3">
+                  ใส่ลิงก์หรืออัปโหลดรูป QR Code ก่อนบันทึกหรือพิมพ์
+                </p>
+              )}
             </div>
           </div>
 
           {/* Right Column: Live Poster Preview (Full width on print) */}
           <div className="lg:col-span-7 flex flex-col items-center justify-center">
-            <StationQrPoster
-              brandPrefix={posterBrandPrefix}
-              brandHighlight={posterBrandHighlight}
-              headlineWhite={posterHeadlineWhite}
-              headlineOrange={posterHeadlineOrange}
-              scanPrompt={posterScanPrompt}
-              qrValue={posterQrValue}
-              customQrImageUrl={customQrImage}
-              qrCenterBadge={posterCenterBadge}
-              qrCaption={posterQrCaption}
-              footerLeadWhite={posterFooterWhite}
-              footerLeadOrange={posterFooterOrange}
-              footerSubtext={posterFooterSub}
-              churchName={churchQuery.data?.name}
-            />
+            <div ref={posterRef} className="w-full max-w-md">
+              <StationQrPoster
+                brandPrefix={posterBrandPrefix}
+                brandHighlight={posterBrandHighlight}
+                headlineWhite={posterHeadlineWhite}
+                headlineOrange={posterHeadlineOrange}
+                scanPrompt={posterScanPrompt}
+                qrValue={posterQrValue}
+                customQrImageUrl={customQrImage}
+                qrCenterBadge={posterCenterBadge}
+                qrCaption={posterQrCaption}
+                footerLeadWhite={posterFooterWhite}
+                footerLeadOrange={posterFooterOrange}
+                footerSubtext={posterFooterSub}
+                churchName={churchQuery.data?.name}
+              />
+            </div>
           </div>
         </div>
       )}
