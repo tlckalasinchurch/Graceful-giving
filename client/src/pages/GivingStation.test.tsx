@@ -106,12 +106,16 @@ const png = () =>
 /** Gets a signed-in member to step 3 with a slip attached. */
 async function goToConfirm() {
   fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-  fireEvent.click(
-    await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-  );
+  await pickLand();
   const input = await screen.findByLabelText("รูปสลิปการโอน");
   fireEvent.change(input, { target: { files: [png()] } });
   await screen.findByAltText("สลิปที่แนบ");
+}
+
+/** Step 2: tap the land chip (usual amount 1,000), then go to the summary. */
+async function pickLand() {
+  fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
+  fireEvent.click(screen.getByRole("button", { name: "ดูสรุปการถวาย" }));
 }
 
 beforeEach(() => {
@@ -156,9 +160,7 @@ describe("GivingStation for an ordinary member", () => {
     });
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
+    await pickLand();
     fireEvent.click(
       await screen.findByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
     );
@@ -178,9 +180,7 @@ describe("GivingStation for an ordinary member", () => {
   it("blocks a send without a slip when the name is missing", async () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
+    await pickLand();
     fireEvent.change(await screen.findByLabelText(/ชื่อผู้ถวาย/), {
       target: { value: " " },
     });
@@ -192,9 +192,7 @@ describe("GivingStation for an ordinary member", () => {
   it("blocks a send without a slip when the transfer date is in the future", async () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
+    await pickLand();
     fireEvent.change(await screen.findByLabelText(/วันที่โอนเงิน/), {
       target: { value: "2999-01-01" },
     });
@@ -202,7 +200,7 @@ describe("GivingStation for an ordinary member", () => {
     expect((send as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it("splits one transfer over two categories and sends the lines", async () => {
+  it("chooses two categories, types each amount, and sends the lines for one transfer", async () => {
     submitWithoutSlip.mockResolvedValue({
       success: true,
       slipId: 10,
@@ -211,70 +209,121 @@ describe("GivingStation for an ordinary member", () => {
     });
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
-    fireEvent.click(
-      await screen.findByRole("button", { name: /แบ่งยอดถวายหลายประเภท/ })
-    );
-    // One line holds the whole amount, so a split of one line cannot be sent.
-    expect(
-      (
-        screen.getByRole("button", {
-          name: "ส่งให้เหรัญญิกตรวจสอบ",
-        }) as HTMLButtonElement
-      ).disabled
-    ).toBe(true);
-
-    // Tap a second category. Its amount field shows.
+    fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
     fireEvent.click(screen.getByRole("button", { name: "พันธกิจ" }));
     fireEvent.change(screen.getByLabelText("ยอด ที่ดิน"), {
       target: { value: "700" },
     });
-    // The last line takes what is left.
+    fireEvent.change(screen.getByLabelText("ยอด พันธกิจ"), {
+      target: { value: "300" },
+    });
+    // The total to pay is the sum.
     expect(
-      (screen.getByLabelText("ยอด พันธกิจ") as HTMLInputElement).value
-    ).toBe("300");
-    expect(screen.getByRole("status").textContent).toContain("✓");
+      screen.getByRole("status", { name: "ยอดรวมที่ต้องโอน" }).textContent
+    ).toContain("1,000 THB");
+    fireEvent.click(screen.getByRole("button", { name: "ดูสรุปการถวาย" }));
 
     fireEvent.click(
-      screen.getByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
+      await screen.findByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
     );
     expect(await screen.findByText("ได้รับข้อมูลแล้ว")).toBeTruthy();
+    expect(submitSlip).not.toHaveBeenCalled();
     const sent = submitWithoutSlip.mock.calls[0][0];
     expect(sent.amount).toBe(1000);
-    expect(sent.items).toHaveLength(2);
-    expect(sent.items[0]).toEqual({ category: "land", amount: 700 });
-    expect(sent.items[1].amount).toBe(300);
-    expect(sent.items[1].category).toBe("mission");
+    expect(sent.category).toBe("land");
+    expect(sent.items).toEqual([
+      { category: "land", amount: 700 },
+      { category: "mission", amount: 300 },
+    ]);
   });
 
-  it("blocks the send when the split lines do not add up to the transfer", async () => {
+  it("sends one slip for the whole total when several categories are chosen", async () => {
+    submitSlip.mockResolvedValue({
+      success: true,
+      slipId: 11,
+      failedAttempts: 0,
+      check: { state: "verified", message: "ตรงกัน", slipAmount: null },
+    });
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
-    fireEvent.click(
-      await screen.findByRole("button", { name: /แบ่งยอดถวายหลายประเภท/ })
-    );
+    fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
     fireEvent.click(screen.getByRole("button", { name: "พันธกิจ" }));
     fireEvent.change(screen.getByLabelText("ยอด ที่ดิน"), {
       target: { value: "700" },
     });
-    // The person overrides the last line, so the sum no longer matches.
     fireEvent.change(screen.getByLabelText("ยอด พันธกิจ"), {
-      target: { value: "200" },
+      target: { value: "300" },
     });
-    expect(screen.getByRole("status").textContent).toContain("ผลรวม");
+    fireEvent.click(screen.getByRole("button", { name: "ดูสรุปการถวาย" }));
+    fireEvent.change(await screen.findByLabelText("รูปสลิปการโอน"), {
+      target: { files: [png()] },
+    });
+    await screen.findByAltText("สลิปที่แนบ");
+    expect(
+      screen.getByRole("region", { name: "ตรวจรายการก่อนส่ง" }).textContent
+    ).toContain("700");
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ยืนยันและส่งสลิปถวาย" })
+    );
+    await screen.findByText("ขอบคุณพระเจ้า");
+    expect(submitSlip).toHaveBeenCalledTimes(1);
+    expect(submitSlip.mock.calls[0][0]).toMatchObject({
+      amount: 1000,
+      items: [
+        { category: "land", amount: 700 },
+        { category: "mission", amount: 300 },
+      ],
+    });
+  });
+
+  it("starts with the usual amount of a tapped category, and a quick amount replaces it", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
+    expect(
+      (screen.getByLabelText("ยอด ที่ดิน") as HTMLInputElement).value
+    ).toBe("1000");
+    fireEvent.click(screen.getByRole("button", { name: "ที่ดิน 3,000 บาท" }));
+    expect(
+      (screen.getByLabelText("ยอด ที่ดิน") as HTMLInputElement).value
+    ).toBe("3000");
+    expect(
+      screen.getByRole("status", { name: "ยอดรวมที่ต้องโอน" }).textContent
+    ).toContain("3,000 THB");
+  });
+
+  it("removes a category when it is tapped again, and cannot continue with none", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    const chip = await screen.findByRole("button", { name: "ที่ดิน" });
+    fireEvent.click(chip);
+    fireEvent.click(screen.getByRole("button", { name: /ที่ดิน$/ }));
+    expect(screen.queryByLabelText("ยอด ที่ดิน")).toBeNull();
     expect(
       (
         screen.getByRole("button", {
-          name: "ส่งให้เหรัญญิกตรวจสอบ",
+          name: "ดูสรุปการถวาย",
         }) as HTMLButtonElement
       ).disabled
     ).toBe(true);
-    expect(submitWithoutSlip).not.toHaveBeenCalled();
+  });
+
+  it("cannot continue while an amount is empty or zero", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
+    for (const value of ["", "0", "-5"]) {
+      fireEvent.change(screen.getByLabelText("ยอด ที่ดิน"), {
+        target: { value },
+      });
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "ดูสรุปการถวาย",
+          }) as HTMLButtonElement
+        ).disabled
+      ).toBe(true);
+    }
   });
 
   it("fills the name and the amount from the slip the AI read", async () => {
@@ -310,9 +359,7 @@ describe("GivingStation for an ordinary member", () => {
     });
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
+    await pickLand();
     fireEvent.change(await screen.findByLabelText(/ชื่อผู้ถวาย/), {
       target: { value: "สมศรี ใจดี" },
     });
@@ -349,12 +396,33 @@ describe("GivingStation for an ordinary member", () => {
     expect(await screen.findByText(/อ่านสลิปนี้ไม่ชัด/)).toBeTruthy();
   });
 
+  it("keeps the several amounts when the slip total differs, and warns", async () => {
+    readSlip.mockResolvedValue({
+      status: "read",
+      amount: 1200,
+      senderName: null,
+      transferDate: null,
+      bank: null,
+    });
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
+    fireEvent.click(screen.getByRole("button", { name: "พันธกิจ" }));
+    fireEvent.click(screen.getByRole("button", { name: "ดูสรุปการถวาย" }));
+    fireEvent.change(await screen.findByLabelText("รูปสลิปการโอน"), {
+      target: { files: [png()] },
+    });
+    expect(await screen.findByText(/ไม่ตรงกับยอดรวม/)).toBeTruthy();
+    // The donor's lines are not overwritten by the slip amount.
+    expect(
+      screen.getByRole("region", { name: "ตรวจรายการก่อนส่ง" }).textContent
+    ).toContain("1,500");
+  });
+
   it("lets the donor take the slip photo with the camera", async () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
+    await pickLand();
     const camera = (await screen.findByLabelText(
       "ถ่ายรูปสลิปด้วยกล้อง"
     )) as HTMLInputElement;
@@ -503,9 +571,7 @@ describe("GivingStation step 3: paid or not yet", () => {
   it("has no countdown on step 3, where the donor may be paying", async () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
+    await pickLand();
     await screen.findByRole("region", { name: "สถานะการโอนเงิน" });
     expect(screen.queryByRole("timer")).toBeNull();
   });
@@ -515,9 +581,7 @@ describe("GivingStation check before every send", () => {
   it("lists what will be sent, and switches to the slip route when a slip is attached", async () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
-    fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
-    );
+    await pickLand();
     const list = await screen.findByRole("region", {
       name: "ตรวจรายการก่อนส่ง",
     });

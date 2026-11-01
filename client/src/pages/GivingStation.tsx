@@ -28,19 +28,14 @@ import {
   type ChecklistItem,
   describeOutcome,
   failedAttemptsNote,
-  resolveAmount,
   resolveSubmitMode,
   type StationSubmission,
 } from "./givingStationFlow";
 import { fetchLiffId } from "@/lib/liffSignIn";
-import { SplitEditor } from "@/components/giving/SplitEditor";
+import { GiveChooser } from "@/components/giving/GiveChooser";
 import { UNREADABLE_SLIP, type SlipReading } from "@shared/slipReading";
-import {
-  draftsProblem,
-  parseDrafts,
-  startSplit,
-  type SplitDraft,
-} from "@/lib/splitDraft";
+import { giveTotal, parseDrafts, type SplitDraft } from "@/lib/splitDraft";
+import { checkSplit } from "@shared/givingSplit";
 import { clearDraft, loadDraft, saveDraft } from "./givingDraft";
 import { StationOnlyFrame } from "@/components/layout/StationOnlyFrame";
 import { PromptPayQrCard } from "@/components/ui/promptpay-qr-card";
@@ -80,7 +75,6 @@ import {
   defaultStationUrl,
   StationCubeLogo,
   StationHeroCTA,
-  StationOfferingPackageCard,
   StationProfileCard,
   StationQrPoster,
   StationStatusCard,
@@ -158,17 +152,16 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const stationReady = !churchQuery.isError && !fundOptionsQuery.isError;
 
   // Flow State
-  const [selectedCategory, setSelectedCategory] =
-    useState<OfferingCategory>("cash");
-  const [amountsByCat, setAmountsByCat] =
-    useState<Record<OfferingCategory, number>>(DEFAULT_AMOUNTS);
-  const [customAmount, setCustomAmount] = useState<string>("");
+  // What the donor gives: one line per category, each with its amount.
+  const [giveLines, setGiveLines] = useState<SplitDraft[]>([]);
+  // Read after an await, so the latest lines are kept in a ref too.
+  const giveLinesRef = useRef<SplitDraft[]>([]);
+  giveLinesRef.current = giveLines;
+  const selectedCategory: OfferingCategory = giveLines[0]?.category ?? "cash";
   const [selectedFundId, setSelectedFundId] = useState<string>("");
   // null until the donor types, so the name fills in once `user` has loaded.
   const [donorNameInput, setDonorNameInput] = useState<string | null>(null);
   const donorName = donorNameInput ?? user?.name ?? "";
-  // Set when one transfer is split over several categories. Null: one category.
-  const [splitDrafts, setSplitDrafts] = useState<SplitDraft[] | null>(null);
   // The transfer date, `YYYY-MM-DD`. Asked only when no slip is attached.
   const [transferDate, setTransferDate] = useState<string>(() =>
     new Date().toLocaleDateString("sv-SE")
@@ -370,11 +363,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     return funds[0]?.id ?? 0;
   }, [selectedFundId, funds]);
 
-  // null when the custom amount is not a usable number.
-  const effectiveAmount = useMemo(
-    () => resolveAmount(customAmount, amountsByCat[selectedCategory] ?? 300),
-    [customAmount, amountsByCat, selectedCategory]
-  );
+  // The amount to pay: every line added up. Null when a line is not usable.
+  const effectiveAmount = useMemo(() => giveTotal(giveLines), [giveLines]);
 
   // A PromptPay QR with the chosen amount, once the donor reaches step 3. Null
   // when the church has not set a PromptPay ID.
@@ -393,17 +383,13 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     hasSlip: slipPreview !== null,
   });
 
-  // Splitting is for a slip or an entry for review. Staff in the ledger mode
-  // record one line at a time.
-  const splitActive = splitDrafts !== null && submitMode !== "ledger";
-  const splitLines = splitActive ? parseDrafts(splitDrafts) : null;
-  const splitProblem = splitActive
-    ? draftsProblem(splitDrafts, effectiveAmount)
-    : null;
-  // The steps before 3 pick one category, so leave the split when the donor goes back.
-  useEffect(() => {
-    if (step !== 3) setSplitDrafts(null);
-  }, [step]);
+  // More than one line: one transfer pays for several categories.
+  const splitActive = giveLines.length >= 2;
+  const splitLines = splitActive ? parseDrafts(giveLines) : null;
+  const splitProblem =
+    splitLines && effectiveAmount !== null
+      ? checkSplit(splitLines, effectiveAmount)
+      : null;
 
   const readSlipMutation = trpc.givingInbox.readSlip.useMutation();
 
@@ -433,8 +419,14 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     draftRestored.current = true;
     const draft = loadDraft(user.id);
     if (!draft) return;
-    setSelectedCategory(draft.category);
-    setCustomAmount(String(draft.amount));
+    setGiveLines(
+      draft.items && draft.items.length > 0
+        ? draft.items.map(i => ({
+            category: i.category,
+            amount: String(i.amount),
+          }))
+        : [{ category: draft.category, amount: String(draft.amount) }]
+    );
     setSelectedFundId(draft.fundId);
     setTransferState(draft.transferState);
     setStep(3);
@@ -446,37 +438,32 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       if (step === 4 || step === 1) clearDraft();
       return;
     }
-    const amount = resolveAmount(
-      customAmount,
-      amountsByCat[selectedCategory] ?? 300
-    );
+    const amount = giveTotal(giveLines);
     if (amount === null) return;
     saveDraft({
       userId: user.id,
       category: selectedCategory,
       amount,
+      items:
+        giveLines.length >= 2
+          ? parseDrafts(giveLines).map(l => ({
+              category: l.category,
+              amount: l.amount,
+            }))
+          : undefined,
       fundId: selectedFundId,
       transferState,
       savedAt: Date.now(),
     });
-  }, [
-    user,
-    step,
-    customAmount,
-    amountsByCat,
-    selectedCategory,
-    selectedFundId,
-    transferState,
-  ]);
+  }, [user, step, giveLines, selectedCategory, selectedFundId, transferState]);
 
-  const handleSelectPackage = (cat: OfferingCategory) => {
-    if (resolveAmount(customAmount, amountsByCat[cat] ?? 300) === null) {
+  const handleGoToSummary = () => {
+    if (effectiveAmount === null) {
       toast.error(
-        `กรุณาระบุจำนวนเงินที่ถูกต้อง (ไม่เกิน ${MAX_GIVING_AMOUNT.toLocaleString()} บาท)`
+        `เลือกประเภทและใส่ยอดให้ถูกต้อง (ไม่เกิน ${MAX_GIVING_AMOUNT.toLocaleString()} บาท)`
       );
       return;
     }
-    setSelectedCategory(cat);
     setStep(3);
   };
 
@@ -502,8 +489,13 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       setDonorNameInput(reading.senderName);
       setNameFromSlip(true);
     }
-    if (reading.amount !== null) {
-      setCustomAmount(String(reading.amount));
+    // With one category the amount on the slip is used. With several, the
+    // donor sets each amount, and a difference is shown as a warning.
+    if (reading.amount !== null && giveLinesRef.current.length === 1) {
+      const amount = reading.amount;
+      setGiveLines(prev =>
+        prev.length === 1 ? [{ ...prev[0], amount: String(amount) }] : prev
+      );
       setAmountFromSlip(true);
     }
   };
@@ -633,7 +625,13 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
   /** After a mismatch: keep the slip and use the amount printed on it. */
   const retryWithSlipAmount = (amount: number) => {
-    setCustomAmount(String(amount));
+    if (giveLinesRef.current.length === 1) {
+      setGiveLines(prev => [{ ...prev[0], amount: String(amount) }]);
+    } else {
+      toast.info(
+        `ปรับยอดแต่ละประเภทให้รวมเป็น ${amount.toLocaleString()} บาท ตามสลิป`
+      );
+    }
     setSubmission(null);
     setStep(3);
   };
@@ -655,7 +653,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const resetFlow = () => {
     setTransferState("not_yet");
     setSlipPreview(null);
-    setCustomAmount("");
+    setGiveLines([]);
     setSubmission(null);
     setStep(1);
   };
@@ -874,87 +872,49 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   updatedAtText={updatedStamp}
                 />
 
-                {/* Fund Selector & Custom Amount Box */}
-                <div className="lg:col-span-2 rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-5 space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label
-                        htmlFor="station-fund"
-                        className="text-xs font-bold text-[#FDBA74] block"
-                      >
-                        เข้ากองทุนคริสตจักร
-                      </label>
-                      <select
-                        id="station-fund"
-                        value={selectedFundId}
-                        onChange={e => setSelectedFundId(e.target.value)}
-                        className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
-                      >
-                        {funds.length === 0 ? (
-                          <option value="">กองทุนทั่วไปของคริสตจักร</option>
-                        ) : (
-                          funds.map(f => (
-                            <option key={f.id} value={f.id}>
-                              {f.name}
-                            </option>
-                          ))
-                        )}
-                      </select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label
-                        htmlFor="station-custom-amount"
-                        className="text-xs font-bold text-[#FDBA74] block"
-                      >
-                        หรือระบุยอดเอง (THB)
-                      </label>
-                      <input
-                        id="station-custom-amount"
-                        type="number"
-                        min="1"
-                        max={MAX_GIVING_AMOUNT}
-                        inputMode="decimal"
-                        placeholder="ระบุจำนวนเงินบาท..."
-                        value={customAmount}
-                        onChange={e => setCustomAmount(e.target.value)}
-                        className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white placeholder:text-ink-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
-                      />
-                    </div>
-                  </div>
+                {/* Fund Selector */}
+                <div className="lg:col-span-2 rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-5 space-y-1">
+                  <label
+                    htmlFor="station-fund"
+                    className="text-xs font-bold text-[#FDBA74] block"
+                  >
+                    เข้ากองทุนคริสตจักร
+                  </label>
+                  <select
+                    id="station-fund"
+                    value={selectedFundId}
+                    onChange={e => setSelectedFundId(e.target.value)}
+                    className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                  >
+                    {funds.length === 0 ? (
+                      <option value="">กองทุนทั่วไปของคริสตจักร</option>
+                    ) : (
+                      funds.map(f => (
+                        <option key={f.id} value={f.id}>
+                          {f.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </div>
 
-                {/* Offering Package Cards (1 hr / 320 THB style) */}
-                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {OFFERING_CATEGORIES.map(cat => {
-                    const currentCatAmount =
-                      resolveAmount(
-                        customAmount,
-                        amountsByCat[cat.id] ?? 300
-                      ) ??
-                      amountsByCat[cat.id] ??
-                      300;
+                {/* Tap the categories, then type an amount for each */}
+                <GiveChooser
+                  lines={giveLines}
+                  onChange={setGiveLines}
+                  defaults={DEFAULT_AMOUNTS}
+                  presets={PRESET_CHOICES}
+                />
 
-                    return (
-                      <StationOfferingPackageCard
-                        key={cat.id}
-                        title={cat.label}
-                        subtitle="พร้อมเริ่มทำรายการและส่งสลิปได้ทันที"
-                        amountThb={currentCatAmount}
-                        presetAmounts={PRESET_CHOICES[cat.id]}
-                        onSelectAmount={amt => {
-                          setCustomAmount("");
-                          setAmountsByCat(prev => ({
-                            ...prev,
-                            [cat.id]: amt,
-                          }));
-                        }}
-                        ctaLabel="ดูสรุปการถวาย"
-                        selected={selectedCategory === cat.id}
-                        onSelect={() => handleSelectPackage(cat.id)}
-                      />
-                    );
-                  })}
+                <div className="lg:col-span-2">
+                  <button
+                    type="button"
+                    onClick={handleGoToSummary}
+                    disabled={effectiveAmount === null}
+                    className="w-full min-h-12 rounded-2xl bg-brand text-black font-extrabold text-sm disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                  >
+                    ดูสรุปการถวาย
+                  </button>
                 </div>
               </div>
             )}
@@ -978,8 +938,23 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   <div className="flex items-baseline justify-between gap-2">
                     <div>
                       <div className="text-xl font-extrabold text-white">
-                        {offeringCategoryLabel(selectedCategory)}
+                        {giveLines.length >= 2
+                          ? `แบ่งถวาย ${giveLines.length} ประเภท`
+                          : offeringCategoryLabel(selectedCategory)}
                       </div>
+                      {giveLines.length >= 2 && (
+                        <ul className="mt-1 space-y-0.5 text-xs text-stone-300">
+                          {parseDrafts(giveLines).map(l => (
+                            <li key={l.category} className="tabular-nums">
+                              {offeringCategoryLabel(l.category)}{" "}
+                              {Number.isNaN(l.amount)
+                                ? "—"
+                                : l.amount.toLocaleString()}{" "}
+                              บาท
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                       <div className="text-xs text-stone-400">
                         กองทุน:{" "}
                         {funds.find(f => f.id === effectiveFundId)?.name ||
@@ -1143,32 +1118,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       )}
                     </div>
 
-                    {submitMode !== "ledger" && effectiveAmount !== null && (
-                      <div className="space-y-1.5">
-                        {splitDrafts === null ? (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setSplitDrafts(
-                                startSplit(selectedCategory, effectiveAmount)
-                              )
-                            }
-                            className="w-full min-h-11 rounded-2xl border border-dashed border-white/20 hover:border-[#34D399] bg-black/30 px-3 text-xs font-bold text-stone-200 cursor-pointer"
-                          >
-                            แบ่งยอดถวายหลายประเภท (เช่น สิบลด + พันธกิจ)
-                          </button>
-                        ) : (
-                          <SplitEditor
-                            idPrefix="station-split"
-                            lines={splitDrafts}
-                            total={effectiveAmount}
-                            onChange={setSplitDrafts}
-                            onCancel={() => setSplitDrafts(null)}
-                          />
-                        )}
-                      </div>
-                    )}
-
                     {submitMode === "no-slip" && (
                       <div className="space-y-1">
                         <label
@@ -1273,6 +1222,16 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                                   {amountFromSlip ? " (ใส่ยอดถวายให้แล้ว)" : ""}
                                 </div>
                               )}
+                              {slipReading.data.amount !== null &&
+                                effectiveAmount !== null &&
+                                giveLines.length >= 2 &&
+                                slipReading.data.amount !== effectiveAmount && (
+                                  <div className="font-bold text-amber-200">
+                                    ⚠ ยอดบนสลิปไม่ตรงกับยอดรวม{" "}
+                                    {effectiveAmount.toLocaleString()} บาท
+                                    ปรับยอดแต่ละประเภทให้รวมเป็นยอดบนสลิป
+                                  </div>
+                                )}
                               {slipReading.data.senderName && (
                                 <div>
                                   ชื่อผู้โอน {slipReading.data.senderName}

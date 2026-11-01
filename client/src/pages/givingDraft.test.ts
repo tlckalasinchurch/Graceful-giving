@@ -24,6 +24,20 @@ describe("giving draft", () => {
     expect(loadDraft(7, draft.savedAt + 1000)).toEqual(draft);
   });
 
+  it("keeps the lines of a gift over several categories", () => {
+    const split: GivingDraft = {
+      ...draft,
+      category: "tithe",
+      amount: 1000,
+      items: [
+        { category: "tithe", amount: 700 },
+        { category: "mission", amount: 300 },
+      ],
+    };
+    saveDraft(split);
+    expect(loadDraft(7, split.savedAt + 1000)).toEqual(split);
+  });
+
   it("ignores a draft that belongs to someone else", () => {
     saveDraft(draft);
     expect(loadDraft(8, draft.savedAt)).toBeNull();
