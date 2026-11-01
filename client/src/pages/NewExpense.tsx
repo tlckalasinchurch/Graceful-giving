@@ -95,6 +95,9 @@ export default function NewExpense() {
         utils.expenses.list.invalidate(),
         utils.finance.summary.invalidate(),
         utils.finance.monthlyStats.invalidate(),
+        utils.finance.accounts.invalidate(),
+        utils.budgets.list.invalidate(),
+        utils.reports.summary.invalidate(),
       ]);
       toast.success("บันทึกรายการรายจ่ายเรียบร้อยแล้ว");
     },
@@ -215,6 +218,8 @@ export default function NewExpense() {
         contentType: file.type as
           | "image/jpeg"
           | "image/png"
+          | "image/webp"
+          | "image/gif"
           | "application/pdf",
         base64Data,
       });

@@ -10,6 +10,8 @@ import { Swal } from "@/lib/sweetalert";
 interface DeductionsTabProps {
   sessionId: number;
   editable: boolean;
+  canApprove?: boolean;
+  currentUserId?: number;
   deductions: Array<{
     id: number;
     sessionId: number;
@@ -17,6 +19,7 @@ interface DeductionsTabProps {
     reason: string;
     amount: number;
     paidTo: string;
+    requestedBy?: number | null;
     approvedBy?: number | null;
   }>;
   funds: Array<{ id: number; name: string }>;
@@ -38,6 +41,8 @@ interface DeductionsTabProps {
 export function DeductionsTab({
   sessionId,
   editable,
+  canApprove = true,
+  currentUserId,
   deductions,
   funds,
   deductionTotal,
@@ -242,9 +247,7 @@ export function DeductionsTab({
                       <button
                         type="button"
                         aria-label="ลบรายการเบิกนี้"
-                        onClick={() =>
-                          void handleRemoveDeduction(deduction)
-                        }
+                        onClick={() => void handleRemoveDeduction(deduction)}
                         disabled={removeDeduction.isPending}
                         className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-[hsl(6_45%_13%)] disabled:opacity-50"
                       >
@@ -253,22 +256,32 @@ export function DeductionsTab({
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   {deduction.approvedBy ? (
                     <StatusBadge status="approved" label="อนุมัติแล้ว" />
                   ) : (
                     <>
                       <StatusBadge status="pending" label="รออนุมัติ" />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          approveDeduction.mutate({ id: deduction.id })
-                        }
-                        disabled={approveDeduction.isPending}
-                        className="min-h-11 rounded-xl border border-[hsl(133_32%_24%)] bg-[hsl(132_38%_13%)] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
-                      >
-                        อนุมัติรายการนี้
-                      </button>
+                      {canApprove &&
+                      (currentUserId === undefined ||
+                        deduction.requestedBy !== currentUserId) ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            approveDeduction.mutate({ id: deduction.id })
+                          }
+                          disabled={approveDeduction.isPending}
+                          className="min-h-11 rounded-xl border border-[hsl(133_32%_24%)] bg-[hsl(132_38%_13%)] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
+                        >
+                          อนุมัติรายการนี้
+                        </button>
+                      ) : canApprove &&
+                        currentUserId !== undefined &&
+                        deduction.requestedBy === currentUserId ? (
+                        <span className="text-xs text-ink-2">
+                          ผู้ขอเบิกไม่สามารถอนุมัติรายการของตัวเองได้
+                        </span>
+                      ) : null}
                     </>
                   )}
                 </div>

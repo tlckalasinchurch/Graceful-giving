@@ -13,6 +13,8 @@ export interface TaskQueueInput {
   slipsToReview: number | undefined;
   /** Withdrawal requests with status "pending". */
   pendingWithdrawals: number | undefined;
+  /** Approved withdrawal requests waiting to be disbursed by finance. */
+  approvedWithdrawalsToDisburse?: number | undefined;
   /** Status of every counting session. */
   countingStatuses: readonly string[] | undefined;
   /** People who signed in with LINE and wait for approval. Admin only. */
@@ -56,6 +58,18 @@ export function buildTaskItems(input: TaskQueueInput): TaskItem[] {
       description:
         "คำขอที่ยังรอลงนามจากคุณในฐานะผู้ลงนามบัญชีธนาคาร ตรวจสอบแล้วลงนามในหน้าการอนุมัติ",
       count: input.pendingWithdrawals,
+      href: "/approvals",
+    });
+  } else if (
+    input.approvedWithdrawalsToDisburse &&
+    input.approvedWithdrawalsToDisburse > 0
+  ) {
+    items.push({
+      kind: "withdrawals",
+      title: "คำขอเบิกเงินรอดำเนินการจ่ายเงิน",
+      description:
+        "คำขอที่อนุมัติครบตามเงื่อนไขแล้ว รอเหรัญญิกจ่ายเงินและนำเข้ารอบนับเงิน",
+      count: input.approvedWithdrawalsToDisburse,
       href: "/approvals",
     });
   }

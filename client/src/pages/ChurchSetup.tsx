@@ -52,6 +52,7 @@ export default function ChurchSetup() {
     bankName: "",
     bankAccount: "",
     bankAccountName: "",
+    promptPayId: "",
     offeringCategories: DEFAULT_OFFERING_CATEGORIES.slice(0, 4),
     funds: DEFAULT_FUNDS,
     fiscalYearStartMonth: 1,
@@ -60,6 +61,10 @@ export default function ChurchSetup() {
 
   const updateProfileMutation = trpc.church.updateProfile.useMutation();
   const completeSetupMutation = trpc.church.completeSetup.useMutation();
+  const createAccountMutation = trpc.finance.createAccount.useMutation();
+  const accountsQuery = trpc.finance.accounts.useQuery(undefined, {
+    retry: false,
+  });
   const utils = trpc.useUtils();
 
   function skipSetup() {
@@ -117,9 +122,26 @@ export default function ChurchSetup() {
         bankName: data.bankName,
         bankAccount: data.bankAccount,
         bankAccountName: data.bankAccountName,
+        promptPayId: data.promptPayId?.trim() || undefined,
         fiscalYearStartMonth: data.fiscalYearStartMonth,
         motto: data.motto,
       });
+      const existingFunds = accountsQuery.data ?? [];
+      if (existingFunds.length === 0 && data.funds.length > 0) {
+        for (const fund of data.funds) {
+          try {
+            await createAccountMutation.mutateAsync({
+              name: fund.name,
+              type: (fund.type as any) || "general",
+              description: fund.description,
+            });
+          } catch {
+            // Ignore if caller lacks financeProcedure (e.g. PASTOR without TREASURER)
+            break;
+          }
+        }
+        await utils.finance.accounts.invalidate();
+      }
       await completeSetupMutation.mutateAsync();
       clearSetupSkip();
       await utils.church.getProfile.invalidate();

@@ -26,9 +26,13 @@ import {
 } from "@/components/finance/VoucherModal";
 import { paymentMethodLabel } from "@shared/categories";
 import { formatThaiDateTime, THAI_LOCALE } from "@/lib/format";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageFinance } from "@shared/roles";
 
 export default function Offerings() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const canCreate = canManageFinance(user);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedVoucher, setSelectedVoucher] = useState<VoucherData | null>(
@@ -46,6 +50,11 @@ export default function Offerings() {
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
     staleTime: 60_000,
+  });
+
+  const { data: summaryData } = trpc.finance.summary.useQuery(undefined, {
+    retry: false,
+    staleTime: 30_000,
   });
 
   const offerings = useMemo(() => {
@@ -80,6 +89,13 @@ export default function Offerings() {
     () => filtered.reduce((sum, o) => sum + o.amount, 0),
     [filtered]
   );
+  const isFiltered = searchTerm.trim() !== "" || categoryFilter !== "all";
+  const bannerAmount = isFiltered
+    ? totalAmount
+    : (summaryData?.monthlyIncome ?? totalAmount);
+  const bannerLabel = isFiltered
+    ? `ยอดถวายรวมตามตัวกรอง (${filtered.length} รายการ)`
+    : "ยอดถวายรวมเดือนนี้";
 
   const exportCSV = () => {
     const headers =
@@ -128,13 +144,15 @@ export default function Offerings() {
             <QrCode className="w-3.5 h-3.5" />
             <span>ป้าย QR & จุดถวาย</span>
           </button>
-          <button
-            onClick={() => setLocation("/offerings/new")}
-            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold button-elevation transition-all flex items-center gap-1.5"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>บันทึกถวายใหม่</span>
-          </button>
+          {canCreate && (
+            <button
+              onClick={() => setLocation("/offerings/new")}
+              className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold button-elevation transition-all flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>บันทึกถวายใหม่</span>
+            </button>
+          )}
         </div>
       }
     >
@@ -143,10 +161,10 @@ export default function Offerings() {
         <div className="space-y-2 text-center sm:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-line text-xs font-bold text-ink-2">
             <Sparkles className="w-3.5 h-3.5 text-brand" />
-            <span>ยอดถวายรวมเดือนนี้</span>
+            <span>{bannerLabel}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-[hsl(140_50%_72%)]">
-            <MoneyDisplay amount={totalAmount} type="income" size="xl" />
+            <MoneyDisplay amount={bannerAmount} type="income" size="xl" />
           </h2>
           <p className="text-xs text-ink-3">
             "ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก" — 2 โครินธ์ 9:7
@@ -197,8 +215,8 @@ export default function Offerings() {
         <EmptyState
           title="ยังไม่มีรายการถวาย"
           description="เริ่มบันทึกการถวายรายการแรกของคริสตจักรของคุณ เพื่อความโปร่งใสและเป็นระเบียบ"
-          actionText="บันทึกการถวายรายการแรก"
-          onAction={() => setLocation("/offerings/new")}
+          actionText={canCreate ? "บันทึกการถวายรายการแรก" : undefined}
+          onAction={canCreate ? () => setLocation("/offerings/new") : undefined}
         />
       ) : (
         <div className="bg-surface rounded-2xl border border-line card-elevation-sm divide-y divide-line/60 overflow-hidden">

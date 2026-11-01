@@ -101,6 +101,8 @@ export default function Approvals() {
         "บันทึกการจ่ายเงินเรียบร้อยแล้ว ยอดถูกนำเข้ารอบนับเงินแล้ว"
       );
       void utils.withdrawals.list.invalidate();
+      void utils.counting.list.invalidate();
+      void utils.counting.get.invalidate();
     },
     onError: err => toast.error(err.message || "ไม่สามารถบันทึกการจ่ายเงินได้"),
   });
@@ -288,7 +290,7 @@ export default function Approvals() {
                     <div className="space-y-2.5 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-mono font-bold text-ink-2 bg-paper px-3 py-1 rounded-full border border-line/70">
-                          {`REQ-${new Date(reqDate || Date.now()).getFullYear()}-00${req.id}`}
+                          {`REQ-${new Date(reqDate || Date.now()).getFullYear()}-${String(req.id).padStart(3, "0")}`}
                         </span>
                         <span className="text-xs font-bold text-tile-lilac-ink bg-tile-lilac px-3 py-1 rounded-full">
                           {fundName}

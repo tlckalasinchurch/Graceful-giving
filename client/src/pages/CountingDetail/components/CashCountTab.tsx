@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 import { THB_DENOMINATIONS } from "@shared/counting";
 import { fmtBaht, Variance } from "./countingUtils";
@@ -37,37 +37,40 @@ export function CashCountTab({
   cashVariance,
   setCashCount,
 }: CashCountTabProps) {
-  // Debounce autosave: automatically flush draft counts to the server after 600ms of inactivity,
-  // or flush on tab unmount to prevent losing counts when switching tabs on mobile.
+  const flushRef = useRef<() => void>(() => {});
+  flushRef.current = () => {
+    if (!editable) return;
+    Object.entries(draftCounts).forEach(([key, draftVal]) => {
+      if (draftVal === undefined) return;
+      const [valStr, kind] = key.split("-");
+      const val = Number(valStr);
+      const next = Number(draftVal || 0);
+      if (!Number.isFinite(next) || next < 0) return;
+      const saved = cashCounts.find(
+        r => r.denomination === val && r.kind === kind
+      );
+      if (next !== (saved?.quantity ?? 0)) {
+        setCashCount.mutate({
+          sessionId,
+          denomination: val,
+          kind: kind as "note" | "coin",
+          quantity: next,
+        });
+      }
+    });
+  };
+
+  // Debounce autosave after 600ms of inactivity without firing on every keystroke cleanup.
   useEffect(() => {
     if (!editable) return;
-    const flushDrafts = () => {
-      Object.entries(draftCounts).forEach(([key, draftVal]) => {
-        if (draftVal === undefined) return;
-        const [valStr, kind] = key.split('-');
-        const val = Number(valStr);
-        const next = Number(draftVal || 0);
-        if (!Number.isFinite(next) || next < 0) return;
-        const saved = cashCounts.find(
-          r => r.denomination === val && r.kind === kind
-        );
-        if (next !== (saved?.quantity ?? 0)) {
-          setCashCount.mutate({
-            sessionId,
-            denomination: val,
-            kind: kind as "note" | "coin",
-            quantity: next,
-          });
-        }
-      });
-    };
+    const timer = setTimeout(() => flushRef.current(), 600);
+    return () => clearTimeout(timer);
+  }, [draftCounts, editable, sessionId]);
 
-    const timer = setTimeout(flushDrafts, 600);
-    return () => {
-      clearTimeout(timer);
-      flushDrafts();
-    };
-  }, [draftCounts, editable, sessionId, cashCounts, setCashCount]);
+  // Flush any remaining drafts when switching away from the tab or changing session.
+  useEffect(() => {
+    return () => flushRef.current();
+  }, [sessionId]);
 
   return (
     <section className="space-y-4">

@@ -416,9 +416,14 @@ export default function GivingInbox() {
       return;
     }
     const amountNum = parseFloat(slip.extractedAmount || "0");
-    const defaultFundId = fundsQuery.data?.[0]?.id;
+    const targetFundId =
+      slip.fundId || slip.declaredFundId || fundsQuery.data?.[0]?.id;
+    const targetFundName =
+      fundsQuery.data?.find(f => f.id === targetFundId)?.name ||
+      fundsQuery.data?.[0]?.name ||
+      "กองทุนหลัก";
 
-    if (!amountNum || amountNum <= 0 || !defaultFundId) {
+    if (!amountNum || amountNum <= 0 || !targetFundId) {
       handleSelectSlip(slip);
       return;
     }
@@ -427,7 +432,7 @@ export default function GivingInbox() {
       "อนุมัติด่วน?",
       `อนุมัติเงินถวาย ฿${amountNum.toLocaleString()} จาก ${
         slip.matchedMemberName || slip.extractedSenderName
-      } เข้า ${fundsQuery.data?.[0]?.name}`,
+      } เข้า ${targetFundName}`,
       "อนุมัติทันที"
     );
 
@@ -436,7 +441,7 @@ export default function GivingInbox() {
     approveMutation.mutate({
       slipId: slip.id,
       amount: amountNum,
-      fundId: defaultFundId,
+      fundId: targetFundId,
       category:
         slip.declaredCategory && isOfferingCategory(slip.declaredCategory)
           ? slip.declaredCategory
@@ -514,8 +519,11 @@ export default function GivingInbox() {
       slip.lineDisplayName?.toLowerCase().includes(q) ||
       slip.extractedSenderName?.toLowerCase().includes(q) ||
       slip.matchedMemberName?.toLowerCase().includes(q) ||
+      slip.typedDonorName?.toLowerCase().includes(q) ||
+      slip.submittedByName?.toLowerCase().includes(q) ||
       slip.extractedRef?.toLowerCase().includes(q) ||
-      String(slip.extractedAmount).includes(q)
+      String(slip.extractedAmount ?? "").includes(q) ||
+      String(slip.declaredAmount ?? "").includes(q)
     );
   });
 
@@ -1648,9 +1656,12 @@ export default function GivingInbox() {
                 <button
                   type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText(
-                      "https://graceful-giving.vercel.app/api/line/webhook"
-                    );
+                    const webhookUrl = `${
+                      typeof window !== "undefined"
+                        ? window.location.origin
+                        : "https://graceful-giving.vercel.app"
+                    }/api/line/webhook`;
+                    navigator.clipboard.writeText(webhookUrl);
                     toast.success("คัดลอก Webhook URL แล้ว");
                   }}
                   className="text-emerald-300 hover:underline flex items-center gap-1 font-semibold"
@@ -1659,7 +1670,9 @@ export default function GivingInbox() {
                 </button>
               </div>
               <div className="font-mono text-xs bg-surface p-2 rounded-xl border border-line text-ink break-all select-all">
-                https://graceful-giving.vercel.app/api/line/webhook
+                {typeof window !== "undefined"
+                  ? `${window.location.origin}/api/line/webhook`
+                  : "https://graceful-giving.vercel.app/api/line/webhook"}
               </div>
             </div>
 

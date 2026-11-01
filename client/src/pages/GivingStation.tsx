@@ -585,18 +585,25 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         check = result.check;
         void utils.givingInbox.invalidate();
       } else {
-        await createOfferingMutation.mutateAsync({
-          category: selectedCategory,
-          amount: effectiveAmount,
-          fundId: effectiveFundId > 0 ? effectiveFundId : undefined,
-          method: "transfer",
-          receiptDate: new Date(),
-          donorName: name,
-          notes: "ทำรายการผ่านจุดถวายอัตโนมัติ (GraceBox Station)",
-        });
+        const linesToCreate =
+          items && items.length > 0
+            ? items
+            : [{ category: selectedCategory, amount: effectiveAmount }];
+        for (const line of linesToCreate) {
+          await createOfferingMutation.mutateAsync({
+            category: line.category,
+            amount: line.amount,
+            fundId: effectiveFundId > 0 ? effectiveFundId : undefined,
+            method: "transfer",
+            receiptDate: new Date(),
+            donorName: name,
+            notes: "ทำรายการผ่านจุดถวายอัตโนมัติ (GraceBox Station)",
+          });
+        }
         void Promise.all([
           utils.offerings.list.invalidate(),
           utils.finance.summary.invalidate(),
+          utils.finance.accounts.invalidate(),
         ]);
       }
     } catch {

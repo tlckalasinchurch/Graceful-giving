@@ -243,7 +243,7 @@ export type CountingStatus = (typeof COUNTING_STATUSES)[number];
 const ALLOWED_TRANSITIONS: Record<CountingStatus, readonly CountingStatus[]> = {
   counting: ["counted"],
   counted: ["counting", "verified"],
-  verified: ["counted", "posted"],
+  verified: ["counting", "counted", "posted"],
   posted: ["closed"],
   closed: [],
 };

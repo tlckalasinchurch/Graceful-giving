@@ -4,9 +4,13 @@ import { Swal } from "@/lib/sweetalert";
 import { toast } from "sonner";
 import { AlertCircle, UserCheck } from "lucide-react";
 import { NativeSelect } from "@/components/ui/native-select";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { isSuperAdmin } from "@shared/roles";
 
 export function BankSignersSection() {
   const utils = trpc.useUtils();
+  const { user } = useAuth();
+  const canManageSigners = isSuperAdmin(user);
   const [selectedSignerUserId, setSelectedSignerUserId] = useState<number | "">(
     ""
   );
@@ -16,6 +20,7 @@ export function BankSignersSection() {
   });
 
   const usersQuery = trpc.auth.listUsers.useQuery(undefined, {
+    enabled: canManageSigners,
     retry: false,
   });
 
@@ -132,46 +137,48 @@ export function BankSignersSection() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 self-end sm:self-auto">
-                  {!s.isRequired && (
+                {canManageSigners && (
+                  <div className="flex items-center gap-2 self-end sm:self-auto">
+                    {!s.isRequired && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const ok = await Swal.confirm(
+                            "เปลี่ยนผู้ที่ต้องลงนามทุกครั้ง",
+                            `ต้องการตั้งให้ "${s.name || `ผู้ใช้ #${s.userId}`}" เป็นผู้ลงนามที่ต้องลงนามทุกครั้งใช่หรือไม่?`,
+                            "ยืนยัน"
+                          );
+                          if (ok) {
+                            setRequiredSignerMutation.mutate({
+                              userId: s.userId,
+                            });
+                          }
+                        }}
+                        disabled={setRequiredSignerMutation.isPending}
+                        className="px-3.5 py-2 rounded-2xl border border-line bg-surface hover:bg-tile-lilac/50 text-xs font-bold text-ink-2 transition-colors disabled:opacity-50"
+                      >
+                        ตั้งเป็นผู้ที่ต้องลงนามทุกครั้ง
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={async () => {
                         const ok = await Swal.confirm(
-                          "เปลี่ยนผู้ที่ต้องลงนามทุกครั้ง",
-                          `ต้องการตั้งให้ "${s.name || `ผู้ใช้ #${s.userId}`}" เป็นผู้ลงนามที่ต้องลงนามทุกครั้งใช่หรือไม่?`,
-                          "ยืนยัน"
+                          "นำผู้ลงนามออก",
+                          `ต้องการนำ "${s.name || `ผู้ใช้ #${s.userId}`}" ออกจากรายชื่อผู้มีอำนาจลงนามใช่หรือไม่?`,
+                          "นำออก"
                         );
                         if (ok) {
-                          setRequiredSignerMutation.mutate({
-                            userId: s.userId,
-                          });
+                          removeSignerMutation.mutate({ userId: s.userId });
                         }
                       }}
-                      disabled={setRequiredSignerMutation.isPending}
-                      className="px-3.5 py-2 rounded-2xl border border-line bg-surface hover:bg-tile-lilac/50 text-xs font-bold text-ink-2 transition-colors disabled:opacity-50"
+                      disabled={removeSignerMutation.isPending}
+                      className="px-3.5 py-2 rounded-2xl bg-tile-rose hover:bg-rose-500/25 text-tile-rose-ink text-xs font-bold transition-colors disabled:opacity-50"
                     >
-                      ตั้งเป็นผู้ที่ต้องลงนามทุกครั้ง
+                      นำออก
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const ok = await Swal.confirm(
-                        "นำผู้ลงนามออก",
-                        `ต้องการนำ "${s.name || `ผู้ใช้ #${s.userId}`}" ออกจากรายชื่อผู้มีอำนาจลงนามใช่หรือไม่?`,
-                        "นำออก"
-                      );
-                      if (ok) {
-                        removeSignerMutation.mutate({ userId: s.userId });
-                      }
-                    }}
-                    disabled={removeSignerMutation.isPending}
-                    className="px-3.5 py-2 rounded-2xl bg-tile-rose hover:bg-rose-500/25 text-tile-rose-ink text-xs font-bold transition-colors disabled:opacity-50"
-                  >
-                    นำออก
-                  </button>
-                </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -179,44 +186,48 @@ export function BankSignersSection() {
       </div>
 
       {/* Add new signer */}
-      <div className="pt-4 border-t border-line/60 space-y-2.5">
-        <h4 className="text-xs font-bold text-ink-2">เพิ่มผู้มีอำนาจลงนาม</h4>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="flex-1">
-            <NativeSelect
-              value={selectedSignerUserId}
-              onChange={e =>
-                setSelectedSignerUserId(
-                  e.target.value ? Number(e.target.value) : ""
-                )
-              }
-              className="w-full text-xs rounded-2xl"
-            >
-              <option value="">-- เลือกผู้ใช้เพื่อเพิ่มเป็นผู้ลงนาม --</option>
-              {availableUsers.map(u => (
-                <option key={u.id} value={u.id}>
-                  {u.name || `ผู้ใช้ #${u.id}`} (
-                  {u.churchRole || u.role || "สมาชิก"})
+      {canManageSigners && (
+        <div className="pt-4 border-t border-line/60 space-y-2.5">
+          <h4 className="text-xs font-bold text-ink-2">เพิ่มผู้มีอำนาจลงนาม</h4>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="flex-1">
+              <NativeSelect
+                value={selectedSignerUserId}
+                onChange={e =>
+                  setSelectedSignerUserId(
+                    e.target.value ? Number(e.target.value) : ""
+                  )
+                }
+                className="w-full text-xs rounded-2xl"
+              >
+                <option value="">
+                  -- เลือกผู้ใช้เพื่อเพิ่มเป็นผู้ลงนาม --
                 </option>
-              ))}
-            </NativeSelect>
+                {availableUsers.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.name || `ผู้ใช้ #${u.id}`} (
+                    {u.churchRole || u.role || "สมาชิก"})
+                  </option>
+                ))}
+              </NativeSelect>
+            </div>
+            <button
+              type="button"
+              disabled={!selectedSignerUserId || addSignerMutation.isPending}
+              onClick={() => {
+                if (typeof selectedSignerUserId === "number") {
+                  addSignerMutation.mutate({
+                    userId: selectedSignerUserId,
+                  });
+                }
+              }}
+              className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-black text-xs font-bold transition-all shadow-sm shrink-0"
+            >
+              {addSignerMutation.isPending ? "กำลังเพิ่ม..." : "เพิ่มผู้ลงนาม"}
+            </button>
           </div>
-          <button
-            type="button"
-            disabled={!selectedSignerUserId || addSignerMutation.isPending}
-            onClick={() => {
-              if (typeof selectedSignerUserId === "number") {
-                addSignerMutation.mutate({
-                  userId: selectedSignerUserId,
-                });
-              }
-            }}
-            className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-black text-xs font-bold transition-all shadow-sm shrink-0"
-          >
-            {addSignerMutation.isPending ? "กำลังเพิ่ม..." : "เพิ่มผู้ลงนาม"}
-          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

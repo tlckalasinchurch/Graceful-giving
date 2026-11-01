@@ -280,76 +280,76 @@ export default function Settings() {
       return names.length ? names.join(", ") : "ยังไม่ได้กำหนด";
     };
     return [
-    {
-      role: "SUPER_ADMIN",
-      title: "ผู้ดูแลระบบสูงสุด",
-      appointee: assigneesFor("SUPER_ADMIN"),
-      desc: "ดูแลระบบและโครงสร้างทั้งหมด จัดการผู้ใช้งานและสิทธิ์ ตั้งค่าคริสตจักร และตรวจสอบ Audit Log (สิทธิ์สูงสุดของระบบ)",
-      duties: [
-        "ดูแลระบบและโครงสร้างทั้งหมด",
-        "จัดการผู้ใช้งานและสิทธิ์",
-        "ตั้งค่าคริสตจักร",
-        "ตรวจสอบ Audit Log",
-        "เข้าถึงข้อมูลทุกส่วนตามสิทธิ์สูงสุดของระบบ",
-      ],
-    },
-    {
-      role: "TREASURER",
-      title: "เหรัญญิกคริสตจักร",
-      appointee: assigneesFor("TREASURER"),
-      desc: "บันทึกรายรับ-รายจ่าย ตรวจสอบเงินถวายและบัญชี จัดการเบิกจ่าย ติดตามงบประมาณ ออกใบเสร็จ และจัดทำรายงานการเงิน",
-      duties: [
-        "บันทึกรายรับและรายจ่าย",
-        "ตรวจสอบเงินถวาย",
-        "ตรวจสอบบัญชีและยอดเงิน",
-        "จัดการรายการเบิกจ่าย",
-        "ตรวจสอบและติดตามงบประมาณ",
-        "ออกใบเสร็จรับเงินถวาย",
-        "จัดทำรายงานทางการเงิน",
-      ],
-    },
-    {
-      role: "PASTOR",
-      title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ",
-      appointee: assigneesFor("PASTOR"),
-      desc: "กำกับทิศทางและงานของคริสตจักร พิจารณาและอนุมัติโครงการ ตรวจสอบภาพรวมการเงิน และดูแลด้านอภิบาลสมาชิก",
-      duties: [
-        "กำกับทิศทางและงานของคริสตจักร",
-        "พิจารณาและอนุมัติโครงการตามอำนาจที่กำหนด",
-        "ตรวจสอบภาพรวมด้านการเงิน",
-        "ติดตามการดำเนินงานของฝ่ายต่าง ๆ",
-        "ดูแลด้านอภิบาลและสมาชิก",
-        "ติดตามผลการดำเนินพันธกิจ",
-      ],
-    },
-    {
-      role: "DEACON",
-      title: "ผู้รับผิดชอบฝ่าย",
-      appointee: assigneesFor("DEACON"),
-      desc: "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ ตรวจรับงานและติดตามโครงการ เสนอคำของบประมาณและรายการเบิกจ่าย",
-      duties: [
-        "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ",
-        "ตรวจรับงานและติดตามโครงการ",
-        "เสนอคำของบประมาณ",
-        "เสนอรายการเบิกจ่าย",
-        "ตรวจสอบการใช้ทรัพยากรของฝ่าย",
-        "ดูรายงานเฉพาะส่วนที่ได้รับมอบหมาย",
-      ],
-    },
-    {
-      role: "MEMBER",
-      title: "สมาชิกคริสตจักร",
-      appointee: assigneesFor("MEMBER"),
-      desc: "ดูข่าวสาร ประกาศ ตารางกิจกรรม ตารางรับใช้ และดูประวัติการถวายส่วนบุคคลอย่างปลอดภัย",
-      duties: [
-        "ดูข่าวสารและประกาศ",
-        "ดูตารางกิจกรรมและตารางรับใช้",
-        "ดูข้อมูลกิจกรรมที่ตนเองเกี่ยวข้อง",
-        "ดูประวัติการถวายส่วนบุคคล",
-        "ดูใบเสร็จหรือหลักฐานการถวายของตนเอง",
-        "จัดการข้อมูลส่วนตัวตามที่ระบบอนุญาต",
-      ],
-    },
+      {
+        role: "SUPER_ADMIN",
+        title: "ผู้ดูแลระบบสูงสุด",
+        appointee: assigneesFor("SUPER_ADMIN"),
+        desc: "ดูแลระบบและโครงสร้างทั้งหมด จัดการผู้ใช้งานและสิทธิ์ ตั้งค่าคริสตจักร และตรวจสอบ Audit Log (สิทธิ์สูงสุดของระบบ)",
+        duties: [
+          "ดูแลระบบและโครงสร้างทั้งหมด",
+          "จัดการผู้ใช้งานและสิทธิ์",
+          "ตั้งค่าคริสตจักร",
+          "ตรวจสอบ Audit Log",
+          "เข้าถึงข้อมูลทุกส่วนตามสิทธิ์สูงสุดของระบบ",
+        ],
+      },
+      {
+        role: "TREASURER",
+        title: "เหรัญญิกคริสตจักร",
+        appointee: assigneesFor("TREASURER"),
+        desc: "บันทึกรายรับ-รายจ่าย ตรวจสอบเงินถวายและบัญชี จัดการเบิกจ่าย ติดตามงบประมาณ ออกใบเสร็จ และจัดทำรายงานการเงิน",
+        duties: [
+          "บันทึกรายรับและรายจ่าย",
+          "ตรวจสอบเงินถวาย",
+          "ตรวจสอบบัญชีและยอดเงิน",
+          "จัดการรายการเบิกจ่าย",
+          "ตรวจสอบและติดตามงบประมาณ",
+          "ออกใบเสร็จรับเงินถวาย",
+          "จัดทำรายงานทางการเงิน",
+        ],
+      },
+      {
+        role: "PASTOR",
+        title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ",
+        appointee: assigneesFor("PASTOR"),
+        desc: "กำกับทิศทางและงานของคริสตจักร พิจารณาและอนุมัติโครงการ ตรวจสอบภาพรวมการเงิน และดูแลด้านอภิบาลสมาชิก",
+        duties: [
+          "กำกับทิศทางและงานของคริสตจักร",
+          "พิจารณาและอนุมัติโครงการตามอำนาจที่กำหนด",
+          "ตรวจสอบภาพรวมด้านการเงิน",
+          "ติดตามการดำเนินงานของฝ่ายต่าง ๆ",
+          "ดูแลด้านอภิบาลและสมาชิก",
+          "ติดตามผลการดำเนินพันธกิจ",
+        ],
+      },
+      {
+        role: "DEACON",
+        title: "ผู้รับผิดชอบฝ่าย",
+        appointee: assigneesFor("DEACON"),
+        desc: "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ ตรวจรับงานและติดตามโครงการ เสนอคำของบประมาณและรายการเบิกจ่าย",
+        duties: [
+          "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ",
+          "ตรวจรับงานและติดตามโครงการ",
+          "เสนอคำของบประมาณ",
+          "เสนอรายการเบิกจ่าย",
+          "ตรวจสอบการใช้ทรัพยากรของฝ่าย",
+          "ดูรายงานเฉพาะส่วนที่ได้รับมอบหมาย",
+        ],
+      },
+      {
+        role: "MEMBER",
+        title: "สมาชิกคริสตจักร",
+        appointee: assigneesFor("MEMBER"),
+        desc: "ดูข่าวสาร ประกาศ ตารางกิจกรรม ตารางรับใช้ และดูประวัติการถวายส่วนบุคคลอย่างปลอดภัย",
+        duties: [
+          "ดูข่าวสารและประกาศ",
+          "ดูตารางกิจกรรมและตารางรับใช้",
+          "ดูข้อมูลกิจกรรมที่ตนเองเกี่ยวข้อง",
+          "ดูประวัติการถวายส่วนบุคคล",
+          "ดูใบเสร็จหรือหลักฐานการถวายของตนเอง",
+          "จัดการข้อมูลส่วนตัวตามที่ระบบอนุญาต",
+        ],
+      },
     ];
   }, [usersQuery.data, pastorName, assistantPastorName, treasurerName]);
 
@@ -510,9 +510,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-ink">
-                    อีเมลทางการ
-                  </label>
+                  <label className="font-semibold text-ink">อีเมลทางการ</label>
                   <input
                     type="email"
                     value={email}
@@ -804,11 +802,16 @@ export default function Settings() {
                                         type="button"
                                         disabled={statusMutation.isPending}
                                         onClick={() =>
-                                          statusMutation.mutate({ userId: u.id, status: "active" })
+                                          statusMutation.mutate({
+                                            userId: u.id,
+                                            status: "active",
+                                          })
                                         }
                                         className="whitespace-nowrap rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-black hover:bg-brand-ink"
                                       >
-                                        {u.status === "pending" ? "อนุมัติ" : "เปิดใช้งาน"}
+                                        {u.status === "pending"
+                                          ? "อนุมัติ"
+                                          : "เปิดใช้งาน"}
                                       </button>
                                     )}
                                     {!isMe && u.status !== "active" && (
@@ -847,7 +850,11 @@ export default function Settings() {
                                               cancelButtonText: "ไม่ปิด",
                                             }
                                           );
-                                          if (ok) statusMutation.mutate({ userId: u.id, status: "disabled" });
+                                          if (ok)
+                                            statusMutation.mutate({
+                                              userId: u.id,
+                                              status: "disabled",
+                                            });
                                         }}
                                         className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-[hsl(0_56%_72%)] hover:bg-[hsl(4_45%_13%)]"
                                       >
@@ -947,9 +954,7 @@ export default function Settings() {
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-line/60 bg-paper p-4">
-                <p className="font-bold text-ink">
-                  หมวดรายรับ (เงินถวาย)
-                </p>
+                <p className="font-bold text-ink">หมวดรายรับ (เงินถวาย)</p>
                 <ul className="mt-2 space-y-1">
                   {OFFERING_CATEGORIES.map(c => (
                     <li
@@ -987,122 +992,137 @@ export default function Settings() {
         {/* Tab 4: Payment */}
         {activeTab === "payment" && (
           <div className="space-y-6">
-          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
-            <h3 className="text-base font-bold text-ink flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-brand" />
-              บัญชีรับเงินถวาย
-            </h3>
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+              <h3 className="text-base font-bold text-ink flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-brand" />
+                บัญชีรับเงินถวาย
+              </h3>
 
-            <div className="p-4 rounded-2xl bg-paper-2/50 border border-line flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-14 h-14 bg-surface rounded-2xl border border-line shadow-inner flex items-center justify-center shrink-0">
-                <CreditCard className="w-7 h-7 text-brand" />
-              </div>
+              <div className="p-4 rounded-2xl bg-paper-2/50 border border-line flex flex-col sm:flex-row items-center gap-6">
+                <div className="w-14 h-14 bg-surface rounded-2xl border border-line shadow-inner flex items-center justify-center shrink-0">
+                  <CreditCard className="w-7 h-7 text-brand" />
+                </div>
 
-              <div className="space-y-2 text-center sm:text-left text-xs">
-                <p className="font-bold text-base text-ink">
-                  {bankAccountName}
-                </p>
-                <p className="text-ink-2">
-                  ธนาคาร:{" "}
-                  <span className="font-semibold text-ink">
-                    {bankName}
-                  </span>
-                </p>
-                <p className="text-ink-2">
-                  เลขที่บัญชี:{" "}
-                  <span className="font-mono font-bold text-sm text-ink">
-                    {bankAccount}
-                  </span>
-                </p>
-                <p className="text-xs text-ink-3">
-                  ช่องทางโอนเงินถวายของคริสตจักร — ข้อมูลนี้แสดงเมื่อบันทึกแล้ว
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
-              <p className="text-ink-3 leading-relaxed">
-                ระบบใช้ข้อมูลนี้ตรวจว่าสลิปโอนเข้าบัญชีของคริสตจักรจริง
-                และสร้าง QR พร้อมเพย์ที่ใส่ยอดไว้แล้วให้ผู้ถวายสแกนจ่ายในแอปธนาคาร
-                ผู้ถวายเห็นเลขบัญชีนี้ในหน้าถวายเมื่อยังไม่ได้โอน ส่วนเลขพร้อมเพย์ไม่แสดง เห็นเฉพาะใน QR
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="set-bank-name" className="font-semibold text-ink">
-                    ธนาคาร
-                  </label>
-                  <input
-                    id="set-bank-name"
-                    type="text"
-                    maxLength={120}
-                    value={bankName}
-                    onChange={e => setBankName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm text-ink"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="set-bank-account" className="font-semibold text-ink">
-                    เลขที่บัญชี
-                  </label>
-                  <input
-                    id="set-bank-account"
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={30}
-                    value={bankAccount}
-                    onChange={e => setBankAccount(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm font-mono text-ink"
-                  />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="set-bank-account-name" className="font-semibold text-ink">
-                    ชื่อบัญชี
-                  </label>
-                  <input
-                    id="set-bank-account-name"
-                    type="text"
-                    maxLength={120}
-                    value={bankAccountName}
-                    onChange={e => setBankAccountName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm text-ink"
-                  />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="set-promptpay" className="font-semibold text-ink">
-                    เลขพร้อมเพย์ของคริสตจักร
-                  </label>
-                  <input
-                    id="set-promptpay"
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={20}
-                    value={promptPayId}
-                    onChange={e => setPromptPayId(e.target.value)}
-                    aria-describedby="set-promptpay-help"
-                    placeholder="เบอร์มือถือ 10 หลัก หรือเลขประจำตัวผู้เสียภาษี 13 หลัก"
-                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm font-mono text-ink"
-                  />
-                  <p id="set-promptpay-help" className="text-ink-3">
-                    ต้องตรงกับพร้อมเพย์ที่ลงทะเบียนไว้กับธนาคาร เว้นว่างไว้ถ้าไม่ใช้
-                    ระบบจะไม่สร้าง QR พร้อมเพย์
+                <div className="space-y-2 text-center sm:text-left text-xs">
+                  <p className="font-bold text-base text-ink">
+                    {bankAccountName}
+                  </p>
+                  <p className="text-ink-2">
+                    ธนาคาร:{" "}
+                    <span className="font-semibold text-ink">{bankName}</span>
+                  </p>
+                  <p className="text-ink-2">
+                    เลขที่บัญชี:{" "}
+                    <span className="font-mono font-bold text-sm text-ink">
+                      {bankAccount}
+                    </span>
+                  </p>
+                  <p className="text-xs text-ink-3">
+                    ช่องทางโอนเงินถวายของคริสตจักร —
+                    ข้อมูลนี้แสดงเมื่อบันทึกแล้ว
                   </p>
                 </div>
               </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>{isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลบัญชี"}</span>
-                </button>
-              </div>
-            </form>
+
+              <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
+                <p className="text-ink-3 leading-relaxed">
+                  ระบบใช้ข้อมูลนี้ตรวจว่าสลิปโอนเข้าบัญชีของคริสตจักรจริง
+                  และสร้าง QR
+                  พร้อมเพย์ที่ใส่ยอดไว้แล้วให้ผู้ถวายสแกนจ่ายในแอปธนาคาร
+                  ผู้ถวายเห็นเลขบัญชีนี้ในหน้าถวายเมื่อยังไม่ได้โอน
+                  ส่วนเลขพร้อมเพย์ไม่แสดง เห็นเฉพาะใน QR
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="set-bank-name"
+                      className="font-semibold text-ink"
+                    >
+                      ธนาคาร
+                    </label>
+                    <input
+                      id="set-bank-name"
+                      type="text"
+                      maxLength={120}
+                      value={bankName}
+                      onChange={e => setBankName(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm text-ink"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="set-bank-account"
+                      className="font-semibold text-ink"
+                    >
+                      เลขที่บัญชี
+                    </label>
+                    <input
+                      id="set-bank-account"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={30}
+                      value={bankAccount}
+                      onChange={e => setBankAccount(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm font-mono text-ink"
+                    />
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label
+                      htmlFor="set-bank-account-name"
+                      className="font-semibold text-ink"
+                    >
+                      ชื่อบัญชี
+                    </label>
+                    <input
+                      id="set-bank-account-name"
+                      type="text"
+                      maxLength={120}
+                      value={bankAccountName}
+                      onChange={e => setBankAccountName(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm text-ink"
+                    />
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label
+                      htmlFor="set-promptpay"
+                      className="font-semibold text-ink"
+                    >
+                      เลขพร้อมเพย์ของคริสตจักร
+                    </label>
+                    <input
+                      id="set-promptpay"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={20}
+                      value={promptPayId}
+                      onChange={e => setPromptPayId(e.target.value)}
+                      aria-describedby="set-promptpay-help"
+                      placeholder="เบอร์มือถือ 10 หลัก หรือเลขประจำตัวผู้เสียภาษี 13 หลัก"
+                      className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm font-mono text-ink"
+                    />
+                    <p id="set-promptpay-help" className="text-ink-3">
+                      ต้องตรงกับพร้อมเพย์ที่ลงทะเบียนไว้กับธนาคาร
+                      เว้นว่างไว้ถ้าไม่ใช้ ระบบจะไม่สร้าง QR พร้อมเพย์
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>
+                      {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลบัญชี"}
+                    </span>
+                  </button>
+                </div>
+              </form>
+            </div>
+            <BankSignersSection />
           </div>
-          <BankSignersSection />
-        </div>
-      )}
+        )}
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (
@@ -1153,15 +1173,24 @@ export default function Settings() {
                   className="font-semibold focus:ring-2 focus:ring-brand/20"
                 >
                   <option value="ALL">กิจกรรมทั้งหมด</option>
-                  <option value="AUTH_SET_CHURCH_ROLE">
-                    👑 เปลี่ยนบทบาทผู้ใช้ (AUTH_SET_CHURCH_ROLE)
+                  <option value="update_user_role">
+                    👑 เปลี่ยนบทบาทผู้ใช้ (update_user_role)
                   </option>
-                  <option value="AUTH_UPDATE_PROFILE">
-                    👤 แก้ไขโปรไฟล์ (AUTH_UPDATE_PROFILE)
+                  <option value="approve_user">
+                    ✅ อนุมัติบัญชีผู้ใช้ (approve_user)
                   </option>
-                  <option value="CHURCH_UPDATE_PROFILE">
-                    🏛️ แก้ไขข้อมูลคริสตจักร (CHURCH_UPDATE_PROFILE)
+                  <option value="disable_user">
+                    ⛔ ปิดการใช้งานบัญชี (disable_user)
                   </option>
+                  <option value="update_profile">
+                    👤 แก้ไขโปรไฟล์ (update_profile)
+                  </option>
+                  <option value="update_church_profile">
+                    🏛️ แก้ไขข้อมูลคริสตจักร (update_church_profile)
+                  </option>
+                  <option value="CREATE">➕ บันทึกรายการใหม่ (CREATE)</option>
+                  <option value="UPDATE">✏️ แก้ไขรายการ (UPDATE)</option>
+                  <option value="VOID">🚫 ยกเลิกรายการ (VOID)</option>
                 </NativeSelect>
               </div>
             </div>
@@ -1231,16 +1260,43 @@ export default function Settings() {
                               {log.action}
                             </span>
                           );
-                          if (log.action === "AUTH_SET_CHURCH_ROLE") {
+                          if (
+                            log.action === "update_user_role" ||
+                            log.action === "AUTH_SET_CHURCH_ROLE"
+                          ) {
                             actionBadge = (
                               <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
                                 👑 เปลี่ยนบทบาทผู้ใช้
                               </span>
                             );
-                          } else if (log.action === "AUTH_UPDATE_PROFILE") {
+                          } else if (
+                            log.action === "update_profile" ||
+                            log.action === "AUTH_UPDATE_PROFILE"
+                          ) {
                             actionBadge = (
                               <span className="px-2.5 py-1 rounded-full bg-paper-2 text-brand-ink font-bold text-[11px] border border-line">
                                 👤 แก้ไขโปรไฟล์
+                              </span>
+                            );
+                          } else if (
+                            log.action === "update_church_profile" ||
+                            log.action === "CHURCH_UPDATE_PROFILE"
+                          ) {
+                            actionBadge = (
+                              <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 font-bold text-[11px] border border-amber-500/30">
+                                🏛️ แก้ไขข้อมูลคริสตจักร
+                              </span>
+                            );
+                          } else if (log.action === "approve_user") {
+                            actionBadge = (
+                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
+                                ✅ อนุมัติบัญชีผู้ใช้
+                              </span>
+                            );
+                          } else if (log.action === "disable_user") {
+                            actionBadge = (
+                              <span className="px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 font-bold text-[11px] border border-rose-500/30">
+                                ⛔ ปิดการใช้งานบัญชี
                               </span>
                             );
                           }

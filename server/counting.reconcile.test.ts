@@ -349,6 +349,7 @@ describe("status transitions", () => {
 
   it("allows sending a session back for a re-count", () => {
     expect(canTransition("counted", "counting")).toBe(true);
+    expect(canTransition("verified", "counting")).toBe(true);
     expect(canTransition("verified", "counted")).toBe(true);
   });
 

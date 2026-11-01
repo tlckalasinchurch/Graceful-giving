@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
@@ -29,17 +29,19 @@ export default function MemberDetail() {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
 
+  const seededIdRef = useRef<number | null>(null);
   useEffect(() => {
-    if (query.data) {
-      setName(query.data.name ?? "");
-      setPhone(query.data.phone ?? "");
-      setEmail(query.data.email ?? "");
-      setNotes(query.data.notes ?? "");
-    }
+    if (!query.data || seededIdRef.current === query.data.id) return;
+    seededIdRef.current = query.data.id;
+    setName(query.data.name ?? "");
+    setPhone(query.data.phone ?? "");
+    setEmail(query.data.email ?? "");
+    setNotes(query.data.notes ?? "");
   }, [query.data]);
 
   const update = trpc.members.update.useMutation({
     onSuccess: async () => {
+      seededIdRef.current = null;
       await utils.members.list.invalidate();
       await utils.members.getById.invalidate({ id });
       await Swal.success(
@@ -128,32 +130,58 @@ export default function MemberDetail() {
                   แก้ไขข้อมูลสมาชิก
                 </h1>
                 <p className="mt-1 text-sm text-ink-3">
-                  สถานะปัจจุบัน: {query.data.status}
+                  สถานะปัจจุบัน:{" "}
+                  {query.data.status === "active"
+                    ? "ใช้งานอยู่ (active)"
+                    : query.data.status === "inactive"
+                      ? "ปิดใช้งาน (inactive)"
+                      : query.data.status}
                 </p>
               </div>
-              <button
-                type="button"
-                disabled={
-                  deactivate.isPending || query.data.status === "inactive"
-                }
-                onClick={async () => {
-                  const isConfirmed = await Swal.confirm(
-                    "ยืนยันการปิดใช้งานสมาชิก?",
-                    "คุณต้องการปิดใช้งานสมาชิกนี้หรือไม่? ข้อมูลประวัติการถวายจะยังคงอยู่แต่สมาชิกจะไม่สามารถใช้งานได้",
-                    {
-                      confirmButtonText: "ยืนยันปิดใช้งาน",
-                      cancelButtonText: "ยกเลิก",
-                      icon: "warning",
+              {query.data.status === "inactive" ? (
+                <button
+                  type="button"
+                  disabled={update.isPending}
+                  onClick={async () => {
+                    const isConfirmed = await Swal.confirm(
+                      "ยืนยันการเปิดใช้งานสมาชิก?",
+                      "ต้องการเปลี่ยนสถานะสมาชิกนี้กลับเป็นใช้งานอยู่ (Active) หรือไม่?",
+                      {
+                        confirmButtonText: "เปิดใช้งาน",
+                        cancelButtonText: "ยกเลิก",
+                      }
+                    );
+                    if (isConfirmed) {
+                      update.mutate({ id, status: "active" });
                     }
-                  );
-                  if (isConfirmed) {
-                    deactivate.mutate({ id });
-                  }
-                }}
-                className="min-h-11 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-300 disabled:opacity-50 cursor-pointer"
-              >
-                ปิดใช้งาน
-              </button>
+                  }}
+                  className="min-h-11 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-300 disabled:opacity-50 cursor-pointer"
+                >
+                  เปิดใช้งานอีกครั้ง
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={deactivate.isPending}
+                  onClick={async () => {
+                    const isConfirmed = await Swal.confirm(
+                      "ยืนยันการปิดใช้งานสมาชิก?",
+                      "คุณต้องการปิดใช้งานสมาชิกนี้หรือไม่? ข้อมูลประวัติการถวายจะยังคงอยู่แต่สมาชิกจะไม่สามารถใช้งานได้",
+                      {
+                        confirmButtonText: "ยืนยันปิดใช้งาน",
+                        cancelButtonText: "ยกเลิก",
+                        icon: "warning",
+                      }
+                    );
+                    if (isConfirmed) {
+                      deactivate.mutate({ id });
+                    }
+                  }}
+                  className="min-h-11 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-300 disabled:opacity-50 cursor-pointer"
+                >
+                  ปิดใช้งาน
+                </button>
+              )}
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="text-sm font-semibold text-ink-2">

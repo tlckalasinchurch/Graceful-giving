@@ -25,6 +25,7 @@ export type SetupData = {
   bankName: string;
   bankAccount: string;
   bankAccountName: string;
+  promptPayId?: string;
   // Step 4: Offering Categories (comma-separated, stored for display)
   offeringCategories: string[];
   // Step 5: Funds

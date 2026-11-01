@@ -2614,6 +2614,28 @@ export async function addBankRecord(
   return rows[0].id;
 }
 
+export async function deleteBankRecord(
+  id: number,
+  sessionId: number,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db
+    .delete(bankRecords)
+    .where(
+      and(
+        eq(bankRecords.id, id),
+        eq(bankRecords.sessionId, sessionId),
+        eq(bankRecords.churchId, churchId),
+        eq(bankRecords.passbookMatched, false),
+        isNull(bankRecords.withdrawalRequestId)
+      )
+    )
+    .returning({ id: bankRecords.id });
+  return rows.length > 0;
+}
+
 /** Marks a bank line as seen in the passbook. */
 export async function matchBankRecordToPassbook(
   id: number,

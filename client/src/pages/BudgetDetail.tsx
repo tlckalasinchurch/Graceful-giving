@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "wouter";
+import { Link, useLocation, useParams } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   BackLink,
@@ -247,23 +247,25 @@ export default function BudgetDetail() {
               ) : (
                 <ul className="mt-3 divide-y divide-line">
                   {query.data.expenses.map(expense => (
-                    <li
-                      key={expense.id}
-                      className="flex items-start justify-between gap-3 py-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-ink">
-                          {expense.description}
-                        </p>
-                        <p className="text-xs text-ink-3">
-                          {formatThaiDate(expense.expenseDate)} ·{" "}
-                          {expenseCategoryLabel(expense.category)}
-                          {expense.payee ? ` · ${expense.payee}` : ""}
-                        </p>
-                      </div>
-                      <span className="shrink-0 text-sm font-bold tabular-nums text-ink">
-                        {formatBaht(expense.amount)}
-                      </span>
+                    <li key={expense.id}>
+                      <Link
+                        href={`/transactions/expense-${expense.id}`}
+                        className="flex items-start justify-between gap-3 py-3 hover:bg-paper/60 rounded-xl px-2 -mx-2 transition-colors"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-ink hover:underline">
+                            {expense.description}
+                          </p>
+                          <p className="text-xs text-ink-3">
+                            {formatThaiDate(expense.expenseDate)} ·{" "}
+                            {expenseCategoryLabel(expense.category)}
+                            {expense.payee ? ` · ${expense.payee}` : ""}
+                          </p>
+                        </div>
+                        <span className="shrink-0 text-sm font-bold tabular-nums text-ink">
+                          {formatBaht(expense.amount)}
+                        </span>
+                      </Link>
                     </li>
                   ))}
                 </ul>

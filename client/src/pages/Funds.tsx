@@ -22,11 +22,25 @@ import {
 import { toast } from "sonner";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 import { NativeSelect } from "@/components/ui/native-select";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageFinance } from "@shared/roles";
 
 type AccountItem = RouterOutputs["finance"]["accounts"][number];
 
+const FUND_TYPE_LABELS: Record<string, string> = {
+  general: "ดำเนินงานทั่วไป",
+  tithe: "ทศางค์",
+  mission: "พันธกิจและประกาศ",
+  building: "อาคารและบูรณะ",
+  welfare: "สงเคราะห์และสวัสดิการ",
+  special: "กองทุนโครงการพิเศษ",
+};
+
 export default function Funds() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const canCreate = canManageFinance(user);
+  const utils = trpc.useUtils();
   const [showNewFundModal, setShowNewFundModal] = useState(false);
   const [newFundName, setNewFundName] = useState("");
   const [newFundType, setNewFundType] = useState<
@@ -47,6 +61,7 @@ export default function Funds() {
       setNewFundName("");
       setNewFundDesc("");
       refetch();
+      void utils.finance.fundOptions.invalidate();
     },
     onError: error => {
       toast.error("สร้างกองทุนไม่สำเร็จ", { description: error.message });
@@ -91,13 +106,15 @@ export default function Funds() {
       title="กองทุน"
       subtitle="แยกเงินถวายตามวัตถุประสงค์ เพื่อใช้ให้ตรงกับเป้าหมายของแต่ละกองทุน"
       action={
-        <button
-          onClick={() => setShowNewFundModal(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black hover:bg-brand-ink"
-        >
-          <Plus className="size-4" />
-          สร้างกองทุนใหม่
-        </button>
+        canCreate ? (
+          <button
+            onClick={() => setShowNewFundModal(true)}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black hover:bg-brand-ink"
+          >
+            <Plus className="size-4" />
+            สร้างกองทุนใหม่
+          </button>
+        ) : undefined
       }
     >
       <div className="space-y-6">
@@ -159,14 +176,12 @@ export default function Funds() {
                     </div>
                   </div>
 
-                  {/* Progress towards target */}
-                  <div className="pt-1 text-xs text-ink-3">
-                    ยังไม่มีข้อมูลเป้าหมายสำรองสำหรับกองทุนนี้
-                  </div>
-
-                  {/* Monthly Inflow/Outflow */}
-                  <div className="pt-2 border-t border-line/40 text-xs text-ink-3">
-                    กิจกรรมล่าสุดจะแสดงเมื่อมีข้อมูลจากระบบ
+                  {/* Fund Type Badge */}
+                  <div className="pt-2 border-t border-line/40 flex items-center justify-between text-xs text-ink-3">
+                    <span>ประเภทกองทุน</span>
+                    <span className="font-semibold text-ink-2">
+                      {FUND_TYPE_LABELS[f.type] || f.type}
+                    </span>
                   </div>
                 </div>
 
@@ -224,6 +239,7 @@ export default function Funds() {
                     }
                   >
                     <option value="mission">พันธกิจและประกาศ (Mission)</option>
+                    <option value="tithe">ทศางค์ (Tithe)</option>
                     <option value="building">อาคารและบูรณะ (Building)</option>
                     <option value="welfare">
                       สงเคราะห์และสวัสดิการ (Welfare)

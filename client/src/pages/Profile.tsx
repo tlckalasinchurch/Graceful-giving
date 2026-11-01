@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -6,6 +6,7 @@ import {
   getChurchRoleInfo,
   isSuperAdmin,
   canManageFinance,
+  canManageChurchSettings,
   canCountOfferings,
 } from "@shared/roles";
 import { Swal } from "@/lib/sweetalert";
@@ -53,11 +54,10 @@ interface ChurchOfficialRoster {
   responsibilities: string[];
 }
 
-const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
+const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
   {
     role: "SUPER_ADMIN",
     title: "ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)",
-    appointee: "พณ.ท่านหม่อมหลวงราชวงศ์สุริยงค์ บาลเพ็ชร",
     badgeStyle: {
       bg: "bg-amber-500/15",
       text: "text-amber-200",
@@ -77,7 +77,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "TREASURER",
     title: "เหรัญญิกคริสตจักร (TREASURER)",
-    appointee: "สุดารัตน์ จิณเซ่ง, อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
       bg: "bg-emerald-500/15",
       text: "text-emerald-200",
@@ -99,7 +98,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "PASTOR",
     title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ (PASTOR)",
-    appointee: "ศบ.อาจารย์สรรเสริญ ดวงจิตร",
     badgeStyle: {
       bg: "bg-paper-2",
       text: "text-brand-ink",
@@ -120,7 +118,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "DEACON",
     title: "ผู้รับผิดชอบฝ่าย",
-    appointee: "อาจารย์ทัศนา ดวงจิตร",
     badgeStyle: {
       bg: "bg-[hsl(13_45%_13%)]",
       text: "text-[hsl(7_58%_72%)]",
@@ -141,7 +138,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "COUNTER",
     title: "กรรมการนับเงิน / ทีมนับเงินถวาย (COUNTER)",
-    appointee: "สุดารัตน์ จิณเซ่ง (และผู้ได้รับมอบหมายประจำสัปดาห์)",
     badgeStyle: {
       bg: "bg-orange-500/15",
       text: "text-orange-200",
@@ -161,7 +157,6 @@ const OFFICIAL_CHURCH_ROSTER: ChurchOfficialRoster[] = [
   {
     role: "MEMBER",
     title: "สมาชิกคริสตจักร (MEMBER)",
-    appointee: "สมาชิกคริสตจักรทั่วไป",
     badgeStyle: {
       bg: "bg-paper",
       text: "text-ink",
@@ -202,6 +197,11 @@ export default function Profile() {
     staleTime: 30_000,
   });
   const churchProfileQuery = trpc.church.getProfile.useQuery(undefined, {
+    staleTime: 60_000,
+  });
+  const usersQuery = trpc.auth.listUsers.useQuery(undefined, {
+    enabled: canManageChurchSettings(user),
+    retry: false,
     staleTime: 60_000,
   });
 
@@ -265,9 +265,41 @@ export default function Profile() {
     });
   };
 
-  const churchName =
-    churchProfileQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์";
+  const churchProfile = churchProfileQuery.data;
+  const churchName = churchProfile?.name || "คริสตจักร";
   const userRoleInfo = getChurchRoleInfo(user?.churchRole);
+
+  const churchRoster = useMemo<ChurchOfficialRoster[]>(() => {
+    const assigneesFor = (role: string): string => {
+      const fromProfile =
+        role === "PASTOR"
+          ? [churchProfile?.pastorName, churchProfile?.assistantPastorName]
+              .filter(Boolean)
+              .join(", ")
+          : role === "TREASURER"
+            ? churchProfile?.treasurerName
+            : null;
+      const usersWithRole = (usersQuery.data ?? [])
+        .filter(u => {
+          if (u.churchRole === role) return true;
+          if (u.churchRole) return false;
+          const extra = u.churchRoles ?? "";
+          return extra.includes(role);
+        })
+        .map(u => u.name)
+        .filter(Boolean);
+      const names = [fromProfile, ...usersWithRole]
+        .filter((n): n is string => Boolean(n && n.trim()))
+        .filter((n, i, arr) => arr.indexOf(n) === i);
+      if (names.length > 0) return names.join(", ");
+      if (role === "MEMBER") return "สมาชิกคริสตจักรทั่วไป";
+      return "ตามที่คริสตจักรมอบหมาย";
+    };
+    return ROSTER_TEMPLATES.map(t => ({
+      ...t,
+      appointee: assigneesFor(t.role),
+    }));
+  }, [churchProfile, usersQuery.data]);
 
   const pendingApprovalsCount =
     pendingApprovalsQuery.data?.filter(w => w.status === "pending").length || 0;
@@ -275,9 +307,8 @@ export default function Profile() {
     notificationsQuery.data?.filter(n => !n.readAt).length || 0;
 
   const effectiveAvatar =
-    (user as any)?.avatarUrl || (user as any)?.openId?.includes("http")
-      ? (user as any)?.openId
-      : null;
+    (user as any)?.avatarUrl ||
+    ((user as any)?.openId?.includes("http") ? (user as any)?.openId : null);
 
   return (
     <AppLayout
@@ -289,8 +320,6 @@ export default function Profile() {
       <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6">
         {/* ── PROFILE HERO: Logged-in User's Actual Profile & ID Card Action ──── */}
         <section className="bg-surface rounded-2xl sm:rounded-2xl border border-line p-4 sm:p-6 md:p-8 shadow-xs relative overflow-hidden">
-
-
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left relative z-10">
             {/* Large Circular Avatar */}
             <div className="relative shrink-0">
@@ -448,7 +477,7 @@ export default function Profile() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {OFFICIAL_CHURCH_ROSTER.map((roster, idx) => (
+            {churchRoster.map(roster => (
               <div
                 key={roster.role}
                 className="rounded-2xl border border-line bg-surface hover:bg-surface p-4 sm:p-5 space-y-3 transition-all hover:shadow-xs flex flex-col justify-between"
@@ -602,14 +631,10 @@ export default function Profile() {
                   <span className="text-[10px] text-ink-3">
                     สังกัดคริสตจักร:
                   </span>
-                  <p className="font-bold text-ink truncate">
-                    {churchName}
-                  </p>
+                  <p className="font-bold text-ink truncate">{churchName}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-ink-3">
-                    สถานะสมาชิก:
-                  </span>
+                  <span className="text-[10px] text-ink-3">สถานะสมาชิก:</span>
                   <p className="font-bold text-emerald-300">
                     ยืนยันแล้ว (Active)
                   </p>
@@ -671,7 +696,7 @@ export default function Profile() {
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
                   className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl border border-line text-xs sm:text-sm font-semibold text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
-                  placeholder="เช่น พณ.ท่านสุริยงค์ บาลเพ็ชร"
+                  placeholder="เช่น ชื่อ-นามสกุลจริงของคุณ"
                 />
               </div>
 
@@ -754,14 +779,11 @@ export default function Profile() {
               </div>
 
               <div className="p-3 sm:p-3.5 rounded-2xl bg-paper border border-line/60 text-xs text-ink-3 space-y-1">
-                <span className="font-bold text-ink">
-                  หมายเหตุเรื่องบทบาท:
-                </span>
+                <span className="font-bold text-ink">หมายเหตุเรื่องบทบาท:</span>
                 <p className="leading-relaxed">
                   บทบาทและสิทธิ์การใช้งานของท่าน ({userRoleInfo.label})
                   ถูกกำหนดโดยมติคริสตจักรและผู้ดูแลระบบสูงสุด
-                  หากต้องการเปลี่ยนแปลงสิทธิ์ กรุณาติดต่อ
-                  พณ.ท่านหม่อมหลวงราชวงศ์สุริยงค์ บาลเพ็ชร
+                  หากต้องการเปลี่ยนแปลงสิทธิ์ กรุณาติดต่อผู้ดูแลระบบของคริสตจักร
                 </p>
               </div>
 

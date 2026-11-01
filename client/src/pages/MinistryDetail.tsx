@@ -49,6 +49,7 @@ export default function MinistryDetail() {
 
   const update = trpc.ministries.update.useMutation({
     onSuccess: async () => {
+      seededIdRef.current = null;
       await utils.ministries.list.invalidate();
       await utils.ministries.getById.invalidate({ id });
       await Swal.success(
@@ -227,9 +228,7 @@ export default function MinistryDetail() {
         ) : (
           <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h1 className="text-2xl font-bold text-ink">
-                {query.data.name}
-              </h1>
+              <h1 className="text-2xl font-bold text-ink">{query.data.name}</h1>
               <span
                 className={`rounded-full px-2.5 py-1 text-[11px] ${
                   query.data.status === "active"

@@ -42,12 +42,14 @@ const Updates = lazy(() => import("./pages/Updates"));
 const GivingInbox = lazy(() => import("./pages/GivingInbox"));
 const GivingStation = lazy(() => import("./pages/GivingStation"));
 const Give = lazy(() => import("./pages/Give"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
 
 /** Routes reachable without a session. Everything else needs one. */
 const PUBLIC_PATHS = [
   "/login",
   "/give",
+  "/privacy",
   "/404",
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
 ];
@@ -85,6 +87,7 @@ const SETUP_EXEMPT_PATHS = [
   "/setup",
   "/login",
   "/give",
+  "/privacy",
   "/404",
   // Dev-only UI gallery; the route itself is also unmounted in prod (see Router).
   ...(import.meta.env.DEV ? ["/ui-showcase"] : []),
@@ -259,6 +262,7 @@ function Router() {
         </RoleGuard>
       </Route>
       <Route path="/give" component={Give} />
+      <Route path="/privacy" component={Privacy} />
       <Route path="/giving/station" component={GivingStation} />
 
       {/* LINE Giving Inbox */}

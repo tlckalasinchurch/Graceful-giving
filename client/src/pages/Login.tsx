@@ -73,10 +73,14 @@ export default function Login() {
               <span className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black">
                 <Sprout className="size-5" aria-hidden="true" />
               </span>
-              <span className="display text-xl font-black text-white">Grace Ledger</span>
+              <span className="display text-xl font-black text-white">
+                Grace Ledger
+              </span>
             </div>
             <p className="eyebrow !text-[#00F58A]">Sign in</p>
-            <h1 className="display text-5xl font-black text-white">เข้าสู่ระบบ</h1>
+            <h1 className="display text-5xl font-black text-white">
+              เข้าสู่ระบบ
+            </h1>
             <p className="text-sm text-white/60">
               ใช้บัญชี LINE ของคุณ ผู้ดูแลระบบจะอนุมัติสิทธิ์ให้ในครั้งแรก
             </p>
@@ -118,7 +122,10 @@ export default function Login() {
               )}
               <p className="border-t border-white/10 pt-4 text-xs text-white/50">
                 ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
-                โปรดติดต่อผู้ดูแลระบบของคริสตจักร
+                โปรดติดต่อผู้ดูแลระบบของคริสตจักร ·{" "}
+                <a href="/privacy" className="underline hover:text-white/80">
+                  นโยบายความเป็นส่วนตัว (PDPA)
+                </a>
               </p>
             </div>
           )}
