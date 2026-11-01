@@ -11,7 +11,7 @@ import {
   StatusBadge,
 } from "@/components/common/CommonUI";
 import { THB_DENOMINATIONS, reconcile } from "@shared/counting";
-import { canManageFinance } from "@shared/roles";
+import { canManageChurchSettings, canManageFinance } from "@shared/roles";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
   Banknote,
@@ -93,6 +93,10 @@ export default function CountingDetail() {
   const addBankRecord = trpc.counting.addBankRecord.useMutation({
     onSuccess: () => void refreshAll(),
     onError: onError("บันทึกรายการธนาคาร"),
+  });
+  const removeBankRecord = trpc.counting.removeBankRecord.useMutation({
+    onSuccess: () => void refreshAll(),
+    onError: onError("ลบรายการธนาคาร"),
   });
   const matchPassbook = trpc.counting.matchPassbook.useMutation({
     onSuccess: () => void refreshAll(),
@@ -259,7 +263,7 @@ export default function CountingDetail() {
         <EmptyState
           title="ไม่พบรอบนี้"
           description="รอบนับเงินถวายนี้ไม่มีอยู่ในระบบ"
-          actionText="กลางหน้ารอบนับเงินถวาย"
+          actionText="กลับหน้ารอบนับเงินถวาย"
           onAction={() => setLocation("/counting")}
         />
       </AppLayout>
@@ -429,12 +433,15 @@ export default function CountingDetail() {
         {tab === "bank" && (
           <BankRecordsTab
             sessionId={sessionId}
+            canEdit={canManageFinance(user) && isUnposted}
+            canMatchPassbook={canManageFinance(user)}
             bankRecords={detail.bankRecords}
             actualTransferIn={r.actualTransferIn}
             envelopeTransferTotal={r.envelopeTransferTotal}
             transferVariance={r.transferVariance}
             actualCashDeposit={r.actualCashDeposit}
             addBankRecord={addBankRecord}
+            removeBankRecord={removeBankRecord}
             matchPassbook={matchPassbook}
           />
         )}
@@ -443,6 +450,8 @@ export default function CountingDetail() {
           <DeductionsTab
             sessionId={sessionId}
             editable={editable}
+            canApprove={canManageFinance(user) || canManageChurchSettings(user)}
+            currentUserId={user?.id}
             deductions={detail.deductions}
             funds={funds}
             deductionTotal={r.deductionTotal}
@@ -477,6 +486,9 @@ export default function CountingDetail() {
           <ReconciliationSummaryTab
             sessionId={sessionId}
             status={status}
+            canManageFinance={canManageFinance(user)}
+            countedBy={detail.session.countedBy}
+            currentUserId={user?.id}
             varianceNote={varianceNote}
             setVarianceNote={setVarianceNote}
             sessionVarianceNote={detail.session.varianceNote}

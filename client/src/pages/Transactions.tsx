@@ -94,9 +94,8 @@ export default function Transactions() {
           fund: fundName(o.fundId),
           categoryLabel: offeringCategoryLabel(o.category),
           amount: Number(o.amount),
-          // The offering list API does not expose an approval status. Keep it
-          // explicit rather than presenting a legacy record as approved.
-          status: "unknown",
+          // Recorded ledger offerings are active entries in the books.
+          status: "completed",
           icon: HandHeart,
           tone: "bg-tile-mint text-tile-mint-ink",
         });

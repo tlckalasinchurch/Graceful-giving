@@ -82,6 +82,17 @@ describe("buildTaskItems", () => {
     expect(items[0].description).toContain("ผู้ลงนามบัญชีธนาคาร");
   });
 
+  it("tells finance roles when approved withdrawals wait for disbursement", () => {
+    const items = buildTaskItems({
+      ...none,
+      approvedWithdrawalsToDisburse: 3,
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0].title).toBe("คำขอเบิกเงินรอดำเนินการจ่ายเงิน");
+    expect(items[0].count).toBe(3);
+    expect(items[0].href).toBe("/approvals");
+  });
+
   it("counts only unfinished counting sessions and describes each stage", () => {
     const [item] = buildTaskItems({
       ...none,

@@ -32,11 +32,15 @@ import {
   type VoucherData,
 } from "@/components/finance/VoucherModal";
 import { ReceiptPreviewModal } from "@/components/finance/ReceiptPreviewModal";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageFinance } from "@shared/roles";
 
 type ExpenseItem = RouterOutputs["expenses"]["list"][number];
 
 export default function Expenses() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const canCreate = canManageFinance(user);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedVoucher, setSelectedVoucher] = useState<VoucherData | null>(
@@ -190,13 +194,15 @@ export default function Expenses() {
             <Download className="size-4" />
             ส่งออก CSV
           </button>
-          <button
-            onClick={() => setLocation("/expenses/new")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black hover:bg-brand-ink"
-          >
-            <Plus className="size-4" />
-            บันทึกรายจ่าย
-          </button>
+          {canCreate && (
+            <button
+              onClick={() => setLocation("/expenses/new")}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black hover:bg-brand-ink"
+            >
+              <Plus className="size-4" />
+              บันทึกรายจ่าย
+            </button>
+          )}
         </>
       }
     >
@@ -265,8 +271,10 @@ export default function Expenses() {
           <EmptyState
             title="ไม่พบรายการรายจ่าย"
             description="ยังไม่มีรายการรายจ่ายที่ตรงกับเงื่อนไขการค้นหาของคุณ"
-            actionText="บันทึกรายจ่ายใหม่"
-            onAction={() => setLocation("/expenses/new")}
+            actionText={canCreate ? "บันทึกรายจ่ายใหม่" : undefined}
+            onAction={
+              canCreate ? () => setLocation("/expenses/new") : undefined
+            }
           />
         ) : (
           <div className="overflow-hidden rounded-2xl border border-line bg-surface">

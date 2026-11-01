@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { canManageChurchSettings } from "@shared/roles";
 import {
   ArrowLeft,
   Bell,
@@ -16,7 +18,7 @@ import { AdminManager } from "./Updates/components/AdminManager";
 export default function Updates() {
   const { user, isAuthenticated, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<"feed" | "manage">("feed");
-  const canManage = user?.role === "admin";
+  const canManage = canManageChurchSettings(user);
 
   if (loading) {
     return (
@@ -61,43 +63,39 @@ export default function Updates() {
   }
 
   return (
-    <div className="min-h-dvh bg-paper pb-16 text-ink">
-      <div className="mx-auto max-w-[var(--content-max)] px-5 py-6 sm:px-8 lg:py-10">
-        <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
-          <div>
-            <Link
-              href="/"
-              className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-brand-ink hover:underline"
-            >
-              <ArrowLeft className="size-4" />
-              กลับหน้าหลัก
-            </Link>
-            <div className="mt-4 flex items-center gap-3">
-              <div className="grid size-12 place-items-center rounded-2xl bg-[hsl(210_45%_13%)] text-[hsl(209_45%_72%)]">
-                <Megaphone className="size-6" />
-              </div>
-              <div>
-                <h1 className="font-display text-3xl font-bold tracking-tight text-ink-2">
-                  ข่าวสาร & กิจกรรม
-                </h1>
-                <p className="mt-1 text-sm text-ink-2">
-                  ติดตามสิ่งที่เกิดขึ้นในคริสตจักรบ้านแห่งพระคุณ
-                </p>
-              </div>
+    <AppLayout
+      activeRoute="/updates"
+      eyebrow="Updates"
+      title="ข่าวสาร & กิจกรรม"
+      subtitle="ติดตามสิ่งที่เกิดขึ้นในคริสตจักรและข้อมูลอัปเดตสำหรับสมาชิก"
+    >
+      <div className="space-y-6">
+        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3">
+            <div className="grid size-12 place-items-center rounded-2xl bg-[hsl(210_45%_13%)] text-[hsl(209_45%_72%)]">
+              <Megaphone className="size-6" />
+            </div>
+            <div>
+              <h2 className="font-display text-xl font-bold tracking-tight text-ink">
+                ประกาศและตารางกิจกรรม
+              </h2>
+              <p className="mt-0.5 text-xs text-ink-3">
+                ข่าวสารการรับใช้ กิจกรรมพิเศษ และประกาศของคริสตจักร
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-line bg-white/10 px-3.5 py-2 text-xs text-ink-2">
+          <div className="flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-xs text-ink-2">
             <Sparkles className="size-4 text-brand-ink" />
             <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
           </div>
         </header>
 
-        <div className="mt-8 flex gap-2 rounded-2xl bg-line p-1.5 sm:w-fit">
+        <div className="flex gap-2 rounded-2xl bg-surface border border-line p-1.5 sm:w-fit">
           <button
             onClick={() => setActiveTab("feed")}
             className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
               activeTab === "feed"
-                ? "bg-surface text-brand-ink shadow-sm"
+                ? "bg-tile-lilac text-brand-ink shadow-xs"
                 : "text-ink-3 hover:text-ink-2"
             }`}
           >
@@ -108,7 +106,7 @@ export default function Updates() {
               onClick={() => setActiveTab("manage")}
               className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
                 activeTab === "manage"
-                  ? "bg-surface text-brand-ink shadow-sm"
+                  ? "bg-tile-lilac text-brand-ink shadow-xs"
                   : "text-ink-3 hover:text-ink-2"
               }`}
             >
@@ -119,13 +117,13 @@ export default function Updates() {
         </div>
 
         {activeTab === "feed" ? (
-          <div className="mt-8">
+          <div>
             <MemberFeed />
           </div>
         ) : (
           <AdminManager />
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }

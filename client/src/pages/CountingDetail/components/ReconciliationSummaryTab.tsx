@@ -6,6 +6,9 @@ import { Swal } from "@/lib/sweetalert";
 interface ReconciliationSummaryTabProps {
   sessionId: number;
   status: string | undefined;
+  canManageFinance?: boolean;
+  countedBy?: number | null;
+  currentUserId?: number;
   varianceNote: string;
   setVarianceNote: React.Dispatch<React.SetStateAction<string>>;
   sessionVarianceNote?: string | null;
@@ -53,6 +56,9 @@ interface ReconciliationSummaryTabProps {
 export function ReconciliationSummaryTab({
   sessionId,
   status,
+  canManageFinance = true,
+  countedBy,
+  currentUserId,
   varianceNote,
   setVarianceNote,
   sessionVarianceNote,
@@ -69,6 +75,11 @@ export function ReconciliationSummaryTab({
   resetSessionPending,
   deleteSessionPending,
 }: ReconciliationSummaryTabProps) {
+  const isSelfVerifyBlocked =
+    currentUserId !== undefined &&
+    countedBy !== undefined &&
+    countedBy !== null &&
+    countedBy === currentUserId;
   const effectiveVarianceNote =
     varianceNote.trim() || sessionVarianceNote || "";
 
@@ -195,7 +206,7 @@ export function ReconciliationSummaryTab({
           ลำดับงาน: นับ → ส่งตรวจ → ตรวจสอบ → ลงบัญชี → ปิดรอบ
           (ผู้นับไม่สามารถตรวจสอบรอบของตัวเองได้)
         </p>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           {status === "counting" && (
             <button
               type="button"
@@ -206,27 +217,36 @@ export function ReconciliationSummaryTab({
               ส่งนับให้ตรวจสอบ
             </button>
           )}
-          {(status === "counted" || status === "verified") && (
-            <button
-              type="button"
-              onClick={() => reopenCount.mutate({ id: sessionId })}
-              disabled={reopenCount.isPending}
-              className="min-h-11 rounded-2xl border border-line bg-paper-2 px-5 py-2.5 text-sm font-bold text-ink-2 disabled:opacity-50"
-            >
-              ส่งกลับไปนับใหม่
-            </button>
+          {canManageFinance &&
+            (status === "counted" || status === "verified") && (
+              <button
+                type="button"
+                onClick={() => reopenCount.mutate({ id: sessionId })}
+                disabled={reopenCount.isPending}
+                className="min-h-11 rounded-2xl border border-line bg-paper-2 px-5 py-2.5 text-sm font-bold text-ink-2 disabled:opacity-50"
+              >
+                ส่งกลับไปนับใหม่
+              </button>
+            )}
+          {canManageFinance && status === "counted" && (
+            <>
+              <button
+                type="button"
+                onClick={() => verify.mutate({ id: sessionId })}
+                disabled={verify.isPending || isSelfVerifyBlocked}
+                className="min-h-11 rounded-xl bg-income px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              >
+                ตรวจสอบและรับรองยอด
+              </button>
+              {isSelfVerifyBlocked && (
+                <p className="w-full text-xs text-brand-ink">
+                  ผู้ส่งยอดนับไม่สามารถรับรองยอดของตัวเองได้
+                  (ต้องให้ผู้ตรวจสอบท่านอื่นกดรับรอง)
+                </p>
+              )}
+            </>
           )}
-          {status === "counted" && (
-            <button
-              type="button"
-              onClick={() => verify.mutate({ id: sessionId })}
-              disabled={verify.isPending}
-              className="min-h-11 rounded-xl bg-income px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
-            >
-              ตรวจสอบและรับรองยอด
-            </button>
-          )}
-          {status === "verified" && (
+          {canManageFinance && status === "verified" && (
             <button
               type="button"
               onClick={handlePost}
@@ -242,7 +262,7 @@ export function ReconciliationSummaryTab({
               ลงบัญชีเข้าระบบ
             </button>
           )}
-          {status === "posted" && (
+          {canManageFinance && status === "posted" && (
             <button
               type="button"
               onClick={handleClose}
@@ -252,6 +272,13 @@ export function ReconciliationSummaryTab({
               ปิดรอบถาวร
             </button>
           )}
+          {!canManageFinance &&
+            status !== "counting" &&
+            status !== "closed" && (
+              <p className="text-sm text-ink-2">
+                รอเหรัญญิกตรวจสอบและดำเนินการในขั้นตอนถัดไป
+              </p>
+            )}
           {status === "closed" && (
             <p className="text-sm font-bold text-income">
               รอบนี้ปิดเรียบร้อยแล้ว ข้อมูลถูกล็อกเพื่อการตรวจสอบ

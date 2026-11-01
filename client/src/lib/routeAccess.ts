@@ -51,8 +51,13 @@ export function canAccessRoute(basePath: string, user: AuthUser): boolean {
   return check ? check(user) : true;
 }
 
-/** The only pages an ordinary member can open: the giving station. */
-export const STATION_ONLY_PATHS = ["/giving/station", "/give", "/404"];
+/** The only pages an ordinary member can open: the giving station and privacy notice. */
+export const STATION_ONLY_PATHS = [
+  "/giving/station",
+  "/give",
+  "/privacy",
+  "/404",
+];
 
 /**
  * Where to send a signed-in person who is on `path`, or null to leave them be.

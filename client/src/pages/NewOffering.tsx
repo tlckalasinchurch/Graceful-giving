@@ -49,6 +49,11 @@ export default function NewOffering() {
   const [donorName, setDonorName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [lastSaved, setLastSaved] = useState<{
+    category: OfferingCategory;
+    amount: number;
+    method: string;
+  } | null>(null);
   const isDirty =
     !isSuccessOpen &&
     Boolean(
@@ -69,11 +74,23 @@ export default function NewOffering() {
 
   const createMutation = trpc.offerings.create.useMutation({
     onSuccess: () => {
+      setLastSaved({
+        category,
+        amount: Number(amount),
+        method,
+      });
+      setAmount("");
+      setNotes("");
+      setDonorName("");
+      setIsAnonymous(false);
       setIsSuccessOpen(true);
       void Promise.all([
         utils.offerings.list.invalidate(),
         utils.finance.summary.invalidate(),
         utils.finance.monthlyStats.invalidate(),
+        utils.finance.accounts.invalidate(),
+        utils.finance.fundOptions.invalidate(),
+        utils.reports.summary.invalidate(),
       ]);
       toast.success("บันทึกการถวายเรียบร้อยแล้ว");
     },
@@ -366,18 +383,20 @@ export default function NewOffering() {
             <p className="flex justify-between">
               <span className="text-ink-3">ประเภท:</span>
               <span className="font-bold text-ink-2">
-                {offeringCategoryLabel(category)}
+                {offeringCategoryLabel(lastSaved?.category ?? category)}
               </span>
             </p>
             <p className="flex justify-between">
               <span className="text-ink-3">จำนวนเงิน:</span>
               <span className="font-bold text-income">
-                {formatBaht(Number(amount))}
+                {formatBaht(lastSaved?.amount ?? Number(amount))}
               </span>
             </p>
             <p className="flex justify-between">
               <span className="text-ink-3">ช่องทาง:</span>
-              <span className="font-medium text-ink-2">{method}</span>
+              <span className="font-medium text-ink-2">
+                {lastSaved?.method ?? method}
+              </span>
             </p>
           </div>
 

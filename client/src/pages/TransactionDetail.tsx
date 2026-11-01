@@ -35,9 +35,13 @@ import {
   paymentMethodLabel,
 } from "@shared/categories";
 import { THAI_LOCALE } from "@/lib/format";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageFinance } from "@shared/roles";
 
 export default function TransactionDetail() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const canEdit = canManageFinance(user);
   const [, params] = useRoute("/transactions/:id");
   const txId = params?.id;
   const isOffering = txId?.startsWith("offering-") ?? false;
@@ -58,6 +62,7 @@ export default function TransactionDetail() {
         utils.offerings.list.invalidate(),
         utils.finance.summary.invalidate(),
         utils.finance.monthlyStats.invalidate(),
+        utils.finance.accounts.invalidate(),
       ]);
       toast.success("ยกเลิกรายการถวายเรียบร้อยแล้ว");
       setLocation("/transactions");
@@ -70,6 +75,8 @@ export default function TransactionDetail() {
         utils.expenses.list.invalidate(),
         utils.finance.summary.invalidate(),
         utils.finance.monthlyStats.invalidate(),
+        utils.finance.accounts.invalidate(),
+        utils.budgets.list.invalidate(),
       ]);
       toast.success("ยกเลิกรายการรายจ่ายเรียบร้อยแล้ว");
       setLocation("/transactions");
@@ -84,6 +91,7 @@ export default function TransactionDetail() {
         utils.offerings.list.invalidate(),
         utils.finance.summary.invalidate(),
         utils.finance.monthlyStats.invalidate(),
+        utils.finance.accounts.invalidate(),
       ]);
       setIsEditing(false);
       toast.success("แก้ไขรายการถวายเรียบร้อยแล้ว");
@@ -97,6 +105,8 @@ export default function TransactionDetail() {
         utils.expenses.list.invalidate(),
         utils.finance.summary.invalidate(),
         utils.finance.monthlyStats.invalidate(),
+        utils.finance.accounts.invalidate(),
+        utils.budgets.list.invalidate(),
       ]);
       setIsEditing(false);
       toast.success("แก้ไขรายการรายจ่ายเรียบร้อยแล้ว");
@@ -234,10 +244,11 @@ export default function TransactionDetail() {
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
             </button>
           )}
-          {transaction && (
+          {transaction && canEdit && (
             <button
-              onClick={() => {
-                if (isEditing && !confirmDiscardChanges(isDirty)) return;
+              onClick={async () => {
+                if (isEditing && !(await confirmDiscardChanges(isDirty)))
+                  return;
                 setIsEditing(value => !value);
               }}
               className="min-h-11 px-3.5 py-2 rounded-xl bg-[hsl(132_38%_13%)] text-income text-xs font-bold border border-[hsl(133_37%_24%)] flex items-center gap-1.5"
@@ -246,7 +257,7 @@ export default function TransactionDetail() {
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
             </button>
           )}
-          {transaction && (
+          {transaction && canEdit && (
             <button
               onClick={async () => {
                 const isConfirmed = await Swal.confirm(
@@ -295,9 +306,7 @@ export default function TransactionDetail() {
               onSubmit={submitEdit}
               className="rounded-2xl bg-paper border border-line p-4 space-y-3"
             >
-              <p className="text-sm font-bold text-ink">
-                แก้ไขข้อมูลรายการ
-              </p>
+              <p className="text-sm font-bold text-ink">แก้ไขข้อมูลรายการ</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-xs font-semibold text-ink-2">
                   จำนวนเงิน
@@ -344,9 +353,7 @@ export default function TransactionDetail() {
               </p>
             </div>
             <div className="text-left sm:text-right">
-              <span className="text-xs text-ink-3 block">
-                จำนวนเงินสุทธิ
-              </span>
+              <span className="text-xs text-ink-3 block">จำนวนเงินสุทธิ</span>
               <MoneyDisplay
                 amount={transaction.amount}
                 type={transaction.type}

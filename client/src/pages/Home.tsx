@@ -95,9 +95,11 @@ export default function Home() {
   const canAccessInbox = canAccessRoute("/giving/inbox", user);
   const canOpenCounting = canAccessRoute("/counting", user);
   const canViewBudgets = canAccessRoute("/budgets", user);
-  // withdrawals.list returns every request only to finance roles, and only
-  // they can approve, so the to-do row is limited to them.
+  // withdrawals.list returns every request to finance roles and bank signers;
+  // signers see pending signatures while finance roles see approved requests
+  // waiting to be disbursed.
   const isSigner = Boolean(user?.isBankSigner);
+  const canDisburseWithdrawals = canManageFinance(user);
   // Balances, totals and the ledger are for finance roles and church leaders;
   // the server refuses everyone else, so the dashboard does not ask.
   const canSeeFinance = canViewFinanceRecords(user);
@@ -105,7 +107,11 @@ export default function Home() {
   // Only the super admin approves new sign-ins.
   const canApproveUsers = isSuperAdmin(user);
   const hasTaskSources =
-    canAccessInbox || isSigner || canOpenCounting || canApproveUsers;
+    canAccessInbox ||
+    isSigner ||
+    canDisburseWithdrawals ||
+    canOpenCounting ||
+    canApproveUsers;
 
   const today = new Date();
   const budgetYear = today.getFullYear();
@@ -153,7 +159,7 @@ export default function Home() {
 
   const { data: withdrawalsData, isLoading: withdrawalsLoading } =
     trpc.withdrawals.list.useQuery(undefined, {
-      enabled: isSigner,
+      enabled: isSigner || canDisburseWithdrawals,
       retry: false,
       staleTime: 15_000,
     });
@@ -192,6 +198,9 @@ export default function Home() {
                 !w.signatures?.some(s => s.userId === user?.id)
             ).length
           : undefined,
+        approvedWithdrawalsToDisburse: canDisburseWithdrawals
+          ? withdrawalsData?.filter(w => w.status === "approved").length
+          : undefined,
         countingStatuses: canOpenCounting
           ? countingData?.map(s => s.status)
           : undefined,
@@ -200,6 +209,7 @@ export default function Home() {
     [
       canAccessInbox,
       isSigner,
+      canDisburseWithdrawals,
       user?.id,
       canOpenCounting,
       canApproveUsers,
@@ -291,20 +301,20 @@ export default function Home() {
 
         <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
           {canSeeFinance && (
-          <div className="lg:col-span-7">
-            <BalanceCard
-              showBalance={showBalance}
-              setShowBalance={setShowBalance}
-              isPositiveBalance={isPositiveBalance}
-              isBalanceLoading={isBalanceLoading}
-              isDataUnavailable={isDataUnavailable}
-              summaryError={summaryError}
-              hasSummaryData={!!summaryData}
-              animatedBalance={animatedBalance}
-              canOpenReports={canOpenReports}
-              onOpenReports={() => setLocation("/reports")}
-            />
-          </div>
+            <div className="lg:col-span-7">
+              <BalanceCard
+                showBalance={showBalance}
+                setShowBalance={setShowBalance}
+                isPositiveBalance={isPositiveBalance}
+                isBalanceLoading={isBalanceLoading}
+                isDataUnavailable={isDataUnavailable}
+                summaryError={summaryError}
+                hasSummaryData={!!summaryData}
+                animatedBalance={animatedBalance}
+                canOpenReports={canOpenReports}
+                onOpenReports={() => setLocation("/reports")}
+              />
+            </div>
           )}
 
           <section
@@ -336,30 +346,32 @@ export default function Home() {
           </section>
 
           {canSeeFinance && (
-          <div className="lg:col-span-12">
-            <FinancialSummaryRow
-              isBalanceLoading={isBalanceLoading}
-              showBalance={showBalance}
-              monthlyIncome={monthlyIncome}
-              monthlyExpense={monthlyExpense}
-              netMonthly={netMonthly}
-              incomeTrend={incomeTrend}
-              expenseTrend={expenseTrend}
-              isPositiveNet={isPositiveNet}
-              trendArrow={trendArrow}
-              trendValue={trendValue}
-            />
-          </div>
+            <div className="lg:col-span-12">
+              <FinancialSummaryRow
+                isBalanceLoading={isBalanceLoading}
+                showBalance={showBalance}
+                monthlyIncome={monthlyIncome}
+                monthlyExpense={monthlyExpense}
+                netMonthly={netMonthly}
+                incomeTrend={incomeTrend}
+                expenseTrend={expenseTrend}
+                isPositiveNet={isPositiveNet}
+                trendArrow={trendArrow}
+                trendValue={trendValue}
+              />
+            </div>
           )}
 
           {canSeeFinance && (
-          <div className={canViewBudgets ? "lg:col-span-7" : "lg:col-span-12"}>
-            <RecentTransactions
-              allTransactions={allTransactions}
-              onViewAll={() => setLocation("/transactions")}
-              fmtThaiDate={fmtThaiDate}
-            />
-          </div>
+            <div
+              className={canViewBudgets ? "lg:col-span-7" : "lg:col-span-12"}
+            >
+              <RecentTransactions
+                allTransactions={allTransactions}
+                onViewAll={() => setLocation("/transactions")}
+                fmtThaiDate={fmtThaiDate}
+              />
+            </div>
           )}
 
           {canViewBudgets && (

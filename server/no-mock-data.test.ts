@@ -171,3 +171,19 @@ describe("fund pickers read the database", () => {
     });
   }
 });
+
+describe("Profile page has no hardcoded personal names or broken LINE avatar logic", () => {
+  const source = read("client/src/pages/Profile.tsx");
+
+  it("does not hardcode personal names of appointees", () => {
+    expect(source).not.toContain("สุริยงค์");
+    expect(source).not.toContain("สุดารัตน์");
+    expect(source).not.toContain("สรรเสริญ");
+  });
+
+  it("keeps avatarUrl precedence over openId", () => {
+    expect(source).toContain(
+      '((user as any)?.openId?.includes("http") ? (user as any)?.openId : null)'
+    );
+  });
+});

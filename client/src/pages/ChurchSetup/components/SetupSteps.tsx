@@ -205,8 +205,16 @@ export function Step3({
         onChange={v => set({ bankAccountName: v })}
         placeholder="คริสตจักร..."
       />
+      <TextField
+        label="หมายเลขพร้อมเพย์ (PromptPay ID — เบอร์โทร 10 หลัก หรือเลขนิติบุคคล 13 หลัก)"
+        value={data.promptPayId ?? ""}
+        onChange={v => set({ promptPayId: v })}
+        placeholder="08X-XXX-XXXX หรือเลขประจำตัว 13 หลัก (ไม่บังคับ)"
+      />
       <div className="rounded-2xl border border-[hsl(94_40%_24%)] bg-[hsl(92_45%_13%)] p-4">
-        <p className="text-xs font-bold text-[hsl(98_46%_72%)]">🔒 ความปลอดภัย</p>
+        <p className="text-xs font-bold text-[hsl(98_46%_72%)]">
+          🔒 ความปลอดภัย
+        </p>
         <p className="mt-1 text-xs text-[hsl(137_39%_72%)]">
           ข้อมูลบัญชีธนาคารจะถูกเก็บเป็นความลับ — เข้าถึงได้เฉพาะ TREASURER และ
           SUPER_ADMIN เท่านั้น
@@ -266,9 +274,7 @@ export function Step4({
         })}
       </div>
       {data.offeringCategories.length === 0 && (
-        <p className="text-xs text-danger">
-          ⚠ กรุณาเลือกอย่างน้อย 1 หมวดหมู่
-        </p>
+        <p className="text-xs text-danger">⚠ กรุณาเลือกอย่างน้อย 1 หมวดหมู่</p>
       )}
     </div>
   );
@@ -299,9 +305,7 @@ export function Step5({ data }: { data: SetupData }) {
         <p className="text-xs font-bold text-brand">
           💡 สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
-        <p className="mt-1 text-xs text-brand">
-          จากหน้าการเงิน → จัดการกองทุน
-        </p>
+        <p className="mt-1 text-xs text-brand">จากหน้าการเงิน → จัดการกองทุน</p>
       </div>
     </div>
   );
@@ -346,9 +350,7 @@ export function Step6({
         />
       </div>
       <div className="rounded-2xl border border-paper-2 bg-[hsl(55_45%_13%)] p-4 space-y-2">
-        <p className="text-xs font-bold text-brand">
-          📅 ตัวอย่างรอบปีงบประมาณ
-        </p>
+        <p className="text-xs font-bold text-brand">📅 ตัวอย่างรอบปีงบประมาณ</p>
         <p className="text-xs text-brand">
           ปีที่ {data.budgetYear}: {THAI_MONTHS[data.fiscalYearStartMonth - 1]}{" "}
           {data.budgetYear} →{" "}
@@ -409,7 +411,9 @@ export function Step7() {
         </div>
       ))}
       <div className="rounded-2xl border border-[hsl(148_39%_24%)] bg-[hsl(146_45%_13%)] p-4">
-        <p className="text-xs font-bold text-[hsl(144_47%_72%)]">🔐 การกำหนดสิทธิ์</p>
+        <p className="text-xs font-bold text-[hsl(144_47%_72%)]">
+          🔐 การกำหนดสิทธิ์
+        </p>
         <p className="mt-1 text-xs text-[hsl(151_35%_72%)]">
           ไปที่ เมนู → โปรไฟล์ผู้ใช้ → กำหนดบทบาท
           หลังจากตั้งค่าคริสตจักรเสร็จแล้ว
@@ -453,8 +457,13 @@ export function Step8({ data }: { data: SetupData }) {
         ))}
       </div>
       <div className="rounded-2xl border border-[hsl(131_40%_24%)] bg-[hsl(130_45%_13%)] p-4 text-center">
-        <Heart className="mx-auto mb-2 size-8 text-[hsl(144_47%_72%)]" fill="#2c7b4c" />
-        <p className="text-sm font-bold text-[hsl(144_52%_72%)]">พร้อมเริ่มต้นใช้งาน!</p>
+        <Heart
+          className="mx-auto mb-2 size-8 text-[hsl(144_47%_72%)]"
+          fill="#2c7b4c"
+        />
+        <p className="text-sm font-bold text-[hsl(144_52%_72%)]">
+          พร้อมเริ่มต้นใช้งาน!
+        </p>
         <p className="mt-1 text-xs text-[hsl(143_42%_72%)]">
           ระบบจะบันทึกข้อมูลและนำคุณไปยังหน้าแดชบอร์ด
         </p>

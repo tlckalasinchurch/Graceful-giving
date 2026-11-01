@@ -100,6 +100,7 @@ import {
   approveSessionDeduction,
   deleteSessionDeduction,
   addBankRecord,
+  deleteBankRecord,
   matchBankRecordToPassbook,
   addSessionDocument,
   postCountingSession,
@@ -332,6 +333,8 @@ const budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
 const RECEIPT_EXTENSIONS = {
   "image/jpeg": "jpg",
   "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
   "application/pdf": "pdf",
 } as const;
 
@@ -618,7 +621,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         await updateUserProfile(ctx.user.id, input);
         await createAuditLog({
-          churchId: "default",
+          churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
           action: "update_profile",
           entity: "user",
@@ -656,7 +659,7 @@ export const appRouter = router({
         await updateUserChurchRole(input.userId, input.churchRole, roles);
         await setUserStatus(input.userId, "active");
         await createAuditLog({
-          churchId: "default",
+          churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
           action: "update_user_role",
           entity: "user",
@@ -695,7 +698,7 @@ export const appRouter = router({
           });
         }
         await createAuditLog({
-          churchId: "default",
+          churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
           action: "delete_user",
           entity: "user",
@@ -726,7 +729,7 @@ export const appRouter = router({
         }
         await setUserStatus(input.userId, input.status);
         await createAuditLog({
-          churchId: "default",
+          churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
           action: input.status === "active" ? "approve_user" : "disable_user",
           entity: "user",
@@ -770,7 +773,7 @@ export const appRouter = router({
           motto: z.string().trim().max(280).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { promptPayId, ...rest } = input;
         await upsertChurchProfile({
           ...rest,
@@ -779,6 +782,13 @@ export const appRouter = router({
           ...(promptPayId === undefined
             ? {}
             : { promptPayId: parsePromptPayId(promptPayId)?.digits ?? null }),
+        });
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "update_church_profile",
+          entity: "church_profile",
+          metadata: { name: input.name },
         });
         return { success: true } as const;
       }),
@@ -829,7 +839,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         await saveStationPosterJson(JSON.stringify(input));
         await createAuditLog({
-          churchId: "default",
+          churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
           action: "save_station_poster",
           entity: "church_profile",
@@ -1091,7 +1101,13 @@ export const appRouter = router({
       .input(
         z.object({
           fileName: z.string().min(1).max(255),
-          contentType: z.enum(["image/jpeg", "image/png", "application/pdf"]),
+          contentType: z.enum([
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif",
+            "application/pdf",
+          ]),
           // About 5 MB of binary once decoded; matches the /api/trpc body limit.
           base64Data: z.string().min(1).max(6_900_000),
         })
@@ -1169,7 +1185,11 @@ export const appRouter = router({
   // ── Withdrawal bank signers (Part 2) ────────────────────────────────────────
   bankSigners: router({
     list: protectedProcedure.query(async ({ ctx }) => {
-      if (!canManageFinance(ctx.user) && !(await isBankSigner(ctx.user.id))) {
+      if (
+        !canManageFinance(ctx.user) &&
+        !canManageChurchSettings(ctx.user) &&
+        !(await isBankSigner(ctx.user.id))
+      ) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "เฉพาะฝ่ายการเงินและผู้มีอำนาจลงนามเท่านั้น",
@@ -1234,7 +1254,9 @@ export const appRouter = router({
       .input(z.object({ myOnly: z.boolean().default(false) }).optional())
       .query(async ({ ctx, input }) => {
         const seesAll =
-          canManageFinance(ctx.user) || (await isBankSigner(ctx.user.id));
+          canManageFinance(ctx.user) ||
+          canManageChurchSettings(ctx.user) ||
+          (await isBankSigner(ctx.user.id));
         const userId = input?.myOnly || !seesAll ? ctx.user.id : undefined;
         return await listWithdrawalRequests(DEFAULT_CHURCH_ID, { userId });
       }),
@@ -1615,7 +1637,7 @@ export const appRouter = router({
           input.toDate
         );
       }),
-    exportCsv: financeProcedure
+    exportCsv: financeViewProcedure
       .input(reportDateRange)
       .query(async ({ input }) => {
         const rows = await getFinancialReportData(
@@ -1647,11 +1669,11 @@ export const appRouter = router({
       news: await listPublishedChurchNews(),
       events: await listPublishedChurchEvents(),
     })),
-    adminList: adminProcedure.query(async () => ({
+    adminList: churchLeaderProcedure.query(async () => ({
       news: await listAllChurchNews(),
       events: await listAllChurchEvents(),
     })),
-    createNews: adminProcedure
+    createNews: churchLeaderProcedure
       .input(
         z.object({
           title: z.string().trim().min(3).max(180),
@@ -1673,7 +1695,7 @@ export const appRouter = router({
         });
         return { id };
       }),
-    createEvent: adminProcedure
+    createEvent: churchLeaderProcedure
       .input(
         z
           .object({
@@ -1710,7 +1732,7 @@ export const appRouter = router({
         });
         return { id };
       }),
-    updateNews: adminProcedure
+    updateNews: churchLeaderProcedure
       .input(
         z.object({
           id: z.number().int().positive(),
@@ -1732,7 +1754,7 @@ export const appRouter = router({
         });
         return { success: true } as const;
       }),
-    updateEvent: adminProcedure
+    updateEvent: churchLeaderProcedure
       .input(
         z
           .object({
@@ -1769,25 +1791,25 @@ export const appRouter = router({
         });
         return { success: true } as const;
       }),
-    setNewsStatus: adminProcedure
+    setNewsStatus: churchLeaderProcedure
       .input(z.object({ id: z.number().int().positive(), status: newsStatus }))
       .mutation(async ({ input }) => {
         await updateChurchNewsStatus(input.id, input.status);
         return { success: true } as const;
       }),
-    setEventStatus: adminProcedure
+    setEventStatus: churchLeaderProcedure
       .input(z.object({ id: z.number().int().positive(), status: eventStatus }))
       .mutation(async ({ input }) => {
         await updateChurchEventStatus(input.id, input.status);
         return { success: true } as const;
       }),
-    deleteNews: adminProcedure
+    deleteNews: churchLeaderProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .mutation(async ({ input }) => {
         await deleteChurchNews(input.id);
         return { success: true } as const;
       }),
-    deleteEvent: adminProcedure
+    deleteEvent: churchLeaderProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .mutation(async ({ input }) => {
         await deleteChurchEvent(input.id);
@@ -1825,6 +1847,8 @@ export const appRouter = router({
             envelopes: detail.envelopes.map(e => ({
               ...e,
               donorName: null,
+              memberId: null,
+              envelopeNo: null,
             })),
           };
         }
@@ -2085,7 +2109,8 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        await requireCountingSession(input.sessionId);
+        const session = await requireCountingSession(input.sessionId);
+        assertNotPosted(session.status);
         const id = await addBankRecord({
           sessionId: input.sessionId,
           type: input.type,
@@ -2106,6 +2131,35 @@ export const appRouter = router({
           metadata: input,
         });
         return { id };
+      }),
+
+    removeBankRecord: financeProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          sessionId: z.number().int().positive(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const session = await requireCountingSession(input.sessionId);
+        assertNotPosted(session.status);
+        const removed = await deleteBankRecord(input.id, input.sessionId);
+        if (!removed) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message:
+              "ไม่พบรายการธนาคาร หรือรายการกระทบสมุดบัญชี/ผูกกับคำขอเบิกแล้ว",
+          });
+        }
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "DELETE",
+          entity: "bank_record",
+          entityId: input.id,
+          metadata: {},
+        });
+        return { success: true } as const;
       }),
 
     matchPassbook: financeProcedure
@@ -2272,7 +2326,7 @@ export const appRouter = router({
           input.id,
           session.status,
           "counted",
-          { countSubmittedAt: new Date() }
+          { countedBy: ctx.user.id, countSubmittedAt: new Date() }
         );
         if (!moved) {
           throw new TRPCError({

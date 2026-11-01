@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 import { fmtBaht, Variance } from "./countingUtils";
@@ -20,6 +21,8 @@ const needsNote = (type: BankRecordType) =>
 
 interface BankRecordsTabProps {
   sessionId: number;
+  canEdit?: boolean;
+  canMatchPassbook?: boolean;
   bankRecords: Array<{
     id: number;
     sessionId: number;
@@ -29,6 +32,7 @@ interface BankRecordsTabProps {
     bankRef?: string | null;
     notes?: string | null;
     passbookMatched: boolean;
+    withdrawalRequestId?: number | null;
   }>;
   actualTransferIn: number;
   envelopeTransferTotal: number;
@@ -36,6 +40,10 @@ interface BankRecordsTabProps {
   actualCashDeposit: number;
   addBankRecord: {
     mutate: (vars: any, options?: any) => void;
+    isPending: boolean;
+  };
+  removeBankRecord?: {
+    mutate: (vars: { id: number; sessionId: number }) => void;
     isPending: boolean;
   };
   matchPassbook: {
@@ -46,12 +54,15 @@ interface BankRecordsTabProps {
 
 export function BankRecordsTab({
   sessionId,
+  canEdit = true,
+  canMatchPassbook = true,
   bankRecords,
   actualTransferIn,
   envelopeTransferTotal,
   transferVariance,
   actualCashDeposit,
   addBankRecord,
+  removeBankRecord,
   matchPassbook,
 }: BankRecordsTabProps) {
   const [bType, setBType] = useState<BankRecordType>("cash_deposit");
@@ -79,110 +90,138 @@ export function BankRecordsTab({
     }
   };
 
+  const handleRemoveBankRecord = async (record: {
+    id: number;
+    type: string;
+    amount: number;
+  }) => {
+    if (!removeBankRecord) return;
+    const label =
+      BANK_RECORD_LABELS[record.type as BankRecordType] ?? record.type;
+    const confirmed = await Swal.confirm(
+      "ยืนยันการลบรายการธนาคาร?",
+      `ต้องการลบรายการ "${label}" จำนวน ${fmtBaht(record.amount)} ออกจากรอบนี้หรือไม่?`,
+      {
+        icon: "warning",
+        confirmButtonText: "ลบรายการนี้",
+        confirmButtonColor: "#C8372D",
+        cancelButtonText: "ยกเลิก",
+      }
+    );
+    if (confirmed) {
+      removeBankRecord.mutate({ id: record.id, sessionId });
+    }
+  };
+
   return (
     <section className="space-y-4">
-      <form
-        onSubmit={event => {
-          event.preventDefault();
-          const value = Number(bAmount);
-          if (!Number.isFinite(value) || value <= 0) {
-            toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
-            return;
-          }
-          if (needsNote(bType) && !bNotes.trim()) {
-            toast.error("กรุณาระบุรายละเอียดของรายการนี้");
-            return;
-          }
-          addBankRecord.mutate(
-            {
-              sessionId,
-              type: bType,
-              amount: value,
-              transferredByName: bName.trim() || undefined,
-              bankRef: bRef.trim() || undefined,
-              notes: bNotes.trim() || undefined,
-            },
-            {
-              onSuccess: () => {
-                setBAmount("");
-                setBName("");
-                setBRef("");
-                setBNotes("");
-              },
+      {canEdit && (
+        <form
+          onSubmit={event => {
+            event.preventDefault();
+            const value = Number(bAmount);
+            if (!Number.isFinite(value) || value <= 0) {
+              toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
+              return;
             }
-          );
-        }}
-        className="rounded-2xl border border-line bg-surface p-5 shadow-sm md:p-6"
-      >
-        <h2 className="mb-4 font-bold text-foreground">บันทึกรายการธนาคาร</h2>
-        <div className="grid gap-4 md:grid-cols-4">
-          <label className="text-sm font-semibold text-ink-2">
-            ประเภท
-            <NativeSelect
-              value={bType}
-              onChange={e => setBType(e.target.value as typeof bType)}
-              className="mt-1"
-            >
-              {(
-                Object.entries(BANK_RECORD_LABELS) as [BankRecordType, string][]
-              ).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </NativeSelect>
-          </label>
-          <label className="text-sm font-semibold text-ink-2">
-            จำนวนเงิน *
-            <input
-              type="number"
-              required
-              min="0.25"
-              step="0.25"
-              value={bAmount}
-              onChange={e => setBAmount(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-line p-3 text-base font-bold tabular-nums text-foreground"
-            />
-          </label>
-          <label className="text-sm font-semibold text-ink-2">
-            ผู้โอน
-            <input
-              value={bName}
-              onChange={e => setBName(e.target.value)}
-              placeholder="เว้นว่างได้ถ้าเป็นการนำฝาก"
-              className="mt-1 w-full rounded-xl border border-line p-3 text-sm font-normal text-foreground"
-            />
-          </label>
-          <label className="text-sm font-semibold text-ink-2">
-            เลขอ้างอิง
-            <input
-              value={bRef}
-              onChange={e => setBRef(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-line p-3 font-mono text-sm font-normal text-foreground"
-            />
-          </label>
-        </div>
-        {needsNote(bType) && (
-          <label className="mt-4 block text-sm font-semibold text-ink-2">
-            รายละเอียด *
-            <input
-              value={bNotes}
-              required
-              maxLength={500}
-              onChange={e => setBNotes(e.target.value)}
-              placeholder="เช่น ค่าธรรมเนียมรายปี, ค่าไฟเดือนตุลาคม"
-              className="mt-1 w-full rounded-xl border border-line p-3 text-sm font-normal text-foreground"
-            />
-          </label>
-        )}
-        <button
-          type="submit"
-          disabled={addBankRecord.isPending}
-          className="mt-4 min-h-11 rounded-xl bg-income px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            if (needsNote(bType) && !bNotes.trim()) {
+              toast.error("กรุณาระบุรายละเอียดของรายการนี้");
+              return;
+            }
+            addBankRecord.mutate(
+              {
+                sessionId,
+                type: bType,
+                amount: value,
+                transferredByName: bName.trim() || undefined,
+                bankRef: bRef.trim() || undefined,
+                notes: bNotes.trim() || undefined,
+              },
+              {
+                onSuccess: () => {
+                  setBAmount("");
+                  setBName("");
+                  setBRef("");
+                  setBNotes("");
+                },
+              }
+            );
+          }}
+          className="rounded-2xl border border-line bg-surface p-5 shadow-sm md:p-6"
         >
-          {addBankRecord.isPending ? "กำลังบันทึก…" : "เพิ่มรายการ"}
-        </button>
-      </form>
+          <h2 className="mb-4 font-bold text-foreground">บันทึกรายการธนาคาร</h2>
+          <div className="grid gap-4 md:grid-cols-4">
+            <label className="text-sm font-semibold text-ink-2">
+              ประเภท
+              <NativeSelect
+                value={bType}
+                onChange={e => setBType(e.target.value as typeof bType)}
+                className="mt-1"
+              >
+                {(
+                  Object.entries(BANK_RECORD_LABELS) as [
+                    BankRecordType,
+                    string,
+                  ][]
+                ).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </NativeSelect>
+            </label>
+            <label className="text-sm font-semibold text-ink-2">
+              จำนวนเงิน *
+              <input
+                type="number"
+                required
+                min="0.25"
+                step="0.25"
+                value={bAmount}
+                onChange={e => setBAmount(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-line p-3 text-base font-bold tabular-nums text-foreground"
+              />
+            </label>
+            <label className="text-sm font-semibold text-ink-2">
+              ผู้โอน
+              <input
+                value={bName}
+                onChange={e => setBName(e.target.value)}
+                placeholder="เว้นว่างได้ถ้าเป็นการนำฝาก"
+                className="mt-1 w-full rounded-xl border border-line p-3 text-sm font-normal text-foreground"
+              />
+            </label>
+            <label className="text-sm font-semibold text-ink-2">
+              เลขอ้างอิง
+              <input
+                value={bRef}
+                onChange={e => setBRef(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-line p-3 font-mono text-sm font-normal text-foreground"
+              />
+            </label>
+          </div>
+          {needsNote(bType) && (
+            <label className="mt-4 block text-sm font-semibold text-ink-2">
+              รายละเอียด *
+              <input
+                value={bNotes}
+                required
+                maxLength={500}
+                onChange={e => setBNotes(e.target.value)}
+                placeholder="เช่น ค่าธรรมเนียมรายปี, ค่าไฟเดือนตุลาคม"
+                className="mt-1 w-full rounded-xl border border-line p-3 text-sm font-normal text-foreground"
+              />
+            </label>
+          )}
+          <button
+            type="submit"
+            disabled={addBankRecord.isPending}
+            className="mt-4 min-h-11 rounded-xl bg-income px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+          >
+            {addBankRecord.isPending ? "กำลังบันทึก…" : "เพิ่มรายการ"}
+          </button>
+        </form>
+      )}
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="rounded-2xl border border-line bg-surface p-4">
@@ -241,7 +280,7 @@ export function BankRecordsTab({
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <MoneyDisplay amount={record.amount} />
-                  {!record.passbookMatched && (
+                  {!record.passbookMatched && canMatchPassbook && (
                     <button
                       type="button"
                       onClick={() => void handleMatchPassbook(record)}
@@ -251,6 +290,20 @@ export function BankRecordsTab({
                       กระทบสมุด
                     </button>
                   )}
+                  {canEdit &&
+                    removeBankRecord &&
+                    !record.passbookMatched &&
+                    !record.withdrawalRequestId && (
+                      <button
+                        type="button"
+                        aria-label="ลบรายการธนาคารนี้"
+                        onClick={() => void handleRemoveBankRecord(record)}
+                        disabled={removeBankRecord.isPending}
+                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-[hsl(6_45%_13%)] disabled:opacity-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                 </div>
               </li>
             ))}

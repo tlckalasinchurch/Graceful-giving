@@ -7,6 +7,7 @@ vi.mock("./db", async importOriginal => {
     ...actual,
     getChurchProfile: vi.fn(),
     upsertChurchProfile: vi.fn(),
+    createAuditLog: vi.fn(),
   };
 });
 
@@ -131,6 +132,9 @@ describe("PromptPay ID in the church profile", () => {
     await caller.church.updateProfile({ ...base, promptPayId: "081-234-5678" });
     expect(db.upsertChurchProfile).toHaveBeenLastCalledWith(
       expect.objectContaining({ promptPayId: "0812345678" })
+    );
+    expect(db.createAuditLog).toHaveBeenLastCalledWith(
+      expect.objectContaining({ action: "update_church_profile", userId: 3 })
     );
 
     await caller.church.updateProfile({ ...base, promptPayId: "" });

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
   ErrorState,
+  FilterBar,
   LoadingSkeleton,
 } from "@/components/common/CommonUI";
 import { trpc } from "@/lib/trpc";
@@ -23,6 +24,8 @@ const MEMBER_STATUS_LABEL: Record<string, string> = {
 export default function Members() {
   const [, setLocation] = useLocation();
   const [showCreate, setShowCreate] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -39,6 +42,20 @@ export default function Members() {
   };
   const utils = trpc.useUtils();
   const membersQuery = trpc.members.list.useQuery(undefined, { retry: false });
+  const membersList = membersQuery.data ?? [];
+  const filteredMembers = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    return membersList.filter(member => {
+      const matchSearch =
+        !q ||
+        member.name.toLowerCase().includes(q) ||
+        (member.phone ?? "").toLowerCase().includes(q) ||
+        (member.email ?? "").toLowerCase().includes(q);
+      const matchStatus =
+        statusFilter === "all" || member.status === statusFilter;
+      return matchSearch && matchStatus;
+    });
+  }, [membersList, searchTerm, statusFilter]);
   const createMember = trpc.members.create.useMutation({
     onSuccess: async () => {
       await utils.members.list.invalidate();
@@ -98,6 +115,7 @@ export default function Members() {
               <h2 className="font-bold text-ink">เพิ่มสมาชิกใหม่</h2>
               <button
                 type="button"
+                aria-label="ปิดแบบฟอร์ม"
                 onClick={closeCreateForm}
                 className="text-ink-3"
               >
@@ -149,6 +167,31 @@ export default function Members() {
             </button>
           </form>
         )}
+        <FilterBar
+          searchPlaceholder="ค้นหาชื่อ เบอร์โทรศัพท์ หรืออีเมลสมาชิก..."
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          activeFilter={statusFilter}
+          onFilterChange={setStatusFilter}
+          filters={[
+            { id: "all", label: "ทั้งหมด", count: membersList.length },
+            {
+              id: "active",
+              label: "ใช้งาน",
+              count: membersList.filter(m => m.status === "active").length,
+            },
+            {
+              id: "pending",
+              label: "รอยืนยัน",
+              count: membersList.filter(m => m.status === "pending").length,
+            },
+            {
+              id: "inactive",
+              label: "ไม่ใช้งาน",
+              count: membersList.filter(m => m.status === "inactive").length,
+            },
+          ]}
+        />
         {membersQuery.isLoading ? (
           <LoadingSkeleton count={4} />
         ) : membersQuery.isError ? (
@@ -157,16 +200,21 @@ export default function Members() {
             description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่"
             onRetry={() => membersQuery.refetch()}
           />
-        ) : !membersQuery.data?.length ? (
+        ) : !membersList.length ? (
           <EmptyState
             title="ยังไม่มีข้อมูลสมาชิก"
             description="เริ่มต้นด้วยการเพิ่มสมาชิกคนแรก"
             actionText="เพิ่มสมาชิก"
             onAction={() => setShowCreate(true)}
           />
+        ) : !filteredMembers.length ? (
+          <EmptyState
+            title="ไม่พบสมาชิกตามคำค้นหา"
+            description="ลองเปลี่ยนคำค้นหาหรือตัวกรองสถานะใหม่"
+          />
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
-            {membersQuery.data.map(member => (
+            {filteredMembers.map(member => (
               <button
                 key={member.id}
                 type="button"

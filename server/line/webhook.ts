@@ -21,7 +21,7 @@ import { storagePutPrivate } from "../storage";
 import { getDb, DEFAULT_CHURCH_ID } from "../db";
 import { lineSlips, lineProcessingJobs } from "../../drizzle/schema";
 import { runWorkerBatch } from "./processWorker";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 
 const LINE_API_BASE = "https://api.line.me/v2/bot";
@@ -61,7 +61,9 @@ function validateSignature(rawBody: Buffer, signature: string): boolean {
   if (!ENV.lineChannelSecret) {
     // Allow in dev when not configured — block in production
     if (ENV.isProduction) return false;
-    console.warn("[LINE Webhook] LINE_CHANNEL_SECRET not set — skipping validation (dev only)");
+    console.warn(
+      "[LINE Webhook] LINE_CHANNEL_SECRET not set — skipping validation (dev only)"
+    );
     return true;
   }
   const expected = createHmac("sha256", ENV.lineChannelSecret)
@@ -95,7 +97,9 @@ async function downloadLineImage(messageId: string): Promise<Buffer> {
     { headers: { Authorization: `Bearer ${ENV.lineChannelAccessToken}` } }
   );
   if (!resp.ok) {
-    throw new Error(`LINE image download failed: ${resp.status} ${resp.statusText}`);
+    throw new Error(
+      `LINE image download failed: ${resp.status} ${resp.statusText}`
+    );
   }
   return Buffer.from(await resp.arrayBuffer());
 }
@@ -112,9 +116,7 @@ async function replyToLine(replyToken: string, text: string): Promise<void> {
       replyToken,
       messages: [{ type: "text", text }],
     }),
-  }).catch((e: unknown) =>
-    console.error("[LINE Webhook] reply failed:", e)
-  );
+  }).catch((e: unknown) => console.error("[LINE Webhook] reply failed:", e));
 }
 
 // ─── Image Helpers ────────────────────────────────────────────────────────────
@@ -179,11 +181,20 @@ async function processImageEvent(
   const hashDuplicate = await db
     .select({ id: lineSlips.id, status: lineSlips.status })
     .from(lineSlips)
-    .where(eq(lineSlips.slipHash, slipHash))
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.slipHash, slipHash),
+        ne(lineSlips.status, "rejected"),
+        ne(lineSlips.status, "failed")
+      )
+    )
     .limit(1);
 
   if (hashDuplicate.length > 0) {
-    console.log(`[LINE Webhook] Duplicate image hash ${slipHash} from ${lineUserId}`);
+    console.log(
+      `[LINE Webhook] Duplicate image hash ${slipHash} from ${lineUserId}`
+    );
     if (event.replyToken) {
       await replyToLine(
         event.replyToken,
@@ -200,7 +211,11 @@ async function processImageEvent(
 
   let uploadResult: { key: string };
   try {
-    uploadResult = await storagePutPrivate(storageKey, imageBuffer, "image/jpeg");
+    uploadResult = await storagePutPrivate(
+      storageKey,
+      imageBuffer,
+      "image/jpeg"
+    );
   } catch (err) {
     console.error("[LINE Webhook] Storage upload failed:", err);
     if (event.replyToken) {
@@ -235,7 +250,9 @@ async function processImageEvent(
 
     if (!inserted) {
       // Conflict: another worker already processed this event
-      console.log(`[LINE Webhook] Conflict on lineEventId ${lineEventId} — already inserted`);
+      console.log(
+        `[LINE Webhook] Conflict on lineEventId ${lineEventId} — already inserted`
+      );
       return;
     }
     newSlipId = inserted.id;
