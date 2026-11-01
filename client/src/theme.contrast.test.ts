@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 // Guards the dark theme against contrast regressions that type checks and
 // logic tests cannot see. Tokens are read from index.css, not copied here.
-const css = readFileSync(resolve(__dirname, "index.css"), "utf8");
+const css = readFileSync(resolve(import.meta.dirname, "index.css"), "utf8");
 
 function token(name: string): string {
   const match = css.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})\\s*;`));
