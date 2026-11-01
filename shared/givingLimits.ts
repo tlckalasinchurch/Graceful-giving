@@ -59,3 +59,6 @@ export const TRANSFER_DATE_MESSAGE: Record<TransferDateProblem, string> = {
   future: "วันที่โอนเป็นวันในอนาคต กรุณาตรวจวันที่",
   too_old: `วันที่โอนเก่าเกิน ${MAX_NO_SLIP_DAYS_BACK} วัน กรุณาติดต่อเจ้าหน้าที่`,
 };
+
+/** Slip readings one person may ask for in 5 minutes. Each one costs an AI call. */
+export const MAX_SLIP_READS_PER_5_MIN = 12;

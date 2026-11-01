@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
+vi.mock("./line/slipOcr", async importOriginal => {
+  const actual = await importOriginal<typeof import("./line/slipOcr")>();
+  return { ...actual, extractSlipData: vi.fn() };
+});
+
 vi.mock("./db", async importOriginal => {
   const actual = await importOriginal<typeof import("./db")>();
   return {
@@ -18,6 +23,7 @@ vi.mock("./db", async importOriginal => {
 
 import { appRouter } from "./routers";
 import * as db from "./db";
+import { extractSlipData } from "./line/slipOcr";
 import { MAX_SLIPS_PER_DAY } from "@shared/givingLimits";
 
 type User = NonNullable<TrpcContext["user"]>;
@@ -333,5 +339,80 @@ describe("one transfer, several categories", () => {
     expect(db.approveLineSlip).toHaveBeenCalledWith(
       expect.objectContaining({ amount: 1000, items })
     );
+  });
+});
+
+describe("givingInbox.readSlip", () => {
+  const PNG_B64 = Buffer.from([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00,
+  ]).toString("base64");
+  const input = { base64Data: `data:image/png;base64,${PNG_B64}` };
+  const extraction = {
+    rawText: "",
+    amount: 170,
+    amountConfidence: 0.95,
+    transferDate: "2026-11-01",
+    transferTime: null,
+    dateConfidence: 0.9,
+    senderName: "นาย ผสดี ม***",
+    senderConfidence: 0.9,
+    referenceNumber: "REF1",
+    referenceConfidence: 0.9,
+    bankName: "กรุงไทย",
+    receiverName: null,
+    notes: null,
+  };
+  // The limiter is per user, so each test uses its own person.
+  let nextId = 900;
+  const person = () => ({ ...member, id: nextId++ });
+
+  it("rejects a signed-out caller", async () => {
+    await expect(
+      appRouter.createCaller(ctx(null)).givingInbox.readSlip(input)
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("returns the amount, name and date the AI was sure about", async () => {
+    vi.mocked(extractSlipData).mockResolvedValue(extraction as never);
+    const r = await appRouter
+      .createCaller(ctx(person()))
+      .givingInbox.readSlip(input);
+    expect(r).toEqual({
+      status: "read",
+      amount: 170,
+      senderName: "นาย ผสดี ม***",
+      transferDate: "2026-11-01",
+      bank: "กรุงไทย",
+    });
+    // The AI gets the image as a data URL. Nothing is stored.
+    expect(vi.mocked(extractSlipData).mock.calls[0][0]).toMatch(
+      /^data:image\/png;base64,/
+    );
+  });
+
+  it("answers unreadable, not an error, when the AI fails", async () => {
+    vi.mocked(extractSlipData).mockRejectedValue(new Error("rate limit"));
+    const r = await appRouter
+      .createCaller(ctx(person()))
+      .givingInbox.readSlip(input);
+    expect(r.status).toBe("unreadable");
+  });
+
+  it("refuses data that is not an image", async () => {
+    await expect(
+      appRouter.createCaller(ctx(person())).givingInbox.readSlip({
+        base64Data: Buffer.from("<svg onload=alert(1)>").toString("base64"),
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(extractSlipData).not.toHaveBeenCalled();
+  });
+
+  it("limits how many readings one person asks for", async () => {
+    vi.mocked(extractSlipData).mockResolvedValue(extraction as never);
+    const caller = appRouter.createCaller(ctx(person()));
+    for (let i = 0; i < 12; i++) await caller.givingInbox.readSlip(input);
+    await expect(caller.givingInbox.readSlip(input)).rejects.toMatchObject({
+      code: "TOO_MANY_REQUESTS",
+    });
   });
 });
