@@ -1,7 +1,4 @@
-import {
-  OFFERING_CATEGORY_IDS,
-  type OfferingCategory,
-} from "@shared/categories";
+import { type OfferingCategory } from "@shared/categories";
 import {
   MAX_SPLIT_LINES,
   checkSplit,
@@ -37,29 +34,61 @@ export function startSplit(
   return [{ category, amount: asText(total) }];
 }
 
-/** The categories not used yet, in the church's order. */
-export function unusedCategories(
-  drafts: ReadonlyArray<SplitDraft>
-): OfferingCategory[] {
-  const used = new Set(drafts.map(d => d.category));
-  return OFFERING_CATEGORY_IDS.filter(id => !used.has(id));
+const lastIndex = (drafts: ReadonlyArray<unknown>) => drafts.length - 1;
+
+/** What is left of `total` after every line except the last. Never below 0. */
+function balanceLast(drafts: SplitDraft[], total: number): SplitDraft[] {
+  if (drafts.length < 2) {
+    return drafts.map(d => ({ ...d, amount: asText(total) }));
+  }
+  const others = parseDrafts(drafts.slice(0, lastIndex(drafts))).filter(
+    l => !Number.isNaN(l.amount)
+  );
+  const left = remainingAmount(others, total);
+  return drafts.map((d, i) =>
+    i === lastIndex(drafts) ? { ...d, amount: left > 0 ? asText(left) : "" } : d
+  );
 }
 
 /**
- * Adds a line with the next unused category and what is left of the total.
- * Returns the same list when no category is left.
+ * Taps a category chip. A new category is added as the last line and takes
+ * what is left. Tapping a chosen category removes it. With one line left, that
+ * line holds the whole amount, and with more the last line takes what is left.
  */
-export function addDraft(
+export function toggleCategory(
   drafts: ReadonlyArray<SplitDraft>,
+  category: OfferingCategory,
   total: number
 ): SplitDraft[] {
-  const next = unusedCategories(drafts)[0];
-  if (!next || drafts.length >= MAX_SPLIT_LINES) return [...drafts];
-  const left = remainingAmount(
-    parseDrafts(drafts).filter(l => !Number.isNaN(l.amount)),
-    total
+  const has = drafts.some(d => d.category === category);
+  if (has) {
+    if (drafts.length <= 1) return [...drafts];
+    return balanceLast(
+      drafts.filter(d => d.category !== category),
+      total
+    );
+  }
+  if (drafts.length >= MAX_SPLIT_LINES) return [...drafts];
+  return balanceLast([...drafts, { category, amount: "" }], total);
+}
+
+/**
+ * Sets the amount of one line. Editing a line before the last one makes the
+ * last line take what is left, so the lines keep adding up to the total. The
+ * last line is the person's own to edit.
+ */
+export function setLineAmount(
+  drafts: ReadonlyArray<SplitDraft>,
+  index: number,
+  value: string,
+  total: number
+): SplitDraft[] {
+  const next = drafts.map((d, i) =>
+    i === index ? { ...d, amount: value } : d
   );
-  return [...drafts, { category: next, amount: left > 0 ? asText(left) : "" }];
+  return index === lastIndex(next) || next.length < 2
+    ? next
+    : balanceLast(next, total);
 }
 
 /** The first problem with the lines, or null when they are sound. */

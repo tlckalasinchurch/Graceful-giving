@@ -215,13 +215,14 @@ describe("GivingStation for an ordinary member", () => {
       ).disabled
     ).toBe(true);
 
-    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 1"), {
+    // Tap a second category. Its amount field shows.
+    fireEvent.click(screen.getByRole("button", { name: "พันธกิจ" }));
+    fireEvent.change(screen.getByLabelText("ยอด ที่ดิน"), {
       target: { value: "700" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "เพิ่มประเภทอื่น" }));
-    // The new line takes what is left.
+    // The last line takes what is left.
     expect(
-      (screen.getByLabelText("ยอดประเภทที่ 2") as HTMLInputElement).value
+      (screen.getByLabelText("ยอด พันธกิจ") as HTMLInputElement).value
     ).toBe("300");
     expect(screen.getByRole("status").textContent).toContain("✓");
 
@@ -234,7 +235,7 @@ describe("GivingStation for an ordinary member", () => {
     expect(sent.items).toHaveLength(2);
     expect(sent.items[0]).toEqual({ category: "land", amount: 700 });
     expect(sent.items[1].amount).toBe(300);
-    expect(sent.items[1].category).not.toBe("land");
+    expect(sent.items[1].category).toBe("mission");
   });
 
   it("blocks the send when the split lines do not add up to the transfer", async () => {
@@ -246,11 +247,12 @@ describe("GivingStation for an ordinary member", () => {
     fireEvent.click(
       await screen.findByRole("button", { name: /แบ่งยอดถวายหลายประเภท/ })
     );
-    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 1"), {
+    fireEvent.click(screen.getByRole("button", { name: "พันธกิจ" }));
+    fireEvent.change(screen.getByLabelText("ยอด ที่ดิน"), {
       target: { value: "700" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "เพิ่มประเภทอื่น" }));
-    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 2"), {
+    // The person overrides the last line, so the sum no longer matches.
+    fireEvent.change(screen.getByLabelText("ยอด พันธกิจ"), {
       target: { value: "200" },
     });
     expect(screen.getByRole("status").textContent).toContain("ผลรวม");
