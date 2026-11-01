@@ -63,6 +63,38 @@ describe("route access matrix", () => {
     }
   });
 
+  // A person can hold more than one church role. auth.me exposes the full
+  // set in `roles`, and these checks must judge the whole set, not only the
+  // primary churchRole — a COUNTER who is also a treasurer should get the
+  // treasurer's menu and pages.
+  it("honours secondary roles listed in the roles array", () => {
+    const counterAndTreasurer = {
+      role: "user",
+      churchRole: "COUNTER",
+      roles: ["COUNTER", "TREASURER"],
+    } as const;
+    expect(canAccessRoute("/transactions", counterAndTreasurer)).toBe(true);
+    expect(canAccessRoute("/reports", counterAndTreasurer)).toBe(true);
+    expect(canAccessRoute("/members", counterAndTreasurer)).toBe(true);
+    expect(canAccessRoute("/settings", counterAndTreasurer)).toBe(false);
+  });
+
+  it("grants a secondary super admin the settings route", () => {
+    const memberAndSuperAdmin = {
+      role: "user",
+      churchRole: "MEMBER",
+      roles: ["MEMBER", "SUPER_ADMIN"],
+    } as const;
+    expect(canAccessRoute("/settings", memberAndSuperAdmin)).toBe(true);
+  });
+
+  it("denies gated routes when the set of roles is empty", () => {
+    const nobody = { role: "user", churchRole: null, roles: [] };
+    for (const path of Object.keys(ALLOWED)) {
+      expect(canAccessRoute(path, nobody)).toBe(false);
+    }
+  });
+
   it("opens ungated routes to every role", () => {
     for (const path of UNGATED) {
       for (const role of ROLES) {

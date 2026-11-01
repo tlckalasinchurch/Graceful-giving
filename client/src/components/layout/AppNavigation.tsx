@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canAccessRoute } from "@/lib/routeAccess";
+import type { RoleUser } from "@shared/roles";
 import { GuardedLink } from "./GuardedLink";
 import {
   CalendarDays,
@@ -134,9 +135,7 @@ export function getNavGroup(path: string) {
  * Items the role can open, ordered by group so a group heading appears once.
  * Items inside a group keep the order of `navItems`.
  */
-export function getAuthorizedNavItems(
-  user?: { role?: string; churchRole?: string | null } | null
-) {
+export function getAuthorizedNavItems(user?: RoleUser | null) {
   const groupOrder = (path: string) => {
     const index = NAV_GROUPS.findIndex(group =>
       group.paths.some(item => item === path)

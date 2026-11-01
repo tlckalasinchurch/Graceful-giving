@@ -5,13 +5,16 @@ import {
   canManageFinance,
   canViewFinanceRecords,
   canViewReports,
+  hasChurchRole,
+  type RoleUser,
   isSuperAdmin,
 } from "@shared/roles";
 
-type AuthUser =
-  | { role?: string; churchRole?: string | null }
-  | null
-  | undefined;
+/**
+ * auth.me returns the full role set of the person, so routes and menus judge
+ * the complete set rather than only the primary churchRole.
+ */
+type AuthUser = RoleUser | null | undefined;
 
 /**
  * Single source of truth for which role can open which section, keyed by
@@ -35,9 +38,7 @@ export const ROUTE_ACCESS: Record<string, (user: AuthUser) => boolean> = {
   "/reports": canViewReports,
   "/approvals": u => canManageFinance(u) || canManageChurchSettings(u),
   "/members": u =>
-    canManageChurchSettings(u) ||
-    canManageFinance(u) ||
-    u?.churchRole === "DEACON",
+    hasChurchRole(u, "SUPER_ADMIN", "PASTOR", "TREASURER", "DEACON"),
 };
 
 export function canAccessRoute(basePath: string, user: AuthUser): boolean {
