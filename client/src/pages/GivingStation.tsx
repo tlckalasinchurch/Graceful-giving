@@ -91,6 +91,7 @@ const DEFAULT_AMOUNTS: Record<OfferingCategory, number> = {
   land: 1000,
   party: 300,
   venue_rent: 1000,
+  tithe: 1000,
 };
 
 const PRESET_CHOICES: Record<OfferingCategory, number[]> = {
@@ -102,6 +103,7 @@ const PRESET_CHOICES: Record<OfferingCategory, number[]> = {
   land: [500, 1000, 3000, 5000],
   party: [100, 300, 500, 1000],
   venue_rent: [500, 1000, 3000, 5000],
+  tithe: [500, 1000, 3000, 5000],
 };
 
 /** The route component at /giving/station. */
