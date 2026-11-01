@@ -9,6 +9,8 @@ export interface GivingDraft {
   userId: number;
   category: OfferingCategory;
   amount: number;
+  /** The lines of a gift over several categories. Absent for one category. */
+  items?: Array<{ category: OfferingCategory; amount: number }>;
   fundId: string;
   transferState: "not_yet" | "done";
   savedAt: number;

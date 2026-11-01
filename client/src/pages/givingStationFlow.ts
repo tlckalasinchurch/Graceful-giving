@@ -195,12 +195,15 @@ export function buildSendChecklist(input: {
 
   if (input.split) {
     const { lines, problem } = input.split;
+    // Staff write to the ledger one category at a time.
+    const ledgerOneAtATime = mode === "ledger";
     items.splice(2, 0, {
       id: "split",
       label: "แบ่งยอด",
-      ok: problem === null,
-      detail:
-        problem === null
+      ok: problem === null && !ledgerOneAtATime,
+      detail: ledgerOneAtATime
+        ? "บันทึกตรงเข้าบัญชีได้ทีละประเภท หรือแนบสลิปเพื่อถวายหลายประเภท"
+        : problem === null
           ? describeLines(lines, offeringCategoryLabel)
           : SPLIT_MESSAGE[problem],
       required: true,

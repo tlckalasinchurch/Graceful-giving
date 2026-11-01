@@ -311,3 +311,24 @@ describe("a split over several categories", () => {
     expect(o.message).toContain("แบ่ง 2 ประเภท");
   });
 });
+
+describe("staff writing straight to the ledger", () => {
+  it("cannot split a gift over several categories, and is told why", () => {
+    const items = buildSendChecklist({
+      category: "tithe",
+      amount: 1000,
+      donorName: "สมชาย",
+      hasSlip: false,
+      mode: "ledger",
+      split: {
+        lines: [
+          { category: "tithe", amount: 700 },
+          { category: "mission", amount: 300 },
+        ],
+        problem: null,
+      },
+    });
+    expect(canSend(items)).toBe(false);
+    expect(items.find(i => i.id === "split")?.detail).toContain("ทีละประเภท");
+  });
+});

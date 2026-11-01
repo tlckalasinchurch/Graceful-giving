@@ -1,4 +1,5 @@
 import { type OfferingCategory } from "@shared/categories";
+import { parseGivingAmount } from "@shared/givingLimits";
 import {
   MAX_SPLIT_LINES,
   checkSplit,
@@ -108,4 +109,38 @@ export function describeLines(
   return lines
     .map(l => `${labelOf(l.category)} ${l.amount.toLocaleString()}`)
     .join(" + ");
+}
+
+/**
+ * Step 2 of the station. Taps a category on or off. A category that is turned
+ * on starts with its usual amount. Unlike `toggleCategory`, there is no fixed
+ * total yet: the total is the sum of the lines.
+ */
+export function toggleGiveCategory(
+  lines: ReadonlyArray<SplitDraft>,
+  category: OfferingCategory,
+  defaultAmount: number
+): SplitDraft[] {
+  if (lines.some(l => l.category === category)) {
+    return lines.filter(l => l.category !== category);
+  }
+  if (lines.length >= MAX_SPLIT_LINES) return [...lines];
+  return [...lines, { category, amount: asText(defaultAmount) }];
+}
+
+/**
+ * The amount to pay: every line added up. Null when there is no line, or when
+ * any line is empty, zero, negative or above the limit.
+ */
+export function giveTotal(lines: ReadonlyArray<SplitDraft>): number | null {
+  if (lines.length === 0) return null;
+  const parsed = parseDrafts(lines);
+  let sum = 0;
+  for (const l of parsed) {
+    const ok = parseGivingAmount(l.amount);
+    if (ok === null) return null;
+    sum += Math.round(ok * 100);
+  }
+  const total = sum / 100;
+  return parseGivingAmount(total);
 }

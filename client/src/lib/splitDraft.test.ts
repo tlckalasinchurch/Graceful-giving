@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  giveTotal,
+  toggleGiveCategory,
   describeLines,
   draftsProblem,
   parseDrafts,
@@ -158,5 +160,44 @@ describe("splitDraft", () => {
         c => (c === "tithe" ? "สิบลด" : "พันธกิจ")
       )
     ).toBe("สิบลด 700 + พันธกิจ 300");
+  });
+});
+
+describe("toggleGiveCategory and giveTotal (step 2 of the station)", () => {
+  it("adds a tapped category with its usual amount, and removes it on a second tap", () => {
+    const one = toggleGiveCategory([], "tithe", 1000);
+    expect(one).toEqual([{ category: "tithe", amount: "1000" }]);
+    const two = toggleGiveCategory(one, "mission", 500);
+    expect(two.map(l => l.category)).toEqual(["tithe", "mission"]);
+    expect(toggleGiveCategory(two, "tithe", 1000)).toEqual([
+      { category: "mission", amount: "500" },
+    ]);
+  });
+
+  it("adds the lines into one total, in satang", () => {
+    expect(
+      giveTotal([
+        { category: "tithe", amount: "700" },
+        { category: "mission", amount: "300" },
+      ])
+    ).toBe(1000);
+    expect(
+      giveTotal([
+        { category: "tithe", amount: "0.1" },
+        { category: "mission", amount: "0.2" },
+      ])
+    ).toBe(0.3);
+  });
+
+  it("has no total when there is no line or any line is not usable", () => {
+    expect(giveTotal([])).toBeNull();
+    for (const amount of ["", "0", "-5", "abc", "99999999"]) {
+      expect(
+        giveTotal([
+          { category: "tithe", amount: "700" },
+          { category: "mission", amount },
+        ])
+      ).toBeNull();
+    }
   });
 });
