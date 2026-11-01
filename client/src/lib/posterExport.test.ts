@@ -25,3 +25,12 @@ describe("posterExport", () => {
     expect(html).toContain("max-height: 285mm");
   });
 });
+
+describe("canShareImage", () => {
+  it("is false where the browser has no share sheet for files", async () => {
+    const { canShareImage } = await import("./posterExport");
+    expect(canShareImage(new Blob(["x"], { type: "image/png" }), "a.png")).toBe(
+      false
+    );
+  });
+});

@@ -56,10 +56,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  downloadDataUrl,
+  canShareImage,
+  downloadObjectUrl,
   posterFileName,
   printPosterImage,
+  renderPosterBlob,
   renderPosterImage,
+  shareImage,
   type PosterImageType,
   type PosterPaper,
 } from "@/lib/posterExport";
@@ -285,6 +288,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const posterHasQr = customQrImage !== null || posterQrValue.trim() !== "";
   const posterRef = useRef<HTMLDivElement>(null);
   const [posterBusy, setPosterBusy] = useState(false);
+  // The saved image stays on screen so the donor can save it again, share it, or
+  // press and hold it. Some browsers (iOS, LINE) ignore a download link.
+  const [posterFile, setPosterFile] = useState<{
+    url: string;
+    name: string;
+    blob: Blob;
+  } | null>(null);
+  useEffect(
+    () => () => {
+      if (posterFile) URL.revokeObjectURL(posterFile.url);
+    },
+    [posterFile]
+  );
 
   /** Saves the poster as an image, or prints it on one sheet of A5 or A4. */
   const exportPoster = async (
@@ -296,14 +312,17 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     if (!node || posterBusy) return;
     setPosterBusy(true);
     try {
-      const url = await renderPosterImage(
-        node,
-        action.kind === "save" ? action.type : "png"
-      );
       if (action.kind === "save") {
-        downloadDataUrl(url, posterFileName(action.type));
-        toast.success("บันทึกรูปโปสเตอร์แล้ว");
+        const blob = await renderPosterBlob(node, action.type);
+        const name = posterFileName(action.type);
+        const url = URL.createObjectURL(blob);
+        setPosterFile({ url, name, blob });
+        downloadObjectUrl(url, name);
+        toast.success(
+          "สร้างรูปโปสเตอร์แล้ว ดูตัวอย่างและปุ่มดาวน์โหลดด้านล่าง"
+        );
       } else {
+        const url = await renderPosterImage(node, "png");
         await printPosterImage(url, action.paper);
       }
     } catch (err) {
@@ -1567,6 +1586,44 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   <span>พิมพ์ A4 (1 หน้า)</span>
                 </button>
               </div>
+              {posterFile && (
+                <div className="rounded-xl border border-line bg-paper p-3 space-y-2.5">
+                  <img
+                    src={posterFile.url}
+                    alt="ตัวอย่างโปสเตอร์ที่บันทึก"
+                    className="mx-auto max-h-64 w-auto rounded-lg"
+                  />
+                  <p className="text-xs text-ink-3">
+                    ถ้าไม่พบไฟล์ในเครื่อง กดปุ่มดาวน์โหลดด้านล่าง
+                    หรือกดค้างที่รูปแล้วเลือกบันทึกรูป
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <a
+                      href={posterFile.url}
+                      download={posterFile.name}
+                      className="min-h-11 px-4 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-sm flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>ดาวน์โหลด {posterFile.name}</span>
+                    </a>
+                    {canShareImage(posterFile.blob, posterFile.name) && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void shareImage(
+                            posterFile.blob,
+                            posterFile.name
+                          ).catch(() => undefined)
+                        }
+                        className="min-h-11 px-4 rounded-xl border border-line text-ink font-bold text-sm flex items-center gap-2 cursor-pointer hover:bg-paper-2"
+                      >
+                        <Share2 className="w-4 h-4" />
+                        <span>แชร์รูป</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
               {posterBusy && (
                 <p role="status" className="text-xs text-ink-3">
                   กำลังสร้างรูปโปสเตอร์...
