@@ -198,7 +198,10 @@ function canApproveDeduction(user: User): boolean {
 // ─── Shared Procedures ────────────────────────────────────────────────────────
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== "admin" && ctx.user.churchRole !== "SUPER_ADMIN") {
+  // hasAnyRole reads the full role set (churchRoles + churchRole) and also
+  // passes the coarse admin flag, so a SUPER_ADMIN granted via a secondary
+  // role is not locked out of admin-only procedures.
+  if (!hasAnyRole(ctx.user, "SUPER_ADMIN")) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "เฉพาะผู้ดูแลระบบเท่านั้น",
@@ -464,7 +467,8 @@ export const appRouter = router({
         if (input.userId === ctx.user.id) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "เปลี่ยนบทบาทของตัวเองไม่ได้ ให้ผู้ดูแลระบบคนอื่นเปลี่ยนให้",
+            message:
+              "เปลี่ยนบทบาทของตัวเองไม่ได้ ให้ผู้ดูแลระบบคนอื่นเปลี่ยนให้",
           });
         }
         const roles =
@@ -544,8 +548,7 @@ export const appRouter = router({
         await createAuditLog({
           churchId: "default",
           userId: ctx.user.id,
-          action:
-            input.status === "active" ? "approve_user" : "disable_user",
+          action: input.status === "active" ? "approve_user" : "disable_user",
           entity: "user",
           entityId: input.userId,
           metadata: { status: input.status },
