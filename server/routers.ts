@@ -124,6 +124,9 @@ import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
 import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
 import { decodeSlipImage, SlipImageError } from "./line/slipImage";
 import { toDonorSlipStatus } from "./line/donorSlipStatus";
+import { extractSlipData } from "./line/slipOcr";
+import { toSlipReading } from "./line/slipReading";
+import { UNREADABLE_SLIP } from "@shared/slipReading";
 import {
   MAX_SPLIT_LINES,
   MIN_SPLIT_LINES,
@@ -136,6 +139,7 @@ import {
   MAX_SLIPS_PER_DAY,
   checkTransferDate,
   TRANSFER_DATE_MESSAGE,
+  MAX_SLIP_READS_PER_5_MIN,
 } from "@shared/givingLimits";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
@@ -545,6 +549,25 @@ async function notifyDonorOfDecision(opts: {
     console.warn("[notify] Could not notify the donor:", err);
   }
 }
+
+/** Slip readings per person, per server instance. A guard against runaway use. */
+const slipReadTimes = new Map<number, number[]>();
+
+function allowSlipRead(userId: number, now = Date.now()): boolean {
+  const recent = (slipReadTimes.get(userId) ?? []).filter(
+    t => now - t < 5 * 60 * 1000
+  );
+  if (recent.length >= MAX_SLIP_READS_PER_5_MIN) {
+    slipReadTimes.set(userId, recent);
+    return false;
+  }
+  recent.push(now);
+  slipReadTimes.set(userId, recent);
+  return true;
+}
+
+/** How long a donor waits for the AI to read a slip before the form is left to them. */
+const SLIP_READ_TIMEOUT_MS = 20_000;
 
 // ─── App Router ───────────────────────────────────────────────────────────────
 
@@ -3053,6 +3076,52 @@ export const appRouter = router({
           check: toDonorSlipStatus(created.slip),
           failedAttempts: 0,
         } as const;
+      }),
+
+    /**
+     * Reads a slip the moment the donor attaches it, so the form can fill in
+     * the amount, the name and the date. Nothing is stored and nothing is
+     * credited. A reading that fails or is slow returns "unreadable", never an
+     * error, so the donor can always fill the form by hand.
+     */
+    readSlip: protectedProcedure
+      .input(z.object({ base64Data: z.string().min(1) }))
+      .mutation(async ({ ctx, input }) => {
+        let image: ReturnType<typeof decodeSlipImage>;
+        try {
+          image = decodeSlipImage(input.base64Data);
+        } catch (err) {
+          if (err instanceof SlipImageError) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: err.message });
+          }
+          throw err;
+        }
+        if (!allowSlipRead(ctx.user.id)) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message:
+              "อ่านสลิปบ่อยเกินไป กรุณากรอกข้อมูลเองหรือลองใหม่ในอีกสักครู่",
+          });
+        }
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try {
+          const dataUrl = `data:${image.contentType};base64,${image.buffer.toString("base64")}`;
+          const extraction = await Promise.race([
+            extractSlipData(dataUrl),
+            new Promise<never>((_, reject) => {
+              timer = setTimeout(
+                () => reject(new Error("slip reading timed out")),
+                SLIP_READ_TIMEOUT_MS
+              );
+            }),
+          ]);
+          return toSlipReading(extraction);
+        } catch (err) {
+          console.warn("[readSlip] Could not read the slip:", err);
+          return UNREADABLE_SLIP;
+        } finally {
+          clearTimeout(timer);
+        }
       }),
 
     /** The caller's own recent slips and what became of them. */

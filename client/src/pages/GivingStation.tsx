@@ -34,6 +34,7 @@ import {
 } from "./givingStationFlow";
 import { fetchLiffId } from "@/lib/liffSignIn";
 import { SplitEditor } from "@/components/giving/SplitEditor";
+import { UNREADABLE_SLIP, type SlipReading } from "@shared/slipReading";
 import {
   draftsProblem,
   parseDrafts,
@@ -58,6 +59,7 @@ import {
   Share2,
   RotateCcw,
   Smartphone,
+  Loader2,
   Sparkles,
   UploadCloud,
 } from "lucide-react";
@@ -175,6 +177,18 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   // nothing else, so the "done" screen cannot appear without a saved record.
   const [submission, setSubmission] = useState<StationSubmission | null>(null);
   const [slipPreview, setSlipPreview] = useState<string | null>(null);
+  // What the AI read from the attached slip. "reading" while it works.
+  const [slipReading, setSlipReading] = useState<
+    | { state: "idle" }
+    | { state: "reading" }
+    | { state: "done"; data: SlipReading }
+  >({ state: "idle" });
+  // The slip the last reading was asked for, so a slow answer for an old slip is ignored.
+  const readingFor = useRef<string | null>(null);
+  // True once the donor types a name, so a reading never replaces it.
+  const nameTouched = useRef(false);
+  const [nameFromSlip, setNameFromSlip] = useState(false);
+  const [amountFromSlip, setAmountFromSlip] = useState(false);
   // Has the donor paid yet? "not_yet" shows where to pay. "done" goes to the slip.
   const [transferState, setTransferState] = useState<"not_yet" | "done">(
     "not_yet"
@@ -391,6 +405,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     if (step !== 3) setSplitDrafts(null);
   }, [step]);
 
+  const readSlipMutation = trpc.givingInbox.readSlip.useMutation();
+
   const submitNoSlipMutation = trpc.givingInbox.submitWithoutSlip.useMutation({
     onError: err => {
       toast.error(err.message || "ส่งรายการไม่สำเร็จ");
@@ -464,6 +480,34 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     setStep(3);
   };
 
+  /**
+   * The AI reads the slip at once. It fills the name and the amount, unless the
+   * donor already typed a name. It never blocks: if the reading fails the donor
+   * fills the form by hand, and the server checks the slip again after the send.
+   */
+  const readAttachedSlip = async (dataUrl: string) => {
+    readingFor.current = dataUrl;
+    setSlipReading({ state: "reading" });
+    setNameFromSlip(false);
+    setAmountFromSlip(false);
+    let reading: SlipReading;
+    try {
+      reading = await readSlipMutation.mutateAsync({ base64Data: dataUrl });
+    } catch {
+      reading = UNREADABLE_SLIP;
+    }
+    if (readingFor.current !== dataUrl) return;
+    setSlipReading({ state: "done", data: reading });
+    if (reading.senderName && !nameTouched.current) {
+      setDonorNameInput(reading.senderName);
+      setNameFromSlip(true);
+    }
+    if (reading.amount !== null) {
+      setCustomAmount(String(reading.amount));
+      setAmountFromSlip(true);
+    }
+  };
+
   const handleSlipFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -474,7 +518,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     if (!file) return;
     try {
       // Shrinks a large phone photo so it fits the server limit.
-      setSlipPreview(await prepareSlipImage(file));
+      const prepared = await prepareSlipImage(file);
+      setSlipPreview(prepared);
+      void readAttachedSlip(prepared);
     } catch (err) {
       toast.error(
         err instanceof SlipFileError ? err.message : "แนบรูปสลิปไม่สำเร็จ"
@@ -1082,10 +1128,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         type="text"
                         maxLength={120}
                         value={donorName}
-                        onChange={e => setDonorNameInput(e.target.value)}
+                        onChange={e => {
+                          nameTouched.current = true;
+                          setNameFromSlip(false);
+                          setDonorNameInput(e.target.value);
+                        }}
                         placeholder="เช่น สมชาย สุขใจ หรือ ผู้ถวายนิรนาม"
                         className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-stone-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34D399]"
                       />
+                      {nameFromSlip && (
+                        <p className="text-[11px] text-emerald-300">
+                          ชื่อจากสลิป (AI อ่านให้) แก้ไขได้
+                        </p>
+                      )}
                     </div>
 
                     {submitMode !== "ledger" && effectiveAmount !== null && (
@@ -1185,6 +1240,58 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
                         วางบนพื้นเรียบ ไม่ให้เงาบัง
                       </p>
+                      {slipPreview && slipReading.state === "reading" && (
+                        <p
+                          role="status"
+                          className="mt-2 flex items-center justify-center gap-2 text-xs text-stone-300"
+                        >
+                          <Loader2
+                            className="w-4 h-4 animate-spin"
+                            aria-hidden="true"
+                          />
+                          AI กำลังอ่านสลิป...
+                        </p>
+                      )}
+                      {slipPreview && slipReading.state === "done" && (
+                        <div
+                          role="status"
+                          className={`mt-2 rounded-2xl border p-3 text-xs leading-relaxed ${
+                            slipReading.data.status === "read"
+                              ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-100"
+                              : "border-amber-400/40 bg-amber-500/10 text-amber-100"
+                          }`}
+                        >
+                          {slipReading.data.status === "read" ? (
+                            <>
+                              <div className="font-bold">
+                                AI อ่านสลิปแล้ว ตรวจและแก้ไขได้
+                              </div>
+                              {slipReading.data.amount !== null && (
+                                <div>
+                                  ยอดโอน{" "}
+                                  {slipReading.data.amount.toLocaleString()} บาท
+                                  {amountFromSlip ? " (ใส่ยอดถวายให้แล้ว)" : ""}
+                                </div>
+                              )}
+                              {slipReading.data.senderName && (
+                                <div>
+                                  ชื่อผู้โอน {slipReading.data.senderName}
+                                </div>
+                              )}
+                              {slipReading.data.transferDate && (
+                                <div>
+                                  วันที่โอน {slipReading.data.transferDate}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              AI อ่านสลิปนี้ไม่ชัด กรอกข้อมูลเอง
+                              ระบบจะตรวจสลิปอีกครั้งหลังกดส่ง
+                            </>
+                          )}
+                        </div>
+                      )}
                       {slipPreview && (
                         <div className="mt-2 flex justify-center">
                           <img

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const submitSlip = vi.fn();
 const submitWithoutSlip = vi.fn();
+const readSlip = vi.fn();
 const savePoster = vi.fn();
 // What church.stationPoster returns. Undefined means still loading.
 let posterData: Record<string, string> | undefined;
@@ -68,6 +69,9 @@ vi.mock("@/lib/trpc", () => ({
       submitSlip: {
         useMutation: () => ({ mutateAsync: submitSlip, isPending: false }),
       },
+      readSlip: {
+        useMutation: () => ({ mutateAsync: readSlip, isPending: false }),
+      },
       submitWithoutSlip: {
         useMutation: () => ({
           mutateAsync: submitWithoutSlip,
@@ -112,6 +116,13 @@ async function goToConfirm() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  readSlip.mockResolvedValue({
+    status: "unreadable",
+    amount: null,
+    senderName: null,
+    transferDate: null,
+    bank: null,
+  });
   window.localStorage.clear();
   posterData = undefined;
   liffIdFromServer = null;
@@ -264,6 +275,78 @@ describe("GivingStation for an ordinary member", () => {
       ).disabled
     ).toBe(true);
     expect(submitWithoutSlip).not.toHaveBeenCalled();
+  });
+
+  it("fills the name and the amount from the slip the AI read", async () => {
+    readSlip.mockResolvedValue({
+      status: "read",
+      amount: 170,
+      senderName: "นาย ผสดี ม***",
+      transferDate: "2026-11-01",
+      bank: "กรุงไทย",
+    });
+    render(<GivingStation />);
+    await goToConfirm();
+    expect(await screen.findByText(/AI อ่านสลิปแล้ว/)).toBeTruthy();
+    expect(
+      (screen.getByLabelText(/ชื่อผู้ถวาย/) as HTMLInputElement).value
+    ).toBe("นาย ผสดี ม***");
+    // The chosen amount (1,000) is replaced by the one on the slip.
+    expect(
+      screen.getByRole("region", { name: "ตรวจรายการก่อนส่ง" }).textContent
+    ).toContain("170 THB");
+    expect(readSlip).toHaveBeenCalledWith({
+      base64Data: expect.stringContaining("data:image/"),
+    });
+  });
+
+  it("does not replace a name the donor already typed", async () => {
+    readSlip.mockResolvedValue({
+      status: "read",
+      amount: 170,
+      senderName: "นาย ผสดี ม***",
+      transferDate: null,
+      bank: null,
+    });
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
+    );
+    fireEvent.change(await screen.findByLabelText(/ชื่อผู้ถวาย/), {
+      target: { value: "สมศรี ใจดี" },
+    });
+    fireEvent.change(await screen.findByLabelText("รูปสลิปการโอน"), {
+      target: { files: [png()] },
+    });
+    await screen.findByText(/AI อ่านสลิปแล้ว/);
+    expect(
+      (screen.getByLabelText(/ชื่อผู้ถวาย/) as HTMLInputElement).value
+    ).toBe("สมศรี ใจดี");
+  });
+
+  it("says so, and leaves the form to the donor, when the AI cannot read the slip", async () => {
+    render(<GivingStation />);
+    await goToConfirm();
+    expect(await screen.findByText(/อ่านสลิปนี้ไม่ชัด/)).toBeTruthy();
+    expect(
+      (screen.getByLabelText(/ชื่อผู้ถวาย/) as HTMLInputElement).value
+    ).toBe("สมชาย");
+    // The send is not blocked.
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "ยืนยันและส่งสลิปถวาย",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(false);
+  });
+
+  it("does not block the send when the reading itself fails", async () => {
+    readSlip.mockRejectedValue(new Error("network"));
+    render(<GivingStation />);
+    await goToConfirm();
+    expect(await screen.findByText(/อ่านสลิปนี้ไม่ชัด/)).toBeTruthy();
   });
 
   it("lets the donor take the slip photo with the camera", async () => {
