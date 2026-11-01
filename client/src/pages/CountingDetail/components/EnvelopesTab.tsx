@@ -2,7 +2,11 @@ import React, { useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { MoneyDisplay } from "@/components/common/CommonUI";
-import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
+import {
+  OFFERING_CATEGORIES,
+  offeringCategoryLabel,
+  type OfferingCategory,
+} from "@shared/categories";
 import { fmtBaht } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Swal } from "@/lib/sweetalert";
@@ -49,7 +53,7 @@ export function EnvelopesTab({
   const [memberId, setMemberId] = useState("");
   const [donorName, setDonorName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [category, setCategory] = useState<string>("general");
+  const [category, setCategory] = useState<string>("cash");
   const [fundId, setFundId] = useState("");
   const [method, setMethod] = useState<"cash" | "transfer" | "check">("cash");
   const [amount, setAmount] = useState("");
@@ -73,7 +77,7 @@ export function EnvelopesTab({
         memberId: memberId ? Number(memberId) : undefined,
         donorName: donorName.trim() || undefined,
         isAnonymous,
-        category: category as "general",
+        category: category as OfferingCategory,
         fundId: Number(fundId),
         method,
         amount: value,

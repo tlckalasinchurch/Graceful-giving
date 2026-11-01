@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   OFFERING_CATEGORIES,
+  isOfferingCategory,
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
@@ -281,7 +282,7 @@ export default function GivingInbox() {
   const currentSlip = selectedSlipQuery.data;
   const [editAmount, setEditAmount] = useState<string>("");
   const [editFundId, setEditFundId] = useState<number | undefined>(undefined);
-  const [editCategory, setEditCategory] = useState<OfferingCategory>("general");
+  const [editCategory, setEditCategory] = useState<OfferingCategory>("cash");
   const [editMemberId, setEditMemberId] = useState<number | null>(null);
   const [editReviewNote, setEditReviewNote] = useState<string>("");
 
@@ -296,9 +297,9 @@ export default function GivingInbox() {
         (fundsQuery.data?.[0]?.id ?? undefined)
     );
     setEditCategory(
-      OFFERING_CATEGORIES.some(c => c.id === slip.declaredCategory)
+      slip.declaredCategory && isOfferingCategory(slip.declaredCategory)
         ? slip.declaredCategory
-        : "general"
+        : "cash"
     );
     setEditMemberId(slip.matchedMemberId || null);
     setEditReviewNote(slip.reviewNote || "");
@@ -371,7 +372,7 @@ export default function GivingInbox() {
       slipId: slip.id,
       amount: amountNum,
       fundId: defaultFundId,
-      category: "general",
+      category: "cash",
       memberId: slip.matchedMemberId,
       donorName: slip.matchedMemberName || slip.extractedSenderName,
       receiptDate: slip.extractedDate
@@ -581,9 +582,7 @@ export default function GivingInbox() {
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-ink-2">
-                อนุมัติแล้ว
-              </span>
+              <span className="text-xs font-bold text-ink-2">อนุมัติแล้ว</span>
               <Check className="w-4 h-4 text-ink-2" />
             </div>
             <div className="text-2xl font-bold text-ink-2 mt-1 tabular-nums">

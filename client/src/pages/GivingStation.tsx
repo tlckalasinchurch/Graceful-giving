@@ -71,21 +71,25 @@ type StationTab = "flow" | "poster";
 type FlowStep = 1 | 2 | 3 | 4;
 
 const DEFAULT_AMOUNTS: Record<OfferingCategory, number> = {
-  tithe: 1000,
-  general: 300,
+  cash: 300,
+  meal: 100,
+  memorial: 500,
   mission: 500,
-  building: 1000,
-  welfare: 500,
   special: 300,
+  land: 1000,
+  party: 300,
+  venue_rent: 1000,
 };
 
 const PRESET_CHOICES: Record<OfferingCategory, number[]> = {
-  tithe: [500, 1000, 2000, 5000],
-  general: [100, 300, 500, 1000],
+  cash: [100, 300, 500, 1000],
+  meal: [50, 100, 200, 500],
+  memorial: [300, 500, 1000, 3000],
   mission: [200, 500, 1000, 3000],
-  building: [500, 1000, 3000, 5000],
-  welfare: [200, 500, 1000, 2000],
   special: [100, 300, 500, 1000],
+  land: [500, 1000, 3000, 5000],
+  party: [100, 300, 500, 1000],
+  venue_rent: [500, 1000, 3000, 5000],
 };
 
 /** The route component at /giving/station. */
@@ -132,7 +136,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
   // Flow State
   const [selectedCategory, setSelectedCategory] =
-    useState<OfferingCategory>("general");
+    useState<OfferingCategory>("cash");
   const [amountsByCat, setAmountsByCat] =
     useState<Record<OfferingCategory, number>>(DEFAULT_AMOUNTS);
   const [customAmount, setCustomAmount] = useState<string>("");

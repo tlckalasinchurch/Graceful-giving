@@ -63,7 +63,7 @@ describe("parseGivingAmount", () => {
 
 const slip = (check: StationSubmission["check"]): StationSubmission => ({
   mode: "slip",
-  category: "tithe",
+  category: "land",
   amount: 500,
   check,
 });
@@ -72,7 +72,7 @@ describe("describeOutcome", () => {
   it("says thanks for a ledger entry", () => {
     const o = describeOutcome({
       mode: "ledger",
-      category: "general",
+      category: "cash",
       amount: 300,
       check: null,
     });
@@ -111,7 +111,7 @@ describe("describeOutcome", () => {
 
 describe("buildSendChecklist", () => {
   const base = {
-    category: "tithe" as const,
+    category: "land" as const,
     amount: 500,
     donorName: "สมชาย",
     hasSlip: true,
@@ -179,7 +179,7 @@ describe("describeOutcome with failed attempts", () => {
   it("adds the count to a rejection message", () => {
     const o = describeOutcome({
       mode: "slip",
-      category: "tithe",
+      category: "land",
       amount: 500,
       check: { state: "rejected", message: "ยอดไม่ตรง", slipAmount: 900 },
       failedAttempts: 2,
@@ -191,7 +191,7 @@ describe("describeOutcome with failed attempts", () => {
   it("says thanks and that staff will check after a hand-over", () => {
     const o = describeOutcome({
       mode: "slip",
-      category: "tithe",
+      category: "land",
       amount: 500,
       check: {
         state: "in_review",

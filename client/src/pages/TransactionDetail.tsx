@@ -133,12 +133,7 @@ export default function TransactionDetail() {
       return {
         id: txId,
         refCode: `OFF-${item.id}`,
-        title:
-          item.category === "tithe"
-            ? "ถวายสิบลด"
-            : item.category === "mission"
-              ? "ถวายพันธกิจ"
-              : "ถวายทั่วไป",
+        title: offeringCategoryLabel(item.category),
         amount: item.amount,
         type: "income" as const,
         date: item.receiptDate,

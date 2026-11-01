@@ -3215,7 +3215,7 @@ export async function approveLineSlip(input: ApproveLineSlipInput) {
       .values({
         churchId,
         amount: String(input.amount),
-        category: (input.category as any) || "general",
+        category: (input.category as any) || "cash",
         fundId: input.fundId,
         donorName,
         donorMemberId: input.memberId ?? null,

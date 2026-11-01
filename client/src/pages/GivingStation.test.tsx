@@ -96,7 +96,7 @@ const png = () =>
 async function goToConfirm() {
   fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
   fireEvent.click(
-    await screen.findByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
+    await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
   );
   const input = await screen.findByLabelText("รูปสลิปการโอน");
   fireEvent.change(input, { target: { files: [png()] } });
@@ -129,7 +129,7 @@ describe("GivingStation for an ordinary member", () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
     fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
     );
     const confirm = await screen.findByRole("button", {
       name: "ยืนยันและส่งสลิปถวาย",
@@ -142,7 +142,7 @@ describe("GivingStation for an ordinary member", () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
     fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
     );
     const camera = (await screen.findByLabelText(
       "ถ่ายรูปสลิปด้วยกล้อง"
@@ -174,7 +174,7 @@ describe("GivingStation for an ordinary member", () => {
     );
     expect(await screen.findByText("ขอบคุณพระเจ้า")).toBeTruthy();
     expect(submitSlip).toHaveBeenCalledWith(
-      expect.objectContaining({ category: "tithe", amount: 1000 })
+      expect.objectContaining({ category: "land", amount: 1000 })
     );
   });
 
@@ -293,7 +293,7 @@ describe("GivingStation step 3: paid or not yet", () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
     fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
     );
     await screen.findByRole("region", { name: "สถานะการโอนเงิน" });
     expect(screen.queryByRole("timer")).toBeNull();
@@ -305,7 +305,7 @@ describe("GivingStation check before every send", () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
     fireEvent.click(
-      await screen.findByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
     );
     const list = await screen.findByRole("region", {
       name: "ตรวจรายการก่อนส่ง",

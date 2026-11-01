@@ -40,7 +40,7 @@ export default function NewOffering() {
   const funds = fundsQuery.data ?? [];
 
   // Form State
-  const [category, setCategory] = useState<OfferingCategory>("general");
+  const [category, setCategory] = useState<OfferingCategory>("cash");
   const [amount, setAmount] = useState("");
   const [fundId, setFundId] = useState("");
   const [method, setMethod] = useState("เงินสด");
@@ -57,7 +57,7 @@ export default function NewOffering() {
         donorName ||
         isAnonymous ||
         fundId ||
-        category !== "general" ||
+        category !== "cash" ||
         method !== "เงินสด"
     );
   useUnsavedChanges(isDirty);

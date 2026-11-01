@@ -19,7 +19,7 @@ import {
   Printer,
 } from "lucide-react";
 import { toast } from "sonner";
-import { offeringCategoryLabel } from "@shared/categories";
+import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
 import {
   VoucherModal,
   type VoucherData,
@@ -172,26 +172,11 @@ export default function Offerings() {
           onSearchChange={setSearchTerm}
           filters={[
             { id: "all", label: "ทั้งหมด", count: offerings.length },
-            {
-              id: "tithe",
-              label: "สิบลด",
-              count: offerings.filter(o => o.category === "tithe").length,
-            },
-            {
-              id: "general",
-              label: "ถวายทั่วไป",
-              count: offerings.filter(o => o.category === "general").length,
-            },
-            {
-              id: "mission",
-              label: "พันธกิจ",
-              count: offerings.filter(o => o.category === "mission").length,
-            },
-            {
-              id: "building",
-              label: "สร้างอาคาร",
-              count: offerings.filter(o => o.category === "building").length,
-            },
+            ...OFFERING_CATEGORIES.map(c => ({
+              id: c.id,
+              label: c.label,
+              count: offerings.filter(o => o.category === c.id).length,
+            })),
           ]}
           activeFilter={categoryFilter}
           onFilterChange={setCategoryFilter}
