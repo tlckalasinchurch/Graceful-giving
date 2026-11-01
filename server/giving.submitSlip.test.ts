@@ -105,11 +105,54 @@ describe("givingInbox.submitSlip", () => {
         userId: member.id,
         contentType: "image/png",
         extension: "png",
-        declared: { amount: "500.00", category: "land", fundId: 7 },
+        declared: {
+          amount: "500.00",
+          category: "land",
+          fundId: 7,
+          items: null,
+        },
       })
     );
     // The slip is read right away so the donor sees the check at once.
     expect(runWorkerBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps a split over several categories with the slip", async () => {
+    const items = [
+      { category: "tithe" as const, amount: 700 },
+      { category: "mission" as const, amount: 300 },
+    ];
+    const caller = appRouter.createCaller(createContext(member));
+    await caller.givingInbox.submitSlip({
+      ...validInput,
+      amount: 1000,
+      category: "tithe",
+      items,
+    });
+    expect(db.createManualSlip).toHaveBeenCalledWith(
+      expect.objectContaining({
+        declared: expect.objectContaining({
+          amount: "1000.00",
+          category: "tithe",
+          items,
+        }),
+      })
+    );
+  });
+
+  it("refuses a split that does not add up to the slip amount, before it stores anything", async () => {
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.givingInbox.submitSlip({
+        ...validInput,
+        amount: 1000,
+        items: [
+          { category: "tithe", amount: 700 },
+          { category: "mission", amount: 100 },
+        ],
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(db.createManualSlip).not.toHaveBeenCalled();
   });
 
   it("tells the donor when the slip amount matches the chosen amount", async () => {

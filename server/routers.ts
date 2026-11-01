@@ -19,6 +19,9 @@ import {
   cancelWithdrawalRequest,
   listAuditLogs,
   createNotification,
+  createNoSlipEntry,
+  DuplicateEntryError,
+  listFinanceUserIds,
   createExpense,
   createFinanceAccount,
   createOffering,
@@ -121,19 +124,23 @@ import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
 import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
 import { decodeSlipImage, SlipImageError } from "./line/slipImage";
 import { toDonorSlipStatus } from "./line/donorSlipStatus";
+import {
+  MAX_SPLIT_LINES,
+  MIN_SPLIT_LINES,
+  SPLIT_MESSAGE,
+  checkSplit,
+} from "@shared/givingSplit";
 import type { DonorSlipStatus } from "@shared/donorSlip";
 import {
   MAX_GIVING_AMOUNT,
   MAX_SLIPS_PER_DAY,
+  checkTransferDate,
+  TRANSFER_DATE_MESSAGE,
 } from "@shared/givingLimits";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
 import type { CountingStatus } from "@shared/counting";
-import {
-  BANK_RECORD_TYPES,
-  canTransition,
-  isEditable,
-} from "@shared/counting";
+import { BANK_RECORD_TYPES, canTransition, isEditable } from "@shared/counting";
 import {
   EXPENSE_CATEGORY_IDS,
   OFFERING_CATEGORY_IDS,
@@ -334,6 +341,31 @@ const eventStatus = z.enum(["draft", "published", "cancelled"]);
 // Built from the shared category source of truth, so the API can never accept
 // a value the database enum would reject, or reject one the UI offers.
 const offeringCategory = z.enum(OFFERING_CATEGORY_IDS);
+
+const splitLine = z.object({
+  category: offeringCategory,
+  amount: z
+    .number()
+    .positive("ยอดของแต่ละประเภทต้องมากกว่า 0")
+    .max(MAX_GIVING_AMOUNT),
+});
+/** One transfer that pays for several categories. */
+const splitItems = z.array(splitLine).min(MIN_SPLIT_LINES).max(MAX_SPLIT_LINES);
+
+/** Throws BAD_REQUEST when the split does not add up to the transfer amount. */
+function assertSplitSound(
+  items: Array<{ category: string; amount: number }> | undefined,
+  total: number
+): void {
+  if (!items) return;
+  const problem = checkSplit(items as never, total);
+  if (problem) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: SPLIT_MESSAGE[problem],
+    });
+  }
+}
 const expenseCategory = z.enum(EXPENSE_CATEGORY_IDS);
 const expenseStatus = z.enum(["draft", "approved", "paid"]);
 const paymentMethod = z.enum(["cash", "transfer", "check"]);
@@ -454,6 +486,66 @@ async function drainWorkerWithin(ms: number): Promise<void> {
   }
 }
 
+/**
+ * Tells every finance user a new entry waits for review. A failed
+ * notification never fails the donor's submission.
+ */
+async function notifyFinanceOfNewEntry(opts: {
+  slipId: number;
+  from: string;
+  amount: number;
+  kind: "slip" | "no_slip";
+}): Promise<void> {
+  try {
+    const ids = await listFinanceUserIds();
+    const what =
+      opts.kind === "no_slip"
+        ? "รายการถวายที่ไม่มีสลิป (ต้องตรวจกับยอดเข้าบัญชี)"
+        : "สลิปถวาย";
+    await Promise.all(
+      ids.map(userId =>
+        createNotification({
+          userId,
+          type: "giving_review",
+          title: "มีรายการถวายรอตรวจสอบ",
+          description: `${opts.from} ส่ง${what} ${opts.amount.toLocaleString()} บาท`,
+          link: "/giving/inbox",
+        })
+      )
+    );
+  } catch (err) {
+    console.warn("[notify] Could not notify finance users:", err);
+  }
+}
+
+/** Tells the donor what the treasurer decided. Never throws. */
+async function notifyDonorOfDecision(opts: {
+  userId: number | null;
+  decision: "approved" | "rejected";
+  amount?: number;
+  reason?: string;
+}): Promise<void> {
+  if (opts.userId === null) return;
+  try {
+    await createNotification({
+      userId: opts.userId,
+      type:
+        opts.decision === "approved" ? "giving_approved" : "giving_rejected",
+      title:
+        opts.decision === "approved"
+          ? "บันทึกการถวายของคุณเข้าบัญชีแล้ว"
+          : "รายการถวายของคุณไม่ได้รับการอนุมัติ",
+      description:
+        opts.decision === "approved"
+          ? `เหรัญญิกบันทึกยอด ${(opts.amount ?? 0).toLocaleString()} บาทแล้ว ขอบคุณพระเจ้า`
+          : `เหตุผล: ${opts.reason ?? "ข้อมูลไม่ถูกต้อง"} กรุณาติดต่อเจ้าหน้าที่หรือส่งใหม่`,
+      link: "/giving/station",
+    });
+  } catch (err) {
+    console.warn("[notify] Could not notify the donor:", err);
+  }
+}
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 
 export const appRouter = router({
@@ -529,7 +621,8 @@ export const appRouter = router({
         if (input.userId === ctx.user.id) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "เปลี่ยนบทบาทของตัวเองไม่ได้ ให้ผู้ดูแลระบบคนอื่นเปลี่ยนให้",
+            message:
+              "เปลี่ยนบทบาทของตัวเองไม่ได้ ให้ผู้ดูแลระบบคนอื่นเปลี่ยนให้",
           });
         }
         const roles =
@@ -609,8 +702,7 @@ export const appRouter = router({
         await createAuditLog({
           churchId: "default",
           userId: ctx.user.id,
-          action:
-            input.status === "active" ? "approve_user" : "disable_user",
+          action: input.status === "active" ? "approve_user" : "disable_user",
           entity: "user",
           entityId: input.userId,
           metadata: { status: input.status },
@@ -2548,11 +2640,14 @@ export const appRouter = router({
           category: offeringCategory.optional(),
           receiptDate: z.coerce.date().optional(),
           reviewNote: z.string().optional(),
+          confirmedBankCheck: z.boolean().optional(),
+          /** One line, or two or more to split the transfer by category. */
+          items: z.array(splitLine).min(1).max(MAX_SPLIT_LINES).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          return await approveLineSlip({
+          const result = await approveLineSlip({
             slipId: input.slipId,
             churchId: DEFAULT_CHURCH_ID,
             approvedBy: ctx.user.id,
@@ -2563,7 +2658,15 @@ export const appRouter = router({
             category: input.category,
             receiptDate: input.receiptDate,
             reviewNote: input.reviewNote,
+            confirmedBankCheck: input.confirmedBankCheck,
+            items: input.items,
           });
+          await notifyDonorOfDecision({
+            userId: result.submittedByUserId,
+            decision: "approved",
+            amount: result.amount,
+          });
+          return result;
         } catch (err: any) {
           const msg = err?.message || "เกิดข้อผิดพลาดในการอนุมัติสลิป";
           if (msg.includes("ได้รับการอนุมัติไปแล้ว")) {
@@ -2585,12 +2688,18 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          return await rejectLineSlip({
+          const result = await rejectLineSlip({
             slipId: input.slipId,
             churchId: DEFAULT_CHURCH_ID,
             reviewedBy: ctx.user.id,
             reason: input.reason,
           });
+          await notifyDonorOfDecision({
+            userId: result.submittedByUserId,
+            decision: "rejected",
+            reason: input.reason,
+          });
+          return result;
         } catch (err: any) {
           throw new TRPCError({
             code: "BAD_REQUEST",
@@ -2723,11 +2832,14 @@ export const appRouter = router({
             .positive("กรุณาระบุจำนวนเงินที่ถวาย")
             .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
           category: offeringCategory,
+          /** Set when one transfer pays for several categories. */
+          items: splitItems.optional(),
           fundId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(120).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
+        assertSplitSound(input.items, input.amount);
         let image: ReturnType<typeof decodeSlipImage>;
         try {
           image = decodeSlipImage(input.base64Data);
@@ -2765,14 +2877,17 @@ export const appRouter = router({
             churchId: DEFAULT_CHURCH_ID,
             userId: ctx.user.id,
             userName: ctx.user.name ?? undefined,
-            donorName: input.donorName || ctx.user.name || undefined,
+            // The LINE name stays as the sender. The typed name is kept apart.
+            donorName: ctx.user.name || undefined,
+            typedDonorName: input.donorName || undefined,
             imageBuffer: image.buffer,
             contentType: image.contentType,
             extension: image.extension,
             declared: {
               amount: input.amount.toFixed(2),
-              category: input.category,
+              category: input.items?.[0].category ?? input.category,
               fundId: input.fundId ?? null,
+              items: input.items ?? null,
             },
           });
         } catch (err) {
@@ -2791,9 +2906,16 @@ export const appRouter = router({
           entityId: slip.id,
           metadata: {
             declaredAmount: input.amount,
-            declaredCategory: input.category,
+            declaredCategory: input.items?.[0].category ?? input.category,
+            declaredItems: input.items ?? null,
             declaredFundId: input.fundId ?? null,
           },
+        });
+        await notifyFinanceOfNewEntry({
+          slipId: slip.id,
+          from: ctx.user.name ?? "สมาชิก",
+          amount: input.amount,
+          kind: "slip",
         });
 
         // Read the slip now so the donor learns at once whether the amount on
@@ -2816,7 +2938,121 @@ export const appRouter = router({
           new Date(Date.now() - 24 * 60 * 60 * 1000)
         );
 
-        return { success: true, slipId: slip.id, check, failedAttempts } as const;
+        return {
+          success: true,
+          slipId: slip.id,
+          check,
+          failedAttempts,
+        } as const;
+      }),
+
+    /**
+     * A member sends the details of a transfer without a slip image. The entry
+     * waits in the review queue. Nothing is credited until a treasurer checks
+     * it against the bank and approves.
+     */
+    submitWithoutSlip: protectedProcedure
+      .input(
+        z.object({
+          amount: z
+            .number()
+            .positive("กรุณาระบุจำนวนเงินที่ถวาย")
+            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
+          category: offeringCategory,
+          items: splitItems.optional(),
+          fundId: z.number().int().positive().optional(),
+          donorName: z
+            .string()
+            .trim()
+            .min(2, "กรุณาระบุชื่อผู้ถวาย อย่างน้อย 2 ตัวอักษร")
+            .max(120),
+          transferDate: z.coerce.date(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        assertSplitSound(input.items, input.amount);
+        const problem = checkTransferDate(input.transferDate);
+        if (problem) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: TRANSFER_DATE_MESSAGE[problem],
+          });
+        }
+
+        if (input.fundId !== undefined) {
+          const funds = await listFinanceAccounts();
+          if (!funds.some(f => f.id === input.fundId)) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "ไม่พบกองทุนที่เลือก",
+            });
+          }
+        }
+
+        const recent = await countRecentManualSlips(
+          ctx.user.id,
+          new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+        if (recent >= MAX_SLIPS_PER_DAY) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "ส่งรายการครบจำนวนต่อวันแล้ว กรุณาลองใหม่พรุ่งนี้",
+          });
+        }
+
+        let created: Awaited<ReturnType<typeof createNoSlipEntry>>;
+        try {
+          created = await createNoSlipEntry({
+            churchId: DEFAULT_CHURCH_ID,
+            userId: ctx.user.id,
+            userName: ctx.user.name ?? undefined,
+            donorName: input.donorName,
+            amount: input.amount.toFixed(2),
+            category: input.items?.[0].category ?? input.category,
+            items: input.items ?? null,
+            fundId: input.fundId ?? null,
+            transferDate: input.transferDate,
+          });
+        } catch (err) {
+          if (err instanceof DuplicateEntryError) {
+            throw new TRPCError({ code: "CONFLICT", message: err.message });
+          }
+          console.error("[submitWithoutSlip] Could not store entry:", err);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "ไม่สามารถบันทึกรายการได้ กรุณาลองใหม่อีกครั้ง",
+          });
+        }
+
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CREATE",
+          entity: "line_slip",
+          entityId: created.slip.id,
+          metadata: {
+            source: "no_slip",
+            declaredAmount: input.amount,
+            declaredCategory: input.items?.[0].category ?? input.category,
+            declaredItems: input.items ?? null,
+            declaredFundId: input.fundId ?? null,
+            declaredDate: input.transferDate.toISOString().slice(0, 10),
+            possibleDuplicate: created.warning !== null,
+          },
+        });
+        await notifyFinanceOfNewEntry({
+          slipId: created.slip.id,
+          from: ctx.user.name ?? "สมาชิก",
+          amount: input.amount,
+          kind: "no_slip",
+        });
+
+        return {
+          success: true,
+          slipId: created.slip.id,
+          check: toDonorSlipStatus(created.slip),
+          failedAttempts: 0,
+        } as const;
       }),
 
     /** The caller's own recent slips and what became of them. */

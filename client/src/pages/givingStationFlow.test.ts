@@ -26,9 +26,9 @@ describe("resolveSubmitMode", () => {
     );
   });
 
-  it("makes a plain member attach a slip instead of faking success", () => {
+  it("sends a plain member's entry without a slip to review, never to the ledger", () => {
     expect(resolveSubmitMode({ canManageFinance: false, hasSlip: false })).toBe(
-      "needs-slip"
+      "no-slip"
     );
   });
 });
@@ -110,12 +110,15 @@ describe("describeOutcome", () => {
 });
 
 describe("buildSendChecklist", () => {
+  const now = new Date("2026-11-01T05:00:00Z");
   const base = {
     category: "land" as const,
     amount: 500,
     donorName: "สมชาย",
     hasSlip: true,
-    slipOptional: false,
+    mode: "slip" as const,
+    transferDate: "2026-11-01",
+    now,
   };
 
   it("passes when the amount is valid and a slip is attached", () => {
@@ -130,17 +133,61 @@ describe("buildSendChecklist", () => {
     expect(canSend(items)).toBe(true);
   });
 
-  it("blocks the send when a member has no slip, and says what to do", () => {
-    const items = buildSendChecklist({ ...base, hasSlip: false });
-    expect(canSend(items)).toBe(false);
-    expect(items.find(i => i.id === "slip")?.detail).toContain("แนบสลิป");
-  });
-
-  it("lets staff send without a slip", () => {
+  it("asks a member without a slip for a name and a date", () => {
     const items = buildSendChecklist({
       ...base,
       hasSlip: false,
-      slipOptional: true,
+      mode: "no-slip",
+    });
+    expect(items.map(i => i.id)).toEqual([
+      "category",
+      "amount",
+      "name",
+      "date",
+      "slip",
+    ]);
+    expect(canSend(items)).toBe(true);
+    expect(items.find(i => i.id === "slip")?.detail).toContain(
+      "รอเหรัญญิกตรวจ"
+    );
+  });
+
+  it("blocks a send without a slip when the name is empty or one letter", () => {
+    for (const donorName of ["", "  ", "ก"]) {
+      const items = buildSendChecklist({
+        ...base,
+        hasSlip: false,
+        mode: "no-slip",
+        donorName,
+      });
+      expect(canSend(items)).toBe(false);
+      expect(items.find(i => i.id === "name")?.ok).toBe(false);
+    }
+  });
+
+  it("blocks a send without a slip for a missing, future or old date", () => {
+    const run = (transferDate: string) =>
+      buildSendChecklist({
+        ...base,
+        hasSlip: false,
+        mode: "no-slip",
+        transferDate,
+      }).find(i => i.id === "date");
+
+    expect(run("")?.ok).toBe(false);
+    expect(run("")?.detail).toContain("ระบุวันที่");
+    expect(run("2026-12-31")?.ok).toBe(false);
+    expect(run("2026-12-31")?.detail).toContain("อนาคต");
+    expect(run("2026-01-01")?.ok).toBe(false);
+    expect(run("2026-01-01")?.detail).toContain("เก่าเกิน");
+    expect(run("2026-10-31")?.ok).toBe(true);
+  });
+
+  it("lets staff write to the ledger without a slip", () => {
+    const items = buildSendChecklist({
+      ...base,
+      hasSlip: false,
+      mode: "ledger",
     });
     expect(canSend(items)).toBe(true);
     expect(items.find(i => i.id === "slip")?.detail).toContain("ทันที");
@@ -152,10 +199,25 @@ describe("buildSendChecklist", () => {
     expect(items.find(i => i.id === "amount")?.ok).toBe(false);
   });
 
-  it("never blocks on the name, and shows an anonymous gift as such", () => {
+  it("does not block a slip on the name, and says the slip name is used", () => {
     const items = buildSendChecklist({ ...base, donorName: "  " });
     expect(canSend(items)).toBe(true);
-    expect(items.find(i => i.id === "name")?.detail).toContain("นิรนาม");
+    expect(items.find(i => i.id === "name")?.detail).toContain("ชื่อบนสลิป");
+  });
+});
+
+describe("describeOutcome without a slip", () => {
+  it("says the entry waits for the treasurer and does not thank", () => {
+    const o = describeOutcome({
+      mode: "no-slip",
+      category: "tithe",
+      amount: 170,
+      check: { state: "in_review", message: "รอตรวจ", slipAmount: null },
+    });
+    expect(o.title).not.toContain("ขอบคุณ");
+    expect(o.message).toContain("ยังไม่นับเข้าบัญชี");
+    expect(o.tone).toBe("success");
+    expect(o.canRetry).toBe(false);
   });
 });
 
@@ -202,5 +264,50 @@ describe("describeOutcome with failed attempts", () => {
     });
     expect(o.tone).toBe("success");
     expect(o.message).toContain("เจ้าหน้าที่ตรวจสอบเอง");
+  });
+});
+
+describe("a split over several categories", () => {
+  const base = {
+    category: "tithe" as const,
+    amount: 1000,
+    donorName: "สมชาย",
+    hasSlip: true,
+    mode: "slip" as const,
+  };
+  const lines = [
+    { category: "tithe" as const, amount: 700 },
+    { category: "mission" as const, amount: 300 },
+  ];
+
+  it("adds a split item that passes when the lines add up", () => {
+    const items = buildSendChecklist({
+      ...base,
+      split: { lines, problem: null },
+    });
+    const split = items.find(i => i.id === "split");
+    expect(split?.ok).toBe(true);
+    expect(split?.detail).toBe("สิบลด 700 + พันธกิจ 300");
+    expect(canSend(items)).toBe(true);
+  });
+
+  it("blocks the send and says why when the lines do not add up", () => {
+    const items = buildSendChecklist({
+      ...base,
+      split: { lines, problem: "total_mismatch" },
+    });
+    expect(canSend(items)).toBe(false);
+    expect(items.find(i => i.id === "split")?.detail).toContain("ผลรวม");
+  });
+
+  it("names the split in the last screen", () => {
+    const o = describeOutcome({
+      mode: "slip",
+      category: "tithe",
+      amount: 1000,
+      splitCount: 2,
+      check: { state: "verified", message: "ตรงกัน", slipAmount: null },
+    });
+    expect(o.message).toContain("แบ่ง 2 ประเภท");
   });
 });

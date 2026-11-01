@@ -1,0 +1,1 @@
+ALTER TABLE "line_slips" ADD COLUMN "declaredItems" jsonb;

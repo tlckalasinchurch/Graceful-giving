@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const submitSlip = vi.fn();
+const submitWithoutSlip = vi.fn();
 const savePoster = vi.fn();
 // What church.stationPoster returns. Undefined means still loading.
 let posterData: Record<string, string> | undefined;
@@ -67,6 +68,12 @@ vi.mock("@/lib/trpc", () => ({
       submitSlip: {
         useMutation: () => ({ mutateAsync: submitSlip, isPending: false }),
       },
+      submitWithoutSlip: {
+        useMutation: () => ({
+          mutateAsync: submitWithoutSlip,
+          isPending: false,
+        }),
+      },
     },
     offerings: {
       create: {
@@ -125,17 +132,136 @@ describe("GivingStation for an ordinary member", () => {
     expect(screen.queryByText(/โปสเตอร์ป้าย QR ติดหน้าห้อง/)).toBeNull();
   });
 
-  it("cannot confirm without a slip", async () => {
+  it("sends the details for review when there is no slip, and credits nothing yet", async () => {
+    submitWithoutSlip.mockResolvedValue({
+      success: true,
+      slipId: 9,
+      failedAttempts: 0,
+      check: {
+        state: "in_review",
+        message: "ได้รับข้อมูลแล้ว",
+        slipAmount: null,
+      },
+    });
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
     fireEvent.click(
       await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
     );
-    const confirm = await screen.findByRole("button", {
-      name: "ยืนยันและส่งสลิปถวาย",
-    });
-    expect((confirm as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
+    );
+    expect(await screen.findByText("ได้รับข้อมูลแล้ว")).toBeTruthy();
+    expect(screen.queryByText("ขอบคุณพระเจ้า")).toBeNull();
     expect(submitSlip).not.toHaveBeenCalled();
+    expect(submitWithoutSlip).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: "land",
+        amount: 1000,
+        donorName: "สมชาย",
+        transferDate: expect.any(Date),
+      })
+    );
+  });
+
+  it("blocks a send without a slip when the name is missing", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
+    );
+    fireEvent.change(await screen.findByLabelText(/ชื่อผู้ถวาย/), {
+      target: { value: " " },
+    });
+    const send = screen.getByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" });
+    expect((send as HTMLButtonElement).disabled).toBe(true);
+    expect(submitWithoutSlip).not.toHaveBeenCalled();
+  });
+
+  it("blocks a send without a slip when the transfer date is in the future", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
+    );
+    fireEvent.change(await screen.findByLabelText(/วันที่โอนเงิน/), {
+      target: { value: "2999-01-01" },
+    });
+    const send = screen.getByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" });
+    expect((send as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("splits one transfer over two categories and sends the lines", async () => {
+    submitWithoutSlip.mockResolvedValue({
+      success: true,
+      slipId: 10,
+      failedAttempts: 0,
+      check: { state: "in_review", message: "รอตรวจ", slipAmount: null },
+    });
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: /แบ่งยอดถวายหลายประเภท/ })
+    );
+    // One line holds the whole amount, so a split of one line cannot be sent.
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "ส่งให้เหรัญญิกตรวจสอบ",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+
+    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 1"), {
+      target: { value: "700" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "เพิ่มประเภทอื่น" }));
+    // The new line takes what is left.
+    expect(
+      (screen.getByLabelText("ยอดประเภทที่ 2") as HTMLInputElement).value
+    ).toBe("300");
+    expect(screen.getByRole("status").textContent).toContain("✓");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
+    );
+    expect(await screen.findByText("ได้รับข้อมูลแล้ว")).toBeTruthy();
+    const sent = submitWithoutSlip.mock.calls[0][0];
+    expect(sent.amount).toBe(1000);
+    expect(sent.items).toHaveLength(2);
+    expect(sent.items[0]).toEqual({ category: "land", amount: 700 });
+    expect(sent.items[1].amount).toBe(300);
+    expect(sent.items[1].category).not.toBe("land");
+  });
+
+  it("blocks the send when the split lines do not add up to the transfer", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ดูสรุปการถวาย: ที่ดิน" })
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: /แบ่งยอดถวายหลายประเภท/ })
+    );
+    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 1"), {
+      target: { value: "700" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "เพิ่มประเภทอื่น" }));
+    fireEvent.change(screen.getByLabelText("ยอดประเภทที่ 2"), {
+      target: { value: "200" },
+    });
+    expect(screen.getByRole("status").textContent).toContain("ผลรวม");
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "ส่งให้เหรัญญิกตรวจสอบ",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+    expect(submitWithoutSlip).not.toHaveBeenCalled();
   });
 
   it("lets the donor take the slip photo with the camera", async () => {
@@ -301,7 +427,7 @@ describe("GivingStation step 3: paid or not yet", () => {
 });
 
 describe("GivingStation check before every send", () => {
-  it("lists what will be sent and blocks the send until a slip is attached", async () => {
+  it("lists what will be sent, and switches to the slip route when a slip is attached", async () => {
     render(<GivingStation />);
     fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
     fireEvent.click(
@@ -311,9 +437,10 @@ describe("GivingStation check before every send", () => {
       name: "ตรวจรายการก่อนส่ง",
     });
     expect(list.textContent).toContain("1,000 THB");
-    expect(list.textContent).toContain("ยังไม่ได้แนบสลิป");
-    const send = screen.getByRole("button", { name: "ยืนยันและส่งสลิปถวาย" });
-    expect((send as HTMLButtonElement).disabled).toBe(true);
+    expect(list.textContent).toContain("ไม่ได้แนบสลิป");
+    expect(list.textContent).toContain("รอเหรัญญิกตรวจ");
+    const send = screen.getByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" });
+    expect((send as HTMLButtonElement).disabled).toBe(false);
 
     fireEvent.change(screen.getByLabelText("รูปสลิปการโอน"), {
       target: { files: [png()] },
@@ -368,8 +495,9 @@ describe("GivingStation after a page reload", () => {
     first.unmount();
     // The page reloads, for example when the donor returns from a bank app.
     render(<GivingStation />);
+    // The slip image is not kept, so the page asks again for the details.
     expect(
-      await screen.findByRole("button", { name: "ยืนยันและส่งสลิปถวาย" })
+      await screen.findByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
     ).toBeTruthy();
     expect(screen.getAllByText(/1,000/).length).toBeGreaterThan(0);
   });

@@ -370,6 +370,10 @@ export const offerings = pgTable("offerings", {
   status: offeringStatusEnum("status").default("active").notNull(),
   voidedAt: timestamp("voidedAt"),
   recordedBy: integer("recordedBy").notNull(),
+  /** users.id of the person who sent the giving from the app, when known. */
+  submittedByUserId: integer("submittedByUserId"),
+  /** Their LINE name when they sent it. */
+  submittedByName: varchar("submittedByName", { length: 180 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
@@ -845,6 +849,25 @@ export const lineSlips = pgTable("line_slips", {
   declaredAmount: decimal("declaredAmount", { precision: 15, scale: 2 }),
   declaredCategory: offeringCategoryEnum("declaredCategory"),
   declaredFundId: integer("declaredFundId"),
+  /**
+   * When one transfer pays for several categories: `[{category, amount}]`.
+   * Null for a single category. `declaredAmount` is then the total.
+   */
+  declaredItems: jsonb("declaredItems").$type<
+    Array<{ category: string; amount: number }>
+  >(),
+  /** The date the donor says the transfer was made (entries without a slip). */
+  declaredDate: timestamp("declaredDate"),
+  /** "slip": an image was attached. "no_slip": the donor sent the details only. */
+  source: varchar("source", { length: 16 }).default("slip").notNull(),
+
+  // ─── Who sent it, kept apart from the name that goes in the books ───
+  /** users.id of the signed-in person who sent it from the app. */
+  submittedByUserId: integer("submittedByUserId"),
+  /** The sender's LINE name when it was sent. Never overwritten. */
+  submittedByName: varchar("submittedByName", { length: 180 }),
+  /** The name the donor typed in the form. */
+  typedDonorName: varchar("typedDonorName", { length: 180 }),
 
   // ─── Staff decisions (set during review) ───
   /** Fund to credit — must be a valid finance_accounts.id */

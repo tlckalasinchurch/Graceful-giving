@@ -33,6 +33,13 @@ import {
   type StationSubmission,
 } from "./givingStationFlow";
 import { fetchLiffId } from "@/lib/liffSignIn";
+import { SplitEditor } from "@/components/giving/SplitEditor";
+import {
+  draftsProblem,
+  parseDrafts,
+  startSplit,
+  type SplitDraft,
+} from "@/lib/splitDraft";
 import { clearDraft, loadDraft, saveDraft } from "./givingDraft";
 import { StationOnlyFrame } from "@/components/layout/StationOnlyFrame";
 import { PromptPayQrCard } from "@/components/ui/promptpay-qr-card";
@@ -158,6 +165,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   // null until the donor types, so the name fills in once `user` has loaded.
   const [donorNameInput, setDonorNameInput] = useState<string | null>(null);
   const donorName = donorNameInput ?? user?.name ?? "";
+  // Set when one transfer is split over several categories. Null: one category.
+  const [splitDrafts, setSplitDrafts] = useState<SplitDraft[] | null>(null);
+  // The transfer date, `YYYY-MM-DD`. Asked only when no slip is attached.
+  const [transferDate, setTransferDate] = useState<string>(() =>
+    new Date().toLocaleDateString("sv-SE")
+  );
   // Set only when the server accepted the giving. Step 4 shows this and
   // nothing else, so the "done" screen cannot appear without a saved record.
   const [submission, setSubmission] = useState<StationSubmission | null>(null);
@@ -366,6 +379,24 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     hasSlip: slipPreview !== null,
   });
 
+  // Splitting is for a slip or an entry for review. Staff in the ledger mode
+  // record one line at a time.
+  const splitActive = splitDrafts !== null && submitMode !== "ledger";
+  const splitLines = splitActive ? parseDrafts(splitDrafts) : null;
+  const splitProblem = splitActive
+    ? draftsProblem(splitDrafts, effectiveAmount)
+    : null;
+  // The steps before 3 pick one category, so leave the split when the donor goes back.
+  useEffect(() => {
+    if (step !== 3) setSplitDrafts(null);
+  }, [step]);
+
+  const submitNoSlipMutation = trpc.givingInbox.submitWithoutSlip.useMutation({
+    onError: err => {
+      toast.error(err.message || "ส่งรายการไม่สำเร็จ");
+    },
+  });
+
   const submitSlipMutation = trpc.givingInbox.submitSlip.useMutation({
     onError: err => {
       toast.error(err.message || "ส่งสลิปไม่สำเร็จ");
@@ -480,12 +511,14 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       toast.error("กรุณาระบุจำนวนเงินที่ต้องการถวาย");
       return;
     }
-    if (submitMode === "needs-slip") {
-      toast.error("กรุณาแนบรูปสลิปการโอนก่อนยืนยัน");
+    if (!canSend(checklist)) {
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วนก่อนยืนยัน");
       return;
     }
 
     const name = donorName.trim() || undefined;
+    const items = splitActive && splitLines ? splitLines : undefined;
+    const categoryToSend = items?.[0].category ?? selectedCategory;
     let check: StationSubmission["check"] = null;
     let failedAttemptsAfter = failedAttempts;
     try {
@@ -493,13 +526,25 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         const result = await submitSlipMutation.mutateAsync({
           base64Data: slipPreview,
           amount: effectiveAmount,
-          category: selectedCategory,
+          category: categoryToSend,
+          items,
           fundId: effectiveFundId > 0 ? effectiveFundId : undefined,
           donorName: name,
         });
         check = result.check;
         failedAttemptsAfter = result.failedAttempts;
         setFailedAttempts(result.failedAttempts);
+        void utils.givingInbox.invalidate();
+      } else if (submitMode === "no-slip") {
+        const result = await submitNoSlipMutation.mutateAsync({
+          amount: effectiveAmount,
+          category: categoryToSend,
+          items,
+          fundId: effectiveFundId > 0 ? effectiveFundId : undefined,
+          donorName: donorName.trim(),
+          transferDate: new Date(transferDate),
+        });
+        check = result.check;
         void utils.givingInbox.invalidate();
       } else {
         await createOfferingMutation.mutateAsync({
@@ -523,8 +568,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
     setSubmission({
       mode: submitMode,
-      category: selectedCategory,
+      category: categoryToSend,
       amount: effectiveAmount,
+      splitCount: items?.length,
       check,
       failedAttempts:
         check?.state === "rejected" ? failedAttemptsAfter : undefined,
@@ -573,12 +619,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     amount: effectiveAmount,
     donorName,
     hasSlip: slipPreview !== null,
-    slipOptional: canRecordDirectly,
+    mode: submitMode,
+    transferDate,
+    split:
+      splitActive && splitLines
+        ? { lines: splitLines, problem: splitProblem }
+        : undefined,
   });
   const attemptsNote = failedAttemptsNote(failedAttempts);
 
   const isSubmitting =
-    submitSlipMutation.isPending || createOfferingMutation.isPending;
+    submitSlipMutation.isPending ||
+    submitNoSlipMutation.isPending ||
+    createOfferingMutation.isPending;
 
   // Step 4 is only valid after a saved submission.
   const shownStep: FlowStep = step === 4 && !submission ? 1 : step;
@@ -998,19 +1051,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   description={
                     submitMode === "ledger"
                       ? "ไม่ได้แนบสลิป ระบบจะบันทึกรายการถวายเข้าบัญชีทันทีในนามเจ้าหน้าที่การเงิน"
-                      : "เมื่อโอนเงินและแนบสลิปเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อส่งสลิป เหรัญญิกจะตรวจสอบก่อนบันทึกเข้าบัญชี"
+                      : submitMode === "no-slip"
+                        ? "ไม่ได้แนบสลิป กรอกชื่อและวันที่โอนให้ถูกต้อง เหรัญญิกจะตรวจกับยอดเข้าบัญชีธนาคารก่อนนับเข้าบัญชี และแจ้งผลให้คุณทราบ"
+                        : "เมื่อโอนเงินและแนบสลิปเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อส่งสลิป เหรัญญิกจะตรวจสอบก่อนบันทึกเข้าบัญชี"
                   }
                   buttonLabel={
                     submitMode === "ledger"
                       ? "บันทึกรายการถวายเข้าบัญชี"
-                      : "ยืนยันและส่งสลิปถวาย"
+                      : submitMode === "no-slip"
+                        ? "ส่งให้เหรัญญิกตรวจสอบ"
+                        : "ยืนยันและส่งสลิปถวาย"
                   }
                   loading={isSubmitting}
-                  disabled={
-                    submitMode === "needs-slip" ||
-                    effectiveAmount === null ||
-                    !canSend(checklist)
-                  }
+                  disabled={effectiveAmount === null || !canSend(checklist)}
                   onConfirm={() => void handleConfirmGiving()}
                 >
                   <div className="space-y-3 my-2">
@@ -1020,7 +1073,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         htmlFor="station-donor-name"
                         className="text-xs font-bold text-stone-300 block"
                       >
-                        ชื่อผู้ถวาย (ไม่ระบุเพื่อถวายนิรนามได้)
+                        {submitMode === "no-slip"
+                          ? "ชื่อผู้ถวาย (จำเป็น ต้องตรงกับชื่อบัญชีที่โอน)"
+                          : "ชื่อผู้ถวาย (ไม่ระบุเพื่อถวายนิรนามได้)"}
                       </label>
                       <input
                         id="station-donor-name"
@@ -1032,6 +1087,52 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-stone-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34D399]"
                       />
                     </div>
+
+                    {submitMode !== "ledger" && effectiveAmount !== null && (
+                      <div className="space-y-1.5">
+                        {splitDrafts === null ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSplitDrafts(
+                                startSplit(selectedCategory, effectiveAmount)
+                              )
+                            }
+                            className="w-full min-h-11 rounded-2xl border border-dashed border-white/20 hover:border-[#34D399] bg-black/30 px-3 text-xs font-bold text-stone-200 cursor-pointer"
+                          >
+                            แบ่งยอดถวายหลายประเภท (เช่น สิบลด + พันธกิจ)
+                          </button>
+                        ) : (
+                          <SplitEditor
+                            idPrefix="station-split"
+                            lines={splitDrafts}
+                            total={effectiveAmount}
+                            onChange={setSplitDrafts}
+                            onCancel={() => setSplitDrafts(null)}
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    {submitMode === "no-slip" && (
+                      <div className="space-y-1">
+                        <label
+                          htmlFor="station-transfer-date"
+                          className="text-xs font-bold text-stone-300 block"
+                        >
+                          วันที่โอนเงิน (จำเป็น)
+                        </label>
+                        <input
+                          id="station-transfer-date"
+                          type="date"
+                          required
+                          max={new Date().toLocaleDateString("sv-SE")}
+                          value={transferDate}
+                          onChange={e => setTransferDate(e.target.value)}
+                          className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34D399]"
+                        />
+                      </div>
+                    )}
 
                     {/* Optional Slip Image Dropzone */}
                     <div>
@@ -1054,7 +1155,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                             ? "เปลี่ยนรูปสลิปที่แนบไว้"
                             : canRecordDirectly
                               ? "แตะเพื่อแนบรูปสลิปการโอน (ถ้ามี)"
-                              : "แตะเพื่อแนบรูปสลิปการโอน (จำเป็น)"}
+                              : "แตะเพื่อแนบรูปสลิปการโอน (แนะนำ ตรวจได้เร็วกว่า)"}
                         </span>
                       </button>
                       {/* Opens the phone camera at once, for a paper slip. */}

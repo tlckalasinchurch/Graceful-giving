@@ -4,6 +4,10 @@ import {
   type ReceiverVerdict,
 } from "./receiverAccount";
 import { CONFIDENCE_THRESHOLD, type SlipExtraction } from "./slipOcr";
+import {
+  SLIP_OLD_WARNING_DAYS,
+  checkTransferDate,
+} from "../../shared/givingLimits";
 
 export type VerificationKind = "amount" | "receiver";
 
@@ -37,6 +41,8 @@ export function verifySlip(input: {
   isDuplicate: boolean;
   /** The donor's earlier slips were turned away MAX_AUTO_REJECTS times or more. */
   escalate?: boolean;
+  /** For tests. Defaults to the current time. */
+  now?: Date;
 }): SlipVerification {
   const {
     declaredAmount,
@@ -45,6 +51,7 @@ export function verifySlip(input: {
     churchPromptPayId,
     isDuplicate,
     escalate = false,
+    now = new Date(),
   } = input;
   // Only a slip sent from the giving station, where the donor chose the
   // amount, is turned away by the system. Other slips are flagged for staff.
@@ -88,6 +95,31 @@ export function verifySlip(input: {
     } else if (receiver.kind === "suspect") {
       reviewWarning =
         "เลขบัญชีผู้รับในสลิปต่างจากบัญชีคริสตจักร ตรวจภาพสลิปก่อนอนุมัติ";
+    }
+  }
+
+  // A date in the future, or a slip older than a month, is not grounds to turn
+  // it away on its own (the OCR may misread a digit). A person looks at it.
+  if (
+    !isDuplicate &&
+    extraction.transferDate &&
+    extraction.dateConfidence >= CONFIDENCE_THRESHOLD
+  ) {
+    const problem = checkTransferDate(
+      new Date(extraction.transferDate),
+      now,
+      SLIP_OLD_WARNING_DAYS
+    );
+    const dateWarning =
+      problem === "future"
+        ? "วันที่ในสลิปเป็นวันในอนาคต ตรวจวันที่บนภาพสลิปก่อนอนุมัติ"
+        : problem === "too_old"
+          ? `สลิปนี้เก่าเกิน ${SLIP_OLD_WARNING_DAYS} วัน ตรวจว่าไม่ใช่สลิปเก่าที่ส่งซ้ำ`
+          : null;
+    if (dateWarning) {
+      reviewWarning = reviewWarning
+        ? `${reviewWarning}. ${dateWarning}`
+        : dateWarning;
     }
   }
 
