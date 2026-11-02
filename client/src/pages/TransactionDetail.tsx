@@ -35,6 +35,7 @@ import {
   paymentMethodLabel,
 } from "@shared/categories";
 import { THAI_LOCALE } from "@/lib/format";
+import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 
@@ -228,6 +229,12 @@ export default function TransactionDetail() {
     const amount = Number(editAmount);
     if (!Number.isFinite(amount) || amount <= 0) {
       toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
+      return;
+    }
+    if (amount > MAX_GIVING_AMOUNT) {
+      toast.error(
+        `จำนวนเงินต้องไม่เกิน ${MAX_GIVING_AMOUNT.toLocaleString("en-US")} บาท`
+      );
       return;
     }
     if (isOffering)

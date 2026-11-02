@@ -12,6 +12,7 @@ import { Banknote, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink } from "@/components/common/CommonUI";
+import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
 
 // withdrawals.create caps details at 1000 chars, and an urgent request spends
 // part of that budget on the prefix below, so the field stops short of both.
@@ -68,6 +69,12 @@ export default function NewWithdrawal() {
     const numAmount = parseFloat(amount.replace(/,/g, ""));
     if (isNaN(numAmount) || numAmount <= 0) {
       toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
+      return;
+    }
+    if (numAmount > MAX_WITHDRAWAL_AMOUNT) {
+      toast.error(
+        `จำนวนเงินต้องไม่เกิน ${MAX_WITHDRAWAL_AMOUNT.toLocaleString("en-US")} บาท`
+      );
       return;
     }
     if (purpose.trim().length < 5) {
