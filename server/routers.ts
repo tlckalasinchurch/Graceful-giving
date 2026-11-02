@@ -135,6 +135,7 @@ import {
   checkSplit,
 } from "@shared/givingSplit";
 import type { DonorSlipStatus } from "@shared/donorSlip";
+import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
 import {
   MAX_GIVING_AMOUNT,
   MAX_SLIPS_PER_DAY,
@@ -339,6 +340,14 @@ const budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
   }
   return next();
 });
+
+/** Refuses a fund id that is missing or no longer active. */
+async function assertActiveFund(fundId: number) {
+  const funds = await listFinanceAccounts();
+  if (!funds.some(f => f.id === fundId)) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "ไม่พบกองทุนที่เลือก" });
+  }
+}
 
 const RECEIPT_EXTENSIONS = {
   "image/jpeg": "jpg",
@@ -987,7 +996,11 @@ export const appRouter = router({
       .input(
         z.object({
           id: z.number().int().positive(),
-          amount: z.number().positive().optional(),
+          amount: z
+            .number()
+            .positive()
+            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด")
+            .optional(),
           category: offeringCategory.optional(),
           fundId: z.number().int().positive().nullable().optional(),
           donorName: z.string().trim().max(120).nullable().optional(),
@@ -999,10 +1012,11 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         const { id, amount, ...rest } = input;
+        if (typeof rest.fundId === "number") await assertActiveFund(rest.fundId);
         const updated = await updateOffering(id, {
           ...rest,
           ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
-        } as any);
+        });
         if (updated === null)
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -1138,7 +1152,11 @@ export const appRouter = router({
       .input(
         z.object({
           id: z.number().int().positive(),
-          amount: z.number().positive().optional(),
+          amount: z
+            .number()
+            .positive()
+            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด")
+            .optional(),
           category: expenseCategory.optional(),
           fundId: z.number().int().positive().nullable().optional(),
           description: z.string().trim().min(2).max(280).optional(),
@@ -1273,13 +1291,17 @@ export const appRouter = router({
     create: protectedProcedure
       .input(
         z.object({
-          amount: z.number().positive(),
+          amount: z
+            .number()
+            .positive()
+            .max(MAX_WITHDRAWAL_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
           purpose: z.string().trim().min(5).max(280),
           details: z.string().trim().max(1000).optional(),
           fundId: z.number().int().positive().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
+        if (input.fundId !== undefined) await assertActiveFund(input.fundId);
         const id = await createWithdrawalRequest({
           amount: input.amount.toFixed(2),
           purpose: input.purpose,
@@ -1287,7 +1309,7 @@ export const appRouter = router({
           fundId: input.fundId,
           requestedBy: ctx.user.id,
           requestDate: new Date(),
-        } as any);
+        });
         return { id };
       }),
     /** One signer presses one decision. The bank's rule decides the outcome. */
