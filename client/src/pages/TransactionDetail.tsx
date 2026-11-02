@@ -231,6 +231,10 @@ export default function TransactionDetail() {
       toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
       return;
     }
+    if (editFundId === null) {
+      toast.error("กรุณาเลือกกองทุนก่อนบันทึก");
+      return;
+    }
     if (amount > MAX_GIVING_AMOUNT) {
       toast.error(
         `จำนวนเงินต้องไม่เกิน ${MAX_GIVING_AMOUNT.toLocaleString("en-US")} บาท`
@@ -360,7 +364,9 @@ export default function TransactionDetail() {
                     }
                     className="mt-1 w-full rounded-xl border border-line p-3 text-sm bg-surface text-ink"
                   >
-                    <option value="">— ไม่ระบุกองทุน —</option>
+                    <option value="" disabled>
+                      — เลือกกองทุน —
+                    </option>
                     {(accountsData ?? []).map(a => (
                       <option key={a.id} value={a.id}>
                         {a.name}

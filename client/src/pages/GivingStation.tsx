@@ -589,11 +589,15 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           items && items.length > 0
             ? items
             : [{ category: selectedCategory, amount: effectiveAmount }];
+        if (effectiveFundId <= 0) {
+          toast.error("ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย");
+          return;
+        }
         for (const line of linesToCreate) {
           await createOfferingMutation.mutateAsync({
             category: line.category,
             amount: line.amount,
-            fundId: effectiveFundId > 0 ? effectiveFundId : undefined,
+            fundId: effectiveFundId,
             method: "transfer",
             receiptDate: new Date(),
             donorName: name,

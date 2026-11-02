@@ -345,7 +345,10 @@ const budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
 async function assertActiveFund(fundId: number) {
   const funds = await listFinanceAccounts();
   if (!funds.some(f => f.id === fundId)) {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "ไม่พบกองทุนที่เลือก" });
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "ไม่พบกองทุนที่เลือก",
+    });
   }
 }
 
@@ -955,7 +958,9 @@ export const appRouter = router({
         z.object({
           amount: z.number().positive().max(MAX_GIVING_AMOUNT),
           category: offeringCategory.default("cash"),
-          fundId: z.number().int().positive().optional(),
+          // Required: an entry with no fund changes no fund balance, so the
+          // total balance stops matching the income and expense totals.
+          fundId: z.number().int().positive(),
           donorName: z.string().trim().max(120).optional(),
           receiptDate: z.coerce.date().optional(),
           method: paymentMethod.default("cash"),
@@ -964,10 +969,11 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        await assertActiveFund(input.fundId);
         const id = await createOffering({
           amount: input.amount.toFixed(2),
           category: input.category,
-          fundId: input.fundId ?? null,
+          fundId: input.fundId,
           donorName: input.donorName ?? null,
           receiptDate: input.receiptDate ?? new Date(),
           method: input.method,
@@ -1002,7 +1008,9 @@ export const appRouter = router({
             .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด")
             .optional(),
           category: offeringCategory.optional(),
-          fundId: z.number().int().positive().nullable().optional(),
+          // Leave it out to keep the fund. null is refused: it would take the
+          // amount out of the fund and put it in no fund.
+          fundId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(120).nullable().optional(),
           receiptDate: z.coerce.date().optional(),
           method: paymentMethod.optional(),
@@ -1012,7 +1020,8 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         const { id, amount, ...rest } = input;
-        if (typeof rest.fundId === "number") await assertActiveFund(rest.fundId);
+        if (typeof rest.fundId === "number")
+          await assertActiveFund(rest.fundId);
         const updated = await updateOffering(id, {
           ...rest,
           ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
@@ -1081,7 +1090,8 @@ export const appRouter = router({
         z.object({
           amount: z.number().positive(),
           category: expenseCategory.default("other"),
-          fundId: z.number().int().positive().optional(),
+          // Required, for the same reason as on offerings.create.
+          fundId: z.number().int().positive(),
           description: z.string().trim().min(2).max(280),
           details: z.string().trim().max(1000).optional(),
           expenseDate: z.coerce.date().optional(),
@@ -1091,10 +1101,11 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        await assertActiveFund(input.fundId);
         const id = await createExpense({
           amount: input.amount.toFixed(2),
           category: input.category,
-          fundId: input.fundId ?? null,
+          fundId: input.fundId,
           description: input.description,
           details: input.details ?? null,
           expenseDate: input.expenseDate ?? new Date(),
@@ -1158,7 +1169,8 @@ export const appRouter = router({
             .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด")
             .optional(),
           category: expenseCategory.optional(),
-          fundId: z.number().int().positive().nullable().optional(),
+          // Leave it out to keep the fund. null is refused, as on offerings.update.
+          fundId: z.number().int().positive().optional(),
           description: z.string().trim().min(2).max(280).optional(),
           details: z.string().trim().max(1000).nullable().optional(),
           expenseDate: z.coerce.date().optional(),
