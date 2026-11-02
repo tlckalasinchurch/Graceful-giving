@@ -8,6 +8,9 @@
 /** Every signer listed on the bank account approves; the bank then needs at least this many. */
 export const MIN_APPROVALS = 2;
 
+/** Largest amount one withdrawal request may ask for, in THB. */
+export const MAX_WITHDRAWAL_AMOUNT = 10_000_000;
+
 export type SignatureDecision = "approved" | "rejected";
 
 export interface Signature {

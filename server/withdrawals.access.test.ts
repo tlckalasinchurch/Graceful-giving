@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
+import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
 
 type User = NonNullable<TrpcContext["user"]>;
 
@@ -113,5 +115,78 @@ describe("withdrawals: signing is for the people on the bank account", () => {
     await expect(
       caller.withdrawals.cancel({ id: 1, reason: "a" })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+});
+
+describe("withdrawals.create: input limits", () => {
+  const valid = { amount: 500, purpose: "ค่าอุปกรณ์ฝ่ายดนตรี" };
+
+  it("refuses an amount above the limit", async () => {
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.withdrawals.create({
+        ...valid,
+        amount: MAX_WITHDRAWAL_AMOUNT + 1,
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it.each([0, -5])("refuses amount %s", async amount => {
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.withdrawals.create({ ...valid, amount })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("refuses a fund that does not exist", async () => {
+    // Without a database no fund is listed, so any fund id is unknown.
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.withdrawals.create({ ...valid, fundId: 999_999 })
+    ).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+      message: "ไม่พบกองทุนที่เลือก",
+    });
+  });
+
+  it("passes validation at the limit and only then reaches the database", async () => {
+    // No database here, so the call fails at the insert, not at validation.
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.withdrawals.create({ ...valid, amount: MAX_WITHDRAWAL_AMOUNT })
+    ).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
+  });
+});
+
+describe("offerings.update and expenses.update: input limits", () => {
+  it("refuses an offering amount above the giving limit", async () => {
+    const caller = appRouter.createCaller(createContext(treasurer));
+    await expect(
+      caller.offerings.update({ id: 1, amount: MAX_GIVING_AMOUNT + 1 })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("refuses to move an offering to a fund that does not exist", async () => {
+    const caller = appRouter.createCaller(createContext(treasurer));
+    await expect(
+      caller.offerings.update({ id: 1, fundId: 999_999 })
+    ).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+      message: "ไม่พบกองทุนที่เลือก",
+    });
+  });
+
+  it("refuses an expense amount above the limit", async () => {
+    const caller = appRouter.createCaller(createContext(treasurer));
+    await expect(
+      caller.expenses.update({ id: 1, amount: MAX_GIVING_AMOUNT + 1 })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("still refuses a member before any validation of the fund", async () => {
+    const caller = appRouter.createCaller(createContext(member));
+    await expect(
+      caller.offerings.update({ id: 1, amount: 100 })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });
