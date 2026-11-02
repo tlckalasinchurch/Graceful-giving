@@ -184,3 +184,107 @@ loop from Hard rules and produce an HTML mockup before any code.
 - `pnpm test`: 65 passed, 4 skipped, 769 tests passed
 - `pnpm run ci`: 100% PASS
 - Live site deployed via Vercel GitHub integration: `https://graceful-giving.vercel.app/`
+
+## Session changes: input limits, readable errors, local test environment (2026-11-02)
+
+Both PRs below are merged into `main` and deployed (Vercel production `READY`, no
+runtime errors in the first hour after each deploy). Neither was tested on the live
+site or on a real phone.
+
+### PR #88 (`d71a730`): cap and validate withdrawal and ledger edit inputs
+
+- `withdrawals.create`: amount capped at `MAX_WITHDRAWAL_AMOUNT` (10,000,000 THB,
+  new in `shared/withdrawals.ts`); `fundId` must be an active fund (new helper
+  `assertActiveFund` in `server/routers.ts`); `as any` removed.
+- `offerings.update`: amount capped at `MAX_GIVING_AMOUNT`; active-fund check when
+  `fundId` is a number; `as any` removed.
+- `expenses.update`: amount capped at `MAX_GIVING_AMOUNT`.
+- Any signed-in member can still file a withdrawal request through the API.
+  `App.tsx` documents this as intended. The role was not restricted.
+- Tests: 9 new cases in `server/withdrawals.access.test.ts`. 5 fail without the
+  change.
+
+### PR #89 (`a9fea3e`): readable message when an amount or input is rejected
+
+- `server/_core/trpc.ts`: `errorFormatter` uses the first zod issue message for
+  `BAD_REQUEST`. Before this, the forms showed the raw issue list as JSON in a toast.
+  The status code and the rest of the shape did not change. Helper:
+  `readableInputMessage`.
+- `NewWithdrawal.tsx` and `TransactionDetail.tsx` check the amount limit before
+  submit and show "จำนวนเงินต้องไม่เกิน 10,000,000 บาท". `TransactionDetail.tsx`
+  covers the offering edit and the expense edit.
+- The `max` attribute was not added to the inputs. A browser `max` shows an English
+  browser message.
+- Tests: `server/inputErrors.test.ts` (3 tests). `createCaller` skips the
+  formatter, so the formatter itself was checked with real HTTP and Playwright.
+- Verification at the end: `pnpm check` pass; `pnpm test` 66 files, 781 passed,
+  56 skipped (need a live database).
+
+### A finding that was wrong: do not repeat it
+
+An early review said a bank signer could approve their own withdrawal request. That
+is not a bug. `MIN_APPROVALS` is 2 and the required signer (the pastor) must
+approve. The requester's own signature counts as one of the two, by design
+(`docs/superpowers/specs/2026-10-30-withdrawal-signers-design.md` item 3, and the
+test "lets the requester's own signature count but still needs another" in
+`server/withdrawals.workflow.test.ts`). A block would stop the pastor from signing
+the pastor's own request, and the request would never complete. A change needs an
+owner decision.
+
+### Open items (not done)
+
+- Zod messages without a custom text are still English (for example
+  `Too small: expected string to have >=5 characters`). They are one line now.
+  Thai text needs a change in each schema.
+- `NewOffering` and `NewExpense` get the new formatter but have no client-side
+  amount-limit check.
+- A `MEMBER` is redirected to `/giving/station` in the UI, but the API accepts
+  `withdrawals.create` from a `MEMBER`. The comment in `App.tsx` ("any signed-in
+  member can ask") is true at the API only. Owner decision: keep, or restrict the
+  API.
+- The browser's own `required` message is English ("Please select an item in the
+  list.") in an English browser. The forms use `required`, not app text.
+- `vercel.json` runs the LINE worker cron once a day (`0 0 * * *`). LINE
+  notifications can be late by up to 24 hours. Check the Vercel plan and the
+  wanted interval. Not checked.
+- CSP `connect-src` in `vercel.json` has no Supabase domain. If the browser uploads
+  to Supabase Storage directly, the upload fails. Not checked. If uploads go
+  through the server, no issue.
+- `buildCommand` runs `db:migrate:deploy` on every production build. A failed or
+  destructive migration affects production directly.
+- The repo root holds `Graceful-giving-fixed.zip` and
+  `Graceful-giving-financial-hardening.patch`. Check for secrets, then remove.
+- HTML shell (static audit, SPA): no favicon, no web app manifest, no `noindex`,
+  a script in `<head>` without `defer`, no `preconnect` for LINE LIFF SDK. The
+  "no `<h1>`/`<main>`" result may be wrong for a SPA.
+
+### Local test environment (recipe; the files were deleted)
+
+Nothing here touches production. Production and preview share one `DATABASE_URL`,
+so never put that value in a local shell.
+
+1. PostgreSQL 16 server binaries are in `/usr/lib/postgresql/16/bin`. Run `initdb`
+   as the `postgres` user in a folder that user can read (for example
+   `/var/lib/postgresql/<name>`), start it on `127.0.0.1:54329`, create a database.
+2. `DATABASE_URL=postgresql://postgres@127.0.0.1:54329/<db> pnpm db:migrate`.
+3. Seed `users` (`openId` `line:test-<role>`, `status` `active`, `churchRole`
+   `SUPER_ADMIN`/`TREASURER`/`PASTOR`/`MEMBER`) and `finance_accounts` (the default
+   tenant is `demo-church`). For the signing flow, add `bank_signers` rows.
+4. Start the app: `NODE_ENV=development JWT_SECRET=<test value> PORT=3300
+   APP_URL=http://localhost:3300 pnpm exec tsx server/_core/index.ts`.
+5. No LINE needed: sign a session with `signSession("line:test-<role>")` from
+   `server/_core/session.ts` and send it as the `app_session_id` cookie.
+6. A `PASTOR` is redirected to `/setup` until `church.updateProfile` and
+   `church.completeSetup` run once.
+7. tRPC over HTTP: `POST /api/trpc/<path>` with body `{"json": <input>}`.
+8. Playwright and Chromium are installed in the cloud container. `require('playwright')`
+   works from any folder.
+
+Result on this environment: 21 of 21 API checks and the UI flows (390 px and 1280 px)
+for #88 and #89 passed.
+
+### Other repository (for context only)
+
+`tlckalasinchurch/puntakit-kalasin` PR #73: `Groups.tsx` loads `LocationPicker` with
+`lazy()`, so `maplibre-gl` (about 1 MB) loads when the pin dialog first opens, not
+with the page. The chunk is still over 500 kB. The Vite warning remains.
