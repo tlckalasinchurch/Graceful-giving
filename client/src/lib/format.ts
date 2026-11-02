@@ -79,3 +79,28 @@ export function formatThaiDateTime(
     minute: "2-digit",
   })}`;
 }
+
+/**
+ * Returns a YYYY-MM-DD string according to the local timezone.
+ * Unlike d.toISOString().slice(0, 10) which uses UTC and may shift to the previous
+ * day during late night / early morning in UTC+7 (Thailand), this uses local calendar date.
+ */
+export function toLocalISODate(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Escapes a value safely for CSV export:
+ * - Doubles internal double quotes
+ * - Quotes strings
+ * - Prefixes dangerous formula characters (=, +, -, @) with a single quote to prevent CSV formula injection
+ */
+export function csvCell(value: string | number | null | undefined): string {
+  if (value == null) return '""';
+  const raw = String(value);
+  const safe = /^[=+\-@]/.test(raw) ? `'${raw}` : raw;
+  return `"${safe.replace(/"/g, '""')}"`;
+}

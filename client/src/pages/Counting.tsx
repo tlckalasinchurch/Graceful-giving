@@ -28,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { THAI_LOCALE } from "@/lib/format";
+import { THAI_LOCALE, toLocalISODate } from "@/lib/format";
 
 /** The Sunday on or before today, as a yyyy-mm-dd string for a date input. */
 function lastSunday(): string {
@@ -36,10 +36,7 @@ function lastSunday(): string {
   const back = today.getDay();
   const sunday = new Date(today);
   sunday.setDate(today.getDate() - back);
-  const offset = sunday.getTimezoneOffset();
-  return new Date(sunday.getTime() - offset * 60_000)
-    .toISOString()
-    .slice(0, 10);
+  return toLocalISODate(sunday);
 }
 
 const fmtThaiDate = (value: Date | string) =>
@@ -221,7 +218,7 @@ export default function Counting() {
             onSubmit={event => {
               event.preventDefault();
               createSession.mutate({
-                serviceDate: new Date(`${serviceDate}T00:00:00`),
+                serviceDate: new Date(`${serviceDate}T12:00:00`),
                 serviceRound: 1,
                 notes: notes.trim() || undefined,
               });

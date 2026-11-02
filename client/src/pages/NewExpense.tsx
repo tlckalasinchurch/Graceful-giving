@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/categories";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
-import { formatBaht, THAI_LOCALE } from "@/lib/format";
+import { formatBaht, THAI_LOCALE, toLocalISODate } from "@/lib/format";
 
 export default function NewExpense() {
   const [, setLocation] = useLocation();
@@ -36,9 +36,7 @@ export default function NewExpense() {
   const [description, setDescription] = useState("");
   const [payee, setPayee] = useState("");
   const [fundId, setFundId] = useState<number | null>(null);
-  const [expenseDate, setExpenseDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [expenseDate, setExpenseDate] = useState(toLocalISODate());
   const [receiptRef, setReceiptRef] = useState("");
   const [details, setDetails] = useState("");
   const [receiptFile, setReceiptFile] = useState<string | null>(null);
@@ -148,7 +146,7 @@ export default function NewExpense() {
       payee: payee.trim() || undefined,
       receiptRef: receiptRef.trim() || undefined,
       receiptUrl: receiptUrl ?? undefined,
-      expenseDate: new Date(expenseDate),
+      expenseDate: new Date(`${expenseDate}T12:00:00`),
     });
   };
 
@@ -547,8 +545,9 @@ export default function NewExpense() {
                     type="button"
                     onClick={() => {
                       setReceiptFile(null);
-                      setReceiptUrl(null);
                       setReceiptFileName("");
+                      setReceiptContentType("");
+                      setReceiptUrl(null);
                     }}
                     className="text-xs text-red-400 hover:underline font-medium px-3 py-1.5"
                   >
@@ -665,7 +664,11 @@ export default function NewExpense() {
                     setDescription("");
                     setPayee("");
                     setReceiptRef("");
+                    setDetails("");
                     setReceiptFile(null);
+                    setReceiptFileName("");
+                    setReceiptContentType("");
+                    setReceiptUrl(null);
                   }}
                   className="w-full min-h-12 rounded-2xl bg-brand text-black font-semibold text-base hover:bg-brand-ink shadow-[0_1px_3px_hsla(20,80%,30%,0.3)]"
                 >

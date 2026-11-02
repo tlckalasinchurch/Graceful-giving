@@ -25,7 +25,7 @@ import {
   type VoucherData,
 } from "@/components/finance/VoucherModal";
 import { paymentMethodLabel } from "@shared/categories";
-import { formatThaiDateTime, THAI_LOCALE } from "@/lib/format";
+import { csvCell, formatThaiDateTime, THAI_LOCALE } from "@/lib/format";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 
@@ -101,9 +101,16 @@ export default function Offerings() {
     const headers =
       "ID,วันที่,ประเภทการถวาย,ผู้ถวาย,จำนวนเงิน,ช่องทาง,กองทุน\n";
     const rows = filtered
-      .map(
-        o =>
-          `"${o.id}","${new Date(o.date).toLocaleDateString(THAI_LOCALE)}","${o.title}","${o.donorName}",${o.amount},"${o.method}","${o.fund}"`
+      .map(o =>
+        [
+          csvCell(o.id),
+          csvCell(new Date(o.date).toLocaleDateString(THAI_LOCALE)),
+          csvCell(o.title),
+          csvCell(o.donorName),
+          o.amount.toFixed(2),
+          csvCell(o.method),
+          csvCell(o.fund),
+        ].join(",")
       )
       .join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], {

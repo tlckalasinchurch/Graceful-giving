@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
-import { formatBaht } from "@/lib/format";
+import { formatBaht, toLocalISODate } from "@/lib/format";
 
 export default function NewOffering() {
   const [, setLocation] = useLocation();
@@ -38,13 +38,15 @@ export default function NewOffering() {
     retry: false,
   });
   const funds = fundsQuery.data ?? [];
+  const membersQuery = trpc.members.list.useQuery(undefined, { retry: false });
+  const members = membersQuery.data ?? [];
 
   // Form State
   const [category, setCategory] = useState<OfferingCategory>("cash");
   const [amount, setAmount] = useState("");
   const [fundId, setFundId] = useState("");
   const [method, setMethod] = useState("เงินสด");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => toLocalISODate());
   const [notes, setNotes] = useState("");
   const [donorName, setDonorName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -300,6 +302,7 @@ export default function NewOffering() {
               </label>
               <input
                 type="text"
+                list="member-suggestions"
                 disabled={isAnonymous}
                 value={donorName}
                 onChange={e => setDonorName(e.target.value)}
@@ -310,6 +313,14 @@ export default function NewOffering() {
                 }
                 className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field disabled:opacity-60"
               />
+              <datalist id="member-suggestions">
+                {members.map(m => (
+                  <option key={m.id} value={m.name}>
+                    {m.envelopeNo ? `ซอง #${m.envelopeNo} ` : ""}
+                    {m.phone ? `· ${m.phone}` : ""}
+                  </option>
+                ))}
+              </datalist>
             </div>
           </div>
 
