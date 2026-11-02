@@ -131,7 +131,8 @@ export default function NewExpense() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const { valid, numAmount } = validateForm();
-    if (!valid) {
+    // The form marks a missing fund as invalid, so fundId is set when valid.
+    if (!valid || fundId === null) {
       toast.error("กรุณาตรวจสอบข้อมูลที่ไฮไลต์ก่อนบันทึก");
       return;
     }
@@ -142,7 +143,7 @@ export default function NewExpense() {
       category,
       description: description.trim(),
       details: details.trim() || undefined,
-      fundId: fundId ?? undefined,
+      fundId,
       payee: payee.trim() || undefined,
       receiptRef: receiptRef.trim() || undefined,
       receiptUrl: receiptUrl ?? undefined,
