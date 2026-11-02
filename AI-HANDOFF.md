@@ -154,3 +154,33 @@ file. No build artifact (`api/index.js`) is part of the history.
 
 The owner has not yet stated his first product idea — when he does, start the
 loop from Hard rules and produce an HTML mockup before any code.
+
+
+## Session changes & Production Audit (2026-11-02)
+
+**PR #85 Merged into `main` (`184fdf9`):** `fix: resolve production audit issues for timezone, state leak, CSV export, and role descriptions`
+
+1. **State Leak on New Expense (`NewExpense.tsx`)**:
+   - When clicking "บันทึกรายจ่ายรายการถัดไป" in success dialog, reset `receiptUrl`, `details`, `receiptFileName`, and `receiptContentType` in addition to basic fields, preventing previous receipt image and notes from leaking into subsequent expense entries.
+2. **Timezone Offset Fix (`toLocalISODate` in `client/src/lib/format.ts`)**:
+   - Replaced `d.toISOString().slice(0, 10)` (UTC-dependent) with `toLocalISODate()`. Between 00:00 and 06:59 AM Bangkok time, UTC was resolving to yesterday's date.
+   - Applied to default dates in `NewOffering.tsx`, `NewExpense.tsx`, and `Counting.tsx` (`lastSunday()`).
+   - In `Counting.tsx`, session creation now sends noon timestamp (`T12:00:00`) instead of midnight local (`T00:00:00`), preventing Sunday dates from shifting back to Saturday UTC.
+   - In `server/routers.ts`, formatted unposted session warning message using `Asia/Bangkok` timezone.
+3. **Safe CSV Export (`csvCell` in `client/src/lib/format.ts`)**:
+   - Implemented `csvCell()` to escape internal quotes (`""`) and neutralize formula injection prefixes (`=`, `+`, `-`, `@`) with a leading `'`.
+   - Applied across client-side export functions in `Offerings.tsx`, `Expenses.tsx`, and `Transactions.tsx`.
+4. **Member Autocomplete in Manual Offerings (`NewOffering.tsx`)**:
+   - Connected real church directory via `trpc.members.list.useQuery()` into `<datalist id="member-suggestions">`, displaying member name, envelope number (`envelopeNo`), and phone number for easy lookup while still supporting free-form donor names.
+5. **Expanded Transaction Editing (`TransactionDetail.tsx`)**:
+   - Enabled editing `fundId` (from actual finance account list) and `donorName`/`payee` directly in the transaction edit form, automatically updating ledger fund balances without requiring a void-and-reentry cycle.
+6. **Church Leader Fund Setup (`server/routers.ts`)**:
+   - Changed `finance.createAccount` procedure to `fundManageProcedure`, allowing users with `canManageChurchSettings` (e.g., `PASTOR`) to successfully create initial funds during the `ChurchSetup` wizard.
+7. **Role Description Alignment (`shared/roles.ts`)**:
+   - Updated `MEMBER` description to accurately reflect Giving Station access.
+
+**Verification Status**:
+- `pnpm check`: 0 errors
+- `pnpm test`: 65 passed, 4 skipped, 769 tests passed
+- `pnpm run ci`: 100% PASS
+- Live site deployed via Vercel GitHub integration: `https://graceful-giving.vercel.app/`
