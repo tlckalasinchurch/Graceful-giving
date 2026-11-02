@@ -9,7 +9,7 @@ import {
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
-import { formatThaiDate, THAI_LOCALE } from "@/lib/format";
+import { csvCell, formatThaiDate, THAI_LOCALE } from "@/lib/format";
 import {
   Download,
   Plus,
@@ -105,9 +105,18 @@ export default function Expenses() {
     const headers =
       "ID,วันที่,รายการ,หมวดหมู่,ผู้รับเงิน,จำนวนเงิน,เลขที่ใบเสร็จ,กองทุน,สถานะ\n";
     const rows = filteredExpenses
-      .map(
-        e =>
-          `"${e.id}","${new Date(e.date).toLocaleDateString(THAI_LOCALE)}","${e.description}","${expenseCategoryLabel(e.category)}","${e.payee}",${e.amount},"${e.receiptRef}","${fundName(e.fundId)}","${e.status}"`
+      .map(e =>
+        [
+          csvCell(e.id),
+          csvCell(new Date(e.date).toLocaleDateString(THAI_LOCALE)),
+          csvCell(e.description),
+          csvCell(expenseCategoryLabel(e.category)),
+          csvCell(e.payee),
+          e.amount.toFixed(2),
+          csvCell(e.receiptRef),
+          csvCell(fundName(e.fundId)),
+          csvCell(e.status),
+        ].join(",")
       )
       .join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], {

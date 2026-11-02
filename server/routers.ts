@@ -269,6 +269,16 @@ const churchLeaderProcedure = protectedProcedure.use(({ ctx, next }) => {
   return next();
 });
 
+const fundManageProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!canManageFinance(ctx.user) && !canManageChurchSettings(ctx.user)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "คุณไม่มีสิทธิ์จัดการกองทุน",
+    });
+  }
+  return next();
+});
+
 const ministryProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canManageMinistries(ctx.user)) {
     throw new TRPCError({
@@ -875,7 +885,7 @@ export const appRouter = router({
       const accounts = await listFinanceAccounts();
       return accounts.map(a => ({ id: a.id, name: a.name, type: a.type }));
     }),
-    createAccount: financeProcedure
+    createAccount: fundManageProcedure
       .input(
         z.object({
           name: z.string().trim().min(2).max(120),
@@ -2461,7 +2471,7 @@ export const appRouter = router({
         if (earlier) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: `ต้องลงบัญชีรอบวันที่ ${earlier.serviceDate.toISOString().slice(0, 10)} รอบที่ ${earlier.serviceRound} ก่อน`,
+            message: `ต้องลงบัญชีรอบวันที่ ${new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Bangkok" }).format(earlier.serviceDate)} รอบที่ ${earlier.serviceRound} ก่อน`,
           });
         }
         const r = detail.reconciliation;

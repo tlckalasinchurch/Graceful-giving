@@ -18,7 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { formatThaiDate, THAI_LOCALE } from "@/lib/format";
+import { csvCell, formatThaiDate, THAI_LOCALE } from "@/lib/format";
 import {
   expenseCategoryLabel,
   offeringCategoryLabel,
@@ -165,9 +165,16 @@ export default function Transactions() {
       t.type === "income" ? "รายรับ" : "รายจ่าย";
     const headers = "ID,วันที่,รายการ,หมวดหมู่,ประเภท,กองทุน,จำนวนเงิน\n";
     const rows = filtered
-      .map(
-        t =>
-          `"${t.rawId}","${new Date(t.date).toLocaleDateString(THAI_LOCALE)}","${t.title}","${t.categoryLabel}","${typeLabel(t)}","${t.fund}",${t.amount.toFixed(2)}`
+      .map(t =>
+        [
+          csvCell(t.rawId),
+          csvCell(new Date(t.date).toLocaleDateString(THAI_LOCALE)),
+          csvCell(t.title),
+          csvCell(t.categoryLabel),
+          csvCell(typeLabel(t)),
+          csvCell(t.fund),
+          t.amount.toFixed(2),
+        ].join(",")
       )
       .join("\n");
     const blob = new Blob(["\uFEFF" + headers + rows], {

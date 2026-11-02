@@ -73,7 +73,8 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
     badgeLabel: "👤 สมาชิกคริสตจักร (MEMBER)",
     badgeColor: "bg-stone-100 text-stone-800 border-stone-300",
     icon: "👤",
-    description: "ดูข่าวสาร พันธกิจ และบันทึกประวัติการถวายทรัพย์ส่วนตัว",
+    description:
+      "เข้าใช้งานจุดถวายทรัพย์ (Giving Station) เพื่อถวายทรัพย์และแนบสลิป",
   },
 };
 
