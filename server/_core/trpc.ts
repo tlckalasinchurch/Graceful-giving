@@ -1,10 +1,32 @@
 import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from '@shared/const';
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
+import { ZodError } from "zod";
 import type { TrpcContext } from "./context";
+
+/**
+ * A rejected input carries the zod issue list as its message, a JSON array that
+ * the forms show to people as it is. Use the first issue's own message instead.
+ * The status code and the rest of the shape stay the same.
+ */
+export function readableInputMessage(
+  cause: unknown,
+  fallback: string
+): string {
+  if (!(cause instanceof ZodError)) return fallback;
+  const message = cause.issues[0]?.message?.trim();
+  return message ? message : fallback;
+}
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
+  errorFormatter({ shape, error }) {
+    if (error.code !== "BAD_REQUEST") return shape;
+    return {
+      ...shape,
+      message: readableInputMessage(error.cause, shape.message),
+    };
+  },
 });
 
 export const router = t.router;
