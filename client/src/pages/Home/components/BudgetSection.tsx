@@ -1,3 +1,4 @@
+import { ChevronRight } from "lucide-react";
 import type { RouterOutputs } from "@/lib/trpc";
 import {
   BudgetProgress,
@@ -34,15 +35,16 @@ export function BudgetSection({
     <section
       aria-label="แผนการใช้จ่ายงบประมาณ"
       aria-busy={isLoading}
-      className="space-y-4 rounded-2xl border border-line bg-surface p-5"
+      className="h-full bg-surface rounded-3xl p-5 sm:p-6 fintech-card space-y-4 w-full"
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-ink">แผนการใช้จ่าย</h2>
+        <h2 className="text-base font-bold text-ink">แผนการใช้จ่าย</h2>
         <button
           onClick={onOpenBudgets}
-          className="min-h-11 text-sm font-medium text-brand-ink hover:underline"
+          className="inline-flex min-h-10 items-center gap-1 rounded-full bg-tile-lilac/60 px-3 py-1 text-xs sm:text-sm font-bold text-brand-ink hover:bg-tile-lilac transition-colors focus-visible:ring-2 focus-visible:ring-brand"
         >
-          ดูงบประมาณ
+          <span>ดูงบประมาณ</span>
+          <ChevronRight className="size-4" aria-hidden="true" />
         </button>
       </div>
 
@@ -50,8 +52,8 @@ export function BudgetSection({
         <div className="space-y-4" aria-hidden="true">
           {[0, 1].map(i => (
             <div key={i} className="space-y-2 animate-pulse">
-              <div className="h-4 w-1/2 rounded bg-paper-2" />
-              <div className="h-1.5 w-full rounded-full bg-paper-2" />
+              <div className="h-4 w-1/2 rounded-lg bg-paper" />
+              <div className="h-2.5 w-full rounded-full bg-paper" />
             </div>
           ))}
         </div>
@@ -64,7 +66,7 @@ export function BudgetSection({
       )}
 
       {!isLoading && !isError && visible.length === 0 && (
-        <p className="rounded-lg border border-dashed border-line px-4 py-3 text-sm text-ink-2">
+        <p className="py-6 text-sm text-ink-2">
           ยังไม่มีแผนงบประมาณสำหรับเดือนนี้
         </p>
       )}
@@ -75,15 +77,15 @@ export function BudgetSection({
             <li key={plan.id} className="space-y-2">
               <div className="flex items-baseline justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-ink">
+                  <p className="truncate text-sm font-bold text-ink">
                     {budgetCategoryLabel(plan.category)}
                   </p>
                   <p className="text-xs text-ink-3">
                     {budgetPeriodLabel(plan.year, plan.month)}
                   </p>
                 </div>
-                <p className="money shrink-0 text-xs text-ink-2">
-                  <span className="font-semibold text-ink">
+                <p className="money shrink-0 text-xs sm:text-sm text-ink-2">
+                  <span className="font-bold text-ink">
                     {formatBaht(plan.actualAmount, 0)}
                   </span>
                   {" / "}
@@ -91,7 +93,6 @@ export function BudgetSection({
                 </p>
               </div>
               <BudgetProgress
-                quiet
                 planned={plan.plannedAmount}
                 actual={plan.actualAmount}
               />

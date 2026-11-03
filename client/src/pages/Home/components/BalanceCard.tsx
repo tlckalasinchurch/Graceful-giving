@@ -1,206 +1,152 @@
-import { Eye, EyeOff } from "lucide-react";
+import { ChevronRight, Eye, EyeOff, Info, Loader2 } from "lucide-react";
 import { formatAmount } from "@/lib/format";
-import { monthDelta, spentShare } from "../summaryFormat";
 
 interface BalanceCardProps {
   showBalance: boolean;
   setShowBalance: (show: boolean) => void;
-  isLoading: boolean;
-  isError: boolean;
-  hasData: boolean;
-  totalBalance: number | undefined;
-  monthlyIncome: number | undefined;
-  monthlyExpense: number | undefined;
-  prevIncome: number | undefined;
-  prevExpense: number | undefined;
+  isPositiveBalance: boolean;
+  isBalanceLoading: boolean;
+  isDataUnavailable: boolean;
+  summaryError: unknown;
+  hasSummaryData: boolean;
+  animatedBalance: number;
   canOpenReports: boolean;
   onOpenReports: () => void;
 }
 
-const HIDDEN = "••••••";
-
-function Baht({ value, sign = "" }: { value: number; sign?: string }) {
-  const negative = value < 0;
-  return (
-    <>
-      {negative ? "−" : sign}฿&#8239;{formatAmount(Math.abs(value))}
-    </>
-  );
-}
-
-function Cell({
-  label,
-  loading,
-  children,
-  note,
+function BalanceAmount({
+  value,
+  negative,
 }: {
-  label: string;
-  loading: boolean;
-  children: React.ReactNode;
-  note: string;
+  value: number;
+  negative: boolean;
 }) {
+  const formatted = formatAmount(Math.abs(value));
+  const dot = formatted.lastIndexOf(".");
   return (
-    <div className="flex min-w-0 items-center justify-between gap-3 py-3 sm:block sm:px-4 sm:py-4 sm:first:pl-0 sm:last:pr-0">
-      <dt className="text-xs text-ink-3">{label}</dt>
-      <dd className="sm:mt-1 max-sm:text-right">
-        {loading ? (
-          <span className="block h-6 w-24 rounded bg-paper-2" aria-hidden />
-        ) : (
-          <span className="money block truncate text-xl font-semibold text-ink">
-            {children}
-          </span>
-        )}
-        <span className="mt-0.5 block text-xs text-ink-3">{note}</span>
-      </dd>
-    </div>
+    <span className={negative ? "text-rose-400" : "text-white"}>
+      {negative && "−"}
+      <span className="mr-2 text-2xl font-semibold text-[#00F58A] sm:text-3xl">
+        ฿
+      </span>
+      {formatted.slice(0, dot)}
+      <span className="text-2xl font-medium text-white/40 sm:text-3xl">
+        {formatted.slice(dot)}
+      </span>
+    </span>
   );
 }
 
 export function BalanceCard({
   showBalance,
   setShowBalance,
-  isLoading,
-  isError,
-  hasData,
-  totalBalance,
-  monthlyIncome,
-  monthlyExpense,
-  prevIncome,
-  prevExpense,
+  isPositiveBalance,
+  isBalanceLoading,
+  isDataUnavailable,
+  summaryError,
+  hasSummaryData,
+  animatedBalance,
   canOpenReports,
   onOpenReports,
 }: BalanceCardProps) {
-  const income = monthlyIncome ?? 0;
-  const expense = monthlyExpense ?? 0;
-  const net = income - expense;
-  const share = hasData ? spentShare(income, expense) : null;
-  const over = share !== null && share > 100;
-  const shown = showBalance && hasData;
-
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      aria-busy={isLoading}
-      className="rounded-2xl border border-line bg-surface p-5 sm:p-6"
+      style={{ animationDelay: "90ms" }}
+      className="animate-fade-up relative overflow-hidden h-full rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:p-8 flex flex-col justify-between gap-8 w-full"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="text-sm text-ink-2">ยอดเงินคงเหลือรวม</h2>
-          {isLoading ? (
-            <span
-              className="mt-2 block h-10 w-56 rounded bg-paper-2"
-              aria-hidden
-            />
+      {/* Subtle Pastel FinTech Glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-20 -right-20 size-52 rounded-full bg-[#00F58A]/15 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-16 left-10 size-44 rounded-full bg-[#FF6A00]/15 blur-3xl"
+      />
+
+      <div className="relative flex items-start justify-between gap-4">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-3 py-1">
+            <span className="size-2 rounded-full bg-[#00F58A]" aria-hidden="true" />
+            <h2 className="text-xs sm:text-sm font-bold text-white/80">
+              ยอดเงินคงเหลือรวม
+            </h2>
+          </div>
+          {isBalanceLoading && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-lilac px-2.5 py-1 text-xs font-semibold text-tile-lilac-ink">
+              <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+              กำลังโหลดข้อมูล
+            </span>
+          )}
+          {isDataUnavailable && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-sand px-2.5 py-1 text-xs font-semibold text-tile-sand-ink">
+              <Info className="size-3.5" aria-hidden="true" />
+              {summaryError
+                ? "เชื่อมต่อข้อมูลไม่สำเร็จ"
+                : "ยังไม่มีข้อมูลการเงิน"}
+            </span>
+          )}
+        </div>
+        <button
+          onClick={() => setShowBalance(!showBalance)}
+          className="size-11 shrink-0 inline-flex items-center justify-center rounded-2xl bg-white/[0.08] text-white hover:bg-white/15 transition-colors focus-visible:ring-2 focus-visible:ring-[#00F58A]"
+          aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
+          aria-pressed={!showBalance}
+        >
+          {showBalance ? (
+            <Eye className="size-5" />
           ) : (
-            <p
-              className={`money mt-1 text-4xl font-semibold ${
-                hasData && (totalBalance ?? 0) < 0 ? "text-danger" : "text-ink"
-              }`}
-            >
-              {!hasData ? (
-                <span className="text-ink-3">—</span>
-              ) : shown ? (
-                <Baht value={totalBalance ?? 0} />
-              ) : (
-                <span aria-label="ยอดเงินถูกซ่อน">฿&#8239;{HIDDEN}</span>
-              )}
-            </p>
+            <EyeOff className="size-5" />
           )}
-        </div>
-        <div className="flex shrink-0 items-center gap-1">
-          {canOpenReports && (
-            <button
-              type="button"
-              onClick={onOpenReports}
-              className="min-h-11 rounded-full px-3 text-sm font-medium text-brand-ink hover:bg-paper-2"
-            >
-              ดูรายงาน
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setShowBalance(!showBalance)}
-            className="inline-flex size-11 items-center justify-center rounded-full text-ink-2 hover:bg-paper-2"
-            aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
-            aria-pressed={!showBalance}
-          >
-            {showBalance ? (
-              <Eye className="size-4" aria-hidden />
-            ) : (
-              <EyeOff className="size-4" aria-hidden />
-            )}
-          </button>
-        </div>
+        </button>
       </div>
 
-      {isError && (
-        <p role="alert" className="mt-3 text-sm text-danger">
-          โหลดข้อมูลการเงินไม่สำเร็จ ลองรีเฟรชหน้านี้อีกครั้ง
+      {isBalanceLoading ? (
+        <div
+          className="relative h-12 sm:h-14 w-56 sm:w-72 rounded-2xl bg-white/10 animate-pulse"
+          aria-hidden="true"
+        />
+      ) : (
+        <p className="relative display money whitespace-nowrap text-4xl font-bold tracking-tight leading-none sm:text-5xl lg:text-6xl">
+          {!hasSummaryData ? (
+            <span className="text-white/40">—</span>
+          ) : showBalance ? (
+            <BalanceAmount
+              value={animatedBalance}
+              negative={!isPositiveBalance}
+            />
+          ) : (
+            <span className="text-white/60" aria-label="ยอดเงินถูกซ่อน">
+              ฿ ••••••
+            </span>
+          )}
         </p>
       )}
-      {!isLoading && !isError && !hasData && (
-        <p className="mt-3 text-sm text-ink-2">ยังไม่มีข้อมูลการเงิน</p>
-      )}
 
-      <dl className="mt-5 grid grid-cols-1 divide-y divide-line border-t border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-        <Cell
-          label="รายรับเดือนนี้"
-          loading={isLoading}
-          note={hasData ? monthDelta(income, prevIncome ?? 0) : "ไม่มีข้อมูล"}
-        >
-          {shown ? <Baht value={income} sign="+" /> : HIDDEN}
-        </Cell>
-        <Cell
-          label="รายจ่ายเดือนนี้"
-          loading={isLoading}
-          note={hasData ? monthDelta(expense, prevExpense ?? 0) : "ไม่มีข้อมูล"}
-        >
-          {shown ? <Baht value={expense} /> : HIDDEN}
-        </Cell>
-        <Cell
-          label="คงเหลือสุทธิเดือนนี้"
-          loading={isLoading}
-          note={
-            !hasData
-              ? "ไม่มีข้อมูล"
-              : net >= 0
-                ? "รายรับมากกว่ารายจ่าย"
-                : "รายจ่ายมากกว่ารายรับ"
-          }
-        >
-          {shown ? <Baht value={net} sign={net > 0 ? "+" : ""} /> : HIDDEN}
-        </Cell>
-      </dl>
+      <div className="relative flex flex-wrap items-center justify-between gap-3">
+        {isBalanceLoading ? (
+          <span className="text-sm text-white/60">กำลังตรวจสอบยอดเงินล่าสุด…</span>
+        ) : isPositiveBalance ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00F58A]/15 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-[#00F58A]">
+            ขอบคุณพระเจ้าสำหรับทุกการถวาย ♥
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-rose px-3.5 py-1.5 text-xs sm:text-sm font-bold text-tile-rose-ink">
+            ยอดคงเหลือติดลบ — ควรตรวจสอบรายจ่าย
+          </span>
+        )}
 
-      {!isLoading && hasData && (
-        <div className="mt-1 border-t border-line pt-4">
-          {share === null ? (
-            <p className="text-sm text-ink-2">ยังไม่มีรายรับเดือนนี้</p>
-          ) : (
-            <>
-              <div className="flex items-baseline justify-between gap-3 text-sm">
-                <span className="text-ink-2">
-                  ใช้ไปแล้ว {share}% ของรายรับเดือนนี้
-                </span>
-                {over && <span className="text-danger">เกินรายรับ</span>}
-              </div>
-              <div
-                className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line"
-                role="progressbar"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.min(share, 100)}
-                aria-label={`ใช้ไปแล้ว ${share}% ของรายรับเดือนนี้`}
-              >
-                <div
-                  className={`h-full rounded-full ${over ? "bg-danger" : "bg-brand"}`}
-                  style={{ width: `${Math.min(share, 100)}%` }}
-                />
-              </div>
-            </>
-          )}
-        </div>
-      )}
+        {canOpenReports && (
+          <button
+            onClick={onOpenReports}
+            className="inline-flex min-h-10 items-center gap-1 rounded-full bg-white/[0.08] px-3.5 py-1.5 text-sm font-bold text-white hover:bg-white/15 transition-colors focus-visible:ring-2 focus-visible:ring-[#00F58A]"
+          >
+            ดูรายละเอียด
+            <ChevronRight className="size-4" aria-hidden="true" />
+          </button>
+        )}
+      </div>
     </section>
   );
 }
