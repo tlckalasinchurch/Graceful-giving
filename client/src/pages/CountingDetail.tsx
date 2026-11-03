@@ -356,22 +356,22 @@ export default function CountingDetail() {
       <div className="space-y-6">
         {/* Running totals stay visible on every tab. */}
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="rounded-2xl border border-line bg-surface p-4 shadow-2xs">
+          <div className="rounded-2xl border border-line bg-surface p-4">
             <p className="text-sm text-ink-2">ยอดถวายตามซอง</p>
             <MoneyDisplay amount={r.offeringTotal} type="income" size="lg" />
           </div>
-          <div className="rounded-2xl border border-line bg-surface p-4 shadow-2xs">
+          <div className="rounded-2xl border border-line bg-surface p-4">
             <p className="text-sm text-ink-2">นับเงินสดได้</p>
             <MoneyDisplay amount={r.countedCashTotal} size="lg" />
             <div className="mt-1 text-sm">
               <Variance amount={r.cashVariance} />
             </div>
           </div>
-          <div className="rounded-2xl border border-line bg-surface p-4 shadow-2xs">
+          <div className="rounded-2xl border border-line bg-surface p-4">
             <p className="text-sm text-ink-2">หักเบิก</p>
             <MoneyDisplay amount={r.deductionTotal} type="expense" size="lg" />
           </div>
-          <div className="rounded-2xl border border-line bg-surface p-4 shadow-2xs">
+          <div className="rounded-2xl border border-line bg-surface p-4">
             <p className="text-sm text-ink-2">นำฝาก</p>
             <MoneyDisplay amount={r.actualCashDeposit} size="lg" />
           </div>
@@ -386,7 +386,7 @@ export default function CountingDetail() {
               onClick={() => setTab(id)}
               className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                 tab === id
-                  ? "bg-primary text-black shadow-sm"
+                  ? "border border-line bg-paper-2 text-ink"
                   : "border border-line bg-surface text-ink-2 hover:bg-paper"
               }`}
             >

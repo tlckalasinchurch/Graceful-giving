@@ -120,7 +120,7 @@ export function ReconciliationSummaryTab({
 
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
         <h2 className="border-b border-line p-4 font-bold text-foreground">
           ตารางกระทบยอด
         </h2>
@@ -200,7 +200,7 @@ export function ReconciliationSummaryTab({
         </p>
       )}
 
-      <div className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+      <div className="rounded-2xl border border-line bg-surface p-5">
         <h3 className="font-bold text-foreground">ดำเนินการกับรอบนี้</h3>
         <p className="mt-1 text-sm text-ink-2">
           ลำดับงาน: นับ → ส่งตรวจ → ตรวจสอบ → ลงบัญชี → ปิดรอบ
@@ -257,7 +257,7 @@ export function ReconciliationSummaryTab({
                 r.cashOnHandActual === null ||
                 (!r.isBalanced && !varianceNote.trim() && !sessionVarianceNote)
               }
-              className="min-h-11 rounded-2xl bg-[#1F5C33] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+              className="min-h-11 rounded-2xl bg-brand px-5 py-2.5 text-sm font-bold text-black hover:bg-brand-ink disabled:opacity-50"
             >
               ลงบัญชีเข้าระบบ
             </button>
@@ -288,7 +288,7 @@ export function ReconciliationSummaryTab({
       </div>
 
       {isUnposted && (
-        <div className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+        <div className="rounded-2xl border border-line bg-surface p-5">
           <div className="flex items-center gap-2 mb-1.5">
             <RotateCcw className="h-4 w-4 text-brand-ink" />
             <h4 className="font-bold text-foreground">
@@ -304,7 +304,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleResetThisSession}
               disabled={resetSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-line bg-paper-2 px-4 py-2 text-xs font-bold text-brand-ink shadow-2xs hover:bg-paper-2 transition-colors disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-line bg-paper-2 px-4 py-2 text-xs font-bold text-brand-ink hover:bg-paper-2 transition-colors disabled:opacity-50"
             >
               <RotateCcw className="h-4 w-4 text-brand-ink" />
               <span>ล้างข้อมูลเพื่อนับใหม่ (Recount)</span>
@@ -313,7 +313,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleDeleteThisSession}
               disabled={deleteSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-xs font-bold text-danger shadow-2xs hover:bg-rose-500/15 transition-colors disabled:opacity-50"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-xs font-bold text-danger hover:bg-rose-500/15 transition-colors disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" />
               <span>ลบรอบนี้ (Delete Session)</span>

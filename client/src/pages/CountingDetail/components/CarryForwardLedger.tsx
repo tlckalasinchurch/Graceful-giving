@@ -155,7 +155,7 @@ export function CarryForwardLedger({
     const cash = parseAmount(openingCash);
     const bank = parseAmount(openingBank);
     return (
-      <section className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+      <section className="rounded-2xl border border-line bg-surface p-5">
         <h3 className="font-display text-lg font-semibold text-foreground">
           ยอดยกมา (รอบแรก)
         </h3>
@@ -212,7 +212,7 @@ export function CarryForwardLedger({
   const passbookValue = parseAmount(passbook);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface">
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4">
         <h2 className="font-bold text-foreground">ยอดยกมาและยกไป</h2>
         <p className="text-xs text-ink-2">

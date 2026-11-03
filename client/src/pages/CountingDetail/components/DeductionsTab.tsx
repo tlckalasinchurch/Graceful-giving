@@ -117,7 +117,7 @@ export function DeductionsTab({
               }
             );
           }}
-          className="rounded-2xl border border-line bg-surface p-5 shadow-sm md:p-6"
+          className="rounded-2xl border border-line bg-surface p-5 md:p-6"
         >
           <h2 className="mb-4 font-bold text-foreground">
             บันทึกรายการหักเบิก
@@ -212,7 +212,7 @@ export function DeductionsTab({
         </form>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
         <div className="flex items-center justify-between border-b border-line p-4">
           <h2 className="font-bold text-foreground">
             รายการหักเบิก ({deductions.length})
