@@ -27,7 +27,6 @@ export default function Notifications() {
 
   return (
     <AppLayout
-      eyebrow="Notifications"
       title="การแจ้งเตือน"
       subtitle="ความเคลื่อนไหวของรายการเงินและคำขอที่เกี่ยวกับคุณ"
       action={
@@ -69,7 +68,7 @@ export default function Notifications() {
                   if (!item.readAt) markRead.mutate({ id: item.id });
                   if (item.link) setLocation(item.link);
                 }}
-                className={`relative w-full rounded-2xl border bg-surface p-4 pl-8 text-left hover:bg-paper ${item.readAt ? "border-line" : "border-[hsl(29_40%_24%)]"}`}
+                className="relative w-full rounded-2xl border border-line bg-surface p-4 pl-8 text-left hover:bg-paper"
               >
                 {!item.readAt && (
                   <span
