@@ -46,13 +46,18 @@ export const BudgetProgress: React.FC<{
   planned: number;
   actual: number;
   className?: string;
-}> = ({ planned, actual, className = "" }) => {
+  /** Slim bar; grey while on track, so colour marks only plans at risk. */
+  quiet?: boolean;
+}> = ({ planned, actual, className = "", quiet = false }) => {
   const { percent, tone } = budgetUsage(planned, actual);
-  const style = TONE_STYLES[tone];
+  const style =
+    quiet && tone === "ok"
+      ? { bar: "bg-ink-3", text: "text-ink-3", label: TONE_STYLES.ok.label }
+      : TONE_STYLES[tone];
   return (
     <div className={className}>
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-line"
+        className={`w-full overflow-hidden rounded-full bg-line ${quiet ? "h-1.5" : "h-2.5"}`}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
