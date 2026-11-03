@@ -5,16 +5,14 @@ export default function NotFound() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-dvh w-full flex items-center justify-center bg-paper p-4 text-ink">
-      <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 sm:p-10 text-center shadow-[0_12px_36px_rgba(94,70,42,0.08)]">
+    <div className="min-h-dvh w-full flex items-center justify-center bg-ground p-4 text-ink">
+      <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 sm:p-10 text-center">
         <div className="mx-auto mb-6 grid size-20 place-items-center rounded-2xl bg-paper-2 text-brand-ink">
           <Compass className="size-10 animate-pulse" strokeWidth={1.75} />
         </div>
 
-        <p className="font-display text-4xl font-bold tracking-tight text-brand-ink">
-          404
-        </p>
-        <h1 className="mt-2 font-display text-2xl font-bold text-ink-2">
+        <p className="font-display text-4xl font-bold text-brand-ink">404</p>
+        <h1 className="mt-2 font-display text-2xl font-bold text-ink">
           ไม่พบหน้าที่คุณต้องการ
         </h1>
 
@@ -25,14 +23,14 @@ export default function NotFound() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
             onClick={() => setLocation("/")}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-ink px-6 py-3 text-sm font-bold text-black shadow-sm transition hover:bg-brand"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-black transition hover:bg-brand-ink"
           >
             <Home className="size-4" />
             กลับหน้าหลัก
           </button>
           <Link
             href="/updates"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface px-6 py-3 text-sm font-bold text-ink-2 transition hover:bg-paper-2"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-6 py-3 text-sm font-bold text-ink transition hover:bg-paper-2"
           >
             <BookOpen className="size-4 text-brand-ink" />
             ข่าวสาร & กิจกรรม
