@@ -5,6 +5,8 @@ import {
   EmptyState,
   ErrorState,
   StatusBadge,
+  Chip,
+  FilterBar,
 } from "./CommonUI";
 
 describe("CommonUI Components", () => {
@@ -100,6 +102,52 @@ describe("CommonUI Components", () => {
     it("renders custom label when provided", () => {
       render(<StatusBadge status="approved" label="ผ่านการตรวจแล้ว" />);
       expect(screen.getByText("ผ่านการตรวจแล้ว")).toBeInTheDocument();
+    });
+  });
+
+  describe("Chip and FilterBar", () => {
+    it("fills a chosen form chip with the brand colour by default", () => {
+      render(<Chip active>เงินสด</Chip>);
+      const chip = screen.getByRole("button", { name: "เงินสด" });
+      expect(chip).toHaveAttribute("aria-pressed", "true");
+      expect(chip.className).toContain("bg-brand");
+    });
+
+    it("marks the chosen filter by tone, not by the brand fill", () => {
+      render(
+        <FilterBar
+          searchValue=""
+          onSearchChange={() => {}}
+          filters={[
+            { id: "all", label: "ทั้งหมด", count: 6 },
+            { id: "income", label: "รายรับ", count: 3 },
+          ]}
+          activeFilter="all"
+          onFilterChange={() => {}}
+        />
+      );
+      const active = screen.getByRole("button", { name: /ทั้งหมด/ });
+      expect(active).toHaveAttribute("aria-pressed", "true");
+      expect(active.className).not.toContain("bg-brand");
+      expect(active.className).not.toContain("shadow");
+    });
+
+    it("calls onFilterChange with the chip id", () => {
+      const onFilterChange = vi.fn();
+      render(
+        <FilterBar
+          searchValue=""
+          onSearchChange={() => {}}
+          filters={[
+            { id: "all", label: "ทั้งหมด" },
+            { id: "income", label: "รายรับ" },
+          ]}
+          activeFilter="all"
+          onFilterChange={onFilterChange}
+        />
+      );
+      fireEvent.click(screen.getByRole("button", { name: "รายรับ" }));
+      expect(onFilterChange).toHaveBeenCalledWith("income");
     });
   });
 });

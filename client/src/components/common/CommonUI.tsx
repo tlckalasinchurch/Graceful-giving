@@ -60,7 +60,7 @@ export const EmptyState: React.FC<{
     <div
       className={`py-12 px-6 rounded-3xl bg-surface fintech-card flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     >
-      <div className="size-20 rounded-2xl overflow-hidden bg-tile-lilac p-1 shadow-xs shrink-0">
+      <div className="size-20 rounded-2xl overflow-hidden bg-tile-lilac p-1 shrink-0">
         <Illustration
           src={illustrationSrc}
           alt={illustrationAlt}
@@ -76,7 +76,7 @@ export const EmptyState: React.FC<{
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="min-h-11 mt-2 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-sm font-bold shadow-md shadow-brand/20 transition-all focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-11 mt-2 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-brand"
         >
           {actionText}
         </button>
@@ -100,7 +100,7 @@ export const ErrorState: React.FC<{
     className={`py-12 px-6 rounded-3xl bg-tile-rose/50 border border-rose-500/30 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     role="alert"
   >
-    <div className="w-12 h-12 rounded-2xl bg-tile-rose text-tile-rose-ink flex items-center justify-center text-xl font-bold shadow-2xs">
+    <div className="w-12 h-12 rounded-2xl bg-tile-rose text-tile-rose-ink flex items-center justify-center text-xl font-bold">
       !
     </div>
     <div className="space-y-1 max-w-sm">
@@ -111,7 +111,7 @@ export const ErrorState: React.FC<{
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-11 rounded-2xl bg-danger hover:opacity-90 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all"
+        className="min-h-11 rounded-2xl bg-danger hover:opacity-90 px-5 py-2.5 text-sm font-bold text-white transition-all"
       >
         ลองใหม่
       </button>
@@ -322,14 +322,27 @@ export const Chip: React.FC<
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
     active?: boolean;
     count?: number;
+    /** "brand" fills the chosen chip with the brand colour (form pickers).
+     *  "quiet" marks it by tone and edge only (filters), so colour stays on
+     *  data and the one primary action. */
+    variant?: "brand" | "quiet";
   }
-> = ({ active = false, count, className = "", children, ...props }) => (
+> = ({
+  active = false,
+  count,
+  variant = "brand",
+  className = "",
+  children,
+  ...props
+}) => (
   <button
     type="button"
     aria-pressed={active}
     className={`min-h-11 shrink-0 whitespace-nowrap rounded-2xl border px-4 py-2 text-sm transition-all ${
       active
-        ? "border-brand bg-brand font-bold text-black shadow-sm shadow-brand/20"
+        ? variant === "quiet"
+          ? "border-white/30 bg-paper-2 font-bold text-ink"
+          : "border-brand bg-brand font-bold text-black"
         : "border-line bg-surface font-semibold text-ink-2 hover:bg-paper hover:text-ink"
     } ${className}`}
     {...props}
@@ -337,7 +350,7 @@ export const Chip: React.FC<
     {children}
     {count !== undefined && (
       <span
-        className={`money ml-1.5 font-medium ${active ? "text-white/90" : "text-ink-3"}`}
+        className={`money ml-1.5 font-medium ${active ? (variant === "quiet" ? "text-ink-2" : "text-black/70") : "text-ink-3"}`}
       >
         {count}
       </span>
@@ -378,7 +391,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface border border-line shadow-2xs text-base md:text-sm text-ink placeholder-ink-3 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/30"
+          className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface border border-line text-base md:text-sm text-ink placeholder-ink-3 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/30"
         />
       </div>
 
@@ -394,6 +407,7 @@ export const FilterBar: React.FC<{
             return (
               <Chip
                 key={f.id}
+                variant="quiet"
                 active={isActive}
                 count={f.count}
                 onClick={() => onFilterChange(f.id)}
@@ -427,7 +441,7 @@ export const BackLink: React.FC<{
     onClick={onClick}
     className={`min-h-11 inline-flex items-center gap-1.5 text-sm font-semibold transition-all ${
       variant === "pill"
-        ? "rounded-2xl border border-line bg-surface px-4 py-2 text-ink shadow-2xs hover:bg-paper"
+        ? "rounded-2xl border border-line bg-surface px-4 py-2 text-ink hover:bg-paper"
         : "text-ink-2 hover:text-ink"
     } ${className}`}
   >
