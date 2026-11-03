@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
+import { HandHeart, ReceiptText } from "lucide-react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -13,21 +14,55 @@ import {
   canViewFinanceRecords,
   isSuperAdmin,
 } from "@shared/roles";
-import { HomeHeader } from "./Home/components/HomeHeader";
+import { HeroSection } from "./Home/components/HeroSection";
 import { BalanceCard } from "./Home/components/BalanceCard";
+import { FinancialSummaryRow } from "./Home/components/FinancialSummaryRow";
+import { PrimaryActions } from "./Home/components/PrimaryActions";
 import { SecondaryMenu } from "./Home/components/SecondaryMenu";
 import { BudgetSection } from "./Home/components/BudgetSection";
 import { TaskQueue } from "./Home/components/TaskQueue";
 import { buildTaskItems } from "./Home/taskQueue";
-import { homeFinding } from "./Home/summaryFormat";
 import {
   RecentTransactions,
   type TransactionItem,
 } from "./Home/components/RecentTransactions";
 import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
 import { formatThaiDateTime } from "@/lib/format";
+import { monthDelta } from "./Home/summaryFormat";
+
+// ─── Formatting helpers ──────────────────────────────────────────────────────
 
 const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
+
+// ─── Balance count-up (snappy and instant) ───────────────────────────────────
+function useCountUp(target: number, durationMs = 200): number {
+  const [value, setValue] = useState(target);
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setValue(target);
+      return;
+    }
+    const start = performance.now();
+    let frameId: number;
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / durationMs, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(target * eased);
+      if (progress < 1) {
+        frameId = requestAnimationFrame(tick);
+      }
+    };
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, durationMs, prefersReducedMotion]);
+
+  return value;
+}
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
@@ -68,6 +103,18 @@ export default function Home() {
   const today = new Date();
   const budgetYear = today.getFullYear();
   const budgetMonth = today.getMonth() + 1;
+
+  // Three tiles always show (กิจกรรม, ขอเบิกเงิน, เพิ่มเติม); the two gated
+  // ones change the count, so match the column count to what is actually
+  // rendered rather than leaving empty columns.
+  const visibleSecondaryTiles =
+    3 + (canOpenReports ? 1 : 0) + (canOpenMembers ? 1 : 0);
+  const secondaryTileColsClass =
+    visibleSecondaryTiles === 5
+      ? "sm:grid-cols-5"
+      : visibleSecondaryTiles === 4
+        ? "sm:grid-cols-4"
+        : "sm:grid-cols-3";
 
   // tRPC Queries with resilient fallback
   const {
@@ -163,10 +210,23 @@ export default function Home() {
     inboxLoading || withdrawalsLoading || countingLoading || pendingLoading;
 
   // Derived values always come from the current API response.
+  const totalBalance = summaryData?.totalBalance;
+  const monthlyIncome = summaryData?.monthlyIncome;
+  const monthlyExpense = summaryData?.monthlyExpense;
   const netMonthly = summaryData
     ? summaryData.monthlyIncome - summaryData.monthlyExpense
     : undefined;
-  const taskTotal = taskItems.reduce((sum, item) => sum + item.count, 0);
+  const incomeNote = summaryData
+    ? monthDelta(summaryData.monthlyIncome, summaryData.prevMonthIncome)
+    : "";
+  const expenseNote = summaryData
+    ? monthDelta(summaryData.monthlyExpense, summaryData.prevMonthExpense)
+    : "";
+  const isBalanceLoading = summaryLoading;
+  const isDataUnavailable = !summaryLoading && (summaryError || !summaryData);
+  const isPositiveBalance = (totalBalance ?? 0) >= 0;
+  const isPositiveNet = (netMonthly ?? 0) >= 0;
+  const animatedBalance = useCountUp(totalBalance ?? 0);
 
   // Combined transactions
   const allTransactions = useMemo<TransactionItem[]>(() => {
@@ -184,6 +244,8 @@ export default function Home() {
           category: o.category,
           subCategory: "รายรับ",
           amount: Number(o.amount),
+          tone: "bg-tile-mint text-tile-mint-ink",
+          icon: HandHeart,
         });
       });
     }
@@ -198,6 +260,8 @@ export default function Home() {
           category: e.category,
           subCategory: expenseCategoryLabel(e.category),
           amount: Number(e.amount),
+          tone: "bg-tile-sand text-tile-sand-ink",
+          icon: ReceiptText,
         });
       });
     }
@@ -206,54 +270,87 @@ export default function Home() {
     );
   }, [offeringsData, expensesData]);
 
-  // DOM order is the phone reading order: work waiting, then the money, then
-  // the rest. From lg up the money sits in the wide column and the work and
-  // shortcuts in a 360px side column.
-  const wide = canSeeFinance;
+  // DOM order is the mobile reading order. From lg up the same blocks sit in
+  // a 7/5 grid so a wide screen gets two columns, not a stretched phone.
   return (
     <AppLayout>
-      <div className="mx-auto w-full max-w-[1180px] space-y-6">
-        <HomeHeader
-          finding={homeFinding({ taskTotal, net: netMonthly })}
-          canRecordOffering={canRecordOffering}
-          canRecordExpense={canRecordExpense}
-          onNewOffering={() => setLocation("/offerings/new")}
-          onNewExpense={() => setLocation("/expenses/new")}
-        />
+      <div className="space-y-4 sm:space-y-6">
+        <HeroSection />
 
-        <div
-          className={
-            wide
-              ? "grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-6"
-              : "mx-auto grid max-w-xl grid-cols-1 gap-4"
-          }
-        >
-          {hasTaskSources && (
-            <div className="lg:col-start-2 lg:row-start-1">
-              <TaskQueue
-                items={taskItems}
-                isLoading={tasksLoading}
-                onOpen={setLocation}
+        {/* To-do queue: work waiting on this role (slips, withdrawals, counting) */}
+        {hasTaskSources && (
+          <TaskQueue
+            items={taskItems}
+            isLoading={tasksLoading}
+            onOpen={setLocation}
+          />
+        )}
+
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
+          {canSeeFinance && (
+            <div className="lg:col-span-7">
+              <BalanceCard
+                showBalance={showBalance}
+                setShowBalance={setShowBalance}
+                isPositiveBalance={isPositiveBalance}
+                isBalanceLoading={isBalanceLoading}
+                isDataUnavailable={isDataUnavailable}
+                summaryError={summaryError}
+                hasSummaryData={!!summaryData}
+                animatedBalance={animatedBalance}
+                canOpenReports={canOpenReports}
+                onOpenReports={() => setLocation("/reports")}
+              />
+            </div>
+          )}
+
+          <section
+            aria-labelledby="dashboard-actions"
+            style={{ animationDelay: "160ms" }}
+            className={`animate-fade-up ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"} rounded-3xl bg-surface p-4 sm:p-5 fintech-card space-y-4`}
+          >
+            <h2
+              id="dashboard-actions"
+              className="px-1 text-base font-semibold text-ink"
+            >
+              ทำรายการ
+            </h2>
+            <PrimaryActions
+              canRecordOffering={canRecordOffering}
+              canRecordExpense={canRecordExpense}
+              onNewOffering={() => setLocation("/offerings/new")}
+              onNewExpense={() => setLocation("/expenses/new")}
+            />
+            <SecondaryMenu
+              canOpenReports={canOpenReports}
+              canOpenMembers={canOpenMembers}
+              secondaryTileColsClass={secondaryTileColsClass}
+              onOpenReports={() => setLocation("/reports")}
+              onOpenMembers={() => setLocation("/members")}
+              onOpenNews={() => setNewsOpen(true)}
+              onOpenWithdrawals={() => setLocation("/withdrawals/new")}
+            />
+          </section>
+
+          {canSeeFinance && (
+            <div className="lg:col-span-12">
+              <FinancialSummaryRow
+                isBalanceLoading={isBalanceLoading}
+                showBalance={showBalance}
+                monthlyIncome={monthlyIncome}
+                monthlyExpense={monthlyExpense}
+                netMonthly={netMonthly}
+                incomeNote={incomeNote}
+                expenseNote={expenseNote}
+                isPositiveNet={isPositiveNet}
               />
             </div>
           )}
 
           {canSeeFinance && (
-            <div className="space-y-4 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:space-y-6">
-              <BalanceCard
-                showBalance={showBalance}
-                setShowBalance={setShowBalance}
-                isLoading={summaryLoading}
-                isError={Boolean(summaryError)}
-                hasData={!!summaryData}
-                totalBalance={summaryData?.totalBalance}
-                monthlyIncome={summaryData?.monthlyIncome}
-                monthlyExpense={summaryData?.monthlyExpense}
-                prevIncome={summaryData?.prevMonthIncome}
-                prevExpense={summaryData?.prevMonthExpense}
-                canOpenReports={canOpenReports}
-                onOpenReports={() => setLocation("/reports")}
-              />
+            <div
+              className={canViewBudgets ? "lg:col-span-7" : "lg:col-span-12"}
+            >
               <RecentTransactions
                 allTransactions={allTransactions}
                 onViewAll={() => setLocation("/transactions")}
@@ -262,8 +359,8 @@ export default function Home() {
             </div>
           )}
 
-          <div className="space-y-4 lg:col-start-2 lg:row-start-2 lg:space-y-6">
-            {canViewBudgets && (
+          {canViewBudgets && (
+            <div className="lg:col-span-5">
               <BudgetSection
                 plans={budgetData}
                 isLoading={budgetLoading}
@@ -271,21 +368,9 @@ export default function Home() {
                 currentMonth={budgetMonth}
                 onOpenBudgets={() => setLocation("/budgets")}
               />
-            )}
-            <SecondaryMenu
-              canOpenReports={canOpenReports}
-              canOpenMembers={canOpenMembers}
-              onOpenReports={() => setLocation("/reports")}
-              onOpenMembers={() => setLocation("/members")}
-              onOpenNews={() => setNewsOpen(true)}
-              onOpenWithdrawals={() => setLocation("/withdrawals/new")}
-            />
-          </div>
+            </div>
+          )}
         </div>
-
-        <p className="pb-2 text-sm text-ink-3">
-          “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก” · 2 โครินธ์ 9:7
-        </p>
       </div>
 
       {/* Sheet: Church News & Announcements */}

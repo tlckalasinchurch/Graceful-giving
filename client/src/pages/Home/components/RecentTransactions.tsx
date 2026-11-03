@@ -1,5 +1,6 @@
+import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Link } from "wouter";
-import { formatAmount } from "@/lib/format";
+import { MoneyDisplay } from "@/components/common/CommonUI";
 
 export interface TransactionItem {
   id: string;
@@ -10,6 +11,8 @@ export interface TransactionItem {
   category: string;
   subCategory: string;
   amount: number;
+  tone: string;
+  icon: LucideIcon;
 }
 
 interface RecentTransactionsProps {
@@ -18,61 +21,67 @@ interface RecentTransactionsProps {
   fmtThaiDate: (d: Date | string) => string;
 }
 
-const MAX_ROWS = 6;
-
 export function RecentTransactions({
   allTransactions,
   onViewAll,
   fmtThaiDate,
 }: RecentTransactionsProps) {
-  const rows = allTransactions.slice(0, MAX_ROWS);
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="rounded-2xl border border-line bg-surface"
+      className="h-full bg-surface rounded-3xl p-3 sm:p-4 fintech-card w-full"
     >
-      <div className="flex items-center justify-between gap-3 px-5 pt-4 sm:px-6">
-        <h2 className="text-base font-semibold text-ink">รายการล่าสุด</h2>
+      <div className="flex items-center justify-between px-3 pb-1 pt-2">
+        <h2 className="text-base font-bold text-ink">รายการล่าสุด</h2>
         <button
-          type="button"
           onClick={onViewAll}
-          className="min-h-11 text-sm font-medium text-brand-ink hover:underline"
+          className="inline-flex min-h-10 items-center gap-1 rounded-full bg-tile-lilac/60 px-3 py-1 text-xs sm:text-sm font-bold text-brand-ink hover:bg-tile-lilac transition-colors focus-visible:ring-2 focus-visible:ring-brand"
         >
-          ดูทั้งหมด
+          <span>ดูทั้งหมด</span>
+          <ChevronRight className="size-4" aria-hidden="true" />
         </button>
       </div>
 
-      {rows.length === 0 ? (
-        <p className="mx-5 mb-5 rounded-lg border border-dashed border-line px-4 py-3 text-sm text-ink-2 sm:mx-6">
-          ยังไม่มีรายการถวายหรือรายจ่ายในระบบ
+      {allTransactions.length === 0 ? (
+        <p className="px-3 py-8 text-center text-sm text-ink-2">
+          ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
         </p>
       ) : (
-        <ul className="pb-2">
-          {rows.map(tx => (
-            <li key={tx.id} className="border-t border-line first:border-t-0">
-              <Link
-                href={`/transactions/${tx.id}`}
-                className="flex min-h-14 items-center justify-between gap-4 px-5 py-2.5 hover:bg-paper sm:px-6"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-ink">
-                    {tx.title}
-                  </span>
-                  <span className="block truncate text-xs text-ink-3">
-                    {tx.subCategory} · {fmtThaiDate(tx.date)}
-                  </span>
-                </span>
-                <span
-                  className={`money shrink-0 text-right text-sm font-semibold ${
-                    tx.type === "income" ? "text-income" : "text-ink"
-                  }`}
+        <ul className="divide-y divide-line/60">
+          {allTransactions.slice(0, 5).map(tx => {
+            const Icon = tx.icon;
+            return (
+              <li key={tx.id}>
+                <Link
+                  href={`/transactions/${tx.id}`}
+                  className="flex min-h-16 items-center justify-between gap-4 rounded-2xl px-3 py-3 hover:bg-paper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                 >
-                  {tx.type === "income" ? "+" : "−"}฿&#8239;
-                  {formatAmount(Math.abs(tx.amount))}
-                </span>
-              </Link>
-            </li>
-          ))}
+                  <div className="flex min-w-0 items-center gap-3.5">
+                    <span
+                      className={`size-11 shrink-0 rounded-2xl flex items-center justify-center ${tx.tone}`}
+                      aria-hidden="true"
+                    >
+                      <Icon className="size-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-ink">
+                        {tx.title}
+                      </p>
+                      <p className="truncate text-xs text-ink-2 pt-0.5">
+                        {tx.subCategory} · {fmtThaiDate(tx.date)}
+                      </p>
+                    </div>
+                  </div>
+                  <MoneyDisplay
+                    amount={tx.amount}
+                    type={tx.type}
+                    size="base"
+                    className="shrink-0"
+                  />
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>
