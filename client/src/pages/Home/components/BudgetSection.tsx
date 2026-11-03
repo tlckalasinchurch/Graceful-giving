@@ -93,6 +93,7 @@ export function BudgetSection({
                 </p>
               </div>
               <BudgetProgress
+                quiet
                 planned={plan.plannedAmount}
                 actual={plan.actualAmount}
               />

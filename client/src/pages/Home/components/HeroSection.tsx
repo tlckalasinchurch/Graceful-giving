@@ -4,11 +4,14 @@ export function HeroSection() {
   return (
     <section
       aria-label="Grace Giving ส่วนต้อนรับ"
-      className="animate-fade-up relative flex w-full items-center justify-between gap-4 rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:gap-6 sm:p-8"
+      className="animate-fade-up relative flex w-full items-center justify-between gap-4 rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 sm:gap-6 sm:p-8"
     >
       <div className="relative z-10 order-1 min-w-0 space-y-2.5">
-        <h1 className="display text-4xl font-black text-white sm:text-6xl">
-          <span>Grace</span> <span className="bg-gradient-to-r from-[#FF6A00] to-[#00F58A] bg-clip-text text-transparent">Giving</span>
+        <h1 className="display text-3xl font-black text-white sm:text-6xl">
+          <span>Grace</span>{" "}
+          <span className="bg-gradient-to-r from-[#FF6A00] to-[#00F58A] bg-clip-text text-transparent">
+            Giving
+          </span>
         </h1>
         <p className="text-sm font-medium text-white/75 sm:text-base">
           การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
@@ -23,7 +26,7 @@ export function HeroSection() {
         </p>
       </div>
 
-      <div className="relative z-10 order-2 size-20 shrink-0 overflow-hidden rounded-3xl bg-white/[0.06] p-1.5 sm:size-28 lg:size-32">
+      <div className="relative z-10 order-2 size-16 shrink-0 overflow-hidden rounded-3xl bg-white/[0.06] p-1.5 sm:size-28 lg:size-32">
         <Illustration
           src="/illustrations/hero_jesus_shepherd.jpg"
           alt="พระเยซูคริสต์และลูกแกะ"

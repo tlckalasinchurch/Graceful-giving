@@ -8,11 +8,9 @@ interface FinancialSummaryRowProps {
   monthlyIncome: number | undefined;
   monthlyExpense: number | undefined;
   netMonthly: number | undefined;
-  incomeTrend: string;
-  expenseTrend: string;
+  incomeNote: string;
+  expenseNote: string;
   isPositiveNet: boolean;
-  trendArrow: (trend: string) => string;
-  trendValue: (trend: string) => string;
 }
 
 function SummaryCard({
@@ -51,11 +49,9 @@ export function FinancialSummaryRow({
   monthlyIncome,
   monthlyExpense,
   netMonthly,
-  incomeTrend,
-  expenseTrend,
+  incomeNote,
+  expenseNote,
   isPositiveNet,
-  trendArrow,
-  trendValue,
 }: FinancialSummaryRowProps) {
   const figure = (
     value: number | undefined,
@@ -85,14 +81,14 @@ export function FinancialSummaryRow({
         tile="bg-tile-mint text-tile-mint-ink"
         icon={<HandHeart className="size-5" />}
         amount={figure(monthlyIncome, "text-income", "+")}
-        footnote={`${trendArrow(incomeTrend)} ${trendValue(incomeTrend)} จากเดือนที่แล้ว`}
+        footnote={incomeNote}
       />
       <SummaryCard
         label="รายจ่ายเดือนนี้"
         tile="bg-tile-rose text-tile-rose-ink"
         icon={<ReceiptText className="size-5" />}
         amount={figure(monthlyExpense, "text-ink", "")}
-        footnote={`${trendArrow(expenseTrend)} ${trendValue(expenseTrend)} จากเดือนที่แล้ว`}
+        footnote={expenseNote}
       />
       <SummaryCard
         label="คงเหลือสุทธิเดือนนี้"

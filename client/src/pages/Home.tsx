@@ -28,22 +28,9 @@ import {
 } from "./Home/components/RecentTransactions";
 import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
 import { formatThaiDateTime } from "@/lib/format";
+import { monthDelta } from "./Home/summaryFormat";
 
 // ─── Formatting helpers ──────────────────────────────────────────────────────
-
-function pctChange(current: number, prev: number) {
-  if (prev === 0) return current > 0 ? "+∞%" : "0%";
-  const pct = ((current - prev) / prev) * 100;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(0)}%`;
-}
-
-function trendArrow(trend: string) {
-  return trend.trim().startsWith("-") ? "↓" : "↑";
-}
-
-function trendValue(trend: string) {
-  return trend.replace(/^[+\-↑↓]\s*/, "");
-}
 
 const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
 
@@ -229,11 +216,11 @@ export default function Home() {
   const netMonthly = summaryData
     ? summaryData.monthlyIncome - summaryData.monthlyExpense
     : undefined;
-  const incomeTrend = summaryData
-    ? pctChange(summaryData.monthlyIncome, summaryData.prevMonthIncome)
+  const incomeNote = summaryData
+    ? monthDelta(summaryData.monthlyIncome, summaryData.prevMonthIncome)
     : "";
-  const expenseTrend = summaryData
-    ? pctChange(summaryData.monthlyExpense, summaryData.prevMonthExpense)
+  const expenseNote = summaryData
+    ? monthDelta(summaryData.monthlyExpense, summaryData.prevMonthExpense)
     : "";
   const isBalanceLoading = summaryLoading;
   const isDataUnavailable = !summaryLoading && (summaryError || !summaryData);
@@ -353,11 +340,9 @@ export default function Home() {
                 monthlyIncome={monthlyIncome}
                 monthlyExpense={monthlyExpense}
                 netMonthly={netMonthly}
-                incomeTrend={incomeTrend}
-                expenseTrend={expenseTrend}
+                incomeNote={incomeNote}
+                expenseNote={expenseNote}
                 isPositiveNet={isPositiveNet}
-                trendArrow={trendArrow}
-                trendValue={trendValue}
               />
             </div>
           )}

@@ -53,22 +53,15 @@ export function BalanceCard({
     <section
       aria-label="ยอดเงินคงเหลือรวม"
       style={{ animationDelay: "90ms" }}
-      className="animate-fade-up relative overflow-hidden h-full rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:p-8 flex flex-col justify-between gap-8 w-full"
+      className="animate-fade-up relative h-full rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:p-8 flex flex-col justify-between gap-8 w-full"
     >
-      {/* Subtle Pastel FinTech Glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-20 -right-20 size-52 rounded-full bg-[#00F58A]/15 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-16 left-10 size-44 rounded-full bg-[#FF6A00]/15 blur-3xl"
-      />
-
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-3 py-1">
-            <span className="size-2 rounded-full bg-[#00F58A]" aria-hidden="true" />
+            <span
+              className="size-2 rounded-full bg-[#00F58A]"
+              aria-hidden="true"
+            />
             <h2 className="text-xs sm:text-sm font-bold text-white/80">
               ยอดเงินคงเหลือรวม
             </h2>
@@ -126,7 +119,9 @@ export function BalanceCard({
 
       <div className="relative flex flex-wrap items-center justify-between gap-3">
         {isBalanceLoading ? (
-          <span className="text-sm text-white/60">กำลังตรวจสอบยอดเงินล่าสุด…</span>
+          <span className="text-sm text-white/60">
+            กำลังตรวจสอบยอดเงินล่าสุด…
+          </span>
         ) : isPositiveBalance ? (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00F58A]/15 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-[#00F58A]">
             ขอบคุณพระเจ้าสำหรับทุกการถวาย ♥
