@@ -162,7 +162,7 @@ export default function BudgetDetail() {
           />
         ) : (
           <>
-            <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
+            <section className="rounded-2xl border border-line bg-surface p-6 md:p-8">
               <h1 className="text-2xl font-bold text-ink">
                 {budgetCategoryLabel(query.data.category)}
               </h1>
@@ -208,7 +208,7 @@ export default function BudgetDetail() {
 
             <form
               onSubmit={submit}
-              className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8"
+              className="rounded-2xl border border-line bg-surface p-6 md:p-8"
             >
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-bold text-ink">แก้ไขงบประมาณ</h2>
@@ -229,14 +229,14 @@ export default function BudgetDetail() {
               />
               <button
                 disabled={update.isPending || !isDirty}
-                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-income px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand hover:bg-brand-ink px-5 py-2 text-sm font-bold text-black disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
               </button>
             </form>
 
-            <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
+            <section className="rounded-2xl border border-line bg-surface p-6 md:p-8">
               <h2 className="font-bold text-ink">
                 รายจ่ายที่นับในงบนี้ ({query.data.expenseCount} รายการ)
               </h2>
