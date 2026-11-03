@@ -140,10 +140,6 @@ html {
 body {
   margin: 0;
   background-color: var(--background);
-  background-image:
-    radial-gradient(at 0% 0%, rgba(255, 106, 0, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(0, 245, 138, 0.06) 0px, transparent 45%);
-  background-attachment: fixed;
   color: var(--foreground);
   font-family:
     "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
@@ -210,61 +206,51 @@ select:focus-visible {
   }
 }
 
-/* Soft floating FinTech surfaces */
+/* Surfaces are flat: a 1px ring is the only edge, and a tone step (ground
+   #050506, card #0e0e10, raised #161618) does the elevating. Nothing at rest
+   has a blurred shadow or a glow. The old class names stay so pages that still
+   use them take the flat look without a rewrite. */
 .card-elevation-sm,
 .clay-card-shadow,
 .inset-bevel-subtle,
-.clay-inset-bevel {
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.07),
-    0 4px 16px -4px rgba(0, 0, 0, 0.4);
-}
-
-.button-elevation,
-.clay-button-shadow {
-  box-shadow: 0 4px 12px -2px rgba(255, 106, 0, 0.25);
-}
-
-.card-elevation-focus,
-.clay-balance-glow {
-  box-shadow:
-    0 0 0 1px rgba(0, 245, 138, 0.35),
-    0 16px 40px -16px rgba(255, 106, 0, 0.14);
+.clay-inset-bevel,
+.fintech-card {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 
 .fintech-card {
   container-type: inline-size;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.07),
-    0 8px 24px -6px rgba(0, 0, 0, 0.4),
-    0 2px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.button-elevation,
+.clay-button-shadow {
+  box-shadow: none;
+}
+
+.card-elevation-focus,
+.clay-balance-glow {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
 
 .fintech-card-hover {
   transition:
-    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.2s ease;
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .fintech-card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.2),
-    0 14px 32px -12px rgba(255, 106, 0, 0.14);
+  background-color: var(--color-paper);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
+/* Opaque, not glass: floating bars sit on a solid fill. */
 .fintech-glass {
-  background: rgba(14, 14, 16, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--color-surface);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .fintech-glass-dark {
-  background: rgba(5, 5, 6, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--color-ground);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
