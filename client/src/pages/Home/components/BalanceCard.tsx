@@ -1,5 +1,7 @@
 import { ChevronRight, Eye, EyeOff, Info, Loader2 } from "lucide-react";
 import { formatAmount } from "@/lib/format";
+import type { FundShare } from "../fundShares";
+import { FundBreakdown } from "./FundBreakdown";
 
 interface BalanceCardProps {
   showBalance: boolean;
@@ -12,6 +14,7 @@ interface BalanceCardProps {
   animatedBalance: number;
   canOpenReports: boolean;
   onOpenReports: () => void;
+  fundRows?: FundShare[];
 }
 
 function BalanceAmount({
@@ -48,12 +51,13 @@ export function BalanceCard({
   animatedBalance,
   canOpenReports,
   onOpenReports,
+  fundRows = [],
 }: BalanceCardProps) {
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
       style={{ animationDelay: "90ms" }}
-      className="animate-fade-up relative h-full rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:p-8 flex flex-col justify-between gap-8 w-full"
+      className="animate-fade-up relative h-full rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:p-8 flex flex-col justify-between gap-6 w-full"
     >
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-2">
@@ -109,6 +113,10 @@ export function BalanceCard({
             </span>
           )}
         </p>
+      )}
+
+      {!isBalanceLoading && hasSummaryData && (
+        <FundBreakdown rows={fundRows} hidden={!showBalance} />
       )}
 
       <div className="relative flex flex-wrap items-center justify-between gap-3">

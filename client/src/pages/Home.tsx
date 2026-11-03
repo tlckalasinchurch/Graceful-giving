@@ -28,6 +28,7 @@ import {
 import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
 import { formatThaiDate } from "@/lib/format";
 import { monthDelta } from "./Home/summaryFormat";
+import { fundShares } from "./Home/fundShares";
 
 // ─── Formatting helpers ──────────────────────────────────────────────────────
 
@@ -103,18 +104,6 @@ export default function Home() {
   const budgetYear = today.getFullYear();
   const budgetMonth = today.getMonth() + 1;
 
-  // Three tiles always show (กิจกรรม, ขอเบิกเงิน, เพิ่มเติม); the two gated
-  // ones change the count, so match the column count to what is actually
-  // rendered rather than leaving empty columns.
-  const visibleSecondaryTiles =
-    3 + (canOpenReports ? 1 : 0) + (canOpenMembers ? 1 : 0);
-  const secondaryTileColsClass =
-    visibleSecondaryTiles === 5
-      ? "sm:grid-cols-5"
-      : visibleSecondaryTiles === 4
-        ? "sm:grid-cols-4"
-        : "sm:grid-cols-3";
-
   // tRPC Queries with resilient fallback
   const {
     data: summaryData,
@@ -125,6 +114,13 @@ export default function Home() {
     retry: false,
     staleTime: 30_000,
   });
+
+  const { data: fundsData } = trpc.finance.accounts.useQuery(undefined, {
+    enabled: canSeeFinance,
+    retry: false,
+    staleTime: 30_000,
+  });
+  const fundRows = useMemo(() => fundShares(fundsData ?? []), [fundsData]);
 
   const { data: offeringsData } = trpc.offerings.list.useQuery(
     { limit: 30 },
@@ -295,6 +291,7 @@ export default function Home() {
                 animatedBalance={animatedBalance}
                 canOpenReports={canOpenReports}
                 onOpenReports={() => setLocation("/reports")}
+                fundRows={fundRows}
               />
             </div>
           )}
@@ -319,7 +316,6 @@ export default function Home() {
             <SecondaryMenu
               canOpenReports={canOpenReports}
               canOpenMembers={canOpenMembers}
-              secondaryTileColsClass={secondaryTileColsClass}
               onOpenReports={() => setLocation("/reports")}
               onOpenMembers={() => setLocation("/members")}
               onOpenNews={() => setNewsOpen(true)}
