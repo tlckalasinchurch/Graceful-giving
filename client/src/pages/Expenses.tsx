@@ -153,7 +153,7 @@ export default function Expenses() {
       case "utilities":
         return { icon: Zap, color: "bg-amber-500/15 text-amber-300" };
       case "ministry":
-        return { icon: Users, color: "bg-[hsl(6_45%_13%)] text-[#E06250]" };
+        return { icon: Users, color: "bg-paper-2 text-danger" };
       case "pastoral":
         return { icon: Cross, color: "bg-emerald-500/15 text-emerald-300" };
       case "admin":
@@ -191,7 +191,6 @@ export default function Expenses() {
 
   return (
     <AppLayout
-      eyebrow="Expenses"
       title="รายจ่าย"
       subtitle="บันทึกและตรวจสอบค่าใช้จ่ายของคริสตจักร พร้อมหลักฐานการจ่าย"
       action={

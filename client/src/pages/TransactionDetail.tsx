@@ -272,7 +272,7 @@ export default function TransactionDetail() {
           {transaction && (
             <button
               onClick={() => setShowVoucher(true)}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-paper-2 hover:bg-brand hover:text-black text-ink-2 text-xs font-bold border border-line flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-paper-2 hover:bg-brand hover:text-black text-ink-2 text-xs font-bold border border-line flex items-center gap-1.5 transition-colors"
             >
               <Printer className="w-4 h-4" />
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
@@ -442,7 +442,7 @@ export default function TransactionDetail() {
             <Detail
               label="ช่องทางการเงิน"
               value={transaction.paymentMethod}
-              icon={<CreditCard className="w-4 h-4 text-[#9BCBA5]" />}
+              icon={<CreditCard className="w-4 h-4 text-ink-2" />}
             />
             <Detail
               label={
@@ -451,7 +451,7 @@ export default function TransactionDetail() {
                   : "ผู้รับเงิน / ร้านค้า"
               }
               value={transaction.donorOrPayee}
-              icon={<User className="w-4 h-4 text-[#85C1E9]" />}
+              icon={<User className="w-4 h-4 text-ink-2" />}
             />
             <Detail label="เลขอ้างอิง" value={transaction.refCode} />
           </div>
@@ -481,7 +481,7 @@ export default function TransactionDetail() {
 
               <div
                 onClick={() => setShowReceiptModal(true)}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-line bg-paper flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity shadow-xs group relative"
+                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-line bg-paper flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity group relative"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">

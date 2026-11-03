@@ -228,7 +228,6 @@ export default function NewExpense() {
 
   return (
     <AppLayout
-      eyebrow="New expense"
       title="บันทึกรายจ่ายใหม่"
       subtitle="บันทึกค่าใช้จ่ายหรือการเบิกจ่ายงบประมาณ พร้อมแนบหลักฐาน"
     >
@@ -239,7 +238,7 @@ export default function NewExpense() {
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Amount & Presets */}
-          <div className="bg-surface rounded-3xl p-6 md:p-8 fintech-card space-y-5">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5">
             <h2 className="text-lg font-bold text-ink flex items-center gap-2">
               <Receipt className="w-5 h-5 text-brand" />
               1. จำนวนเงินและหมวดหมู่
@@ -320,7 +319,7 @@ export default function NewExpense() {
                       aria-pressed={isSelected}
                       className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between ${
                         isSelected
-                          ? "border-brand bg-tile-peach"
+                          ? "border-brand bg-paper-2"
                           : "border-field hover:bg-ground bg-surface"
                       }`}
                     >
@@ -328,7 +327,7 @@ export default function NewExpense() {
                         <div
                           className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                             isSelected
-                              ? "bg-surface text-tile-peach-ink"
+                              ? "bg-surface text-brand-ink"
                               : "bg-ground text-ink-2"
                           }`}
                         >
@@ -354,9 +353,9 @@ export default function NewExpense() {
           </div>
 
           {/* Section 2: Expense Details & Fund Allocation */}
-          <div className="bg-surface rounded-3xl p-6 md:p-8 fintech-card space-y-5">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5">
             <h2 className="text-lg font-bold text-ink flex items-center gap-2">
-              <Building className="w-5 h-5 text-tile-mint-ink" />
+              <Building className="w-5 h-5 text-brand" />
               2. ข้อมูลรายการและกองทุนที่จัดสรร
             </h2>
 
@@ -498,9 +497,9 @@ export default function NewExpense() {
           </div>
 
           {/* Section 3: Receipt Attachment */}
-          <div className="bg-surface border border-line rounded-2xl p-6 md:p-8 shadow-sm space-y-4">
+          <div className="bg-surface border border-line rounded-2xl p-6 md:p-8 space-y-4">
             <h2 className="text-lg font-bold text-ink flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-tile-sky-ink" />
+              <UploadCloud className="w-5 h-5 text-ink-2" />
               3. แนบหลักฐานใบเสร็จ / สลิปโอนเงิน
             </h2>
 
@@ -601,7 +600,7 @@ export default function NewExpense() {
             <button
               type="submit"
               disabled={isSubmitting || isUploading}
-              className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm transition-all flex items-center gap-2 disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
               <span>
@@ -619,7 +618,7 @@ export default function NewExpense() {
         {showSuccessModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-surface rounded-2xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 rounded-full bg-tile-mint flex items-center justify-center text-ink-2 mx-auto">
+              <div className="w-16 h-16 rounded-full border border-line bg-surface flex items-center justify-center text-ink-2 mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-ink-2" />
               </div>
 
@@ -671,7 +670,7 @@ export default function NewExpense() {
                     setReceiptContentType("");
                     setReceiptUrl(null);
                   }}
-                  className="w-full min-h-12 rounded-2xl bg-brand text-black font-semibold text-base hover:bg-brand-ink shadow-[0_1px_3px_hsla(20,80%,30%,0.3)]"
+                  className="w-full min-h-12 rounded-2xl bg-brand text-black font-semibold text-base hover:bg-brand-ink"
                 >
                   บันทึกรายจ่ายรายการถัดไป
                 </button>
