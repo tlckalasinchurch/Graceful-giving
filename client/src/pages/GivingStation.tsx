@@ -809,14 +809,14 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 <div className="lg:col-span-6 text-center -mt-4">
                   <StationCubeLogo
                     brandTitle="GraceBox"
-                    subtitle="AUTOMATED CHURCH GIVING STATION"
+                    subtitle="Automated church giving station"
                   />
                 </div>
 
                 {/* Station Breadcrumb */}
-                <div className="lg:col-span-6 text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
-                  GRACEBOX STATION <span className="text-ink-3 mx-1">/</span>{" "}
-                  {churchQuery.data?.name || "SANCTUARY SPACE"}
+                <div className="lg:col-span-6 text-sm font-semibold text-ink-2 text-center sm:text-left">
+                  GraceBox Station <span className="text-ink-3 mx-1">/</span>{" "}
+                  {churchQuery.data?.name || "Sanctuary"}
                 </div>
 
                 {/* Donor Profile Card */}
@@ -846,7 +846,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 {/* Big Orange Gradient CTA (Jam Now -> Give Now) */}
                 <StationHeroCTA
                   className="lg:col-span-6 pt-2"
-                  eyebrow="เริ่มใช้งาน"
                   headline="พร้อมถวายทรัพย์เลยไหม?"
                   buttonTitle="Give Now"
                   buttonSubtitle="เริ่มถวายทันที"
@@ -1858,7 +1857,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     <AppLayout
       activeRoute="/offerings"
       hideHeaderOnPrint
-      eyebrow="GraceBox Station"
       title="จุดถวายทรัพย์อัตโนมัติ & ป้าย QR"
       subtitle="ระบบถวายทรัพย์บริการตนเองสไตล์โมเดิร์น (สแกน -> เลือกยอด -> โอน/แนบสลิป -> ยืนยัน) พร้อมป้าย QR สำหรับพิมพ์ติดหน้าห้อง"
       action={
