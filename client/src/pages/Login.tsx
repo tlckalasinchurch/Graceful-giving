@@ -46,22 +46,22 @@ export default function Login() {
   const error = errorKey ? (ERRORS[errorKey] ?? ERRORS.failed) : null;
 
   return (
-    <div className="grid min-h-dvh bg-[#050506] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <div className="grid min-h-dvh bg-ground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       {/* Editorial panel: the verse the ministry stands on. Desktop only. */}
-      <aside className="relative hidden flex-col justify-between bg-[#0E0E10] border-r border-white/[0.07] p-12 text-white lg:flex xl:p-16">
+      <aside className="relative hidden flex-col justify-between bg-surface border-r border-line p-12 text-ink lg:flex xl:p-16">
         <div className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black">
+          <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
             <Sprout className="size-5" aria-hidden="true" />
           </span>
           <span className="display text-xl font-black">Grace Ledger</span>
         </div>
         <figure className="max-w-md space-y-6">
-          <p className="eyebrow !text-[#00F58A]">2 โครินธ์ 9:7</p>
+          <p className="text-xs font-semibold text-ink-3">2 โครินธ์ 9:7</p>
           <blockquote className="display text-4xl font-black leading-tight xl:text-6xl">
             “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
           </blockquote>
         </figure>
-        <p className="text-sm text-white/60">
+        <p className="text-sm text-ink-3">
           ระบบบัญชีการเงินคริสตจักร · เพื่อพันธกิจของพระเจ้า
         </p>
       </aside>
@@ -70,15 +70,15 @@ export default function Login() {
         <div className="w-full max-w-sm">
           <div className="mb-10 space-y-3">
             <div className="flex items-center gap-3 lg:hidden">
-              <span className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
                 <Sprout className="size-5" aria-hidden="true" />
               </span>
-              <span className="display text-xl font-black text-white">
+              <span className="display text-xl font-black text-ink">
                 Grace Ledger
               </span>
             </div>
-            <p className="eyebrow !text-[#00F58A]">Sign in</p>
-            <h1 className="display text-5xl font-black text-white">
+            <p className="text-xs font-semibold text-ink-3">Sign in</p>
+            <h1 className="display text-5xl font-black text-ink">
               เข้าสู่ระบบ
             </h1>
             <p className="text-sm text-white/60">
@@ -87,7 +87,7 @@ export default function Login() {
           </div>
 
           {state === "pending" || state === "disabled" ? (
-            <div className="space-y-4 rounded-[28px] border border-white/[0.07] bg-[#0E0E10] p-6">
+            <div className="space-y-4 rounded-[28px] border border-line bg-surface p-6">
               <p className="display text-xl font-black text-white">
                 {state === "pending"
                   ? "รอผู้ดูแลระบบอนุมัติ"
@@ -110,7 +110,7 @@ export default function Login() {
             <div className="space-y-4">
               <a
                 href="/api/auth/line/login"
-                className="flex min-h-16 w-full items-center justify-center gap-3 rounded-[28px] bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] px-4 text-lg font-black text-black shadow-[0_14px_36px_-10px_rgba(0,245,138,0.45)] hover:brightness-110 active:scale-[0.98] transition-all"
+                className="flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-[#06C755] hover:bg-[#05b34c] px-4 text-lg font-bold text-black active:scale-[0.98] transition-all"
               >
                 <LineMark />
                 เข้าสู่ระบบด้วย LINE

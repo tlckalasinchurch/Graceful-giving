@@ -156,9 +156,9 @@ export default function ChurchSetup() {
 
   return (
     <div className="min-h-dvh bg-paper">
-      <div className="mx-auto min-h-dvh max-w-[560px] overflow-x-hidden bg-paper pb-32 shadow-[0_0_40px_rgba(112,78,45,0.07)] lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border lg:border-line">
+      <div className="mx-auto min-h-dvh max-w-[560px] overflow-x-hidden bg-paper pb-32 lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border lg:border-line">
         {/* Header */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-paper-2 via-paper-2 to-paper px-5 pb-6 pt-5 sm:px-8">
+        <div className="relative overflow-hidden bg-paper px-5 pb-6 pt-5 sm:px-8 border-b border-line">
           <button
             onClick={skipSetup}
             aria-label="กลับหน้าหลัก"
@@ -192,7 +192,7 @@ export default function ChurchSetup() {
               className="h-2 overflow-hidden rounded-full bg-line"
             >
               <div
-                className="h-full rounded-full bg-gradient-to-r from-brand-ink to-brand transition-all duration-500"
+                className="h-full rounded-full bg-brand transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -219,7 +219,7 @@ export default function ChurchSetup() {
 
         {/* Step Card */}
         <div className="px-4 pt-4 sm:px-6">
-          <div className="rounded-2xl border border-line bg-surface px-5 py-6 shadow-[0_8px_24px_rgba(94,70,42,0.06)] sm:px-7">
+          <div className="rounded-2xl border border-line bg-surface px-5 py-6 sm:px-7">
             {/* Step Header */}
             <div className="mb-5 flex items-center gap-3">
               <span
@@ -278,7 +278,7 @@ export default function ChurchSetup() {
                     <span
                       className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold ${
                         done
-                          ? "bg-[#3F9156] text-white"
+                          ? "bg-brand text-black font-bold"
                           : active
                             ? "bg-brand-ink text-black"
                             : "bg-line text-ink-3"
@@ -320,7 +320,7 @@ export default function ChurchSetup() {
             {step < totalSteps ? (
               <button
                 onClick={next}
-                className="min-h-[48px] flex-[2] rounded-2xl bg-gradient-to-r from-brand-ink to-brand text-sm font-bold text-white shadow-[0_4px_14px_rgba(161,100,48,0.3)] hover:opacity-95 active:scale-[0.98] transition"
+                className="min-h-[48px] flex-[2] rounded-2xl bg-brand text-sm font-bold text-black hover:bg-brand-ink active:scale-[0.98] transition"
               >
                 ถัดไป →
               </button>
@@ -328,7 +328,7 @@ export default function ChurchSetup() {
               <button
                 onClick={handleFinish}
                 disabled={saving}
-                className="min-h-[48px] flex-[2] rounded-2xl bg-gradient-to-r from-[#2c7b4c] to-[#3a9560] text-sm font-bold text-white shadow-[0_4px_14px_rgba(44,123,76,0.3)] hover:opacity-95 active:scale-[0.98] transition disabled:opacity-60"
+                className="min-h-[48px] flex-[2] rounded-2xl bg-brand text-sm font-bold text-black hover:bg-brand-ink active:scale-[0.98] transition disabled:opacity-60"
               >
                 {saving ? "กำลังบันทึก..." : "✓ ยืนยันและเริ่มใช้งาน"}
               </button>
