@@ -30,7 +30,7 @@ function LineMark() {
 
 function GiveShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh bg-[#0B0D13] text-white">
+    <div className="min-h-dvh bg-ground text-ink">
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 px-[max(1.25rem,env(safe-area-inset-left))] pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
         {children}
       </main>
@@ -116,7 +116,7 @@ export default function Give() {
       ) : (
         <a
           href={GIVE_LOGIN_URL}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl bg-[#06C755] px-4 text-base font-bold text-black hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl bg-[#06C755] px-4 text-base font-bold text-black hover:brightness-95 focus-visible:ring-2 focus-visible:ring-brand"
         >
           <LineMark />
           เข้าสู่ระบบด้วย LINE

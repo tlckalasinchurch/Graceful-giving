@@ -552,21 +552,25 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setShowLineInfoModal(true)}
+            aria-label="LINE บอท"
             className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
             title="ข้อมูลการเชื่อมต่อ LINE และ QR Code"
           >
-            <QrCode className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">LINE บอท</span>
+            <QrCode className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>LINE บอท</span>
           </button>
 
           <button
             type="button"
             onClick={() => setLocation("/giving/station")}
+            aria-label="ป้าย QR หน้าห้อง"
             className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             title="เปิดป้าย QR Code สำหรับติดหน้าห้องและหน้าถวายอัตโนมัติ"
           >
-            <QrCode className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">ป้าย QR หน้าห้อง</span>
+            <QrCode className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>
+              ป้าย QR<span className="hidden sm:inline"> หน้าห้อง</span>
+            </span>
           </button>
 
           {/* 3. Manual Test Upload Button */}
@@ -1404,7 +1408,7 @@ export default function GivingInbox() {
                           currentSlip.status === "duplicate" ||
                           (currentSlip.source === "no_slip" && !confirmBank)
                         }
-                        className="min-h-11 w-full sm:w-auto px-7 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-sm shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="min-h-11 w-full sm:w-auto px-7 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                       >
                         {approveMutation.isPending ? (
                           <>
@@ -1497,7 +1501,7 @@ export default function GivingInbox() {
                   <img
                     src={uploadPreview}
                     alt="ตัวอย่างสลิป"
-                    className="max-h-48 mx-auto rounded-xl object-contain shadow-xs"
+                    className="max-h-48 mx-auto rounded-xl object-contain"
                   />
                   <p className="text-xs text-brand font-bold">
                     คลิกเพื่อเปลี่ยนรูปภาพ

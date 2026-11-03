@@ -767,7 +767,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {activeTab === "flow" && (
         <div className="max-w-md lg:max-w-5xl mx-auto">
           {/* Dark Mobile Station Shell */}
-          <div className="rounded-[36px] bg-[#050506] p-5 sm:p-8 text-white border border-white/[0.06] space-y-6 relative overflow-hidden">
+          <div className="rounded-[36px] bg-ground p-5 sm:p-8 text-white border border-line space-y-6 relative overflow-hidden">
             {/* Top Bar: TH Language Pill & Step Back Button */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
@@ -786,7 +786,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 <div className="w-11 h-11" />
               )}
 
-              <div className="w-11 h-11 rounded-full bg-paper-2 border border-line flex items-center justify-center text-xs font-extrabold text-white tracking-wider">
+              <div className="w-11 h-11 rounded-full bg-paper-2 border border-line flex items-center justify-center text-xs font-extrabold text-white">
                 TH
               </div>
             </div>
@@ -841,7 +841,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   className="lg:col-span-3"
                 />
 
-                {/* Big Orange Gradient CTA (Jam Now -> Give Now) */}
+                {/* Primary Give Now CTA */}
                 <StationHeroCTA
                   className="lg:col-span-6 pt-2"
                   headline="พร้อมถวายทรัพย์เลยไหม?"
@@ -875,7 +875,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
                 {/* Selection Status Card */}
                 <StationStepStatusCard
-                  eyebrow="สถานะการเข้าใช้งาน"
                   title="เลือกประเภทและยอดถวายที่ต้องการ"
                   updatedAtText={updatedStamp}
                 />
@@ -1281,25 +1280,24 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               submission &&
               (() => {
                 const outcome = describeOutcome(submission);
-                const toneStyle =
+                const toneColor =
                   outcome.tone === "success"
-                    ? "border-income text-income"
+                    ? "text-income"
                     : outcome.tone === "warning"
-                      ? "border-amber-500/40 text-amber-300"
-                      : "bg-rose-500/20 border-rose-500/30 text-rose-300";
+                      ? "text-amber-300"
+                      : "text-danger";
                 const Icon =
                   outcome.tone === "success" ? CheckCircle2 : AlertTriangle;
                 const slipAmount = outcome.slipAmount;
                 return (
                   <div
                     role={outcome.tone === "error" ? "alert" : "status"}
-                    className="rounded-[32px] bg-surface border border-line p-7 text-center space-y-5 animate-in zoom-in-95 duration-200"
+                    className="rounded-3xl bg-surface border border-line p-6 text-center space-y-4"
                   >
-                    <div
-                      className={`w-16 h-16 rounded-full border-2 mx-auto flex items-center justify-center ${toneStyle}`}
-                    >
-                      <Icon className="w-9 h-9" aria-hidden="true" />
-                    </div>
+                    <Icon
+                      className={`w-6 h-6 mx-auto ${toneColor}`}
+                      aria-hidden="true"
+                    />
 
                     <div className="space-y-1.5">
                       <h3 className="text-2xl font-extrabold text-white">
@@ -1414,7 +1412,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     type="text"
                     value={posterBrandHighlight}
                     onChange={e => setPosterBrandHighlight(e.target.value)}
-                    className="w-full rounded-xl border border-line px-3 py-2 font-bold text-[#EA580C]"
+                    className="w-full rounded-xl border border-line px-3 py-2 font-bold text-brand-ink"
                   />
                 </div>
               </div>
@@ -1447,7 +1445,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     type="text"
                     value={posterHeadlineOrange}
                     onChange={e => setPosterHeadlineOrange(e.target.value)}
-                    className="w-full rounded-xl border border-line px-3 py-2 font-bold text-[#EA580C]"
+                    className="w-full rounded-xl border border-line px-3 py-2 font-bold text-brand-ink"
                   />
                 </div>
               </div>
@@ -1588,7 +1586,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     type="text"
                     value={posterFooterOrange}
                     onChange={e => setPosterFooterOrange(e.target.value)}
-                    className="w-full rounded-xl border border-line px-3 py-2 font-bold text-[#EA580C]"
+                    className="w-full rounded-xl border border-line px-3 py-2 font-bold text-brand-ink"
                   />
                 </div>
               </div>
