@@ -26,7 +26,7 @@ function BalanceAmount({
   return (
     <span className={negative ? "text-rose-400" : "text-white"}>
       {negative && "−"}
-      <span className="mr-2 text-2xl font-semibold text-[#00F58A] sm:text-3xl">
+      <span className="mr-2 text-2xl font-semibold text-white/50 sm:text-3xl">
         ฿
       </span>
       {formatted.slice(0, dot)}
@@ -57,15 +57,9 @@ export function BalanceCard({
     >
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-3 py-1">
-            <span
-              className="size-2 rounded-full bg-[#00F58A]"
-              aria-hidden="true"
-            />
-            <h2 className="text-xs sm:text-sm font-bold text-white/80">
-              ยอดเงินคงเหลือรวม
-            </h2>
-          </div>
+          <h2 className="text-sm font-semibold text-white/75">
+            ยอดเงินคงเหลือรวม
+          </h2>
           {isBalanceLoading && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-lilac px-2.5 py-1 text-xs font-semibold text-tile-lilac-ink">
               <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
@@ -123,11 +117,11 @@ export function BalanceCard({
             กำลังตรวจสอบยอดเงินล่าสุด…
           </span>
         ) : isPositiveBalance ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00F58A]/15 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-[#00F58A]">
-            ขอบคุณพระเจ้าสำหรับทุกการถวาย ♥
+          <span className="text-sm text-white/60">
+            ขอบคุณพระเจ้าสำหรับทุกการถวาย
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-rose px-3.5 py-1.5 text-xs sm:text-sm font-bold text-tile-rose-ink">
+          <span className="text-sm font-medium text-danger">
             ยอดคงเหลือติดลบ — ควรตรวจสอบรายจ่าย
           </span>
         )}

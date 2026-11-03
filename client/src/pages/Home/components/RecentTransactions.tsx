@@ -1,4 +1,3 @@
-import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Link } from "wouter";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 
@@ -11,8 +10,6 @@ export interface TransactionItem {
   category: string;
   subCategory: string;
   amount: number;
-  tone: string;
-  icon: LucideIcon;
 }
 
 interface RecentTransactionsProps {
@@ -35,10 +32,9 @@ export function RecentTransactions({
         <h2 className="text-base font-bold text-ink">รายการล่าสุด</h2>
         <button
           onClick={onViewAll}
-          className="inline-flex min-h-10 items-center gap-1 rounded-full bg-tile-lilac/60 px-3 py-1 text-xs sm:text-sm font-bold text-brand-ink hover:bg-tile-lilac transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-11 px-2 text-sm font-semibold text-brand-ink hover:underline focus-visible:ring-2 focus-visible:ring-brand"
         >
-          <span>ดูทั้งหมด</span>
-          <ChevronRight className="size-4" aria-hidden="true" />
+          ดูทั้งหมด
         </button>
       </div>
 
@@ -49,20 +45,13 @@ export function RecentTransactions({
       ) : (
         <ul className="divide-y divide-line/60">
           {allTransactions.slice(0, 5).map(tx => {
-            const Icon = tx.icon;
             return (
               <li key={tx.id}>
                 <Link
                   href={`/transactions/${tx.id}`}
                   className="flex min-h-16 items-center justify-between gap-4 rounded-2xl px-3 py-3 hover:bg-paper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                 >
-                  <div className="flex min-w-0 items-center gap-3.5">
-                    <span
-                      className={`size-11 shrink-0 rounded-2xl flex items-center justify-center ${tx.tone}`}
-                      aria-hidden="true"
-                    >
-                      <Icon className="size-5" />
-                    </span>
+                  <div className="flex min-w-0 items-center">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-bold text-ink">
                         {tx.title}

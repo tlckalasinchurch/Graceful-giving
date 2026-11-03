@@ -38,7 +38,7 @@ export function PrimaryActions({
           className="flex min-h-14 items-center justify-center gap-2.5 rounded-[28px] border border-white/[0.07] bg-[#0E0E10] px-5 text-lg font-black text-white hover:border-white/25 active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-[#00F58A]"
           aria-label="บันทึกรายจ่าย"
         >
-          <ReceiptText className="size-5 text-[#FF6A00]" aria-hidden="true" />
+          <ReceiptText className="size-5 text-white/60" aria-hidden="true" />
           <span>บันทึกรายจ่าย</span>
         </button>
       )}

@@ -8,15 +8,12 @@ export function HeroSection() {
     >
       <div className="relative z-10 order-1 min-w-0 space-y-2.5">
         <h1 className="display text-3xl font-black text-white sm:text-6xl">
-          <span>Grace</span>{" "}
-          <span className="bg-gradient-to-r from-[#FF6A00] to-[#00F58A] bg-clip-text text-transparent">
-            Giving
-          </span>
+          <span>Grace</span> <span>Giving</span>
         </h1>
         <p className="text-sm font-medium text-white/75 sm:text-base">
           การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
         </p>
-        <p className="inline-flex flex-col gap-0.5 pt-0.5">
+        <p className="hidden flex-col gap-0.5 pt-0.5 sm:inline-flex">
           <span className="text-sm font-semibold text-white/90 sm:text-base">
             “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
           </span>

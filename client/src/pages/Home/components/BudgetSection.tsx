@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import type { RouterOutputs } from "@/lib/trpc";
 import {
   BudgetProgress,
@@ -41,10 +40,9 @@ export function BudgetSection({
         <h2 className="text-base font-bold text-ink">แผนการใช้จ่าย</h2>
         <button
           onClick={onOpenBudgets}
-          className="inline-flex min-h-10 items-center gap-1 rounded-full bg-tile-lilac/60 px-3 py-1 text-xs sm:text-sm font-bold text-brand-ink hover:bg-tile-lilac transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-11 px-2 text-sm font-semibold text-brand-ink hover:underline focus-visible:ring-2 focus-visible:ring-brand"
         >
-          <span>ดูงบประมาณ</span>
-          <ChevronRight className="size-4" aria-hidden="true" />
+          ดูงบประมาณ
         </button>
       </div>
 
