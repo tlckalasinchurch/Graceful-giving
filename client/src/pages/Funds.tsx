@@ -3,24 +3,10 @@ import { formatBaht } from "@/lib/format";
 import { useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Building,
-  CheckCircle2,
-  Cross,
-  DollarSign,
-  GraduationCap,
-  HeartHandshake,
-  Music,
-  Plus,
-  TrendingDown,
-  TrendingUp,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { MoneyDisplay } from "@/components/common/CommonUI";
+import { FundBreakdown, fundTone } from "./Home/components/FundBreakdown";
+import { fundShares } from "./Home/fundShares";
 import { NativeSelect } from "@/components/ui/native-select";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
@@ -72,12 +58,6 @@ export default function Funds() {
     return (accountsData ?? []).map((account: AccountItem) => ({
       ...account,
       code: `FD-${String(account.id).padStart(3, "0")}`,
-      icon:
-        account.type === "building"
-          ? Building
-          : account.type === "mission"
-            ? Cross
-            : Wallet,
       description: account.description || "รายละเอียดกองทุนยังไม่มีในระบบ",
       balance: Number(account.balance),
     }));
@@ -86,6 +66,24 @@ export default function Funds() {
   const totalFundsBalance = useMemo(() => {
     return fundsList.reduce((acc, curr) => acc + curr.balance, 0);
   }, [fundsList]);
+
+  // Every fund gets its share of the money held, so the bar and the rows agree.
+  const shareById = useMemo(() => {
+    const m = new Map<number, number>();
+    for (const row of fundShares(fundsList, fundsList.length + 1)) {
+      if (row.key.startsWith("fund-"))
+        m.set(Number(row.key.slice(5)), row.share);
+    }
+    return m;
+  }, [fundsList]);
+  const toneIndexById = useMemo(() => {
+    const m = new Map<number, number>();
+    fundShares(fundsList, 6).forEach((row, i) => {
+      if (row.key.startsWith("fund-")) m.set(Number(row.key.slice(5)), i);
+    });
+    return m;
+  }, [fundsList]);
+  const barRows = useMemo(() => fundShares(fundsList, 6), [fundsList]);
 
   const handleCreateFund = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +100,6 @@ export default function Funds() {
 
   return (
     <AppLayout
-      eyebrow="Funds"
       title="กองทุน"
       subtitle="แยกเงินถวายตามวัตถุประสงค์ เพื่อใช้ให้ตรงกับเป้าหมายของแต่ละกองทุน"
       action={
@@ -118,82 +115,84 @@ export default function Funds() {
       }
     >
       <div className="space-y-6">
-        {/* Overview */}
-        <div className="rounded-2xl border border-line bg-surface p-5">
-          <p className="text-sm font-medium text-ink-3">ยอดเงินรวมทุกกองทุน</p>
-          <div className="mt-1">
-            <MoneyDisplay amount={totalFundsBalance} size="xl" />
+        {/* Overview: the total, and the bar that shows where it sits */}
+        <section
+          aria-label="ยอดเงินรวมทุกกองทุน"
+          className="rounded-2xl border border-line bg-surface p-5 sm:p-6 space-y-4"
+        >
+          <div>
+            <p className="text-sm text-ink-2">ยอดเงินรวมทุกกองทุน</p>
+            <p
+              className={`money mt-1 text-3xl font-semibold ${totalFundsBalance < 0 ? "text-danger" : "text-ink"}`}
+            >
+              {formatBaht(totalFundsBalance)}
+            </p>
+            <p className="mt-1 text-xs text-ink-3">
+              จาก {fundsList.length} กองทุนที่เปิดใช้งาน
+            </p>
           </div>
-          <p className="mt-1 text-xs text-ink-3">
-            จาก {fundsList.length} กองทุนที่เปิดใช้งาน
-          </p>
-        </div>
+          <FundBreakdown rows={barRows} hidden={false} legend={false} />
+        </section>
 
-        {/* Funds Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {fundsList.length === 0 && (
-            <p className="md:col-span-2 lg:col-span-3 py-12 text-center text-sm text-ink-3 bg-surface rounded-2xl border border-dashed border-line">
+        {/* Funds: one divided list, name and type left, balance and share right */}
+        <section
+          aria-label="รายการกองทุน"
+          className="rounded-2xl border border-line bg-surface"
+        >
+          {fundsList.length === 0 ? (
+            <p className="m-5 rounded-lg border border-dashed border-line px-4 py-3 text-sm text-ink-2">
               ยังไม่มีข้อมูลกองทุนจากระบบ
             </p>
-          )}
-          {fundsList.map(f => {
-            const Icon = f.icon;
-
-            return (
-              <div
-                key={f.id}
-                className="bg-surface rounded-2xl border border-line p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
-                onClick={() => setLocation(`/funds/${f.id}`)}
-              >
-                <div className="space-y-4">
-                  {/* Top Bar */}
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-paper-2 flex items-center justify-center text-ink-2 group-hover:scale-105 transition-transform">
-                      <Icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <span className="text-xs font-mono text-ink-3 bg-paper px-2.5 py-1 rounded-full border border-line">
-                      {f.code}
-                    </span>
-                  </div>
-
-                  {/* Title & Desc */}
-                  <div>
-                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
-                      {f.name}
-                    </h3>
-                    <p className="text-xs text-ink-3 line-clamp-2 mt-1 leading-relaxed">
-                      {f.description}
-                    </p>
-                  </div>
-
-                  {/* Balance Display */}
-                  <div className="pt-2">
-                    <p className="text-xs text-ink-3">ยอดคงเหลือสุทธิ</p>
-                    <div
-                      className={`text-2xl font-bold tabular-nums ${f.balance < 0 ? "text-danger" : "text-ink"}`}
+          ) : (
+            <ul className="divide-y divide-line">
+              {fundsList.map(f => {
+                const share = shareById.get(f.id);
+                return (
+                  <li key={f.id}>
+                    <button
+                      type="button"
+                      onClick={() => setLocation(`/funds/${f.id}`)}
+                      className="flex min-h-16 w-full items-center gap-4 px-5 py-3.5 text-left hover:bg-paper focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                     >
-                      {formatBaht(f.balance)}
-                    </div>
-                  </div>
-
-                  {/* Fund Type Badge */}
-                  <div className="pt-2 border-t border-line/40 flex items-center justify-between text-xs text-ink-3">
-                    <span>ประเภทกองทุน</span>
-                    <span className="font-semibold text-ink-2">
-                      {FUND_TYPE_LABELS[f.type] || f.type}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Bottom Action */}
-                <div className="pt-5 mt-4 border-t border-line/50 flex items-center justify-between text-xs font-semibold text-ink-2 group-hover:text-primary">
-                  <span>ดูสเตทเมนต์และรายละเอียด</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                      <span
+                        aria-hidden="true"
+                        className={`size-2 shrink-0 rounded-full ${
+                          toneIndexById.has(f.id)
+                            ? fundTone(toneIndexById.get(f.id) ?? 3)
+                            : "border border-line"
+                        }`}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-ink">
+                          {f.name}
+                        </span>
+                        <span className="block truncate text-xs text-ink-3">
+                          {FUND_TYPE_LABELS[f.type] || f.type} · {f.code}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-right">
+                        <span
+                          className={`money block text-base font-semibold ${f.balance < 0 ? "text-danger" : "text-ink"}`}
+                        >
+                          {formatBaht(f.balance)}
+                        </span>
+                        <span className="money block text-xs text-ink-3">
+                          {share === undefined
+                            ? "—"
+                            : `${share}% ของเงินทั้งหมด`}
+                        </span>
+                      </span>
+                      <ChevronRight
+                        className="size-4 shrink-0 text-ink-3"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
 
         {/* Create Fund Modal */}
         {showNewFundModal && (
