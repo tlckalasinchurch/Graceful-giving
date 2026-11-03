@@ -10,13 +10,7 @@ import {
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
-import {
-  Download,
-  HandHeart,
-  Plus,
-  ReceiptText,
-  type LucideIcon,
-} from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { csvCell, formatThaiDate, THAI_LOCALE } from "@/lib/format";
 import {
@@ -39,8 +33,6 @@ interface TransactionItem {
   categoryLabel: string;
   amount: number;
   status: string;
-  icon: LucideIcon;
-  tone: string;
 }
 
 export default function Transactions() {
@@ -96,8 +88,6 @@ export default function Transactions() {
           amount: Number(o.amount),
           // Recorded ledger offerings are active entries in the books.
           status: "completed",
-          icon: HandHeart,
-          tone: "bg-tile-mint text-tile-mint-ink",
         });
       });
     }
@@ -115,8 +105,6 @@ export default function Transactions() {
           categoryLabel: expenseCategoryLabel(e.category),
           amount: Number(e.amount),
           status: e.status || "unknown",
-          icon: ReceiptText,
-          tone: "bg-tile-sand text-tile-sand-ink",
         });
       });
     }
@@ -212,7 +200,6 @@ export default function Transactions() {
   return (
     <AppLayout
       activeRoute="/transactions"
-      eyebrow="Ledger"
       title="รายการธุรกรรม"
       subtitle="บันทึกการรับถวายและค่าใช้จ่ายทั้งหมดของคริสตจักร"
       action={
@@ -227,7 +214,7 @@ export default function Transactions() {
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="min-h-11 px-4 rounded-2xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold shadow-[0_1px_3px_hsla(20,80%,30%,0.3)] flex items-center gap-1.5"
+            className="min-h-11 px-4 rounded-2xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold flex items-center gap-1.5"
           >
             <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
             <span>บันทึกใหม่</span>
@@ -235,36 +222,45 @@ export default function Transactions() {
         </div>
       }
     >
-      {/* 1. Summary Cards (รายรับ, รายจ่าย, ยอดสุทธิ) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-        <div className="bg-surface rounded-3xl p-5 space-y-1 fintech-card">
-          <span className="text-sm font-medium text-ink-2">รายรับทั้งหมด</span>
-          <div>
-            <MoneyDisplay amount={totalIncome} type="income" size="lg" />
-          </div>
-          <p className="text-xs text-ink-3">
-            {filtered.filter(t => t.type === "income").length} รายการ
-          </p>
-        </div>
-
-        <div className="bg-surface rounded-3xl p-5 space-y-1 fintech-card">
-          <span className="text-sm font-medium text-ink-2">รายจ่ายทั้งหมด</span>
-          <div>
-            <MoneyDisplay amount={totalExpense} type="expense" size="lg" />
-          </div>
-          <p className="text-xs text-ink-3">
-            {filtered.filter(t => t.type === "expense").length} รายการ
-          </p>
-        </div>
-
-        <div className="bg-surface rounded-3xl p-5 space-y-1 fintech-card">
-          <span className="text-sm font-medium text-ink-2">ยอดสุทธิ</span>
-          <div>
-            <MoneyDisplay amount={netTotal} type="neutral" size="lg" />
-          </div>
-          <p className="text-xs text-ink-3">คงเหลือในรอบที่เลือก</p>
-        </div>
-      </div>
+      {/* 1. Summary: one card split by hairlines, label over figure */}
+      <section
+        aria-label="สรุปรายการที่เลือก"
+        className="bg-surface rounded-3xl px-5 fintech-card"
+      >
+        <dl className="grid grid-cols-1 divide-y divide-line/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          {[
+            {
+              label: "รายรับทั้งหมด",
+              amount: totalIncome,
+              type: "income" as const,
+              note: `${filtered.filter(t => t.type === "income").length} รายการ`,
+            },
+            {
+              label: "รายจ่ายทั้งหมด",
+              amount: totalExpense,
+              type: "expense" as const,
+              note: `${filtered.filter(t => t.type === "expense").length} รายการ`,
+            },
+            {
+              label: "ยอดสุทธิ",
+              amount: netTotal,
+              type: "neutral" as const,
+              note: "คงเหลือในรอบที่เลือก",
+            },
+          ].map(c => (
+            <div
+              key={c.label}
+              className="flex items-center justify-between gap-3 py-3.5 sm:block sm:px-6 sm:py-5 sm:first:pl-0 sm:last:pr-0"
+            >
+              <dt className="text-sm font-medium text-ink-2">{c.label}</dt>
+              <dd className="text-right sm:mt-1 sm:text-left">
+                <MoneyDisplay amount={c.amount} type={c.type} size="lg" />
+                <p className="text-xs text-ink-3">{c.note}</p>
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
       {/* 2. Filter Bar */}
       <div className="bg-surface rounded-3xl p-4 md:p-5 fintech-card space-y-3">
@@ -317,7 +313,7 @@ export default function Transactions() {
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="border-b border-line text-ink-2 font-semibold">
+              <thead className="border-b border-line text-ink-3 font-medium">
                 <tr>
                   <th scope="col" className="p-4">
                     วันที่
@@ -353,13 +349,7 @@ export default function Transactions() {
                         {tx.title}
                       </Link>
                     </th>
-                    <td className="p-4">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${tx.tone}`}
-                      >
-                        {tx.categoryLabel}
-                      </span>
-                    </td>
+                    <td className="p-4 text-ink-2">{tx.categoryLabel}</td>
                     <td className="p-4 text-ink-2">{tx.fund}</td>
                     <td className="p-4 text-right">
                       <MoneyDisplay
@@ -381,12 +371,11 @@ export default function Transactions() {
           <div className="md:hidden">
             {feedByDay.map(day => (
               <section key={day.label} aria-label={day.label}>
-                <h3 className="sticky top-0 z-10 bg-surface/95 px-4 pb-1 pt-4 text-xs font-semibold text-ink-3 backdrop-blur-sm">
+                <h3 className="sticky top-0 z-10 bg-surface px-4 pb-1 pt-4 text-xs font-semibold text-ink-3">
                   {day.label}
                 </h3>
                 <ul className="divide-y divide-line">
                   {day.items.map(tx => {
-                    const Icon = tx.icon;
                     return (
                       <li key={tx.id}>
                         <Link
@@ -394,13 +383,7 @@ export default function Transactions() {
                           aria-label={`ดูรายละเอียด ${tx.title} วันที่ ${day.label} จำนวนเงิน ${tx.amount} บาท`}
                           className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 active:bg-ground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                         >
-                          <div className="flex min-w-0 items-center gap-3">
-                            <span
-                              className={`size-11 shrink-0 rounded-2xl flex items-center justify-center ${tx.tone}`}
-                              aria-hidden="true"
-                            >
-                              <Icon className="size-5" />
-                            </span>
+                          <div className="flex min-w-0 items-center">
                             <div className="min-w-0">
                               <p className="truncate text-sm font-semibold text-ink">
                                 {tx.title}
