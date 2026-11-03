@@ -85,7 +85,6 @@ export default function Members() {
 
   return (
     <AppLayout
-      eyebrow="Members"
       title="สมาชิกคริสตจักร"
       subtitle="รายชื่อ ข้อมูลติดต่อ และสถานะของสมาชิก"
       action={
@@ -109,7 +108,7 @@ export default function Members() {
         {showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-line bg-surface p-6 shadow-sm"
+            className="rounded-2xl border border-line bg-surface p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-ink">เพิ่มสมาชิกใหม่</h2>
@@ -219,12 +218,12 @@ export default function Members() {
                 key={member.id}
                 type="button"
                 onClick={() => setLocation(`/members/${member.id}`)}
-                className="rounded-2xl border border-line bg-surface p-5 text-left shadow-sm hover:bg-paper"
+                className="rounded-2xl border border-line bg-surface p-5 text-left hover:bg-paper"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-ink">{member.name}</h2>
                   <span
-                    className={`rounded-full px-2 py-1 text-[11px] ${member.status === "active" ? "bg-[hsl(132_38%_13%)] text-ink" : "bg-paper text-ink-2"}`}
+                    className={`rounded-full border border-line px-2 py-1 text-[11px] font-medium ${member.status === "active" ? "bg-surface text-ink" : "bg-paper text-ink-3"}`}
                   >
                     {MEMBER_STATUS_LABEL[member.status] ?? member.status}
                   </span>

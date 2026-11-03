@@ -74,7 +74,6 @@ export default function Ministries() {
 
   return (
     <AppLayout
-      eyebrow="Ministries"
       title="พันธกิจและฝ่ายงาน"
       subtitle="ทีมรับใช้และฝ่ายงานของคริสตจักร"
       action={
@@ -100,7 +99,7 @@ export default function Ministries() {
         {canManage && showCreate && (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-line bg-surface p-6 shadow-sm"
+            className="rounded-2xl border border-line bg-surface p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-bold text-ink">เพิ่มฝ่ายงานใหม่</h2>
@@ -153,7 +152,7 @@ export default function Ministries() {
             </div>
             <button
               disabled={createMinistry.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-income px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 min-h-11 rounded-xl bg-brand hover:bg-brand-ink px-5 py-2 text-sm font-bold text-black disabled:opacity-50"
             >
               {createMinistry.isPending ? "กำลังบันทึก…" : "บันทึกฝ่ายงาน"}
             </button>
@@ -186,14 +185,14 @@ export default function Ministries() {
                 key={ministry.id}
                 type="button"
                 onClick={() => setLocation(`/ministries/${ministry.id}`)}
-                className="rounded-2xl border border-line bg-surface p-5 text-left shadow-sm hover:bg-paper"
+                className="rounded-2xl border border-line bg-surface p-5 text-left hover:bg-paper"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-ink">{ministry.name}</h2>
                   <span
                     className={`rounded-full px-2 py-1 text-[11px] ${
                       ministry.status === "active"
-                        ? "bg-[hsl(132_38%_13%)] text-ink"
+                        ? "bg-surface text-ink"
                         : "bg-paper text-ink-2"
                     }`}
                   >
