@@ -141,15 +141,14 @@ export default function NewOffering() {
   return (
     <AppLayout
       activeRoute="/offerings"
-      eyebrow="New offering"
       title="บันทึกถวาย"
       subtitle="บันทึกรายการเงินถวายเข้าสู่บัญชีและกองทุนคริสตจักร"
       action={<BackLink label="ดูรายการทั้งหมด" onClick={goBack} />}
     >
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Hero Card with offering_box.jpg */}
-        <div className="bg-surface rounded-3xl p-6 fintech-card flex items-center gap-5">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-surface p-1 border border-line shadow-xs shrink-0">
+        <div className="bg-surface rounded-2xl border border-line p-6 flex items-center gap-5">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-surface p-1 border border-line shrink-0">
             <Illustration
               src="/illustrations/offering_box.jpg"
               alt="กล่องถวาย"
@@ -188,7 +187,7 @@ export default function NewOffering() {
                   aria-pressed={category === cat.id}
                   className={`min-h-11 px-3 py-2.5 rounded-2xl border text-sm text-center ${
                     category === cat.id
-                      ? "bg-tile-peach border-brand text-tile-peach-ink font-semibold"
+                      ? "bg-paper-2 border-brand text-brand-ink font-semibold"
                       : "bg-surface border-field text-ink font-medium hover:bg-ground"
                   }`}
                 >
@@ -272,7 +271,7 @@ export default function NewOffering() {
                   aria-pressed={method === m}
                   className={`min-h-11 py-2.5 px-3 rounded-2xl border text-sm ${
                     method === m
-                      ? "bg-tile-peach border-brand text-tile-peach-ink font-semibold"
+                      ? "bg-paper-2 border-brand text-brand-ink font-semibold"
                       : "bg-surface border-field text-ink font-medium hover:bg-ground"
                   }`}
                 >
@@ -357,7 +356,7 @@ export default function NewOffering() {
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base shadow-[0_1px_3px_hsla(20,80%,30%,0.3)] flex items-center justify-center gap-2"
+            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base flex items-center justify-center gap-2"
           >
             <HandCoins className="w-5 h-5" />
             <span>
@@ -372,7 +371,7 @@ export default function NewOffering() {
       {/* Success Celebration Dialog */}
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
         <DialogContent className="max-w-sm bg-surface border-line rounded-2xl p-6 text-center text-ink space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-line shadow-xs p-1 bg-tile-mint">
+          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-line p-1 bg-surface">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
               alt="ถวายสำเร็จ"
@@ -416,7 +415,7 @@ export default function NewOffering() {
               setIsSuccessOpen(false);
               setLocation("/offerings");
             }}
-            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base shadow-[0_1px_3px_hsla(20,80%,30%,0.3)]"
+            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base"
           >
             ดูรายการถวายทั้งหมด
           </button>

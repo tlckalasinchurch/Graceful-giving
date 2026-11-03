@@ -103,7 +103,6 @@ export default function NewWithdrawal() {
 
   return (
     <AppLayout
-      eyebrow="Withdrawal"
       title="ยื่นคำขอเบิกเงิน"
       subtitle="คำขอจะรอการพิจารณาจากศิษยาภิบาลหรือเหรัญญิกในหน้าการอนุมัติ"
     >
@@ -111,7 +110,7 @@ export default function NewWithdrawal() {
         <BackLink label={`กลับ${returnLabel}`} onClick={goBack} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-surface rounded-3xl p-6 md:p-8 fintech-card space-y-5">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-ink">
                 วัตถุประสงค์การเบิก <span className="text-danger">*</span>
@@ -215,7 +214,7 @@ export default function NewWithdrawal() {
             <button
               type="submit"
               disabled={isSubmitting || funds.length === 0}
-              className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm transition-all flex items-center gap-2 disabled:opacity-50"
             >
               <Banknote className="w-4 h-4" />
               <span>
@@ -228,7 +227,7 @@ export default function NewWithdrawal() {
         {showSuccessModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-surface rounded-2xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl">
-              <div className="w-16 h-16 rounded-full bg-tile-mint flex items-center justify-center text-ink-2 mx-auto">
+              <div className="w-16 h-16 rounded-full border border-line bg-surface flex items-center justify-center text-ink-2 mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-ink-2" />
               </div>
               <div className="space-y-2">
@@ -249,7 +248,7 @@ export default function NewWithdrawal() {
                     setDetails("");
                     setUrgency("normal");
                   }}
-                  className="w-full min-h-12 rounded-2xl bg-brand text-black font-semibold text-base hover:bg-brand-ink shadow-[0_1px_3px_hsla(20,80%,30%,0.3)]"
+                  className="w-full min-h-12 rounded-2xl bg-brand text-black font-semibold text-base hover:bg-brand-ink"
                 >
                   ส่งคำขออีกรายการ
                 </button>

@@ -132,21 +132,20 @@ export default function Offerings() {
   return (
     <AppLayout
       activeRoute="/offerings"
-      eyebrow="Offerings"
       title="ถวายทรัพย์"
       subtitle="บันทึกและตรวจสอบรายการเงินถวายทุกประเภทของคริสตจักร"
       action={
         <div className="flex items-center gap-2">
           <button
             onClick={exportCSV}
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2/70 text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2/70 text-xs font-bold transition-all flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />
             <span>ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/giving/station")}
-            className="px-3.5 py-2 rounded-2xl bg-[#18120E] hover:bg-[#271D17] text-[#F97316] border border-[#3E2C23] text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+            className="px-3.5 py-2 rounded-2xl bg-paper hover:bg-paper-2 text-brand-ink border border-line text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <QrCode className="w-3.5 h-3.5" />
             <span>ป้าย QR & จุดถวาย</span>
@@ -164,7 +163,7 @@ export default function Offerings() {
       }
     >
       {/* 1. Header Banner with 3D Offering Box Illustration */}
-      <div className="bg-surface rounded-2xl p-5 sm:p-7 border border-line shadow-xs flex flex-col sm:flex-row items-center justify-between gap-5">
+      <div className="bg-surface rounded-2xl p-5 sm:p-7 border border-line flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-2 text-center sm:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-line text-xs font-bold text-ink-2">
             <Sparkles className="w-3.5 h-3.5 text-brand" />
@@ -178,7 +177,7 @@ export default function Offerings() {
           </p>
         </div>
 
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-surface p-1.5 border border-line shadow-xs shrink-0">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-surface p-1.5 border border-line shrink-0">
           <Illustration
             src="/illustrations/offering_box.jpg"
             alt="กล่องถวาย"
@@ -234,7 +233,7 @@ export default function Offerings() {
               className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-paper/70 cursor-pointer transition-colors"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-12 h-12 rounded-2xl bg-[hsl(132_38%_13%)] text-income flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-12 h-12 rounded-2xl bg-surface border border-line text-income flex items-center justify-center shrink-0">
                   <HandCoins className="w-6 h-6 stroke-[2.2]" />
                 </div>
                 <div className="min-w-0">
@@ -269,7 +268,7 @@ export default function Offerings() {
                       notes: o.notes || undefined,
                     });
                   }}
-                  className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-paper hover:bg-paper-2 hover:border-brand text-ink-2 border border-line transition-colors shadow-2xs"
+                  className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-paper hover:bg-paper-2 hover:border-brand text-ink-2 border border-line transition-colors"
                   title="พิมพ์ใบเสร็จเงินถวาย"
                 >
                   <Printer className="w-4 h-4 text-brand" />
