@@ -68,10 +68,10 @@ export function BankSignersSection() {
   }, [usersQuery.data, signers]);
 
   return (
-    <div className="bg-surface rounded-3xl p-6 md:p-8 space-y-6 fintech-card">
+    <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6">
       <div className="space-y-1.5">
         <h3 className="display text-base font-bold text-ink flex items-center gap-2.5">
-          <span className="size-9 rounded-2xl bg-tile-lilac text-brand-ink flex items-center justify-center">
+          <span className="size-9 rounded-xl border border-line bg-paper text-brand flex items-center justify-center">
             <UserCheck className="w-5 h-5" />
           </span>
           ผู้มีอำนาจลงนามบัญชีธนาคาร
@@ -85,7 +85,7 @@ export function BankSignersSection() {
 
       {/* Warning when signers condition is incomplete */}
       {showWarning && (
-        <div className="rounded-2xl bg-tile-sand p-4 text-xs text-tile-sand-ink flex items-start gap-3">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-300 flex items-start gap-3">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div>
             <p className="font-bold">เงื่อนไขการลงนามยังไม่สมบูรณ์</p>
@@ -119,7 +119,7 @@ export function BankSignersSection() {
                 className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-tile-lilac flex items-center justify-center font-bold text-xs text-brand-ink">
+                  <div className="w-10 h-10 rounded-xl border border-line bg-surface flex items-center justify-center font-bold text-xs text-ink">
                     {s.name?.slice(0, 1) || "U"}
                   </div>
                   <div>
@@ -128,7 +128,7 @@ export function BankSignersSection() {
                         {s.name || `ผู้ใช้ #${s.userId}`}
                       </span>
                       {s.isRequired && (
-                        <span className="rounded-full bg-tile-mint px-2.5 py-0.5 text-[11px] font-bold text-tile-mint-ink">
+                        <span className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-[11px] font-semibold text-ink-2">
                           ต้องลงนามทุกครั้ง
                         </span>
                       )}
@@ -155,7 +155,7 @@ export function BankSignersSection() {
                           }
                         }}
                         disabled={setRequiredSignerMutation.isPending}
-                        className="px-3.5 py-2 rounded-2xl border border-line bg-surface hover:bg-tile-lilac/50 text-xs font-bold text-ink-2 transition-colors disabled:opacity-50"
+                        className="px-3.5 py-2 rounded-2xl border border-line bg-surface hover:bg-paper-2 text-xs font-bold text-ink-2 transition-colors disabled:opacity-50"
                       >
                         ตั้งเป็นผู้ที่ต้องลงนามทุกครั้ง
                       </button>
@@ -173,7 +173,7 @@ export function BankSignersSection() {
                         }
                       }}
                       disabled={removeSignerMutation.isPending}
-                      className="px-3.5 py-2 rounded-2xl bg-tile-rose hover:bg-rose-500/25 text-tile-rose-ink text-xs font-bold transition-colors disabled:opacity-50"
+                      className="px-3.5 py-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/15 text-danger text-xs font-bold transition-colors disabled:opacity-50"
                     >
                       นำออก
                     </button>
@@ -221,7 +221,7 @@ export function BankSignersSection() {
                   });
                 }
               }}
-              className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-black text-xs font-bold transition-all shadow-sm shrink-0"
+              className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-black text-xs font-bold transition-all shrink-0"
             >
               {addSignerMutation.isPending ? "กำลังเพิ่ม..." : "เพิ่มผู้ลงนาม"}
             </button>

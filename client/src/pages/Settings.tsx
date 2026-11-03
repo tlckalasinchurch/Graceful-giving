@@ -356,7 +356,7 @@ export default function Settings() {
   if (!isSuperAdmin(user)) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto my-12 bg-surface rounded-2xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
+        <div className="max-w-xl mx-auto my-12 bg-surface rounded-2xl p-8 border border-line text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-rose-500/15 border-2 border-rose-500/30 mx-auto flex items-center justify-center text-rose-400">
             <Lock className="w-8 h-8" />
           </div>
@@ -374,7 +374,7 @@ export default function Settings() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand text-black font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand text-black font-bold text-sm hover:bg-brand-ink transition-all"
             >
               กลับสู่หน้าหลัก
             </Link>
@@ -386,18 +386,17 @@ export default function Settings() {
 
   return (
     <AppLayout
-      eyebrow="Settings"
       title="ตั้งค่าคริสตจักร"
       subtitle="ข้อมูลพื้นฐาน สิทธิ์ผู้ใช้งาน หมวดหมู่บัญชี และช่องทางรับเงินถวาย"
     >
       <div className="max-w-4xl space-y-6">
         {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 rounded-2xl bg-surface p-1.5 fintech-card overflow-x-auto no-scrollbar touch-pan-x">
+        <div className="flex items-center gap-1.5 rounded-2xl bg-surface p-1.5 border border-line overflow-x-auto no-scrollbar touch-pan-x">
           <button
             onClick={() => setActiveTab("church")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "church"
-                ? "bg-tile-lilac text-brand-ink shadow-xs"
+                ? "bg-paper-2 text-ink"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -408,7 +407,7 @@ export default function Settings() {
             onClick={() => setActiveTab("roles")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "roles"
-                ? "bg-tile-lilac text-brand-ink shadow-xs"
+                ? "bg-paper-2 text-ink"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -419,7 +418,7 @@ export default function Settings() {
             onClick={() => setActiveTab("categories")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "categories"
-                ? "bg-tile-lilac text-brand-ink shadow-xs"
+                ? "bg-paper-2 text-ink"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -430,7 +429,7 @@ export default function Settings() {
             onClick={() => setActiveTab("payment")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "payment"
-                ? "bg-tile-lilac text-brand-ink shadow-xs"
+                ? "bg-paper-2 text-ink"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -441,7 +440,7 @@ export default function Settings() {
             onClick={() => setActiveTab("audit")}
             className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "audit"
-                ? "bg-tile-lilac text-brand-ink shadow-xs"
+                ? "bg-paper-2 text-ink"
                 : "text-ink-3 hover:text-ink"
             }`}
           >
@@ -453,7 +452,7 @@ export default function Settings() {
         {/* Tab 1: Church Profile Form */}
         {activeTab === "church" && (
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5">
               <h3 className="text-base font-bold text-ink flex items-center gap-2">
                 <Building className="w-5 h-5 text-brand" />
                 ข้อมูลทั่วไปของคริสตจักร
@@ -549,7 +548,7 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm transition-all flex items-center gap-2 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>
@@ -560,7 +559,7 @@ export default function Settings() {
 
         {/* Account and sign out */}
         {activeTab === "church" && (
-          <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-line bg-surface p-6 md:p-8">
             <h3 className="text-base font-bold text-ink">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-ink-2">
@@ -600,7 +599,7 @@ export default function Settings() {
         {activeTab === "roles" && (
           <div className="space-y-6">
             {/* User Management Table */}
-            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line/60 pb-5">
                 <div>
                   <h3 className="text-lg font-bold text-ink flex items-center gap-2">
@@ -668,7 +667,7 @@ export default function Settings() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-line/70 text-xs font-bold text-ink-3 uppercase">
+                      <tr className="border-b border-line/70 text-xs font-bold text-ink-3">
                         <th className="pb-3 px-3">ผู้ใช้งาน</th>
                         <th className="pb-3 px-3">อีเมล</th>
                         <th className="pb-3 px-3">เข้าใช้ล่าสุด</th>
@@ -776,7 +775,7 @@ export default function Settings() {
                                       onChange={e =>
                                         handleRoleChange(u.id, e.target.value)
                                       }
-                                      className="font-semibold shadow-sm hover:border-brand focus:ring-2 focus:ring-brand/20 transition-all"
+                                      className="font-semibold hover:border-brand focus:ring-2 focus:ring-brand/20 transition-all"
                                     >
                                       <option value="SUPER_ADMIN">
                                         👑 ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
@@ -832,7 +831,7 @@ export default function Settings() {
                                               userId: u.id,
                                             });
                                         }}
-                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-tile-rose"
+                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-rose-500/10"
                                       >
                                         ลบ
                                       </button>
@@ -879,7 +878,7 @@ export default function Settings() {
             </div>
 
             {/* Structure and Appointed Roles Reference */}
-            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6">
               <div>
                 <h3 className="text-lg font-bold text-ink flex items-center gap-2">
                   <Shield className="w-5 h-5 text-emerald-400" />
@@ -942,7 +941,7 @@ export default function Settings() {
 
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
-          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5">
             <h3 className="text-base font-bold text-ink flex items-center gap-2">
               <Banknote className="w-5 h-5 text-amber-400" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
@@ -992,14 +991,14 @@ export default function Settings() {
         {/* Tab 4: Payment */}
         {activeTab === "payment" && (
           <div className="space-y-6">
-            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5 shadow-sm">
+            <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5">
               <h3 className="text-base font-bold text-ink flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-brand" />
                 บัญชีรับเงินถวาย
               </h3>
 
               <div className="p-4 rounded-2xl bg-paper-2/50 border border-line flex flex-col sm:flex-row items-center gap-6">
-                <div className="w-14 h-14 bg-surface rounded-2xl border border-line shadow-inner flex items-center justify-center shrink-0">
+                <div className="w-14 h-14 bg-surface rounded-2xl border border-line flex items-center justify-center shrink-0">
                   <CreditCard className="w-7 h-7 text-brand" />
                 </div>
 
@@ -1110,7 +1109,7 @@ export default function Settings() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                    className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm transition-all flex items-center gap-2 disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
                     <span>
@@ -1126,7 +1125,7 @@ export default function Settings() {
 
         {/* Tab 5: Audit Log */}
         {activeTab === "audit" && (
-          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6 shadow-sm">
+          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line/60 pb-5">
               <div>
                 <h3 className="text-lg font-bold text-ink flex items-center gap-2">
@@ -1234,7 +1233,7 @@ export default function Settings() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-line/70 font-bold text-ink-3 uppercase">
+                        <tr className="border-b border-line/70 font-bold text-ink-3">
                           <th className="pb-3 px-3">วัน-เวลา</th>
                           <th className="pb-3 px-3">ผู้ดำเนินการ (Actor)</th>
                           <th className="pb-3 px-3">กิจกรรม (Action)</th>
