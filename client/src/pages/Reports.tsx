@@ -121,7 +121,6 @@ export default function Reports() {
   return (
     <AppLayout
       activeRoute="/reports"
-      eyebrow="Reports"
       title="รายงานการเงิน"
       subtitle="สรุปจากรายการที่บันทึกไว้จริงในระบบ"
       action={
@@ -159,7 +158,7 @@ export default function Reports() {
                 onClick={() => setTab(id)}
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                   tab === id
-                    ? "bg-brand text-black shadow-sm"
+                    ? "border border-line bg-paper-2 text-ink"
                     : "border border-line bg-surface text-ink-2 hover:bg-paper"
                 }`}
               >
@@ -195,7 +194,7 @@ export default function Reports() {
             onRetry={() => summaryQuery.refetch()}
           />
         ) : tab === "funds" ? (
-          <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
+          <section className="overflow-hidden rounded-2xl border border-line bg-surface">
             <h2 className="border-b border-line p-4 font-bold text-ink">
               ยอดคงเหลือแต่ละกองทุน
             </h2>
@@ -203,7 +202,7 @@ export default function Reports() {
               <EmptyState
                 title="ยังไม่มีกองทุนในระบบ"
                 description="สร้างกองทุนในหน้ากองทุนก่อน จึงจะมียอดคงเหลือให้รายงาน"
-                className="border-0 shadow-none"
+                className="border-0"
               />
             ) : (
               <>
@@ -239,38 +238,44 @@ export default function Reports() {
         ) : (
           <>
             {/* Totals */}
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-line bg-surface p-5 shadow-2xs">
+            <section className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-line rounded-2xl border border-line bg-surface">
+              <div className="p-5 flex items-baseline justify-between sm:block">
                 <p className="text-sm text-ink-2">รายรับรวม</p>
-                <MoneyDisplay
-                  amount={summary!.totalIncome}
-                  type="income"
-                  size="lg"
-                />
+                <div className="text-right sm:text-left sm:mt-1">
+                  <MoneyDisplay
+                    amount={summary!.totalIncome}
+                    type="income"
+                    size="lg"
+                  />
+                </div>
               </div>
-              <div className="rounded-2xl border border-line bg-surface p-5 shadow-2xs">
+              <div className="p-5 flex items-baseline justify-between sm:block">
                 <p className="text-sm text-ink-2">รายจ่ายรวม</p>
-                <MoneyDisplay
-                  amount={summary!.totalExpense}
-                  type="expense"
-                  size="lg"
-                />
+                <div className="text-right sm:text-left sm:mt-1">
+                  <MoneyDisplay
+                    amount={summary!.totalExpense}
+                    type="expense"
+                    size="lg"
+                  />
+                </div>
               </div>
-              <div className="rounded-2xl border border-line bg-surface p-5 shadow-2xs">
+              <div className="p-5 flex items-baseline justify-between sm:block">
                 <p className="text-sm text-ink-2">คงเหลือสุทธิ</p>
-                <MoneyDisplay
-                  amount={summary!.net}
-                  type={summary!.net >= 0 ? "income" : "expense"}
-                  size="lg"
-                />
-                <p className="mt-1 text-sm text-ink-2">
-                  {summary!.transactionCount} รายการ
-                </p>
+                <div className="text-right sm:text-left sm:mt-1">
+                  <MoneyDisplay
+                    amount={summary!.net}
+                    type={summary!.net >= 0 ? "income" : "expense"}
+                    size="lg"
+                  />
+                  <p className="mt-1 text-sm text-ink-2">
+                    {summary!.transactionCount} รายการ
+                  </p>
+                </div>
               </div>
             </section>
 
             {/* Statement by category */}
-            <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
+            <section className="overflow-hidden rounded-2xl border border-line bg-surface">
               <h2 className="border-b border-line p-4 font-bold text-ink">
                 สรุปตามหมวดหมู่
               </h2>
@@ -304,7 +309,7 @@ export default function Reports() {
                           <td className="p-4 text-right tabular-nums text-ink-2">
                             {row.count}
                           </td>
-                          <td className="p-4 text-right font-bold tabular-nums text-[hsl(140_50%_72%)]">
+                          <td className="p-4 text-right font-bold tabular-nums text-income">
                             {fmtBaht(row.total)}
                           </td>
                         </tr>
@@ -331,14 +336,14 @@ export default function Reports() {
                           <td className="p-4 text-right tabular-nums text-ink-2">
                             {row.count}
                           </td>
-                          <td className="p-4 text-right font-bold tabular-nums text-[hsl(3_71%_72%)]">
+                          <td className="p-4 text-right font-bold tabular-nums text-ink">
                             {fmtBaht(row.total)}
                           </td>
                         </tr>
                       ))
                     )}
 
-                    <tr className="border-t-2 border-line bg-[hsl(132_38%_13%)]/40">
+                    <tr className="border-t-2 border-line bg-paper">
                       <td className="p-4 font-bold text-ink">คงเหลือสุทธิ</td>
                       <td className="p-4" />
                       <td className="p-4 text-right font-bold tabular-nums text-ink">
@@ -351,18 +356,18 @@ export default function Reports() {
             </section>
 
             {/* Six month trend */}
-            <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm">
+            <section className="rounded-2xl border border-line bg-surface p-6">
               <div className="mb-4 flex flex-col gap-2 border-b border-line/60 pb-4 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="font-bold text-ink">
                   เปรียบเทียบ 6 เดือนล่าสุด
                 </h2>
                 <div className="flex items-center gap-4 text-sm font-bold text-ink">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[#34d399]" />
+                    <span className="h-3 w-3 rounded-md bg-income" />
                     รายรับ
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-[#fb7185]" />
+                    <span className="h-3 w-3 rounded-md bg-danger" />
                     รายจ่าย
                   </span>
                 </div>
@@ -385,14 +390,14 @@ export default function Reports() {
                           style={{
                             height: `${(month.income / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[#34d399] sm:w-8"
+                          className="w-4 rounded-t-lg bg-income sm:w-8"
                           title={`รายรับ ${fmtBaht(month.income)}`}
                         />
                         <div
                           style={{
                             height: `${(month.expense / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-[#fb7185] sm:w-8"
+                          className="w-4 rounded-t-lg bg-danger sm:w-8"
                           title={`รายจ่าย ${fmtBaht(month.expense)}`}
                         />
                       </div>
