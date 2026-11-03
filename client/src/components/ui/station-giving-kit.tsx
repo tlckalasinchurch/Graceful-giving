@@ -114,7 +114,7 @@ export function StationCubeLogo({
           </span>
         </div>
         {subtitle && (
-          <p className="mt-1.5 text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-stone-300 uppercase">
+          <p className="mt-1.5 text-xs font-medium text-stone-300">
             {subtitle}
           </p>
         )}
@@ -141,7 +141,7 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2",
+        "rounded-[28px] bg-surface border border-line px-6 py-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2",
         className
       )}
     >
@@ -163,7 +163,7 @@ export function StationProfileCard({
       </div>
 
       <div className="text-right shrink-0 ml-auto">
-        <div className="text-xs font-medium text-stone-400">{metricLabel}</div>
+        <div className="text-xs font-medium text-ink-3">{metricLabel}</div>
         <div className="text-base sm:text-xl font-extrabold text-white tabular-nums">
           {metricValue}
         </div>
@@ -188,25 +188,20 @@ export function StationStatusCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 space-y-2.5",
+        "rounded-[28px] bg-surface border border-line px-6 py-5 space-y-2.5",
         className
       )}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="w-4 h-4 rounded-full border-2 border-[hsl(27_40%_24%)] flex items-center justify-center">
-            <span className="w-2 h-2 rounded-full bg-[#FB923C]" />
-          </span>
-          <span className="text-sm font-bold text-[#FDBA74]">{label}</span>
+          <span className="text-sm font-semibold text-ink-2">{label}</span>
         </div>
 
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#241E1C] border border-white/12">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-paper-2 border border-line">
           <span
             className={cn(
               "w-3 h-3 rounded-full",
-              isAvailable
-                ? "bg-[#22C55E] shadow-[0_0_8px_#22C55E]"
-                : "bg-amber-500"
+              isAvailable ? "bg-income" : "bg-amber-500"
             )}
           />
           <span className="text-xs sm:text-sm font-bold text-white">
@@ -215,7 +210,7 @@ export function StationStatusCard({
         </div>
       </div>
 
-      <p className="text-sm font-medium text-stone-400">{statusDetail}</p>
+      <p className="text-sm text-ink-2">{statusDetail}</p>
     </div>
   );
 }
@@ -223,7 +218,6 @@ export function StationStatusCard({
 // ─── 3. Station Hero Orange Gradient CTA (Jam Now -> Give Now) ───────────────
 
 export function StationHeroCTA({
-  eyebrow = "เริ่มใช้งาน",
   headline = "พร้อมถวายทรัพย์เลยไหม?",
   buttonTitle = "Give Now",
   buttonSubtitle = "เริ่มถวายทันที",
@@ -231,7 +225,6 @@ export function StationHeroCTA({
   onClick,
   className,
 }: {
-  eyebrow?: string;
   headline?: string;
   buttonTitle?: string;
   buttonSubtitle?: string;
@@ -242,7 +235,6 @@ export function StationHeroCTA({
   return (
     <div className={cn("space-y-3", className)}>
       <div className="space-y-0.5">
-        <div className="text-sm font-bold text-[#FB923C]">{eyebrow}</div>
         <h3 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.05]">
           {headline}
         </h3>
@@ -255,10 +247,10 @@ export function StationHeroCTA({
       >
         <div className="flex items-center gap-4 min-w-0">
           {/* Dark rounded-2xl icon box with vertical wave bars */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[22px] bg-[#2B180A] flex items-center justify-center shrink-0 shadow-inner">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[22px] bg-black/15 flex items-center justify-center shrink-0">
             <svg
               viewBox="0 0 40 40"
-              className="w-9 h-9 text-[#FB923C]"
+              className="w-9 h-9 text-black"
               aria-hidden="true"
             >
               <line
@@ -310,22 +302,22 @@ export function StationHeroCTA({
           </div>
 
           <div className="min-w-0">
-            <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+            <div className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight leading-tight">
               {buttonTitle}
             </div>
-            <div className="text-sm sm:text-base font-bold text-white/90 mt-0.5">
+            <div className="text-sm sm:text-base font-bold text-black/80 mt-0.5">
               {buttonSubtitle}
             </div>
           </div>
         </div>
 
-        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 border-white/60 flex items-center justify-center text-white shrink-0 group-hover:translate-x-1 transition-transform">
+        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 border-black/40 flex items-center justify-center text-black shrink-0 group-hover:translate-x-1 transition-transform">
           <ArrowRight className="w-5 h-5" />
         </div>
       </button>
 
       {helperText && (
-        <p className="text-xs sm:text-sm text-stone-400 text-center pt-1">
+        <p className="text-xs sm:text-sm text-ink-2 text-center pt-1">
           {helperText}
         </p>
       )}
@@ -402,14 +394,12 @@ export function StationCountdownCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 flex items-center justify-between gap-4",
+        "rounded-[28px] bg-surface border border-line px-6 py-5 flex items-center justify-between gap-4",
         className
       )}
     >
       <div className="space-y-1">
-        <div className="text-xs sm:text-sm font-bold text-[#FDBA74]">
-          {label}
-        </div>
+        <div className="text-xs sm:text-sm font-medium text-ink-2">{label}</div>
         {/* role="timer" is not announced every second. The status below
             changes only twice, at one minute left and at zero. */}
         <div
@@ -435,7 +425,7 @@ export function StationCountdownCard({
         <button
           type="button"
           onClick={extend}
-          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-stone-300 inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-line text-xs font-semibold text-ink-2 inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
         >
           <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
           <span>ต่อเวลา</span>
@@ -459,14 +449,12 @@ export function StationStepStatusCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-[#0E0E10] border border-white/[0.07] px-6 py-5 space-y-1.5",
+        "rounded-[28px] bg-surface border border-line px-6 py-5 space-y-1.5",
         className
       )}
     >
-      <div className="text-xs sm:text-sm font-bold text-[#FDBA74]">
-        {eyebrow}
-      </div>
-      <div className="text-lg sm:text-xl font-bold text-slate-200">{title}</div>
+      <div className="text-xs sm:text-sm font-medium text-ink-2">{eyebrow}</div>
+      <div className="text-lg sm:text-xl font-semibold text-ink">{title}</div>
       {updatedAtText && (
         <div className="text-xs sm:text-sm text-ink-3">{updatedAtText}</div>
       )}
@@ -502,13 +490,13 @@ export function StationOfferingPackageCard({
       className={cn(
         "rounded-[28px] bg-[#0E0E10] border p-6 sm:p-7 space-y-4 transition-all",
         selected
-          ? "border-[#00F58A] ring-2 ring-[#00F58A]/25"
-          : "border-white/[0.07] hover:border-white/20",
+          ? "border-white/40 bg-paper"
+          : "border-line hover:border-white/20",
         className
       )}
     >
       <div className="space-y-1">
-        <h4 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        <h4 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
           {title}
         </h4>
         <p className="text-sm sm:text-base font-medium text-ink-3">
@@ -525,10 +513,10 @@ export function StationOfferingPackageCard({
               onClick={() => onSelectAmount(preset)}
               aria-pressed={amountThb === preset}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-[#2DD4BF]",
+                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand",
                 amountThb === preset
-                  ? "bg-[#00F58A]/15 border-[#00F58A] text-[#00F58A]"
-                  : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+                  ? "bg-paper-2 border-white/40 text-ink"
+                  : "bg-surface border-line text-ink-2 hover:bg-paper"
               )}
             >
               {preset.toLocaleString()} THB
@@ -537,7 +525,7 @@ export function StationOfferingPackageCard({
         </div>
       )}
 
-      <div className="text-3xl sm:text-4xl font-black text-[#FFC400] tabular-nums">
+      <div className="text-3xl sm:text-4xl font-bold text-white tabular-nums">
         {amountThb.toLocaleString()} THB
       </div>
 
@@ -577,7 +565,7 @@ export function StationUnlockConfirmCard({
   return (
     <div
       className={cn(
-        "rounded-[32px] bg-[#0E0E10] border border-white/[0.07] p-6 sm:p-8 text-center space-y-5",
+        "rounded-[32px] bg-surface border border-line p-6 sm:p-8 text-center space-y-5",
         className
       )}
     >
@@ -585,7 +573,7 @@ export function StationUnlockConfirmCard({
         <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           {title}
         </h3>
-        <p className="text-sm sm:text-base text-stone-300/90 leading-relaxed max-w-md mx-auto">
+        <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-md mx-auto">
           {description}
         </p>
       </div>
