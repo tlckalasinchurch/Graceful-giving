@@ -1,4 +1,3 @@
-import { HandHeart, ReceiptText, Scale } from "lucide-react";
 import type { ReactNode } from "react";
 import { formatAmount } from "@/lib/format";
 
@@ -13,33 +12,25 @@ interface FinancialSummaryRowProps {
   isPositiveNet: boolean;
 }
 
-function SummaryCard({
+/** One card split by hairlines: label over figure, no icons. On a phone each
+ *  cell is a row with the label left and the figure right. */
+function Cell({
   label,
-  icon,
-  tile,
   amount,
   footnote,
 }: {
   label: string;
-  icon: ReactNode;
-  tile: string;
   amount: ReactNode;
   footnote: ReactNode;
 }) {
   return (
-    <article className="min-w-0 rounded-3xl bg-surface p-5 sm:p-6 fintech-card flex items-start gap-4 transition-transform hover:-translate-y-0.5">
-      <span
-        className={`size-12 shrink-0 rounded-2xl flex items-center justify-center shadow-xs ${tile}`}
-        aria-hidden="true"
-      >
-        {icon}
-      </span>
-      <div className="min-w-0 flex-1 space-y-1">
-        <h3 className="text-xs sm:text-sm font-bold text-ink-2">{label}</h3>
+    <div className="flex min-w-0 items-center justify-between gap-3 py-3.5 sm:block sm:px-6 sm:py-5 sm:first:pl-0 sm:last:pr-0">
+      <h3 className="text-xs font-bold text-ink-2 sm:text-sm">{label}</h3>
+      <div className="text-right sm:mt-1 sm:text-left">
         {amount}
         <p className="text-xs font-medium text-ink-3">{footnote}</p>
       </div>
-    </article>
+    </div>
   );
 }
 
@@ -59,13 +50,13 @@ export function FinancialSummaryRow({
     sign: string
   ): ReactNode =>
     isBalanceLoading ? (
-      <div className="h-8 w-28 rounded-2xl bg-paper animate-pulse" />
+      <div className="ml-auto h-7 w-28 rounded-xl bg-paper animate-pulse sm:ml-0" />
     ) : (
       <p
-        className={`display money text-2xl font-bold leading-tight tracking-tight ${tone}`}
+        className={`display money text-xl font-bold leading-tight tracking-tight sm:text-2xl ${tone}`}
       >
         {showBalance && value !== undefined
-          ? `${sign}฿\u202F${formatAmount(Math.abs(value), 0)}`
+          ? `${sign}฿ ${formatAmount(Math.abs(value), 0)}`
           : "—"}
       </p>
     );
@@ -73,36 +64,31 @@ export function FinancialSummaryRow({
   return (
     <section
       aria-label="สรุปตัวเลขการเงินรายเดือน"
-      style={{ animationDelay: "160ms" }}
-      className="animate-fade-up grid grid-cols-1 sm:grid-cols-3 gap-4 w-full"
+      className="rounded-3xl bg-surface px-5 fintech-card sm:px-6"
     >
-      <SummaryCard
-        label="รายรับเดือนนี้"
-        tile="bg-tile-mint text-tile-mint-ink"
-        icon={<HandHeart className="size-5" />}
-        amount={figure(monthlyIncome, "text-income", "+")}
-        footnote={incomeNote}
-      />
-      <SummaryCard
-        label="รายจ่ายเดือนนี้"
-        tile="bg-tile-rose text-tile-rose-ink"
-        icon={<ReceiptText className="size-5" />}
-        amount={figure(monthlyExpense, "text-ink", "")}
-        footnote={expenseNote}
-      />
-      <SummaryCard
-        label="คงเหลือสุทธิเดือนนี้"
-        tile="bg-tile-sky text-tile-sky-ink"
-        icon={<Scale className="size-5" />}
-        amount={figure(
-          netMonthly,
-          isPositiveNet ? "text-ink" : "text-danger",
-          isPositiveNet ? "" : "−"
-        )}
-        footnote={
-          isPositiveNet ? "รายรับมากกว่ารายจ่าย" : "รายจ่ายมากกว่ารายรับ"
-        }
-      />
+      <div className="grid grid-cols-1 divide-y divide-line/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <Cell
+          label="รายรับเดือนนี้"
+          amount={figure(monthlyIncome, "text-income", "+")}
+          footnote={incomeNote}
+        />
+        <Cell
+          label="รายจ่ายเดือนนี้"
+          amount={figure(monthlyExpense, "text-ink", "")}
+          footnote={expenseNote}
+        />
+        <Cell
+          label="คงเหลือสุทธิเดือนนี้"
+          amount={figure(
+            netMonthly,
+            isPositiveNet ? "text-ink" : "text-danger",
+            isPositiveNet ? "" : "−"
+          )}
+          footnote={
+            isPositiveNet ? "รายรับมากกว่ารายจ่าย" : "รายจ่ายมากกว่ารายรับ"
+          }
+        />
+      </div>
     </section>
   );
 }

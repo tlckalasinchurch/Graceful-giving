@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
-import { HandHeart, ReceiptText } from "lucide-react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -27,12 +26,12 @@ import {
   type TransactionItem,
 } from "./Home/components/RecentTransactions";
 import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
-import { formatThaiDateTime } from "@/lib/format";
+import { formatThaiDate } from "@/lib/format";
 import { monthDelta } from "./Home/summaryFormat";
 
 // ─── Formatting helpers ──────────────────────────────────────────────────────
 
-const fmtThaiDate = (d: Date | string) => formatThaiDateTime(d);
+const fmtThaiDate = (d: Date | string) => formatThaiDate(d);
 
 // ─── Balance count-up (snappy and instant) ───────────────────────────────────
 function useCountUp(target: number, durationMs = 200): number {
@@ -244,8 +243,6 @@ export default function Home() {
           category: o.category,
           subCategory: "รายรับ",
           amount: Number(o.amount),
-          tone: "bg-tile-mint text-tile-mint-ink",
-          icon: HandHeart,
         });
       });
     }
@@ -260,8 +257,6 @@ export default function Home() {
           category: e.category,
           subCategory: expenseCategoryLabel(e.category),
           amount: Number(e.amount),
-          tone: "bg-tile-sand text-tile-sand-ink",
-          icon: ReceiptText,
         });
       });
     }

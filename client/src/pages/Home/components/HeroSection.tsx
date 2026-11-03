@@ -16,7 +16,7 @@ export function HeroSection() {
         <p className="text-sm font-medium text-white/75 sm:text-base">
           การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
         </p>
-        <p className="inline-flex flex-col gap-0.5 pt-0.5">
+        <p className="hidden flex-col gap-0.5 pt-0.5 sm:inline-flex">
           <span className="text-sm font-semibold text-white/90 sm:text-base">
             “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
           </span>
