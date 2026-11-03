@@ -9,13 +9,7 @@ import {
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
-import {
-  ArrowRightLeft,
-  Download,
-  HandHeart,
-  ReceiptText,
-  Wallet,
-} from "lucide-react";
+import { ArrowRightLeft, Download, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import {
   expenseCategoryLabel,
@@ -158,7 +152,7 @@ export default function FundDetail() {
             FD-{String(fund.id).padStart(3, "0")}
           </span>
         </div>
-        <section className="bg-paper-2 border border-line rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
+        <section className="bg-paper-2 border border-line rounded-2xl p-6 md:p-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-2">
               <StatusBadge
@@ -193,26 +187,30 @@ export default function FundDetail() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-surface p-4 rounded-2xl border border-line/80">
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-line rounded-2xl border border-line bg-surface">
+            <div className="p-4 flex items-baseline justify-between sm:block">
               <p className="text-xs text-ink-3 font-medium">ยอดคงเหลือสุทธิ</p>
-              <MoneyDisplay amount={balance} size="xl" />
-              <p className="text-[11px] text-ink-3 mt-1">
-                ยอดจริงจากบัญชีกองทุน
-              </p>
+              <div className="text-right sm:text-left sm:mt-1">
+                <MoneyDisplay amount={balance} size="xl" />
+                <p className="text-[11px] text-ink-3 mt-1">
+                  ยอดจริงจากบัญชีกองทุน
+                </p>
+              </div>
             </div>
-            <div className="bg-surface p-4 rounded-2xl border border-line/80">
+            <div className="p-4 flex items-baseline justify-between sm:block">
               <p className="text-xs text-ink-3 font-medium">ประเภทกองทุน</p>
-              <p className="text-2xl font-bold text-ink mt-1">
-                {FUND_TYPE_LABELS[fund.type] || fund.type}
-              </p>
-              <p className="text-[11px] text-ink-3 mt-1">
-                รายการเคลื่อนไหวในระบบ {fundTransactions.length} รายการ
-              </p>
+              <div className="text-right sm:text-left sm:mt-1">
+                <p className="text-2xl font-bold text-ink">
+                  {FUND_TYPE_LABELS[fund.type] || fund.type}
+                </p>
+                <p className="text-[11px] text-ink-3 mt-1">
+                  รายการเคลื่อนไหวในระบบ {fundTransactions.length} รายการ
+                </p>
+              </div>
             </div>
           </div>
         </section>
-        <section className="bg-surface rounded-2xl border border-line p-6 shadow-sm">
+        <section className="bg-surface rounded-2xl border border-line p-6">
           <div className="flex items-center gap-2 mb-4">
             <Wallet className="w-5 h-5 text-brand" />
             <h2 className="text-base font-bold text-ink">
@@ -223,7 +221,6 @@ export default function FundDetail() {
             <EmptyState
               title="ยังไม่มีข้อมูลกิจกรรม"
               description="ยังไม่มีรายการถวายหรือรายจ่ายที่ผูกกับกองทุนนี้"
-              className="border-dashed shadow-none"
             />
           ) : (
             <div className="divide-y divide-line/60">
@@ -233,28 +230,13 @@ export default function FundDetail() {
                   onClick={() => setLocation(`/transactions/${tx.id}`)}
                   className="py-3.5 px-2 flex items-center justify-between gap-4 hover:bg-paper/60 rounded-xl cursor-pointer transition-colors"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${
-                        tx.type === "income"
-                          ? "bg-tile-mint text-tile-mint-ink"
-                          : "bg-tile-sand text-tile-sand-ink"
-                      }`}
-                    >
-                      {tx.type === "income" ? (
-                        <HandHeart className="size-5" />
-                      ) : (
-                        <ReceiptText className="size-5" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-ink truncate">
-                        {tx.title}
-                      </p>
-                      <p className="text-xs text-ink-3">
-                        {formatThaiDate(tx.date)} · {tx.categoryLabel}
-                      </p>
-                    </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-ink truncate">
+                      {tx.title}
+                    </p>
+                    <p className="text-xs text-ink-3">
+                      {formatThaiDate(tx.date)} · {tx.categoryLabel}
+                    </p>
                   </div>
                   <div className="shrink-0 text-right">
                     <MoneyDisplay
