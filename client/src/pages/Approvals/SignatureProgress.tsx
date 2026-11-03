@@ -41,25 +41,25 @@ export function SignatureProgress({
       <h4 className="display text-sm font-bold text-ink">ลงนามโดยผู้มีอำนาจ</h4>
 
       {signatures.length > 0 && (
-        <ul className="space-y-2">
+        <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
           {signatures.map(sig => (
             <li
               key={sig.userId}
-              className="flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-2xl bg-surface px-3.5 py-2.5 border border-line/60 text-sm"
+              className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-3.5 py-2.5 text-sm"
             >
               <span className="font-bold text-ink">
                 {sig.name || `ผู้ใช้ #${sig.userId}`}
               </span>
               {sig.wasRequiredSigner && (
-                <span className="rounded-full bg-tile-lilac px-2.5 py-0.5 text-[11px] font-bold text-tile-lilac-ink">
+                <span className="rounded-full border border-line bg-paper px-2.5 py-0.5 text-[11px] font-medium text-ink-2">
                   ต้องลงนามทุกครั้ง
                 </span>
               )}
               <span
                 className={
                   sig.decision === "approved"
-                    ? "rounded-full bg-tile-mint px-2.5 py-0.5 text-xs font-bold text-tile-mint-ink"
-                    : "rounded-full bg-tile-rose px-2.5 py-0.5 text-xs font-bold text-tile-rose-ink"
+                    ? "text-xs font-bold text-ink"
+                    : "text-xs font-bold text-danger"
                 }
               >
                 {sig.decision === "approved" ? "ลงนามแล้ว" : "ปฏิเสธ"}
@@ -78,24 +78,24 @@ export function SignatureProgress({
       )}
 
       {approval.outcome === "approved" && (
-        <p className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-bold text-tile-mint-ink">
+        <p className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold text-ink">
           ครบตามเงื่อนไขธนาคาร
         </p>
       )}
       {approval.outcome === "rejected" && (
-        <p className="inline-flex items-center rounded-full bg-tile-rose px-3 py-1 text-xs font-bold text-tile-rose-ink">
+        <p className="inline-flex items-center rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-bold text-danger">
           ถูกปฏิเสธ คำขอนี้ไปไม่ถึงการจ่ายเงิน
         </p>
       )}
       {approval.outcome === "pending" && (
         <p className="flex flex-wrap items-center gap-2 text-xs">
           {!approval.requiredSignerApproved && (
-            <span className="inline-flex items-center rounded-full bg-tile-peach px-3 py-1 font-bold text-tile-peach-ink">
+            <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-bold text-brand-ink">
               รอศิษยาภิบาลลงนาม
             </span>
           )}
           {approval.approvedCount < MIN_APPROVALS && (
-            <span className="inline-flex items-center rounded-full bg-tile-sky px-3 py-1 font-bold text-tile-sky-ink">
+            <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-bold text-ink-2">
               รออีก {MIN_APPROVALS - approval.approvedCount} คน
             </span>
           )}
