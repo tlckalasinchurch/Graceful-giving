@@ -122,7 +122,7 @@ export default function MemberDetail() {
         ) : (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8"
+            className="rounded-2xl border border-line bg-surface p-6 md:p-8"
           >
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
@@ -222,7 +222,7 @@ export default function MemberDetail() {
             </div>
             <button
               disabled={update.isPending}
-              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-income px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand hover:bg-brand-ink px-5 py-2 text-sm font-bold text-black disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}

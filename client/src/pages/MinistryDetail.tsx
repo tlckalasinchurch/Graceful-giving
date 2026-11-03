@@ -135,7 +135,7 @@ export default function MinistryDetail() {
         ) : canManage ? (
           <form
             onSubmit={submit}
-            className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8"
+            className="rounded-2xl border border-line bg-surface p-6 md:p-8"
           >
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -152,7 +152,7 @@ export default function MinistryDetail() {
                   type="button"
                   disabled={update.isPending}
                   onClick={() => update.mutate({ id, status: "active" })}
-                  className="min-h-11 rounded-2xl border border-[hsl(106_40%_24%)] bg-[hsl(132_38%_13%)] px-4 py-2 text-sm font-bold text-[hsl(140_50%_72%)] disabled:opacity-50"
+                  className="min-h-11 rounded-2xl border border-line bg-surface hover:bg-paper-2 px-4 py-2 text-sm font-bold text-ink disabled:opacity-50"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -219,20 +219,20 @@ export default function MinistryDetail() {
 
             <button
               disabled={update.isPending}
-              className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-income px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand hover:bg-brand-ink px-5 py-2 text-sm font-bold text-black disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
             </button>
           </form>
         ) : (
-          <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
+          <section className="rounded-2xl border border-line bg-surface p-6 md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h1 className="text-2xl font-bold text-ink">{query.data.name}</h1>
               <span
                 className={`rounded-full px-2.5 py-1 text-[11px] ${
                   query.data.status === "active"
-                    ? "bg-[hsl(132_38%_13%)] text-ink"
+                    ? "bg-surface text-ink"
                     : "bg-paper text-ink-2"
                 }`}
               >
