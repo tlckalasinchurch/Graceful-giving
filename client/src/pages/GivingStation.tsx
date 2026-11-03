@@ -701,9 +701,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {/* ── Mode Switcher Bar (Hidden when printing poster) ── */}
       <div
         className={`rounded-2xl p-2 border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden ${
-          stationOnly
-            ? "bg-white/5 border-white/10"
-            : "bg-surface border-line shadow-2xs"
+          stationOnly ? "bg-white/5 border-white/10" : "bg-surface border-line"
         }`}
       >
         {!stationOnly && (
@@ -713,7 +711,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               onClick={() => setActiveTab("flow")}
               className={`min-h-11 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "flow"
-                  ? "bg-[#18120E] text-[#F97316] shadow-sm"
+                  ? "bg-paper-2 text-ink"
                   : "text-ink-2 hover:bg-paper"
               }`}
             >
@@ -726,7 +724,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               onClick={() => setActiveTab("poster")}
               className={`min-h-11 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "poster"
-                  ? "bg-[#F97316] text-white shadow-sm"
+                  ? "bg-paper-2 text-ink"
                   : "text-ink-2 hover:bg-paper"
               }`}
             >
@@ -750,9 +748,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 aria-current={shownStep === n ? "step" : undefined}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
                   shownStep === n
-                    ? "bg-[#F97316] text-white"
+                    ? "bg-paper-2 text-ink border border-white/30"
                     : stationOnly
-                      ? "bg-white/10 text-stone-300"
+                      ? "bg-white/10 text-ink-2"
                       : "bg-paper text-ink-3"
                 }`}
               >
@@ -788,7 +786,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 <div className="w-11 h-11" />
               )}
 
-              <div className="w-11 h-11 rounded-full bg-[#241B16] border border-white/15 flex items-center justify-center text-xs font-extrabold text-white tracking-wider">
+              <div className="w-11 h-11 rounded-full bg-paper-2 border border-line flex items-center justify-center text-xs font-extrabold text-white tracking-wider">
                 TH
               </div>
             </div>
@@ -871,7 +869,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             {/* ── STEP 2: Countdown + Offering Packages (Adapted from Image 3) ── */}
             {shownStep === 2 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in fade-in duration-200">
-                <div className="lg:col-span-2 text-xl font-black text-white tracking-tight px-1">
+                <div className="lg:col-span-2 text-xl font-bold text-white tracking-tight px-1">
                   GraceBox Station · {churchQuery.data?.name || "Sanctuary"}
                 </div>
 
@@ -883,10 +881,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 />
 
                 {/* Fund Selector */}
-                <div className="lg:col-span-2 rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-5 space-y-1">
+                <div className="lg:col-span-2 rounded-[28px] bg-surface border border-line p-5 space-y-1">
                   <label
                     htmlFor="station-fund"
-                    className="text-xs font-bold text-[#FDBA74] block"
+                    className="text-xs font-bold text-ink-2 block"
                   >
                     เข้ากองทุนคริสตจักร
                   </label>
@@ -894,7 +892,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     id="station-fund"
                     value={selectedFundId}
                     onChange={e => setSelectedFundId(e.target.value)}
-                    className="w-full min-h-10 rounded-xl bg-[#161B26] border border-white/15 px-3 py-2 text-xs font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                    className="w-full min-h-10 rounded-xl bg-paper-2 border border-line px-3 py-2 text-xs font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                   >
                     {funds.length === 0 ? (
                       <option value="">กองทุนทั่วไปของคริสตจักร</option>
@@ -921,7 +919,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     type="button"
                     onClick={handleGoToSummary}
                     disabled={effectiveAmount === null}
-                    className="w-full min-h-12 rounded-2xl bg-brand text-black font-extrabold text-sm disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                    className="w-full min-h-12 rounded-2xl bg-brand text-black font-extrabold text-sm disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                   >
                     ดูสรุปการถวาย
                   </button>
@@ -933,8 +931,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             {shownStep === 3 && (
               <div className="space-y-5 animate-in fade-in duration-200">
                 {/* Summary Pill */}
-                <div className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-5 space-y-3">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#FDBA74]">
+                <div className="rounded-[28px] bg-surface border border-line p-5 space-y-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-ink-2">
                     <span>สรุปรายการถวายทรัพย์</span>
                     <button
                       type="button"
@@ -953,7 +951,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           : offeringCategoryLabel(selectedCategory)}
                       </div>
                       {giveLines.length >= 2 && (
-                        <ul className="mt-1 space-y-0.5 text-xs text-stone-300">
+                        <ul className="mt-1 space-y-0.5 text-xs text-ink-2">
                           {parseDrafts(giveLines).map(l => (
                             <li key={l.category} className="tabular-nums">
                               {offeringCategoryLabel(l.category)}{" "}
@@ -965,13 +963,13 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           ))}
                         </ul>
                       )}
-                      <div className="text-xs text-stone-400">
+                      <div className="text-xs text-ink-3">
                         กองทุน:{" "}
                         {funds.find(f => f.id === effectiveFundId)?.name ||
                           "กองทุนหลักคริสตจักร"}
                       </div>
                     </div>
-                    <div className="text-4xl font-black text-[#00F58A] tabular-nums">
+                    <div className="text-4xl font-bold text-white tabular-nums">
                       {effectiveAmount === null
                         ? "—"
                         : `${effectiveAmount.toLocaleString()} THB`}
@@ -982,9 +980,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 {/* Has the donor paid yet? */}
                 <section
                   aria-label="สถานะการโอนเงิน"
-                  className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 space-y-3"
+                  className="rounded-[28px] bg-surface border border-line p-4 space-y-3"
                 >
-                  <h3 className="text-xs font-bold text-[#FDBA74]">
+                  <h3 className="text-xs font-bold text-ink-2">
                     โอนเงินแล้วหรือยัง?
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
@@ -999,17 +997,17 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         type="button"
                         aria-pressed={transferState === value}
                         onClick={() => setTransferState(value)}
-                        className={`min-h-11 rounded-2xl border text-sm font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF] ${
+                        className={`min-h-11 rounded-2xl border text-sm font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-brand ${
                           transferState === value
-                            ? "border-[#2DD4BF] bg-[#14B8A6]/20 text-[#5EEAD4]"
-                            : "border-white/15 bg-white/5 text-stone-300 hover:bg-white/10"
+                            ? "border-white/40 bg-paper-2 text-ink"
+                            : "border-white/15 bg-white/5 text-ink-2 hover:bg-white/10"
                         }`}
                       >
                         {label}
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-stone-400 leading-relaxed">
+                  <p className="text-xs text-ink-3 leading-relaxed">
                     {transferState === "not_yet"
                       ? "โอนตามบัญชีหรือ QR ด้านล่าง แล้วกลับมาที่หน้านี้เพื่อแนบสลิปยืนยันยอด"
                       : "แนบสลิปและตรวจรายการด้านล่างเพื่อยืนยันยอดที่โอน"}
@@ -1021,17 +1019,17 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     {payee ? (
                       <section
                         aria-label="บัญชีรับถวาย"
-                        className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 flex items-center justify-between gap-3 text-xs"
+                        className="rounded-[28px] bg-surface border border-line p-4 flex items-center justify-between gap-3 text-xs"
                       >
                         <div className="space-y-0.5 min-w-0">
-                          <div className="text-stone-400">
+                          <div className="text-ink-3">
                             {payee.bankName || "บัญชีธนาคารคริสตจักร"}
                           </div>
                           <div className="font-mono font-bold text-base text-white break-all">
                             {payee.bankAccount}
                           </div>
                           {payee.bankAccountName && (
-                            <div className="text-stone-400">
+                            <div className="text-ink-3">
                               {payee.bankAccountName}
                             </div>
                           )}
@@ -1041,7 +1039,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           onClick={() =>
                             void handleCopyAccount(payee.bankAccount)
                           }
-                          className="shrink-0 min-h-11 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white inline-flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                          className="shrink-0 min-h-11 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white inline-flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
                         >
                           <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                           <span>คัดลอก</span>
@@ -1050,7 +1048,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     ) : (
                       !paymentQr &&
                       !payeeQuery.isLoading && (
-                        <p className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 text-xs text-stone-400 leading-relaxed">
+                        <p className="rounded-[28px] bg-surface border border-line p-4 text-xs text-ink-3 leading-relaxed">
                           คริสตจักรยังไม่ได้ตั้งค่าบัญชีรับถวายในระบบ
                           กรุณาสอบถามเจ้าหน้าที่ แล้วกลับมาแนบสลิป
                         </p>
@@ -1102,7 +1100,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     <div className="space-y-1">
                       <label
                         htmlFor="station-donor-name"
-                        className="text-xs font-bold text-stone-300 block"
+                        className="text-xs font-bold text-ink-2 block"
                       >
                         {submitMode === "no-slip"
                           ? "ชื่อผู้ถวาย (จำเป็น ต้องตรงกับชื่อบัญชีที่โอน)"
@@ -1119,10 +1117,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           setDonorNameInput(e.target.value);
                         }}
                         placeholder="เช่น สมชาย สุขใจ หรือ ผู้ถวายนิรนาม"
-                        className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-stone-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34D399]"
+                        className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-ink-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                       />
                       {nameFromSlip && (
-                        <p className="text-[11px] text-emerald-300">
+                        <p className="text-[11px] text-ink-2">
                           ชื่อจากสลิป (AI อ่านให้) แก้ไขได้
                         </p>
                       )}
@@ -1132,7 +1130,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <div className="space-y-1">
                         <label
                           htmlFor="station-transfer-date"
-                          className="text-xs font-bold text-stone-300 block"
+                          className="text-xs font-bold text-ink-2 block"
                         >
                           วันที่โอนเงิน (จำเป็น)
                         </label>
@@ -1143,7 +1141,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           max={new Date().toLocaleDateString("sv-SE")}
                           value={transferDate}
                           onChange={e => setTransferDate(e.target.value)}
-                          className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34D399]"
+                          className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                         />
                       </div>
                     )}
@@ -1161,10 +1159,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipInputRef.current?.click()}
-                        className="w-full rounded-2xl border border-dashed border-white/20 hover:border-[#34D399] bg-black/30 p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5"
+                        className="w-full rounded-2xl border border-dashed border-white/20 hover:border-white/40 bg-black/30 p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5"
                       >
-                        <UploadCloud className="w-5 h-5 text-[#34D399] shrink-0" />
-                        <span className="text-xs font-bold text-stone-200">
+                        <UploadCloud className="w-5 h-5 text-ink-2 shrink-0" />
+                        <span className="text-xs font-bold text-ink">
                           {slipPreview
                             ? "เปลี่ยนรูปสลิปที่แนบไว้"
                             : canRecordDirectly
@@ -1185,24 +1183,24 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipCameraRef.current?.click()}
-                        className="mt-2 w-full rounded-2xl border border-white/15 hover:border-[#34D399] bg-white/5 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden"
+                        className="mt-2 w-full rounded-2xl border border-white/15 hover:border-white/40 bg-white/5 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden"
                       >
                         <Camera
-                          className="w-5 h-5 text-[#34D399] shrink-0"
+                          className="w-5 h-5 text-ink-2 shrink-0"
                           aria-hidden="true"
                         />
-                        <span className="text-xs font-bold text-stone-200">
+                        <span className="text-xs font-bold text-ink">
                           ถ่ายรูปสลิปด้วยกล้อง
                         </span>
                       </button>
-                      <p className="mt-1.5 text-center text-[11px] text-stone-400">
+                      <p className="mt-1.5 text-center text-[11px] text-ink-3">
                         ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
                         วางบนพื้นเรียบ ไม่ให้เงาบัง
                       </p>
                       {slipPreview && slipReading.state === "reading" && (
                         <p
                           role="status"
-                          className="mt-2 flex items-center justify-center gap-2 text-xs text-stone-300"
+                          className="mt-2 flex items-center justify-center gap-2 text-xs text-ink-2"
                         >
                           <Loader2
                             className="w-4 h-4 animate-spin"
@@ -1285,9 +1283,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 const outcome = describeOutcome(submission);
                 const toneStyle =
                   outcome.tone === "success"
-                    ? "bg-[#10B981]/20 border-[#34D399] text-[#34D399]"
+                    ? "border-income text-income"
                     : outcome.tone === "warning"
-                      ? "bg-amber-500/20 border-amber-500/30 text-amber-300"
+                      ? "border-amber-500/40 text-amber-300"
                       : "bg-rose-500/20 border-rose-500/30 text-rose-300";
                 const Icon =
                   outcome.tone === "success" ? CheckCircle2 : AlertTriangle;
@@ -1295,7 +1293,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 return (
                   <div
                     role={outcome.tone === "error" ? "alert" : "status"}
-                    className="rounded-[32px] bg-[#0E0E10] border border-white/[0.07] p-7 text-center space-y-5 animate-in zoom-in-95 duration-200"
+                    className="rounded-[32px] bg-surface border border-line p-7 text-center space-y-5 animate-in zoom-in-95 duration-200"
                   >
                     <div
                       className={`w-16 h-16 rounded-full border-2 mx-auto flex items-center justify-center ${toneStyle}`}
@@ -1307,7 +1305,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <h3 className="text-2xl font-extrabold text-white">
                         {outcome.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">
                         {outcome.message}
                       </p>
                     </div>
@@ -1319,7 +1317,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                             <button
                               type="button"
                               onClick={() => retryWithSlipAmount(slipAmount)}
-                              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] text-black font-black text-base cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
+                              className="w-full py-4 rounded-2xl bg-brand hover:bg-brand-ink text-black font-black text-base cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
                             >
                               ใช้ยอด {slipAmount.toLocaleString()} THB
                               ตามสลิปแล้วส่งใหม่
@@ -1328,7 +1326,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           <button
                             type="button"
                             onClick={retryWithOtherSlip}
-                            className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-stone-200 font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                            className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-ink font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
                           >
                             เปลี่ยนรูปสลิป (ยอดเดิม{" "}
                             {submission.amount.toLocaleString()} THB)
@@ -1336,7 +1334,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           <button
                             type="button"
                             onClick={resetFlow}
-                            className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-stone-200 font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                            className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-ink font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
                           >
                             เริ่มใหม่ทั้งหมด
                           </button>
@@ -1345,7 +1343,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         <button
                           type="button"
                           onClick={resetFlow}
-                          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F97316] to-[#EA580C] text-white font-extrabold text-sm shadow-md cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
+                          className="w-full py-4 rounded-2xl bg-brand hover:bg-brand-ink text-black font-extrabold text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
                         >
                           ทำรายการถวายใหม่อีกครั้ง
                         </button>
@@ -1354,7 +1352,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         <button
                           type="button"
                           onClick={() => setLocation("/offerings")}
-                          className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-stone-200 font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                          className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-ink font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
                         >
                           ดูรายการสมุดบัญชีเงินถวาย
                         </button>
@@ -1373,11 +1371,11 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {activeTab === "poster" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Poster Customizer (Hidden when printing) */}
-          <div className="lg:col-span-5 bg-surface rounded-2xl border border-line p-6 space-y-5 shadow-xs print:hidden">
+          <div className="lg:col-span-5 bg-surface rounded-2xl border border-line p-6 space-y-5 print:hidden">
             <div className="flex items-center justify-between border-b border-line pb-4">
               <div>
                 <h3 className="text-base font-bold text-ink flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#F97316]" />
+                  <Sparkles className="w-4 h-4 text-ink-2" />
                   <span>ปรับแต่งป้าย QR Code หน้าห้อง</span>
                 </h3>
                 <p className="text-xs text-ink-3 mt-0.5">
@@ -1748,7 +1746,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     void exportPoster({ kind: "print", paper: "A5" })
                   }
                   disabled={!posterHasQr || posterBusy}
-                  className="min-h-11 rounded-xl bg-brand hover:bg-brand-ink text-black font-extrabold text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-h-11 rounded-xl bg-brand hover:bg-brand-ink text-black font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Printer className="w-4 h-4" />
                   <span>พิมพ์ A5 (1 หน้า)</span>
@@ -1874,7 +1872,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             onClick={() =>
               setActiveTab(activeTab === "flow" ? "poster" : "flow")
             }
-            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
           >
             {activeTab === "flow" ? (
               <>
@@ -1898,7 +1896,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
 const SLIP_STATE_STYLE: Record<DonorSlipState, { label: string; cls: string }> =
   {
-    checking: { label: "กำลังตรวจสอบ", cls: "bg-white/10 text-stone-200" },
+    checking: { label: "กำลังตรวจสอบ", cls: "bg-white/10 text-ink" },
     verified: {
       label: "ยอดตรง รอเหรัญญิก",
       cls: "bg-emerald-500/20 text-emerald-300",
@@ -1932,9 +1930,9 @@ function MySlipHistory({
   return (
     <section
       aria-label="รายการถวายล่าสุดของฉัน"
-      className="rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-4 space-y-2.5"
+      className="rounded-[28px] bg-surface border border-line p-4 space-y-2.5"
     >
-      <h3 className="text-xs font-bold text-[#FDBA74]">
+      <h3 className="text-xs font-bold text-ink-2">
         รายการที่ส่งสลิปล่าสุดของฉัน
       </h3>
       <ul className="space-y-2">
@@ -1953,7 +1951,7 @@ function MySlipHistory({
                   {item.declaredAmount !== null &&
                     ` · ${item.declaredAmount.toLocaleString()} THB`}
                 </div>
-                <div className="text-stone-400">
+                <div className="text-ink-3">
                   {formatThaiDateTime(new Date(item.createdAt))}
                 </div>
               </div>
@@ -1977,13 +1975,13 @@ function SendChecklist({ items }: { items: ChecklistItem[] }) {
       aria-label="ตรวจรายการก่อนส่ง"
       className="rounded-2xl bg-black/30 border border-white/10 p-3 space-y-2"
     >
-      <h4 className="text-xs font-bold text-stone-300">ตรวจรายการก่อนส่ง</h4>
+      <h4 className="text-xs font-bold text-ink-2">ตรวจรายการก่อนส่ง</h4>
       <ul className="space-y-1.5">
         {items.map(item => (
           <li key={item.id} className="flex items-start gap-2 text-xs">
             {item.ok ? (
               <CheckCircle2
-                className="mt-0.5 size-4 shrink-0 text-[#34D399]"
+                className="mt-0.5 size-4 shrink-0 text-income"
                 aria-label="ผ่าน"
               />
             ) : (
@@ -1993,8 +1991,8 @@ function SendChecklist({ items }: { items: ChecklistItem[] }) {
               />
             )}
             <div className="min-w-0">
-              <span className="font-bold text-stone-200">{item.label}: </span>
-              <span className={item.ok ? "text-stone-300" : "text-amber-200"}>
+              <span className="font-bold text-ink">{item.label}: </span>
+              <span className={item.ok ? "text-ink-2" : "text-amber-200"}>
                 {item.detail}
               </span>
             </div>
