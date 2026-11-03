@@ -82,7 +82,7 @@ function MobileTab({
     >
       <span
         className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
-          active ? "bg-tile-lilac text-brand" : ""
+          active ? "bg-paper-2 text-brand" : ""
         }`}
       >
         <Icon className="size-5" />
@@ -116,7 +116,7 @@ function SidebarLink({
       aria-current={active ? "page" : undefined}
       className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
         active
-          ? "bg-brand font-bold text-black shadow-sm shadow-brand/25"
+          ? "bg-paper-2 font-semibold text-ink"
           : "font-medium text-ink-2 hover:bg-paper hover:text-ink"
       }`}
     >
@@ -132,7 +132,7 @@ interface AppLayoutProps {
   activeRoute?: string;
   title?: string;
   subtitle?: string;
-  /** Small caps label above the title, e.g. "Ledger". Latin reads best. */
+  /** @deprecated No longer rendered. Remove from callers. */
   eyebrow?: string;
   action?: React.ReactNode;
   /** Leaves the title block off the printed page, e.g. for a poster. */
@@ -144,7 +144,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   activeRoute,
   title,
   subtitle,
-  eyebrow,
   action,
   hideHeaderOnPrint = false,
 }) => {
@@ -168,7 +167,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const mobileColumns = mobileTabs.length + (canRecordOffering ? 1 : 0);
 
   return (
-    <div className="min-h-dvh bg-ground text-ink flex flex-col font-sans selection:bg-tile-lilac overflow-x-clip">
+    <div className="min-h-dvh bg-ground text-ink flex flex-col font-sans selection:bg-brand/30 overflow-x-clip">
       <div className="flex-1 flex flex-row w-full min-w-0">
         {/* DESKTOP SIDEBAR (lg: >= 1024px) */}
         <aside className="hidden lg:flex print:hidden! w-64 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface border-r border-line px-4 py-5 z-30">
@@ -177,7 +176,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             aria-label="Grace Giving หน้าหลัก"
             className="flex items-center gap-3 rounded-2xl px-1.5 py-1.5 hover:bg-paper/60 transition-colors"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-black shadow-md shadow-brand/25">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-black">
               <Sprout className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
@@ -193,7 +192,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {canRecordOffering && (
             <button
               onClick={() => navigate("/offerings/new")}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black shadow-md shadow-brand/25 hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
               บันทึกการถวาย
@@ -211,7 +210,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                 content.push(
                   <p
                     key={`group-${item.path}`}
-                    className={`px-3.5 pb-1 text-[11px] font-bold uppercase tracking-wider text-ink-3 ${index === 0 ? "" : "pt-3.5"}`}
+                    className={`px-3.5 pb-1 text-xs font-medium text-ink-3 ${index === 0 ? "" : "pt-3.5"}`}
                   >
                     {group}
                   </p>
@@ -242,7 +241,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               aria-label={`โปรไฟล์ ${user?.name ?? ""} ${roleLabel}`}
               className="flex items-center gap-3 rounded-2xl bg-paper/70 border border-line/60 px-3 py-2.5 hover:bg-paper-2 transition-colors"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-tile-lilac text-sm font-bold text-tile-lilac-ink">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-paper-2 text-sm font-bold text-ink-2">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </span>
               <span className="min-w-0">
@@ -268,7 +267,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               <AppMenu />
               <GuardedLink
                 href="/notifications"
-                className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-ink-2 shadow-2xs hover:bg-paper hover:text-ink"
+                className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-ink-2 hover:bg-paper hover:text-ink"
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="size-5" aria-hidden="true" />
@@ -276,8 +275,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             </div>
             {title && (
               <div className="min-w-0 flex-1 basis-full sm:basis-0">
-                {eyebrow && <p className="eyebrow mb-2.5">{eyebrow}</p>}
-                <h1 className="display text-3xl md:text-4xl text-ink break-words">
+                <h1 className="display text-2xl text-ink break-words">
                   {title}
                 </h1>
                 {subtitle && (
@@ -327,7 +325,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               aria-label="บันทึกการถวายใหม่"
               className="flex min-h-14 flex-col items-center justify-center gap-1"
             >
-              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black shadow-md shadow-brand/30">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
                 <Plus className="size-5 stroke-[2.5]" />
               </span>
               <span className="text-xs font-bold leading-none text-brand">

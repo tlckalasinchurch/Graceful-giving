@@ -58,17 +58,15 @@ export const EmptyState: React.FC<{
 }) => {
   return (
     <div
-      className={`py-12 px-6 rounded-3xl bg-surface fintech-card flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+      className={`py-10 px-6 rounded-2xl border border-dashed border-line flex flex-col items-center justify-center text-center space-y-3 ${className}`}
     >
-      <div className="size-20 rounded-2xl overflow-hidden bg-tile-lilac p-1 shrink-0">
-        <Illustration
-          src={illustrationSrc}
-          alt={illustrationAlt}
-          className="w-full h-full object-cover rounded-xl"
-          width={80}
-          height={80}
-        />
-      </div>
+      <Illustration
+        src={illustrationSrc}
+        alt={illustrationAlt}
+        className="size-14 shrink-0 rounded-xl object-cover"
+        width={56}
+        height={56}
+      />
       <div className="space-y-1 max-w-sm">
         <h3 className="text-base font-bold text-ink">{title}</h3>
         <p className="text-sm text-ink-3 leading-relaxed">{description}</p>
@@ -97,14 +95,11 @@ export const ErrorState: React.FC<{
   className = "",
 }) => (
   <div
-    className={`py-12 px-6 rounded-3xl bg-tile-rose/50 border border-rose-500/30 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+    className={`py-10 px-6 rounded-2xl bg-surface border border-danger/40 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     role="alert"
   >
-    <div className="w-12 h-12 rounded-2xl bg-tile-rose text-tile-rose-ink flex items-center justify-center text-xl font-bold">
-      !
-    </div>
     <div className="space-y-1 max-w-sm">
-      <h3 className="text-base font-bold text-tile-rose-ink">{title}</h3>
+      <h3 className="text-base font-bold text-danger">{title}</h3>
       <p className="text-sm text-ink-2 leading-relaxed">{description}</p>
     </div>
     {onRetry && (
@@ -297,12 +292,10 @@ export const PageHeader: React.FC<{
 }> = ({ title, subtitle, action, className = "" }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface rounded-3xl p-5 md:p-6 fintech-card ${className}`}
+      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface rounded-2xl border border-line p-5 md:p-6 ${className}`}
     >
       <div className="min-w-0">
-        <h1 className="text-xl md:text-2xl font-extrabold text-ink tracking-tight break-words">
-          {title}
-        </h1>
+        <h1 className="text-2xl font-semibold text-ink break-words">{title}</h1>
         {subtitle && (
           <p className="text-xs text-ink-3 mt-1 leading-relaxed">{subtitle}</p>
         )}

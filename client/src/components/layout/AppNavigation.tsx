@@ -205,7 +205,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
               content.push(
                 <p
                   key={`group-${group}`}
-                  className="px-3.5 pb-1 pt-4 text-xs font-semibold tracking-[0.05em] text-ink-3 first:pt-0"
+                  className="px-3.5 pb-1 pt-4 text-xs font-medium text-ink-3 first:pt-0"
                 >
                   {group}
                 </p>
@@ -221,12 +221,12 @@ export function AppMenu({ children }: { children?: ReactNode }) {
                   }
                   className={`flex min-h-11 items-center gap-3 rounded-2xl px-3.5 text-base ${
                     active
-                      ? "bg-tile-peach font-semibold text-tile-peach-ink"
+                      ? "bg-paper-2 font-semibold text-ink"
                       : "font-medium text-ink hover:bg-ground"
                   }`}
                 >
                   <Icon
-                    className={`size-5 shrink-0 ${active ? "text-tile-peach-ink" : "text-ink-2"}`}
+                    className={`size-5 shrink-0 ${active ? "text-ink" : "text-ink-2"}`}
                     aria-hidden="true"
                   />
                   <span>{item.label}</span>
