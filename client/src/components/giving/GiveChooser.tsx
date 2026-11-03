@@ -35,10 +35,10 @@ export function GiveChooser({
   return (
     <section
       aria-label="เลือกประเภทและยอดถวาย"
-      className="lg:col-span-2 rounded-[28px] bg-[#0E0E10] border border-white/[0.07] p-5 space-y-4"
+      className="lg:col-span-2 rounded-[28px] bg-surface border border-line p-5 space-y-4"
     >
       <div>
-        <h3 className="mb-2 text-xs font-bold text-[#FDBA74]">
+        <h3 className="mb-2 text-xs font-bold text-ink-2">
           ถวายอะไรบ้าง? แตะเลือกได้หลายอัน
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -52,10 +52,10 @@ export function GiveChooser({
                 onClick={() =>
                   onChange(toggleGiveCategory(lines, c.id, defaults[c.id]))
                 }
-                className={`min-h-11 rounded-xl border px-3.5 text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF] ${
+                className={`min-h-11 rounded-xl border px-3.5 text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                   on
                     ? "border-brand bg-brand text-black"
-                    : "border-white/15 bg-white/5 text-stone-200 hover:text-white"
+                    : "border-line bg-surface text-ink-2 hover:bg-paper hover:text-ink"
                 }`}
               >
                 {on ? "✓ " : ""}
@@ -67,7 +67,7 @@ export function GiveChooser({
       </div>
 
       {lines.length === 0 ? (
-        <p className="text-xs text-stone-400">
+        <p className="text-xs text-ink-3">
           เลือกอย่างน้อย 1 ประเภท แล้วใส่ยอดที่ต้องการถวาย
         </p>
       ) : (
@@ -96,9 +96,9 @@ export function GiveChooser({
                     step="0.01"
                     value={line.amount}
                     onChange={e => setAmount(line.category, e.target.value)}
-                    className="min-h-11 w-32 shrink-0 rounded-xl bg-[#161B26] border border-white/15 px-3 text-right text-sm font-bold tabular-nums text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]"
+                    className="min-h-11 w-32 shrink-0 rounded-xl bg-paper-2 border border-line px-3 text-right text-sm font-bold tabular-nums text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                   />
-                  <span className="shrink-0 text-xs text-stone-400">บาท</span>
+                  <span className="shrink-0 text-xs text-ink-3">บาท</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {presets[line.category].map(amount => (
@@ -107,7 +107,7 @@ export function GiveChooser({
                       type="button"
                       aria-label={`${label} ${amount.toLocaleString()} บาท`}
                       onClick={() => setAmount(line.category, String(amount))}
-                      className="min-h-9 rounded-lg border border-white/15 bg-white/5 px-2.5 text-xs font-bold tabular-nums text-stone-200 hover:text-white cursor-pointer"
+                      className="min-h-9 rounded-lg border border-line bg-surface px-2.5 text-xs font-bold tabular-nums text-ink-2 hover:bg-paper hover:text-ink cursor-pointer"
                     >
                       {amount.toLocaleString()}
                     </button>
@@ -124,13 +124,13 @@ export function GiveChooser({
         aria-label="ยอดรวมที่ต้องโอน"
         className="flex items-baseline justify-between gap-2 border-t border-white/10 pt-3"
       >
-        <span className="text-xs font-bold text-stone-300">
+        <span className="text-xs font-bold text-ink-2">
           ยอดรวมที่ต้องโอน
           {lines.length > 1 ? ` (${lines.length} ประเภท)` : ""}
         </span>
         <span
-          className={`text-2xl font-black tabular-nums ${
-            total === null ? "text-stone-500" : "text-[#00F58A]"
+          className={`text-2xl font-bold tabular-nums ${
+            total === null ? "text-ink-3" : "text-white"
           }`}
         >
           {total === null ? "—" : `${total.toLocaleString()} THB`}
