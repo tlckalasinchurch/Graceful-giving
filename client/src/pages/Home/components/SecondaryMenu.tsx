@@ -1,5 +1,6 @@
 import {
   Banknote,
+  ChevronRight,
   CalendarDays,
   FileBarChart,
   MoreHorizontal,
@@ -12,7 +13,6 @@ import { AppMenu } from "@/components/layout/AppNavigation";
 interface SecondaryMenuProps {
   canOpenReports: boolean;
   canOpenMembers: boolean;
-  secondaryTileColsClass: string;
   onOpenReports: () => void;
   onOpenMembers: () => void;
   onOpenNews: () => void;
@@ -34,13 +34,12 @@ const Shortcut = forwardRef<HTMLButtonElement, ShortcutProps>(
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="group flex min-h-[92px] w-full flex-col items-center justify-center gap-2.5 rounded-2xl px-1 py-3 hover:bg-paper transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+      className="group flex min-h-12 w-full items-center gap-3 rounded-2xl px-3 text-left transition-colors hover:bg-paper focus-visible:ring-2 focus-visible:ring-brand"
       {...rest}
     >
-      <Icon className="size-5 text-ink-2 transition-colors group-hover:text-ink" />
-      <span className="text-center text-xs sm:text-sm font-bold text-ink">
-        {label}
-      </span>
+      <Icon className="size-5 shrink-0 text-ink-2 transition-colors group-hover:text-ink" />
+      <span className="flex-1 text-sm font-semibold text-ink">{label}</span>
+      <ChevronRight className="size-4 shrink-0 text-ink-3" aria-hidden="true" />
     </button>
   )
 );
@@ -49,7 +48,6 @@ Shortcut.displayName = "Shortcut";
 export function SecondaryMenu({
   canOpenReports,
   canOpenMembers,
-  secondaryTileColsClass,
   onOpenReports,
   onOpenMembers,
   onOpenNews,
@@ -59,7 +57,7 @@ export function SecondaryMenu({
     <div
       role="group"
       aria-label="เมนูลัดอื่น ๆ"
-      className={`grid grid-cols-3 gap-1.5 w-full ${secondaryTileColsClass}`}
+      className="w-full divide-y divide-line/60"
     >
       {canOpenReports && (
         <Shortcut label="รายงาน" icon={FileBarChart} onClick={onOpenReports} />
