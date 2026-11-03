@@ -171,7 +171,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     <div className="min-h-dvh bg-ground text-ink flex flex-col font-sans selection:bg-tile-lilac overflow-x-clip">
       <div className="flex-1 flex flex-row w-full min-w-0">
         {/* DESKTOP SIDEBAR (lg: >= 1024px) */}
-        <aside className="hidden lg:flex print:hidden! w-64 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface/90 backdrop-blur-xl border-r border-line/80 px-4 py-5 z-30">
+        <aside className="hidden lg:flex print:hidden! w-64 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-surface border-r border-line px-4 py-5 z-30">
           <GuardedLink
             href="/"
             aria-label="Grace Giving หน้าหลัก"
@@ -304,7 +304,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {/* MOBILE BOTTOM BAR */}
       <nav
         aria-label="เมนูนำทางหลักบนมือถือ"
-        className="lg:hidden print:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line/80 bg-surface/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(15,23,42,0.06)] pb-[env(safe-area-inset-bottom)]"
+        className="lg:hidden print:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]"
       >
         <div
           className="mx-auto grid max-w-lg items-center px-2 py-1.5"

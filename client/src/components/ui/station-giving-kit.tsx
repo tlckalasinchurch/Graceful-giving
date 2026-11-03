@@ -153,7 +153,7 @@ export function StationProfileCard({
             className="w-12 h-12 rounded-full object-cover border border-white/20 shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F97316] to-[#B45309] text-white font-extrabold text-lg flex items-center justify-center border border-white/20 shrink-0">
+          <div className="w-12 h-12 rounded-full bg-brand text-black font-extrabold text-lg flex items-center justify-center border border-white/20 shrink-0">
             {userName.trim().slice(0, 1).toUpperCase() || "G"}
           </div>
         )}
@@ -251,7 +251,7 @@ export function StationHeroCTA({
       <button
         type="button"
         onClick={onClick}
-        className="group w-full text-left rounded-[28px] focus-visible:ring-4 focus-visible:ring-white/70 p-5 sm:p-6 bg-gradient-to-br from-[#FF6A00] via-[#FFC400] to-[#00F58A] border-2 border-[hsl(48_40%_24%)]/50 shadow-[0_12px_32px_-8px_rgba(249,115,22,0.55)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
+        className="group w-full text-left rounded-[28px] focus-visible:ring-4 focus-visible:ring-white/70 p-5 sm:p-6 bg-brand hover:bg-brand-ink active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4 min-w-0">
           {/* Dark rounded-2xl icon box with vertical wave bars */}
@@ -545,7 +545,7 @@ export function StationOfferingPackageCard({
         type="button"
         onClick={onSelect}
         aria-label={`${ctaLabel}: ${title}`}
-        className="w-full py-3.5 px-6 rounded-full focus-visible:ring-2 focus-visible:ring-white bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] hover:brightness-110 active:scale-[0.98] text-black font-black text-lg sm:text-xl shadow-[0_10px_28px_-8px_rgba(0,245,138,0.4)] transition-all cursor-pointer"
+        className="w-full py-3.5 px-6 rounded-full focus-visible:ring-2 focus-visible:ring-white bg-brand hover:bg-brand-ink active:scale-[0.98] text-black font-black text-lg sm:text-xl transition-all cursor-pointer"
       >
         {ctaLabel}
       </button>
@@ -597,7 +597,7 @@ export function StationUnlockConfirmCard({
         onClick={onConfirm}
         disabled={disabled || loading}
         aria-busy={loading}
-        className="w-full py-5 sm:py-6 px-6 rounded-[24px] focus-visible:ring-4 focus-visible:ring-white/70 bg-gradient-to-r from-[#FF6A00] via-[#FFC400] to-[#00F58A] hover:brightness-110 active:scale-[0.98] disabled:opacity-50 text-black font-black text-xl sm:text-2xl shadow-[0_14px_36px_-8px_rgba(0,245,138,0.45)] transition-all cursor-pointer"
+        className="w-full py-5 sm:py-6 px-6 rounded-[24px] focus-visible:ring-4 focus-visible:ring-white/70 bg-brand hover:bg-brand-ink active:scale-[0.98] disabled:opacity-50 text-black font-black text-xl sm:text-2xl transition-all cursor-pointer"
       >
         {loading ? "กำลังส่งข้อมูลการถวาย..." : buttonLabel}
       </button>
