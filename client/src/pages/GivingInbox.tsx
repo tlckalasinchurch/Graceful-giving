@@ -856,7 +856,7 @@ export default function GivingInbox() {
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand hover:bg-brand-ink text-black font-bold text-[11px] transition-all"
                             title="อนุมัติด่วนด้วยข้อมูลที่จับคู่ได้"
                           >
-                            <Zap className="w-3 h-3" /> อนุมัติด่วน
+                            <Check className="w-3 h-3" /> อนุมัติด่วน
                           </button>
                         )}
 
@@ -922,15 +922,15 @@ export default function GivingInbox() {
                           onClick={() => handleRescan(currentSlip.id)}
                           disabled={rescanMutation.isPending}
                           className="min-h-11 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs font-bold text-amber-300 hover:bg-amber-500/15 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                          title="ให้ AI สแกนอ่านข้อมูลสลิปนี้ใหม่"
+                          title="สแกนอ่านข้อมูลสลิปนี้ใหม่"
                         >
-                          <Sparkles
+                          <RefreshCw
                             className={`w-3.5 h-3.5 text-amber-400 ${rescanMutation.isPending ? "animate-spin" : ""}`}
                           />
                           <span>
                             {rescanMutation.isPending
                               ? "กำลังอ่านข้อมูล..."
-                              : "สแกน AI ใหม่"}
+                              : "สแกนอ่านข้อมูลใหม่"}
                           </span>
                         </button>
                       )}
@@ -942,7 +942,7 @@ export default function GivingInbox() {
                   <div className="p-4 rounded-xl bg-[hsl(6_45%_13%)] border border-[hsl(13_40%_24%)] text-[hsl(7_58%_72%)] space-y-1">
                     <div className="flex items-center gap-2 font-bold text-sm">
                       <ShieldAlert className="w-5 h-5 text-danger" />
-                      ตรวจพบสลิปซ้ำ (Duplicate Detected)
+                      ตรวจพบสลิปซ้ำในระบบ
                     </div>
                     <p className="text-xs leading-relaxed text-[hsl(7_58%_72%)]">
                       {currentSlip.lastErrorMessage ||
@@ -1026,11 +1026,11 @@ export default function GivingInbox() {
                 <div className="space-y-3 bg-surface border border-line p-4 rounded-xl text-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-line/50">
                     <div className="font-bold text-sm text-ink flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-brand" />
-                      <span>2. ข้อมูลที่ AI อ่านได้</span>
+                      <Search className="w-4 h-4 text-brand" />
+                      <span>2. ข้อมูลที่อ่านได้จากสลิป</span>
                     </div>
-                    <span className="text-[11px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
-                      ข้อมูลแนะนำจาก AI กรุณาตรวจสอบก่อนบันทึก
+                    <span className="text-[11px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/30">
+                      ข้อมูลจากการตรวจสอบอัตโนมัติ กรุณาตรวจสอบก่อนบันทึก
                     </span>
                   </div>
 

@@ -8,7 +8,6 @@ import {
   Bell,
   Megaphone,
   Settings2,
-  Sparkles,
   UsersRound,
 } from "lucide-react";
 import { Link } from "wouter";
@@ -83,8 +82,7 @@ export default function Updates() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-xs text-ink-2">
-            <Sparkles className="size-4 text-brand-ink" />
+          <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-3.5 py-1.5 text-xs text-ink-2">
             <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
           </div>
         </header>

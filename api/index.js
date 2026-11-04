@@ -29,9 +29,11 @@ import {
   inArray,
   isNotNull,
   isNull,
+  like,
   lt,
   lte,
   ne,
+  or,
   sql as sql2,
   sum
 } from "drizzle-orm";
@@ -333,6 +335,10 @@ var offerings = pgTable("offerings", {
   status: offeringStatusEnum("status").default("active").notNull(),
   voidedAt: timestamp("voidedAt"),
   recordedBy: integer("recordedBy").notNull(),
+  /** users.id of the person who sent the giving from the app, when known. */
+  submittedByUserId: integer("submittedByUserId"),
+  /** Their LINE name when they sent it. */
+  submittedByName: varchar("submittedByName", { length: 180 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
 }, (t2) => [
@@ -644,6 +650,22 @@ var lineSlips = pgTable("line_slips", {
   declaredAmount: decimal("declaredAmount", { precision: 15, scale: 2 }),
   declaredCategory: offeringCategoryEnum("declaredCategory"),
   declaredFundId: integer("declaredFundId"),
+  /**
+   * When one transfer pays for several categories: `[{category, amount}]`.
+   * Null for a single category. `declaredAmount` is then the total.
+   */
+  declaredItems: jsonb("declaredItems").$type(),
+  /** The date the donor says the transfer was made (entries without a slip). */
+  declaredDate: timestamp("declaredDate"),
+  /** "slip": an image was attached. "no_slip": the donor sent the details only. */
+  source: varchar("source", { length: 16 }).default("slip").notNull(),
+  // ─── Who sent it, kept apart from the name that goes in the books ───
+  /** users.id of the signed-in person who sent it from the app. */
+  submittedByUserId: integer("submittedByUserId"),
+  /** The sender's LINE name when it was sent. Never overwritten. */
+  submittedByName: varchar("submittedByName", { length: 180 }),
+  /** The name the donor typed in the form. */
+  typedDonorName: varchar("typedDonorName", { length: 180 }),
   // ─── Staff decisions (set during review) ───
   /** Fund to credit — must be a valid finance_accounts.id */
   fundId: integer("fundId"),
@@ -776,7 +798,7 @@ function reconcile(input) {
 var ALLOWED_TRANSITIONS = {
   counting: ["counted"],
   counted: ["counting", "verified"],
-  verified: ["counted", "posted"],
+  verified: ["counting", "counted", "posted"],
   posted: ["closed"],
   closed: []
 };
@@ -787,8 +809,104 @@ function isEditable(status) {
   return status === "counting";
 }
 
+// shared/ledgerName.ts
+var LEDGER_NAME_MAX = 120;
+var ANONYMOUS_LEDGER_NAME = "\u0E1C\u0E39\u0E49\u0E16\u0E27\u0E32\u0E22\u0E1C\u0E48\u0E32\u0E19 LINE";
+var clean = (v) => (v ?? "").trim();
+function resolveLedgerName(src) {
+  const order = [
+    ["reviewer", clean(src.reviewerName)],
+    ["member", clean(src.memberName)],
+    ["slip", clean(src.slipName)],
+    ["typed", clean(src.typedName)],
+    ["line", clean(src.lineName)]
+  ];
+  for (const [source, value] of order) {
+    if (value) return { name: value.slice(0, LEDGER_NAME_MAX), source };
+  }
+  return { name: ANONYMOUS_LEDGER_NAME, source: "fallback" };
+}
+
+// shared/categories.ts
+var EXPENSE_CATEGORY_IDS = [
+  "utilities",
+  "ministry",
+  "pastoral",
+  "admin",
+  "building",
+  "worship",
+  "welfare",
+  "other"
+];
+var OFFERING_CATEGORY_IDS = [
+  "cash",
+  "meal",
+  "memorial",
+  "mission",
+  "special",
+  "land",
+  "party",
+  "venue_rent",
+  "tithe"
+];
+
+// shared/givingLimits.ts
+var MAX_GIVING_AMOUNT = 1e7;
+var MAX_SLIP_IMAGE_BYTES = 3.5 * 1024 * 1024;
+var MAX_SLIPS_PER_DAY = 20;
+var MAX_AUTO_REJECTS = 3;
+var MAX_NO_SLIP_DAYS_BACK = 60;
+var SLIP_OLD_WARNING_DAYS = 30;
+var DAY_MS = 24 * 60 * 60 * 1e3;
+function checkTransferDate(date, now = /* @__PURE__ */ new Date(), maxDaysBack = MAX_NO_SLIP_DAYS_BACK) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "invalid";
+  if (date.getTime() > now.getTime() + DAY_MS) return "future";
+  if (date.getTime() < now.getTime() - maxDaysBack * DAY_MS) return "too_old";
+  return null;
+}
+var TRANSFER_DATE_MESSAGE = {
+  invalid: "\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E42\u0E2D\u0E19\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07",
+  future: "\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E42\u0E2D\u0E19\u0E40\u0E1B\u0E47\u0E19\u0E27\u0E31\u0E19\u0E43\u0E19\u0E2D\u0E19\u0E32\u0E04\u0E15 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E23\u0E27\u0E08\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48",
+  too_old: `\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E42\u0E2D\u0E19\u0E40\u0E01\u0E48\u0E32\u0E40\u0E01\u0E34\u0E19 ${MAX_NO_SLIP_DAYS_BACK} \u0E27\u0E31\u0E19 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E08\u0E49\u0E32\u0E2B\u0E19\u0E49\u0E32\u0E17\u0E35\u0E48`
+};
+var MAX_SLIP_READS_PER_5_MIN = 12;
+
+// shared/givingSplit.ts
+var MIN_SPLIT_LINES = 2;
+var MAX_SPLIT_LINES = OFFERING_CATEGORY_IDS.length;
+var SPLIT_MESSAGE = {
+  too_few: "\u0E01\u0E32\u0E23\u0E41\u0E1A\u0E48\u0E07\u0E22\u0E2D\u0E14\u0E15\u0E49\u0E2D\u0E07\u0E21\u0E35\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E19\u0E49\u0E2D\u0E22 2 \u0E1B\u0E23\u0E30\u0E40\u0E20\u0E17",
+  too_many: "\u0E41\u0E1A\u0E48\u0E07\u0E22\u0E2D\u0E14\u0E44\u0E14\u0E49\u0E44\u0E21\u0E48\u0E40\u0E01\u0E34\u0E19\u0E08\u0E33\u0E19\u0E27\u0E19\u0E1B\u0E23\u0E30\u0E40\u0E20\u0E17\u0E17\u0E35\u0E48\u0E21\u0E35",
+  bad_amount: "\u0E17\u0E38\u0E01\u0E1B\u0E23\u0E30\u0E40\u0E20\u0E17\u0E15\u0E49\u0E2D\u0E07\u0E21\u0E35\u0E22\u0E2D\u0E14\u0E21\u0E32\u0E01\u0E01\u0E27\u0E48\u0E32 0",
+  duplicate: "\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E1B\u0E23\u0E30\u0E40\u0E20\u0E17\u0E0B\u0E49\u0E33\u0E01\u0E31\u0E19\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49 \u0E23\u0E27\u0E21\u0E22\u0E2D\u0E14\u0E40\u0E1B\u0E47\u0E19\u0E1A\u0E23\u0E23\u0E17\u0E31\u0E14\u0E40\u0E14\u0E35\u0E22\u0E27",
+  total_mismatch: "\u0E1C\u0E25\u0E23\u0E27\u0E21\u0E02\u0E2D\u0E07\u0E17\u0E38\u0E01\u0E1B\u0E23\u0E30\u0E40\u0E20\u0E17\u0E15\u0E49\u0E2D\u0E07\u0E40\u0E17\u0E48\u0E32\u0E01\u0E31\u0E1A\u0E22\u0E2D\u0E14\u0E17\u0E35\u0E48\u0E42\u0E2D\u0E19"
+};
+function sumSplit(lines) {
+  return lines.reduce((acc, l) => acc + Math.round(l.amount * 100), 0) / 100;
+}
+function checkSplit(lines, total) {
+  if (lines.length < MIN_SPLIT_LINES) return "too_few";
+  if (lines.length > MAX_SPLIT_LINES) return "too_many";
+  if (lines.some(
+    (l) => !Number.isFinite(l.amount) || l.amount <= 0 || l.amount > MAX_GIVING_AMOUNT
+  )) {
+    return "bad_amount";
+  }
+  if (new Set(lines.map((l) => l.category)).size !== lines.length) {
+    return "duplicate";
+  }
+  if (Math.round(sumSplit(lines) * 100) !== Math.round(total * 100)) {
+    return "total_mismatch";
+  }
+  return null;
+}
+function splitReference(base, index2) {
+  return index2 === 0 ? base : `${base}#${index2 + 1}`;
+}
+
 // shared/withdrawals.ts
 var MIN_APPROVALS = 2;
+var MAX_WITHDRAWAL_AMOUNT = 1e7;
 function approvalState(signatures) {
   const approved = signatures.filter((s) => s.decision === "approved");
   const anyRejected = signatures.some((s) => s.decision === "rejected");
@@ -847,7 +965,13 @@ function getSupabaseConfig() {
       "Storage config missing: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY"
     );
   }
-  return { url: SUPABASE_URL.replace(/\/+$/, ""), key: SUPABASE_SERVICE_ROLE_KEY };
+  return {
+    url: SUPABASE_URL.replace(/\/+$/, ""),
+    key: SUPABASE_SERVICE_ROLE_KEY
+  };
+}
+function storageAuthHeaders(apiKey) {
+  return { apikey: apiKey, Authorization: `Bearer ${apiKey}` };
 }
 function appendHashSuffix(relKey) {
   const hash = crypto.randomUUID().replace(/-/g, "").slice(0, 8);
@@ -863,7 +987,7 @@ async function storagePut(relKey, data, contentType = "application/octet-stream"
   const resp = await fetch(uploadUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      ...storageAuthHeaders(apiKey),
       "Content-Type": contentType,
       "x-upsert": "true"
     },
@@ -883,7 +1007,7 @@ async function storagePutPrivate(relKey, data, contentType = "image/jpeg") {
   const resp = await fetch(uploadUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      ...storageAuthHeaders(apiKey),
       "Content-Type": contentType,
       "x-upsert": "true"
     },
@@ -904,16 +1028,14 @@ async function getSlipSignedUrl(slipImageKey) {
   const resp = await fetch(signUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      ...storageAuthHeaders(apiKey),
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ expiresIn: 3600 })
   });
   if (!resp.ok) {
     const msg = await resp.text().catch(() => resp.statusText);
-    throw new Error(
-      `Supabase slip signed URL failed (${resp.status}): ${msg}`
-    );
+    throw new Error(`Supabase slip signed URL failed (${resp.status}): ${msg}`);
   }
   const result = await resp.json();
   const signedPath = result.signedURL?.startsWith("/storage/v1") ? result.signedURL : `/storage/v1${result.signedURL ?? ""}`;
@@ -921,7 +1043,7 @@ async function getSlipSignedUrl(slipImageKey) {
 }
 
 // server/db.ts
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 var _db = null;
 var DEFAULT_CHURCH_ID = process.env.CHURCH_ID || "demo-church";
 if (ENV.isProduction && DEFAULT_CHURCH_ID.startsWith("test-")) {
@@ -2334,6 +2456,20 @@ async function addBankRecord(input, churchId = DEFAULT_CHURCH_ID) {
   const rows = await db.insert(bankRecords).values({ ...input, churchId }).returning({ id: bankRecords.id });
   return rows[0].id;
 }
+async function deleteBankRecord(id, sessionId, churchId = DEFAULT_CHURCH_ID) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.delete(bankRecords).where(
+    and(
+      eq(bankRecords.id, id),
+      eq(bankRecords.sessionId, sessionId),
+      eq(bankRecords.churchId, churchId),
+      eq(bankRecords.passbookMatched, false),
+      isNull(bankRecords.withdrawalRequestId)
+    )
+  ).returning({ id: bankRecords.id });
+  return rows.length > 0;
+}
 async function matchBankRecordToPassbook(id, matchedBy, passbookDate, churchId = DEFAULT_CHURCH_ID) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -2570,6 +2706,25 @@ async function getFinancialReportSummary(churchId = DEFAULT_CHURCH_ID, fromDate,
     }))
   };
 }
+async function withSubmitterLineIds(rows) {
+  const db = await getDb();
+  const ids = Array.from(
+    new Set(
+      rows.map((r) => r.submittedByUserId).filter((v) => v !== null)
+    )
+  );
+  const byId = /* @__PURE__ */ new Map();
+  if (db && ids.length > 0) {
+    const found = await db.select({ id: users.id, openId: users.openId }).from(users).where(inArray(users.id, ids));
+    for (const u of found) {
+      if (u.openId.startsWith("line:")) byId.set(u.id, u.openId.slice(5));
+    }
+  }
+  return rows.map((r) => ({
+    ...r,
+    submitterLineId: r.lineUserId.startsWith("manual-") ? r.submittedByUserId !== null ? byId.get(r.submittedByUserId) ?? null : null : r.lineUserId
+  }));
+}
 async function listLineSlips(churchId = DEFAULT_CHURCH_ID, filters = {}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -2583,8 +2738,9 @@ async function listLineSlips(churchId = DEFAULT_CHURCH_ID, filters = {}) {
   const limit = filters.limit ?? 50;
   const offset = filters.offset ?? 0;
   const rows = await db.select().from(lineSlips).where(and(...conditions)).orderBy(desc(lineSlips.createdAt)).limit(limit).offset(offset);
+  const withIds = await withSubmitterLineIds(rows);
   const items = await Promise.all(
-    rows.map(async (slip) => {
+    withIds.map(async (slip) => {
       let signedUrl = "";
       try {
         if (slip.slipImageKey) {
@@ -2618,8 +2774,9 @@ async function getLineSlipById(id, churchId = DEFAULT_CHURCH_ID) {
   } catch (e) {
     console.warn(`[getLineSlipById] Failed to sign URL for slip #${id}:`, e);
   }
+  const [withId] = await withSubmitterLineIds([slip]);
   return {
-    ...slip,
+    ...withId,
     signedImageUrl
   };
 }
@@ -2677,32 +2834,69 @@ async function approveLineSlip(input) {
         `\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19\u0E23\u0E2B\u0E31\u0E2A #${input.fundId} \u0E2B\u0E23\u0E37\u0E2D\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E40\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19`
       );
     }
-    let donorName = input.donorName?.trim() || null;
+    if (slip.source === "no_slip" && !input.confirmedBankCheck) {
+      throw new Error(
+        "\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E2A\u0E48\u0E07\u0E42\u0E14\u0E22\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E25\u0E34\u0E1B\u0E15\u0E49\u0E2D\u0E07\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E01\u0E48\u0E2D\u0E19\u0E27\u0E48\u0E32\u0E15\u0E23\u0E27\u0E08\u0E01\u0E31\u0E1A\u0E22\u0E2D\u0E14\u0E40\u0E02\u0E49\u0E32\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E18\u0E19\u0E32\u0E04\u0E32\u0E23\u0E41\u0E25\u0E49\u0E27"
+      );
+    }
+    let memberName = null;
     if (input.memberId) {
       const [member] = await tx.select({ id: members.id, name: members.name }).from(members).where(
         and(eq(members.id, input.memberId), eq(members.churchId, churchId))
       ).limit(1);
-      if (member && !donorName) {
-        donorName = member.name;
-      }
+      memberName = member?.name ?? null;
     }
-    if (!donorName) {
-      donorName = slip.extractedSenderName || slip.lineDisplayName || "\u0E1C\u0E39\u0E49\u0E16\u0E27\u0E32\u0E22\u0E1C\u0E48\u0E32\u0E19 LINE";
+    const { name: donorName, source: nameSource } = resolveLedgerName({
+      reviewerName: input.donorName,
+      memberName,
+      slipName: slip.extractedSenderName,
+      typedName: slip.typedDonorName,
+      lineName: slip.submittedByName ?? slip.lineDisplayName
+    });
+    const submittedByName = slip.submittedByName ?? slip.lineDisplayName ?? null;
+    let lines;
+    if (input.items && input.items.length >= 2) {
+      lines = input.items;
+    } else if (input.items && input.items.length === 1) {
+      lines = [{ category: input.items[0].category, amount: input.amount }];
+    } else if (!input.category && Array.isArray(slip.declaredItems) && slip.declaredItems.length >= 2) {
+      lines = slip.declaredItems;
+    } else {
+      lines = [
+        {
+          category: input.category || "cash",
+          amount: input.amount
+        }
+      ];
     }
-    const [offering] = await tx.insert(offerings).values({
-      churchId,
-      amount: String(input.amount),
-      category: input.category || "cash",
-      fundId: input.fundId,
-      donorName,
-      donorMemberId: input.memberId ?? null,
-      receiptDate: input.receiptDate ?? slip.extractedDate ?? /* @__PURE__ */ new Date(),
-      method: "transfer",
-      reference: slip.extractedRef || `LINE-${slip.id}`,
-      notes: `[LINE Slip #${slip.id}] ${input.reviewNote ? input.reviewNote : ""}`.trim(),
-      recordedBy: input.approvedBy,
-      status: "active"
-    }).returning({ id: offerings.id });
+    if (lines.length >= 2) {
+      const problem = checkSplit(lines, input.amount);
+      if (problem) throw new Error(SPLIT_MESSAGE[problem]);
+    }
+    const isSplit = lines.length >= 2;
+    const baseRef = slip.extractedRef || `LINE-${slip.id}`;
+    const offeringIds = [];
+    for (let index2 = 0; index2 < lines.length; index2++) {
+      const line = lines[index2];
+      const [offering2] = await tx.insert(offerings).values({
+        churchId,
+        amount: String(line.amount),
+        category: line.category,
+        fundId: input.fundId,
+        donorName,
+        donorMemberId: input.memberId ?? null,
+        receiptDate: input.receiptDate ?? slip.extractedDate ?? slip.declaredDate ?? /* @__PURE__ */ new Date(),
+        method: "transfer",
+        reference: splitReference(baseRef, index2),
+        notes: `[${slip.source === "no_slip" ? "\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E25\u0E34\u0E1B" : "LINE Slip"} #${slip.id}${isSplit ? ` \u0E41\u0E1A\u0E48\u0E07\u0E22\u0E2D\u0E14 ${index2 + 1}/${lines.length}` : ""}] ${input.reviewNote ? input.reviewNote : ""}`.trim(),
+        recordedBy: input.approvedBy,
+        submittedByUserId: slip.submittedByUserId ?? null,
+        submittedByName,
+        status: "active"
+      }).returning({ id: offerings.id });
+      offeringIds.push(offering2.id);
+    }
+    const offering = { id: offeringIds[0] };
     await tx.execute(
       sql2`UPDATE finance_accounts SET balance = balance + ${input.amount} WHERE id = ${input.fundId} AND "churchId" = ${churchId}`
     );
@@ -2731,13 +2925,21 @@ async function approveLineSlip(input) {
         fundName: fund.name,
         memberId: input.memberId,
         donorName,
+        nameSource,
+        slipSource: slip.source,
+        offeringIds,
+        split: isSplit ? lines : null,
+        submittedByUserId: slip.submittedByUserId ?? null,
         slipRef: slip.extractedRef
       }
     });
     return {
       success: true,
       slipId: input.slipId,
-      offeringId: offering.id
+      offeringId: offering.id,
+      offeringIds,
+      submittedByUserId: slip.submittedByUserId ?? null,
+      amount: input.amount
     };
   });
 }
@@ -2774,7 +2976,11 @@ async function rejectLineSlip(input) {
         previousStatus: slip.status
       }
     });
-    return { success: true, slipId: input.slipId };
+    return {
+      success: true,
+      slipId: input.slipId,
+      submittedByUserId: slip.submittedByUserId ?? null
+    };
   });
 }
 async function updateLineSlipReview(input) {
@@ -2888,7 +3094,8 @@ var donorSlipColumns = {
   reviewedBy: lineSlips.reviewedBy,
   reviewNote: lineSlips.reviewNote,
   lastErrorMessage: lineSlips.lastErrorMessage,
-  aiData: lineSlips.aiData
+  aiData: lineSlips.aiData,
+  source: lineSlips.source
 };
 async function countRecentSystemRejectedSlips(lineUserId, since, exceptSlipId = null, churchId = DEFAULT_CHURCH_ID) {
   const db = await getDb();
@@ -2943,6 +3150,9 @@ async function createManualSlip(input) {
     churchId,
     lineUserId: `manual-${input.userId}`,
     lineDisplayName: input.donorName || `\u0E2D\u0E31\u0E1B\u0E42\u0E2B\u0E25\u0E14\u0E42\u0E14\u0E22 ${input.userName || "\u0E40\u0E08\u0E49\u0E32\u0E2B\u0E19\u0E49\u0E32\u0E17\u0E35\u0E48"}`,
+    submittedByUserId: input.userId,
+    submittedByName: input.userName ?? null,
+    typedDonorName: input.typedDonorName?.trim() || null,
     lineEventId: `manual-${Date.now()}-${hash.slice(0, 8)}`,
     slipImageKey: key,
     slipHash: hash,
@@ -2950,7 +3160,8 @@ async function createManualSlip(input) {
     processingAttempts: 0,
     declaredAmount: input.declared?.amount ?? null,
     declaredCategory: input.declared?.category ?? null,
-    declaredFundId: input.declared?.fundId ?? null
+    declaredFundId: input.declared?.fundId ?? null,
+    declaredItems: input.declared?.items ?? null
   }).returning();
   await db.insert(lineProcessingJobs).values({
     slipId: slip.id,
@@ -2960,15 +3171,115 @@ async function createManualSlip(input) {
   });
   return slip;
 }
+var DuplicateEntryError = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "DuplicateEntryError";
+  }
+};
+var DAY_MS2 = 24 * 60 * 60 * 1e3;
+async function createNoSlipEntry(input) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const churchId = input.churchId ?? DEFAULT_CHURCH_ID;
+  const now = input.now ?? /* @__PURE__ */ new Date();
+  const lineUserId = `manual-${input.userId}`;
+  const dayStart = new Date(input.transferDate);
+  dayStart.setUTCHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart.getTime() + DAY_MS2);
+  const [same] = await db.select({ id: lineSlips.id }).from(lineSlips).where(
+    and(
+      eq(lineSlips.churchId, churchId),
+      eq(lineSlips.lineUserId, lineUserId),
+      eq(lineSlips.source, "no_slip"),
+      eq(lineSlips.declaredAmount, input.amount),
+      eq(lineSlips.declaredCategory, input.category),
+      gte(lineSlips.declaredDate, dayStart),
+      lt(lineSlips.declaredDate, dayEnd),
+      ne(lineSlips.status, "rejected"),
+      gte(lineSlips.createdAt, new Date(now.getTime() - DAY_MS2))
+    )
+  ).limit(1);
+  if (same) {
+    throw new DuplicateEntryError(
+      "\u0E2A\u0E48\u0E07\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E19\u0E35\u0E49\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E33\u0E25\u0E31\u0E07\u0E23\u0E2D\u0E40\u0E2B\u0E23\u0E31\u0E0D\u0E0D\u0E34\u0E01\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A \u0E44\u0E21\u0E48\u0E15\u0E49\u0E2D\u0E07\u0E2A\u0E48\u0E07\u0E0B\u0E49\u0E33"
+    );
+  }
+  const [similar] = await db.select({ id: lineSlips.id }).from(lineSlips).where(
+    and(
+      eq(lineSlips.churchId, churchId),
+      ne(lineSlips.lineUserId, lineUserId),
+      sql2`lower(${lineSlips.typedDonorName}) = ${input.donorName.toLowerCase()}`,
+      eq(lineSlips.declaredAmount, input.amount),
+      gte(lineSlips.declaredDate, dayStart),
+      lt(lineSlips.declaredDate, dayEnd),
+      ne(lineSlips.status, "rejected")
+    )
+  ).limit(1);
+  const [ledgerTwin] = await db.select({ id: offerings.id }).from(offerings).where(
+    and(
+      eq(offerings.churchId, churchId),
+      eq(offerings.status, "active"),
+      sql2`lower(${offerings.donorName}) = ${input.donorName.toLowerCase()}`,
+      eq(offerings.amount, input.amount),
+      gte(offerings.receiptDate, dayStart),
+      lt(offerings.receiptDate, dayEnd)
+    )
+  ).limit(1);
+  const warning = similar || ledgerTwin ? "\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E0A\u0E37\u0E48\u0E2D \u0E22\u0E2D\u0E14 \u0E41\u0E25\u0E30\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E40\u0E2B\u0E21\u0E37\u0E2D\u0E19\u0E01\u0E31\u0E19\u0E41\u0E25\u0E49\u0E27 (\u0E2D\u0E32\u0E08\u0E0B\u0E49\u0E33) \u0E15\u0E23\u0E27\u0E08\u0E01\u0E31\u0E1A\u0E22\u0E2D\u0E14\u0E40\u0E02\u0E49\u0E32\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E18\u0E19\u0E32\u0E04\u0E32\u0E23\u0E01\u0E48\u0E2D\u0E19\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34" : null;
+  const token = randomUUID();
+  const hash = createHash("sha256").update(`no-slip:${token}`).digest("hex");
+  const [row] = await db.insert(lineSlips).values({
+    churchId,
+    lineUserId,
+    lineDisplayName: input.userName || null,
+    lineEventId: `manual-${now.getTime()}-${hash.slice(0, 8)}`,
+    slipImageKey: "",
+    slipHash: hash,
+    status: "needs_review",
+    source: "no_slip",
+    processingAttempts: 0,
+    declaredAmount: input.amount,
+    declaredCategory: input.category,
+    declaredFundId: input.fundId ?? null,
+    declaredDate: dayStart,
+    declaredItems: input.items ?? null,
+    submittedByUserId: input.userId,
+    submittedByName: input.userName ?? null,
+    typedDonorName: input.donorName,
+    lastErrorMessage: warning
+  }).returning();
+  return { slip: row, warning };
+}
+async function listFinanceUserIds() {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ id: users.id }).from(users).where(
+    and(
+      eq(users.status, "active"),
+      or(
+        eq(users.role, "admin"),
+        inArray(users.churchRole, ["SUPER_ADMIN", "TREASURER"]),
+        like(users.churchRoles, "%SUPER_ADMIN%"),
+        like(users.churchRoles, "%TREASURER%")
+      )
+    )
+  );
+  return rows.map((r) => r.id);
+}
 async function rescanLineSlip(slipId, churchId = DEFAULT_CHURCH_ID) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const [slip] = await db.select({
     id: lineSlips.id,
     status: lineSlips.status,
-    approvedOfferingId: lineSlips.approvedOfferingId
+    approvedOfferingId: lineSlips.approvedOfferingId,
+    source: lineSlips.source
   }).from(lineSlips).where(and(eq(lineSlips.id, slipId), eq(lineSlips.churchId, churchId))).limit(1);
   if (!slip) throw new Error(`\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E2A\u0E25\u0E34\u0E1B #${slipId}`);
+  if (slip.source === "no_slip") {
+    throw new Error(`\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23 #${slipId} \u0E44\u0E21\u0E48\u0E21\u0E35\u0E23\u0E39\u0E1B\u0E2A\u0E25\u0E34\u0E1B \u0E08\u0E36\u0E07\u0E2A\u0E41\u0E01\u0E19\u0E14\u0E49\u0E27\u0E22 AI \u0E44\u0E21\u0E48\u0E44\u0E14\u0E49`);
+  }
   if (slip.status === "approved" || slip.approvedOfferingId) {
     throw new Error(
       `\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E2A\u0E41\u0E01\u0E19\u0E2A\u0E25\u0E34\u0E1B #${slipId} \u0E0B\u0E49\u0E33\u0E44\u0E14\u0E49 \u0E40\u0E19\u0E37\u0E48\u0E2D\u0E07\u0E08\u0E32\u0E01\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34\u0E41\u0E25\u0E30\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E41\u0E25\u0E49\u0E27`
@@ -3391,12 +3702,6 @@ import { createHmac, createHash as createHash2, timingSafeEqual as timingSafeEqu
 
 // server/line/processWorker.ts
 import { and as and4, eq as eq4, lte as lte3, sql as sql3 } from "drizzle-orm";
-
-// shared/givingLimits.ts
-var MAX_GIVING_AMOUNT = 1e7;
-var MAX_SLIP_IMAGE_BYTES = 3.5 * 1024 * 1024;
-var MAX_SLIPS_PER_DAY = 20;
-var MAX_AUTO_REJECTS = 3;
 
 // server/_core/llm.ts
 var ensureArray = (value) => Array.isArray(value) ? value : [value];
@@ -3960,7 +4265,8 @@ function verifySlip(input) {
     churchAccount,
     churchPromptPayId,
     isDuplicate,
-    escalate = false
+    escalate = false,
+    now = /* @__PURE__ */ new Date()
   } = input;
   const fromStation = declaredAmount !== null;
   let amount = null;
@@ -3989,6 +4295,17 @@ function verifySlip(input) {
       }
     } else if (receiver.kind === "suspect") {
       reviewWarning = "\u0E40\u0E25\u0E02\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E1C\u0E39\u0E49\u0E23\u0E31\u0E1A\u0E43\u0E19\u0E2A\u0E25\u0E34\u0E1B\u0E15\u0E48\u0E32\u0E07\u0E08\u0E32\u0E01\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E04\u0E23\u0E34\u0E2A\u0E15\u0E08\u0E31\u0E01\u0E23 \u0E15\u0E23\u0E27\u0E08\u0E20\u0E32\u0E1E\u0E2A\u0E25\u0E34\u0E1B\u0E01\u0E48\u0E2D\u0E19\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34";
+    }
+  }
+  if (!isDuplicate && extraction.transferDate && extraction.dateConfidence >= CONFIDENCE_THRESHOLD) {
+    const problem = checkTransferDate(
+      new Date(extraction.transferDate),
+      now,
+      SLIP_OLD_WARNING_DAYS
+    );
+    const dateWarning = problem === "future" ? "\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E43\u0E19\u0E2A\u0E25\u0E34\u0E1B\u0E40\u0E1B\u0E47\u0E19\u0E27\u0E31\u0E19\u0E43\u0E19\u0E2D\u0E19\u0E32\u0E04\u0E15 \u0E15\u0E23\u0E27\u0E08\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E1A\u0E19\u0E20\u0E32\u0E1E\u0E2A\u0E25\u0E34\u0E1B\u0E01\u0E48\u0E2D\u0E19\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34" : problem === "too_old" ? `\u0E2A\u0E25\u0E34\u0E1B\u0E19\u0E35\u0E49\u0E40\u0E01\u0E48\u0E32\u0E40\u0E01\u0E34\u0E19 ${SLIP_OLD_WARNING_DAYS} \u0E27\u0E31\u0E19 \u0E15\u0E23\u0E27\u0E08\u0E27\u0E48\u0E32\u0E44\u0E21\u0E48\u0E43\u0E0A\u0E48\u0E2A\u0E25\u0E34\u0E1B\u0E40\u0E01\u0E48\u0E32\u0E17\u0E35\u0E48\u0E2A\u0E48\u0E07\u0E0B\u0E49\u0E33` : null;
+    if (dateWarning) {
+      reviewWarning = reviewWarning ? `${reviewWarning}. ${dateWarning}` : dateWarning;
     }
   }
   let escalated = false;
@@ -4409,14 +4726,16 @@ function registerLineWorker(app2) {
 }
 
 // server/line/webhook.ts
-import { eq as eq5, and as and5 } from "drizzle-orm";
+import { eq as eq5, and as and5, ne as ne3 } from "drizzle-orm";
 var LINE_API_BASE = "https://api.line.me/v2/bot";
 var LINE_CONTENT_BASE = "https://api-data.line.me/v2/bot";
 var MAX_WEBHOOK_BODY_BYTES = 256 * 1024;
 function validateSignature(rawBody, signature) {
   if (!ENV.lineChannelSecret) {
     if (ENV.isProduction) return false;
-    console.warn("[LINE Webhook] LINE_CHANNEL_SECRET not set \u2014 skipping validation (dev only)");
+    console.warn(
+      "[LINE Webhook] LINE_CHANNEL_SECRET not set \u2014 skipping validation (dev only)"
+    );
     return true;
   }
   const expected = createHmac("sha256", ENV.lineChannelSecret).update(rawBody).digest("base64");
@@ -4443,7 +4762,9 @@ async function downloadLineImage(messageId) {
     { headers: { Authorization: `Bearer ${ENV.lineChannelAccessToken}` } }
   );
   if (!resp.ok) {
-    throw new Error(`LINE image download failed: ${resp.status} ${resp.statusText}`);
+    throw new Error(
+      `LINE image download failed: ${resp.status} ${resp.statusText}`
+    );
   }
   return Buffer.from(await resp.arrayBuffer());
 }
@@ -4459,9 +4780,7 @@ async function replyToLine(replyToken, text2) {
       replyToken,
       messages: [{ type: "text", text: text2 }]
     })
-  }).catch(
-    (e) => console.error("[LINE Webhook] reply failed:", e)
-  );
+  }).catch((e) => console.error("[LINE Webhook] reply failed:", e));
 }
 function sha256Hex(data) {
   return createHash2("sha256").update(data).digest("hex");
@@ -4500,9 +4819,18 @@ async function processImageEvent(event, churchId) {
     return;
   }
   const slipHash = sha256Hex(imageBuffer);
-  const hashDuplicate = await db.select({ id: lineSlips.id, status: lineSlips.status }).from(lineSlips).where(eq5(lineSlips.slipHash, slipHash)).limit(1);
+  const hashDuplicate = await db.select({ id: lineSlips.id, status: lineSlips.status }).from(lineSlips).where(
+    and5(
+      eq5(lineSlips.churchId, churchId),
+      eq5(lineSlips.slipHash, slipHash),
+      ne3(lineSlips.status, "rejected"),
+      ne3(lineSlips.status, "failed")
+    )
+  ).limit(1);
   if (hashDuplicate.length > 0) {
-    console.log(`[LINE Webhook] Duplicate image hash ${slipHash} from ${lineUserId}`);
+    console.log(
+      `[LINE Webhook] Duplicate image hash ${slipHash} from ${lineUserId}`
+    );
     if (event.replyToken) {
       await replyToLine(
         event.replyToken,
@@ -4516,7 +4844,11 @@ async function processImageEvent(event, churchId) {
   const storageKey = `line/${churchId}/${lineUserId}/${dateStr}/${slipHash.slice(0, 16)}.jpg`;
   let uploadResult;
   try {
-    uploadResult = await storagePutPrivate(storageKey, imageBuffer, "image/jpeg");
+    uploadResult = await storagePutPrivate(
+      storageKey,
+      imageBuffer,
+      "image/jpeg"
+    );
   } catch (err) {
     console.error("[LINE Webhook] Storage upload failed:", err);
     if (event.replyToken) {
@@ -4541,7 +4873,9 @@ async function processImageEvent(event, churchId) {
       processingAttempts: 0
     }).onConflictDoNothing().returning({ id: lineSlips.id });
     if (!inserted) {
-      console.log(`[LINE Webhook] Conflict on lineEventId ${lineEventId} \u2014 already inserted`);
+      console.log(
+        `[LINE Webhook] Conflict on lineEventId ${lineEventId} \u2014 already inserted`
+      );
       return;
     }
     newSlipId = inserted.id;
@@ -4717,8 +5051,21 @@ async function notifyOwner(payload) {
 // server/_core/trpc.ts
 import { initTRPC, TRPCError as TRPCError2 } from "@trpc/server";
 import superjson from "superjson";
+import { ZodError } from "zod";
+function readableInputMessage(cause, fallback) {
+  if (!(cause instanceof ZodError)) return fallback;
+  const message = cause.issues[0]?.message?.trim();
+  return message ? message : fallback;
+}
 var t = initTRPC.context().create({
-  transformer: superjson
+  transformer: superjson,
+  errorFormatter({ shape, error }) {
+    if (error.code !== "BAD_REQUEST") return shape;
+    return {
+      ...shape,
+      message: readableInputMessage(error.cause, shape.message)
+    };
+  }
 });
 var router = t.router;
 var publicProcedure = t.procedure;
@@ -4929,6 +5276,13 @@ function toDonorSlipStatus(row) {
         slipAmount: null
       };
     default:
+      if (row.source === "no_slip") {
+        return {
+          state: "in_review",
+          message: "\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E41\u0E25\u0E49\u0E27 \u0E22\u0E31\u0E07\u0E44\u0E21\u0E48\u0E19\u0E31\u0E1A\u0E40\u0E02\u0E49\u0E32\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E08\u0E19\u0E01\u0E27\u0E48\u0E32\u0E40\u0E2B\u0E23\u0E31\u0E0D\u0E0D\u0E34\u0E01\u0E15\u0E23\u0E27\u0E08\u0E01\u0E31\u0E1A\u0E22\u0E2D\u0E14\u0E40\u0E02\u0E49\u0E32\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E18\u0E19\u0E32\u0E04\u0E32\u0E23",
+          slipAmount: null
+        };
+      }
       if (isEscalated(row.aiData)) {
         return {
           state: "in_review",
@@ -4948,32 +5302,31 @@ function toDonorSlipStatus(row) {
   }
 }
 
+// shared/slipReading.ts
+var UNREADABLE_SLIP = {
+  status: "unreadable",
+  amount: null,
+  senderName: null,
+  transferDate: null,
+  bank: null
+};
+
+// server/line/slipReading.ts
+function toSlipReading(extraction) {
+  const sure = (confidence) => (confidence ?? 0) >= CONFIDENCE_THRESHOLD;
+  const amount = extraction.amount !== null && extraction.amount > 0 && sure(extraction.amountConfidence) ? extraction.amount : null;
+  const name = extraction.senderName?.trim() ?? "";
+  const senderName = name !== "" && sure(extraction.senderConfidence) ? name.slice(0, 120) : null;
+  const transferDate = extraction.transferDate && sure(extraction.dateConfidence) ? extraction.transferDate : null;
+  const bank = extraction.bankName?.trim() || null;
+  if (amount === null && senderName === null && transferDate === null) {
+    return { ...UNREADABLE_SLIP, bank };
+  }
+  return { status: "read", amount, senderName, transferDate, bank };
+}
+
 // server/routers.ts
 import { TRPCError as TRPCError3 } from "@trpc/server";
-
-// shared/categories.ts
-var EXPENSE_CATEGORY_IDS = [
-  "utilities",
-  "ministry",
-  "pastoral",
-  "admin",
-  "building",
-  "worship",
-  "welfare",
-  "other"
-];
-var OFFERING_CATEGORY_IDS = [
-  "cash",
-  "meal",
-  "memorial",
-  "mission",
-  "special",
-  "land",
-  "party",
-  "venue_rent"
-];
-
-// server/routers.ts
 function getUserRoles(user) {
   const list = [];
   if (user.churchRoles) {
@@ -5025,7 +5378,7 @@ function canApproveDeduction(user) {
   return hasAnyRole(user, "SUPER_ADMIN", "PASTOR", "TREASURER");
 }
 var adminProcedure2 = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== "admin" && ctx.user.churchRole !== "SUPER_ADMIN") {
+  if (!hasAnyRole(ctx.user, "SUPER_ADMIN")) {
     throw new TRPCError3({
       code: "FORBIDDEN",
       message: "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1C\u0E39\u0E49\u0E14\u0E39\u0E41\u0E25\u0E23\u0E30\u0E1A\u0E1A\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19"
@@ -5047,6 +5400,15 @@ var churchLeaderProcedure = protectedProcedure.use(({ ctx, next }) => {
     throw new TRPCError3({
       code: "FORBIDDEN",
       message: "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1C\u0E39\u0E49\u0E19\u0E33\u0E04\u0E23\u0E34\u0E2A\u0E15\u0E08\u0E31\u0E01\u0E23\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19"
+    });
+  }
+  return next();
+});
+var fundManageProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!canManageFinance(ctx.user) && !canManageChurchSettings(ctx.user)) {
+    throw new TRPCError3({
+      code: "FORBIDDEN",
+      message: "\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19"
     });
   }
   return next();
@@ -5105,9 +5467,20 @@ var budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
   }
   return next();
 });
+async function assertActiveFund(fundId) {
+  const funds = await listFinanceAccounts();
+  if (!funds.some((f) => f.id === fundId)) {
+    throw new TRPCError3({
+      code: "BAD_REQUEST",
+      message: "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19\u0E17\u0E35\u0E48\u0E40\u0E25\u0E37\u0E2D\u0E01"
+    });
+  }
+}
 var RECEIPT_EXTENSIONS = {
   "image/jpeg": "jpg",
   "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
   "application/pdf": "pdf"
 };
 var newsCategory = z3.enum([
@@ -5119,6 +5492,21 @@ var newsCategory = z3.enum([
 var newsStatus = z3.enum(["draft", "published", "archived"]);
 var eventStatus = z3.enum(["draft", "published", "cancelled"]);
 var offeringCategory = z3.enum(OFFERING_CATEGORY_IDS);
+var splitLine = z3.object({
+  category: offeringCategory,
+  amount: z3.number().positive("\u0E22\u0E2D\u0E14\u0E02\u0E2D\u0E07\u0E41\u0E15\u0E48\u0E25\u0E30\u0E1B\u0E23\u0E30\u0E40\u0E20\u0E17\u0E15\u0E49\u0E2D\u0E07\u0E21\u0E32\u0E01\u0E01\u0E27\u0E48\u0E32 0").max(MAX_GIVING_AMOUNT)
+});
+var splitItems = z3.array(splitLine).min(MIN_SPLIT_LINES).max(MAX_SPLIT_LINES);
+function assertSplitSound(items, total) {
+  if (!items) return;
+  const problem = checkSplit(items, total);
+  if (problem) {
+    throw new TRPCError3({
+      code: "BAD_REQUEST",
+      message: SPLIT_MESSAGE[problem]
+    });
+  }
+}
 var expenseCategory = z3.enum(EXPENSE_CATEGORY_IDS);
 var expenseStatus = z3.enum(["draft", "approved", "paid"]);
 var paymentMethod = z3.enum(["cash", "transfer", "check"]);
@@ -5211,6 +5599,53 @@ async function drainWorkerWithin(ms) {
     clearTimeout(timer);
   }
 }
+async function notifyFinanceOfNewEntry(opts) {
+  try {
+    const ids = await listFinanceUserIds();
+    const what = opts.kind === "no_slip" ? "\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E27\u0E32\u0E22\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E25\u0E34\u0E1B (\u0E15\u0E49\u0E2D\u0E07\u0E15\u0E23\u0E27\u0E08\u0E01\u0E31\u0E1A\u0E22\u0E2D\u0E14\u0E40\u0E02\u0E49\u0E32\u0E1A\u0E31\u0E0D\u0E0A\u0E35)" : "\u0E2A\u0E25\u0E34\u0E1B\u0E16\u0E27\u0E32\u0E22";
+    await Promise.all(
+      ids.map(
+        (userId) => createNotification({
+          userId,
+          type: "giving_review",
+          title: "\u0E21\u0E35\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E27\u0E32\u0E22\u0E23\u0E2D\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A",
+          description: `${opts.from} \u0E2A\u0E48\u0E07${what} ${opts.amount.toLocaleString()} \u0E1A\u0E32\u0E17`,
+          link: "/giving/inbox"
+        })
+      )
+    );
+  } catch (err) {
+    console.warn("[notify] Could not notify finance users:", err);
+  }
+}
+async function notifyDonorOfDecision(opts) {
+  if (opts.userId === null) return;
+  try {
+    await createNotification({
+      userId: opts.userId,
+      type: opts.decision === "approved" ? "giving_approved" : "giving_rejected",
+      title: opts.decision === "approved" ? "\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E01\u0E32\u0E23\u0E16\u0E27\u0E32\u0E22\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E40\u0E02\u0E49\u0E32\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E41\u0E25\u0E49\u0E27" : "\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E27\u0E32\u0E22\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A\u0E01\u0E32\u0E23\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34",
+      description: opts.decision === "approved" ? `\u0E40\u0E2B\u0E23\u0E31\u0E0D\u0E0D\u0E34\u0E01\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E22\u0E2D\u0E14 ${(opts.amount ?? 0).toLocaleString()} \u0E1A\u0E32\u0E17\u0E41\u0E25\u0E49\u0E27 \u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E1E\u0E23\u0E30\u0E40\u0E08\u0E49\u0E32` : `\u0E40\u0E2B\u0E15\u0E38\u0E1C\u0E25: ${opts.reason ?? "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07"} \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E08\u0E49\u0E32\u0E2B\u0E19\u0E49\u0E32\u0E17\u0E35\u0E48\u0E2B\u0E23\u0E37\u0E2D\u0E2A\u0E48\u0E07\u0E43\u0E2B\u0E21\u0E48`,
+      link: "/giving/station"
+    });
+  } catch (err) {
+    console.warn("[notify] Could not notify the donor:", err);
+  }
+}
+var slipReadTimes = /* @__PURE__ */ new Map();
+function allowSlipRead(userId, now = Date.now()) {
+  const recent = (slipReadTimes.get(userId) ?? []).filter(
+    (t2) => now - t2 < 5 * 60 * 1e3
+  );
+  if (recent.length >= MAX_SLIP_READS_PER_5_MIN) {
+    slipReadTimes.set(userId, recent);
+    return false;
+  }
+  recent.push(now);
+  slipReadTimes.set(userId, recent);
+  return true;
+}
+var SLIP_READ_TIMEOUT_MS = 2e4;
 var appRouter = router({
   system: systemRouter,
   // ── Auth ────────────────────────────────────────────────────────────────────
@@ -5252,7 +5687,7 @@ var appRouter = router({
     ).mutation(async ({ ctx, input }) => {
       await updateUserProfile(ctx.user.id, input);
       await createAuditLog({
-        churchId: "default",
+        churchId: DEFAULT_CHURCH_ID,
         userId: ctx.user.id,
         action: "update_profile",
         entity: "user",
@@ -5284,7 +5719,7 @@ var appRouter = router({
       await updateUserChurchRole(input.userId, input.churchRole, roles);
       await setUserStatus(input.userId, "active");
       await createAuditLog({
-        churchId: "default",
+        churchId: DEFAULT_CHURCH_ID,
         userId: ctx.user.id,
         action: "update_user_role",
         entity: "user",
@@ -5321,7 +5756,7 @@ var appRouter = router({
         });
       }
       await createAuditLog({
-        churchId: "default",
+        churchId: DEFAULT_CHURCH_ID,
         userId: ctx.user.id,
         action: "delete_user",
         entity: "user",
@@ -5350,7 +5785,7 @@ var appRouter = router({
       }
       await setUserStatus(input.userId, input.status);
       await createAuditLog({
-        churchId: "default",
+        churchId: DEFAULT_CHURCH_ID,
         userId: ctx.user.id,
         action: input.status === "active" ? "approve_user" : "disable_user",
         entity: "user",
@@ -5385,13 +5820,20 @@ var appRouter = router({
         fiscalYearStartMonth: z3.number().int().min(1).max(12).default(1),
         motto: z3.string().trim().max(280).optional()
       })
-    ).mutation(async ({ input }) => {
+    ).mutation(async ({ ctx, input }) => {
       const { promptPayId, ...rest } = input;
       await upsertChurchProfile({
         ...rest,
         churchId: DEFAULT_CHURCH_ID,
         // "" clears the ID. undefined leaves it alone. Store digits only.
         ...promptPayId === void 0 ? {} : { promptPayId: parsePromptPayId(promptPayId)?.digits ?? null }
+      });
+      await createAuditLog({
+        churchId: DEFAULT_CHURCH_ID,
+        userId: ctx.user.id,
+        action: "update_church_profile",
+        entity: "church_profile",
+        metadata: { name: input.name }
       });
       return { success: true };
     }),
@@ -5436,7 +5878,7 @@ var appRouter = router({
     saveStationPoster: churchLeaderProcedure.input(stationPosterSchema).mutation(async ({ input, ctx }) => {
       await saveStationPosterJson(JSON.stringify(input));
       await createAuditLog({
-        churchId: "default",
+        churchId: DEFAULT_CHURCH_ID,
         userId: ctx.user.id,
         action: "save_station_poster",
         entity: "church_profile",
@@ -5467,7 +5909,7 @@ var appRouter = router({
       const accounts = await listFinanceAccounts();
       return accounts.map((a) => ({ id: a.id, name: a.name, type: a.type }));
     }),
-    createAccount: financeProcedure.input(
+    createAccount: fundManageProcedure.input(
       z3.object({
         name: z3.string().trim().min(2).max(120),
         type: z3.enum([
@@ -5516,7 +5958,9 @@ var appRouter = router({
       z3.object({
         amount: z3.number().positive().max(MAX_GIVING_AMOUNT),
         category: offeringCategory.default("cash"),
-        fundId: z3.number().int().positive().optional(),
+        // Required: an entry with no fund changes no fund balance, so the
+        // total balance stops matching the income and expense totals.
+        fundId: z3.number().int().positive(),
         donorName: z3.string().trim().max(120).optional(),
         receiptDate: z3.coerce.date().optional(),
         method: paymentMethod.default("cash"),
@@ -5524,10 +5968,11 @@ var appRouter = router({
         notes: z3.string().trim().max(500).optional()
       })
     ).mutation(async ({ ctx, input }) => {
+      await assertActiveFund(input.fundId);
       const id = await createOffering({
         amount: input.amount.toFixed(2),
         category: input.category,
-        fundId: input.fundId ?? null,
+        fundId: input.fundId,
         donorName: input.donorName ?? null,
         receiptDate: input.receiptDate ?? /* @__PURE__ */ new Date(),
         method: input.method,
@@ -5555,9 +6000,11 @@ var appRouter = router({
     update: financeProcedure.input(
       z3.object({
         id: z3.number().int().positive(),
-        amount: z3.number().positive().optional(),
+        amount: z3.number().positive().max(MAX_GIVING_AMOUNT, "\u0E08\u0E33\u0E19\u0E27\u0E19\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E39\u0E07\u0E40\u0E01\u0E34\u0E19\u0E01\u0E33\u0E2B\u0E19\u0E14").optional(),
         category: offeringCategory.optional(),
-        fundId: z3.number().int().positive().nullable().optional(),
+        // Leave it out to keep the fund. null is refused: it would take the
+        // amount out of the fund and put it in no fund.
+        fundId: z3.number().int().positive().optional(),
         donorName: z3.string().trim().max(120).nullable().optional(),
         receiptDate: z3.coerce.date().optional(),
         method: paymentMethod.optional(),
@@ -5566,6 +6013,8 @@ var appRouter = router({
       })
     ).mutation(async ({ ctx, input }) => {
       const { id, amount, ...rest } = input;
+      if (typeof rest.fundId === "number")
+        await assertActiveFund(rest.fundId);
       const updated = await updateOffering(id, {
         ...rest,
         ...amount === void 0 ? {} : { amount: amount.toFixed(2) }
@@ -5624,7 +6073,8 @@ var appRouter = router({
       z3.object({
         amount: z3.number().positive(),
         category: expenseCategory.default("other"),
-        fundId: z3.number().int().positive().optional(),
+        // Required, for the same reason as on offerings.create.
+        fundId: z3.number().int().positive(),
         description: z3.string().trim().min(2).max(280),
         details: z3.string().trim().max(1e3).optional(),
         expenseDate: z3.coerce.date().optional(),
@@ -5633,10 +6083,11 @@ var appRouter = router({
         receiptUrl: z3.string().url().optional()
       })
     ).mutation(async ({ ctx, input }) => {
+      await assertActiveFund(input.fundId);
       const id = await createExpense({
         amount: input.amount.toFixed(2),
         category: input.category,
-        fundId: input.fundId ?? null,
+        fundId: input.fundId,
         description: input.description,
         details: input.details ?? null,
         expenseDate: input.expenseDate ?? /* @__PURE__ */ new Date(),
@@ -5666,7 +6117,13 @@ var appRouter = router({
     uploadReceipt: financeProcedure.input(
       z3.object({
         fileName: z3.string().min(1).max(255),
-        contentType: z3.enum(["image/jpeg", "image/png", "application/pdf"]),
+        contentType: z3.enum([
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/gif",
+          "application/pdf"
+        ]),
         // About 5 MB of binary once decoded; matches the /api/trpc body limit.
         base64Data: z3.string().min(1).max(69e5)
       })
@@ -5683,9 +6140,10 @@ var appRouter = router({
     update: financeProcedure.input(
       z3.object({
         id: z3.number().int().positive(),
-        amount: z3.number().positive().optional(),
+        amount: z3.number().positive().max(MAX_GIVING_AMOUNT, "\u0E08\u0E33\u0E19\u0E27\u0E19\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E39\u0E07\u0E40\u0E01\u0E34\u0E19\u0E01\u0E33\u0E2B\u0E19\u0E14").optional(),
         category: expenseCategory.optional(),
-        fundId: z3.number().int().positive().nullable().optional(),
+        // Leave it out to keep the fund. null is refused, as on offerings.update.
+        fundId: z3.number().int().positive().optional(),
         description: z3.string().trim().min(2).max(280).optional(),
         details: z3.string().trim().max(1e3).nullable().optional(),
         expenseDate: z3.coerce.date().optional(),
@@ -5736,7 +6194,7 @@ var appRouter = router({
   // ── Withdrawal bank signers (Part 2) ────────────────────────────────────────
   bankSigners: router({
     list: protectedProcedure.query(async ({ ctx }) => {
-      if (!canManageFinance(ctx.user) && !await isBankSigner(ctx.user.id)) {
+      if (!canManageFinance(ctx.user) && !canManageChurchSettings(ctx.user) && !await isBankSigner(ctx.user.id)) {
         throw new TRPCError3({
           code: "FORBIDDEN",
           message: "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1D\u0E48\u0E32\u0E22\u0E01\u0E32\u0E23\u0E40\u0E07\u0E34\u0E19\u0E41\u0E25\u0E30\u0E1C\u0E39\u0E49\u0E21\u0E35\u0E2D\u0E33\u0E19\u0E32\u0E08\u0E25\u0E07\u0E19\u0E32\u0E21\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19"
@@ -5791,18 +6249,19 @@ var appRouter = router({
   // ── Withdrawals ──────────────────────────────────────────────────────────────
   withdrawals: router({
     list: protectedProcedure.input(z3.object({ myOnly: z3.boolean().default(false) }).optional()).query(async ({ ctx, input }) => {
-      const seesAll = canManageFinance(ctx.user) || await isBankSigner(ctx.user.id);
+      const seesAll = canManageFinance(ctx.user) || canManageChurchSettings(ctx.user) || await isBankSigner(ctx.user.id);
       const userId = input?.myOnly || !seesAll ? ctx.user.id : void 0;
       return await listWithdrawalRequests(DEFAULT_CHURCH_ID, { userId });
     }),
     create: protectedProcedure.input(
       z3.object({
-        amount: z3.number().positive(),
+        amount: z3.number().positive().max(MAX_WITHDRAWAL_AMOUNT, "\u0E08\u0E33\u0E19\u0E27\u0E19\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E39\u0E07\u0E40\u0E01\u0E34\u0E19\u0E01\u0E33\u0E2B\u0E19\u0E14"),
         purpose: z3.string().trim().min(5).max(280),
         details: z3.string().trim().max(1e3).optional(),
         fundId: z3.number().int().positive().optional()
       })
     ).mutation(async ({ ctx, input }) => {
+      if (input.fundId !== void 0) await assertActiveFund(input.fundId);
       const id = await createWithdrawalRequest({
         amount: input.amount.toFixed(2),
         purpose: input.purpose,
@@ -6109,7 +6568,7 @@ var appRouter = router({
         input.toDate
       );
     }),
-    exportCsv: financeProcedure.input(reportDateRange).query(async ({ input }) => {
+    exportCsv: financeViewProcedure.input(reportDateRange).query(async ({ input }) => {
       const rows = await getFinancialReportData(
         DEFAULT_CHURCH_ID,
         input.fromDate,
@@ -6135,11 +6594,11 @@ var appRouter = router({
       news: await listPublishedChurchNews(),
       events: await listPublishedChurchEvents()
     })),
-    adminList: adminProcedure2.query(async () => ({
+    adminList: churchLeaderProcedure.query(async () => ({
       news: await listAllChurchNews(),
       events: await listAllChurchEvents()
     })),
-    createNews: adminProcedure2.input(
+    createNews: churchLeaderProcedure.input(
       z3.object({
         title: z3.string().trim().min(3).max(180),
         summary: z3.string().trim().min(3).max(280),
@@ -6159,7 +6618,7 @@ var appRouter = router({
       });
       return { id };
     }),
-    createEvent: adminProcedure2.input(
+    createEvent: churchLeaderProcedure.input(
       z3.object({
         title: z3.string().trim().min(3).max(180),
         summary: z3.string().trim().min(3).max(280),
@@ -6187,7 +6646,7 @@ var appRouter = router({
       });
       return { id };
     }),
-    updateNews: adminProcedure2.input(
+    updateNews: churchLeaderProcedure.input(
       z3.object({
         id: z3.number().int().positive(),
         title: z3.string().trim().min(3).max(180),
@@ -6207,7 +6666,7 @@ var appRouter = router({
       });
       return { success: true };
     }),
-    updateEvent: adminProcedure2.input(
+    updateEvent: churchLeaderProcedure.input(
       z3.object({
         id: z3.number().int().positive(),
         title: z3.string().trim().min(3).max(180),
@@ -6235,19 +6694,19 @@ var appRouter = router({
       });
       return { success: true };
     }),
-    setNewsStatus: adminProcedure2.input(z3.object({ id: z3.number().int().positive(), status: newsStatus })).mutation(async ({ input }) => {
+    setNewsStatus: churchLeaderProcedure.input(z3.object({ id: z3.number().int().positive(), status: newsStatus })).mutation(async ({ input }) => {
       await updateChurchNewsStatus(input.id, input.status);
       return { success: true };
     }),
-    setEventStatus: adminProcedure2.input(z3.object({ id: z3.number().int().positive(), status: eventStatus })).mutation(async ({ input }) => {
+    setEventStatus: churchLeaderProcedure.input(z3.object({ id: z3.number().int().positive(), status: eventStatus })).mutation(async ({ input }) => {
       await updateChurchEventStatus(input.id, input.status);
       return { success: true };
     }),
-    deleteNews: adminProcedure2.input(z3.object({ id: z3.number().int().positive() })).mutation(async ({ input }) => {
+    deleteNews: churchLeaderProcedure.input(z3.object({ id: z3.number().int().positive() })).mutation(async ({ input }) => {
       await deleteChurchNews(input.id);
       return { success: true };
     }),
-    deleteEvent: adminProcedure2.input(z3.object({ id: z3.number().int().positive() })).mutation(async ({ input }) => {
+    deleteEvent: churchLeaderProcedure.input(z3.object({ id: z3.number().int().positive() })).mutation(async ({ input }) => {
       await deleteChurchEvent(input.id);
       return { success: true };
     })
@@ -6272,7 +6731,9 @@ var appRouter = router({
           ...detail,
           envelopes: detail.envelopes.map((e) => ({
             ...e,
-            donorName: null
+            donorName: null,
+            memberId: null,
+            envelopeNo: null
           }))
         };
       }
@@ -6503,7 +6964,8 @@ var appRouter = router({
         notes: z3.string().trim().max(500).optional()
       })
     ).mutation(async ({ ctx, input }) => {
-      await requireCountingSession(input.sessionId);
+      const session = await requireCountingSession(input.sessionId);
+      assertNotPosted(session.status);
       const id = await addBankRecord({
         sessionId: input.sessionId,
         type: input.type,
@@ -6524,6 +6986,31 @@ var appRouter = router({
         metadata: input
       });
       return { id };
+    }),
+    removeBankRecord: financeProcedure.input(
+      z3.object({
+        id: z3.number().int().positive(),
+        sessionId: z3.number().int().positive()
+      })
+    ).mutation(async ({ ctx, input }) => {
+      const session = await requireCountingSession(input.sessionId);
+      assertNotPosted(session.status);
+      const removed = await deleteBankRecord(input.id, input.sessionId);
+      if (!removed) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E18\u0E19\u0E32\u0E04\u0E32\u0E23 \u0E2B\u0E23\u0E37\u0E2D\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E01\u0E23\u0E30\u0E17\u0E1A\u0E2A\u0E21\u0E38\u0E14\u0E1A\u0E31\u0E0D\u0E0A\u0E35/\u0E1C\u0E39\u0E01\u0E01\u0E31\u0E1A\u0E04\u0E33\u0E02\u0E2D\u0E40\u0E1A\u0E34\u0E01\u0E41\u0E25\u0E49\u0E27"
+        });
+      }
+      await createAuditLog({
+        churchId: DEFAULT_CHURCH_ID,
+        userId: ctx.user.id,
+        action: "DELETE",
+        entity: "bank_record",
+        entityId: input.id,
+        metadata: {}
+      });
+      return { success: true };
     }),
     matchPassbook: financeProcedure.input(
       z3.object({
@@ -6672,7 +7159,7 @@ var appRouter = router({
         input.id,
         session.status,
         "counted",
-        { countSubmittedAt: /* @__PURE__ */ new Date() }
+        { countedBy: ctx.user.id, countSubmittedAt: /* @__PURE__ */ new Date() }
       );
       if (!moved) {
         throw new TRPCError3({
@@ -6794,7 +7281,7 @@ var appRouter = router({
       if (earlier) {
         throw new TRPCError3({
           code: "CONFLICT",
-          message: `\u0E15\u0E49\u0E2D\u0E07\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E23\u0E2D\u0E1A\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48 ${earlier.serviceDate.toISOString().slice(0, 10)} \u0E23\u0E2D\u0E1A\u0E17\u0E35\u0E48 ${earlier.serviceRound} \u0E01\u0E48\u0E2D\u0E19`
+          message: `\u0E15\u0E49\u0E2D\u0E07\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E23\u0E2D\u0E1A\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48 ${new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Bangkok" }).format(earlier.serviceDate)} \u0E23\u0E2D\u0E1A\u0E17\u0E35\u0E48 ${earlier.serviceRound} \u0E01\u0E48\u0E2D\u0E19`
         });
       }
       const r = detail.reconciliation;
@@ -7012,11 +7499,14 @@ var appRouter = router({
         donorName: z3.string().nullable().optional(),
         category: offeringCategory.optional(),
         receiptDate: z3.coerce.date().optional(),
-        reviewNote: z3.string().optional()
+        reviewNote: z3.string().optional(),
+        confirmedBankCheck: z3.boolean().optional(),
+        /** One line, or two or more to split the transfer by category. */
+        items: z3.array(splitLine).min(1).max(MAX_SPLIT_LINES).optional()
       })
     ).mutation(async ({ ctx, input }) => {
       try {
-        return await approveLineSlip({
+        const result = await approveLineSlip({
           slipId: input.slipId,
           churchId: DEFAULT_CHURCH_ID,
           approvedBy: ctx.user.id,
@@ -7026,8 +7516,16 @@ var appRouter = router({
           donorName: input.donorName,
           category: input.category,
           receiptDate: input.receiptDate,
-          reviewNote: input.reviewNote
+          reviewNote: input.reviewNote,
+          confirmedBankCheck: input.confirmedBankCheck,
+          items: input.items
         });
+        await notifyDonorOfDecision({
+          userId: result.submittedByUserId,
+          decision: "approved",
+          amount: result.amount
+        });
+        return result;
       } catch (err) {
         const msg = err?.message || "\u0E40\u0E01\u0E34\u0E14\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14\u0E43\u0E19\u0E01\u0E32\u0E23\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34\u0E2A\u0E25\u0E34\u0E1B";
         if (msg.includes("\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A\u0E01\u0E32\u0E23\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27")) {
@@ -7046,12 +7544,18 @@ var appRouter = router({
       })
     ).mutation(async ({ ctx, input }) => {
       try {
-        return await rejectLineSlip({
+        const result = await rejectLineSlip({
           slipId: input.slipId,
           churchId: DEFAULT_CHURCH_ID,
           reviewedBy: ctx.user.id,
           reason: input.reason
         });
+        await notifyDonorOfDecision({
+          userId: result.submittedByUserId,
+          decision: "rejected",
+          reason: input.reason
+        });
+        return result;
       } catch (err) {
         throw new TRPCError3({
           code: "BAD_REQUEST",
@@ -7165,10 +7669,13 @@ var appRouter = router({
         base64Data: z3.string().min(1, "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E41\u0E19\u0E1A\u0E23\u0E39\u0E1B\u0E2A\u0E25\u0E34\u0E1B"),
         amount: z3.number().positive("\u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E30\u0E1A\u0E38\u0E08\u0E33\u0E19\u0E27\u0E19\u0E40\u0E07\u0E34\u0E19\u0E17\u0E35\u0E48\u0E16\u0E27\u0E32\u0E22").max(MAX_GIVING_AMOUNT, "\u0E08\u0E33\u0E19\u0E27\u0E19\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E39\u0E07\u0E40\u0E01\u0E34\u0E19\u0E01\u0E33\u0E2B\u0E19\u0E14"),
         category: offeringCategory,
+        /** Set when one transfer pays for several categories. */
+        items: splitItems.optional(),
         fundId: z3.number().int().positive().optional(),
         donorName: z3.string().trim().max(120).optional()
       })
     ).mutation(async ({ ctx, input }) => {
+      assertSplitSound(input.items, input.amount);
       let image;
       try {
         image = decodeSlipImage(input.base64Data);
@@ -7203,14 +7710,17 @@ var appRouter = router({
           churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
           userName: ctx.user.name ?? void 0,
-          donorName: input.donorName || ctx.user.name || void 0,
+          // The LINE name stays as the sender. The typed name is kept apart.
+          donorName: ctx.user.name || void 0,
+          typedDonorName: input.donorName || void 0,
           imageBuffer: image.buffer,
           contentType: image.contentType,
           extension: image.extension,
           declared: {
             amount: input.amount.toFixed(2),
-            category: input.category,
-            fundId: input.fundId ?? null
+            category: input.items?.[0].category ?? input.category,
+            fundId: input.fundId ?? null,
+            items: input.items ?? null
           }
         });
       } catch (err) {
@@ -7228,9 +7738,16 @@ var appRouter = router({
         entityId: slip.id,
         metadata: {
           declaredAmount: input.amount,
-          declaredCategory: input.category,
+          declaredCategory: input.items?.[0].category ?? input.category,
+          declaredItems: input.items ?? null,
           declaredFundId: input.fundId ?? null
         }
+      });
+      await notifyFinanceOfNewEntry({
+        slipId: slip.id,
+        from: ctx.user.name ?? "\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01",
+        amount: input.amount,
+        kind: "slip"
       });
       await drainWorkerWithin(SLIP_CHECK_WAIT_MS);
       const row = await getMyManualSlip(slip.id, ctx.user.id);
@@ -7243,7 +7760,148 @@ var appRouter = router({
         `manual-${ctx.user.id}`,
         new Date(Date.now() - 24 * 60 * 60 * 1e3)
       );
-      return { success: true, slipId: slip.id, check, failedAttempts };
+      return {
+        success: true,
+        slipId: slip.id,
+        check,
+        failedAttempts
+      };
+    }),
+    /**
+     * A member sends the details of a transfer without a slip image. The entry
+     * waits in the review queue. Nothing is credited until a treasurer checks
+     * it against the bank and approves.
+     */
+    submitWithoutSlip: protectedProcedure.input(
+      z3.object({
+        amount: z3.number().positive("\u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E30\u0E1A\u0E38\u0E08\u0E33\u0E19\u0E27\u0E19\u0E40\u0E07\u0E34\u0E19\u0E17\u0E35\u0E48\u0E16\u0E27\u0E32\u0E22").max(MAX_GIVING_AMOUNT, "\u0E08\u0E33\u0E19\u0E27\u0E19\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E39\u0E07\u0E40\u0E01\u0E34\u0E19\u0E01\u0E33\u0E2B\u0E19\u0E14"),
+        category: offeringCategory,
+        items: splitItems.optional(),
+        fundId: z3.number().int().positive().optional(),
+        donorName: z3.string().trim().min(2, "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E30\u0E1A\u0E38\u0E0A\u0E37\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E16\u0E27\u0E32\u0E22 \u0E2D\u0E22\u0E48\u0E32\u0E07\u0E19\u0E49\u0E2D\u0E22 2 \u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23").max(120),
+        transferDate: z3.coerce.date()
+      })
+    ).mutation(async ({ ctx, input }) => {
+      assertSplitSound(input.items, input.amount);
+      const problem = checkTransferDate(input.transferDate);
+      if (problem) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: TRANSFER_DATE_MESSAGE[problem]
+        });
+      }
+      if (input.fundId !== void 0) {
+        const funds = await listFinanceAccounts();
+        if (!funds.some((f) => f.id === input.fundId)) {
+          throw new TRPCError3({
+            code: "BAD_REQUEST",
+            message: "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19\u0E17\u0E35\u0E48\u0E40\u0E25\u0E37\u0E2D\u0E01"
+          });
+        }
+      }
+      const recent = await countRecentManualSlips(
+        ctx.user.id,
+        new Date(Date.now() - 24 * 60 * 60 * 1e3)
+      );
+      if (recent >= MAX_SLIPS_PER_DAY) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message: "\u0E2A\u0E48\u0E07\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E04\u0E23\u0E1A\u0E08\u0E33\u0E19\u0E27\u0E19\u0E15\u0E48\u0E2D\u0E27\u0E31\u0E19\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E1E\u0E23\u0E38\u0E48\u0E07\u0E19\u0E35\u0E49"
+        });
+      }
+      let created;
+      try {
+        created = await createNoSlipEntry({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? void 0,
+          donorName: input.donorName,
+          amount: input.amount.toFixed(2),
+          category: input.items?.[0].category ?? input.category,
+          items: input.items ?? null,
+          fundId: input.fundId ?? null,
+          transferDate: input.transferDate
+        });
+      } catch (err) {
+        if (err instanceof DuplicateEntryError) {
+          throw new TRPCError3({ code: "CONFLICT", message: err.message });
+        }
+        console.error("[submitWithoutSlip] Could not store entry:", err);
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07"
+        });
+      }
+      await createAuditLog({
+        churchId: DEFAULT_CHURCH_ID,
+        userId: ctx.user.id,
+        action: "CREATE",
+        entity: "line_slip",
+        entityId: created.slip.id,
+        metadata: {
+          source: "no_slip",
+          declaredAmount: input.amount,
+          declaredCategory: input.items?.[0].category ?? input.category,
+          declaredItems: input.items ?? null,
+          declaredFundId: input.fundId ?? null,
+          declaredDate: input.transferDate.toISOString().slice(0, 10),
+          possibleDuplicate: created.warning !== null
+        }
+      });
+      await notifyFinanceOfNewEntry({
+        slipId: created.slip.id,
+        from: ctx.user.name ?? "\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01",
+        amount: input.amount,
+        kind: "no_slip"
+      });
+      return {
+        success: true,
+        slipId: created.slip.id,
+        check: toDonorSlipStatus(created.slip),
+        failedAttempts: 0
+      };
+    }),
+    /**
+     * Reads a slip the moment the donor attaches it, so the form can fill in
+     * the amount, the name and the date. Nothing is stored and nothing is
+     * credited. A reading that fails or is slow returns "unreadable", never an
+     * error, so the donor can always fill the form by hand.
+     */
+    readSlip: protectedProcedure.input(z3.object({ base64Data: z3.string().min(1) })).mutation(async ({ ctx, input }) => {
+      let image;
+      try {
+        image = decodeSlipImage(input.base64Data);
+      } catch (err) {
+        if (err instanceof SlipImageError) {
+          throw new TRPCError3({ code: "BAD_REQUEST", message: err.message });
+        }
+        throw err;
+      }
+      if (!allowSlipRead(ctx.user.id)) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message: "\u0E2D\u0E48\u0E32\u0E19\u0E2A\u0E25\u0E34\u0E1B\u0E1A\u0E48\u0E2D\u0E22\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E01\u0E23\u0E38\u0E13\u0E32\u0E01\u0E23\u0E2D\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E40\u0E2D\u0E07\u0E2B\u0E23\u0E37\u0E2D\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E43\u0E19\u0E2D\u0E35\u0E01\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48"
+        });
+      }
+      let timer;
+      try {
+        const dataUrl = `data:${image.contentType};base64,${image.buffer.toString("base64")}`;
+        const extraction = await Promise.race([
+          extractSlipData(dataUrl),
+          new Promise((_, reject) => {
+            timer = setTimeout(
+              () => reject(new Error("slip reading timed out")),
+              SLIP_READ_TIMEOUT_MS
+            );
+          })
+        ]);
+        return toSlipReading(extraction);
+      } catch (err) {
+        console.warn("[readSlip] Could not read the slip:", err);
+        return UNREADABLE_SLIP;
+      } finally {
+        clearTimeout(timer);
+      }
     }),
     /** The caller's own recent slips and what became of them. */
     mySlips: protectedProcedure.query(async ({ ctx }) => {

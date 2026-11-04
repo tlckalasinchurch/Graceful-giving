@@ -19,18 +19,18 @@ export const LoadingSkeleton: React.FC<{
   className?: string;
 }> = ({ count = 3, height = "h-24", className = "" }) => {
   return (
-    <div className={`space-y-3.5 w-full ${className}`}>
+    <div className={`space-y-3 w-full ${className}`}>
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className={`w-full ${height} rounded-3xl bg-surface animate-pulse border border-line p-4 flex items-center gap-4`}
+          className={`w-full ${height} rounded-xl bg-surface animate-pulse border border-line p-4 flex items-center gap-4`}
         >
-          <div className="w-14 h-14 rounded-2xl bg-paper-2 shrink-0" />
+          <div className="w-12 h-12 rounded-lg bg-paper-2 shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="w-1/3 h-4 rounded-lg bg-paper-2" />
-            <div className="w-1/2 h-3 rounded-lg bg-paper" />
+            <div className="w-1/3 h-4 rounded bg-paper-2" />
+            <div className="w-1/2 h-3 rounded bg-paper" />
           </div>
-          <div className="w-20 h-6 rounded-xl bg-paper-2" />
+          <div className="w-20 h-6 rounded-lg bg-paper-2" />
         </div>
       ))}
     </div>
@@ -58,12 +58,12 @@ export const EmptyState: React.FC<{
 }) => {
   return (
     <div
-      className={`py-10 px-6 rounded-2xl border border-dashed border-line flex flex-col items-center justify-center text-center space-y-3 ${className}`}
+      className={`py-10 px-6 rounded-xl bg-surface border border-line flex flex-col items-center justify-center text-center space-y-3 ${className}`}
     >
       <Illustration
         src={illustrationSrc}
         alt={illustrationAlt}
-        className="size-14 shrink-0 rounded-xl object-cover"
+        className="size-14 shrink-0 rounded-lg object-cover"
         width={56}
         height={56}
       />
@@ -74,7 +74,7 @@ export const EmptyState: React.FC<{
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="min-h-11 mt-2 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-10 mt-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brand"
         >
           {actionText}
         </button>
@@ -95,7 +95,7 @@ export const ErrorState: React.FC<{
   className = "",
 }) => (
   <div
-    className={`py-10 px-6 rounded-2xl bg-surface border border-danger/40 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+    className={`py-10 px-6 rounded-xl bg-surface border border-danger/40 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
     role="alert"
   >
     <div className="space-y-1 max-w-sm">
@@ -106,7 +106,7 @@ export const ErrorState: React.FC<{
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-11 rounded-2xl bg-danger hover:opacity-90 px-5 py-2.5 text-sm font-bold text-white transition-all"
+        className="min-h-10 rounded-xl bg-danger hover:opacity-90 px-4 py-2 text-sm font-semibold text-white transition-opacity"
       >
         ลองใหม่
       </button>
