@@ -207,17 +207,17 @@ export default function Transactions() {
           <button
             onClick={handleExport}
             aria-label="ส่งออก CSV"
-            className="min-h-11 px-3.5 rounded-2xl border border-field bg-surface text-ink text-sm font-semibold hover:bg-ground flex items-center gap-1.5"
+            className="min-h-10 px-3.5 rounded-xl border border-line bg-surface text-ink text-sm font-semibold hover:bg-ground flex items-center gap-1.5 transition-colors"
           >
             <Download className="size-4 text-ink-2" aria-hidden="true" />
             <span className="hidden sm:inline">ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="min-h-11 px-4 rounded-2xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold flex items-center gap-1.5"
+            className="min-h-10 px-4 rounded-xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold flex items-center gap-1.5 transition-colors"
           >
-            <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
-            <span>บันทึกใหม่</span>
+            <Plus className="size-4" aria-hidden="true" />
+            <span>บันทึกการถวาย</span>
           </button>
         </div>
       }
@@ -225,7 +225,7 @@ export default function Transactions() {
       {/* 1. Summary: one card split by hairlines, label over figure */}
       <section
         aria-label="สรุปรายการที่เลือก"
-        className="bg-surface rounded-3xl px-5 fintech-card"
+        className="bg-surface rounded-2xl border border-line px-5"
       >
         <dl className="grid grid-cols-1 divide-y divide-line/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {[
@@ -263,7 +263,7 @@ export default function Transactions() {
       </section>
 
       {/* 2. Filter Bar */}
-      <div className="bg-surface rounded-3xl p-4 md:p-5 fintech-card space-y-3">
+      <div className="bg-surface rounded-2xl border border-line p-4 md:p-5 space-y-3">
         <FilterBar
           searchPlaceholder="ค้นหารายการ, หมวดหมู่, หรือพันธกิจ..."
           searchValue={searchTerm}
@@ -306,7 +306,7 @@ export default function Transactions() {
           onAction={() => setLocation("/offerings/new")}
         />
       ) : (
-        <div className="bg-surface rounded-3xl fintech-card overflow-hidden">
+        <div className="bg-surface rounded-2xl border border-line overflow-hidden">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">

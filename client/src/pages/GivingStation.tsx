@@ -806,15 +806,15 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 animate-in fade-in duration-200">
                 <div className="lg:col-span-6 text-center -mt-4">
                   <StationCubeLogo
-                    brandTitle="GraceBox"
-                    subtitle="Automated church giving station"
+                    brandTitle="Grace Giving"
+                    subtitle="จุดถวายทรัพย์ดิจิทัลเพื่อพันธกิจ"
                   />
                 </div>
 
                 {/* Station Breadcrumb */}
                 <div className="lg:col-span-6 text-sm font-semibold text-ink-2 text-center sm:text-left">
-                  GraceBox Station <span className="text-ink-3 mx-1">/</span>{" "}
-                  {churchQuery.data?.name || "Sanctuary"}
+                  จุดถวายทรัพย์ <span className="text-ink-3 mx-1">/</span>{" "}
+                  {churchQuery.data?.name || "ห้องนมัสการ"}
                 </div>
 
                 {/* Donor Profile Card */}
@@ -1373,7 +1373,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             <div className="flex items-center justify-between border-b border-line pb-4">
               <div>
                 <h3 className="text-base font-bold text-ink flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-ink-2" />
+                  <QrCode className="w-4 h-4 text-brand" />
                   <span>ปรับแต่งป้าย QR Code หน้าห้อง</span>
                 </h3>
                 <p className="text-xs text-ink-3 mt-0.5">

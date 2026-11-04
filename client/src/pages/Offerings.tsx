@@ -15,7 +15,6 @@ import {
   Heart,
   Plus,
   QrCode,
-  Sparkles,
   Printer,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -165,8 +164,7 @@ export default function Offerings() {
       {/* 1. Header Banner with 3D Offering Box Illustration */}
       <div className="bg-surface rounded-2xl p-5 sm:p-7 border border-line flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-2 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-line text-xs font-bold text-ink-2">
-            <Sparkles className="w-3.5 h-3.5 text-brand" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-paper-2 border border-line text-xs font-semibold text-ink-2">
             <span>{bannerLabel}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-[hsl(140_50%_72%)]">

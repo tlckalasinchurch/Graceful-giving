@@ -34,34 +34,9 @@ import { fundShares } from "./Home/fundShares";
 
 const fmtThaiDate = (d: Date | string) => formatThaiDate(d);
 
-// ─── Balance count-up (snappy and instant) ───────────────────────────────────
-function useCountUp(target: number, durationMs = 200): number {
-  const [value, setValue] = useState(target);
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setValue(target);
-      return;
-    }
-    const start = performance.now();
-    let frameId: number;
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / durationMs, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(target * eased);
-      if (progress < 1) {
-        frameId = requestAnimationFrame(tick);
-      }
-    };
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, durationMs, prefersReducedMotion]);
-
-  return value;
+// ─── Instant Balance Resolution (No Artificial Tick) ─────────────────────────
+function useCountUp(target: number): number {
+  return target;
 }
 
 // ─── Main Component ──────────────────────────────────────────────────────────

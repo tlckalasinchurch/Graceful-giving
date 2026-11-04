@@ -19,8 +19,8 @@ import { cn } from "@/lib/utils";
 // ─── 1. Isometric Station Cube Logo (JamBox-inspired) ─────────────────────────
 
 export function StationCubeLogo({
-  brandTitle = "GraceBox",
-  subtitle = "AUTOMATED CHURCH GIVING STATION",
+  brandTitle = "Grace Giving",
+  subtitle = "จุดถวายทรัพย์ดิจิทัลเพื่อพันธกิจ",
   variant = "white",
   className,
 }: {
@@ -141,7 +141,7 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-surface border border-line px-6 py-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2",
+        "rounded-2xl bg-surface border border-line px-6 py-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2",
         className
       )}
     >
@@ -188,7 +188,7 @@ export function StationStatusCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-surface border border-line px-6 py-5 space-y-2.5",
+        "rounded-2xl bg-surface border border-line px-6 py-5 space-y-2.5",
         className
       )}
     >
@@ -219,8 +219,8 @@ export function StationStatusCard({
 
 export function StationHeroCTA({
   headline = "พร้อมถวายทรัพย์เลยไหม?",
-  buttonTitle = "Give Now",
-  buttonSubtitle = "เริ่มถวายทันที",
+  buttonTitle = "ถวายทรัพย์ตอนนี้",
+  buttonSubtitle = "เริ่มต้นทำรายการ",
   helperText = "เลือกกองทุนที่ต้องการถวาย · สแกนพร้อมเพย์หรือแนบสลิปได้ทันที",
   onClick,
   className,
@@ -235,7 +235,7 @@ export function StationHeroCTA({
   return (
     <div className={cn("space-y-3", className)}>
       <div className="space-y-0.5">
-        <h3 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.05]">
+        <h3 className="text-2xl sm:text-4xl font-bold text-white tracking-tight leading-[1.1]">
           {headline}
         </h3>
       </div>
@@ -243,75 +243,24 @@ export function StationHeroCTA({
       <button
         type="button"
         onClick={onClick}
-        className="group w-full text-left rounded-[28px] focus-visible:ring-4 focus-visible:ring-white/70 p-5 sm:p-6 bg-brand hover:bg-brand-ink active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
+        className="group w-full text-left rounded-2xl focus-visible:ring-2 focus-visible:ring-brand p-5 sm:p-6 bg-brand hover:bg-brand-ink transition-colors cursor-pointer flex items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4 min-w-0">
-          {/* Dark rounded-2xl icon box with vertical wave bars */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[22px] bg-black/15 flex items-center justify-center shrink-0">
-            <svg
-              viewBox="0 0 40 40"
-              className="w-9 h-9 text-black"
-              aria-hidden="true"
-            >
-              <line
-                x1="10"
-                y1="17"
-                x2="10"
-                y2="23"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-              <line
-                x1="15"
-                y1="13"
-                x2="15"
-                y2="27"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-              <line
-                x1="20"
-                y1="9"
-                x2="20"
-                y2="31"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-              <line
-                x1="25"
-                y1="13"
-                x2="25"
-                y2="27"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-              <line
-                x1="30"
-                y1="17"
-                x2="30"
-                y2="23"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-            </svg>
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-black/15 flex items-center justify-center shrink-0">
+            <HandCoins className="w-8 h-8 text-black" aria-hidden="true" />
           </div>
 
           <div className="min-w-0">
-            <div className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight leading-tight">
+            <div className="text-xl sm:text-2xl font-bold text-black tracking-tight leading-tight">
               {buttonTitle}
             </div>
-            <div className="text-sm sm:text-base font-bold text-black/80 mt-0.5">
+            <div className="text-sm font-semibold text-black/80 mt-0.5">
               {buttonSubtitle}
             </div>
           </div>
         </div>
 
-        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 border-black/40 flex items-center justify-center text-black shrink-0 group-hover:translate-x-1 transition-transform">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-black/40 flex items-center justify-center text-black shrink-0 group-hover:translate-x-1 transition-transform">
           <ArrowRight className="w-5 h-5" />
         </div>
       </button>
@@ -394,7 +343,7 @@ export function StationCountdownCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-surface border border-line px-6 py-5 flex items-center justify-between gap-4",
+        "rounded-2xl bg-surface border border-line px-6 py-5 flex items-center justify-between gap-4",
         className
       )}
     >
@@ -406,7 +355,7 @@ export function StationCountdownCard({
           role="timer"
           aria-label={label}
           className={cn(
-            "text-5xl sm:text-6xl font-black tabular-nums tracking-tight",
+            "text-4xl sm:text-5xl font-bold tabular-nums tracking-tight",
             warning ? "text-amber-300" : "text-white"
           )}
         >
@@ -449,7 +398,7 @@ export function StationStepStatusCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-surface border border-line px-6 py-5 space-y-1.5",
+        "rounded-2xl bg-surface border border-line px-6 py-5 space-y-1.5",
         className
       )}
     >
@@ -488,9 +437,9 @@ export function StationOfferingPackageCard({
       role="group"
       aria-label={title}
       className={cn(
-        "rounded-[28px] bg-[#0E0E10] border p-6 sm:p-7 space-y-4 transition-all",
+        "rounded-2xl bg-surface border border-line p-5 sm:p-6 space-y-4 transition-colors",
         selected
-          ? "border-white/40 bg-paper"
+          ? "border-brand bg-paper-2"
           : "border-line hover:border-white/20",
         className
       )}

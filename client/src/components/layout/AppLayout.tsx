@@ -192,9 +192,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {canRecordOffering && (
             <button
               onClick={() => navigate("/offerings/new")}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
-              <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
+              <Plus className="size-4" aria-hidden="true" />
               บันทึกการถวาย
             </button>
           )}
