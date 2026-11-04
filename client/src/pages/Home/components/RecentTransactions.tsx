@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { MoneyDisplay } from "@/components/common/CommonUI";
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 
 export interface TransactionItem {
   id: string;
@@ -26,53 +27,77 @@ export function RecentTransactions({
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="h-full bg-surface rounded-3xl p-3 sm:p-4 fintech-card w-full"
+      className="h-full rounded-3xl border border-line bg-surface p-5 sm:p-6 w-full flex flex-col justify-between"
     >
-      <div className="flex items-center justify-between px-3 pb-1 pt-2">
-        <h2 className="text-base font-bold text-ink">รายการล่าสุด</h2>
-        <button
-          onClick={onViewAll}
-          className="min-h-11 px-2 text-sm font-semibold text-brand-ink hover:underline focus-visible:ring-2 focus-visible:ring-brand"
-        >
-          ดูทั้งหมด
-        </button>
-      </div>
+      <div>
+        <div className="flex items-center justify-between pb-3">
+          <div>
+            <h2 className="text-base font-bold text-ink">รายการล่าสุด</h2>
+            <p className="text-xs text-ink-3 mt-0.5">
+              กิจกรรมการเงินที่บันทึกเข้าระบบ
+            </p>
+          </div>
+          <button
+            onClick={onViewAll}
+            className="min-h-9 inline-flex items-center rounded-xl border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:bg-paper-2 transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+          >
+            ดูทั้งหมด
+          </button>
+        </div>
 
-      {allTransactions.length === 0 ? (
-        <p className="px-3 py-8 text-center text-sm text-ink-2">
-          ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
-        </p>
-      ) : (
-        <ul className="divide-y divide-line/60">
-          {allTransactions.slice(0, 5).map(tx => {
-            return (
-              <li key={tx.id}>
-                <Link
-                  href={`/transactions/${tx.id}`}
-                  className="flex min-h-16 items-center justify-between gap-4 rounded-2xl px-3 py-3 hover:bg-paper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-                >
-                  <div className="flex min-w-0 items-center">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-ink">
-                        {tx.title}
-                      </p>
-                      <p className="truncate text-xs text-ink-2 pt-0.5">
-                        {tx.subCategory} · {fmtThaiDate(tx.date)}
-                      </p>
+        {allTransactions.length === 0 ? (
+          <p className="px-3 py-10 text-center text-sm text-ink-2">
+            ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
+          </p>
+        ) : (
+          <ul className="divide-y divide-line/70 mt-2">
+            {allTransactions.slice(0, 5).map(tx => {
+              const isIncome = tx.type === "income";
+              return (
+                <li key={tx.id}>
+                  <Link
+                    href={`/transactions/${tx.id}`}
+                    className="flex min-h-16 items-center justify-between gap-3.5 rounded-2xl px-2 py-3 hover:bg-paper-2/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div
+                        className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ${
+                          isIncome
+                            ? "bg-brand/10 text-brand"
+                            : "bg-paper-2 text-ink-2"
+                        }`}
+                      >
+                        {isIncome ? (
+                          <ArrowDownLeft
+                            className="size-5"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <ArrowUpRight className="size-5" aria-hidden="true" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-ink">
+                          {tx.title}
+                        </p>
+                        <p className="truncate text-xs text-ink-3 pt-0.5">
+                          {tx.subCategory} · {fmtThaiDate(tx.date)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <MoneyDisplay
-                    amount={tx.amount}
-                    type={tx.type}
-                    size="base"
-                    className="shrink-0"
-                  />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                    <MoneyDisplay
+                      amount={tx.amount}
+                      type={tx.type}
+                      size="base"
+                      className="shrink-0"
+                    />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }

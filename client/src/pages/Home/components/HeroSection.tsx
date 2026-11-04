@@ -4,7 +4,7 @@ export function HeroSection() {
   return (
     <section
       aria-label="Grace Giving ส่วนต้อนรับ"
-      className="relative flex w-full items-center justify-between gap-4 rounded-2xl bg-surface border border-line p-5 sm:gap-6 sm:p-6"
+      className="relative flex w-full items-center justify-between gap-4 rounded-3xl bg-surface border border-line p-6 sm:gap-6 sm:p-7"
     >
       <div className="relative z-10 order-1 min-w-0 space-y-2">
         <h1 className="display text-2xl font-bold text-ink sm:text-4xl">

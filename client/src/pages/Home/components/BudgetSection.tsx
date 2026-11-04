@@ -34,7 +34,7 @@ export function BudgetSection({
     <section
       aria-label="แผนการใช้จ่ายงบประมาณ"
       aria-busy={isLoading}
-      className="h-full bg-surface rounded-3xl p-5 sm:p-6 fintech-card space-y-4 w-full"
+      className="h-full bg-surface rounded-3xl border border-line p-5 sm:p-6 space-y-4 w-full"
     >
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-bold text-ink">แผนการใช้จ่าย</h2>

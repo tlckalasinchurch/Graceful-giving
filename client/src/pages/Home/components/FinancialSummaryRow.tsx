@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { formatAmount } from "@/lib/format";
+import { HandCoins, ReceiptText, TrendingUp, TrendingDown } from "lucide-react";
 
 interface FinancialSummaryRowProps {
   isBalanceLoading: boolean;
@@ -12,28 +13,6 @@ interface FinancialSummaryRowProps {
   isPositiveNet: boolean;
 }
 
-/** One card split by hairlines: label over figure, no icons. On a phone each
- *  cell is a row with the label left and the figure right. */
-function Cell({
-  label,
-  amount,
-  footnote,
-}: {
-  label: string;
-  amount: ReactNode;
-  footnote: ReactNode;
-}) {
-  return (
-    <div className="flex min-w-0 items-center justify-between gap-3 py-3.5 sm:block sm:px-6 sm:py-5 sm:first:pl-0 sm:last:pr-0">
-      <h3 className="text-xs font-bold text-ink-2 sm:text-sm">{label}</h3>
-      <div className="text-right sm:mt-1 sm:text-left">
-        {amount}
-        <p className="text-xs font-medium text-ink-3">{footnote}</p>
-      </div>
-    </div>
-  );
-}
-
 export function FinancialSummaryRow({
   isBalanceLoading,
   showBalance,
@@ -44,50 +23,100 @@ export function FinancialSummaryRow({
   expenseNote,
   isPositiveNet,
 }: FinancialSummaryRowProps) {
-  const figure = (
-    value: number | undefined,
-    tone: string,
-    sign: string
-  ): ReactNode =>
-    isBalanceLoading ? (
-      <div className="ml-auto h-7 w-28 rounded-xl bg-paper animate-pulse sm:ml-0" />
-    ) : (
-      <p
-        className={`display money text-xl font-bold leading-tight tracking-tight sm:text-2xl ${tone}`}
-      >
-        {showBalance && value !== undefined
-          ? `${sign}฿ ${formatAmount(Math.abs(value), 0)}`
-          : "—"}
-      </p>
-    );
-
   return (
-    <section
-      aria-label="สรุปตัวเลขการเงินรายเดือน"
-      className="rounded-3xl bg-surface px-5 fintech-card sm:px-6"
-    >
-      <div className="grid grid-cols-1 divide-y divide-line/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-        <Cell
-          label="รายรับเดือนนี้"
-          amount={figure(monthlyIncome, "text-income", "+")}
-          footnote={incomeNote}
-        />
-        <Cell
-          label="รายจ่ายเดือนนี้"
-          amount={figure(monthlyExpense, "text-ink", "")}
-          footnote={expenseNote}
-        />
-        <Cell
-          label="คงเหลือสุทธิเดือนนี้"
-          amount={figure(
-            netMonthly,
-            isPositiveNet ? "text-ink" : "text-danger",
-            isPositiveNet ? "" : "−"
-          )}
-          footnote={
-            isPositiveNet ? "รายรับมากกว่ารายจ่าย" : "รายจ่ายมากกว่ารายรับ"
-          }
-        />
+    <section aria-label="สรุปตัวเลขการเงินรายเดือน" className="w-full">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {/* Card 1: Signature Coral Card (Finexy Style) */}
+        <div className="flex flex-col justify-between rounded-3xl bg-brand p-5 sm:p-6 text-white shadow-xs">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs sm:text-sm font-bold text-white/90">
+              รายรับเดือนนี้
+            </span>
+            <span className="flex size-9 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-xs">
+              <HandCoins className="size-4.5" aria-hidden="true" />
+            </span>
+          </div>
+          <div className="mt-4 sm:mt-6">
+            {isBalanceLoading ? (
+              <div className="h-8 w-28 rounded-xl bg-white/20 animate-pulse" />
+            ) : (
+              <p className="display money text-2xl sm:text-3xl font-bold leading-tight text-white">
+                {showBalance && monthlyIncome !== undefined
+                  ? `+฿ ${formatAmount(Math.abs(monthlyIncome), 0)}`
+                  : "—"}
+              </p>
+            )}
+            <p className="mt-1.5 text-xs font-medium text-white/80">
+              {incomeNote || "ยอดเงินถวายทั้งหมด"}
+            </p>
+          </div>
+        </div>
+
+        {/* Card 2: Crisp White Card - Expenses */}
+        <div className="flex flex-col justify-between rounded-3xl border border-line bg-surface p-5 sm:p-6 text-ink">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs sm:text-sm font-bold text-ink-2">
+              รายจ่ายเดือนนี้
+            </span>
+            <span className="flex size-9 items-center justify-center rounded-xl bg-paper-2 text-ink-2">
+              <ReceiptText className="size-4.5" aria-hidden="true" />
+            </span>
+          </div>
+          <div className="mt-4 sm:mt-6">
+            {isBalanceLoading ? (
+              <div className="h-8 w-28 rounded-xl bg-paper-2 animate-pulse" />
+            ) : (
+              <p className="display money text-2xl sm:text-3xl font-bold leading-tight text-ink">
+                {showBalance && monthlyExpense !== undefined
+                  ? `฿ ${formatAmount(Math.abs(monthlyExpense), 0)}`
+                  : "—"}
+              </p>
+            )}
+            <p className="mt-1.5 text-xs font-medium text-ink-3">
+              {expenseNote || "รายจ่ายพันธกิจและดำเนินงาน"}
+            </p>
+          </div>
+        </div>
+
+        {/* Card 3: Crisp White Card - Net */}
+        <div className="flex flex-col justify-between rounded-3xl border border-line bg-surface p-5 sm:p-6 text-ink">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs sm:text-sm font-bold text-ink-2">
+              คงเหลือสุทธิเดือนนี้
+            </span>
+            <span
+              className={`flex size-9 items-center justify-center rounded-xl ${
+                isPositiveNet
+                  ? "bg-income/10 text-income"
+                  : "bg-danger/10 text-danger"
+              }`}
+            >
+              {isPositiveNet ? (
+                <TrendingUp className="size-4.5" aria-hidden="true" />
+              ) : (
+                <TrendingDown className="size-4.5" aria-hidden="true" />
+              )}
+            </span>
+          </div>
+          <div className="mt-4 sm:mt-6">
+            {isBalanceLoading ? (
+              <div className="h-8 w-28 rounded-xl bg-paper-2 animate-pulse" />
+            ) : (
+              <p
+                className={`display money text-2xl sm:text-3xl font-bold leading-tight ${
+                  isPositiveNet ? "text-income" : "text-danger"
+                }`}
+              >
+                {showBalance && netMonthly !== undefined
+                  ? `${isPositiveNet ? "+" : "−"}฿ ${formatAmount(Math.abs(netMonthly), 0)}`
+                  : "—"}
+              </p>
+            )}
+            <p className="mt-1.5 text-xs font-medium text-ink-3">
+              {isPositiveNet ? "รายรับมากกว่ารายจ่าย" : "รายจ่ายมากกว่ารายรับ"}
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );

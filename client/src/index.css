@@ -23,26 +23,26 @@
   --radius-2xl: 1rem;
   --radius-3xl: 1.25rem;
 
-  /* Grace Giving — High-Contrast Minimalist × Editorial FinTech (Lumin Inspired)
-     Warm Stone Canvas (#F4F1EC), Crisp White Surface (#FFFFFF), Jet Black Hero/Text (#080808),
-     Signature Neon Lime CTA (#C8FF00) with Jet Black text (#080808).
-     Dark text on Neon Lime achieves 16.94:1 contrast (WCAG AAA). */
-  --color-ground: #f4f1ec;
+  /* Grace Giving — Contemporary Editorial FinTech (WW/STUDIO × Finexy Inspired)
+     Warm Paper Canvas (#F6F4F1), Stone Line (#E4DED2), Crisp White Surface (#FFFFFF),
+     Signature Coral CTA & Accent (#F95C4B), Jet Black Navigation & Typography (#000000).
+     Black text on Coral achieves 6.66:1 contrast (WCAG AA compliant). */
+  --color-ground: #f6f4f1;
   --color-paper: #faf8f5;
   --color-paper-2: #ede8e1;
   --color-surface: #ffffff;
   --color-ink: #080808;
   --color-ink-2: #5c5850;
   --color-ink-3: #5c5850;
-  --color-line: #e5e1da;
+  --color-line: #e4ded2;
   --color-field: #6c675f;
   --color-income: #047857;
   /* Danger sits one shade deeper than red-600 (#DC2626) so small text and
      white-on-danger buttons clear 4.5:1 on every light surface in the system,
-     including the warm stone canvas #F4F1EC (guarded by theme.contrast.test). */
+     including the warm stone canvas #F6F4F1 (guarded by theme.contrast.test). */
   --color-danger: #b91c1c;
-  --color-brand: #22c55e;
-  --color-brand-ink: #16a34a;
+  --color-brand: #f95c4b;
+  --color-brand-ink: #e54937;
 
   /* Category tiles — crisp light tints with deep matching hue ink */
   --color-tile-sky: #f0f7ff;
@@ -84,12 +84,12 @@
   --color-brand-sage: #047857;
   --color-brand-lightsage: #ecfdf5;
   --color-brand-peach: #fff7ed;
-  --color-brand-orange: #22c55e;
+  --color-brand-orange: #f95c4b;
   --color-brand-sky: #f0f7ff;
   --color-brand-brown: #080808;
   --color-brand-dark: var(--foreground);
   --color-brand-muted: #5c5850;
-  --color-brand-border: #e5e1da;
+  --color-brand-border: #e4ded2;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -109,9 +109,9 @@
   --mobile-nav-clearance: 5.5rem;
   --content-max: 88rem;
 
-  --primary: #22c55e;
+  --primary: #f95c4b;
   --primary-foreground: #080808;
-  --background: #f4f1ec;
+  --background: #f6f4f1;
   --foreground: #080808;
   --card: #ffffff;
   --card-foreground: #080808;
@@ -125,9 +125,9 @@
   --accent-foreground: #080808;
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
-  --border: #e5e1da;
+  --border: #e4ded2;
   --input: #6c675f;
-  --ring: #22c55e;
+  --ring: #f95c4b;
   --radius: 0.75rem;
 }
 
