@@ -139,9 +139,9 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
     role: "COUNTER",
     title: "กรรมการนับเงิน / ทีมนับเงินถวาย (COUNTER)",
     badgeStyle: {
-      bg: "bg-orange-500/15",
-      text: "text-orange-200",
-      border: "border-orange-500/30",
+      bg: "bg-amber-500/15",
+      text: "text-amber-200",
+      border: "border-amber-500/30",
       icon: "📝",
     },
     summary:

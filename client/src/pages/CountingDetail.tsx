@@ -306,7 +306,7 @@ export default function CountingDetail() {
       {
         icon: "question",
         confirmButtonText: "ล้างเพื่อนับใหม่",
-        confirmButtonColor: "#C94F16",
+        confirmButtonColor: "#E5A93C",
         cancelButtonText: "ยกเลิก",
       }
     );

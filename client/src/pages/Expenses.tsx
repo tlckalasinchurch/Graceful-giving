@@ -159,7 +159,7 @@ export default function Expenses() {
       case "admin":
         return { icon: Receipt, color: "bg-paper text-ink-2" };
       case "building":
-        return { icon: Building, color: "bg-orange-500/15 text-orange-300" };
+        return { icon: Building, color: "bg-amber-500/15 text-amber-300" };
       case "worship":
         return { icon: GraduationCap, color: "bg-paper-2 text-brand-ink" };
       case "welfare":

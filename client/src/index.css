@@ -23,35 +23,35 @@
   --radius-2xl: 1rem;
   --radius-3xl: 1.25rem;
 
-  /* Dark bento palette: matte-black ground, near-black cards, warm off-white
-     ink, orange brand, neon-green accent, and dark category tiles with bright
-     matching ink. Text on the orange brand is black (7.3:1); white fails AA. */
-  --color-ground: #050506;
-  --color-paper: #161618;
-  --color-paper-2: #1f1f22;
-  --color-surface: #0e0e10;
-  --color-ink: #f5f5f4;
-  --color-ink-2: #d6d3d1;
-  --color-ink-3: #a8a29e;
-  --color-line: #26262a;
-  --color-field: #71717a;
+  /* Warm Sanctuary & Harvest Gold palette: deep midnight-slate ground,
+     architectural slate cards, warm alabaster ink, harvest-gold brand, and
+     emerald income accent. Dark text on harvest gold exceeds 9.3:1 (AAA). */
+  --color-ground: #090d16;
+  --color-paper: #161f30;
+  --color-paper-2: #1e293b;
+  --color-surface: #101624;
+  --color-ink: #f8fafc;
+  --color-ink-2: #cbd5e1;
+  --color-ink-3: #94a3b8;
+  --color-line: #243044;
+  --color-field: #64748b;
   --color-income: #34d399;
   --color-danger: #fb7185;
-  --color-brand: #ff6a00;
-  --color-brand-ink: #ff8a3d;
+  --color-brand: #e5a93c;
+  --color-brand-ink: #f0be59;
 
   /* Category tiles — dark tints with bright matching hue ink */
-  --color-tile-sky: #0c2a3a;
+  --color-tile-sky: #0c2638;
   --color-tile-sky-ink: #38bdf8;
-  --color-tile-mint: #0b2e22;
+  --color-tile-mint: #0b2b22;
   --color-tile-mint-ink: #34d399;
-  --color-tile-peach: #3a1d0c;
-  --color-tile-peach-ink: #fb923c;
-  --color-tile-lilac: #2a1a3f;
+  --color-tile-peach: #33220e;
+  --color-tile-peach-ink: #f0be59;
+  --color-tile-lilac: #231a3a;
   --color-tile-lilac-ink: #c084fc;
-  --color-tile-sand: #3a2f0c;
+  --color-tile-sand: #33280e;
   --color-tile-sand-ink: #fbbf24;
-  --color-tile-rose: #3a1219;
+  --color-tile-rose: #35141d;
   --color-tile-rose-ink: #fb7185;
 
   --color-background: var(--background);
@@ -76,16 +76,16 @@
 
   /* Custom Grace-giving Brand Colors (Semantic Tokens) */
   --color-brand-bg: var(--background);
-  --color-brand-cream: #3a2f0c;
+  --color-brand-cream: #33280e;
   --color-brand-sage: #14532d;
-  --color-brand-lightsage: #0b2e22;
-  --color-brand-peach: #3a1d0c;
-  --color-brand-orange: #ff6a00;
-  --color-brand-sky: #0c2a3a;
-  --color-brand-brown: #f5f5f4;
+  --color-brand-lightsage: #0b2b22;
+  --color-brand-peach: #33220e;
+  --color-brand-orange: #e5a93c;
+  --color-brand-sky: #0c2638;
+  --color-brand-brown: #f8fafc;
   --color-brand-dark: var(--foreground);
-  --color-brand-muted: #a8a29e;
-  --color-brand-border: #26262a;
+  --color-brand-muted: #94a3b8;
+  --color-brand-border: #243044;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -105,25 +105,25 @@
   --mobile-nav-clearance: 5.5rem;
   --content-max: 88rem;
 
-  --primary: #ff6a00;
-  --primary-foreground: #000000;
-  --background: #050506;
-  --foreground: #f5f5f4;
-  --card: #0e0e10;
-  --card-foreground: #f5f5f4;
-  --popover: #0e0e10;
-  --popover-foreground: #f5f5f4;
-  --secondary: #161618;
-  --secondary-foreground: #f5f5f4;
-  --muted: #161618;
-  --muted-foreground: #a8a29e;
-  --accent: #1f1f22;
-  --accent-foreground: #f5f5f4;
+  --primary: #e5a93c;
+  --primary-foreground: #090d16;
+  --background: #090d16;
+  --foreground: #f8fafc;
+  --card: #101624;
+  --card-foreground: #f8fafc;
+  --popover: #101624;
+  --popover-foreground: #f8fafc;
+  --secondary: #161f30;
+  --secondary-foreground: #f8fafc;
+  --muted: #161f30;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
   --destructive: #e11d48;
   --destructive-foreground: #ffffff;
-  --border: #26262a;
-  --input: #71717a;
-  --ring: #ff6a00;
+  --border: #243044;
+  --input: #64748b;
+  --ring: #e5a93c;
   --radius: 0.875rem;
 }
 
@@ -314,11 +314,11 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: #334155;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: #475569;
 }
 
 /* ============================================

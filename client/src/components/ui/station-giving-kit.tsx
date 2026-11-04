@@ -43,7 +43,7 @@ export function StationCubeLogo({
         <polygon
           points="60,8 106,30 60,52 14,30"
           fill="#FFFFFF"
-          stroke="#18120E"
+          stroke="#090D16"
           strokeWidth="2.5"
           strokeLinejoin="round"
         />
@@ -51,17 +51,17 @@ export function StationCubeLogo({
         <polygon
           points="14,30 60,52 60,96 14,74"
           fill="#FFFFFF"
-          stroke="#18120E"
+          stroke="#090D16"
           strokeWidth="2.5"
           strokeLinejoin="round"
         />
         {/* Dark doorway recess inside left face */}
-        <polygon points="34,47 55,57 55,93 34,83" fill="#18120E" />
+        <polygon points="34,47 55,57 55,93 34,83" fill="#090D16" />
         {/* Open door panel swinging outward */}
         <polygon
           points="26,44 37,48 37,88 26,84"
-          fill={variant === "orange" ? "#F97316" : "#F8FAFC"}
-          stroke="#18120E"
+          fill={variant === "orange" ? "#E5A93C" : "#F8FAFC"}
+          stroke="#090D16"
           strokeWidth="2"
           strokeLinejoin="round"
         />
@@ -71,15 +71,15 @@ export function StationCubeLogo({
           y1="64"
           x2="34"
           y2="71"
-          stroke="#18120E"
+          stroke="#090D16"
           strokeWidth="2.2"
           strokeLinecap="round"
         />
         {/* Right face (wave bars side) */}
         <polygon
           points="60,52 106,30 106,74 60,96"
-          fill={variant === "orange" ? "#1E1815" : "#FFFFFF"}
-          stroke={variant === "orange" ? "#F97316" : "#18120E"}
+          fill={variant === "orange" ? "#101624" : "#FFFFFF"}
+          stroke={variant === "orange" ? "#E5A93C" : "#090D16"}
           strokeWidth="2.5"
           strokeLinejoin="round"
         />
@@ -97,7 +97,7 @@ export function StationCubeLogo({
             y1={b.y1}
             x2={b.x}
             y2={b.y2}
-            stroke={variant === "orange" ? "#F97316" : "#18120E"}
+            stroke={variant === "orange" ? "#E5A93C" : "#090D16"}
             strokeWidth="3.2"
             strokeLinecap="round"
           />
@@ -105,16 +105,16 @@ export function StationCubeLogo({
       </svg>
 
       <div className="mt-1 text-center">
-        <div className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-white">
+        <div className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-ink">
           {brandTitle.slice(0, -3)}
           <span
-            className={variant === "orange" ? "text-[#F97316]" : "text-white"}
+            className={variant === "orange" ? "text-brand" : "text-ink"}
           >
             {brandTitle.slice(-3)}
           </span>
         </div>
         {subtitle && (
-          <p className="mt-1.5 text-xs font-medium text-stone-300">
+          <p className="mt-1.5 text-xs font-medium text-ink-2">
             {subtitle}
           </p>
         )}
@@ -482,7 +482,7 @@ export function StationOfferingPackageCard({
         type="button"
         onClick={onSelect}
         aria-label={`${ctaLabel}: ${title}`}
-        className="w-full py-3.5 px-6 rounded-full focus-visible:ring-2 focus-visible:ring-white bg-brand hover:bg-brand-ink active:scale-[0.98] text-black font-black text-lg sm:text-xl transition-all cursor-pointer"
+        className="w-full py-3.5 px-6 rounded-xl focus-visible:ring-2 focus-visible:ring-brand bg-brand hover:bg-brand-ink text-black font-bold text-lg sm:text-xl transition-colors cursor-pointer"
       >
         {ctaLabel}
       </button>
@@ -514,12 +514,12 @@ export function StationUnlockConfirmCard({
   return (
     <div
       className={cn(
-        "rounded-[32px] bg-surface border border-line p-6 sm:p-8 text-center space-y-5",
+        "rounded-2xl bg-surface border border-line p-6 sm:p-8 text-center space-y-5",
         className
       )}
     >
       <div className="space-y-2.5">
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        <h3 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
           {title}
         </h3>
         <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-md mx-auto">
@@ -534,7 +534,7 @@ export function StationUnlockConfirmCard({
         onClick={onConfirm}
         disabled={disabled || loading}
         aria-busy={loading}
-        className="w-full py-5 sm:py-6 px-6 rounded-[24px] focus-visible:ring-4 focus-visible:ring-white/70 bg-brand hover:bg-brand-ink active:scale-[0.98] disabled:opacity-50 text-black font-black text-xl sm:text-2xl transition-all cursor-pointer"
+        className="w-full py-4 sm:py-5 px-6 rounded-xl focus-visible:ring-2 focus-visible:ring-brand bg-brand hover:bg-brand-ink disabled:opacity-50 text-black font-bold text-lg sm:text-xl transition-colors cursor-pointer"
       >
         {loading ? "กำลังส่งข้อมูลการถวาย..." : buttonLabel}
       </button>
@@ -595,13 +595,13 @@ export function StationQrPoster({
   const renderStepIcon = (icon: StationPosterStep["icon"]) => {
     switch (icon) {
       case "scan":
-        return <Smartphone className="w-6 h-6 text-white stroke-[2.2]" />;
+        return <Smartphone className="w-6 h-6 text-[#090D16] stroke-[2.2]" />;
       case "select":
-        return <CalendarCheck2 className="w-6 h-6 text-white stroke-[2.2]" />;
+        return <CalendarCheck2 className="w-6 h-6 text-[#090D16] stroke-[2.2]" />;
       case "pay":
-        return <CreditCard className="w-6 h-6 text-white stroke-[2.2]" />;
+        return <CreditCard className="w-6 h-6 text-[#090D16] stroke-[2.2]" />;
       case "done":
-        return <Play className="w-6 h-6 text-white fill-white ml-0.5" />;
+        return <Play className="w-6 h-6 text-[#090D16] fill-[#090D16] ml-0.5" />;
     }
   };
 
@@ -610,12 +610,12 @@ export function StationQrPoster({
       className={cn(
         // print-color-adjust keeps the dark board and white text when printed;
         // browsers drop background colors by default.
-        "p-4 sm:p-7 rounded-3xl bg-gradient-to-b from-[#F97316] via-[#EA580C] to-[#D97706] shadow-2xl inline-block w-full max-w-md mx-auto [print-color-adjust:exact] [-webkit-print-color-adjust:exact] print:shadow-none",
+        "p-4 sm:p-7 rounded-2xl bg-[#E5A93C] inline-block w-full max-w-md mx-auto [print-color-adjust:exact] [-webkit-print-color-adjust:exact] print:shadow-none",
         className
       )}
     >
-      {/* Inner Matte-Black Poster Board */}
-      <div className="bg-[#141414] rounded-2xl px-6 py-8 sm:px-8 sm:py-10 text-center space-y-6 border border-black/40 shadow-inner relative overflow-hidden">
+      {/* Inner Sanctuary-Navy Poster Board */}
+      <div className="bg-[#090D16] rounded-xl px-6 py-8 sm:px-8 sm:py-10 text-center space-y-6 border border-[#243044] relative overflow-hidden">
         {/* Top Isometric Logo + Brand */}
         <div className="flex flex-col items-center">
           <svg
@@ -631,23 +631,23 @@ export function StationQrPoster({
               strokeWidth="4.5"
               strokeLinejoin="round"
             />
-            {/* Right half of hexagon (orange door frame) */}
+            {/* Right half of hexagon (harvest gold door frame) */}
             <polygon
               points="60,10 102,32 102,78 60,100"
               fill="none"
-              stroke="#F97316"
+              stroke="#E5A93C"
               strokeWidth="4.5"
               strokeLinejoin="round"
             />
-            {/* Open Orange Door Panel */}
-            <polygon points="62,22 86,14 86,90 62,82" fill="#F97316" />
+            {/* Open Harvest Gold Door Panel */}
+            <polygon points="62,22 86,14 86,90 62,82" fill="#E5A93C" />
             {/* Door Handle */}
             <line
               x1="67"
               y1="49"
               x2="67"
               y2="57"
-              stroke="#141414"
+              stroke="#090D16"
               strokeWidth="3"
               strokeLinecap="round"
             />
@@ -678,7 +678,7 @@ export function StationQrPoster({
               y1="42"
               x2="110"
               y2="68"
-              stroke="#F97316"
+              stroke="#E5A93C"
               strokeWidth="4"
               strokeLinecap="round"
             />
@@ -687,7 +687,7 @@ export function StationQrPoster({
               y1="35"
               x2="117"
               y2="75"
-              stroke="#F97316"
+              stroke="#E5A93C"
               strokeWidth="4"
               strokeLinecap="round"
             />
@@ -696,32 +696,32 @@ export function StationQrPoster({
               y1="46"
               x2="124"
               y2="64"
-              stroke="#F97316"
+              stroke="#E5A93C"
               strokeWidth="4"
               strokeLinecap="round"
             />
           </svg>
 
-          <div className="text-4xl sm:text-5xl font-black tracking-tight leading-none mt-1">
+          <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-none mt-1">
             <span className="text-white">{brandPrefix}</span>
-            <span className="text-[#F97316]">{brandHighlight}</span>
+            <span className="text-[#E5A93C]">{brandHighlight}</span>
           </div>
 
           <div className="flex items-center justify-center gap-2.5 w-full mt-2">
-            <span className="h-[1.5px] w-10 bg-[#F97316]/70" />
-            <span className="text-xs sm:text-sm font-extrabold tracking-[0.25em] text-white uppercase">
+            <span className="h-[1.5px] w-10 bg-[#E5A93C]/70" />
+            <span className="text-xs sm:text-sm font-bold tracking-[0.25em] text-white uppercase">
               {stationSubheader}
             </span>
-            <span className="h-[1.5px] w-10 bg-[#F97316]/70" />
+            <span className="h-[1.5px] w-10 bg-[#E5A93C]/70" />
           </div>
 
-          <div className="mt-2 text-xl sm:text-2xl font-extrabold tracking-tight">
+          <div className="mt-2 text-xl sm:text-2xl font-bold tracking-tight">
             <span className="text-white">{headlineWhite}</span>
-            <span className="text-[#F97316]">{headlineOrange}</span>
+            <span className="text-[#E5A93C]">{headlineOrange}</span>
           </div>
 
           {churchName && (
-            <div className="mt-1 text-xs font-bold text-stone-400">
+            <div className="mt-1 text-xs font-semibold text-ink-3">
               {churchName}
             </div>
           )}
@@ -733,7 +733,7 @@ export function StationQrPoster({
             {scanPrompt}
           </div>
 
-          <div className="bg-white rounded-xl p-3.5 w-52 sm:w-56 mx-auto shadow-lg space-y-1.5">
+          <div className="bg-white rounded-xl p-3.5 w-52 sm:w-56 mx-auto space-y-1.5">
             {customQrImageUrl ? (
               <img
                 src={customQrImageUrl}
@@ -761,7 +761,7 @@ export function StationQrPoster({
                     ยังไม่ได้ตั้งค่าลิงก์ QR Code
                   </div>
                 )}
-                {/* Yellow highlight corners like LINE QR scanner */}
+                {/* Subtle framing corners */}
                 <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-500/30 rounded-tl-xs pointer-events-none" />
                 <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-500/30 rounded-tr-xs pointer-events-none" />
                 <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-500/30 rounded-bl-xs pointer-events-none" />
@@ -770,7 +770,7 @@ export function StationQrPoster({
                 {/* Center Badge */}
                 {qrCenterBadge && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="px-1.5 py-0.5 bg-white font-black text-[11px] tracking-tight text-black border border-black rounded-xs shadow-2xs">
+                    <span className="px-1.5 py-0.5 bg-white font-black text-[11px] tracking-tight text-black border border-black rounded-xs">
                       {qrCenterBadge}
                     </span>
                   </div>
@@ -779,7 +779,7 @@ export function StationQrPoster({
             )}
 
             {qrCaption && (
-              <div className="text-[11px] font-black tracking-wider text-black uppercase">
+              <div className="text-[11px] font-bold tracking-wider text-black uppercase">
                 {qrCaption}
               </div>
             )}
@@ -792,21 +792,21 @@ export function StationQrPoster({
             {steps.map((step, idx) => (
               <React.Fragment key={step.number}>
                 <div className="flex flex-col items-center space-y-2 flex-1 min-w-0">
-                  <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#F97316] flex items-center justify-center shadow-md">
+                  <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#E5A93C] flex items-center justify-center">
                     {renderStepIcon(step.icon)}
                   </div>
                   <div className="flex flex-col items-center gap-1 sm:flex-row">
-                    <span className="w-4 h-4 rounded-full bg-[#F97316] text-[hsl(0_30%_72%)] font-black text-[10px] flex items-center justify-center shrink-0">
+                    <span className="w-4 h-4 rounded-full bg-[#E5A93C] text-[#090D16] font-extrabold text-[10px] flex items-center justify-center shrink-0">
                       {step.number}
                     </span>
-                    <span className="text-center text-[11px] leading-tight sm:text-xs font-extrabold text-white break-words">
+                    <span className="text-center text-[11px] leading-tight sm:text-xs font-bold text-white break-words">
                       {step.label}
                     </span>
                   </div>
                 </div>
 
                 {idx < steps.length - 1 && (
-                  <div className="pt-4 text-[#F97316] shrink-0">
+                  <div className="pt-4 text-[#E5A93C] shrink-0">
                     <ChevronRight className="w-4 h-4 stroke-[3]" />
                   </div>
                 )}
@@ -817,11 +817,11 @@ export function StationQrPoster({
 
         {/* Bottom Callout */}
         <div className="pt-2 space-y-1">
-          <div className="text-xl sm:text-2xl font-black tracking-tight">
+          <div className="text-xl sm:text-2xl font-bold tracking-tight">
             <span className="text-white">{footerLeadWhite} </span>
-            <span className="text-[#F97316]">{footerLeadOrange}</span>
+            <span className="text-[#E5A93C]">{footerLeadOrange}</span>
           </div>
-          <p className="text-xs sm:text-sm font-bold text-stone-300">
+          <p className="text-xs sm:text-sm font-medium text-ink-2">
             {footerSubtext}
           </p>
         </div>

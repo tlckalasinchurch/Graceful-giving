@@ -175,7 +175,7 @@ export const StatusBadge: React.FC<{
         };
       case "needs_review":
         return {
-          bg: "bg-tile-peach text-tile-peach-ink border-orange-500/30",
+          bg: "bg-tile-peach text-tile-peach-ink border-amber-500/30",
           defaultLabel: "ต้องตรวจสอบ",
         };
       case "unknown":
