@@ -200,7 +200,7 @@ export const StatusBadge: React.FC<{
         };
       case "verified":
         return {
-          bg: "bg-tile-lilac text-tile-lilac-ink border-purple-500/30",
+          bg: "bg-tile-lilac text-tile-lilac-ink border-line",
           defaultLabel: "ตรวจสอบแล้ว",
         };
       case "posted":

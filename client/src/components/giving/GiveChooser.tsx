@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
 import type { OfferingCategory } from "@shared/categories";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
@@ -52,13 +53,13 @@ export function GiveChooser({
                 onClick={() =>
                   onChange(toggleGiveCategory(lines, c.id, defaults[c.id]))
                 }
-                className={`min-h-11 rounded-xl border px-3.5 text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                className={`inline-flex items-center gap-1.5 min-h-11 rounded-xl border px-3.5 text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                   on
                     ? "border-brand bg-brand text-black"
                     : "border-line bg-surface text-ink-2 hover:bg-paper hover:text-ink"
                 }`}
               >
-                {on ? "✓ " : ""}
+                {on && <Check className="size-4 shrink-0 stroke-[2.5]" aria-hidden="true" />}
                 {c.label}
               </button>
             );

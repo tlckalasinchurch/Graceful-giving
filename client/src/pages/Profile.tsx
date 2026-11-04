@@ -49,7 +49,7 @@ interface ChurchOfficialRoster {
   role: string;
   title: string;
   appointee: string;
-  badgeStyle: { bg: string; text: string; border: string; icon: string };
+  badgeStyle: { bg: string; text: string; border: string; icon: React.ReactNode };
   summary: string;
   responsibilities: string[];
 }
@@ -62,7 +62,7 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
       bg: "bg-amber-500/15",
       text: "text-amber-200",
       border: "border-amber-500/30",
-      icon: "👑",
+      icon: <Shield className="size-3.5" aria-hidden="true" />,
     },
     summary:
       "ดูแลระบบและโครงสร้างทั้งหมด จัดการผู้ใช้งานและสิทธิ์ ตั้งค่าคริสตจักร และตรวจสอบ Audit Log (สิทธิ์สูงสุดของระบบ)",
@@ -81,7 +81,7 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
       bg: "bg-emerald-500/15",
       text: "text-emerald-200",
       border: "border-emerald-500/30",
-      icon: "💰",
+      icon: <Receipt className="size-3.5" aria-hidden="true" />,
     },
     summary:
       "บันทึกรายรับ-รายจ่าย ตรวจสอบเงินถวายและบัญชี จัดการเบิกจ่าย ติดตามงบประมาณ ออกใบเสร็จ และจัดทำรายงานการเงิน",
@@ -102,7 +102,7 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
       bg: "bg-paper-2",
       text: "text-brand-ink",
       border: "border-line",
-      icon: "✝️",
+      icon: <HeartHandshake className="size-3.5" aria-hidden="true" />,
     },
     summary:
       "กำกับทิศทางและงานของคริสตจักร พิจารณาและอนุมัติโครงการ ตรวจสอบภาพรวมการเงิน และดูแลด้านอภิบาลสมาชิก",
@@ -122,7 +122,7 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
       bg: "bg-[hsl(13_45%_13%)]",
       text: "text-[hsl(7_58%_72%)]",
       border: "border-danger",
-      icon: "🤝",
+      icon: <Briefcase className="size-3.5" aria-hidden="true" />,
     },
     summary:
       "ดูแลและติดตามงานตามฝ่ายที่รับผิดชอบ ตรวจรับงานและติดตามโครงการ เสนอคำของบประมาณและรายการเบิกจ่าย",
@@ -142,7 +142,7 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
       bg: "bg-amber-500/15",
       text: "text-amber-200",
       border: "border-amber-500/30",
-      icon: "📝",
+      icon: <CheckCircle2 className="size-3.5" aria-hidden="true" />,
     },
     summary:
       "บันทึกและตรวจนับเงินถวายรอบนมัสการร่วมกับทีม ตรวจสอบยอดเงินสด สแกนจ่าย และธนบัตร",
@@ -161,7 +161,7 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
       bg: "bg-paper",
       text: "text-ink",
       border: "border-field",
-      icon: "👤",
+      icon: <UserCheck className="size-3.5" aria-hidden="true" />,
     },
     summary:
       "ดูข่าวสาร ประกาศ ตารางกิจกรรม ตารางรับใช้ และดูประวัติการถวายส่วนบุคคลอย่างปลอดภัย",

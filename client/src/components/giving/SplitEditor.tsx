@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
 import { SPLIT_MESSAGE, sumSplit } from "@shared/givingSplit";
 import {
@@ -58,13 +59,13 @@ export function SplitEditor({
                 onClick={() =>
                   total !== null && onChange(toggleCategory(lines, c.id, total))
                 }
-                className={`min-h-11 rounded-xl border px-3 text-xs font-bold transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                className={`inline-flex items-center gap-1 min-h-11 rounded-xl border px-3 text-xs font-bold transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                   on
                     ? "border-brand bg-brand text-black"
                     : "border-line bg-paper text-ink-2 hover:text-ink"
                 }`}
               >
-                {on ? "✓ " : ""}
+                {on && <Check className="size-3.5 shrink-0 stroke-[2.5]" aria-hidden="true" />}
                 {c.label}
               </button>
             );
@@ -118,7 +119,7 @@ export function SplitEditor({
         >
           ผลรวม {sum.toLocaleString()} / ยอดที่โอน{" "}
           {total === null ? "—" : total.toLocaleString()}{" "}
-          {problem === null ? "✓" : `· ${SPLIT_MESSAGE[problem]}`}
+          {problem === null ? "· ตรงยอด" : `· ${SPLIT_MESSAGE[problem]}`}
         </p>
         {onCancel && (
           <button

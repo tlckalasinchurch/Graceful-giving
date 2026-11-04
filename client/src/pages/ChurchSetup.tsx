@@ -145,7 +145,7 @@ export default function ChurchSetup() {
       await completeSetupMutation.mutateAsync();
       clearSetupSkip();
       await utils.church.getProfile.invalidate();
-      toast.success("ตั้งค่าคริสตจักรเรียบร้อย! 🎉");
+      toast.success("ตั้งค่าคริสตจักรเรียบร้อยแล้ว");
       setTimeout(() => setLocation("/"), 1200);
     } catch (error: unknown) {
       toast.error(getSaveErrorMessage(error));
@@ -170,7 +170,7 @@ export default function ChurchSetup() {
             GRACE-GIVING · ตั้งค่าคริสตจักร
           </p>
           <h1 className="font-display mt-2 text-2xl font-bold leading-tight tracking-tight text-ink">
-            ยินดีต้อนรับ 👋
+            ยินดีต้อนรับ
             <br />
             มาเริ่มต้นด้วยกัน
           </h1>
@@ -330,7 +330,7 @@ export default function ChurchSetup() {
                 disabled={saving}
                 className="min-h-[48px] flex-[2] rounded-2xl bg-brand text-sm font-bold text-black hover:bg-brand-ink active:scale-[0.98] transition disabled:opacity-60"
               >
-                {saving ? "กำลังบันทึก..." : "✓ ยืนยันและเริ่มใช้งาน"}
+                {saving ? "กำลังบันทึก..." : "ยืนยันและเริ่มใช้งาน"}
               </button>
             )}
           </div>
