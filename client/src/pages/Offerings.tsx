@@ -167,7 +167,7 @@ export default function Offerings() {
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-paper-2 border border-line text-xs font-semibold text-ink-2">
             <span>{bannerLabel}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[hsl(140_50%_72%)]">
+          <h2 className="text-3xl sm:text-4xl font-bold text-income">
             <MoneyDisplay amount={bannerAmount} type="income" size="xl" />
           </h2>
           <p className="text-xs text-ink-3">

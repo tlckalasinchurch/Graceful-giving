@@ -215,7 +215,7 @@ export function EnvelopesTab({
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="mt-1 w-full rounded-xl border border-line p-3 text-base font-bold tabular-nums text-[hsl(140_50%_72%)]"
+                className="mt-1 w-full rounded-xl border border-line bg-surface p-3 text-base font-bold tabular-nums text-ink"
               />
             </label>
             <div className="flex items-end gap-2">
@@ -306,7 +306,7 @@ export function EnvelopesTab({
                         aria-label="ลบซองนี้"
                         onClick={() => void handleRemoveEnvelope(envelope)}
                         disabled={removeEnvelope.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-[hsl(6_45%_13%)] disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-rose-50 disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

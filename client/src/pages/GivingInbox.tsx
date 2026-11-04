@@ -82,51 +82,51 @@ const STATUS_LABELS: Record<
   },
   processing: {
     text: "กำลังอ่านสลิป",
-    bg: "bg-amber-500/10",
-    textCol: "text-amber-300",
-    border: "border-amber-500/30",
+    bg: "bg-amber-50",
+    textCol: "text-amber-800",
+    border: "border-amber-200",
   },
   extracted: {
     text: "อ่านข้อมูลแล้ว",
     bg: "bg-paper-2",
-    textCol: "text-brand-ink",
-    border: "border-[hsl(13_40%_24%)]",
+    textCol: "text-ink",
+    border: "border-line",
   },
   needs_review: {
     text: "ต้องตรวจสอบ",
-    bg: "bg-amber-500/10",
-    textCol: "text-amber-300",
-    border: "border-amber-500/30",
+    bg: "bg-amber-50",
+    textCol: "text-amber-800",
+    border: "border-amber-200",
   },
   matched: {
     text: "พร้อมอนุมัติ",
-    bg: "bg-emerald-500/10",
-    textCol: "text-emerald-300",
-    border: "border-emerald-500/30",
+    bg: "bg-emerald-50",
+    textCol: "text-emerald-800",
+    border: "border-emerald-200",
   },
   duplicate: {
     text: "สลิปซ้ำ",
-    bg: "bg-[hsl(6_45%_13%)]",
-    textCol: "text-danger",
-    border: "border-[hsl(13_40%_24%)]",
+    bg: "bg-rose-50",
+    textCol: "text-rose-800",
+    border: "border-line",
   },
   approved: {
     text: "อนุมัติแล้ว",
-    bg: "bg-emerald-500/15",
-    textCol: "text-emerald-300",
-    border: "border-emerald-500/30",
+    bg: "bg-emerald-50",
+    textCol: "text-emerald-800",
+    border: "border-emerald-200",
   },
   rejected: {
     text: "ปฏิเสธ",
-    bg: "bg-rose-500/10",
-    textCol: "text-rose-300",
-    border: "border-rose-500/30",
+    bg: "bg-rose-50",
+    textCol: "text-rose-800",
+    border: "border-rose-200",
   },
   failed: {
     text: "อ่านสลิปล้มเหลว",
-    bg: "bg-rose-500/15",
-    textCol: "text-rose-300",
-    border: "border-rose-500/30",
+    bg: "bg-rose-50",
+    textCol: "text-rose-800",
+    border: "border-rose-200",
   },
 };
 
@@ -939,12 +939,12 @@ export default function GivingInbox() {
 
                 {/* Duplicate Warning */}
                 {currentSlip.status === "duplicate" && (
-                  <div className="p-4 rounded-xl bg-[hsl(6_45%_13%)] border border-[hsl(13_40%_24%)] text-[hsl(7_58%_72%)] space-y-1">
+                  <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 space-y-1">
                     <div className="flex items-center gap-2 font-bold text-sm">
                       <ShieldAlert className="w-5 h-5 text-danger" />
                       ตรวจพบสลิปซ้ำในระบบ
                     </div>
-                    <p className="text-xs leading-relaxed text-[hsl(7_58%_72%)]">
+                    <p className="text-xs leading-relaxed text-rose-700">
                       {currentSlip.lastErrorMessage ||
                         "สลิปนี้มีหมายเลขอ้างอิง รูปภาพ หรือรายการธุรกรรมที่ตรงกับข้อมูลที่มีอยู่แล้วในระบบ"}
                     </p>
@@ -1365,7 +1365,7 @@ export default function GivingInbox() {
                 currentSlip.status !== "rejected" ? (
                   <div className="space-y-3 pt-4 border-t border-line">
                     {currentSlip.status === "duplicate" && (
-                      <div className="p-3 rounded-xl bg-[hsl(6_45%_13%)] border border-[hsl(13_40%_24%)] text-[hsl(7_58%_72%)] text-xs flex items-center gap-2">
+                      <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
                         <ShieldAlert className="w-4 h-4 text-danger shrink-0" />
                         <span>
                           สลิปนี้ได้รับการระบุว่าเป็นสลิปซ้ำ (Duplicate)

@@ -397,7 +397,7 @@ export default function CountingDetail() {
         </div>
 
         {!editable && tab !== "summary" && tab !== "bank" && (
-          <p className="rounded-2xl border border-[hsl(29_40%_24%)] bg-paper-2 p-4 text-sm text-brand-ink">
+          <p className="rounded-2xl border border-line bg-paper-2 p-4 text-sm text-ink-2">
             รอบนี้ส่งนับแล้ว จึงแก้ไขซองและผลนับไม่ได้ ถ้าต้องแก้ ให้เหรัญญิกกด
             “ส่งกลับไปนับใหม่” ในแท็บสรุป
           </p>

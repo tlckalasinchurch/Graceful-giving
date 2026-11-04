@@ -303,7 +303,7 @@ export function Step5({ data }: { data: SetupData }) {
             <p className="text-sm font-bold text-ink-2">{fund.name}</p>
             <p className="text-xs text-ink-2">{fund.description}</p>
           </div>
-          <Check className="size-4 shrink-0 text-[hsl(137_39%_72%)]" />
+          <Check className="size-4 shrink-0 text-income" />
         </div>
       ))}
       <div className="rounded-2xl border border-line bg-paper p-4">
@@ -377,19 +377,19 @@ export function Step7() {
       role: "SUPER_ADMIN",
       label: "ผู้ดูแลระบบสูงสุด",
       desc: "เข้าถึงได้ทุกอย่าง รวมถึงข้อมูลผู้ถวายและการตั้งค่า",
-      color: "bg-[hsl(9_45%_13%)] text-[#c15b4c]",
+      color: "bg-rose-50 text-rose-800 border border-rose-200",
     },
     {
       role: "PASTOR",
       label: "ศิษยาภิบาล / ผู้นำ",
       desc: "ดูรายงานการเงิน อนุมัติคำขอ แต่ไม่เห็นชื่อผู้ถวาย",
-      color: "bg-[hsl(209_45%_13%)] text-[#4a83b7]",
+      color: "bg-sky-50 text-sky-800 border border-sky-200",
     },
     {
       role: "TREASURER",
       label: "เหรัญญิก / ผู้ดูแลการเงิน",
       desc: "บันทึกและดูรายการทั้งหมด รวมถึงชื่อผู้ถวาย",
-      color: "bg-[hsl(94_45%_13%)] text-[hsl(137_39%_72%)]",
+      color: "bg-emerald-50 text-emerald-800 border border-emerald-200",
     },
     {
       role: "MEMBER",
@@ -466,15 +466,15 @@ export function Step8({ data }: { data: SetupData }) {
           </div>
         ))}
       </div>
-      <div className="rounded-2xl border border-[hsl(131_40%_24%)] bg-[hsl(130_45%_13%)] p-4 text-center">
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center">
         <Heart
-          className="mx-auto mb-2 size-8 text-[hsl(144_47%_72%)]"
-          fill="#2c7b4c"
+          className="mx-auto mb-2 size-8 text-emerald-600"
+          fill="#10b981"
         />
-        <p className="text-sm font-bold text-[hsl(144_52%_72%)]">
+        <p className="text-sm font-bold text-emerald-900">
           พร้อมเริ่มต้นใช้งาน!
         </p>
-        <p className="mt-1 text-xs text-[hsl(143_42%_72%)]">
+        <p className="mt-1 text-xs text-emerald-700">
           ระบบจะบันทึกข้อมูลและนำคุณไปยังหน้าแดชบอร์ด
         </p>
       </div>

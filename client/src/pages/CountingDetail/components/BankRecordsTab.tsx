@@ -285,7 +285,7 @@ export function BankRecordsTab({
                       type="button"
                       onClick={() => void handleMatchPassbook(record)}
                       disabled={matchPassbook.isPending}
-                      className="min-h-11 rounded-xl border border-[hsl(133_32%_24%)] bg-[hsl(132_38%_13%)] px-3 py-2 text-xs font-bold text-income disabled:opacity-50"
+                      className="min-h-11 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-income hover:bg-emerald-100 disabled:opacity-50"
                     >
                       กระทบสมุด
                     </button>
@@ -299,7 +299,7 @@ export function BankRecordsTab({
                         aria-label="ลบรายการธนาคารนี้"
                         onClick={() => void handleRemoveBankRecord(record)}
                         disabled={removeBankRecord.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-[hsl(6_45%_13%)] disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-rose-50 disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

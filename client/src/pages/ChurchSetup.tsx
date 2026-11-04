@@ -295,7 +295,7 @@ export default function ChurchSetup() {
                       <p className="text-[10px] text-ink-3">{s.subtitle}</p>
                     </div>
                     {done && (
-                      <Check className="ml-auto size-3.5 shrink-0 text-[hsl(137_39%_72%)]" />
+                      <Check className="ml-auto size-3.5 shrink-0 text-income" />
                     )}
                   </button>
                 );

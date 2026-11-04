@@ -285,7 +285,7 @@ export default function TransactionDetail() {
                   return;
                 setIsEditing(value => !value);
               }}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-[hsl(132_38%_13%)] text-income text-xs font-bold border border-[hsl(133_37%_24%)] flex items-center gap-1.5"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-emerald-50 text-income text-xs font-bold border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1.5"
             >
               <Pencil className="w-4 h-4" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
