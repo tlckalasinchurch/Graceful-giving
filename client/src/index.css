@@ -23,37 +23,37 @@
   --radius-2xl: 1rem;
   --radius-3xl: 1.25rem;
 
-  /* Direction C: Royal Midnight & Solar Amber (T-BAD Inspired Modern Bold & Clean)
-     Deep Byzantine/Sapphire Midnight ground (#080c14), deep navy card surface (#0f172a),
-     raised panels (#162036 / #1e293b), crisp alabaster text (#f8fafc), and solid Solar
-     Amber Gold brand CTA (#f59e0b). Dark text on Solar Amber exceeds 9.1:1 (AAA). */
-  --color-ground: #080c14;
-  --color-paper: #162036;
-  --color-paper-2: #1e293b;
-  --color-surface: #0f172a;
-  --color-ink: #f8fafc;
-  --color-ink-2: #cbd5e1;
-  --color-ink-3: #94a3b8;
-  --color-line: #1e293b;
-  --color-field: #64748b;
-  --color-income: #22c55e;
-  --color-danger: #fb7185;
-  --color-brand: #f59e0b;
-  --color-brand-ink: #fbbf24;
+  /* Grace Giving — High-Contrast Minimalist × Editorial FinTech (Lumin Inspired)
+     Cool Gray Canvas (#F0F1F5), Crisp White Surface (#FFFFFF), Jet Black Hero/Text (#080808),
+     Signature Neon Lime CTA (#C8FF00) with Jet Black text (#080808).
+     Dark text on Neon Lime achieves 16.94:1 contrast (WCAG AAA). */
+  --color-ground: #F0F1F5;
+  --color-paper: #F7F7F8;
+  --color-paper-2: #EDF0F4;
+  --color-surface: #FFFFFF;
+  --color-ink: #080808;
+  --color-ink-2: #5E6470;
+  --color-ink-3: #5E6470;
+  --color-line: #E5E7EB;
+  --color-field: #6B7280;
+  --color-income: #047857;
+  --color-danger: #DC2626;
+  --color-brand: #C8FF00;
+  --color-brand-ink: #B8EB00;
 
-  /* Category tiles — dark tints with bright matching hue ink */
-  --color-tile-sky: #0c2340;
-  --color-tile-sky-ink: #38bdf8;
-  --color-tile-mint: #062b1b;
-  --color-tile-mint-ink: #34d399;
-  --color-tile-peach: #361f09;
-  --color-tile-peach-ink: #fbbf24;
-  --color-tile-lilac: #22163b;
-  --color-tile-lilac-ink: #c084fc;
-  --color-tile-sand: #382a0a;
-  --color-tile-sand-ink: #f59e0b;
-  --color-tile-rose: #36111a;
-  --color-tile-rose-ink: #fb7185;
+  /* Category tiles — crisp light tints with deep matching hue ink */
+  --color-tile-sky: #F0F7FF;
+  --color-tile-sky-ink: #0369A1;
+  --color-tile-mint: #ECFDF5;
+  --color-tile-mint-ink: #047857;
+  --color-tile-peach: #FFF7ED;
+  --color-tile-peach-ink: #C2410C;
+  --color-tile-lilac: #F5F3FF;
+  --color-tile-lilac-ink: #6D28D9;
+  --color-tile-sand: #FEFCE8;
+  --color-tile-sand-ink: #A16207;
+  --color-tile-rose: #FFF1F2;
+  --color-tile-rose-ink: #BE123C;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -77,16 +77,16 @@
 
   /* Custom Grace-giving Brand Colors (Semantic Tokens) */
   --color-brand-bg: var(--background);
-  --color-brand-cream: #382a0a;
-  --color-brand-sage: #14532d;
-  --color-brand-lightsage: #062b1b;
-  --color-brand-peach: #361f09;
-  --color-brand-orange: #f59e0b;
-  --color-brand-sky: #0c2340;
-  --color-brand-brown: #f8fafc;
+  --color-brand-cream: #FEFCE8;
+  --color-brand-sage: #047857;
+  --color-brand-lightsage: #ECFDF5;
+  --color-brand-peach: #FFF7ED;
+  --color-brand-orange: #C8FF00;
+  --color-brand-sky: #F0F7FF;
+  --color-brand-brown: #080808;
   --color-brand-dark: var(--foreground);
-  --color-brand-muted: #94a3b8;
-  --color-brand-border: #1e293b;
+  --color-brand-muted: #5E6470;
+  --color-brand-border: #E5E7EB;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -106,57 +106,57 @@
   --mobile-nav-clearance: 5.5rem;
   --content-max: 88rem;
 
-  --primary: #f59e0b;
-  --primary-foreground: #080c14;
-  --background: #080c14;
-  --foreground: #f8fafc;
-  --card: #0f172a;
-  --card-foreground: #f8fafc;
-  --popover: #0f172a;
-  --popover-foreground: #f8fafc;
-  --secondary: #162036;
-  --secondary-foreground: #f8fafc;
-  --muted: #162036;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
-  --destructive: #e11d48;
-  --destructive-foreground: #ffffff;
-  --border: #1e293b;
-  --input: #64748b;
-  --ring: #f59e0b;
-  --radius: 0.875rem;
+  --primary: #C8FF00;
+  --primary-foreground: #080808;
+  --background: #F0F1F5;
+  --foreground: #080808;
+  --card: #FFFFFF;
+  --card-foreground: #080808;
+  --popover: #FFFFFF;
+  --popover-foreground: #080808;
+  --secondary: #F7F7F8;
+  --secondary-foreground: #080808;
+  --muted: #F7F7F8;
+  --muted-foreground: #5E6470;
+  --accent: #EDF0F4;
+  --accent-foreground: #080808;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #6B7280;
+  --ring: #C8FF00;
+  --radius: 0.75rem;
 }
 
-/* Light theme tokens: Clean Alabaster & Royal Slate */
-.light,
-[data-theme="light"] {
-  --primary: #b45309;
-  --primary-foreground: #ffffff;
-  --background: #f8fafc;
-  --foreground: #0b132b;
-  --card: #ffffff;
-  --card-foreground: #0b132b;
-  --popover: #ffffff;
-  --popover-foreground: #0b132b;
-  --secondary: #eef2f6;
-  --secondary-foreground: #0b132b;
-  --muted: #eef2f6;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0b132b;
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --border: #cbd5e1;
-  --input: #94a3b8;
-  --ring: #b45309;
+/* Dark mode tokens (Editorial Obsidian & Neon Lime) */
+.dark,
+[data-theme="dark"] {
+  --primary: #C8FF00;
+  --primary-foreground: #080808;
+  --background: #080808;
+  --foreground: #F8FAFC;
+  --card: #121214;
+  --card-foreground: #F8FAFC;
+  --popover: #121214;
+  --popover-foreground: #F8FAFC;
+  --secondary: #1C1D21;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1C1D21;
+  --muted-foreground: #94A3B8;
+  --accent: #26272D;
+  --accent-foreground: #F8FAFC;
+  --destructive: #FB7185;
+  --destructive-foreground: #FFFFFF;
+  --border: #26272D;
+  --input: #64748B;
+  --ring: #C8FF00;
 }
 
 * {
   box-sizing: border-box;
 }
 html {
-  color-scheme: dark;
+  color-scheme: light;
   background-color: var(--background);
   color: var(--foreground);
   scrollbar-gutter: stable;
@@ -240,7 +240,7 @@ select:focus-visible {
 .inset-bevel-subtle,
 .clay-inset-bevel,
 .fintech-card {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
 }
 
 .fintech-card {
@@ -254,7 +254,7 @@ select:focus-visible {
 
 .card-elevation-focus,
 .clay-balance-glow {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 2px var(--color-brand);
 }
 
 .fintech-card-hover {
@@ -265,18 +265,18 @@ select:focus-visible {
 
 .fintech-card-hover:hover {
   background-color: var(--color-paper);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.06);
 }
 
 /* Opaque, not glass: floating bars sit on a solid fill. */
 .fintech-glass {
   background: var(--color-surface);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-line);
 }
 
 .fintech-glass-dark {
   background: var(--color-ground);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-line);
 }
 
 @keyframes fade-slide-up {
@@ -339,11 +339,11 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #D1D5DB;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #9CA3AF;
 }
 
 /* ============================================
