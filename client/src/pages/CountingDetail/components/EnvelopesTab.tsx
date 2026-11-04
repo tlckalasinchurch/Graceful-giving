@@ -106,7 +106,7 @@ export function EnvelopesTab({
       {
         icon: "warning",
         confirmButtonText: "ลบซองนี้",
-        confirmButtonColor: "#C8372D",
+        confirmButtonColor: "var(--destructive)",
         cancelButtonText: "ยกเลิก",
       }
     );

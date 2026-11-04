@@ -111,7 +111,7 @@ export default function Counting() {
         icon: "warning",
         confirmButtonText: "ลบรอบถาวร",
         cancelButtonText: "ยกเลิก",
-        confirmButtonColor: "#e11d48",
+        confirmButtonColor: "var(--destructive)",
       }
     );
     if (confirmed) {
@@ -131,7 +131,6 @@ export default function Counting() {
         icon: "question",
         confirmButtonText: "ล้างข้อมูลและนับใหม่",
         cancelButtonText: "ยกเลิก",
-        confirmButtonColor: "#D97706",
       }
     );
     if (confirmed) {

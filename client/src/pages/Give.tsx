@@ -74,7 +74,7 @@ export default function Give() {
   if (loading) {
     return (
       <GiveShell>
-        <p role="status" className="text-center text-sm text-stone-400">
+        <p role="status" className="text-center text-sm text-ink-2">
           กำลังโหลด…
         </p>
       </GiveShell>
@@ -98,18 +98,18 @@ export default function Give() {
     <GiveShell>
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-extrabold">ถวายทรัพย์</h1>
-        <p className="text-sm text-stone-300">
+        <p className="text-sm text-ink-2">
           เข้าสู่ระบบด้วย LINE เพื่อเลือกรายการถวายและแนบสลิปโอนเงิน
         </p>
       </div>
       {liffTrying ? (
-        <p role="status" className="text-center text-sm text-stone-300">
+        <p role="status" className="text-center text-sm text-ink-2">
           กำลังเข้าสู่ระบบด้วย LINE…
         </p>
       ) : disabled ? (
         <p
           role="alert"
-          className="rounded-2xl border border-white/15 bg-white/5 p-4 text-center text-sm text-stone-200"
+          className="rounded-2xl border border-line bg-accent p-4 text-center text-sm text-ink"
         >
           บัญชีนี้ถูกปิดการใช้งาน โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
         </p>
@@ -123,7 +123,7 @@ export default function Give() {
         </a>
       )}
       {error && (
-        <p role="alert" className="text-center text-sm text-rose-300">
+        <p role="alert" className="text-center text-sm text-danger">
           {error}
         </p>
       )}

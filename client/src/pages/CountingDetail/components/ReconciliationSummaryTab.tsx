@@ -90,7 +90,6 @@ export function ReconciliationSummaryTab({
       {
         icon: "question",
         confirmButtonText: "ลงบัญชี",
-        confirmButtonColor: "#1F5C33",
         cancelButtonText: "ยกเลิก",
       }
     );
@@ -109,7 +108,6 @@ export function ReconciliationSummaryTab({
       {
         icon: "warning",
         confirmButtonText: "ปิดรอบถาวร",
-        confirmButtonColor: "#51443A",
         cancelButtonText: "ยกเลิก",
       }
     );

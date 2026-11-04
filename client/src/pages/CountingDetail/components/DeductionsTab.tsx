@@ -68,7 +68,7 @@ export function DeductionsTab({
       {
         icon: "warning",
         confirmButtonText: "ลบรายการนี้",
-        confirmButtonColor: "#C8372D",
+        confirmButtonColor: "var(--destructive)",
         cancelButtonText: "ยกเลิก",
       }
     );

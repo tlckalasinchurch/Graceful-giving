@@ -290,7 +290,7 @@ export default function CountingDetail() {
       {
         icon: "warning",
         confirmButtonText: "ลบรอบนี้",
-        confirmButtonColor: "#C8372D",
+        confirmButtonColor: "var(--destructive)",
         cancelButtonText: "ยกเลิก",
       }
     );
@@ -306,7 +306,6 @@ export default function CountingDetail() {
       {
         icon: "question",
         confirmButtonText: "ล้างเพื่อนับใหม่",
-        confirmButtonColor: "#D97706",
         cancelButtonText: "ยกเลิก",
       }
     );

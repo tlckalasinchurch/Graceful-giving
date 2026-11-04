@@ -27,33 +27,36 @@
      Cool Gray Canvas (#F0F1F5), Crisp White Surface (#FFFFFF), Jet Black Hero/Text (#080808),
      Signature Neon Lime CTA (#C8FF00) with Jet Black text (#080808).
      Dark text on Neon Lime achieves 16.94:1 contrast (WCAG AAA). */
-  --color-ground: #F0F1F5;
-  --color-paper: #F7F7F8;
-  --color-paper-2: #EDF0F4;
-  --color-surface: #FFFFFF;
+  --color-ground: #f0f1f5;
+  --color-paper: #f7f7f8;
+  --color-paper-2: #edf0f4;
+  --color-surface: #ffffff;
   --color-ink: #080808;
-  --color-ink-2: #5E6470;
-  --color-ink-3: #5E6470;
-  --color-line: #E5E7EB;
-  --color-field: #6B7280;
+  --color-ink-2: #5e6470;
+  --color-ink-3: #5e6470;
+  --color-line: #e5e7eb;
+  --color-field: #6b7280;
   --color-income: #047857;
-  --color-danger: #DC2626;
-  --color-brand: #22C55E;
-  --color-brand-ink: #16A34A;
+  /* Danger sits one shade deeper than red-600 (#DC2626) so small text and
+     white-on-danger buttons clear 4.5:1 on every light surface in the system,
+     including the cool gray canvas #F0F1F5 (guarded by theme.contrast.test). */
+  --color-danger: #b91c1c;
+  --color-brand: #22c55e;
+  --color-brand-ink: #16a34a;
 
   /* Category tiles — crisp light tints with deep matching hue ink */
-  --color-tile-sky: #F0F7FF;
-  --color-tile-sky-ink: #0369A1;
-  --color-tile-mint: #ECFDF5;
+  --color-tile-sky: #f0f7ff;
+  --color-tile-sky-ink: #0369a1;
+  --color-tile-mint: #ecfdf5;
   --color-tile-mint-ink: #047857;
-  --color-tile-peach: #FFF7ED;
-  --color-tile-peach-ink: #C2410C;
-  --color-tile-lilac: #F1F5F9;
+  --color-tile-peach: #fff7ed;
+  --color-tile-peach-ink: #c2410c;
+  --color-tile-lilac: #f1f5f9;
   --color-tile-lilac-ink: #334155;
-  --color-tile-sand: #FEFCE8;
-  --color-tile-sand-ink: #A16207;
-  --color-tile-rose: #FFF1F2;
-  --color-tile-rose-ink: #BE123C;
+  --color-tile-sand: #fefce8;
+  --color-tile-sand-ink: #a16207;
+  --color-tile-rose: #fff1f2;
+  --color-tile-rose-ink: #be123c;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -77,16 +80,16 @@
 
   /* Custom Grace-giving Brand Colors (Semantic Tokens) */
   --color-brand-bg: var(--background);
-  --color-brand-cream: #FEFCE8;
+  --color-brand-cream: #fefce8;
   --color-brand-sage: #047857;
-  --color-brand-lightsage: #ECFDF5;
-  --color-brand-peach: #FFF7ED;
-  --color-brand-orange: #22C55E;
-  --color-brand-sky: #F0F7FF;
+  --color-brand-lightsage: #ecfdf5;
+  --color-brand-peach: #fff7ed;
+  --color-brand-orange: #22c55e;
+  --color-brand-sky: #f0f7ff;
   --color-brand-brown: #080808;
   --color-brand-dark: var(--foreground);
-  --color-brand-muted: #5E6470;
-  --color-brand-border: #E5E7EB;
+  --color-brand-muted: #5e6470;
+  --color-brand-border: #e5e7eb;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -106,50 +109,50 @@
   --mobile-nav-clearance: 5.5rem;
   --content-max: 88rem;
 
-  --primary: #22C55E;
+  --primary: #22c55e;
   --primary-foreground: #080808;
-  --background: #F0F1F5;
+  --background: #f0f1f5;
   --foreground: #080808;
-  --card: #FFFFFF;
+  --card: #ffffff;
   --card-foreground: #080808;
-  --popover: #FFFFFF;
+  --popover: #ffffff;
   --popover-foreground: #080808;
-  --secondary: #F7F7F8;
+  --secondary: #f7f7f8;
   --secondary-foreground: #080808;
-  --muted: #F7F7F8;
-  --muted-foreground: #5E6470;
-  --accent: #EDF0F4;
+  --muted: #f7f7f8;
+  --muted-foreground: #5e6470;
+  --accent: #edf0f4;
   --accent-foreground: #080808;
-  --destructive: #DC2626;
-  --destructive-foreground: #FFFFFF;
-  --border: #E5E7EB;
-  --input: #6B7280;
-  --ring: #22C55E;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #6b7280;
+  --ring: #22c55e;
   --radius: 0.75rem;
 }
 
 /* Dark mode tokens (Editorial Obsidian & Vibrant Emerald) */
 .dark,
 [data-theme="dark"] {
-  --primary: #22C55E;
+  --primary: #22c55e;
   --primary-foreground: #080808;
   --background: #080808;
-  --foreground: #F8FAFC;
+  --foreground: #f8fafc;
   --card: #121214;
-  --card-foreground: #F8FAFC;
+  --card-foreground: #f8fafc;
   --popover: #121214;
-  --popover-foreground: #F8FAFC;
-  --secondary: #1C1D21;
-  --secondary-foreground: #F8FAFC;
-  --muted: #1C1D21;
-  --muted-foreground: #94A3B8;
-  --accent: #26272D;
-  --accent-foreground: #F8FAFC;
-  --destructive: #FB7185;
-  --destructive-foreground: #FFFFFF;
-  --border: #26272D;
-  --input: #64748B;
-  --ring: #22C55E;
+  --popover-foreground: #f8fafc;
+  --secondary: #1c1d21;
+  --secondary-foreground: #f8fafc;
+  --muted: #1c1d21;
+  --muted-foreground: #94a3b8;
+  --accent: #26272d;
+  --accent-foreground: #f8fafc;
+  --destructive: #fb7185;
+  --destructive-foreground: #ffffff;
+  --border: #26272d;
+  --input: #64748b;
+  --ring: #22c55e;
 }
 
 * {
@@ -240,7 +243,9 @@ select:focus-visible {
 .inset-bevel-subtle,
 .clay-inset-bevel,
 .fintech-card {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.04),
+    0 1px 2px -1px rgba(0, 0, 0, 0.04);
 }
 
 .fintech-card {
@@ -339,11 +344,11 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
+  background: #d1d5db;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: #9ca3af;
 }
 
 /* ============================================
