@@ -28,18 +28,41 @@ function contrast(a: string, b: string): number {
 
 describe("dark theme contrast", () => {
   it("keeps text on the orange brand at WCAG AA (4.5:1)", () => {
-    expect(contrast(token("primary-foreground"), token("primary"))).toBeGreaterThanOrEqual(4.5);
-    expect(contrast("#000000", token("color-brand"))).toBeGreaterThanOrEqual(4.5);
-    expect(contrast("#000000", token("color-brand-ink"))).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrast(token("primary-foreground"), token("primary"))
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#000000", token("color-brand"))).toBeGreaterThanOrEqual(
+      4.5
+    );
+    expect(
+      contrast("#000000", token("color-brand-ink"))
+    ).toBeGreaterThanOrEqual(4.5);
   });
 
   it("keeps body and muted text readable on the card surface", () => {
-    expect(contrast(token("color-ink"), token("color-surface"))).toBeGreaterThanOrEqual(7);
-    expect(contrast(token("color-ink-3"), token("color-surface"))).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrast(token("color-ink"), token("color-surface"))
+    ).toBeGreaterThanOrEqual(7);
+    expect(
+      contrast(token("color-ink-3"), token("color-surface"))
+    ).toBeGreaterThanOrEqual(4.5);
   });
 
   it("keeps form control borders visible (WCAG 1.4.11, 3:1)", () => {
-    expect(contrast(token("input"), token("color-surface"))).toBeGreaterThanOrEqual(3);
-    expect(contrast(token("color-field"), token("color-surface"))).toBeGreaterThanOrEqual(3);
+    expect(
+      contrast(token("input"), token("color-surface"))
+    ).toBeGreaterThanOrEqual(3);
+    expect(
+      contrast(token("color-field"), token("color-surface"))
+    ).toBeGreaterThanOrEqual(3);
+  });
+
+  it("keeps danger text readable on every light surface, canvas included (4.5:1)", () => {
+    expect(
+      contrast(token("color-danger"), token("color-surface"))
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrast(token("color-danger"), token("color-ground"))
+    ).toBeGreaterThanOrEqual(4.5);
   });
 });

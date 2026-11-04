@@ -116,3 +116,6 @@ client/public/__manus__/version.json
 
 # design-taste-frontend inspector output
 .taste-skill/
+
+# Claude Code local settings (personal, per-user permissions)
+.claude/settings.local.json

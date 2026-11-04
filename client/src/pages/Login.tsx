@@ -81,19 +81,19 @@ export default function Login() {
             <h1 className="display text-5xl font-black text-ink">
               เข้าสู่ระบบ
             </h1>
-            <p className="text-sm text-white/60">
+            <p className="text-sm text-ink-2">
               ใช้บัญชี LINE ของคุณ ผู้ดูแลระบบจะอนุมัติสิทธิ์ให้ในครั้งแรก
             </p>
           </div>
 
           {state === "pending" || state === "disabled" ? (
             <div className="space-y-4 rounded-[28px] border border-line bg-surface p-6">
-              <p className="display text-xl font-black text-white">
+              <p className="display text-xl font-black text-ink">
                 {state === "pending"
                   ? "รอผู้ดูแลระบบอนุมัติ"
                   : "บัญชีนี้ถูกปิดการใช้งาน"}
               </p>
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-ink-2">
                 {state === "pending"
                   ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน โปรดแจ้งผู้ดูแลระบบของคริสตจักรให้อนุมัติบัญชีของคุณ แล้วกลับมาเปิดหน้านี้อีกครั้ง`
                   : "โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
@@ -101,7 +101,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => void logout()}
-                className="w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-bold text-white hover:bg-white/10"
+                className="w-full rounded-2xl border border-line px-4 py-3 text-sm font-bold text-ink hover:bg-accent"
               >
                 ออกจากระบบ
               </button>
@@ -116,14 +116,14 @@ export default function Login() {
                 เข้าสู่ระบบด้วย LINE
               </a>
               {error && (
-                <p role="alert" className="text-sm text-rose-400">
+                <p role="alert" className="text-sm text-danger">
                   {error}
                 </p>
               )}
-              <p className="border-t border-white/10 pt-4 text-xs text-white/50">
+              <p className="border-t border-line pt-4 text-xs text-ink-3">
                 ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
                 โปรดติดต่อผู้ดูแลระบบของคริสตจักร ·{" "}
-                <a href="/privacy" className="underline hover:text-white/80">
+                <a href="/privacy" className="underline hover:text-ink">
                   นโยบายความเป็นส่วนตัว (PDPA)
                 </a>
               </p>

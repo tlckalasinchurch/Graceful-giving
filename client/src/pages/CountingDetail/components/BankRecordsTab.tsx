@@ -81,7 +81,6 @@ export function BankRecordsTab({
       {
         icon: "question",
         confirmButtonText: "กระทบสมุด",
-        confirmButtonColor: "#2F7A45",
         cancelButtonText: "ยกเลิก",
       }
     );
@@ -104,7 +103,7 @@ export function BankRecordsTab({
       {
         icon: "warning",
         confirmButtonText: "ลบรายการนี้",
-        confirmButtonColor: "#C8372D",
+        confirmButtonColor: "var(--destructive)",
         cancelButtonText: "ยกเลิก",
       }
     );
