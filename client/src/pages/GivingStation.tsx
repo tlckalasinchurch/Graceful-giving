@@ -730,8 +730,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             >
               <QrCode className="w-4 h-4" />
               <span>
-                2. โปสเตอร์ป้าย QR ติดหน้าห้อง (1 สแกน ➔ 2 เลือกประเภท ➔ 3
-                โอน/สลิป ➔ 4 ขอบคุณพระเจ้า)
+                2. โปสเตอร์ป้าย QR ติดหน้าห้อง (1 สแกน → 2 เลือกประเภท → 3
+                โอน/สลิป → 4 ขอบคุณพระเจ้า)
               </span>
             </button>
           </div>
@@ -1234,7 +1234,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                                 giveLines.length >= 2 &&
                                 slipReading.data.amount !== effectiveAmount && (
                                   <div className="font-bold text-amber-200">
-                                    ⚠ ยอดบนสลิปไม่ตรงกับยอดรวม{" "}
+                                    ยอดบนสลิปไม่ตรงกับยอดรวม{" "}
                                     {effectiveAmount.toLocaleString()} บาท
                                     ปรับยอดแต่ละประเภทให้รวมเป็นยอดบนสลิป
                                   </div>

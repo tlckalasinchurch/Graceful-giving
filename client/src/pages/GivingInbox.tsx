@@ -1061,11 +1061,11 @@ export default function GivingInbox() {
                             Number(currentSlip.extractedAmount)
                         ) < 0.005 ? (
                           <span className="block pt-1 font-bold text-emerald-300">
-                            ✓ ตรงกับยอดที่ AI อ่านจากสลิป
+                            ตรงกับยอดที่ AI อ่านจากสลิป
                           </span>
                         ) : (
                           <span className="block pt-1 font-bold text-rose-300">
-                            ⚠ ไม่ตรงกับยอดที่ AI อ่านจากสลิป (
+                            ไม่ตรงกับยอดที่ AI อ่านจากสลิป (
                             {formatBaht(Number(currentSlip.extractedAmount))})
                             ตรวจภาพสลิปก่อนอนุมัติ
                           </span>
@@ -1756,15 +1756,15 @@ type ReceiverKind = "match" | "mismatch" | "suspect" | "unknown";
 
 const RECEIVER_NOTE: Record<ReceiverKind, { text: string; cls: string }> = {
   match: {
-    text: "✓ ตรงกับบัญชีของคริสตจักร",
+    text: "ตรงกับบัญชีของคริสตจักร",
     cls: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
   },
   mismatch: {
-    text: "⚠ ไม่ตรงกับบัญชีของคริสตจักร ตรวจภาพสลิปก่อนอนุมัติ",
+    text: "ไม่ตรงกับบัญชีของคริสตจักร ตรวจภาพสลิปก่อนอนุมัติ",
     cls: "bg-rose-500/10 border-rose-500/30 text-rose-300",
   },
   suspect: {
-    text: "⚠ ต่างจากบัญชีคริสตจักร 1 หลัก อาจอ่านผิด ตรวจภาพสลิปก่อนอนุมัติ",
+    text: "ต่างจากบัญชีคริสตจักร 1 หลัก อาจอ่านผิด ตรวจภาพสลิปก่อนอนุมัติ",
     cls: "bg-amber-500/10 border-amber-500/30 text-amber-200",
   },
   unknown: {
@@ -1809,7 +1809,7 @@ export function EscalationNote({ aiData }: { aiData: unknown }) {
       className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs font-medium"
     >
       <span className="font-bold">
-        ⚠ ผู้ถวายส่งไม่ผ่านการตรวจอัตโนมัติหลายครั้งใน 24 ชั่วโมง
+        ผู้ถวายส่งไม่ผ่านการตรวจอัตโนมัติหลายครั้งใน 24 ชั่วโมง
       </span>{" "}
       ระบบจึงไม่ปฏิเสธเอง ให้เทียบภาพสลิปกับยอดและบัญชีที่แจ้งด้วยตาก่อนอนุมัติ
     </div>

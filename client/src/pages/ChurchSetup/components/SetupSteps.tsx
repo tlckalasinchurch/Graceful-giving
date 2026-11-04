@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, HandCoins, Heart, WalletCards } from "lucide-react";
+import { AlertTriangle, Calendar, Check, HandCoins, Heart, Info, ShieldCheck, WalletCards } from "lucide-react";
 import {
   DEFAULT_OFFERING_CATEGORIES,
   SetupData,
@@ -91,7 +91,7 @@ export function Step1({
           label="อีเมล"
           value={data.email}
           onChange={v => set({ email: v })}
-          placeholder="church@example.com"
+          placeholder="contact@church.or.th"
           type="email"
         />
       </div>
@@ -99,7 +99,7 @@ export function Step1({
         label="เว็บไซต์"
         value={data.website}
         onChange={v => set({ website: v })}
-        placeholder="https://www.church.com"
+        placeholder="https://www.church.or.th"
       />
     </div>
   );
@@ -144,11 +144,12 @@ export function Step2({
           className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
         />
       </div>
-      <div className="rounded-2xl border border-[hsl(209_40%_24%)] bg-[hsl(208_45%_13%)] p-4">
-        <p className="text-xs font-bold text-[hsl(203_47%_72%)]">
-          💡 เกี่ยวกับบทบาทผู้ใช้
+      <div className="rounded-2xl border border-line bg-paper p-4">
+        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+          <Info className="size-3.5 text-brand-ink" aria-hidden="true" />
+          เกี่ยวกับบทบาทผู้ใช้
         </p>
-        <p className="mt-1 text-xs text-[#477caa]">
+        <p className="mt-1 text-xs text-ink-2">
           ผู้ดูแลระบบสามารถกำหนดสิทธิ์ <strong>SUPER_ADMIN</strong>,{" "}
           <strong>PASTOR</strong>, <strong>TREASURER</strong>{" "}
           ให้ผู้ใช้แต่ละคนได้ในภายหลังจากหน้าโปรไฟล์
@@ -211,11 +212,12 @@ export function Step3({
         onChange={v => set({ promptPayId: v })}
         placeholder="08X-XXX-XXXX หรือเลขประจำตัว 13 หลัก (ไม่บังคับ)"
       />
-      <div className="rounded-2xl border border-[hsl(94_40%_24%)] bg-[hsl(92_45%_13%)] p-4">
-        <p className="text-xs font-bold text-[hsl(98_46%_72%)]">
-          🔒 ความปลอดภัย
+      <div className="rounded-2xl border border-line bg-paper p-4">
+        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+          <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
+          ความปลอดภัย
         </p>
-        <p className="mt-1 text-xs text-[hsl(137_39%_72%)]">
+        <p className="mt-1 text-xs text-ink-2">
           ข้อมูลบัญชีธนาคารจะถูกเก็บเป็นความลับ — เข้าถึงได้เฉพาะ TREASURER และ
           SUPER_ADMIN เท่านั้น
         </p>
@@ -274,7 +276,10 @@ export function Step4({
         })}
       </div>
       {data.offeringCategories.length === 0 && (
-        <p className="text-xs text-danger">⚠ กรุณาเลือกอย่างน้อย 1 หมวดหมู่</p>
+        <p className="flex items-center gap-1.5 text-xs text-danger">
+          <AlertTriangle className="size-3.5 shrink-0" aria-hidden="true" />
+          กรุณาเลือกอย่างน้อย 1 หมวดหมู่
+        </p>
       )}
     </div>
   );
@@ -301,11 +306,12 @@ export function Step5({ data }: { data: SetupData }) {
           <Check className="size-4 shrink-0 text-[hsl(137_39%_72%)]" />
         </div>
       ))}
-      <div className="rounded-2xl border border-paper-2 bg-[hsl(55_45%_13%)] p-4">
-        <p className="text-xs font-bold text-brand">
-          💡 สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
+      <div className="rounded-2xl border border-line bg-paper p-4">
+        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+          <Info className="size-3.5 text-brand-ink" aria-hidden="true" />
+          สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
-        <p className="mt-1 text-xs text-brand">จากหน้าการเงิน → จัดการกองทุน</p>
+        <p className="mt-1 text-xs text-ink-2">จากหน้าการเงิน → จัดการกองทุน</p>
       </div>
     </div>
   );
@@ -349,9 +355,12 @@ export function Step6({
           className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 focus:border-brand-ink focus:outline-none"
         />
       </div>
-      <div className="rounded-2xl border border-paper-2 bg-[hsl(55_45%_13%)] p-4 space-y-2">
-        <p className="text-xs font-bold text-brand">📅 ตัวอย่างรอบปีงบประมาณ</p>
-        <p className="text-xs text-brand">
+      <div className="rounded-2xl border border-line bg-paper p-4 space-y-2">
+        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+          <Calendar className="size-3.5 text-brand-ink" aria-hidden="true" />
+          ตัวอย่างรอบปีงบประมาณ
+        </p>
+        <p className="text-xs text-ink-2">
           ปีที่ {data.budgetYear}: {THAI_MONTHS[data.fiscalYearStartMonth - 1]}{" "}
           {data.budgetYear} →{" "}
           {THAI_MONTHS[(data.fiscalYearStartMonth - 2 + 12) % 12]}{" "}
@@ -410,11 +419,12 @@ export function Step7() {
           </div>
         </div>
       ))}
-      <div className="rounded-2xl border border-[hsl(148_39%_24%)] bg-[hsl(146_45%_13%)] p-4">
-        <p className="text-xs font-bold text-[hsl(144_47%_72%)]">
-          🔐 การกำหนดสิทธิ์
+      <div className="rounded-2xl border border-line bg-paper p-4">
+        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+          <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
+          การกำหนดสิทธิ์
         </p>
-        <p className="mt-1 text-xs text-[hsl(151_35%_72%)]">
+        <p className="mt-1 text-xs text-ink-2">
           ไปที่ เมนู → โปรไฟล์ผู้ใช้ → กำหนดบทบาท
           หลังจากตั้งค่าคริสตจักรเสร็จแล้ว
         </p>

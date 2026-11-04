@@ -60,7 +60,7 @@ export function StationCubeLogo({
         {/* Open door panel swinging outward */}
         <polygon
           points="26,44 37,48 37,88 26,84"
-          fill={variant === "orange" ? "#C8FF00" : "#F8FAFC"}
+          fill={variant === "orange" ? "#22C55E" : "#F8FAFC"}
           stroke="#080808"
           strokeWidth="2"
           strokeLinejoin="round"
@@ -79,7 +79,7 @@ export function StationCubeLogo({
         <polygon
           points="60,52 106,30 106,74 60,96"
           fill={variant === "orange" ? "#0F172A" : "#FFFFFF"}
-          stroke={variant === "orange" ? "#C8FF00" : "#080808"}
+          stroke={variant === "orange" ? "#22C55E" : "#080808"}
           strokeWidth="2.5"
           strokeLinejoin="round"
         />
@@ -97,7 +97,7 @@ export function StationCubeLogo({
             y1={b.y1}
             x2={b.x}
             y2={b.y2}
-            stroke={variant === "orange" ? "#C8FF00" : "#080808"}
+            stroke={variant === "orange" ? "#22C55E" : "#080808"}
             strokeWidth="3.2"
             strokeLinecap="round"
           />
@@ -610,7 +610,7 @@ export function StationQrPoster({
       className={cn(
         // print-color-adjust keeps the dark board and white text when printed;
         // browsers drop background colors by default.
-        "p-4 sm:p-7 rounded-2xl bg-[#C8FF00] inline-block w-full max-w-md mx-auto [print-color-adjust:exact] [-webkit-print-color-adjust:exact] print:shadow-none",
+        "p-4 sm:p-7 rounded-2xl bg-[#22C55E] inline-block w-full max-w-md mx-auto [print-color-adjust:exact] [-webkit-print-color-adjust:exact] print:shadow-none",
         className
       )}
     >
@@ -635,12 +635,12 @@ export function StationQrPoster({
             <polygon
               points="60,10 102,32 102,78 60,100"
               fill="none"
-              stroke="#C8FF00"
+              stroke="#22C55E"
               strokeWidth="4.5"
               strokeLinejoin="round"
             />
             {/* Open Harvest Gold Door Panel */}
-            <polygon points="62,22 86,14 86,90 62,82" fill="#C8FF00" />
+            <polygon points="62,22 86,14 86,90 62,82" fill="#22C55E" />
             {/* Door Handle */}
             <line
               x1="67"
@@ -678,7 +678,7 @@ export function StationQrPoster({
               y1="42"
               x2="110"
               y2="68"
-              stroke="#C8FF00"
+              stroke="#22C55E"
               strokeWidth="4"
               strokeLinecap="round"
             />
@@ -687,7 +687,7 @@ export function StationQrPoster({
               y1="35"
               x2="117"
               y2="75"
-              stroke="#C8FF00"
+              stroke="#22C55E"
               strokeWidth="4"
               strokeLinecap="round"
             />
@@ -696,7 +696,7 @@ export function StationQrPoster({
               y1="46"
               x2="124"
               y2="64"
-              stroke="#C8FF00"
+              stroke="#22C55E"
               strokeWidth="4"
               strokeLinecap="round"
             />
@@ -704,20 +704,20 @@ export function StationQrPoster({
 
           <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-none mt-1">
             <span className="text-white">{brandPrefix}</span>
-            <span className="text-[#C8FF00]">{brandHighlight}</span>
+            <span className="text-[#22C55E]">{brandHighlight}</span>
           </div>
 
           <div className="flex items-center justify-center gap-2.5 w-full mt-2">
-            <span className="h-[1.5px] w-10 bg-[#C8FF00]/70" />
+            <span className="h-[1.5px] w-10 bg-[#22C55E]/70" />
             <span className="text-xs sm:text-sm font-bold tracking-[0.25em] text-white uppercase">
               {stationSubheader}
             </span>
-            <span className="h-[1.5px] w-10 bg-[#C8FF00]/70" />
+            <span className="h-[1.5px] w-10 bg-[#22C55E]/70" />
           </div>
 
           <div className="mt-2 text-xl sm:text-2xl font-bold tracking-tight">
             <span className="text-white">{headlineWhite}</span>
-            <span className="text-[#C8FF00]">{headlineOrange}</span>
+            <span className="text-[#22C55E]">{headlineOrange}</span>
           </div>
 
           {churchName && (
@@ -792,11 +792,11 @@ export function StationQrPoster({
             {steps.map((step, idx) => (
               <React.Fragment key={step.number}>
                 <div className="flex flex-col items-center space-y-2 flex-1 min-w-0">
-                  <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#C8FF00] flex items-center justify-center">
+                  <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#22C55E] flex items-center justify-center">
                     {renderStepIcon(step.icon)}
                   </div>
                   <div className="flex flex-col items-center gap-1 sm:flex-row">
-                    <span className="w-4 h-4 rounded-full bg-[#C8FF00] text-[#080808] font-extrabold text-[10px] flex items-center justify-center shrink-0">
+                    <span className="w-4 h-4 rounded-full bg-[#22C55E] text-[#080808] font-extrabold text-[10px] flex items-center justify-center shrink-0">
                       {step.number}
                     </span>
                     <span className="text-center text-[11px] leading-tight sm:text-xs font-bold text-white break-words">
@@ -806,7 +806,7 @@ export function StationQrPoster({
                 </div>
 
                 {idx < steps.length - 1 && (
-                  <div className="pt-4 text-[#C8FF00] shrink-0">
+                  <div className="pt-4 text-[#22C55E] shrink-0">
                     <ChevronRight className="w-4 h-4 stroke-[3]" />
                   </div>
                 )}
@@ -819,7 +819,7 @@ export function StationQrPoster({
         <div className="pt-2 space-y-1">
           <div className="text-xl sm:text-2xl font-bold tracking-tight">
             <span className="text-white">{footerLeadWhite} </span>
-            <span className="text-[#C8FF00]">{footerLeadOrange}</span>
+            <span className="text-[#22C55E]">{footerLeadOrange}</span>
           </div>
           <p className="text-xs sm:text-sm font-medium text-ink-2">
             {footerSubtext}

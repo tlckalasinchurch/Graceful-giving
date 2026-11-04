@@ -76,7 +76,7 @@ export default function NewExpense() {
     onSuccess: data => {
       setReceiptUrl(data.url);
       setIsUploading(false);
-      toast.success("อัปโหลดใบเสร็จเรียบร้อยแล้ว ✓");
+      toast.success("อัปโหลดใบเสร็จเรียบร้อยแล้ว");
     },
     onError: err => {
       setIsUploading(false);
@@ -533,7 +533,7 @@ export default function NewExpense() {
                     <div>
                       <p className="text-sm font-medium text-ink">
                         {receiptUrl
-                          ? "✅ อัปโหลดสำเร็จแล้ว"
+                          ? "อัปโหลดสำเร็จแล้ว"
                           : "แนบไฟล์เรียบร้อย"}
                       </p>
                       <p className="text-xs text-ink-3 truncate max-w-[160px]">

@@ -38,8 +38,8 @@
   --color-field: #6B7280;
   --color-income: #047857;
   --color-danger: #DC2626;
-  --color-brand: #C8FF00;
-  --color-brand-ink: #B8EB00;
+  --color-brand: #22C55E;
+  --color-brand-ink: #16A34A;
 
   /* Category tiles — crisp light tints with deep matching hue ink */
   --color-tile-sky: #F0F7FF;
@@ -48,8 +48,8 @@
   --color-tile-mint-ink: #047857;
   --color-tile-peach: #FFF7ED;
   --color-tile-peach-ink: #C2410C;
-  --color-tile-lilac: #F5F3FF;
-  --color-tile-lilac-ink: #6D28D9;
+  --color-tile-lilac: #F1F5F9;
+  --color-tile-lilac-ink: #334155;
   --color-tile-sand: #FEFCE8;
   --color-tile-sand-ink: #A16207;
   --color-tile-rose: #FFF1F2;
@@ -81,7 +81,7 @@
   --color-brand-sage: #047857;
   --color-brand-lightsage: #ECFDF5;
   --color-brand-peach: #FFF7ED;
-  --color-brand-orange: #C8FF00;
+  --color-brand-orange: #22C55E;
   --color-brand-sky: #F0F7FF;
   --color-brand-brown: #080808;
   --color-brand-dark: var(--foreground);
@@ -106,7 +106,7 @@
   --mobile-nav-clearance: 5.5rem;
   --content-max: 88rem;
 
-  --primary: #C8FF00;
+  --primary: #22C55E;
   --primary-foreground: #080808;
   --background: #F0F1F5;
   --foreground: #080808;
@@ -124,14 +124,14 @@
   --destructive-foreground: #FFFFFF;
   --border: #E5E7EB;
   --input: #6B7280;
-  --ring: #C8FF00;
+  --ring: #22C55E;
   --radius: 0.75rem;
 }
 
-/* Dark mode tokens (Editorial Obsidian & Neon Lime) */
+/* Dark mode tokens (Editorial Obsidian & Vibrant Emerald) */
 .dark,
 [data-theme="dark"] {
-  --primary: #C8FF00;
+  --primary: #22C55E;
   --primary-foreground: #080808;
   --background: #080808;
   --foreground: #F8FAFC;
@@ -149,7 +149,7 @@
   --destructive-foreground: #FFFFFF;
   --border: #26272D;
   --input: #64748B;
-  --ring: #C8FF00;
+  --ring: #22C55E;
 }
 
 * {

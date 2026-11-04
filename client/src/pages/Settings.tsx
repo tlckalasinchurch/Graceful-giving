@@ -644,12 +644,12 @@ export default function Settings() {
                     className="font-semibold focus:ring-2 focus:ring-brand/20"
                   >
                     <option value="ALL">บทบาททั้งหมด</option>
-                    <option value="SUPER_ADMIN">👑 ผู้ดูแลระบบสูงสุด</option>
-                    <option value="PASTOR">✝️ ศิษยาภิบาล</option>
-                    <option value="TREASURER">💰 เหรัญญิก</option>
-                    <option value="DEACON">🤝 ผู้รับผิดชอบฝ่าย</option>
-                    <option value="COUNTER">📝 ทีมนับเงิน</option>
-                    <option value="MEMBER">👤 สมาชิกทั่วไป</option>
+                    <option value="SUPER_ADMIN">ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)</option>
+                    <option value="PASTOR">ศิษยาภิบาล (PASTOR)</option>
+                    <option value="TREASURER">เหรัญญิก (TREASURER)</option>
+                    <option value="DEACON">ผู้รับผิดชอบฝ่าย (DEACON)</option>
+                    <option value="COUNTER">ทีมนับเงิน (COUNTER)</option>
+                    <option value="MEMBER">สมาชิกทั่วไป (MEMBER)</option>
                   </NativeSelect>
                 </div>
               </div>
@@ -778,22 +778,22 @@ export default function Settings() {
                                       className="font-semibold hover:border-brand focus:ring-2 focus:ring-brand/20 transition-all"
                                     >
                                       <option value="SUPER_ADMIN">
-                                        👑 ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
+                                        ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
                                       </option>
                                       <option value="PASTOR">
-                                        ✝️ ศิษยาภิบาล (PASTOR)
+                                        ศิษยาภิบาล (PASTOR)
                                       </option>
                                       <option value="TREASURER">
-                                        💰 เหรัญญิกคริสตจักร (TREASURER)
+                                        เหรัญญิกคริสตจักร (TREASURER)
                                       </option>
                                       <option value="DEACON">
-                                        🤝 ผู้รับผิดชอบฝ่าย
+                                        ผู้รับผิดชอบฝ่าย (DEACON)
                                       </option>
                                       <option value="COUNTER">
-                                        📝 ทีมนับเงินถวาย (COUNTER)
+                                        ทีมนับเงินถวาย (COUNTER)
                                       </option>
                                       <option value="MEMBER">
-                                        👤 สมาชิกคริสตจักร (MEMBER)
+                                        สมาชิกคริสตจักร (MEMBER)
                                       </option>
                                     </NativeSelect>
                                     {!isMe && u.status !== "active" && (
@@ -1173,23 +1173,23 @@ export default function Settings() {
                 >
                   <option value="ALL">กิจกรรมทั้งหมด</option>
                   <option value="update_user_role">
-                    👑 เปลี่ยนบทบาทผู้ใช้ (update_user_role)
+                    เปลี่ยนบทบาทผู้ใช้ (update_user_role)
                   </option>
                   <option value="approve_user">
-                    ✅ อนุมัติบัญชีผู้ใช้ (approve_user)
+                    อนุมัติบัญชีผู้ใช้ (approve_user)
                   </option>
                   <option value="disable_user">
-                    ⛔ ปิดการใช้งานบัญชี (disable_user)
+                    ปิดการใช้งานบัญชี (disable_user)
                   </option>
                   <option value="update_profile">
-                    👤 แก้ไขโปรไฟล์ (update_profile)
+                    แก้ไขโปรไฟล์ (update_profile)
                   </option>
                   <option value="update_church_profile">
-                    🏛️ แก้ไขข้อมูลคริสตจักร (update_church_profile)
+                    แก้ไขข้อมูลคริสตจักร (update_church_profile)
                   </option>
-                  <option value="CREATE">➕ บันทึกรายการใหม่ (CREATE)</option>
-                  <option value="UPDATE">✏️ แก้ไขรายการ (UPDATE)</option>
-                  <option value="VOID">🚫 ยกเลิกรายการ (VOID)</option>
+                  <option value="CREATE">บันทึกรายการใหม่ (CREATE)</option>
+                  <option value="UPDATE">แก้ไขรายการ (UPDATE)</option>
+                  <option value="VOID">ยกเลิกรายการ (VOID)</option>
                 </NativeSelect>
               </div>
             </div>
@@ -1265,7 +1265,7 @@ export default function Settings() {
                           ) {
                             actionBadge = (
                               <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
-                                👑 เปลี่ยนบทบาทผู้ใช้
+                                เปลี่ยนบทบาทผู้ใช้
                               </span>
                             );
                           } else if (
@@ -1274,7 +1274,7 @@ export default function Settings() {
                           ) {
                             actionBadge = (
                               <span className="px-2.5 py-1 rounded-full bg-paper-2 text-brand-ink font-bold text-[11px] border border-line">
-                                👤 แก้ไขโปรไฟล์
+                                แก้ไขโปรไฟล์
                               </span>
                             );
                           } else if (
@@ -1283,19 +1283,19 @@ export default function Settings() {
                           ) {
                             actionBadge = (
                               <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 font-bold text-[11px] border border-amber-500/30">
-                                🏛️ แก้ไขข้อมูลคริสตจักร
+                                แก้ไขข้อมูลคริสตจักร
                               </span>
                             );
                           } else if (log.action === "approve_user") {
                             actionBadge = (
                               <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
-                                ✅ อนุมัติบัญชีผู้ใช้
+                                อนุมัติบัญชีผู้ใช้
                               </span>
                             );
                           } else if (log.action === "disable_user") {
                             actionBadge = (
                               <span className="px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 font-bold text-[11px] border border-rose-500/30">
-                                ⛔ ปิดการใช้งานบัญชี
+                                ปิดการใช้งานบัญชี
                               </span>
                             );
                           }
