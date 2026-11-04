@@ -1,15 +1,15 @@
 ---
 name: Grace Ledger (Grace-giving)
-description: Thai church finance ledger — flat high-contrast FinTech surfaces, emerald brand, jet-black ink on a cool gray canvas.
+description: Thai church finance ledger — flat high-contrast FinTech surfaces, emerald brand, jet-black ink on a warm stone canvas.
 colors:
-  canvas: "#F0F1F5"
-  paper: "#F7F7F8"
-  paper-2: "#EDF0F4"
+  canvas: "#F4F1EC"
+  paper: "#FAF8F5"
+  paper-2: "#EDE8E1"
   surface: "#FFFFFF"
   ink: "#080808"
-  ink-muted: "#5E6470"
-  line: "#E5E7EB"
-  field: "#6B7280"
+  ink-muted: "#5C5850"
+  line: "#E5E1DA"
+  field: "#6C675F"
   brand: "#22C55E"
   brand-ink: "#16A34A"
   income: "#047857"
@@ -76,7 +76,7 @@ components:
 
 ## Overview
 
-A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, jet-black ink, cool gray canvas (#F0F1F5), one emerald accent (#22C55E)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line`. Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
+A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, jet-black ink, warm stone canvas (#F4F1EC), one emerald accent (#22C55E)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line`. Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
 
 All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`). **`index.css` is the single source of truth — never copy a hex into a component** outside the exceptions listed under Colors.
 
@@ -84,11 +84,11 @@ All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`).
 
 | Role                | Token                           | Value                                             |
 | ------------------- | ------------------------------- | ------------------------------------------------- |
-| Canvas (page bg)    | `--background`                  | `#F0F1F5`                                         |
+| Canvas (page bg)    | `--background`                  | `#F4F1EC`                                         |
 | Raised surfaces     | `--card` / `--popover`          | `#FFFFFF` / `#121214` (dark)                      |
 | Body text           | `--foreground`                  | `#080808` (dark: `#F8FAFC`)                       |
-| Secondary text      | `text-ink-2`, `text-ink-3`      | `#5E6470`                                         |
-| Hairlines / borders | `--border`, `--color-line`      | `#E5E7EB`                                         |
+| Secondary text      | `text-ink-2`, `text-ink-3`      | `#5C5850`                                         |
+| Hairlines / borders | `--border`, `--color-line`      | `#E5E1DA`                                         |
 | Brand actions       | `bg-brand`, `--primary`         | `#22C55E`, text **black**                         |
 | Brand hover         | `bg-brand-ink`                  | `#16A34A`                                         |
 | Money-in semantics  | `text-income`, `--color-income` | `#047857`                                         |

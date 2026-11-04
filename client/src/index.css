@@ -24,22 +24,22 @@
   --radius-3xl: 1.25rem;
 
   /* Grace Giving — High-Contrast Minimalist × Editorial FinTech (Lumin Inspired)
-     Cool Gray Canvas (#F0F1F5), Crisp White Surface (#FFFFFF), Jet Black Hero/Text (#080808),
+     Warm Stone Canvas (#F4F1EC), Crisp White Surface (#FFFFFF), Jet Black Hero/Text (#080808),
      Signature Neon Lime CTA (#C8FF00) with Jet Black text (#080808).
      Dark text on Neon Lime achieves 16.94:1 contrast (WCAG AAA). */
-  --color-ground: #f0f1f5;
-  --color-paper: #f7f7f8;
-  --color-paper-2: #edf0f4;
+  --color-ground: #f4f1ec;
+  --color-paper: #faf8f5;
+  --color-paper-2: #ede8e1;
   --color-surface: #ffffff;
   --color-ink: #080808;
-  --color-ink-2: #5e6470;
-  --color-ink-3: #5e6470;
-  --color-line: #e5e7eb;
-  --color-field: #6b7280;
+  --color-ink-2: #5c5850;
+  --color-ink-3: #5c5850;
+  --color-line: #e5e1da;
+  --color-field: #6c675f;
   --color-income: #047857;
   /* Danger sits one shade deeper than red-600 (#DC2626) so small text and
      white-on-danger buttons clear 4.5:1 on every light surface in the system,
-     including the cool gray canvas #F0F1F5 (guarded by theme.contrast.test). */
+     including the warm stone canvas #F4F1EC (guarded by theme.contrast.test). */
   --color-danger: #b91c1c;
   --color-brand: #22c55e;
   --color-brand-ink: #16a34a;
@@ -88,8 +88,8 @@
   --color-brand-sky: #f0f7ff;
   --color-brand-brown: #080808;
   --color-brand-dark: var(--foreground);
-  --color-brand-muted: #5e6470;
-  --color-brand-border: #e5e7eb;
+  --color-brand-muted: #5c5850;
+  --color-brand-border: #e5e1da;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -111,22 +111,22 @@
 
   --primary: #22c55e;
   --primary-foreground: #080808;
-  --background: #f0f1f5;
+  --background: #f4f1ec;
   --foreground: #080808;
   --card: #ffffff;
   --card-foreground: #080808;
   --popover: #ffffff;
   --popover-foreground: #080808;
-  --secondary: #f7f7f8;
+  --secondary: #faf8f5;
   --secondary-foreground: #080808;
-  --muted: #f7f7f8;
-  --muted-foreground: #5e6470;
-  --accent: #edf0f4;
+  --muted: #faf8f5;
+  --muted-foreground: #5c5850;
+  --accent: #ede8e1;
   --accent-foreground: #080808;
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
-  --input: #6b7280;
+  --border: #e5e1da;
+  --input: #6c675f;
   --ring: #22c55e;
   --radius: 0.75rem;
 }
