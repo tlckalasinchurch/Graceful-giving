@@ -767,7 +767,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {activeTab === "flow" && (
         <div className="max-w-md lg:max-w-5xl mx-auto">
           {/* Dark Mobile Station Shell */}
-          <div className="rounded-[36px] bg-ground p-5 sm:p-8 text-white border border-line space-y-6 relative overflow-hidden">
+          <div className="rounded-[36px] bg-ground p-5 sm:p-8 text-ink border border-line space-y-6 relative overflow-hidden">
             {/* Top Bar: TH Language Pill & Step Back Button */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
@@ -776,7 +776,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   onClick={() =>
                     setStep(prev => (prev > 1 ? ((prev - 1) as FlowStep) : 1))
                   }
-                  className="w-11 h-11 rounded-full bg-white/8 hover:bg-white/15 border border-white/15 flex items-center justify-center text-white transition-colors cursor-pointer"
+                  className="w-11 h-11 rounded-full bg-surface hover:bg-paper border border-line flex items-center justify-center text-ink transition-colors cursor-pointer"
                   title="ย้อนกลับ"
                   aria-label="ย้อนกลับ"
                 >
@@ -786,7 +786,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 <div className="w-11 h-11" />
               )}
 
-              <div className="w-11 h-11 rounded-full bg-paper-2 border border-line flex items-center justify-center text-xs font-extrabold text-white">
+              <div className="w-11 h-11 rounded-full bg-surface border border-line flex items-center justify-center text-xs font-extrabold text-ink">
                 TH
               </div>
             </div>
@@ -869,7 +869,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             {/* ── STEP 2: Countdown + Offering Packages (Adapted from Image 3) ── */}
             {shownStep === 2 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in fade-in duration-200">
-                <div className="lg:col-span-2 text-xl font-bold text-white tracking-tight px-1">
+                <div className="lg:col-span-2 text-xl font-bold text-ink tracking-tight px-1">
                   GraceBox Station · {churchQuery.data?.name || "Sanctuary"}
                 </div>
 
@@ -891,7 +891,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     id="station-fund"
                     value={selectedFundId}
                     onChange={e => setSelectedFundId(e.target.value)}
-                    className="w-full min-h-10 rounded-xl bg-paper-2 border border-line px-3 py-2 text-xs font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                    className="w-full min-h-10 rounded-xl bg-paper border border-line px-3 py-2 text-xs font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                   >
                     {funds.length === 0 ? (
                       <option value="">กองทุนทั่วไปของคริสตจักร</option>
@@ -936,7 +936,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="underline hover:text-white cursor-pointer"
+                      className="underline hover:text-brand cursor-pointer"
                     >
                       เปลี่ยนประเภท/ยอด
                     </button>
@@ -944,7 +944,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
                   <div className="flex items-baseline justify-between gap-2">
                     <div>
-                      <div className="text-xl font-extrabold text-white">
+                      <div className="text-xl font-extrabold text-ink">
                         {giveLines.length >= 2
                           ? `แบ่งถวาย ${giveLines.length} ประเภท`
                           : offeringCategoryLabel(selectedCategory)}
@@ -968,7 +968,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           "กองทุนหลักคริสตจักร"}
                       </div>
                     </div>
-                    <div className="text-4xl font-bold text-white tabular-nums">
+                    <div className="text-4xl font-bold text-ink tabular-nums">
                       {effectiveAmount === null
                         ? "—"
                         : `${effectiveAmount.toLocaleString()} THB`}
@@ -998,8 +998,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         onClick={() => setTransferState(value)}
                         className={`min-h-11 rounded-2xl border text-sm font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-brand ${
                           transferState === value
-                            ? "border-white/40 bg-paper-2 text-ink"
-                            : "border-white/15 bg-white/5 text-ink-2 hover:bg-white/10"
+                            ? "border-brand bg-brand/10 text-brand"
+                            : "border-line bg-surface text-ink-2 hover:bg-paper"
                         }`}
                       >
                         {label}
@@ -1024,7 +1024,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           <div className="text-ink-3">
                             {payee.bankName || "บัญชีธนาคารคริสตจักร"}
                           </div>
-                          <div className="font-mono font-bold text-base text-white break-all">
+                          <div className="font-mono font-bold text-base text-ink break-all">
                             {payee.bankAccount}
                           </div>
                           {payee.bankAccountName && (
@@ -1038,7 +1038,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           onClick={() =>
                             void handleCopyAccount(payee.bankAccount)
                           }
-                          className="shrink-0 min-h-11 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white inline-flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
+                          className="shrink-0 min-h-11 px-3 rounded-xl bg-paper hover:bg-paper-2 border border-line text-xs font-bold text-ink inline-flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
                         >
                           <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                           <span>คัดลอก</span>
@@ -1116,7 +1116,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           setDonorNameInput(e.target.value);
                         }}
                         placeholder="เช่น สมชาย สุขใจ หรือ ผู้ถวายนิรนาม"
-                        className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-ink-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                        className="w-full rounded-2xl bg-surface border border-line px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                       />
                       {nameFromSlip && (
                         <p className="text-[11px] text-ink-2">
@@ -1140,7 +1140,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           max={new Date().toLocaleDateString("sv-SE")}
                           value={transferDate}
                           onChange={e => setTransferDate(e.target.value)}
-                          className="w-full rounded-2xl bg-black/40 border border-white/15 px-3.5 py-2.5 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                          className="w-full rounded-2xl bg-surface border border-line px-3.5 py-2.5 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                         />
                       </div>
                     )}
@@ -1158,7 +1158,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipInputRef.current?.click()}
-                        className="w-full rounded-2xl border border-dashed border-white/20 hover:border-white/40 bg-black/30 p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5"
+                        className="w-full rounded-2xl border border-dashed border-line hover:border-brand bg-paper/60 hover:bg-paper p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5"
                       >
                         <UploadCloud className="w-5 h-5 text-ink-2 shrink-0" />
                         <span className="text-xs font-bold text-ink">
@@ -1182,7 +1182,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipCameraRef.current?.click()}
-                        className="mt-2 w-full rounded-2xl border border-white/15 hover:border-white/40 bg-white/5 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden"
+                        className="mt-2 w-full rounded-2xl border border-line hover:border-brand bg-surface hover:bg-paper p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden"
                       >
                         <Camera
                           className="w-5 h-5 text-ink-2 shrink-0"
@@ -1300,7 +1300,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     />
 
                     <div className="space-y-1.5">
-                      <h3 className="text-2xl font-extrabold text-white">
+                      <h3 className="text-2xl font-extrabold text-ink">
                         {outcome.title}
                       </h3>
                       <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">
@@ -1324,7 +1324,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           <button
                             type="button"
                             onClick={retryWithOtherSlip}
-                            className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-ink font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
+                            className="w-full py-3 rounded-2xl bg-paper hover:bg-paper-2 border border-line text-ink font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
                           >
                             เปลี่ยนรูปสลิป (ยอดเดิม{" "}
                             {submission.amount.toLocaleString()} THB)
@@ -1332,7 +1332,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           <button
                             type="button"
                             onClick={resetFlow}
-                            className="w-full py-3 rounded-2xl bg-white/8 hover:bg-white/15 text-ink font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
+                            className="w-full py-3 rounded-2xl bg-paper hover:bg-paper-2 border border-line text-ink font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
                           >
                             เริ่มใหม่ทั้งหมด
                           </button>
@@ -1942,7 +1942,7 @@ function MySlipHistory({
               className="flex items-center justify-between gap-3 text-xs"
             >
               <div className="min-w-0">
-                <div className="font-bold text-white truncate">
+                <div className="font-bold text-ink truncate">
                   {item.declaredCategory
                     ? offeringCategoryLabel(item.declaredCategory)
                     : "ถวาย"}

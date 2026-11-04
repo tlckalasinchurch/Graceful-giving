@@ -384,7 +384,7 @@ export default function Expenses() {
                                     title: e.description,
                                   })
                                 }
-                                className="inline-flex size-10 items-center justify-center rounded-lg text-income hover:bg-[hsl(132_38%_13%)]"
+                                className="inline-flex size-10 items-center justify-center rounded-lg text-income hover:bg-emerald-50"
                                 title="ดูสลิป/ใบเสร็จ"
                                 aria-label={`ดูสลิปของ ${e.description}`}
                               >

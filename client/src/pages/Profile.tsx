@@ -59,9 +59,9 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
     role: "SUPER_ADMIN",
     title: "ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)",
     badgeStyle: {
-      bg: "bg-amber-500/15",
-      text: "text-amber-200",
-      border: "border-amber-500/30",
+      bg: "bg-amber-50",
+      text: "text-amber-800",
+      border: "border-amber-200",
       icon: <Shield className="size-3.5" aria-hidden="true" />,
     },
     summary:
@@ -78,9 +78,9 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
     role: "TREASURER",
     title: "เหรัญญิกคริสตจักร (TREASURER)",
     badgeStyle: {
-      bg: "bg-emerald-500/15",
-      text: "text-emerald-200",
-      border: "border-emerald-500/30",
+      bg: "bg-emerald-50",
+      text: "text-emerald-800",
+      border: "border-emerald-200",
       icon: <Receipt className="size-3.5" aria-hidden="true" />,
     },
     summary:
@@ -99,9 +99,9 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
     role: "PASTOR",
     title: "ศิษยาภิบาล / ผู้นำฝ่ายวิญญาณ (PASTOR)",
     badgeStyle: {
-      bg: "bg-paper-2",
-      text: "text-brand-ink",
-      border: "border-line",
+      bg: "bg-sky-50",
+      text: "text-sky-800",
+      border: "border-sky-200",
       icon: <HeartHandshake className="size-3.5" aria-hidden="true" />,
     },
     summary:
@@ -119,9 +119,9 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
     role: "DEACON",
     title: "ผู้รับผิดชอบฝ่าย",
     badgeStyle: {
-      bg: "bg-[hsl(13_45%_13%)]",
-      text: "text-[hsl(7_58%_72%)]",
-      border: "border-danger",
+      bg: "bg-rose-50",
+      text: "text-rose-800",
+      border: "border-rose-200",
       icon: <Briefcase className="size-3.5" aria-hidden="true" />,
     },
     summary:
@@ -139,9 +139,9 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
     role: "COUNTER",
     title: "กรรมการนับเงิน / ทีมนับเงินถวาย (COUNTER)",
     badgeStyle: {
-      bg: "bg-amber-500/15",
-      text: "text-amber-200",
-      border: "border-amber-500/30",
+      bg: "bg-amber-50",
+      text: "text-amber-800",
+      border: "border-amber-200",
       icon: <CheckCircle2 className="size-3.5" aria-hidden="true" />,
     },
     summary:

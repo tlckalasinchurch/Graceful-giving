@@ -173,7 +173,7 @@ export function ReconciliationSummaryTab({
       </div>
 
       {!r.isBalanced && (
-        <div className="rounded-2xl border border-[hsl(29_40%_24%)] bg-paper-2 p-5">
+        <div className="rounded-2xl border border-line bg-surface p-5">
           <h3 className="font-bold text-brand-ink">ยอดยังไม่ตรงกัน</h3>
           <p className="mt-1 text-sm text-brand-ink">
             ปิดรอบได้เมื่อยอดตรง หรือบันทึกคำอธิบายผลต่างไว้เป็นหลักฐาน
@@ -194,7 +194,7 @@ export function ReconciliationSummaryTab({
       )}
 
       {unapprovedDeductions.length > 0 && (
-        <p className="rounded-2xl border border-[hsl(11_40%_24%)] bg-[hsl(6_45%_13%)] p-4 text-sm font-bold text-[hsl(8_59%_72%)]">
+        <p className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-800">
           มีรายการหักเบิกที่ยังไม่ได้รับอนุมัติ {unapprovedDeductions.length}{" "}
           รายการ — ต้องอนุมัติก่อนลงบัญชี
         </p>

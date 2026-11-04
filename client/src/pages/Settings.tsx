@@ -855,7 +855,7 @@ export default function Settings() {
                                               status: "disabled",
                                             });
                                         }}
-                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-[hsl(0_56%_72%)] hover:bg-[hsl(4_45%_13%)]"
+                                        className="whitespace-nowrap rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-rose-50"
                                       >
                                         ปิดใช้งาน
                                       </button>

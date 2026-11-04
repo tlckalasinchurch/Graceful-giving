@@ -27,27 +27,27 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
         </SheetHeader>
 
         <div className="space-y-5">
-          <div className="p-5 sm:p-6 rounded-2xl bg-paper-2 border-2 border-line space-y-3 shadow-xs">
+          <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line space-y-3 shadow-xs">
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary text-black inline-block">
               ประกาศสำคัญ
             </span>
-            <h4 className="text-lg sm:text-xl font-bold text-ink-2">
+            <h4 className="text-lg sm:text-xl font-bold text-ink">
               ค่ายสามัคคีธรรมประจำปี 2026
             </h4>
-            <p className="text-sm sm:text-base text-foreground leading-relaxed font-medium">
+            <p className="text-sm sm:text-base text-ink-2 leading-relaxed font-medium">
               ขอเชิญชวนพี่น้องสมาชิกทุกท่านร่วมค่ายสามัคคีธรรม วันที่ 18-20 ต.ค.
               นี้ ณ ศูนย์ฝึกอบรมคริสเตียน
             </p>
           </div>
 
-          <div className="p-5 sm:p-6 rounded-2xl bg-[hsl(132_38%_13%)] border-2 border-[hsl(101_40%_24%)] space-y-3 shadow-xs">
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[hsl(133_32%_13%)] text-white inline-block">
+          <div className="p-5 sm:p-6 rounded-2xl bg-tile-mint border border-emerald-200/80 space-y-3 shadow-xs">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 inline-block">
               รายงานพันธกิจ
             </span>
-            <h4 className="text-lg sm:text-xl font-bold text-income">
+            <h4 className="text-lg sm:text-xl font-bold text-tile-mint-ink">
               โครงการแจกถุงยังชีพสู่ชุมชนรอบโบสถ์
             </h4>
-            <p className="text-sm sm:text-base text-foreground leading-relaxed font-medium">
+            <p className="text-sm sm:text-base text-ink-2 leading-relaxed font-medium">
               คริสตจักรได้ส่งมอบถุงยังชีพจำนวน 120 ชุดแก่ครอบครัวยากไร้
               ขอบคุณพระเจ้าสำหรับทุกการถวาย
             </p>
