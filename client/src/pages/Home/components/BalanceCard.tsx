@@ -56,11 +56,14 @@ export function BalanceCard({
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      className="relative h-full rounded-2xl bg-[#080808] text-white border border-black/90 p-5 sm:p-6 flex flex-col justify-between gap-5 w-full shadow-sm"
+      className="relative h-full rounded-3xl border border-black/90 border-t-brand/70 bg-[#080808] p-5 text-white shadow-sm sm:p-7"
     >
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-1.5">
-          <h2 className="text-sm font-semibold text-zinc-400">
+          <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-zinc-500">
+            ฐานะการเงิน
+          </p>
+          <h2 className="text-sm font-semibold text-zinc-300">
             ยอดเงินคงเหลือรวม
           </h2>
           {isBalanceLoading && (

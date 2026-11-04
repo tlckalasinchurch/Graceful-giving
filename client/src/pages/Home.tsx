@@ -240,7 +240,7 @@ export default function Home() {
   // a 7/5 grid so a wide screen gets two columns, not a stretched phone.
   return (
     <AppLayout>
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-5 sm:space-y-7">
         <HeroSection />
 
         {/* To-do queue: work waiting on this role (slips, withdrawals, counting) */}
@@ -252,7 +252,7 @@ export default function Home() {
           />
         )}
 
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-12">
           {canSeeFinance && (
             <div className="lg:col-span-7">
               <BalanceCard

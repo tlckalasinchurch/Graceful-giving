@@ -39,7 +39,14 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
       className="rounded-3xl bg-surface p-3 sm:p-4 fintech-card"
     >
       <div className="flex items-center justify-between px-3 pb-2 pt-1">
-        <h2 className="text-base font-bold text-ink">งานที่ต้องดำเนินการ</h2>
+        <div>
+          <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-ink-3">
+            ติดตาม
+          </p>
+          <h2 className="mt-1 text-base font-bold text-ink">
+            งานที่ต้องดำเนินการ
+          </h2>
+        </div>
         <span className="money text-sm text-ink-2">รวม {total} รายการ</span>
       </div>
       <ul className="divide-y divide-line/60">
