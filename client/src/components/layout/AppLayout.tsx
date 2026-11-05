@@ -121,7 +121,7 @@ function SidebarLink({
       }`}
     >
       <Icon
-        className={`size-[18px] shrink-0 ${active ? "text-brand" : ""}`}
+        className="size-[18px] shrink-0"
         aria-hidden="true"
       />
       <span className="min-w-0 flex-1 truncate">{label}</span>
@@ -212,7 +212,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {canRecordOffering && (
             <button
               onClick={() => navigate("/offerings/new")}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <Plus className="size-4" aria-hidden="true" />
               บันทึกการถวาย
@@ -345,7 +345,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               aria-label="บันทึกการถวายใหม่"
               className="flex min-h-14 flex-col items-center justify-center gap-1"
             >
-              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-white">
                 <Plus className="size-5 stroke-[2.5]" />
               </span>
               <span className="text-xs font-bold leading-none text-ink">
