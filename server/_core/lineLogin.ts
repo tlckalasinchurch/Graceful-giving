@@ -169,8 +169,15 @@ export async function resolveLineUser(
       avatarUrl: profile.picture,
     });
     if (opts.giver && existing.status === "pending") {
-      await db.setUserStatus(existing.id, "active");
-      return { ...existing, status: "active" };
+      // Only activate ordinary givers/members. Pending staff accounts (e.g.
+      // TREASURER, PASTOR, DEACON, COUNTER) must be approved by an administrator
+      // and cannot self-activate by visiting the public giving link.
+      const isStaffRole =
+        existing.churchRole && existing.churchRole !== "MEMBER";
+      if (!isStaffRole) {
+        await db.setUserStatus(existing.id, "active");
+        return { ...existing, status: "active" };
+      }
     }
     return existing;
   }

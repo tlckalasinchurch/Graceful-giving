@@ -201,6 +201,18 @@ describe("resolveLineUser", () => {
       await resolveLineUser(profile, { giver: true });
       expect(dbMock.setUserStatus).not.toHaveBeenCalled();
     });
+
+    it("never activates a pending staff account through giving sign-in", async () => {
+      dbMock.getUserByOpenId.mockResolvedValue({
+        id: 5,
+        openId: "line:U1",
+        status: "pending",
+        churchRole: "TREASURER",
+      });
+      const user = await resolveLineUser(profile, { giver: true });
+      expect(dbMock.setUserStatus).not.toHaveBeenCalled();
+      expect(user.status).toBe("pending");
+    });
   });
 
   it("creates OWNER_OPEN_ID as an active SUPER_ADMIN", async () => {
