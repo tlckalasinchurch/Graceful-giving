@@ -33,88 +33,85 @@ export function StationCubeLogo({
     <div
       className={cn("inline-flex flex-col items-center select-none", className)}
     >
-      {/* Isometric 3D Box with Open Door & Blessing Wave Bars */}
-      <svg
-        viewBox="0 0 120 105"
-        className="w-20 h-20 sm:w-24 sm:h-24 drop-shadow-md"
-        aria-hidden="true"
-      >
-        {/* Top roof diamond */}
-        <polygon
-          points="60,8 106,30 60,52 14,30"
-          fill="#FFFFFF"
-          stroke="#080808"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-        />
-        {/* Left face (doorway side) */}
-        <polygon
-          points="14,30 60,52 60,96 14,74"
-          fill="#FFFFFF"
-          stroke="#080808"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-        />
-        {/* Dark doorway recess inside left face */}
-        <polygon points="34,47 55,57 55,93 34,83" fill="#080808" />
-        {/* Open door panel swinging outward */}
-        <polygon
-          points="26,44 37,48 37,88 26,84"
-          fill={variant === "orange" ? "#22C55E" : "#F8FAFC"}
-          stroke="#080808"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-        {/* Door handle slot */}
-        <line
-          x1="34"
-          y1="64"
-          x2="34"
-          y2="71"
-          stroke="#080808"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-        />
-        {/* Right face (wave bars side) */}
-        <polygon
-          points="60,52 106,30 106,74 60,96"
-          fill={variant === "orange" ? "#0F172A" : "#FFFFFF"}
-          stroke={variant === "orange" ? "#22C55E" : "#080808"}
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-        />
-        {/* Sound / Blessing vertical wave bars on right face */}
-        {[
-          { x: 71, y1: 60, y2: 72 },
-          { x: 77, y1: 52, y2: 74 },
-          { x: 83, y1: 46, y2: 75 },
-          { x: 89, y1: 52, y2: 68 },
-          { x: 95, y1: 55, y2: 63 },
-        ].map((b, idx) => (
+      {/* Refined Brand Emblem Card */}
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-paper border border-line flex items-center justify-center p-3 mb-2.5 shadow-2xs">
+        <svg
+          viewBox="0 0 120 105"
+          className="w-full h-full drop-shadow-xs"
+          aria-hidden="true"
+        >
+          {/* Top roof diamond */}
+          <polygon
+            points="60,8 106,30 60,52 14,30"
+            fill="#FFFFFF"
+            stroke="#080808"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          {/* Left face (doorway side) */}
+          <polygon
+            points="14,30 60,52 60,96 14,74"
+            fill="#FFFFFF"
+            stroke="#080808"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          {/* Dark doorway recess inside left face */}
+          <polygon points="34,47 55,57 55,93 34,83" fill="#080808" />
+          {/* Open door panel swinging outward */}
+          <polygon
+            points="26,44 37,48 37,88 26,84"
+            fill="#F95C4B"
+            stroke="#080808"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          {/* Door handle slot */}
           <line
-            key={idx}
-            x1={b.x}
-            y1={b.y1}
-            x2={b.x}
-            y2={b.y2}
-            stroke={variant === "orange" ? "#22C55E" : "#080808"}
-            strokeWidth="3.2"
+            x1="34"
+            y1="64"
+            x2="34"
+            y2="71"
+            stroke="#080808"
+            strokeWidth="2.2"
             strokeLinecap="round"
           />
-        ))}
-      </svg>
+          {/* Right face (wave bars side) */}
+          <polygon
+            points="60,52 106,30 106,74 60,96"
+            fill="#080808"
+            stroke="#080808"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          {/* Sound / Blessing vertical wave bars on right face */}
+          {[
+            { x: 71, y1: 60, y2: 72 },
+            { x: 77, y1: 52, y2: 74 },
+            { x: 83, y1: 46, y2: 75 },
+            { x: 89, y1: 52, y2: 68 },
+            { x: 95, y1: 55, y2: 63 },
+          ].map((b, idx) => (
+            <line
+              key={idx}
+              x1={b.x}
+              y1={b.y1}
+              x2={b.x}
+              y2={b.y2}
+              stroke="#F95C4B"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+          ))}
+        </svg>
+      </div>
 
-      <div className="mt-1 text-center">
-        <div className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-ink">
-          {brandTitle.slice(0, -3)}
-          <span
-            className={variant === "orange" ? "text-brand" : "text-ink"}
-          >
-            {brandTitle.slice(-3)}
-          </span>
-        </div>
+      <div className="text-center">
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-none text-ink font-display">
+          Grace <span className="text-brand">Giving</span>
+        </h2>
         {subtitle && (
-          <p className="mt-1.5 text-xs font-medium text-ink-2">
+          <p className="mt-1.5 text-xs sm:text-sm font-medium text-ink-2">
             {subtitle}
           </p>
         )}
@@ -128,7 +125,7 @@ export function StationCubeLogo({
 export function StationProfileCard({
   userName = "ผู้ถวายด้วยใจยินดี",
   avatarUrl,
-  metricLabel = "ถวายสะสม",
+  metricLabel = "สถานะผู้ถวาย",
   metricValue = "พร้อมถวาย",
   className,
 }: {
@@ -141,41 +138,45 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-surface border border-line px-6 py-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2",
+        "rounded-2xl bg-paper border border-line p-4 sm:p-5 flex items-center justify-between gap-4 shadow-2xs",
         className
       )}
     >
-      <div className="flex items-center gap-3.5 min-w-0 flex-1 basis-40">
+      <div className="flex items-center gap-3.5 min-w-0 flex-1">
         {avatarUrl ? (
           <img
             src={avatarUrl}
             alt={userName}
-            className="w-12 h-12 rounded-full object-cover border border-white/20 shrink-0"
+            className="w-12 h-12 rounded-full object-cover border-2 border-surface shadow-xs shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-brand text-black font-extrabold text-lg flex items-center justify-center border border-white/20 shrink-0">
+          <div className="w-12 h-12 rounded-full bg-paper-2 text-ink font-extrabold text-base flex items-center justify-center border border-line shrink-0">
             {userName.trim().slice(0, 1).toUpperCase() || "G"}
           </div>
         )}
-        <span className="text-lg font-extrabold text-white truncate">
-          {userName}
-        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-base sm:text-lg font-bold text-ink truncate leading-tight">
+            {userName}
+          </div>
+          <div className="text-xs font-medium text-ink-2 mt-0.5">
+            {metricLabel}
+          </div>
+        </div>
       </div>
 
-      <div className="text-right shrink-0 ml-auto">
-        <div className="text-xs font-medium text-ink-3">{metricLabel}</div>
-        <div className="text-base sm:text-xl font-extrabold text-white tabular-nums">
+      <div className="text-right shrink-0">
+        <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-line text-xs sm:text-sm font-bold text-ink shadow-2xs">
           {metricValue}
-        </div>
+        </span>
       </div>
     </div>
   );
 }
 
 export function StationStatusCard({
-  label = "สถานะระบบถวาย",
+  label = "สถานะจุดถวาย",
   statusBadgeText = "พร้อมรับถวาย",
-  statusDetail = "เปิดรับถวายออนไลน์และสแกนสลิปอัตโนมัติ",
+  statusDetail = "ส่งสลิปการถวายให้เหรัญญิกตรวจสอบได้ทุกเวลา",
   isAvailable = true,
   className,
 }: {
@@ -188,29 +189,27 @@ export function StationStatusCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-surface border border-line px-6 py-5 space-y-2.5",
+        "rounded-2xl bg-paper border border-line p-4 sm:p-5 space-y-2.5 shadow-2xs",
         className
       )}
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <span className="text-sm font-semibold text-ink-2">{label}</span>
-        </div>
+        <span className="text-sm font-bold text-ink">{label}</span>
 
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-paper-2 border border-line">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-line shadow-2xs">
           <span
             className={cn(
-              "w-3 h-3 rounded-full",
-              isAvailable ? "bg-income" : "bg-amber-500"
+              "w-2.5 h-2.5 rounded-full ring-2 ring-emerald-500/20",
+              isAvailable ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
             )}
           />
-          <span className="text-xs sm:text-sm font-bold text-white">
+          <span className="text-xs sm:text-sm font-bold text-ink">
             {statusBadgeText}
           </span>
         </div>
       </div>
 
-      <p className="text-sm text-ink-2">{statusDetail}</p>
+      <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">{statusDetail}</p>
     </div>
   );
 }
@@ -233,9 +232,9 @@ export function StationHeroCTA({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-3", className)}>
-      <div className="space-y-0.5">
-        <h3 className="text-2xl sm:text-4xl font-bold text-white tracking-tight leading-[1.1]">
+    <div className={cn("space-y-3 pt-1", className)}>
+      <div className="text-center sm:text-left">
+        <h3 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
           {headline}
         </h3>
       </div>
@@ -243,30 +242,31 @@ export function StationHeroCTA({
       <button
         type="button"
         onClick={onClick}
-        className="group w-full text-left rounded-2xl focus-visible:ring-2 focus-visible:ring-brand p-5 sm:p-6 bg-brand hover:bg-brand-ink transition-colors cursor-pointer flex items-center justify-between gap-4"
+        aria-label={`${buttonTitle} - ${buttonSubtitle}`}
+        className="group w-full text-left rounded-2xl focus-visible:ring-2 focus-visible:ring-brand p-5 sm:p-6 bg-brand hover:bg-brand-ink text-black transition-all cursor-pointer flex items-center justify-between gap-4 active:scale-[0.98] shadow-sm hover:shadow-md"
       >
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-black/15 flex items-center justify-center shrink-0">
-            <HandCoins className="w-8 h-8 text-black" aria-hidden="true" />
+          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-black/10 flex items-center justify-center shrink-0 border border-black/10 group-hover:bg-black/15 transition-colors">
+            <HandCoins className="w-7 h-7 text-black" aria-hidden="true" />
           </div>
 
           <div className="min-w-0">
-            <div className="text-xl sm:text-2xl font-bold text-black tracking-tight leading-tight">
+            <div className="text-xl sm:text-2xl font-black text-black tracking-tight leading-tight">
               {buttonTitle}
             </div>
-            <div className="text-sm font-semibold text-black/80 mt-0.5">
+            <div className="text-xs sm:text-sm font-bold text-black/80 mt-0.5">
               {buttonSubtitle}
             </div>
           </div>
         </div>
 
-        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-black/40 flex items-center justify-center text-black shrink-0 group-hover:translate-x-1 transition-transform">
-          <ArrowRight className="w-5 h-5" />
+        <div className="w-11 h-11 rounded-full bg-black/10 border border-black/15 flex items-center justify-center text-black shrink-0 group-hover:translate-x-1 group-hover:bg-black/15 transition-all">
+          <ArrowRight className="w-5 h-5 stroke-[2.5]" />
         </div>
       </button>
 
       {helperText && (
-        <p className="text-xs sm:text-sm text-ink-2 text-center pt-1">
+        <p className="text-xs sm:text-sm text-ink-2 text-center pt-0.5 font-medium leading-relaxed">
           {helperText}
         </p>
       )}
@@ -356,7 +356,7 @@ export function StationCountdownCard({
           aria-label={label}
           className={cn(
             "text-4xl sm:text-5xl font-bold tabular-nums tracking-tight",
-            warning ? "text-amber-300" : "text-white"
+            warning ? "text-danger" : "text-ink"
           )}
         >
           {mins}:{secs}
@@ -374,7 +374,7 @@ export function StationCountdownCard({
         <button
           type="button"
           onClick={extend}
-          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-line text-xs font-semibold text-ink-2 inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
+          className="px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-2 border border-line text-xs font-semibold text-ink inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand active:scale-95 transition-all"
         >
           <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
           <span>ต่อเวลา</span>
@@ -398,12 +398,12 @@ export function StationStepStatusCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-surface border border-line px-6 py-5 space-y-1.5",
+        "rounded-2xl bg-paper border border-line px-6 py-5 space-y-1.5 shadow-2xs",
         className
       )}
     >
       <div className="text-xs sm:text-sm font-medium text-ink-2">{eyebrow}</div>
-      <div className="text-lg sm:text-xl font-semibold text-ink">{title}</div>
+      <div className="text-lg sm:text-xl font-bold text-ink">{title}</div>
       {updatedAtText && (
         <div className="text-xs sm:text-sm text-ink-3">{updatedAtText}</div>
       )}
@@ -437,18 +437,18 @@ export function StationOfferingPackageCard({
       role="group"
       aria-label={title}
       className={cn(
-        "rounded-2xl bg-surface border border-line p-5 sm:p-6 space-y-4 transition-colors",
+        "rounded-2xl bg-surface border border-line p-5 sm:p-6 space-y-4 transition-all shadow-2xs",
         selected
-          ? "border-brand bg-paper-2"
-          : "border-line hover:border-white/20",
+          ? "border-brand ring-2 ring-brand/20 bg-paper"
+          : "border-line hover:border-line/80",
         className
       )}
     >
       <div className="space-y-1">
-        <h4 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+        <h4 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
           {title}
         </h4>
-        <p className="text-sm sm:text-base font-medium text-ink-3">
+        <p className="text-sm sm:text-base font-medium text-ink-2">
           {subtitle}
         </p>
       </div>
@@ -462,10 +462,10 @@ export function StationOfferingPackageCard({
               onClick={() => onSelectAmount(preset)}
               aria-pressed={amountThb === preset}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand",
+                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
                 amountThb === preset
-                  ? "bg-paper-2 border-white/40 text-ink"
-                  : "bg-surface border-line text-ink-2 hover:bg-paper"
+                  ? "bg-paper-2 border-ink/20 text-ink"
+                  : "bg-surface border-line text-ink-2 hover:bg-paper hover:text-ink"
               )}
             >
               {preset.toLocaleString()} THB
@@ -474,7 +474,7 @@ export function StationOfferingPackageCard({
         </div>
       )}
 
-      <div className="text-3xl sm:text-4xl font-bold text-white tabular-nums">
+      <div className="text-3xl sm:text-4xl font-extrabold text-ink tabular-nums">
         {amountThb.toLocaleString()} THB
       </div>
 

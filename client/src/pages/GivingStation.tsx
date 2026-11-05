@@ -700,8 +700,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     <div className="space-y-6">
       {/* ── Mode Switcher Bar (Hidden when printing poster) ── */}
       <div
-        className={`rounded-2xl p-2 border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden ${
-          stationOnly ? "bg-white/5 border-white/10" : "bg-surface border-line"
+        className={`rounded-2xl p-1.5 border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden ${
+          stationOnly ? "bg-white/5 border-white/10" : "bg-surface border-line shadow-2xs"
         }`}
       >
         {!stationOnly && (
@@ -711,11 +711,11 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               onClick={() => setActiveTab("flow")}
               className={`min-h-11 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "flow"
-                  ? "bg-paper-2 text-ink"
+                  ? "bg-paper-2 text-ink shadow-2xs"
                   : "text-ink-2 hover:bg-paper"
               }`}
             >
-              <Smartphone className="w-4 h-4" />
+              <Smartphone className="w-4 h-4 text-brand" />
               <span>1. หน้าเว็บถวายอัตโนมัติ (Mobile Flow)</span>
             </button>
 
@@ -724,11 +724,11 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               onClick={() => setActiveTab("poster")}
               className={`min-h-11 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "poster"
-                  ? "bg-paper-2 text-ink"
+                  ? "bg-paper-2 text-ink shadow-2xs"
                   : "text-ink-2 hover:bg-paper"
               }`}
             >
-              <QrCode className="w-4 h-4" />
+              <QrCode className="w-4 h-4 text-brand" />
               <span>
                 2. โปสเตอร์ป้าย QR ติดหน้าห้อง (1 สแกน → 2 เลือกประเภท → 3
                 โอน/สลิป → 4 ขอบคุณพระเจ้า)
@@ -746,12 +746,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               <li
                 key={n}
                 aria-current={shownStep === n ? "step" : undefined}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   shownStep === n
-                    ? "bg-paper-2 text-ink border border-white/30"
+                    ? "bg-brand text-black font-extrabold shadow-2xs"
                     : stationOnly
                       ? "bg-white/10 text-ink-2"
-                      : "bg-paper text-ink-3"
+                      : "bg-paper-2 text-ink-2"
                 }`}
               >
                 ขั้นที่ {n}
@@ -765,9 +765,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             TAB 1: INTERACTIVE MOBILE FLOW (Adapted from JamBox Screens 1, 2, 3)
            ══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "flow" && (
-        <div className="max-w-md lg:max-w-5xl mx-auto">
-          {/* Dark Mobile Station Shell */}
-          <div className="rounded-[36px] bg-ground p-5 sm:p-8 text-ink border border-line space-y-6 relative overflow-hidden">
+        <div className="max-w-md sm:max-w-lg lg:max-w-xl mx-auto">
+          {/* Mobile Station Shell */}
+          <div className="rounded-[32px] sm:rounded-[36px] bg-surface p-6 sm:p-8 text-ink border border-line shadow-sm space-y-6 relative overflow-hidden">
             {/* Top Bar: TH Language Pill & Step Back Button */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
@@ -776,17 +776,17 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   onClick={() =>
                     setStep(prev => (prev > 1 ? ((prev - 1) as FlowStep) : 1))
                   }
-                  className="w-11 h-11 rounded-full bg-surface hover:bg-paper border border-line flex items-center justify-center text-ink transition-colors cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-paper hover:bg-paper-2 border border-line flex items-center justify-center text-ink transition-all active:scale-95 cursor-pointer"
                   title="ย้อนกลับ"
                   aria-label="ย้อนกลับ"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
               ) : (
-                <div className="w-11 h-11" />
+                <div className="w-10 h-10" />
               )}
 
-              <div className="w-11 h-11 rounded-full bg-surface border border-line flex items-center justify-center text-xs font-extrabold text-ink">
+              <div className="px-3 py-1.5 rounded-full bg-paper border border-line flex items-center justify-center text-xs font-black text-ink shadow-2xs">
                 TH
               </div>
             </div>
@@ -803,8 +803,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
             {/* ── STEP 1: Landing / Status / Give Now (Adapted from Image 2) ── */}
             {shownStep === 1 && (
-              <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 animate-in fade-in duration-200">
-                <div className="lg:col-span-6 text-center -mt-4">
+              <div className="grid grid-cols-1 gap-4 animate-in fade-in duration-200">
+                <div className="text-center -mt-2">
                   <StationCubeLogo
                     brandTitle="Grace Giving"
                     subtitle="จุดถวายทรัพย์ดิจิทัลเพื่อพันธกิจ"
@@ -812,9 +812,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 </div>
 
                 {/* Station Breadcrumb */}
-                <div className="lg:col-span-6 text-sm font-semibold text-ink-2 text-center sm:text-left">
-                  จุดถวายทรัพย์ <span className="text-ink-3 mx-1">/</span>{" "}
-                  {churchQuery.data?.name || "ห้องนมัสการ"}
+                <div className="text-xs sm:text-sm font-medium text-ink-2 text-center">
+                  <span>จุดถวายทรัพย์</span>
+                  <span className="text-ink-3 mx-2">/</span>
+                  <span className="text-ink font-semibold">{churchQuery.data?.name || "ห้องนมัสการ"}</span>
                 </div>
 
                 {/* Donor Profile Card */}
@@ -823,7 +824,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   avatarUrl={user?.avatarUrl}
                   metricLabel="สถานะผู้ถวาย"
                   metricValue={getChurchRoleInfo(user?.churchRole).label}
-                  className="lg:col-span-3"
                 />
 
                 {/* Room / Station Availability Card */}
@@ -838,12 +838,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       : "โหลดข้อมูลคริสตจักรไม่สำเร็จ กรุณาลองใหม่ภายหลัง"
                   }
                   isAvailable={stationReady}
-                  className="lg:col-span-3"
                 />
 
                 {/* Primary Give Now CTA */}
                 <StationHeroCTA
-                  className="lg:col-span-6 pt-2"
                   headline="พร้อมถวายทรัพย์เลยไหม?"
                   buttonTitle="Give Now"
                   buttonSubtitle="เริ่มถวายทันที"
@@ -857,7 +855,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   }
                 />
 
-                <div className="lg:col-span-6">
+                <div>
                   <MySlipHistory
                     items={mySlipsQuery.data}
                     loading={mySlipsQuery.isLoading}
