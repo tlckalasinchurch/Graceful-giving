@@ -104,9 +104,9 @@
   --background: #f7f5f0;
   --foreground: #171715;
   --card: #ffffff;
-  --card-foreground: #080808;
+  --card-foreground: #171715;
   --popover: #ffffff;
-  --popover-foreground: #080808;
+  --popover-foreground: #171715;
   --secondary: #fbf9f5;
   --secondary-foreground: #171715;
   --muted: #fbf9f5;
@@ -192,8 +192,8 @@ select:focus-visible {
   gap: 0.375rem;
   font-size: 0.75rem;
   line-height: 1;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--color-ink-2);
   background-color: var(--color-paper-2);
   padding: 0.35rem 0.7rem;
@@ -203,8 +203,8 @@ select:focus-visible {
 
 .display {
   font-family: var(--font-display);
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-weight: 500;
+  letter-spacing: -0.015em;
   line-height: 1.15;
   font-variant-numeric: lining-nums;
 }
@@ -224,8 +224,8 @@ select:focus-visible {
   }
 }
 
-/* Surfaces are flat: a 1px ring is the only edge, and a tone step (ground
-   #050506, card #0e0e10, raised #161618) does the elevating. Nothing at rest
+/* Surfaces are flat: a 1px ring is the only edge, and a tone step (ground,
+   paper, surface) does the elevating. Nothing at rest
    has a blurred shadow or a glow. The old class names stay so pages that still
    use them take the flat look without a rewrite. */
 .card-elevation-sm,
