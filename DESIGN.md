@@ -105,7 +105,7 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach`) so old clas
 ## Typography
 
 - **Stacks:** Latin/digits `"Manrope"`, Thai `"IBM Plex Sans Thai"`, signature simulation `"Caveat"`. Never ship a Thai UI string in only the Latin fonts.
-- **Display:** `.display` utility — weight 800, line-height 1.15, tracking −0.025em (floor −0.04em), lining numerals.
+- **Display:** `.display` utility — weight 500, line-height 1.15, tracking −0.015em, lining numerals.
 - **Body: 15px / 1.6** (set on `body`, not per-component).
 - **Numbers:** amounts use `.money` (`tabular-nums` + −0.02em) so columns settle without jitter.
 - **Labels:** minimum readable text size is 12px (`text-xs`). Avoid arbitrary sub-12px micro-text (`text-[10px]`, `text-[11px]`) on financial ledger interfaces.
