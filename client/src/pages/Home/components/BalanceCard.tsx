@@ -56,7 +56,7 @@ export function BalanceCard({
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      className="relative h-full rounded-2xl bg-[#080808] text-white border border-black/90 p-5 sm:p-6 flex flex-col justify-between gap-5 w-full shadow-sm"
+      className="relative h-full rounded-3xl bg-[#080808] text-white border border-black/90 p-6 sm:p-7 flex flex-col justify-between gap-6 w-full shadow-xs"
     >
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-1.5">
@@ -120,7 +120,9 @@ export function BalanceCard({
 
       <div className="relative flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
         {isBalanceLoading ? (
-          <span className="text-xs text-zinc-400">กำลังตรวจสอบยอดเงินล่าสุด…</span>
+          <span className="text-xs text-zinc-400">
+            กำลังตรวจสอบยอดเงินล่าสุด…
+          </span>
         ) : isPositiveBalance ? (
           <span className="inline-flex items-center gap-2 text-xs text-zinc-300">
             <span className="size-2 rounded-full bg-brand" aria-hidden="true" />
@@ -138,7 +140,10 @@ export function BalanceCard({
             className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20 transition-colors focus-visible:ring-2 focus-visible:ring-brand"
           >
             ดูรายละเอียด
-            <ChevronRight className="size-3.5 text-zinc-400" aria-hidden="true" />
+            <ChevronRight
+              className="size-3.5 text-zinc-400"
+              aria-hidden="true"
+            />
           </button>
         )}
       </div>

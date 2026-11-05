@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { appRouter } from "./routers";
-import { readableInputMessage } from "./_core/trpc";
+import { readableInputMessage, safeErrorMessage } from "./_core/trpc";
 import type { TrpcContext } from "./_core/context";
 
 type User = NonNullable<TrpcContext["user"]>;
@@ -58,6 +59,36 @@ describe("input errors reach the caller as one readable message", () => {
     expect(error.code).toBe("BAD_REQUEST");
     expect(readableInputMessage(error.cause, error.message)).toBe(
       "จำนวนเงินสูงเกินกำหนด"
+    );
+  });
+});
+
+describe("safeErrorMessage", () => {
+  const shape = { message: "Raw database syntax error near WHERE", code: -32603, data: null };
+  const internalErr = new TRPCError({
+    code: "INTERNAL_SERVER_ERROR",
+    message: "Raw database syntax error near WHERE",
+  });
+
+  it("sanitizes INTERNAL_SERVER_ERROR for ordinary non-admin users", () => {
+    const ctx = { user: member } as unknown as TrpcContext;
+    expect(safeErrorMessage(shape, internalErr, ctx)).toBe(
+      "เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง"
+    );
+  });
+
+  it("sanitizes INTERNAL_SERVER_ERROR for unauthenticated calls", () => {
+    const ctx = { user: null } as unknown as TrpcContext;
+    expect(safeErrorMessage(shape, internalErr, ctx)).toBe(
+      "เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง"
+    );
+  });
+
+  it("allows super admin to see the internal server error message", () => {
+    const adminUser = { ...member, role: "admin", churchRole: "SUPER_ADMIN" };
+    const ctx = { user: adminUser } as unknown as TrpcContext;
+    expect(safeErrorMessage(shape, internalErr, ctx)).toBe(
+      "Raw database syntax error near WHERE"
     );
   });
 });

@@ -21,7 +21,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
   const isPdf = receiptUrl.toLowerCase().includes(".pdf");
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-center justify-center p-4">
       <div className="bg-surface w-full max-w-2xl rounded-2xl shadow-2xl border border-line overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-paper border-b border-line">

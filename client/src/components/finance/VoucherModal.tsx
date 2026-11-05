@@ -61,7 +61,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
       {/* Container */}
       <div className="bg-surface w-full max-w-3xl rounded-2xl shadow-2xl border border-line overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Modal Action Bar (Hidden in print) */}
@@ -111,13 +111,13 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </p>
               </div>
               <div className="text-left sm:text-right bg-paper p-3 rounded-xl border border-line shrink-0">
-                <p className="text-[11px] font-semibold text-ink-3 uppercase tracking-wider">
+                <p className="text-xs font-semibold text-ink-3 uppercase tracking-wider">
                   {isExpense ? "เลขที่ใบสำคัญจ่าย" : "เลขที่ใบเสร็จ"}
                 </p>
                 <p className="text-sm font-bold text-ink font-mono">
                   {docNumber}
                 </p>
-                <p className="text-[11px] text-ink-2 mt-1">
+                <p className="text-xs text-ink-2 mt-1">
                   วันที่: {formattedDate}
                 </p>
               </div>
@@ -262,7 +262,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                         "........................................"}
                       )
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-xs text-ink-3">
                       วันที่ ......./......./.......
                     </p>
                   </div>
@@ -277,7 +277,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                         "........................................"}
                       )
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-xs text-ink-3">
                       วันที่ ......./......./.......
                     </p>
                   </div>
@@ -292,7 +292,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                         "........................................"}
                       )
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-xs text-ink-3">
                       วันที่ ......./......./.......
                     </p>
                   </div>
@@ -307,7 +307,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     <p className="text-ink-3">
                       (........................................)
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-xs text-ink-3">
                       วันที่ ......./......./.......
                     </p>
                   </div>
@@ -322,7 +322,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                         "........................................"}
                       )
                     </p>
-                    <p className="text-[10px] text-stone-400">
+                    <p className="text-xs text-ink-3">
                       วันที่ ......./......./.......
                     </p>
                   </div>
@@ -332,7 +332,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
 
             {/* Footer motto */}
             {church?.motto && (
-              <p className="text-center text-[10px] text-stone-400 mt-8 italic">
+              <p className="text-center text-xs text-ink-3 mt-8 italic">
                 "{church.motto}"
               </p>
             )}

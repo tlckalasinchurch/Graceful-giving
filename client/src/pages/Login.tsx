@@ -110,7 +110,7 @@ export default function Login() {
             <div className="space-y-4">
               <a
                 href="/api/auth/line/login"
-                className="flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-[#06C755] hover:bg-[#05b34c] px-4 text-lg font-bold text-black active:scale-[0.98] transition-all"
+                className="py-2 px-3 rounded-xl bg-line-brand hover:bg-line-brand/80 text-black font-bold text-xs"
               >
                 <LineMark />
                 เข้าสู่ระบบด้วย LINE

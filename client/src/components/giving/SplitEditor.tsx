@@ -104,7 +104,7 @@ export function SplitEditor({
           );
         })}
         {lines.length === 1 && (
-          <p className="text-[11px] text-ink-3">
+          <p className="text-xs text-ink-3">
             แตะประเภทอื่นด้านบนเพื่อแบ่งยอด
           </p>
         )}

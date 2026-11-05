@@ -425,7 +425,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setLocation("/counting")}
-              className="min-h-11 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-transform active:scale-95"
+              className="min-h-11 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-transform active:scale-[0.97]"
             >
               <span>เข้าสู่ห้องนับเงิน</span>
               <ChevronRight className="w-4 h-4" />
@@ -451,7 +451,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setLocation("/settings")}
-              className="min-h-11 px-5 py-2.5 rounded-2xl border border-line bg-surface hover:bg-paper-2 text-ink font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-transform active:scale-95"
+              className="min-h-11 px-5 py-2.5 rounded-2xl border border-line bg-surface hover:bg-paper-2 text-ink font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-transform active:scale-[0.97]"
             >
               <span>ไปที่หน้าตั้งค่าและสิทธิ์</span>
               <ChevronRight className="w-4 h-4" />
@@ -559,7 +559,7 @@ export default function Profile() {
                   await logout();
                 }
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300 transition-colors hover:bg-rose-500/15 active:scale-95"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300 transition-colors hover:bg-rose-500/15 active:scale-[0.97]"
             >
               <LogOut className="h-4 w-4" />
               ออกจากระบบ
@@ -570,11 +570,11 @@ export default function Profile() {
 
       {/* ── MODAL 1: ดูโปรไฟล์ / บัตรประจำตัวคริสตจักร (Digital ID Card) ──────── */}
       {showIdCardModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-2xl sm:rounded-2xl border border-line max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowIdCardModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-paper text-ink-2 transition-colors min-h-10 min-w-10 flex items-center justify-center"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-paper text-ink-2 transition-colors min-h-11 min-w-10 flex items-center justify-center"
               aria-label="ปิดหน้าต่าง"
             >
               <X className="w-5 h-5" />
@@ -662,11 +662,11 @@ export default function Profile() {
 
       {/* ── MODAL 2: แก้ไขโปรไฟล์ (Edit Profile Dialog) ───────────────────── */}
       {showEditProfileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-2xl sm:rounded-2xl border border-line max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowEditProfileModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-paper text-ink-2 transition-colors min-h-10 min-w-10 flex items-center justify-center"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-paper text-ink-2 transition-colors min-h-11 min-w-10 flex items-center justify-center"
               aria-label="ปิดหน้าต่าง"
             >
               <X className="w-5 h-5" />

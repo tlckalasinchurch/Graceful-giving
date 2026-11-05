@@ -181,7 +181,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-all"
+          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-all active:scale-[0.97]"
         >
           <Banknote className="size-4" />
           ยื่นคำขอเบิกเงิน
@@ -358,14 +358,14 @@ export default function Approvals() {
                                 setShowRejectModal(true);
                               }}
                               disabled={signMutation.isPending}
-                              className="min-h-11 px-4 py-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/15 text-danger text-xs font-bold transition-colors disabled:opacity-50"
+                              className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
                             >
                               ไม่อนุมัติ
                             </button>
                             <button
                               onClick={() => handleApprove(req)}
                               disabled={signMutation.isPending}
-                              className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all disabled:opacity-50"
+                              className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
                             >
                               ลงนามอนุมัติ
                             </button>
@@ -376,7 +376,7 @@ export default function Approvals() {
                           <button
                             onClick={() => handleDisburse(req)}
                             disabled={disburseMutation.isPending}
-                            className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all disabled:opacity-50"
+                            className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
                           >
                             จ่ายแล้ว
                           </button>
@@ -429,7 +429,7 @@ export default function Approvals() {
 
         {/* Reject Reason Modal */}
         {showRejectModal && selectedReq && (
-          <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-ink/40 flex items-center justify-center p-4">
             <div className="bg-surface rounded-3xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b border-line pb-3">
                 <h3 className="display text-lg font-bold text-ink">
@@ -484,7 +484,7 @@ export default function Approvals() {
 
         {/* Cancel Reason Modal */}
         {showCancelModal && selectedReq && (
-          <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-ink/40 flex items-center justify-center p-4">
             <div className="bg-surface rounded-3xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b border-line pb-3">
                 <h3 className="display text-lg font-bold text-ink">

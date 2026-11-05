@@ -114,7 +114,7 @@ function SidebarLink({
     <GuardedLink
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
+      className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
         active
           ? "bg-[#080808] font-semibold text-white shadow-xs"
           : "font-medium text-ink-2 hover:bg-paper hover:text-ink"
@@ -164,7 +164,24 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     churchProfile?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";
   const roleLabel = getChurchRoleInfo(user?.churchRole).label;
   const railItems = getAuthorizedNavItems(user);
-  const mobileTabs = MOBILE_TABS.filter(tab => canAccessRoute(tab.path, user));
+  const isFinance = canAccessRoute("/expenses", user);
+  const baseTabs: MobileTabItem[] = [
+    MOBILE_TABS[0],
+    MOBILE_TABS[1],
+    ...(isFinance
+      ? [
+          {
+            path: "/expenses",
+            label: "รายจ่าย",
+            ariaLabel: "ไปที่หน้ารายจ่าย",
+            icon: ReceiptText,
+            match: (p: string) => isActiveRoute(p, "/expenses"),
+          },
+        ]
+      : [MOBILE_TABS[2]]),
+    MOBILE_TABS[3],
+  ];
+  const mobileTabs = baseTabs.filter(tab => canAccessRoute(tab.path, user));
   const canRecordOffering = canAccessRoute("/offerings/new", user);
   const tabsBeforeGive = Math.ceil(mobileTabs.length / 2);
   const mobileColumns = mobileTabs.length + (canRecordOffering ? 1 : 0);

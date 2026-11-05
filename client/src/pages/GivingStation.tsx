@@ -891,7 +891,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     id="station-fund"
                     value={selectedFundId}
                     onChange={e => setSelectedFundId(e.target.value)}
-                    className="w-full min-h-10 rounded-xl bg-paper border border-line px-3 py-2 text-xs font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                    className="w-full min-h-11 rounded-xl bg-paper border border-line px-3 py-2 text-xs font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                   >
                     {funds.length === 0 ? (
                       <option value="">กองทุนทั่วไปของคริสตจักร</option>
@@ -1684,7 +1684,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(lineShareLink)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="py-2 px-3 rounded-xl bg-[#06C755] text-black font-bold text-xs"
+                  className="py-2 px-3 rounded-xl bg-line-brand text-black font-bold text-xs"
                 >
                   ส่งทาง LINE
                 </a>

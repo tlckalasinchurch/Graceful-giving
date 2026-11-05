@@ -17,15 +17,26 @@ export function registerStorageProxy(app: Express) {
       return;
     }
 
+    // Storage proxy scope guard: reject directory traversal, backslashes, leading slashes, and illegal chars
+    if (
+      key.includes("..") ||
+      key.includes("\\") ||
+      key.startsWith("/") ||
+      !/^[a-zA-Z0-9_\-\./]+$/.test(key)
+    ) {
+      res.status(400).send("Invalid storage key");
+      return;
+    }
+
     if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
-      res.status(500).send("Storage proxy not configured");
+      res.status(404).send("Storage endpoint not found");
       return;
     }
 
     try {
       const forgeUrl = new URL(
         "v1/storage/presign/get",
-        ENV.forgeApiUrl.replace(/\/+$/, "") + "/",
+        ENV.forgeApiUrl.replace(/\/+$/, "") + "/"
       );
       forgeUrl.searchParams.set("path", key);
 

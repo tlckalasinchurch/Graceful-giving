@@ -42,7 +42,7 @@ export const Swal = {
       const container = document.createElement("div");
       container.id = "grace-sweetalert-container";
       container.className =
-        "fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in";
+        "fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 transition-opacity duration-200 animate-in fade-in";
 
       const iconSvgs: Record<string, string> = {
         success: `

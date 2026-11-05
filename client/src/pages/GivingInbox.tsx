@@ -790,12 +790,12 @@ export default function GivingInbox() {
                             <div className="text-xs text-ink-3 flex items-center gap-1.5 mt-0.5 truncate">
                               {Array.isArray(slip.declaredItems) &&
                                 slip.declaredItems.length >= 2 && (
-                                  <span className="px-1.5 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/40 text-sky-200 text-[10px] font-bold shrink-0">
+                                  <span className="px-1.5 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/40 text-sky-200 text-xs font-bold shrink-0">
                                     แบ่ง {slip.declaredItems.length} ประเภท
                                   </span>
                                 )}
                               {slip.source === "no_slip" && (
-                                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/40 text-amber-200 text-[10px] font-bold shrink-0">
+                                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs font-bold shrink-0">
                                   ไม่มีสลิป
                                 </span>
                               )}

@@ -1,17 +1,17 @@
 ---
 name: Grace Ledger (Grace-giving)
-description: Thai church finance ledger — flat high-contrast FinTech surfaces, emerald brand, jet-black ink on a warm stone canvas.
+description: Thai church finance ledger — contemporary Editorial FinTech (WW/STUDIO x Finexy), signature coral brand, jet-black ink on a warm stone canvas.
 colors:
-  canvas: "#F4F1EC"
+  canvas: "#F6F4F1"
   paper: "#FAF8F5"
   paper-2: "#EDE8E1"
   surface: "#FFFFFF"
   ink: "#080808"
   ink-muted: "#5C5850"
-  line: "#E5E1DA"
+  line: "#E4DED2"
   field: "#6C675F"
-  brand: "#22C55E"
-  brand-ink: "#16A34A"
+  brand: "#F95C4B"
+  brand-ink: "#E54937"
   income: "#047857"
   danger: "#B91C1C"
   line-brand: "#06C755"
@@ -28,6 +28,10 @@ typography:
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.6
+  signature:
+    fontFamily: "Caveat, cursive"
+    fontSize: "1.25rem"
+    fontWeight: 700
   eyebrow:
     fontFamily: "Plus Jakarta Sans, IBM Plex Sans Thai, system-ui, sans-serif"
     fontSize: "0.75rem"
@@ -76,7 +80,7 @@ components:
 
 ## Overview
 
-A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, jet-black ink, warm stone canvas (#F4F1EC), one emerald accent (#22C55E)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line`. Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
+A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, jet-black ink, warm stone canvas (#F6F4F1), signature coral accent (#F95C4B)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line` (#E4DED2). Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
 
 All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`). **`index.css` is the single source of truth — never copy a hex into a component** outside the exceptions listed under Colors.
 
@@ -84,13 +88,13 @@ All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`).
 
 | Role                | Token                           | Value                                             |
 | ------------------- | ------------------------------- | ------------------------------------------------- |
-| Canvas (page bg)    | `--background`                  | `#F4F1EC`                                         |
+| Canvas (page bg)    | `--background`, `--color-ground`| `#F6F4F1`                                         |
 | Raised surfaces     | `--card` / `--popover`          | `#FFFFFF` / `#121214` (dark)                      |
-| Body text           | `--foreground`                  | `#080808` (dark: `#F8FAFC`)                       |
+| Body text           | `--foreground`, `--color-ink`   | `#080808` (dark: `#F8FAFC`)                       |
 | Secondary text      | `text-ink-2`, `text-ink-3`      | `#5C5850`                                         |
-| Hairlines / borders | `--border`, `--color-line`      | `#E5E1DA`                                         |
-| Brand actions       | `bg-brand`, `--primary`         | `#22C55E`, text **black**                         |
-| Brand hover         | `bg-brand-ink`                  | `#16A34A`                                         |
+| Hairlines / borders | `--border`, `--color-line`      | `#E4DED2`                                         |
+| Brand actions       | `bg-brand`, `--primary`         | `#F95C4B`, text **black** (6.66:1 contrast)      |
+| Brand hover         | `bg-brand-ink`                  | `#E54937`                                         |
 | Money-in semantics  | `text-income`, `--color-income` | `#047857`                                         |
 | Danger              | `text-danger`, `--destructive`  | `#B91C1C` (light; dark `--destructive` `#FB7185`) |
 
@@ -100,11 +104,12 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach`) so old clas
 
 ## Typography
 
-- **Stacks:** Latin/digits `"Plus Jakarta Sans" → "Manrope"`, Thai `"IBM Plex Sans Thai"`. Never ship a Thai UI string in only the Latin fonts.
+- **Stacks:** Latin/digits `"Plus Jakarta Sans" → "Manrope"`, Thai `"IBM Plex Sans Thai"`, signature simulation `"Caveat"`. Never ship a Thai UI string in only the Latin fonts.
 - **Display:** `.display` utility — weight 800, line-height 1.15, tracking −0.025em (floor −0.04em), lining numerals.
 - **Body: 15px / 1.6** (set on `body`, not per-component).
 - **Numbers:** amounts use `.money` (`tabular-nums` + −0.02em) so columns settle without jitter.
-- **Labels:** the `.eyebrow` utility exists for existing headers; don't add new eyebrow labels above headings.
+- **Labels:** minimum readable text size is 12px (`text-xs`). Avoid arbitrary sub-12px micro-text (`text-[10px]`, `text-[11px]`) on financial ledger interfaces.
+- **Labels & Headings:** the heading carries its own weight; avoid repetitive decorative kicker/eyebrow labels.
 
 ## Layout
 
@@ -129,7 +134,7 @@ Radius scale in `index.css`: 6 / 8 / 12 / 14 / 16 / 20px (`sm`–`3xl`). Convent
 
 - **Cards & sheets: 16–20px** (`rounded-2xl`, `rounded-3xl`).
 - **Controls (buttons, inputs, chips): 8–14px** (`rounded-xl`/`2xl`).
-- **Pills (`rounded-full`) only for small status chips, eyebrows, and nav indicators — never as card radius.**
+- **Pills (`rounded-full`) only for small status chips, badges, and nav indicators — never as card radius.**
 - Dialogs: `rounded-2xl` with a `border-line` ring, opaque `bg-surface`.
 
 ## Components
@@ -139,7 +144,7 @@ Radius scale in `index.css`: 6 / 8 / 12 / 14 / 16 / 20px (`sm`–`3xl`). Convent
 - **Inputs:** `bg-surface`, `border-line`, `rounded-xl`, focus `ring-brand`; labels and error text from `SetupSteps.tsx` lead (`text-danger`, required `*`).
 - **Toasts:** Sonner, `position="top-center"` `richColors` — errors speak Thai and name the recovery.
 - **Icons:** Lucide, single stroke weight (`size-5`/`size-[18px]`), `aria-hidden` when decorative; interactive icon buttons carry Thai `aria-label`s.
-- **Print kit:** `station-giving-kit.tsx` renders opaque, `[print-color-adjust:exact]`, poster-safe; keep its borders `border-t-2/border-b-2` receipt shape.
+- **Print kit:** `station-giving-kit.tsx` renders opaque, `[print-color-adjust:exact]`, poster-safe.
 
 ## Do's and Don'ts
 

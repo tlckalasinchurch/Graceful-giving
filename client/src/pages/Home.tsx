@@ -274,7 +274,7 @@ export default function Home() {
           <section
             aria-labelledby="dashboard-actions"
             style={{ animationDelay: "160ms" }}
-            className={`animate-fade-up ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"} rounded-3xl bg-surface p-4 sm:p-5 fintech-card space-y-4`}
+            className={`animate-fade-up ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"} rounded-3xl border border-line bg-surface p-5 sm:p-6 space-y-4`}
           >
             <h2
               id="dashboard-actions"

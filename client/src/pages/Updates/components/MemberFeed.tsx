@@ -90,7 +90,7 @@ export function MemberFeed() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-paper-2 px-3 py-1 text-[11px] font-bold text-brand-ink">
+            <span className="rounded-full bg-paper-2 px-3 py-1 text-xs font-bold text-brand-ink">
               {filteredNews.length} รายการ
             </span>
           </div>
@@ -141,11 +141,11 @@ export function MemberFeed() {
                 className="group cursor-pointer rounded-2xl border border-line bg-surface p-5 transition hover:bg-paper focus:outline-none focus:ring-2 focus:ring-brand"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-2.5 py-1 text-[10px] font-bold text-brand-ink">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-2.5 py-1 text-xs font-bold text-brand-ink">
                     <Tag className="size-3" />
                     {categoryLabels[item.category]}
                   </span>
-                  <span className="text-[10px] text-ink-3 font-medium">
+                  <span className="text-xs text-ink-3 font-medium">
                     {formatThaiDate(item.publishedAt ?? item.createdAt)}
                   </span>
                 </div>
@@ -176,7 +176,7 @@ export function MemberFeed() {
               วางแผนร่วมรับใช้และสามัคคีธรรมด้วยกัน
             </p>
           </div>
-          <span className="rounded-full border border-line bg-surface px-3 py-1 text-[11px] font-medium text-ink">
+          <span className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink">
             {events.length} กิจกรรม
           </span>
         </div>
@@ -201,7 +201,7 @@ export function MemberFeed() {
               >
                 <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl border border-line bg-paper-2 text-ink">
                   <CalendarDays className="size-5" />
-                  <span className="mt-0.5 text-[11px] font-bold">
+                  <span className="mt-0.5 text-xs font-bold">
                     {new Date(event.startsAt).getDate()}
                   </span>
                 </div>

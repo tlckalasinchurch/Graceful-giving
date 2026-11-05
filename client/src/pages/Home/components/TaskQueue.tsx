@@ -13,7 +13,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
       <div
         aria-busy="true"
         aria-label="กำลังโหลดงานที่ต้องดำเนินการ"
-        className="h-[72px] rounded-3xl bg-surface fintech-card animate-pulse"
+        className="h-[72px] rounded-3xl border border-line bg-surface animate-pulse"
       />
     );
   }
@@ -22,7 +22,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
     return (
       <div
         role="status"
-        className="rounded-3xl bg-surface px-5 py-4 fintech-card"
+        className="rounded-3xl border border-line bg-surface px-5 py-4"
       >
         <p className="text-sm font-bold text-ink">
           ไม่มีงานค้างที่ต้องดำเนินการ
@@ -36,7 +36,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
   return (
     <section
       aria-label="รายการที่ต้องดำเนินการ"
-      className="rounded-3xl bg-surface p-3 sm:p-4 fintech-card"
+      className="rounded-3xl border border-line bg-surface p-3 sm:p-4"
     >
       <div className="flex items-center justify-between px-3 pb-2 pt-1">
         <h2 className="text-base font-bold text-ink">งานที่ต้องดำเนินการ</h2>

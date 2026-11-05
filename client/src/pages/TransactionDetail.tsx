@@ -489,7 +489,7 @@ export default function TransactionDetail() {
                     <span className="text-xs font-bold text-ink-2">
                       เอกสารแนบ PDF
                     </span>
-                    <p className="text-[10px] text-stone-400 mt-1">
+                    <p className="text-xs text-ink-3 mt-1">
                       คลิกเพื่อเปิดดูไฟล์
                     </p>
                   </div>
