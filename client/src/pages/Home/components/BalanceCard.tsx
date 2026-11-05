@@ -56,7 +56,7 @@ export function BalanceCard({
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      className="relative h-full rounded-3xl bg-[#080808] text-white border border-black/90 p-6 sm:p-7 flex flex-col justify-between gap-6 w-full shadow-xs"
+      className="relative h-full rounded-2xl bg-[#173f35] text-white border border-[#173f35] p-6 sm:p-7 flex flex-col justify-between gap-6 w-full shadow-xs"
     >
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-1.5">
@@ -125,7 +125,7 @@ export function BalanceCard({
           </span>
         ) : isPositiveBalance ? (
           <span className="inline-flex items-center gap-2 text-xs text-zinc-300">
-            <span className="size-2 rounded-full bg-brand" aria-hidden="true" />
+            <span className="size-2 rounded-full bg-[#9cc6a9]" aria-hidden="true" />
             ขอบคุณพระเจ้าสำหรับทุกการถวาย
           </span>
         ) : (
