@@ -20,11 +20,11 @@ colors:
 typography:
   display:
     fontFamily: "Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
-    fontWeight: 800
+    fontWeight: 500
     lineHeight: 1.15
     letterSpacing: "-0.025em"
   body:
-    fontFamily: "Plus Jakarta Sans, Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
+    fontFamily: "Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.6
@@ -33,10 +33,10 @@ typography:
     fontSize: "1.25rem"
     fontWeight: 700
   eyebrow:
-    fontFamily: "Plus Jakarta Sans, IBM Plex Sans Thai, system-ui, sans-serif"
+    fontFamily: "Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
     fontSize: "0.75rem"
-    fontWeight: 600
-    letterSpacing: "0.02em"
+    fontWeight: 500
+    letterSpacing: "0"
 rounded:
   sm: "6px"
   md: "8px"
@@ -53,7 +53,7 @@ spacing:
 components:
   button-primary:
     backgroundColor: "{colors.brand}"
-    textColor: "#080808"
+    textColor: "#FFFFFF"
     rounded: "{rounded.2xl}"
     height: "44px"
   button-primary-hover:
@@ -76,11 +76,11 @@ components:
     height: "48px"
 ---
 
-# Grace Ledger — Design System
+# Grace Giving — Forest Editorial Design System
 
 ## Overview
 
-A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, deep forest-green actions (#174B3F), warm paper canvas (#F7F5F0), crisp white surfaces, and charcoal ink (#171715)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line` (#E4DED2). Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
+A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, deep forest-green actions (#174B3F), warm paper canvas (#F7F5F0), crisp white surfaces, and charcoal ink (#171715)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line` (#E6E0D7). Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
 
 All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`). **`index.css` is the single source of truth — never copy a hex into a component** outside the exceptions listed under Colors.
 
@@ -88,14 +88,14 @@ All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`).
 
 | Role                | Token                           | Value                                             |
 | ------------------- | ------------------------------- | ------------------------------------------------- |
-| Canvas (page bg)    | `--background`, `--color-ground`| `#F6F4F1`                                         |
+| Canvas (page bg)    | `--background`, `--color-ground`| `#F7F5F0`                                         |
 | Raised surfaces     | `--card` / `--popover`          | `#FFFFFF` / `#121214` (dark)                      |
 | Body text           | `--foreground`, `--color-ink`   | `#080808` (dark: `#F8FAFC`)                       |
-| Secondary text      | `text-ink-2`, `text-ink-3`      | `#5C5850`                                         |
+| Secondary text      | `text-ink-2`, `text-ink-3`      | `#625D55`                                         |
 | Hairlines / borders | `--border`, `--color-line`      | `#E4DED2`                                         |
-| Brand actions       | `bg-brand`, `--primary`         | `#F95C4B`, text **black** (6.66:1 contrast)      |
-| Brand hover         | `bg-brand-ink`                  | `#E54937`                                         |
-| Money-in semantics  | `text-income`, `--color-income` | `#047857`                                         |
+| Brand actions       | `bg-brand`, `--primary`         | `#174B3F`, text **white**      |
+| Brand hover         | `bg-brand-ink`                  | `#10382F`                                         |
+| Money-in semantics  | `text-income`, `--color-income` | `#187A55`                                         |
 | Danger              | `text-danger`, `--destructive`  | `#B91C1C` (light; dark `--destructive` `#FB7185`) |
 
 **Allowed hard-coded colors:** LINE corporate green `#06C755` ONLY on LINE sign-in buttons, and the print poster kit (`station-giving-kit.tsx`) colors, which must render opaque on paper. Everything else uses tokens.
@@ -139,8 +139,8 @@ Radius scale in `index.css`: 6 / 8 / 12 / 14 / 16 / 20px (`sm`–`3xl`). Convent
 
 ## Components
 
-- **Buttons:** primary = `bg-brand` + black text (AA-certified by the contrast test), hover `bg-brand-ink`, press `active:scale-[0.98]`; minimum interactive height 44px (`min-h-11`+). Focus is a global 2px brand `:focus-visible` ring — don't re-declare per component.
-- **Confirm dialogs** go through `client/src/lib/sweetalert.ts` (`Swal.confirm/fire`) — the custom token-rendered helper. Custom confirm buttons take a **CSS color string, so use `var(--destructive)`**, never a hex. Forward-looking commitments (post, close, match) take no color override and render the default brand `bg-brand text-black` button.
+- **Buttons:** primary = `bg-brand` + white text (AA-certified by the contrast test), hover `bg-brand-ink`, press `active:scale-[0.98]`; minimum interactive height 44px (`min-h-11`+). Focus is a global 2px brand `:focus-visible` ring — don't re-declare per component.
+- **Confirm dialogs** go through `client/src/lib/sweetalert.ts` (`Swal.confirm/fire`) — the custom token-rendered helper. Custom confirm buttons take a **CSS color string, so use `var(--destructive)`**, never a hex. Forward-looking commitments (post, close, match) take no color override and render the default brand `bg-brand text-white` button.
 - **Inputs:** `bg-surface`, `border-line`, `rounded-xl`, focus `ring-brand`; labels and error text from `SetupSteps.tsx` lead (`text-danger`, required `*`).
 - **Toasts:** Sonner, `position="top-center"` `richColors` — errors speak Thai and name the recovery.
 - **Icons:** Lucide, single stroke weight (`size-5`/`size-[18px]`), `aria-hidden` when decorative; interactive icon buttons carry Thai `aria-label`s.
