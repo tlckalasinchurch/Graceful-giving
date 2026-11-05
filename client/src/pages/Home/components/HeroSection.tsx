@@ -4,10 +4,10 @@ export function HeroSection() {
   return (
     <section
       aria-label="Grace Giving ส่วนต้อนรับ"
-      className="relative flex w-full items-center justify-between gap-4 rounded-3xl bg-surface border border-line p-6 sm:gap-6 sm:p-7"
+      className="relative flex w-full items-center justify-between gap-4 rounded-2xl bg-paper border border-line p-6 sm:gap-6 sm:p-8"
     >
       <div className="relative z-10 order-1 min-w-0 space-y-2">
-        <h1 className="display text-2xl font-bold text-ink sm:text-4xl">
+        <h1 className="display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
           <span>Grace</span> <span>Giving</span>
         </h1>
         <p className="text-sm font-medium text-ink-2 sm:text-base">
@@ -23,7 +23,7 @@ export function HeroSection() {
         </p>
       </div>
 
-      <div className="relative z-10 order-2 size-16 shrink-0 overflow-hidden rounded-xl bg-paper-2 p-1.5 sm:size-24 lg:size-28 border border-line">
+      <div className="relative z-10 order-2 size-16 shrink-0 overflow-hidden rounded-2xl bg-surface p-1.5 sm:size-24 lg:size-28 border border-line">
         <Illustration
           src="/illustrations/hero_jesus_shepherd.jpg"
           alt="พระเยซูคริสต์และลูกแกะ"
