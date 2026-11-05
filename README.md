@@ -1,129 +1,98 @@
-﻿# Graceful-giving (Grace-giving)
+# Graceful Giving (CFOS — Church Financial Operating System)
 
-ระบบบริหารจัดการการเงินคริสตจักรและสื่อสารข่าวสารกิจกรรมสำหรับสมาชิก (Church Financial Ledger & Community Updates) พัฒนาขึ้นด้วยสถาปัตยกรรม Fullstack TypeScript ที่ปลอดภัย รวดเร็ว และรองรับการแสดงผลทั้งบนสมาร์ทโฟน แท็บเล็ต และเดสก์ท็อป
+ระบบบริหารจัดการการเงินและบัญชีคริสตจักรที่โปร่งใส ตรวจสอบได้ และปลอดภัยตามมาตรฐานการเงินคริสตจักร (Church Financial Operating System) พัฒนาขึ้นด้วยสถาปัตยกรรม Fullstack TypeScript รองรับการใช้งานของผู้นำ เหรัญญิก กรรมการนับเงิน และสมาชิก ผ่านเดสก์ท็อป แท็บเล็ต สมาร์ทโฟน และ LINE Official Account
 
 ---
 
 ## 1. ภาพรวมสถาปัตยกรรม (System Architecture)
 
-ระบบประกอบด้วย 2 ส่วนหลักที่เชื่อมโยงกันด้วย Type-Safe RPC:
+ระบบทำงานเป็นแบบ Monolithic Process เดียวที่ให้บริการทั้ง API และเว็บแอปพลิเคชัน:
 
 - **Frontend (Client)**:
-  - **Framework**: React 19 + Vite
-  - **Styling**: Tailwind CSS v4 + tw-animate-css
-  - **UI & Icons**: Radix UI Primitives, Lucide Icons, Sonner Toaster
-  - **Routing**: Wouter (Client-side routing พร้อม fallback 404)
-  - **State & Data Fetching**: TanStack React Query + tRPC Client
+  - **Framework**: React 19 + Vite SPA (Client-side routing ด้วย Wouter)
+  - **Design System**: Editorial Fintech (สไตล์สมุดบัญชีเรียบหรู คมชัด เน้นความถูกต้องของการเงิน)
+  - **Styling**: Tailwind CSS v4, Radix UI Primitives, Lucide Icons, Sonner Toaster
+  - **State & Data Fetching**: TanStack React Query + tRPC Client (End-to-End Type Safety)
 - **Backend (Server)**:
-  - **Runtime & Server**: Node.js, Express, esbuild
-  - **API Layer**: tRPC v11 (End-to-End Type Safety)
-  - **Database & ORM**: PostgreSQL (Supabase) via Drizzle ORM (`drizzle-orm/postgres-js`)
-  - **Authentication**: Manus OAuth Integration + Session Cookies
-  - **Testing**: Vitest + TypeScript Compiler (`tsc`)
+  - **Runtime**: Node.js, Express, tsx / esbuild
+  - **API Layer**: tRPC v11 พร้อมการแบ่งสิทธิ์รัดกุม (`publicProcedure`, `protectedProcedure`, `adminProcedure`, `financeProcedure`, `churchLeaderProcedure`)
+  - **Database**: PostgreSQL (Supabase Behind Transaction Pooler) ผ่าน Drizzle ORM
+  - **Object Storage**: Supabase Storage (`receipts` bucket สำหรับใบเสร็จทั่วไป และ `slips` bucket แบบ Private สำหรับรูปสลิปการเงิน)
+  - **Authentication**: LINE Login & LIFF Integration, Session Cookie (JWT-based พร้อมระบบ Revocation)
+  - **AI Integration**: Google Gemini Vision สำหรับถอดรหัสและตรวจสอบสลิปโอนเงินอัตโนมัติ
 
 ---
 
 ## 2. ฟีเจอร์หลักของระบบ (Core Features)
 
-### 2.1 หน้าหลักการเงิน (Grace-giving Dashboard)
-- **สรุปยอดเงินและแนวโน้ม**: แสดงยอดเงินคงเหลือรวม การคำนวณรายรับ รายจ่าย และคงเหลือ พร้อมตัวชี้วัดทิศทางลูกศรที่ถูกต้องตามผลประกอบการ
-- **ปุ่มดำเนินการด่วน (Quick Actions)**:
-  - บันทึกการถวาย (เงินสด, ค่าข้าว, อนุสรณ์ฯ, พันธกิจ, ถวายพิเศษ, ที่ดิน, ปาร์ตี้, ค่าเช่าสถานนมัสการ, สิบลด)
-  - บันทึกรายจ่าย (ค่าอุปกรณ์นมัสการ, ค่าสาธารณูปโภค, พันธกิจ, การดูแลสมาชิก)
-  - การเข้าถึงรายงานการเงิน กิจกรรม และข้อมูลสมาชิก
-- **การนำทาง 4 แท็บ (Interactive Navigation)**:
-  - `หน้าหลัก`: สรุปภาพรวมและแผนการใช้จ่ายงบประมาณ
-  - `รายการ`: บันทึกรายการบัญชีแยกประเภท พร้อมตัวกรอง (ทั้งหมด / รายรับ / รายจ่าย)
-  - `รายงาน`: สรุปสัดส่วนงบประมาณรายรับ-รายจ่ายตามพันธกิจ และการดาวน์โหลดรายงาน PDF จำลอง
-  - `ฉัน`: แสดงโปรไฟล์ผู้ใช้ สิทธิ์บทบาท (Admin/Member) ข้อมูลคริสตจักร และปุ่มเข้าสู่ระบบ/ออกจากระบบ
+### 2.1 บัญชีการเงินและกองทุนคริสตจักร (Financial Ledger & Funds)
+- **ระบบหลายกองทุน (Multi-Fund Ledger)**: แยกบันทึกเงินถวายและรายจ่ายตามกองทุน (เช่น กองทุนทั่วไป, กองทุนอาคาร/ที่ดิน, กองทุนพันธกิจ)
+- **บันทึกเงินถวาย (Offerings)**: รองรับทั้งเงินสดและโอนเงิน พร้อมแบ่งหมวดหมู่ (สิบลด, เงินถวายทั่วไป, พันธกิจ, ขอบพระคุณ ฯลฯ)
+- **บันทึกรายจ่าย (Expenses)**: แนบใบเสร็จผ่าน Supabase Storage และตัดยอดเงินตามกองทุนที่เกี่ยวข้อง
+- **ความปลอดภัยทางบัญชี (Immutable Ledger)**: ไม่อนุญาตให้ Hard Delete รายการที่บันทึกแล้ว แต่ใช้ระบบ Void (ยกเลิกรายการ) พร้อมบันทึก Audit Log ทุกขั้นตอน
 
-### 2.2 ข่าวสารและกิจกรรมสำหรับสมาชิก (Member Feed)
-- **การอ่านข่าวสารฉบับเต็ม**: สมาชิกสามารถคลิกการ์ดข่าวสารเพื่อเปิดหน้าต่างอ่านเนื้อหาฉบับเต็ม (`body`) จัดรูปแบบย่อหน้าอย่างสวยงาม
-- **รายละเอียดกิจกรรมและการลงทะเบียน**: แสดงวัน-เวลาเริ่มต้นและสิ้นสุด สถานที่จัดงาน พร้อมปุ่มเปิดลิงก์ลงทะเบียนภายนอกแบบปลอดภัย (`registrationUrl`)
+### 2.2 วงจรการนับเงินวันอาทิตย์ (Sunday Service Counting Workflow)
+- **รอบการนับเงิน (Counting Sessions)**: บันทึกยอดเงินสดแยกตามซองถวายและธนบัตร/เหรียญแต่ละมูลค่า
+- **การกระทบยอด (Reconciliation)**: ตรวจสอบความถูกต้องระหว่างยอดนับจริงกับยอดเงินในสมุดบัญชีธนาคาร (Passbook Match)
+- **การลงบัญชีถาวร (Post to Ledger)**: โอนยอดเงินที่ตรวจนับสมบูรณ์แล้วเข้าสู่สมุดบัญชีใหญ่โดยอัตโนมัติ
 
-### 2.3 ระบบจัดการเนื้อหาสำหรับผู้ดูแลระบบ (Admin Content Manager)
-- **การสร้างและแก้ไข**: ฟอร์มเพิ่ม/แก้ไขข่าวสารและกิจกรรม พร้อมการตรวจสอบความถูกต้องของวันเวลา (`endsAt` ต้องไม่มาก่อน `startsAt`)
-- **การจัดการสถานะ**: เปลี่ยนสถานะเนื้อหาแบบเรียลไทม์ (ฉบับร่าง `draft`, เผยแพร่ `published`, เก็บถาวร `archived`, ยกเลิก `cancelled`)
-- **การลบเนื้อหา (Deletion)**: เพิ่มฟังก์ชันลบข่าวสารและกิจกรรม พร้อมหน้าต่าง Modal ยืนยันความปลอดภัย ป้องกันการลบข้อมูลโดยไม่ตั้งใจ
-- **ระบบค้นหาและตัวกรอง**: ค้นหาข่าวสารและกิจกรรมตามคำค้นหาได้อย่างรวดเร็ว
+### 2.3 ระบบขออนุมัติเบิกจ่ายเงิน (Withdrawal & Multi-Signature Approvals)
+- **ยื่นคำขอเบิกเงิน (Withdrawal Request)**: ผู้รับผิดชอบพันธกิจสามารถยื่นคำขอพร้อมระบุวัตถุประสงค์และกองทุน
+- **การลงนามอนุมัติหลายฝ่าย (Multi-Signature Workflow)**: กำหนดเงื่อนไขผู้ลงนาม (เช่น ศิษยาภิบาล, เหรัญญิก, และผู้มีอำนาจลงนามธนาคาร)
+- **การบันทึกจ่ายเงิน (Payout)**: เชื่อมโยงรายการเบิกจ่ายเข้ากับรอบการเงินจริง
 
----
+### 2.4 กล่องรับสลิปถวายและ AI สแกนสลิป (Giving Inbox & Slip AI)
+- **รับสลิปผ่าน LINE Official Account**: สมาชิกส่งรูปสลิปใน LINE ระบบดึงรูปผ่าน Webhook ตรวจสอบความซ้ำซ้อนด้วย SHA256 Hash
+- **ระบบสแกนด้วย Gemini Vision**: อ่านยอดเงิน วันเวลา ธนาคารต้นทาง-ปลายทาง และชื่อผู้โอนโดยอัตโนมัติ
+- **การตรวจสอบและการอนุมัติ (Giving Inbox)**: เหรัญญิกตรวจสอบยอดสลิป จับคู่กับสมาชิก และอนุมัติเข้ากองทุนด้วยการคลิกเพียงครั้งเดียว
+- **จุดถวายทรัพย์ (Giving Station & `/give`)**: สมาชิกสามารถสแกน QR Code ถวายทรัพย์และแนบสลิปผ่านเบราว์เซอร์หรือ LINE LIFF ได้อย่างสะดวก
 
-## 3. รายละเอียด API Endpoints (tRPC Procedures)
-
-### 3.1 กลุ่มระบบยืนยันตัวตน (`auth`)
-| Procedure | Type | สิทธิ์การเข้าถึง | คำอธิบาย |
-| :--- | :--- | :--- | :--- |
-| `auth.me` | Query | สาธารณะ | ตรวจสอบข้อมูลผู้ใช้และสถานะการเข้าสู่ระบบปัจจุบัน |
-| `auth.logout` | Mutation | สาธารณะ | เคลียร์ Session Cookie และออกจากระบบอย่างสมบูรณ์ |
-
-### 3.2 กลุ่มข่าวสารและกิจกรรม (`updates`)
-| Procedure | Type | สิทธิ์การเข้าถึง | คำอธิบาย |
-| :--- | :--- | :--- | :--- |
-| `updates.feed` | Query | ผู้ใช้ที่ล็อกอิน | ดึงรายการข่าวสารและกิจกรรมที่เผยแพร่แล้ว (`published`) |
-| `updates.adminList` | Query | ผู้ดูแลระบบ (`admin`) | ดึงรายการข่าวสารและกิจกรรมทั้งหมดทุกสถานะ |
-| `updates.createNews` | Mutation | ผู้ดูแลระบบ (`admin`) | สร้างข่าวสารใหม่ (ตรวจสอบ min/max length ของ title/summary/body) |
-| `updates.updateNews` | Mutation | ผู้ดูแลระบบ (`admin`) | อัปเดตข้อมูลข่าวสารตาม ID |
-| `updates.setNewsStatus` | Mutation | ผู้ดูแลระบบ (`admin`) | อัปเดตสถานะของข่าวสาร |
-| `updates.deleteNews` | Mutation | ผู้ดูแลระบบ (`admin`) | ลบข่าวสารออกจากฐานข้อมูลอย่างถาวร |
-| `updates.createEvent` | Mutation | ผู้ดูแลระบบ (`admin`) | สร้างกิจกรรมใหม่ พร้อมกำหนดเวลาและลิงก์ลงทะเบียน |
-| `updates.updateEvent` | Mutation | ผู้ดูแลระบบ (`admin`) | อัปเดตข้อมูลกิจกรรมตาม ID |
-| `updates.setEventStatus` | Mutation | ผู้ดูแลระบบ (`admin`) | อัปเดตสถานะของกิจกรรม |
-| `updates.deleteEvent` | Mutation | ผู้ดูแลระบบ (`admin`) | ลบกิจกรรมออกจากฐานข้อมูลอย่างถาวร |
+### 2.5 บทบาทและสิทธิ์การใช้งาน (Church Roles & RBAC)
+- **👑 ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)**: จัดการการตั้งค่าคริสตจักร บัญชีผู้ใช้ และสิทธิ์ทั้งหมด
+- **✝️ ศิษยาภิบาล (PASTOR)**: ดูแลภาพรวมคริสตจักร รายงานการเงิน และร่วมอนุมัติการเบิกจ่าย
+- **💰 เหรัญญิก (TREASURER)**: จัดการบัญชี การเงิน ตรวจสอบสลิป และอนุมัติรายการเบิกจ่าย
+- **🤝 ผู้รับผิดชอบฝ่าย (DEACON)**: เสนองบประมาณและยื่นคำขอเบิกจ่ายเงินสำหรับพันธกิจ
+- **📝 กรรมการนับเงิน (COUNTER)**: บันทึกและตรวจนับเงินถวายประจำสัปดาห์
+- **👤 สมาชิกคริสตจักร (MEMBER)**: เข้าใช้งานจุดถวายทรัพย์ (Giving Station) ดูประวัติการถวายของตนเอง และข่าวสารคริสตจักร
 
 ---
 
-## 4. โครงสร้างฐานข้อมูล (Database Schema)
+## 3. โครงสร้างฐานข้อมูลหลัก (Core Database Tables)
 
-ตารางหลักใน `drizzle/schema.ts`:
-
-1. **`users`**:
-   - `id`, `openId` (Unique), `name`, `email`, `loginMethod`, `role` (`user` หรือ `admin`), `createdAt`, `updatedAt`, `lastSignedIn`
-2. **`church_news`**:
-   - `id`, `churchId`, `authorId`, `title`, `summary`, `body`, `category` (`announcement`, `ministry`, `finance`, `pastoral`), `status` (`draft`, `published`, `archived`), `publishedAt`, `createdAt`, `updatedAt`
-3. **`church_events`**:
-   - `id`, `churchId`, `authorId`, `title`, `summary`, `description`, `startsAt`, `endsAt`, `location`, `registrationUrl`, `status` (`draft`, `published`, `cancelled`), `createdAt`, `updatedAt`
+- **`users`**: บัญชีผู้ใช้งาน ข้อมูล LINE Profile บทบาทสิทธิ์หลักและรอง (`role`, `churchRole`, `churchRoles`)
+- **`finance_accounts`**: บัญชีกองทุนและการเงินของคริสตจักร พร้อมยอดคงเหลือปัจจุบัน
+- **`offerings` / `offering_items`**: รายการเงินถวายและรายละเอียดการแยกหมวดหมู่
+- **`expenses`**: รายการค่าใช้จ่าย พร้อมลิงก์ใบเสร็จและกองทุนที่ตัดจ่าย
+- **`counting_sessions` / `cash_counts` / `envelopes`**: ข้อมูลรอบการนับเงิน ซองถวาย และจำนวนเหรียญ/ธนบัตร
+- **`withdrawal_requests` / `withdrawal_signatures`**: คำขอเบิกเงินและประวัติการลงนามอนุมัติ
+- **`line_slips` / `line_processing_jobs`**: ข้อมูลสลิปโอนเงิน ผลการสแกน OCR และคิวประมวลผล
+- **`audit_logs`**: บันทึกประวัติการทำธุรกรรมและการเปลี่ยนแปลงข้อมูลสำคัญทั้งหมด
 
 ---
 
-## 5. คำสั่งสำหรับการพัฒนาและทดสอบ (Development Scripts)
+## 4. คำสั่งสำหรับการพัฒนาและทดสอบ (Commands)
 
-### การติดตั้ง Dependencies
+ใช้ Package Manager เป็น **pnpm**:
+
 ```bash
+# ติดตั้ง dependencies
 pnpm install
-```
 
-### การรันโปรเจกต์ในโหมดพัฒนา
-```bash
+# รันโหมด Development (Vite + tsx watch)
 pnpm dev
-```
 
-### การตรวจสอบความถูกต้องของ TypeScript Types
-```bash
+# ตรวจสอบความถูกต้องของ Type ทั่วทั้งโปรเจกต์
 pnpm check
-```
 
-### การรันชุดการทดสอบอัตโนมัติ (Automated Tests)
-```bash
+# รัน Automated Test Suite ทั้งหมด
 pnpm test
+
+# จัดรูปแบบโค้ด
+pnpm format
+
+# รัน CI Check (Typecheck + Tests แบบไม่แตะ Database จริง)
+pnpm ci
+
+# อัปเดตและรัน Database Migration
+pnpm db:migrate
 ```
-
-### การสร้างแพ็กเกจสำหรับการปรับใช้จริง (Production Build)
-```bash
-pnpm build
-```
-
-### การเริ่มต้นรันในโหมด Production
-```bash
-pnpm start
-```
-
----
-
-## 6. สรุปประวัติการแก้ไขและปรับปรุง (Changelog)
-
-- **Bug Fix**: แก้ไขข้อผิดพลาดการแสดงผลลูกศรทิศทางสถิติในหน้าหลัก (`Home.tsx`) โดยแสดงสัญลักษณ์ `↓` อย่างถูกต้องเมื่อข้อมูลลดลง
-- **Feature Completed**: เพิ่มหน้าต่างดูรายละเอียดเนื้อหาฉบับเต็มของข่าวสารและกิจกรรมในฝั่งสมาชิก (`MemberFeed`)
-- **Feature Completed**: เพิ่มฟังก์ชันลบข่าวสารและกิจกรรม (`deleteNews`, `deleteEvent`) ในฝั่ง Backend และ Admin UI พร้อม Modal ยืนยัน
-- **UX Improved**: เพิ่มการแสดงผลแท็บนำทาง "รายการ", "รายงาน" และ "ฉัน" พร้อมฟอร์มจำลองการบันทึกถวายและรายจ่าย
-- **Test Coverage**: เพิ่ม Unit Tests ครอบคลุมสิทธิ์การลบเนื้อหา (`server/updates.access.test.ts`) ผ่านการทดสอบทั้งหมด 8/8 การทดสอบ
