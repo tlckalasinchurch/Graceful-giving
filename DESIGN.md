@@ -90,9 +90,9 @@ All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`).
 | ------------------- | ------------------------------- | ------------------------------------------------- |
 | Canvas (page bg)    | `--background`, `--color-ground`| `#F7F5F0`                                         |
 | Raised surfaces     | `--card` / `--popover`          | `#FFFFFF` / `#121214` (dark)                      |
-| Body text           | `--foreground`, `--color-ink`   | `#080808` (dark: `#F8FAFC`)                       |
+| Body text           | `--foreground`, `--color-ink`   | `#171715` (dark: `#F8FAFC`)                       |
 | Secondary text      | `text-ink-2`, `text-ink-3`      | `#625D55`                                         |
-| Hairlines / borders | `--border`, `--color-line`      | `#E4DED2`                                         |
+| Hairlines / borders | `--border`, `--color-line`      | `#E6E0D7`                                         |
 | Brand actions       | `bg-brand`, `--primary`         | `#174B3F`, text **white**      |
 | Brand hover         | `bg-brand-ink`                  | `#10382F`                                         |
 | Money-in semantics  | `text-income`, `--color-income` | `#187A55`                                         |
@@ -104,7 +104,7 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach`) so old clas
 
 ## Typography
 
-- **Stacks:** Latin/digits `"Plus Jakarta Sans" → "Manrope"`, Thai `"IBM Plex Sans Thai"`, signature simulation `"Caveat"`. Never ship a Thai UI string in only the Latin fonts.
+- **Stacks:** Latin/digits `"Manrope"`, Thai `"IBM Plex Sans Thai"`, signature simulation `"Caveat"`. Never ship a Thai UI string in only the Latin fonts.
 - **Display:** `.display` utility — weight 800, line-height 1.15, tracking −0.025em (floor −0.04em), lining numerals.
 - **Body: 15px / 1.6** (set on `body`, not per-component).
 - **Numbers:** amounts use `.money` (`tabular-nums` + −0.02em) so columns settle without jitter.
