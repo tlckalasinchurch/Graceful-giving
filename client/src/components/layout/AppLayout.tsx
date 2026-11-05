@@ -82,7 +82,7 @@ function MobileTab({
     >
       <span
         className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
-          active ? "bg-[#080808] text-brand" : ""
+          active ? "bg-brand text-white" : ""
         }`}
       >
         <Icon className="size-5" />
@@ -116,7 +116,7 @@ function SidebarLink({
       aria-current={active ? "page" : undefined}
       className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
         active
-          ? "bg-[#080808] font-semibold text-white shadow-xs"
+          ? "bg-brand font-semibold text-white shadow-xs"
           : "font-medium text-ink-2 hover:bg-paper hover:text-ink"
       }`}
     >
@@ -196,12 +196,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             aria-label="Grace Giving หน้าหลัก"
             className="flex items-center gap-3 rounded-2xl px-1.5 py-1.5 hover:bg-paper/60 transition-colors"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-black">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-white">
               <Sprout className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
               <span className="display block truncate text-lg leading-none text-ink">
-                Grace <span className="text-brand">Ledger</span>
+                Grace <span className="text-brand">Giving</span>
               </span>
               <span className="mt-1 block truncate text-xs font-medium text-ink-3">
                 {churchName}
