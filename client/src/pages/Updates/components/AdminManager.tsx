@@ -311,7 +311,7 @@ export function AdminManager() {
                         <p className="truncate text-sm font-semibold text-ink-2">
                           {item.title}
                         </p>
-                        <p className="text-[11px] text-ink-3">
+                        <p className="text-xs text-ink-3">
                           {formatThaiDate(item.createdAt)}
                         </p>
                       </div>
@@ -392,7 +392,7 @@ export function AdminManager() {
                         <p className="truncate text-sm font-semibold text-ink-2">
                           {item.title}
                         </p>
-                        <p className="text-[11px] text-ink-3">
+                        <p className="text-xs text-ink-3">
                           {formatEventDate(item.startsAt)}
                         </p>
                       </div>

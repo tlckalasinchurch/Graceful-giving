@@ -762,10 +762,10 @@ export function StationQrPoster({
                   </div>
                 )}
                 {/* Subtle framing corners */}
-                <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-500/30 rounded-tl-xs pointer-events-none" />
-                <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-500/30 rounded-tr-xs pointer-events-none" />
-                <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-500/30 rounded-bl-xs pointer-events-none" />
-                <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-amber-500/30 rounded-br-xs pointer-events-none" />
+                <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-500/30 pointer-events-none" />
+                <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-500/30 pointer-events-none" />
+                <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-500/30 pointer-events-none" />
+                <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-amber-500/30 pointer-events-none" />
 
                 {/* Center Badge */}
                 {qrCenterBadge && (

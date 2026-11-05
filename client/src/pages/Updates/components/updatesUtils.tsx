@@ -140,7 +140,7 @@ export function StatusPill({ status }: { status: string }) {
           : "ฉบับร่าง";
   return (
     <span
-      className={`rounded-full px-2.5 py-1 text-[10px] font-medium ${styles}`}
+      className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles}`}
     >
       {label}
     </span>
