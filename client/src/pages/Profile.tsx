@@ -570,7 +570,7 @@ export default function Profile() {
 
       {/* ── MODAL 1: ดูโปรไฟล์ / บัตรประจำตัวคริสตจักร (Digital ID Card) ──────── */}
       {showIdCardModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-2xl sm:rounded-2xl border border-line max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowIdCardModal(false)}
@@ -662,7 +662,7 @@ export default function Profile() {
 
       {/* ── MODAL 2: แก้ไขโปรไฟล์ (Edit Profile Dialog) ───────────────────── */}
       {showEditProfileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 animate-in fade-in duration-200">
           <div className="bg-surface rounded-2xl sm:rounded-2xl border border-line max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowEditProfileModal(false)}

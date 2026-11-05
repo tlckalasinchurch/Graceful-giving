@@ -1684,7 +1684,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(lineShareLink)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="py-2 px-3 rounded-xl bg-[#06C755] text-black font-bold text-xs"
+                  className="py-2 px-3 rounded-xl bg-line-brand text-black font-bold text-xs"
                 >
                   ส่งทาง LINE
                 </a>

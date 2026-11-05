@@ -429,7 +429,7 @@ export default function Approvals() {
 
         {/* Reject Reason Modal */}
         {showRejectModal && selectedReq && (
-          <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-ink/40 flex items-center justify-center p-4">
             <div className="bg-surface rounded-3xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b border-line pb-3">
                 <h3 className="display text-lg font-bold text-ink">
@@ -484,7 +484,7 @@ export default function Approvals() {
 
         {/* Cancel Reason Modal */}
         {showCancelModal && selectedReq && (
-          <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-ink/40 flex items-center justify-center p-4">
             <div className="bg-surface rounded-3xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b border-line pb-3">
                 <h3 className="display text-lg font-bold text-ink">

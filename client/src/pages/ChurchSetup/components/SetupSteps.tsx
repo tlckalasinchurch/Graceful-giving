@@ -47,7 +47,7 @@ export function TextField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/20 disabled:opacity-60"
+        className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-ink-3 focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/20 disabled:opacity-60"
       />
     </div>
   );
@@ -76,7 +76,7 @@ export function Step1({
           onChange={e => set({ address: e.target.value })}
           placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
           rows={3}
-          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
+          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-ink-3 focus:border-brand-ink focus:outline-none resize-none"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -141,7 +141,7 @@ export function Step2({
           onChange={e => set({ motto: e.target.value })}
           placeholder="เช่น 2 โครินธ์ 9:7 · ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก"
           rows={2}
-          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-[#CFC7BF] focus:border-brand-ink focus:outline-none resize-none"
+          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-ink-3 focus:border-brand-ink focus:outline-none resize-none"
         />
       </div>
       <div className="rounded-2xl border border-line bg-paper p-4">

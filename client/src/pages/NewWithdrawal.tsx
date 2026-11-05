@@ -225,7 +225,7 @@ export default function NewWithdrawal() {
         </form>
 
         {showSuccessModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
             <div className="bg-surface rounded-2xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl">
               <div className="w-16 h-16 rounded-full border border-line bg-surface flex items-center justify-center text-ink-2 mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-ink-2" />

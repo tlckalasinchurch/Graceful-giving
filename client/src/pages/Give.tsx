@@ -62,11 +62,20 @@ export default function Give() {
       const liffId = await fetchLiffId();
       if (!liffId) return;
       setLiffTrying(true);
+      let finished = false;
+      const timer = setTimeout(() => {
+        if (!finished) {
+          finished = true;
+          setLiffTrying(false);
+        }
+      }, 8000);
       const result = await signInWithLiff(liffId);
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
       if (result === "signed_in") {
         await utils.auth.me.invalidate();
       }
-      // "redirecting" keeps the message, because the page is about to reload.
       if (result !== "redirecting") setLiffTrying(false);
     })();
   }, [loading, isAuthenticated, utils]);
@@ -116,7 +125,7 @@ export default function Give() {
       ) : (
         <a
           href={GIVE_LOGIN_URL}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl bg-[#06C755] px-4 text-base font-bold text-black hover:brightness-95 focus-visible:ring-2 focus-visible:ring-brand"
+          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl bg-line-brand px-4 text-base font-bold text-black hover:brightness-95 focus-visible:ring-2 focus-visible:ring-brand"
         >
           <LineMark />
           เข้าสู่ระบบด้วย LINE

@@ -164,7 +164,24 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     churchProfile?.name || user?.name || "คริสตจักรพระคุณสมบูรณ์";
   const roleLabel = getChurchRoleInfo(user?.churchRole).label;
   const railItems = getAuthorizedNavItems(user);
-  const mobileTabs = MOBILE_TABS.filter(tab => canAccessRoute(tab.path, user));
+  const isFinance = canAccessRoute("/expenses", user);
+  const baseTabs: MobileTabItem[] = [
+    MOBILE_TABS[0],
+    MOBILE_TABS[1],
+    ...(isFinance
+      ? [
+          {
+            path: "/expenses",
+            label: "รายจ่าย",
+            ariaLabel: "ไปที่หน้ารายจ่าย",
+            icon: ReceiptText,
+            match: (p: string) => isActiveRoute(p, "/expenses"),
+          },
+        ]
+      : [MOBILE_TABS[2]]),
+    MOBILE_TABS[3],
+  ];
+  const mobileTabs = baseTabs.filter(tab => canAccessRoute(tab.path, user));
   const canRecordOffering = canAccessRoute("/offerings/new", user);
   const tabsBeforeGive = Math.ceil(mobileTabs.length / 2);
   const mobileColumns = mobileTabs.length + (canRecordOffering ? 1 : 0);

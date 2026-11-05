@@ -23,6 +23,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/categories";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
 import { formatBaht, THAI_LOCALE, toLocalISODate } from "@/lib/format";
@@ -549,7 +553,7 @@ export default function NewExpense() {
                       setReceiptContentType("");
                       setReceiptUrl(null);
                     }}
-                    className="text-xs text-red-400 hover:underline font-medium px-3 py-1.5"
+                    className="text-xs text-danger hover:underline font-medium px-3 py-1.5"
                   >
                     ลบไฟล์
                   </button>
@@ -616,8 +620,8 @@ export default function NewExpense() {
 
         {/* Success Modal */}
         {showSuccessModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-surface rounded-2xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+          <DialogContent className="max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl">
               <div className="w-16 h-16 rounded-full border border-line bg-surface flex items-center justify-center text-ink-2 mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-ink-2" />
               </div>
@@ -638,7 +642,7 @@ export default function NewExpense() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-ink-3">จำนวนเงิน:</span>
-                  <span className="font-bold text-red-400 text-sm">
+                  <span className="font-bold text-danger text-sm">
                     {formatBaht(-parseFloat(amount.replace(/,/g, "") || "0"))}
                   </span>
                 </div>
@@ -684,8 +688,8 @@ export default function NewExpense() {
                   กลับสู่หน้ารายการรายจ่าย
                 </button>
               </div>
-            </div>
-          </div>
+          </DialogContent>
+        </Dialog>
         )}
       </div>
     </AppLayout>

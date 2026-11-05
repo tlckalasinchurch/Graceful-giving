@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -27,7 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
-import { BackLink, Chip } from "@/components/common/CommonUI";
+import { BackLink, Chip, EmptyState } from "@/components/common/CommonUI";
 import { formatBaht, toLocalISODate } from "@/lib/format";
 
 export default function NewOffering() {
@@ -50,7 +50,9 @@ export default function NewOffering() {
   const [notes, setNotes] = useState("");
   const [donorName, setDonorName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const amountRef = useRef<HTMLInputElement>(null);
   const [lastSaved, setLastSaved] = useState<{
     category: OfferingCategory;
     amount: number;
@@ -103,12 +105,14 @@ export default function NewOffering() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     if (!amount || Number(amount) <= 0) {
-      toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
+      setFormError("กรุณาระบุจำนวนเงินที่ถูกต้อง");
+      amountRef.current?.focus();
       return;
     }
     if (!fundId) {
-      toast.error("กรุณาเลือกกองทุนก่อนบันทึก");
+      setFormError("กรุณาเลือกกองทุนก่อนบันทึก");
       return;
     }
 
@@ -168,7 +172,15 @@ export default function NewOffering() {
           </div>
         </div>
 
-        {/* Main Step Form Card */}
+{funds.length === 0 && !fundsQuery.isLoading ? (
+          <EmptyState
+            title="ยังไม่มีกองทุนในระบบ"
+            description="ต้องตั้งค่ากองทุนก่อนบันทึกการถวาย โปรดไปที่หน้าตั้งค่าเพื่อเพิ่มกองทุน"
+            actionText="ไปหน้าตั้งค่า"
+            onAction={() => setLocation("/settings")}
+          />
+        ) : (
+        /* Main Step Form Card */
         <form
           onSubmit={handleSubmit}
           className="bg-surface rounded-2xl p-6 sm:p-8 border border-line card-elevation-sm space-y-6"
@@ -207,15 +219,22 @@ export default function NewOffering() {
                 ฿
               </span>
               <input
+                ref={amountRef}
                 type="number"
                 required
                 min="1"
+                aria-invalid={Boolean(formError)}
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
                 className="money w-full min-h-14 pl-12 pr-4 rounded-2xl bg-surface border border-field text-2xl font-semibold text-income focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
               />
             </div>
+            {formError && (
+              <p role="alert" className="text-sm text-danger">
+                {formError}
+              </p>
+            )}
 
             {/* Shortcut Chips */}
             <div className="flex flex-wrap gap-2 pt-1">
@@ -366,6 +385,7 @@ export default function NewOffering() {
             </span>
           </button>
         </form>
+        )}
       </div>
 
       {/* Success Celebration Dialog */}

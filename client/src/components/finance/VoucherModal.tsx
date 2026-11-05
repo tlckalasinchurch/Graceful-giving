@@ -61,7 +61,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
       {/* Container */}
       <div className="bg-surface w-full max-w-3xl rounded-2xl shadow-2xl border border-line overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Modal Action Bar (Hidden in print) */}
