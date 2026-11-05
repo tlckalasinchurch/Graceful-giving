@@ -1,25 +1,25 @@
 ---
-name: Grace Ledger (Grace-giving)
-description: Thai church finance ledger — contemporary Editorial FinTech (WW/STUDIO x Finexy), signature coral brand, jet-black ink on a warm stone canvas.
+name: Grace Giving
+description: Thai church finance app — forest editorial design, warm paper surfaces, deep green actions, and precise financial typography.
 colors:
-  canvas: "#F6F4F1"
-  paper: "#FAF8F5"
-  paper-2: "#EDE8E1"
+  canvas: "#F7F5F0"
+  paper: "#FBF9F5"
+  paper-2: "#EEE9E0"
   surface: "#FFFFFF"
-  ink: "#080808"
-  ink-muted: "#5C5850"
-  line: "#E4DED2"
-  field: "#6C675F"
-  brand: "#F95C4B"
-  brand-ink: "#E54937"
-  income: "#047857"
+  ink: "#171715"
+  ink-muted: "#625D55"
+  line: "#E6E0D7"
+  field: "#746E65"
+  brand: "#174B3F"
+  brand-ink: "#10382F"
+  income: "#187A55"
   danger: "#B91C1C"
   line-brand: "#06C755"
   dark-background: "#080808"
   dark-card: "#121214"
 typography:
   display:
-    fontFamily: "Plus Jakarta Sans, Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
+    fontFamily: "Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
     fontWeight: 800
     lineHeight: 1.15
     letterSpacing: "-0.025em"
@@ -80,7 +80,7 @@ components:
 
 ## Overview
 
-A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, jet-black ink, warm stone canvas (#F6F4F1), signature coral accent (#F95C4B)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line` (#E4DED2). Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
+A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, deep forest-green actions (#174B3F), warm paper canvas (#F7F5F0), crisp white surfaces, and charcoal ink (#171715)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line` (#E4DED2). Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
 
 All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`). **`index.css` is the single source of truth — never copy a hex into a component** outside the exceptions listed under Colors.
 
