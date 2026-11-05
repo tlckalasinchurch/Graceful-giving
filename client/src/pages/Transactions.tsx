@@ -207,14 +207,14 @@ export default function Transactions() {
           <button
             onClick={handleExport}
             aria-label="ส่งออก CSV"
-            className="min-h-10 px-3.5 rounded-xl border border-line bg-surface text-ink text-sm font-semibold hover:bg-ground flex items-center gap-1.5 transition-colors"
+            className="min-h-11 px-3.5 rounded-xl border border-line bg-surface text-ink text-sm font-semibold hover:bg-ground flex items-center gap-1.5 transition-colors"
           >
             <Download className="size-4 text-ink-2" aria-hidden="true" />
             <span className="hidden sm:inline">ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="min-h-10 px-4 rounded-xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold flex items-center gap-1.5 transition-colors"
+            className="min-h-11 px-4 rounded-xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold flex items-center gap-1.5 transition-colors"
           >
             <Plus className="size-4" aria-hidden="true" />
             <span>บันทึกการถวาย</span>

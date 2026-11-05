@@ -891,7 +891,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     id="station-fund"
                     value={selectedFundId}
                     onChange={e => setSelectedFundId(e.target.value)}
-                    className="w-full min-h-10 rounded-xl bg-paper border border-line px-3 py-2 text-xs font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                    className="w-full min-h-11 rounded-xl bg-paper border border-line px-3 py-2 text-xs font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                   >
                     {funds.length === 0 ? (
                       <option value="">กองทุนทั่วไปของคริสตจักร</option>

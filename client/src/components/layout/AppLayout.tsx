@@ -114,7 +114,7 @@ function SidebarLink({
     <GuardedLink
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
+      className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
         active
           ? "bg-[#080808] font-semibold text-white shadow-xs"
           : "font-medium text-ink-2 hover:bg-paper hover:text-ink"

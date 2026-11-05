@@ -74,7 +74,7 @@ export const EmptyState: React.FC<{
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="min-h-10 mt-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-11 mt-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brand"
         >
           {actionText}
         </button>
@@ -106,7 +106,7 @@ export const ErrorState: React.FC<{
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-10 rounded-xl bg-danger hover:opacity-90 px-4 py-2 text-sm font-semibold text-white transition-opacity"
+        className="min-h-11 rounded-xl bg-danger hover:opacity-90 px-4 py-2 text-sm font-semibold text-white transition-opacity"
       >
         ลองใหม่
       </button>
