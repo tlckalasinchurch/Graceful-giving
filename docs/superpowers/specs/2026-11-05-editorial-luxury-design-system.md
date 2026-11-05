@@ -50,7 +50,7 @@ The design must not imply financial facts, approval states, or permissions that 
 | Elevated surface | `--color-surface` | `#FFFFFF` | Cards, sheets, menus |
 | Primary ink | `--color-ink` | `#171715` | Headings, body text |
 | Secondary ink | `--color-ink-2` | `#625D55` | Supporting text |
-| Muted ink | `--color-ink-3` | `#777168` | Metadata only; verify contrast |
+| Muted ink | `--color-ink-3` | `#746E65` | Metadata; calculated contrast 4.63:1 on proposed warm canvas `#F7F5F0` |
 | Stone border | `--color-line` | `#E6E0D7` | Hairlines and outlines |
 | Muted gold | `--color-accent-gold` | `#A8792D` | Small decorative accent, never sole status cue |
 | Gold surface | `--color-accent-gold-soft` | `#F7F0E2` | Quiet highlight surface |
@@ -60,7 +60,9 @@ The design must not imply financial facts, approval states, or permissions that 
 
 Important:
 - These are proposal values, not yet applied tokens. Verify every text/background pair with contrast tests before implementation.
-- Avoid using gold for small text on white until contrast is measured. Use deep gold ink or a dark neutral CTA.
+- Contrast spot-check (WCAG relative luminance calculation): `#746E65` on `#F7F5F0` ≈ 4.63:1; `#625D55` on `#F7F5F0` ≈ 5.99:1; `#171715` on `#FFFFFF` ≈ 17.95:1; `#A8792D` on `#FFFFFF` ≈ 3.86:1; `#187A55` on `#FFFFFF` ≈ 5.31:1. These calculations are design checks, not a substitute for the repository test suite.
+- Gold `#A8792D` is decorative only: do not use it for normal-size text, icons that carry meaning, or controls on white. Use deep ink or a dark neutral CTA.
+- The current `theme.contrast.test.ts` checks `color-ink-3` on the surface but does not check it on the warm canvas. Add that pair (and every new text/background pairing actually used) to the test before adopting the tokens.
 - Do not encode income/expense/approval state by color alone; include labels/icons/text.
 - Keep LINE's official green restricted to LINE-specific actions.
 - Do not invent new category colors for existing business categories without a data/UX reason.
@@ -187,7 +189,7 @@ Run and record:
 - `pnpm check`
 - `pnpm test`
 - `pnpm build`
-- `pnpm exec vitest run client/src/theme.contrast.test.ts`
+- `pnpm exec vitest run client/src/theme.contrast.test.ts` after extending it to cover the new muted-ink-on-canvas pair and all new text/background combinations used by components.
 - `git diff --check`
 - Existing targeted page/component tests for touched areas.
 - Browser screenshots and manual review at 320, 375, 768, 1024 and 1440 CSS px.
