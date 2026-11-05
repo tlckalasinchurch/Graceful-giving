@@ -19,8 +19,8 @@ import { cn } from "@/lib/utils";
 // ─── 1. Isometric Station Cube Logo (JamBox-inspired) ─────────────────────────
 
 export function StationCubeLogo({
-  brandTitle = "Grace Giving",
-  subtitle = "จุดถวายทรัพย์ดิจิทัลเพื่อพันธกิจ",
+  brandTitle = "GraceBox",
+  subtitle = "AUTOMATED CHURCH GIVING STATION",
   variant = "white",
   className,
 }: {
@@ -31,87 +31,14 @@ export function StationCubeLogo({
 }) {
   return (
     <div
-      className={cn("inline-flex flex-col items-center select-none", className)}
+      className={cn("inline-flex flex-col items-center select-none text-center", className)}
     >
-      {/* Refined Brand Emblem Card */}
-      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-paper border border-line flex items-center justify-center p-3 mb-2.5 shadow-2xs">
-        <svg
-          viewBox="0 0 120 105"
-          className="w-full h-full drop-shadow-xs"
-          aria-hidden="true"
-        >
-          {/* Top roof diamond */}
-          <polygon
-            points="60,8 106,30 60,52 14,30"
-            fill="#FFFFFF"
-            stroke="#080808"
-            strokeWidth="2.5"
-            strokeLinejoin="round"
-          />
-          {/* Left face (doorway side) */}
-          <polygon
-            points="14,30 60,52 60,96 14,74"
-            fill="#FFFFFF"
-            stroke="#080808"
-            strokeWidth="2.5"
-            strokeLinejoin="round"
-          />
-          {/* Dark doorway recess inside left face */}
-          <polygon points="34,47 55,57 55,93 34,83" fill="#080808" />
-          {/* Open door panel swinging outward */}
-          <polygon
-            points="26,44 37,48 37,88 26,84"
-            fill="#F95C4B"
-            stroke="#080808"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-          {/* Door handle slot */}
-          <line
-            x1="34"
-            y1="64"
-            x2="34"
-            y2="71"
-            stroke="#080808"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-          />
-          {/* Right face (wave bars side) */}
-          <polygon
-            points="60,52 106,30 106,74 60,96"
-            fill="#080808"
-            stroke="#080808"
-            strokeWidth="2.5"
-            strokeLinejoin="round"
-          />
-          {/* Sound / Blessing vertical wave bars on right face */}
-          {[
-            { x: 71, y1: 60, y2: 72 },
-            { x: 77, y1: 52, y2: 74 },
-            { x: 83, y1: 46, y2: 75 },
-            { x: 89, y1: 52, y2: 68 },
-            { x: 95, y1: 55, y2: 63 },
-          ].map((b, idx) => (
-            <line
-              key={idx}
-              x1={b.x}
-              y1={b.y1}
-              x2={b.x}
-              y2={b.y2}
-              stroke="#F95C4B"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-            />
-          ))}
-        </svg>
-      </div>
-
-      <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-none text-ink font-display">
-          Grace <span className="text-brand">Giving</span>
-        </h2>
+      <div className="text-center pt-1">
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-white font-display">
+          {brandTitle}
+        </h1>
         {subtitle && (
-          <p className="mt-1.5 text-xs sm:text-sm font-medium text-ink-2">
+          <p className="mt-2 text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-stone-300 uppercase">
             {subtitle}
           </p>
         )}
@@ -138,36 +65,32 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-paper border border-line p-4 sm:p-5 flex items-center justify-between gap-4 shadow-2xs",
+        "rounded-[28px] bg-[#16181D] border border-white/[0.08] px-5 py-4 flex items-center justify-between gap-4 shadow-lg",
         className
       )}
     >
-      <div className="flex items-center gap-3.5 min-w-0 flex-1">
+      <div className="flex items-center gap-3.5 min-w-0">
         {avatarUrl ? (
           <img
             src={avatarUrl}
             alt={userName}
-            className="w-12 h-12 rounded-full object-cover border-2 border-surface shadow-xs shrink-0"
+            className="w-12 h-12 rounded-full object-cover border border-white/20 shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-paper-2 text-ink font-extrabold text-base flex items-center justify-center border border-line shrink-0">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F97316] to-[#B45309] text-white font-extrabold text-lg flex items-center justify-center border border-white/20 shrink-0">
             {userName.trim().slice(0, 1).toUpperCase() || "G"}
           </div>
         )}
-        <div className="min-w-0 flex-1">
-          <div className="text-base sm:text-lg font-bold text-ink truncate leading-tight">
-            {userName}
-          </div>
-          <div className="text-xs font-medium text-ink-2 mt-0.5">
-            {metricLabel}
-          </div>
-        </div>
+        <span className="text-lg font-extrabold text-white truncate">
+          {userName}
+        </span>
       </div>
 
       <div className="text-right shrink-0">
-        <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-line text-xs sm:text-sm font-bold text-ink shadow-2xs">
+        <div className="text-xs font-medium text-stone-400">{metricLabel}</div>
+        <div className="text-base sm:text-xl font-extrabold text-white tabular-nums">
           {metricValue}
-        </span>
+        </div>
       </div>
     </div>
   );
@@ -189,27 +112,34 @@ export function StationStatusCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-paper border border-line p-4 sm:p-5 space-y-2.5 shadow-2xs",
+        "rounded-[28px] bg-[#16181D] border border-white/[0.08] px-5 py-4 space-y-2.5 shadow-lg",
         className
       )}
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-bold text-ink">{label}</span>
+        <div className="flex items-center gap-2.5">
+          <span className="w-4 h-4 rounded-full border-2 border-[hsl(27_40%_24%)] flex items-center justify-center">
+            <span className="w-2 h-2 rounded-full bg-[#FB923C]" />
+          </span>
+          <span className="text-sm font-bold text-[#FDBA74]">{label}</span>
+        </div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-line shadow-2xs">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#241E1C] border border-white/12">
           <span
             className={cn(
-              "w-2.5 h-2.5 rounded-full ring-2 ring-emerald-500/20",
-              isAvailable ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+              "w-2.5 h-2.5 rounded-full",
+              isAvailable
+                ? "bg-[#22C55E] shadow-[0_0_8px_#22C55E]"
+                : "bg-amber-500"
             )}
           />
-          <span className="text-xs sm:text-sm font-bold text-ink">
+          <span className="text-xs sm:text-sm font-bold text-white">
             {statusBadgeText}
           </span>
         </div>
       </div>
 
-      <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">{statusDetail}</p>
+      <p className="text-sm font-medium text-stone-400">{statusDetail}</p>
     </div>
   );
 }
@@ -217,13 +147,15 @@ export function StationStatusCard({
 // ─── 3. Station Hero Orange Gradient CTA (Jam Now -> Give Now) ───────────────
 
 export function StationHeroCTA({
+  eyebrow = "เริ่มใช้งาน",
   headline = "พร้อมถวายทรัพย์เลยไหม?",
-  buttonTitle = "ถวายทรัพย์ตอนนี้",
-  buttonSubtitle = "เริ่มต้นทำรายการ",
+  buttonTitle = "Give Now",
+  buttonSubtitle = "เริ่มถวายทันที",
   helperText = "เลือกกองทุนที่ต้องการถวาย · สแกนพร้อมเพย์หรือแนบสลิปได้ทันที",
   onClick,
   className,
 }: {
+  eyebrow?: string;
   headline?: string;
   buttonTitle?: string;
   buttonSubtitle?: string;
@@ -233,8 +165,9 @@ export function StationHeroCTA({
 }) {
   return (
     <div className={cn("space-y-3 pt-1", className)}>
-      <div className="text-center sm:text-left">
-        <h3 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
+      <div className="space-y-0.5">
+        <div className="text-sm font-bold text-[#FB923C]">{eyebrow}</div>
+        <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           {headline}
         </h3>
       </div>
@@ -243,30 +176,81 @@ export function StationHeroCTA({
         type="button"
         onClick={onClick}
         aria-label={`${buttonTitle} - ${buttonSubtitle}`}
-        className="group w-full text-left rounded-2xl focus-visible:ring-2 focus-visible:ring-brand p-5 sm:p-6 bg-brand hover:bg-brand-ink text-black transition-all cursor-pointer flex items-center justify-between gap-4 active:scale-[0.98] shadow-sm hover:shadow-md"
+        className="group w-full text-left rounded-[28px] p-5 sm:p-6 bg-gradient-to-br from-[#FBBF24] via-[#F97316] to-[#EA580C] border-2 border-[#FDE68A]/50 shadow-[0_12px_32px_-8px_rgba(249,115,22,0.55)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-black/10 flex items-center justify-center shrink-0 border border-black/10 group-hover:bg-black/15 transition-colors">
-            <HandCoins className="w-7 h-7 text-black" aria-hidden="true" />
+          {/* Dark rounded-2xl icon box with vertical wave bars */}
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-[#2B180A] flex items-center justify-center shrink-0 shadow-inner">
+            <svg
+              viewBox="0 0 40 40"
+              className="w-8 h-8 text-[#FB923C]"
+              aria-hidden="true"
+            >
+              <line
+                x1="10"
+                y1="17"
+                x2="10"
+                y2="23"
+                stroke="currentColor"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+              />
+              <line
+                x1="15"
+                y1="13"
+                x2="15"
+                y2="27"
+                stroke="currentColor"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+              />
+              <line
+                x1="20"
+                y1="9"
+                x2="20"
+                y2="31"
+                stroke="currentColor"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+              />
+              <line
+                x1="25"
+                y1="13"
+                x2="25"
+                y2="27"
+                stroke="currentColor"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+              />
+              <line
+                x1="30"
+                y1="17"
+                x2="30"
+                y2="23"
+                stroke="currentColor"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+              />
+            </svg>
           </div>
 
           <div className="min-w-0">
-            <div className="text-xl sm:text-2xl font-black text-black tracking-tight leading-tight">
+            <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
               {buttonTitle}
             </div>
-            <div className="text-xs sm:text-sm font-bold text-black/80 mt-0.5">
+            <div className="text-sm font-bold text-white/90 mt-0.5">
               {buttonSubtitle}
             </div>
           </div>
         </div>
 
-        <div className="w-11 h-11 rounded-full bg-black/10 border border-black/15 flex items-center justify-center text-black shrink-0 group-hover:translate-x-1 group-hover:bg-black/15 transition-all">
+        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 border-white/60 bg-white/10 flex items-center justify-center text-white shrink-0 group-hover:translate-x-1 transition-transform">
           <ArrowRight className="w-5 h-5 stroke-[2.5]" />
         </div>
       </button>
 
       {helperText && (
-        <p className="text-xs sm:text-sm text-ink-2 text-center pt-0.5 font-medium leading-relaxed">
+        <p className="text-xs sm:text-sm text-stone-400 text-center pt-1 font-medium leading-relaxed">
           {helperText}
         </p>
       )}
