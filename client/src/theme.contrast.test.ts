@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-// Guards the dark theme against contrast regressions that type checks and
+// Guards light editorial theme contrast regressions that type checks and
 // logic tests cannot see. Tokens are read from index.css, not copied here.
 const css = readFileSync(resolve(import.meta.dirname, "index.css"), "utf8");
 
@@ -26,25 +26,22 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-describe("dark theme contrast", () => {
-  it("keeps text on the orange brand at WCAG AA (4.5:1)", () => {
-    expect(
-      contrast(token("primary-foreground"), token("primary"))
-    ).toBeGreaterThanOrEqual(4.5);
-    expect(contrast("#000000", token("color-brand"))).toBeGreaterThanOrEqual(
-      4.5
-    );
-    expect(
-      contrast("#000000", token("color-brand-ink"))
-    ).toBeGreaterThanOrEqual(4.5);
+describe("forest editorial theme contrast", () => {
+  it("keeps white text on forest primary actions at WCAG AA (4.5:1)", () => {
+    expect(contrast(token("primary-foreground"), token("primary"))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#ffffff", token("color-brand"))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#ffffff", token("color-brand-ink"))).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("keeps body and muted text readable on the card surface", () => {
+  it("keeps body and muted text readable on the card surface and warm canvas", () => {
     expect(
       contrast(token("color-ink"), token("color-surface"))
     ).toBeGreaterThanOrEqual(7);
     expect(
       contrast(token("color-ink-3"), token("color-surface"))
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrast(token("color-ink-3"), token("color-ground"))
     ).toBeGreaterThanOrEqual(4.5);
   });
 
