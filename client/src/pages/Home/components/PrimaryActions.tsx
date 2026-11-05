@@ -24,7 +24,7 @@ export function PrimaryActions({
       {canRecordOffering && (
         <button
           onClick={onNewOffering}
-          className="flex min-h-12 items-center justify-center gap-2.5 rounded-2xl bg-brand px-5 text-base font-bold text-black hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          className="flex min-h-12 items-center justify-center gap-2.5 rounded-xl bg-brand px-5 text-base font-bold text-white hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
           aria-label="บันทึกการถวาย"
         >
           <HandCoins className="size-5" aria-hidden="true" />
@@ -35,7 +35,7 @@ export function PrimaryActions({
       {canRecordExpense && (
         <button
           onClick={onNewExpense}
-          className="flex min-h-12 items-center justify-center gap-2.5 rounded-2xl border border-line bg-surface px-5 text-base font-bold text-ink hover:bg-paper-2 transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+          className="flex min-h-12 items-center justify-center gap-2.5 rounded-xl border border-line bg-surface px-5 text-base font-semibold text-ink hover:bg-paper-2 transition-colors focus-visible:ring-2 focus-visible:ring-brand"
           aria-label="บันทึกรายจ่าย"
         >
           <ReceiptText className="size-5 text-ink-3" aria-hidden="true" />

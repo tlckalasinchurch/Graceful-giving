@@ -1,19 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Modern geometric FinTech sans-serif: Plus Jakarta Sans & Manrope for Latin/digits,
-     IBM Plex Sans Thai for crisp, modern Thai typography. */
-  --font-sans:
-    "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-display:
-    "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-serif:
-    "Plus Jakarta Sans", "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-script: "Plus Jakarta Sans", system-ui, sans-serif;
+  /* Editorial typography: Manrope for Latin and financial numerals; IBM Plex Sans Thai for Thai UI. */
+  --font-sans: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-display: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-serif: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-script: "Manrope", system-ui, sans-serif;
 
   /* Standard balanced radii */
   --radius-sm: 0.375rem;
@@ -23,26 +19,20 @@
   --radius-2xl: 1rem;
   --radius-3xl: 1.25rem;
 
-  /* Grace Giving — Contemporary Editorial FinTech (WW/STUDIO × Finexy Inspired)
-     Warm Paper Canvas (#F6F4F1), Stone Line (#E4DED2), Crisp White Surface (#FFFFFF),
-     Signature Coral CTA & Accent (#F95C4B), Jet Black Navigation & Typography (#000000).
-     Black text on Coral achieves 6.66:1 contrast (WCAG AA compliant). */
-  --color-ground: #f6f4f1;
-  --color-paper: #faf8f5;
-  --color-paper-2: #ede8e1;
+  /* Grace Giving — Forest Editorial: quiet green, warm paper, precise financial typography. */
+  --color-ground: #f7f5f0;
+  --color-paper: #fbf9f5;
+  --color-paper-2: #eee9e0;
   --color-surface: #ffffff;
-  --color-ink: #080808;
-  --color-ink-2: #5c5850;
-  --color-ink-3: #5c5850;
-  --color-line: #e4ded2;
-  --color-field: #6c675f;
-  --color-income: #047857;
-  /* Danger sits one shade deeper than red-600 (#DC2626) so small text and
-     white-on-danger buttons clear 4.5:1 on every light surface in the system,
-     including the warm stone canvas #F6F4F1 (guarded by theme.contrast.test). */
+  --color-ink: #171715;
+  --color-ink-2: #625d55;
+  --color-ink-3: #746e65;
+  --color-line: #e6e0d7;
+  --color-field: #746e65;
+  --color-income: #187a55;
   --color-danger: #b91c1c;
-  --color-brand: #f95c4b;
-  --color-brand-ink: #e54937;
+  --color-brand: #174b3f;
+  --color-brand-ink: #10382f;
 
   /* Category tiles — crisp light tints with deep matching hue ink */
   --color-tile-sky: #f0f7ff;
@@ -109,25 +99,25 @@
   --mobile-nav-clearance: 5.5rem;
   --content-max: 88rem;
 
-  --primary: #f95c4b;
-  --primary-foreground: #080808;
-  --background: #f6f4f1;
-  --foreground: #080808;
+  --primary: #174b3f;
+  --primary-foreground: #ffffff;
+  --background: #f7f5f0;
+  --foreground: #171715;
   --card: #ffffff;
-  --card-foreground: #080808;
+  --card-foreground: #171715;
   --popover: #ffffff;
-  --popover-foreground: #080808;
-  --secondary: #faf8f5;
-  --secondary-foreground: #080808;
-  --muted: #faf8f5;
-  --muted-foreground: #5c5850;
-  --accent: #ede8e1;
-  --accent-foreground: #080808;
+  --popover-foreground: #171715;
+  --secondary: #fbf9f5;
+  --secondary-foreground: #171715;
+  --muted: #fbf9f5;
+  --muted-foreground: #625d55;
+  --accent: #eee9e0;
+  --accent-foreground: #171715;
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
-  --border: #e4ded2;
-  --input: #6c675f;
-  --ring: #f95c4b;
+  --border: #e6e0d7;
+  --input: #746e65;
+  --ring: #174b3f;
   --radius: 0.75rem;
 }
 
@@ -170,7 +160,7 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family:
-    "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+    "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -202,8 +192,8 @@ select:focus-visible {
   gap: 0.375rem;
   font-size: 0.75rem;
   line-height: 1;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--color-ink-2);
   background-color: var(--color-paper-2);
   padding: 0.35rem 0.7rem;
@@ -213,8 +203,8 @@ select:focus-visible {
 
 .display {
   font-family: var(--font-display);
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-weight: 500;
+  letter-spacing: -0.015em;
   line-height: 1.15;
   font-variant-numeric: lining-nums;
 }
@@ -234,8 +224,8 @@ select:focus-visible {
   }
 }
 
-/* Surfaces are flat: a 1px ring is the only edge, and a tone step (ground
-   #050506, card #0e0e10, raised #161618) does the elevating. Nothing at rest
+/* Surfaces are flat: a 1px ring is the only edge, and a tone step (ground,
+   paper, surface) does the elevating. Nothing at rest
    has a blurred shadow or a glow. The old class names stay so pages that still
    use them take the flat look without a rewrite. */
 .card-elevation-sm,

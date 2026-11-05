@@ -82,7 +82,7 @@ function MobileTab({
     >
       <span
         className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
-          active ? "bg-[#080808] text-brand" : ""
+          active ? "bg-brand text-white" : ""
         }`}
       >
         <Icon className="size-5" />
@@ -116,12 +116,12 @@ function SidebarLink({
       aria-current={active ? "page" : undefined}
       className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
         active
-          ? "bg-[#080808] font-semibold text-white shadow-xs"
+          ? "bg-brand font-semibold text-white shadow-xs"
           : "font-medium text-ink-2 hover:bg-paper hover:text-ink"
       }`}
     >
       <Icon
-        className={`size-[18px] shrink-0 ${active ? "text-brand" : ""}`}
+        className="size-[18px] shrink-0"
         aria-hidden="true"
       />
       <span className="min-w-0 flex-1 truncate">{label}</span>
@@ -196,12 +196,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             aria-label="Grace Giving หน้าหลัก"
             className="flex items-center gap-3 rounded-2xl px-1.5 py-1.5 hover:bg-paper/60 transition-colors"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-black">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-white">
               <Sprout className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
               <span className="display block truncate text-lg leading-none text-ink">
-                Grace <span className="text-brand">Ledger</span>
+                Grace <span className="text-brand">Giving</span>
               </span>
               <span className="mt-1 block truncate text-xs font-medium text-ink-3">
                 {churchName}
@@ -212,7 +212,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {canRecordOffering && (
             <button
               onClick={() => navigate("/offerings/new")}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <Plus className="size-4" aria-hidden="true" />
               บันทึกการถวาย
@@ -345,7 +345,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               aria-label="บันทึกการถวายใหม่"
               className="flex min-h-14 flex-col items-center justify-center gap-1"
             >
-              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-white">
                 <Plus className="size-5 stroke-[2.5]" />
               </span>
               <span className="text-xs font-bold leading-none text-ink">
