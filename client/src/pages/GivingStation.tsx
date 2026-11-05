@@ -765,9 +765,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             TAB 1: INTERACTIVE MOBILE FLOW (Adapted from JamBox Screens 1, 2, 3)
            ══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "flow" && (
-        <div className="max-w-md sm:max-w-lg lg:max-w-xl mx-auto">
-          {/* Mobile Station Shell */}
-          <div className="rounded-[32px] sm:rounded-[36px] bg-surface p-6 sm:p-8 text-ink border border-line shadow-sm space-y-6 relative overflow-hidden">
+        <div className="max-w-md sm:max-w-lg mx-auto">
+          {/* Dark Mobile Station Shell */}
+          <div className="rounded-[36px] bg-gradient-to-b from-[#231914] via-[#140F0D] to-[#0B0D13] p-5 sm:p-7 text-white shadow-2xl border border-[#3B2A20] space-y-6 relative overflow-hidden">
             {/* Top Bar: TH Language Pill & Step Back Button */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
@@ -776,17 +776,17 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   onClick={() =>
                     setStep(prev => (prev > 1 ? ((prev - 1) as FlowStep) : 1))
                   }
-                  className="w-10 h-10 rounded-full bg-paper hover:bg-paper-2 border border-line flex items-center justify-center text-ink transition-all active:scale-95 cursor-pointer"
+                  className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 flex items-center justify-center text-white transition-all active:scale-95 cursor-pointer"
                   title="ย้อนกลับ"
                   aria-label="ย้อนกลับ"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
               ) : (
-                <div className="w-10 h-10" />
+                <div className="w-11 h-11" />
               )}
 
-              <div className="px-3 py-1.5 rounded-full bg-paper border border-line flex items-center justify-center text-xs font-black text-ink shadow-2xs">
+              <div className="w-11 h-11 rounded-full bg-[#241B16] border border-white/15 flex items-center justify-center text-xs font-extrabold text-white tracking-wider">
                 TH
               </div>
             </div>
@@ -803,19 +803,18 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
             {/* ── STEP 1: Landing / Status / Give Now (Adapted from Image 2) ── */}
             {shownStep === 1 && (
-              <div className="grid grid-cols-1 gap-4 animate-in fade-in duration-200">
+              <div className="space-y-6 animate-in fade-in duration-200">
                 <div className="text-center -mt-2">
                   <StationCubeLogo
-                    brandTitle="Grace Giving"
-                    subtitle="จุดถวายทรัพย์ดิจิทัลเพื่อพันธกิจ"
+                    brandTitle="GraceBox"
+                    subtitle="AUTOMATED CHURCH GIVING STATION"
                   />
                 </div>
 
                 {/* Station Breadcrumb */}
-                <div className="text-xs sm:text-sm font-medium text-ink-2 text-center">
-                  <span>จุดถวายทรัพย์</span>
-                  <span className="text-ink-3 mx-2">/</span>
-                  <span className="text-ink font-semibold">{churchQuery.data?.name || "ห้องนมัสการ"}</span>
+                <div className="text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
+                  GRACEBOX STATION <span className="text-stone-500 mx-1">/</span>{" "}
+                  {churchQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์"}
                 </div>
 
                 {/* Donor Profile Card */}
@@ -842,6 +841,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
                 {/* Primary Give Now CTA */}
                 <StationHeroCTA
+                  eyebrow="เริ่มใช้งาน"
                   headline="พร้อมถวายทรัพย์เลยไหม?"
                   buttonTitle="Give Now"
                   buttonSubtitle="เริ่มถวายทันที"
