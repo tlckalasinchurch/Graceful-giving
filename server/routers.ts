@@ -2825,9 +2825,14 @@ export const appRouter = router({
           });
           return result;
         } catch (err: any) {
+          const msg = typeof err?.message === "string" ? err.message : "";
+          const isExpected =
+            msg.includes("กรุณาระบุ") ||
+            msg.includes("ไม่พบสลิป") ||
+            msg.includes("ไม่สามารถปฏิเสธ");
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: err?.message || "เกิดข้อผิดพลาดในการปฏิเสธสลิป",
+            message: isExpected ? msg : "เกิดข้อผิดพลาดในการปฏิเสธสลิป",
           });
         }
       }),
@@ -2860,9 +2865,12 @@ export const appRouter = router({
             status: input.status,
           });
         } catch (err: any) {
+          const msg = typeof err?.message === "string" ? err.message : "";
+          const isExpected =
+            msg.includes("ไม่พบสลิป") || msg.includes("ไม่สามารถแก้ไข");
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: err?.message || "เกิดข้อผิดพลาดในการอัปเดตข้อมูลสลิป",
+            message: isExpected ? msg : "เกิดข้อผิดพลาดในการอัปเดตข้อมูลสลิป",
           });
         }
       }),
@@ -2886,10 +2894,13 @@ export const appRouter = router({
             ctx.user.id
           );
         } catch (err: any) {
+          const msg = typeof err?.message === "string" ? err.message : "";
+          const isExpected =
+            msg.includes("ไม่พบ") || msg.includes("ไม่สามารถ");
           throw new TRPCError({
             code: "BAD_REQUEST",
             message:
-              err?.message || "เกิดข้อผิดพลาดในการเชื่อมโยงสมาชิกกับ LINE",
+              isExpected ? msg : "เกิดข้อผิดพลาดในการเชื่อมโยงสมาชิกกับ LINE",
           });
         }
       }),
@@ -3254,9 +3265,11 @@ export const appRouter = router({
 
           return { success: true };
         } catch (err: any) {
+          const msg = typeof err?.message === "string" ? err.message : "";
+          const isExpected = msg.includes("ไม่พบ") || msg.includes("ไม่สามารถ");
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: err?.message || "ไม่สามารถสแกนสลิปซ้ำได้",
+            message: isExpected ? msg : "ไม่สามารถสแกนสลิปซ้ำได้",
           });
         }
       }),

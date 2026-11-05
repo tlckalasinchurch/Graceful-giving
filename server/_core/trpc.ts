@@ -18,13 +18,34 @@ export function readableInputMessage(
   return message ? message : fallback;
 }
 
+/**
+ * Strips raw database and runtime error messages so clients and donors never
+ * see internal technical details or credentials. Non-admin users receive a
+ * friendly Thai message for internal server errors.
+ */
+export function safeErrorMessage(
+  shape: { message: string; code: number; data: any },
+  error: TRPCError,
+  ctx?: TrpcContext
+): string {
+  if (error.code === "BAD_REQUEST") {
+    return readableInputMessage(error.cause, shape.message);
+  }
+  const isSuperAdmin =
+    ctx?.user &&
+    (ctx.user.role === "admin" || (ctx.user as any).churchRole === "SUPER_ADMIN");
+  if (!isSuperAdmin && error.code === "INTERNAL_SERVER_ERROR") {
+    return "เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง";
+  }
+  return shape.message;
+}
+
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
-  errorFormatter({ shape, error }) {
-    if (error.code !== "BAD_REQUEST") return shape;
+  errorFormatter({ shape, error, ctx }) {
     return {
       ...shape,
-      message: readableInputMessage(error.cause, shape.message),
+      message: safeErrorMessage(shape, error, ctx),
     };
   },
 });
