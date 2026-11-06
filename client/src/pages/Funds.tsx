@@ -140,9 +140,24 @@ export default function Funds() {
           className="rounded-2xl border border-line bg-surface"
         >
           {fundsList.length === 0 ? (
-            <p className="m-5 rounded-lg border border-dashed border-line px-4 py-3 text-sm text-ink-2">
-              ยังไม่มีข้อมูลกองทุนจากระบบ
-            </p>
+            <div className="m-5 rounded-2xl border border-dashed border-line p-6 text-center space-y-3">
+              <p className="text-sm font-semibold text-ink">
+                ยังไม่มีข้อมูลกองทุนในระบบ
+              </p>
+              <p className="text-xs text-ink-3 max-w-md mx-auto">
+                เริ่มต้นสร้างกองทุนแรกของคริสตจักร เช่น กองทุนทั่วไป หรือกองทุนพันธกิจ เพื่อเริ่มบันทึกเงินถวายและค่าใช้จ่าย
+              </p>
+              {canCreate && (
+                <button
+                  type="button"
+                  onClick={() => setShowNewFundModal(true)}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-xs font-bold text-black hover:bg-brand-ink"
+                >
+                  <Plus className="size-4" />
+                  สร้างกองทุนแรก
+                </button>
+              )}
+            </div>
           ) : (
             <ul className="divide-y divide-line">
               {fundsList.map(f => {
