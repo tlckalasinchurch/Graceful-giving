@@ -22,7 +22,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
     return (
       <div
         role="status"
-        className="flex items-center justify-between gap-3 rounded-2xl border border-line/80 bg-surface px-4 py-3 sm:px-5 shadow-xs"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-line/80 bg-surface px-4 py-3 sm:px-5"
       >
         <div className="flex items-center gap-2.5">
           <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-income/10 text-income">
@@ -42,7 +42,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
   return (
     <section
       aria-label="รายการที่ต้องดำเนินการ"
-      className="rounded-3xl border border-line bg-surface p-4 sm:p-5 shadow-xs"
+      className="rounded-3xl border border-line bg-surface p-4 sm:p-5"
     >
       <div className="flex items-center justify-between px-2 pb-3 pt-1 border-b border-line/60">
         <h2 className="text-sm sm:text-base font-bold text-ink">
@@ -72,7 +72,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
                 </span>
                 <span
                   aria-hidden="true"
-                  className="money flex size-7 shrink-0 items-center justify-center rounded-full bg-brand/10 text-xs font-bold text-brand-ink"
+                  className="money flex size-7 shrink-0 items-center justify-center rounded-full bg-brand/10 text-xs font-medium text-brand-ink"
                 >
                   {item.count}
                 </span>

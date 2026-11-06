@@ -23,7 +23,7 @@ export function InteractiveHoverButton({
       type={type}
       variant="outline"
       className={cn(
-        "group bg-background relative h-auto w-auto overflow-hidden rounded-full p-2 px-6 text-center font-semibold active:scale-[0.97]",
+        "group bg-background relative h-auto w-auto overflow-hidden rounded-full p-2 px-6 text-center font-semibold ",
         className
       )}
       {...props}

@@ -68,7 +68,7 @@ export function MemberFeed() {
         </p>
         <button
           onClick={() => refetch()}
-          className="mt-4 min-h-11 rounded-xl bg-danger px-4 py-2 text-xs font-bold text-white hover:opacity-90"
+          className="mt-4 min-h-11 rounded-xl bg-danger px-4 py-2 text-xs font-medium text-white hover:opacity-90"
         >
           ลองใหม่อีกครั้ง
         </button>
@@ -90,7 +90,7 @@ export function MemberFeed() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-paper-2 px-3 py-1 text-xs font-bold text-brand-ink">
+            <span className="rounded-full bg-paper-2 px-3 py-1 text-xs font-medium text-brand-ink">
               {filteredNews.length} รายการ
             </span>
           </div>
@@ -110,7 +110,7 @@ export function MemberFeed() {
               role="tab"
               aria-selected={newsCategoryFilter === cat}
               onClick={() => setNewsCategoryFilter(cat)}
-              className={`min-h-11 rounded-full px-3.5 py-2 text-xs font-bold transition-all ${
+              className={`min-h-11 rounded-full px-3.5 py-2 text-xs font-medium transition-all ${
                 newsCategoryFilter === cat
                   ? "bg-paper-2 text-ink"
                   : "bg-white/10 text-ink-2 hover:bg-surface hover:text-ink-2 border border-line"
@@ -141,7 +141,7 @@ export function MemberFeed() {
                 className="group cursor-pointer rounded-2xl border border-line bg-surface p-5 transition hover:bg-paper focus:outline-none focus:ring-2 focus:ring-brand"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-2.5 py-1 text-xs font-bold text-brand-ink">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-2.5 py-1 text-xs font-medium text-brand-ink">
                     <Tag className="size-3" />
                     {categoryLabels[item.category]}
                   </span>
@@ -155,7 +155,7 @@ export function MemberFeed() {
                 <p className="mt-2 text-sm leading-6 text-ink-2 line-clamp-3">
                   {item.summary}
                 </p>
-                <div className="mt-4 flex items-center gap-1 text-xs font-bold text-brand">
+                <div className="mt-4 flex items-center gap-1 text-xs font-medium text-brand">
                   อ่านรายละเอียด{" "}
                   <ChevronRight className="size-3.5 transition group-hover:translate-x-0.5" />
                 </div>
@@ -201,7 +201,7 @@ export function MemberFeed() {
               >
                 <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl border border-line bg-paper-2 text-ink">
                   <CalendarDays className="size-5" />
-                  <span className="mt-0.5 text-xs font-bold">
+                  <span className="mt-0.5 text-xs font-medium">
                     {new Date(event.startsAt).getDate()}
                   </span>
                 </div>
@@ -239,7 +239,7 @@ export function MemberFeed() {
             <>
               <DialogHeader className="space-y-2 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-3 py-1 text-xs font-bold text-brand-ink">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-3 py-1 text-xs font-medium text-brand-ink">
                     <Tag className="size-3.5" />
                     {categoryLabels[selectedNews.category]}
                   </span>
@@ -358,7 +358,7 @@ export function MemberFeed() {
                   <button
                     type="button"
                     onClick={() => downloadICS(selectedEvent)}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-xs font-bold text-ink hover:bg-paper-2 transition"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-xs font-medium text-ink hover:bg-paper-2 transition"
                   >
                     <CalendarPlus className="size-4 text-brand-ink" />
                     เพิ่มลงปฏิทิน (.ics)
@@ -368,7 +368,7 @@ export function MemberFeed() {
                       href={selectedEvent.registrationUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-income px-4 py-2.5 text-xs font-bold text-white hover:opacity-90 transition"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-income px-4 py-2.5 text-xs font-medium text-white hover:opacity-90 transition"
                     >
                       ลงทะเบียนเข้าร่วม <ExternalLink className="size-3.5" />
                     </a>
@@ -376,7 +376,7 @@ export function MemberFeed() {
                 </div>
                 <button
                   onClick={() => setSelectedEvent(null)}
-                  className="min-h-[44px] rounded-xl border border-line px-5 py-2.5 text-xs font-bold text-ink-2 hover:bg-paper-2"
+                  className="min-h-[44px] rounded-xl border border-line px-5 py-2.5 text-xs font-medium text-ink-2 hover:bg-paper-2"
                 >
                   ปิดหน้าต่าง
                 </button>

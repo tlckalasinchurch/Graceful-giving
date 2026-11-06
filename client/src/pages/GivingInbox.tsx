@@ -540,7 +540,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setLocation("/offerings")}
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-medium transition-all flex items-center gap-1.5"
             title="ดูสมุดบัญชีเงินถวายที่อนุมัติแล้ว"
           >
             <BookOpen className="w-3.5 h-3.5" />
@@ -552,7 +552,7 @@ export default function GivingInbox() {
             type="button"
             onClick={() => setShowLineInfoModal(true)}
             aria-label="LINE บอท"
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-medium transition-all flex items-center gap-1.5"
             title="ข้อมูลการเชื่อมต่อ LINE และ QR Code"
           >
             <QrCode className="w-3.5 h-3.5" aria-hidden="true" />
@@ -563,7 +563,7 @@ export default function GivingInbox() {
             type="button"
             onClick={() => setLocation("/giving/station")}
             aria-label="ป้าย QR หน้าห้อง"
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
             title="เปิดป้าย QR Code สำหรับติดหน้าห้องและหน้าถวายอัตโนมัติ"
           >
             <QrCode className="w-3.5 h-3.5" aria-hidden="true" />
@@ -576,7 +576,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setShowUploadModal(true)}
-            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-medium transition-all flex items-center gap-1.5"
           >
             <UploadCloud className="w-4 h-4" />
             <span>อัปโหลดสลิป</span>
@@ -739,7 +739,7 @@ export default function GivingInbox() {
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(true)}
-                  className="min-h-11 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-paper-2 border border-line text-ink-2 text-xs font-bold hover:bg-paper-2 transition-all"
+                  className="min-h-11 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-paper-2 border border-line text-ink-2 text-xs font-medium hover:bg-paper-2 transition-all"
                 >
                   <UploadCloud className="w-3.5 h-3.5" /> อัปโหลดสลิปทดสอบ
                 </button>
@@ -789,12 +789,12 @@ export default function GivingInbox() {
                             <div className="text-xs text-ink-3 flex items-center gap-1.5 mt-0.5 truncate">
                               {Array.isArray(slip.declaredItems) &&
                                 slip.declaredItems.length >= 2 && (
-                                  <span className="px-1.5 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/40 text-sky-200 text-xs font-bold shrink-0">
+                                  <span className="px-1.5 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/40 text-sky-200 text-xs font-medium shrink-0">
                                     แบ่ง {slip.declaredItems.length} ประเภท
                                   </span>
                                 )}
                               {slip.source === "no_slip" && (
-                                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs font-bold shrink-0">
+                                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs font-medium shrink-0">
                                   ไม่มีสลิป
                                 </span>
                               )}
@@ -823,7 +823,7 @@ export default function GivingInbox() {
                                 : "—"}
                           </div>
                           <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-bold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
+                            className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
                           >
                             {statusConf.text}
                           </span>
@@ -852,7 +852,7 @@ export default function GivingInbox() {
                           <button
                             type="button"
                             onClick={e => handleQuickApprove(e, slip)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand hover:bg-brand-ink text-black font-bold text-[11px] transition-all"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand hover:bg-brand-ink text-black font-medium text-[11px] transition-all"
                             title="อนุมัติด่วนด้วยข้อมูลที่จับคู่ได้"
                           >
                             <Check className="w-3 h-3" /> อนุมัติด่วน
@@ -920,7 +920,7 @@ export default function GivingInbox() {
                           type="button"
                           onClick={() => handleRescan(currentSlip.id)}
                           disabled={rescanMutation.isPending}
-                          className="min-h-11 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs font-bold text-amber-300 hover:bg-amber-500/15 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="min-h-11 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs font-medium text-amber-300 hover:bg-amber-500/15 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                           title="สแกนอ่านข้อมูลสลิปนี้ใหม่"
                         >
                           <RefreshCw
@@ -998,7 +998,7 @@ export default function GivingInbox() {
                         href={currentSlip.signedImageUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="min-h-11 px-3 py-1.5 rounded-xl border border-line bg-paper-2 text-xs font-bold text-ink-2 hover:bg-paper-2 inline-flex items-center gap-1.5 transition-colors"
+                        className="min-h-11 px-3 py-1.5 rounded-xl border border-line bg-paper-2 text-xs font-medium text-ink-2 hover:bg-paper-2 inline-flex items-center gap-1.5 transition-colors"
                       >
                         <ExternalLink className="w-3.5 h-3.5" /> ดูภาพเต็ม
                       </a>
@@ -1102,7 +1102,7 @@ export default function GivingInbox() {
                       <span className="text-ink-3 block text-[11px]">
                         ชื่อผู้โอนในสลิป
                       </span>
-                      <span className="text-xs font-bold text-ink block mt-1 truncate">
+                      <span className="text-xs font-medium text-ink block mt-1 truncate">
                         {currentSlip.extractedSenderName || "—"}
                       </span>
                     </div>
@@ -1178,7 +1178,7 @@ export default function GivingInbox() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Member Selector */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-ink-2 flex items-center justify-between">
+                      <label className="text-xs font-medium text-ink-2 flex items-center justify-between">
                         <span>สมาชิกผู้ถวาย</span>
                         {currentSlip.lineUserId &&
                           editMemberId &&
@@ -1231,7 +1231,7 @@ export default function GivingInbox() {
                     <div className="space-y-1.5 sm:col-span-2">
                       <label
                         htmlFor="inbox-ledger-name"
-                        className="text-xs font-bold text-ink-2"
+                        className="text-xs font-medium text-ink-2"
                       >
                         ชื่อที่ลงบัญชีถวาย{" "}
                         <span className="text-rose-500">*</span>
@@ -1253,7 +1253,7 @@ export default function GivingInbox() {
 
                     {/* Fund Account */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-ink-2">
+                      <label className="text-xs font-medium text-ink-2">
                         เข้ากองทุน <span className="text-rose-500">*</span>
                       </label>
                       <NativeSelect
@@ -1272,7 +1272,7 @@ export default function GivingInbox() {
 
                     {/* Amount */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-ink-2">
+                      <label className="text-xs font-medium text-ink-2">
                         ยอดเงิน (บาท) <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -1288,7 +1288,7 @@ export default function GivingInbox() {
                     {/* Category, or one transfer split over several categories */}
                     <div className="space-y-1.5 sm:col-span-2">
                       <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-bold text-ink-2">
+                        <label className="text-xs font-medium text-ink-2">
                           {editSplit
                             ? "แบ่งยอดตามประเภทการถวาย"
                             : "ประเภทการถวาย"}
@@ -1304,7 +1304,7 @@ export default function GivingInbox() {
                               }
                               setEditSplit(startSplit(editCategory, total));
                             }}
-                            className="min-h-11 px-2 text-[11px] font-bold text-brand underline underline-offset-2"
+                            className="min-h-11 px-2 text-[11px] font-medium text-brand underline underline-offset-2"
                           >
                             แบ่งเป็นหลายประเภท
                           </button>
@@ -1345,7 +1345,7 @@ export default function GivingInbox() {
 
                   {/* Notes */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-ink-2">
+                    <label className="text-xs font-medium text-ink-2">
                       หมายเหตุการตรวจสอบ
                     </label>
                     <input
@@ -1521,7 +1521,7 @@ export default function GivingInbox() {
 
             {/* Optional donor name */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-ink-2">
+              <label className="text-xs font-medium text-ink-2">
                 ชื่อผู้ถวาย (ระบุเพิ่มเติมหรือไม่ก็ได้)
               </label>
               <input
@@ -1587,7 +1587,7 @@ export default function GivingInbox() {
 
             {/* Webhook URL Box */}
             <div className="bg-paper border border-line p-3.5 rounded-2xl space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-ink-2">
+              <div className="flex items-center justify-between text-xs font-medium text-ink-2">
                 <span>Webhook URL สำหรับ LINE Developers</span>
                 <button
                   type="button"
@@ -1634,7 +1634,7 @@ export default function GivingInbox() {
                   setShowLineInfoModal(false);
                   setLocation("/giving/station");
                 }}
-                className="px-4 py-2.5 rounded-xl bg-surface border border-line text-ink-2 font-bold text-xs hover:bg-paper-2 flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-surface border border-line text-ink-2 font-medium text-xs hover:bg-paper-2 flex items-center gap-1.5 cursor-pointer"
               >
                 <QrCode className="w-4 h-4" />
                 <span>เปิดโปสเตอร์ป้าย QR ติดหน้าห้อง</span>
@@ -1675,7 +1675,7 @@ export default function GivingInbox() {
 
           {/* Quick Preset Reason Chips */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-ink-2 block">
+            <span className="text-xs font-medium text-ink-2 block">
               เลือกเหตุผลด่วน:
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -1706,7 +1706,7 @@ export default function GivingInbox() {
           <div className="space-y-1.5">
             <label
               htmlFor="reject-reason"
-              className="text-xs font-bold text-ink-2 block"
+              className="text-xs font-medium text-ink-2 block"
             >
               ระบุเหตุผล <span className="text-rose-500">*</span>
             </label>
@@ -1725,7 +1725,7 @@ export default function GivingInbox() {
               type="button"
               onClick={() => setShowRejectModal(false)}
               disabled={rejectMutation.isPending}
-              className="px-4 py-2 text-xs font-bold rounded-xl border border-field text-ink-2 hover:bg-paper transition-colors"
+              className="px-4 py-2 text-xs font-medium rounded-xl border border-field text-ink-2 hover:bg-paper transition-colors"
             >
               ยกเลิก
             </button>
@@ -1733,7 +1733,7 @@ export default function GivingInbox() {
               type="button"
               onClick={handleConfirmReject}
               disabled={rejectMutation.isPending || !rejectReason.trim()}
-              className="px-4 py-2 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-2 text-xs font-medium rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
               {rejectMutation.isPending ? (
                 <>

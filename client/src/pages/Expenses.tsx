@@ -155,7 +155,7 @@ export default function Expenses() {
       case "ministry":
         return { icon: Users, color: "bg-paper-2 text-danger" };
       case "pastoral":
-        return { icon: Cross, color: "bg-emerald-500/15 text-emerald-300" };
+        return { icon: Cross, color: "bg-income/15 text-income" };
       case "admin":
         return { icon: Receipt, color: "bg-paper text-ink-2" };
       case "building":
@@ -163,7 +163,7 @@ export default function Expenses() {
       case "worship":
         return { icon: GraduationCap, color: "bg-paper-2 text-brand-ink" };
       case "welfare":
-        return { icon: HeartHandshake, color: "bg-rose-500/15 text-rose-300" };
+        return { icon: HeartHandshake, color: "bg-danger/15 text-danger" };
       default:
         return { icon: Receipt, color: "bg-paper text-ink-2" };
     }
@@ -384,7 +384,7 @@ export default function Expenses() {
                                     title: e.description,
                                   })
                                 }
-                                className="inline-flex size-10 items-center justify-center rounded-lg text-income hover:bg-emerald-50"
+                                className="inline-flex size-10 items-center justify-center rounded-lg text-income hover:bg-income/10"
                                 title="ดูสลิป/ใบเสร็จ"
                                 aria-label={`ดูสลิปของ ${e.description}`}
                               >
@@ -468,7 +468,7 @@ export default function Expenses() {
                               title: e.description,
                             })
                           }
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-medium"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-income/10 text-income border border-income/30 text-xs font-medium"
                         >
                           <Paperclip className="w-3 h-3" />
                           <span>ดูสลิป</span>

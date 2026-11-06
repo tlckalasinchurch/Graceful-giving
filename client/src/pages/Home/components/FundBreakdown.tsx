@@ -1,14 +1,15 @@
 import { formatAmount } from "@/lib/format";
 import type { FundShare } from "../fundShares";
 
-// Distinct jewel tones for each church fund share
+// One accent, then neutral steps: the bar reads as a single object that is
+// divided, instead of six competing colours. Rows arrive largest first.
 const TONES = [
-  "bg-emerald-400",
-  "bg-amber-400",
-  "bg-sky-400",
-  "bg-rose-400",
-  "bg-violet-400",
-  "bg-teal-400",
+  "bg-brand",
+  "bg-paper/60",
+  "bg-paper/45",
+  "bg-paper/30",
+  "bg-paper/20",
+  "bg-paper/15",
 ];
 export const fundTone = (i: number) => TONES[i % TONES.length];
 
@@ -28,18 +29,18 @@ export function FundBreakdown({
 }: FundBreakdownProps) {
   if (rows.length === 0) return null;
   return (
-    <div className="relative space-y-3">
+    <div className="space-y-3">
       <div
         role="img"
         aria-label={`สัดส่วนเงินตามกองทุน ${rows
           .map(r => `${r.name} ${r.share}%`)
           .join(" ")}`}
-        className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full bg-black/20"
+        className="flex h-1.5 w-full gap-0.5 overflow-hidden rounded-full bg-paper/10"
       >
         {rows.map((r, i) => (
           <span
             key={r.key}
-            className={`h-full ${fundTone(i)} transition-all duration-300`}
+            className={`h-full ${fundTone(i)}`}
             style={{ width: `${Math.max(r.share, 2)}%` }}
           />
         ))}
@@ -53,15 +54,15 @@ export function FundBreakdown({
             >
               <span
                 aria-hidden="true"
-                className={`size-2.5 shrink-0 rounded-full ${fundTone(i)} shadow-xs`}
+                className={`size-1.5 shrink-0 rounded-full ${fundTone(i)}`}
               />
-              <span className="min-w-0 flex-1 truncate text-white/90 font-medium">
+              <span className="min-w-0 flex-1 truncate font-normal text-paper/70">
                 {r.name}
               </span>
-              <span className="money shrink-0 text-white font-semibold">
-                {hidden ? "••••" : `฿ ${formatAmount(r.balance, 0)}`}
+              <span className="money shrink-0 text-paper">
+                {hidden ? "••••" : `฿ ${formatAmount(r.balance, 0)}`}
               </span>
-              <span className="money w-10 shrink-0 text-right text-emerald-200/70 font-medium">
+              <span className="money w-10 shrink-0 text-right text-paper/40">
                 {r.share}%
               </span>
             </li>

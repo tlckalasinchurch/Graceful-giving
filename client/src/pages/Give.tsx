@@ -106,7 +106,7 @@ export default function Give() {
   return (
     <GiveShell>
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-extrabold">ถวายทรัพย์</h1>
+        <h1 className="text-2xl font-bold">ถวายทรัพย์</h1>
         <p className="text-sm text-ink-2">
           เข้าสู่ระบบด้วย LINE เพื่อเลือกรายการถวายและแนบสลิปโอนเงิน
         </p>

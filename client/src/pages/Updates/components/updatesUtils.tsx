@@ -155,7 +155,7 @@ export function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block text-xs font-bold text-ink-2">
+    <label className="block text-xs font-medium text-ink-2">
       {label}
       <span className="mt-1.5 block">{children}</span>
     </label>

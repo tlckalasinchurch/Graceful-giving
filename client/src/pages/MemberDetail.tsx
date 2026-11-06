@@ -155,7 +155,7 @@ export default function MemberDetail() {
                       update.mutate({ id, status: "active" });
                     }
                   }}
-                  className="min-h-11 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-300 disabled:opacity-50 cursor-pointer"
+                  className="min-h-11 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-medium text-emerald-300 disabled:opacity-50 cursor-pointer"
                 >
                   เปิดใช้งานอีกครั้ง
                 </button>
@@ -177,7 +177,7 @@ export default function MemberDetail() {
                       deactivate.mutate({ id });
                     }
                   }}
-                  className="min-h-11 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-300 disabled:opacity-50 cursor-pointer"
+                  className="min-h-11 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-300 disabled:opacity-50 cursor-pointer"
                 >
                   ปิดใช้งาน
                 </button>

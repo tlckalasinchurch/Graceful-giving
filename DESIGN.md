@@ -20,7 +20,7 @@ colors:
 typography:
   display:
     fontFamily: "Plus Jakarta Sans, Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
-    fontWeight: 800
+    fontWeight: 700
     lineHeight: 1.15
     letterSpacing: "-0.025em"
   body:
@@ -38,12 +38,12 @@ typography:
     fontWeight: 600
     letterSpacing: "0.02em"
 rounded:
-  sm: "6px"
-  md: "8px"
-  lg: "12px"
-  xl: "14px"
-  2xl: "16px"
-  3xl: "20px"
+  sm: "4px"
+  md: "6px"
+  lg: "8px"
+  xl: "10px"
+  2xl: "12px"
+  3xl: "16px"
 spacing:
   xs: "8px"
   sm: "12px"
@@ -105,7 +105,7 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach`) so old clas
 ## Typography
 
 - **Stacks:** Latin/digits `"Plus Jakarta Sans" → "Manrope"`, Thai `"IBM Plex Sans Thai"`, signature simulation `"Caveat"`. Never ship a Thai UI string in only the Latin fonts.
-- **Display:** `.display` utility — weight 800, line-height 1.15, tracking −0.025em (floor −0.04em), lining numerals.
+- **Display:** `.display` utility — weight 700, line-height 1.1, tracking −0.03em (floor −0.04em), lining numerals. `.figure` is the same treatment for money: weight 600, tracking −0.035em, tabular figures.
 - **Body: 15px / 1.6** (set on `body`, not per-component).
 - **Numbers:** amounts use `.money` (`tabular-nums` + −0.02em) so columns settle without jitter.
 - **Labels:** minimum readable text size is 12px (`text-xs`). Avoid arbitrary sub-12px micro-text (`text-[10px]`, `text-[11px]`) on financial ledger interfaces.
@@ -130,12 +130,13 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach`) so old clas
 
 ## Shapes
 
-Radius scale in `index.css`: 6 / 8 / 12 / 14 / 16 / 20px (`sm`–`3xl`). Convention:
+Radius scale in `index.css`: 4 / 6 / 8 / 10 / 12 / 16px (`sm`–`3xl`). Corners are deliberately tight — a large radius reads as decoration, and a ledger wants a clean edge. Convention:
 
-- **Cards & sheets: 16–20px** (`rounded-2xl`, `rounded-3xl`).
-- **Controls (buttons, inputs, chips): 8–14px** (`rounded-xl`/`2xl`).
-- **Pills (`rounded-full`) only for small status chips, badges, and nav indicators — never as card radius.**
-- Dialogs: `rounded-2xl` with a `border-line` ring, opaque `bg-surface`.
+- **Cards & sheets: 12–16px** (`rounded-2xl`, `rounded-3xl`).
+- **Controls (buttons, inputs, chips): 8–12px** (`rounded-lg`/`xl`).
+- **`rounded-full` only for status/legend dots and the nav indicator — never as a card radius.**
+- **No one-off `rounded-[28px]` values.** They break the scale and instantly read as generated UI.
+- Dialogs: `rounded-2xl` with a `border-line` ring, opaque `bg-surface`, no shadow.
 
 ## Components
 
@@ -145,6 +146,32 @@ Radius scale in `index.css`: 6 / 8 / 12 / 14 / 16 / 20px (`sm`–`3xl`). Convent
 - **Toasts:** Sonner, `position="top-center"` `richColors` — errors speak Thai and name the recovery.
 - **Icons:** Lucide, single stroke weight (`size-5`/`size-[18px]`), `aria-hidden` when decorative; interactive icon buttons carry Thai `aria-label`s.
 - **Print kit:** `station-giving-kit.tsx` renders opaque, `[print-color-adjust:exact]`, poster-safe.
+
+## Removing the "generated dashboard" look
+
+The app has drifted into the generic AI-dashboard register twice, so the tells are worth
+naming. In rough order of how much credibility each one costs:
+
+1. **Gradient and glow surfaces.** Colour gradients on cards, blurred radial halos behind them,
+   dark-emerald "balance" cards with `bg-white/10` glass bits. Flat surfaces only; hierarchy
+   comes from ink, hairline rules and type size.
+2. **Rainbow semantics.** Five pastel tile colours (emerald / amber / sky / rose / violet) for
+   things that are not different states. One accent (brand coral) plus `income` / `danger` for
+   money direction; everything else is `ink`, `ink-2`, `ink-3`.
+3. **A pill around everything.** Kicker labels in chips, icon tiles inside buttons, status pills
+   in five colours. Labels are text; on a status badge the dot carries the state.
+4. **Uniform 16–20px radius plus drop shadows.** Makes every surface the same bubbly card. Tight
+   corners, hairline borders, `box-shadow: none` at rest.
+5. **Weight inflation.** `font-bold`/`font-extrabold` on every label, button and figure.
+   Body 400, labels 500, headings 600–700, figures 600 with tight tracking.
+6. **Decorative micro-motion.** `animate-pulse` dots, `hover:scale`, `active:scale-95`,
+   `group-hover:scale-105` on icons. Motion is for state feedback (colour, underline) plus one
+   authored entrance per page.
+7. **Emoji used as icons.** Never. Lucide, one stroke weight, one colour.
+8. **Centred card stacks with an icon above the title.** Left-align; let the figure or the label
+   be the anchor.
+
+A page passes when you can delete the colour and the layout still explains the hierarchy.
 
 ## Do's and Don'ts
 

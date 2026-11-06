@@ -284,7 +284,7 @@ export function BankRecordsTab({
                       type="button"
                       onClick={() => void handleMatchPassbook(record)}
                       disabled={matchPassbook.isPending}
-                      className="min-h-11 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-income hover:bg-emerald-100 disabled:opacity-50"
+                      className="min-h-11 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-income hover:bg-emerald-100 disabled:opacity-50"
                     >
                       กระทบสมุด
                     </button>

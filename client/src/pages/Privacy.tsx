@@ -20,7 +20,7 @@ export default function Privacy() {
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-2 text-xs font-bold text-ink hover:bg-paper-2 transition-colors"
+              className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-2 text-xs font-medium text-ink hover:bg-paper-2 transition-colors"
             >
               <ArrowLeft className="size-4" />
               ย้อนกลับ
@@ -39,7 +39,7 @@ export default function Privacy() {
         </div>
 
         <header className="space-y-3 border-b border-line pb-6">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink">
+          <h1 className="text-2xl sm:text-3xl font-bold text-ink">
             นโยบายความเป็นส่วนตัวและการคุ้มครองข้อมูลส่วนบุคคล (PDPA)
           </h1>
           <p className="text-sm text-ink-2 leading-relaxed">

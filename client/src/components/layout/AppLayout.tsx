@@ -82,7 +82,7 @@ function MobileTab({
     >
       <span
         className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
-          active ? "bg-[#080808] text-brand" : ""
+          active ? "bg-ink text-brand" : ""
         }`}
       >
         <Icon className="size-5" />
@@ -116,7 +116,7 @@ function SidebarLink({
       aria-current={active ? "page" : undefined}
       className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
         active
-          ? "bg-[#080808] font-semibold text-white shadow-xs"
+          ? "bg-ink font-semibold text-paper"
           : "font-medium text-ink-2 hover:bg-paper hover:text-ink"
       }`}
     >
@@ -348,7 +348,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
                 <Plus className="size-5 stroke-[2.5]" />
               </span>
-              <span className="text-xs font-bold leading-none text-ink">
+              <span className="text-xs font-medium leading-none text-ink">
                 ถวาย
               </span>
             </button>

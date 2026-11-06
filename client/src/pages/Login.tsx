@@ -53,11 +53,11 @@ export default function Login() {
           <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
             <Sprout className="size-5" aria-hidden="true" />
           </span>
-          <span className="display text-xl font-black">Grace Ledger</span>
+          <span className="display text-xl font-bold">Grace Ledger</span>
         </div>
         <figure className="max-w-md space-y-6">
           <p className="text-xs font-semibold text-ink-3">2 โครินธ์ 9:7</p>
-          <blockquote className="display text-4xl font-black leading-tight xl:text-6xl">
+          <blockquote className="display text-4xl font-bold leading-tight xl:text-6xl">
             “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
           </blockquote>
         </figure>
@@ -73,12 +73,12 @@ export default function Login() {
               <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
                 <Sprout className="size-5" aria-hidden="true" />
               </span>
-              <span className="display text-xl font-black text-ink">
+              <span className="display text-xl font-bold text-ink">
                 Grace Ledger
               </span>
             </div>
             <p className="text-xs font-semibold text-ink-3">Sign in</p>
-            <h1 className="display text-5xl font-black text-ink">
+            <h1 className="display text-5xl font-bold text-ink">
               เข้าสู่ระบบ
             </h1>
             <p className="text-sm text-ink-2">
@@ -88,7 +88,7 @@ export default function Login() {
 
           {state === "pending" || state === "disabled" ? (
             <div className="space-y-4 rounded-[28px] border border-line bg-surface p-6">
-              <p className="display text-xl font-black text-ink">
+              <p className="display text-xl font-bold text-ink">
                 {state === "pending"
                   ? "รอผู้ดูแลระบบอนุมัติ"
                   : "บัญชีนี้ถูกปิดการใช้งาน"}
@@ -110,7 +110,7 @@ export default function Login() {
             <div className="space-y-4">
               <a
                 href="/api/auth/line/login"
-                className="py-2 px-3 rounded-xl bg-line-brand hover:bg-line-brand/80 text-black font-bold text-xs"
+                className="py-2 px-3 rounded-xl bg-line-brand hover:bg-line-brand/80 text-black font-medium text-xs"
               >
                 <LineMark />
                 เข้าสู่ระบบด้วย LINE

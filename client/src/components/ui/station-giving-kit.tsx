@@ -36,11 +36,11 @@ export function StationCubeLogo({
       )}
     >
       <div className="text-center pt-1">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-white font-display">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-none text-white font-display">
           {brandTitle}
         </h1>
         {subtitle && (
-          <p className="mt-2 text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-stone-300 uppercase">
+          <p className="mt-2 text-[10px] sm:text-[11px] font-medium tracking-[0.22em] text-stone-300 uppercase">
             {subtitle}
           </p>
         )}
@@ -79,18 +79,18 @@ export function StationProfileCard({
             className="w-12 h-12 rounded-full object-cover border border-white/20 shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F97316] to-[#B45309] text-white font-extrabold text-lg flex items-center justify-center border border-white/20 shrink-0">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F97316] to-[#B45309] text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0">
             {userName.trim().slice(0, 1).toUpperCase() || "G"}
           </div>
         )}
-        <span className="text-lg font-extrabold text-white truncate">
+        <span className="text-lg font-bold text-white truncate">
           {userName}
         </span>
       </div>
 
       <div className="text-right shrink-0">
         <div className="text-xs font-medium text-stone-400">{metricLabel}</div>
-        <div className="text-base sm:text-xl font-extrabold text-white tabular-nums">
+        <div className="text-base sm:text-xl font-bold text-white tabular-nums">
           {metricValue}
         </div>
       </div>
@@ -169,7 +169,7 @@ export function StationHeroCTA({
     <div className={cn("space-y-3 pt-1", className)}>
       <div className="space-y-0.5">
         <div className="text-sm font-bold text-[#FB923C]">{eyebrow}</div>
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
           {headline}
         </h3>
       </div>
@@ -237,7 +237,7 @@ export function StationHeroCTA({
           </div>
 
           <div className="min-w-0">
-            <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+            <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
               {buttonTitle}
             </div>
             <div className="text-sm font-bold text-white/90 mt-0.5">
@@ -431,7 +431,7 @@ export function StationOfferingPackageCard({
       )}
     >
       <div className="space-y-1">
-        <h4 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+        <h4 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
           {title}
         </h4>
         <p className="text-sm sm:text-base font-medium text-ink-2">
@@ -448,7 +448,7 @@ export function StationOfferingPackageCard({
               onClick={() => onSelectAmount(preset)}
               aria-pressed={amountThb === preset}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
+                "px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
                 amountThb === preset
                   ? "bg-paper-2 border-ink/20 text-ink"
                   : "bg-surface border-line text-ink-2 hover:bg-paper hover:text-ink"
@@ -460,7 +460,7 @@ export function StationOfferingPackageCard({
         </div>
       )}
 
-      <div className="text-3xl sm:text-4xl font-extrabold text-ink tabular-nums">
+      <div className="text-3xl sm:text-4xl font-bold text-ink tabular-nums">
         {amountThb.toLocaleString()} THB
       </div>
 
@@ -692,7 +692,7 @@ export function StationQrPoster({
             />
           </svg>
 
-          <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-none mt-1">
+          <div className="text-4xl sm:text-5xl font-bold tracking-tight leading-none mt-1">
             <span className="text-white">{brandPrefix}</span>
             <span className="text-[#22C55E]">{brandHighlight}</span>
           </div>
@@ -746,7 +746,7 @@ export function StationQrPoster({
                   <div
                     role="img"
                     aria-label="ยังไม่ได้ตั้งค่า QR Code"
-                    className="w-full h-full flex items-center justify-center rounded-lg border-2 border-dashed border-stone-400 p-3 text-center text-xs font-bold text-ink-3"
+                    className="w-full h-full flex items-center justify-center rounded-lg border-2 border-dashed border-stone-400 p-3 text-center text-xs font-medium text-ink-3"
                   >
                     ยังไม่ได้ตั้งค่าลิงก์ QR Code
                   </div>
@@ -760,7 +760,7 @@ export function StationQrPoster({
                 {/* Center Badge */}
                 {qrCenterBadge && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="px-1.5 py-0.5 bg-white font-black text-[11px] tracking-tight text-black border border-black rounded-xs">
+                    <span className="px-1.5 py-0.5 bg-white font-medium text-[11px] tracking-tight text-black border border-black rounded-xs">
                       {qrCenterBadge}
                     </span>
                   </div>
@@ -769,7 +769,7 @@ export function StationQrPoster({
             )}
 
             {qrCaption && (
-              <div className="text-[11px] font-bold tracking-wider text-black uppercase">
+              <div className="text-[11px] font-medium tracking-wider text-black uppercase">
                 {qrCaption}
               </div>
             )}
@@ -786,10 +786,10 @@ export function StationQrPoster({
                     {renderStepIcon(step.icon)}
                   </div>
                   <div className="flex flex-col items-center gap-1 sm:flex-row">
-                    <span className="w-4 h-4 rounded-full bg-[#22C55E] text-[#080808] font-extrabold text-[10px] flex items-center justify-center shrink-0">
+                    <span className="w-4 h-4 rounded-full bg-[#22C55E] text-[#080808] font-medium text-[10px] flex items-center justify-center shrink-0">
                       {step.number}
                     </span>
-                    <span className="text-center text-[11px] leading-tight sm:text-xs font-bold text-white break-words">
+                    <span className="text-center text-[11px] leading-tight sm:text-xs font-medium text-white break-words">
                       {step.label}
                     </span>
                   </div>

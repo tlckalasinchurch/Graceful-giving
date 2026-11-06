@@ -34,13 +34,13 @@ export function BudgetSection({
     <section
       aria-label="แผนการใช้จ่ายงบประมาณ"
       aria-busy={isLoading}
-      className="h-full bg-surface rounded-3xl border border-line p-5 sm:p-6 space-y-4 w-full shadow-xs"
+      className="h-full w-full space-y-4 rounded-2xl border border-line bg-surface p-5 sm:p-6"
     >
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-bold text-ink">แผนการใช้จ่าย</h2>
         <button
           onClick={onOpenBudgets}
-          className="min-h-11 px-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="min-h-11 text-xs font-medium text-ink-2 underline decoration-line underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/40 focus-visible:ring-2 focus-visible:ring-brand"
         >
           ดูงบประมาณ
         </button>
