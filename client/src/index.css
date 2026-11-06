@@ -106,7 +106,7 @@
 }
 
 :root {
-  --mobile-nav-clearance: 5.5rem;
+  --mobile-nav-clearance: 7rem;
   --content-max: 88rem;
 
   --primary: #f95c4b;

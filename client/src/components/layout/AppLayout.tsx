@@ -277,7 +277,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </aside>
 
         {/* Main Content Column */}
-        <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-12 min-w-0">
+        <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] sm:pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-12 min-w-0">
           <header
             className={`flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 ${
               title ? "border-b border-line/80 pb-5 sm:pb-6" : ""
