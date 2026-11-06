@@ -34,13 +34,13 @@ export function BudgetSection({
     <section
       aria-label="แผนการใช้จ่ายงบประมาณ"
       aria-busy={isLoading}
-      className="h-full bg-surface rounded-3xl border border-line p-5 sm:p-6 space-y-4 w-full"
+      className="h-full bg-surface rounded-3xl border border-line p-5 sm:p-6 space-y-4 w-full shadow-xs"
     >
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-bold text-ink">แผนการใช้จ่าย</h2>
         <button
           onClick={onOpenBudgets}
-          className="min-h-11 px-2 text-sm font-semibold text-brand-ink hover:underline focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-11 px-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline focus-visible:ring-2 focus-visible:ring-emerald-500"
         >
           ดูงบประมาณ
         </button>
@@ -91,7 +91,6 @@ export function BudgetSection({
                 </p>
               </div>
               <BudgetProgress
-                quiet
                 planned={plan.plannedAmount}
                 actual={plan.actualAmount}
               />
