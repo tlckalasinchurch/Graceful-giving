@@ -454,6 +454,18 @@ export default function NewExpense() {
                     {errors.fundId}
                   </p>
                 )}
+                {funds.length === 0 && !fundsQuery.isLoading && (
+                  <p className="text-xs text-danger mt-1">
+                    ยังไม่มีกองทุนในระบบ{" "}
+                    <button
+                      type="button"
+                      onClick={() => setLocation("/funds")}
+                      className="underline font-bold hover:text-ink cursor-pointer ml-1"
+                    >
+                      ไปหน้าจัดการกองทุนเพื่อเพิ่มกองทุน
+                    </button>
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">

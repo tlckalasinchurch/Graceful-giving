@@ -169,9 +169,9 @@ export default function NewOffering() {
         {funds.length === 0 && !fundsQuery.isLoading ? (
           <EmptyState
             title="ยังไม่มีกองทุนในระบบ"
-            description="ต้องตั้งค่ากองทุนก่อนบันทึกการถวาย โปรดไปที่หน้าตั้งค่าเพื่อเพิ่มกองทุน"
-            actionText="ไปหน้าตั้งค่า"
-            onAction={() => setLocation("/settings")}
+            description="ต้องมีบัญชีกองทุนอย่างน้อย 1 กองทุนก่อนบันทึกการถวาย เช่น กองทุนทั่วไป เพื่อจัดสรรยอดเงินเข้าสู่กองทุนอย่างถูกต้อง"
+            actionText="ไปหน้าจัดการกองทุน"
+            onAction={() => setLocation("/funds")}
           />
         ) : (
           /* Main Step Form Card */
