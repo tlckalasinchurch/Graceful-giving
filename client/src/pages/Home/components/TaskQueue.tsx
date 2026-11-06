@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { CheckCircle2, ChevronRight } from "lucide-react";
 import type { TaskItem } from "../taskQueue";
 
 interface TaskQueueProps {
@@ -13,7 +13,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
       <div
         aria-busy="true"
         aria-label="กำลังโหลดงานที่ต้องดำเนินการ"
-        className="h-[72px] rounded-3xl border border-line bg-surface animate-pulse"
+        className="h-14 rounded-2xl border border-line bg-surface animate-pulse"
       />
     );
   }
@@ -22,11 +22,17 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
     return (
       <div
         role="status"
-        className="rounded-3xl border border-line bg-surface px-5 py-4"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-line/80 bg-surface px-4 py-3 sm:px-5 shadow-xs"
       >
-        <p className="text-sm font-bold text-ink">
-          ไม่มีงานค้างที่ต้องดำเนินการ
-        </p>
+        <div className="flex items-center gap-2.5">
+          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-income/10 text-income">
+            <CheckCircle2 className="size-4" aria-hidden="true" />
+          </span>
+          <p className="text-xs sm:text-sm font-semibold text-ink">
+            ไม่มีงานค้างที่ต้องดำเนินการ
+          </p>
+        </div>
+        <span className="text-xs font-medium text-ink-3">สถานะเรียบร้อย</span>
       </div>
     );
   }
@@ -36,13 +42,17 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
   return (
     <section
       aria-label="รายการที่ต้องดำเนินการ"
-      className="rounded-3xl border border-line bg-surface p-3 sm:p-4"
+      className="rounded-3xl border border-line bg-surface p-4 sm:p-5 shadow-xs"
     >
-      <div className="flex items-center justify-between px-3 pb-2 pt-1">
-        <h2 className="text-base font-bold text-ink">งานที่ต้องดำเนินการ</h2>
-        <span className="money text-sm text-ink-2">รวม {total} รายการ</span>
+      <div className="flex items-center justify-between px-2 pb-3 pt-1 border-b border-line/60">
+        <h2 className="text-sm sm:text-base font-bold text-ink">
+          งานที่ต้องดำเนินการ
+        </h2>
+        <span className="money text-xs sm:text-sm font-semibold text-brand-ink">
+          รวม {total} รายการ
+        </span>
       </div>
-      <ul className="divide-y divide-line/60">
+      <ul className="divide-y divide-line/60 pt-1">
         {items.map(item => {
           return (
             <li key={item.kind}>
@@ -50,19 +60,19 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
                 type="button"
                 onClick={() => onOpen(item.href)}
                 aria-label={`${item.title} ${item.count} รายการ`}
-                className="w-full min-h-14 flex items-center gap-3.5 rounded-2xl px-3 py-3 text-left hover:bg-paper transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+                className="w-full min-h-12 flex items-center gap-3.5 rounded-xl px-2.5 py-2.5 text-left hover:bg-paper transition-colors focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm sm:text-base font-bold text-ink">
+                  <span className="block text-sm font-bold text-ink">
                     {item.title}
                   </span>
-                  <span className="hidden truncate text-xs text-ink-2 sm:block sm:text-sm">
+                  <span className="hidden truncate text-xs text-ink-2 sm:block">
                     {item.description}
                   </span>
                 </span>
                 <span
                   aria-hidden="true"
-                  className="money w-8 shrink-0 text-right text-lg font-semibold text-brand-ink"
+                  className="money flex size-7 shrink-0 items-center justify-center rounded-full bg-brand/10 text-xs font-bold text-brand-ink"
                 >
                   {item.count}
                 </span>

@@ -7,8 +7,6 @@ interface PrimaryActionsProps {
   onNewExpense: () => void;
 }
 
-/** Recording an offering is the page's one primary action, so it is the only
- *  solid button; recording an expense is secondary. */
 export function PrimaryActions({
   canRecordOffering,
   canRecordExpense,
@@ -19,15 +17,17 @@ export function PrimaryActions({
 
   return (
     <div
-      className={`grid gap-3 w-full ${canRecordOffering && canRecordExpense ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}
+      className={`grid gap-2.5 sm:gap-3 w-full ${canRecordOffering && canRecordExpense ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}
     >
       {canRecordOffering && (
         <button
           onClick={onNewOffering}
-          className="flex min-h-12 items-center justify-center gap-2.5 rounded-2xl bg-brand px-5 text-base font-bold text-black hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          className="group flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl bg-brand px-5 text-sm sm:text-base font-bold text-black hover:bg-brand-ink transition-all shadow-xs active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
           aria-label="บันทึกการถวาย"
         >
-          <HandCoins className="size-5" aria-hidden="true" />
+          <span className="flex size-7 items-center justify-center rounded-xl bg-black/10 text-black">
+            <HandCoins className="size-4.5" aria-hidden="true" />
+          </span>
           <span>บันทึกการถวาย</span>
         </button>
       )}
@@ -35,10 +35,12 @@ export function PrimaryActions({
       {canRecordExpense && (
         <button
           onClick={onNewExpense}
-          className="flex min-h-12 items-center justify-center gap-2.5 rounded-2xl border border-line bg-surface px-5 text-base font-bold text-ink hover:bg-paper-2 transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+          className="group flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl border border-line bg-surface px-5 text-sm sm:text-base font-bold text-ink hover:bg-paper-2 transition-all shadow-xs active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand"
           aria-label="บันทึกรายจ่าย"
         >
-          <ReceiptText className="size-5 text-ink-3" aria-hidden="true" />
+          <span className="flex size-7 items-center justify-center rounded-xl bg-paper-2 text-ink-2">
+            <ReceiptText className="size-4.5" aria-hidden="true" />
+          </span>
           <span>บันทึกรายจ่าย</span>
         </button>
       )}

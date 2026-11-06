@@ -27,7 +27,7 @@ export function RecentTransactions({
   return (
     <section
       aria-label="รายการธุรกรรมล่าสุด"
-      className="h-full rounded-3xl border border-line bg-surface p-5 sm:p-6 w-full flex flex-col justify-between"
+      className="h-full rounded-3xl border border-line bg-surface p-5 sm:p-6 w-full flex flex-col justify-between shadow-xs"
     >
       <div>
         <div className="flex items-center justify-between pb-3">
@@ -63,7 +63,7 @@ export function RecentTransactions({
                       <div
                         className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ${
                           isIncome
-                            ? "bg-brand/10 text-brand"
+                            ? "bg-income/10 text-income"
                             : "bg-paper-2 text-ink-2"
                         }`}
                       >

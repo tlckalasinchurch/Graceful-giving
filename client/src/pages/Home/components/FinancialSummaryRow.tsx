@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { formatAmount } from "@/lib/format";
 import { HandCoins, ReceiptText, TrendingUp, TrendingDown } from "lucide-react";
 
@@ -26,34 +25,34 @@ export function FinancialSummaryRow({
   return (
     <section aria-label="สรุปตัวเลขการเงินรายเดือน" className="w-full">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {/* Card 1: Signature Coral Card (Finexy Style) — Dark text for WCAG AA compliance (6.66:1 contrast) */}
-        <div className="flex flex-col justify-between rounded-3xl bg-brand p-5 sm:p-6 text-black shadow-xs">
+        {/* Card 1: Monthly Income */}
+        <div className="flex flex-col justify-between rounded-3xl border border-line bg-surface p-5 sm:p-6 text-ink shadow-xs">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs sm:text-sm font-bold text-black/90">
+            <span className="text-xs sm:text-sm font-bold text-ink-2">
               รายรับเดือนนี้
             </span>
-            <span className="flex size-9 items-center justify-center rounded-xl bg-black/10 text-black backdrop-blur-xs">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-income/10 text-income">
               <HandCoins className="size-4.5" aria-hidden="true" />
             </span>
           </div>
           <div className="mt-4 sm:mt-6">
             {isBalanceLoading ? (
-              <div className="h-8 w-28 rounded-xl bg-black/10 animate-pulse" />
+              <div className="h-8 w-28 rounded-xl bg-paper-2 animate-pulse" />
             ) : (
-              <p className="display money text-2xl sm:text-3xl font-bold leading-tight text-black">
+              <p className="display money text-2xl sm:text-3xl font-bold leading-tight text-income">
                 {showBalance && monthlyIncome !== undefined
                   ? `+฿ ${formatAmount(Math.abs(monthlyIncome), 0)}`
                   : "—"}
               </p>
             )}
-            <p className="mt-1.5 text-xs font-medium text-black/80">
+            <p className="mt-1.5 text-xs font-medium text-ink-3">
               {incomeNote || "ยอดเงินถวายทั้งหมด"}
             </p>
           </div>
         </div>
 
-        {/* Card 2: Crisp White Card - Expenses */}
-        <div className="flex flex-col justify-between rounded-3xl border border-line bg-surface p-5 sm:p-6 text-ink">
+        {/* Card 2: Monthly Expenses */}
+        <div className="flex flex-col justify-between rounded-3xl border border-line bg-surface p-5 sm:p-6 text-ink shadow-xs">
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs sm:text-sm font-bold text-ink-2">
               รายจ่ายเดือนนี้
@@ -78,8 +77,8 @@ export function FinancialSummaryRow({
           </div>
         </div>
 
-        {/* Card 3: Crisp White Card - Net */}
-        <div className="flex flex-col justify-between rounded-3xl border border-line bg-surface p-5 sm:p-6 text-ink">
+        {/* Card 3: Monthly Net */}
+        <div className="flex flex-col justify-between rounded-3xl border border-line bg-surface p-5 sm:p-6 text-ink shadow-xs">
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs sm:text-sm font-bold text-ink-2">
               คงเหลือสุทธิเดือนนี้
