@@ -57,14 +57,14 @@ export function RecentTransactions({
                 <li key={tx.id}>
                   <Link
                     href={`/transactions/${tx.id}`}
-                    className="flex min-h-16 items-center justify-between gap-3.5 rounded-2xl px-2 py-3 hover:bg-paper-2/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                    className="flex min-h-16 items-center justify-between gap-3.5 rounded-2xl px-2.5 py-3 hover:bg-paper-2/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <div
-                        className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ${
+                        className={`flex size-10 shrink-0 items-center justify-center rounded-2xl shadow-2xs ${
                           isIncome
-                            ? "bg-income/10 text-income"
-                            : "bg-paper-2 text-ink-2"
+                            ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60"
+                            : "bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/50"
                         }`}
                       >
                         {isIncome ? (
@@ -89,7 +89,7 @@ export function RecentTransactions({
                       amount={tx.amount}
                       type={tx.type}
                       size="base"
-                      className="shrink-0"
+                      className="shrink-0 font-bold"
                     />
                   </Link>
                 </li>

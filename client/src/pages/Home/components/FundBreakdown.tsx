@@ -1,10 +1,16 @@
 import { formatAmount } from "@/lib/format";
 import type { FundShare } from "../fundShares";
 
-// The largest fund takes the brand colour; the rest step down in lightness.
-// One hue only, so the bar reads as one thing split into parts.
-const TONES = ["bg-brand", "bg-white/70", "bg-white/45", "bg-white/25"];
-export const fundTone = (i: number) => TONES[Math.min(i, TONES.length - 1)];
+// Distinct jewel tones for each church fund share
+const TONES = [
+  "bg-emerald-400",
+  "bg-amber-400",
+  "bg-sky-400",
+  "bg-rose-400",
+  "bg-violet-400",
+  "bg-teal-400",
+];
+export const fundTone = (i: number) => TONES[i % TONES.length];
 
 interface FundBreakdownProps {
   rows: FundShare[];
@@ -28,12 +34,12 @@ export function FundBreakdown({
         aria-label={`สัดส่วนเงินตามกองทุน ${rows
           .map(r => `${r.name} ${r.share}%`)
           .join(" ")}`}
-        className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full"
+        className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full bg-black/20"
       >
         {rows.map((r, i) => (
           <span
             key={r.key}
-            className={`h-full ${fundTone(i)}`}
+            className={`h-full ${fundTone(i)} transition-all duration-300`}
             style={{ width: `${Math.max(r.share, 2)}%` }}
           />
         ))}
@@ -47,15 +53,15 @@ export function FundBreakdown({
             >
               <span
                 aria-hidden="true"
-                className={`size-2 shrink-0 rounded-full ${fundTone(i)}`}
+                className={`size-2.5 shrink-0 rounded-full ${fundTone(i)} shadow-xs`}
               />
-              <span className="min-w-0 flex-1 truncate text-white/80">
+              <span className="min-w-0 flex-1 truncate text-white/90 font-medium">
                 {r.name}
               </span>
-              <span className="money shrink-0 text-white/90">
+              <span className="money shrink-0 text-white font-semibold">
                 {hidden ? "••••" : `฿ ${formatAmount(r.balance, 0)}`}
               </span>
-              <span className="money w-10 shrink-0 text-right text-white/50">
+              <span className="money w-10 shrink-0 text-right text-emerald-200/70 font-medium">
                 {r.share}%
               </span>
             </li>
