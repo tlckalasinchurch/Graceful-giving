@@ -55,7 +55,6 @@ import {
   RotateCcw,
   Smartphone,
   Loader2,
-  Sparkles,
   UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -701,7 +700,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {/* ── Mode Switcher Bar (Hidden when printing poster) ── */}
       <div
         className={`rounded-2xl p-1.5 border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden ${
-          stationOnly ? "bg-white/5 border-white/10" : "bg-surface border-line shadow-2xs"
+          stationOnly
+            ? "bg-white/5 border-white/10"
+            : "bg-surface border-line shadow-2xs"
         }`}
       >
         {!stationOnly && (
@@ -813,7 +814,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
                 {/* Station Breadcrumb */}
                 <div className="text-xs sm:text-sm font-extrabold tracking-[0.2em] text-stone-300 uppercase text-center sm:text-left">
-                  GRACEBOX STATION <span className="text-stone-500 mx-1">/</span>{" "}
+                  GRACEBOX STATION{" "}
+                  <span className="text-stone-500 mx-1">/</span>{" "}
                   {churchQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์"}
                 </div>
 

@@ -68,7 +68,7 @@ export default function Give() {
           finished = true;
           setLiffTrying(false);
         }
-      }, 8000);
+      }, 3500);
       const result = await signInWithLiff(liffId);
       if (finished) return;
       finished = true;

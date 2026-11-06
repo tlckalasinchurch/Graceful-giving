@@ -490,10 +490,10 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`flex-1 py-2.5 rounded-2xl text-white font-bold text-xs button-elevation transition-all ${
+            className={`flex-1 py-2.5 rounded-2xl font-bold text-xs button-elevation transition-all ${
               variant === "danger"
-                ? "bg-danger hover:opacity-90"
-                : "bg-brand hover:bg-brand-ink"
+                ? "bg-danger hover:opacity-90 text-white"
+                : "bg-brand hover:bg-brand-ink text-black"
             }`}
           >
             {isLoading ? "กำลังดำเนินการ..." : confirmText}

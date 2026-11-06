@@ -23,7 +23,6 @@ import {
   Check,
   ChevronRight,
   ShieldAlert,
-  Sparkles,
   Link2,
   UploadCloud,
   QrCode,

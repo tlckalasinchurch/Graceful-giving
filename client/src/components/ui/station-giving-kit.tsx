@@ -10,7 +10,6 @@ import {
   QrCode,
   RotateCcw,
   Smartphone,
-  Sparkles,
   UploadCloud,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -31,7 +30,10 @@ export function StationCubeLogo({
 }) {
   return (
     <div
-      className={cn("inline-flex flex-col items-center select-none text-center", className)}
+      className={cn(
+        "inline-flex flex-col items-center select-none text-center",
+        className
+      )}
     >
       <div className="text-center pt-1">
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-white font-display">
@@ -129,7 +131,7 @@ export function StationStatusCard({
             className={cn(
               "w-2.5 h-2.5 rounded-full",
               isAvailable
-                ? "bg-[#22C55E] shadow-[0_0_8px_#22C55E]"
+                ? "bg-[#22C55E] ring-2 ring-[#22C55E]/30"
                 : "bg-amber-500"
             )}
           />
@@ -581,11 +583,15 @@ export function StationQrPoster({
       case "scan":
         return <Smartphone className="w-6 h-6 text-[#080808] stroke-[2.2]" />;
       case "select":
-        return <CalendarCheck2 className="w-6 h-6 text-[#080808] stroke-[2.2]" />;
+        return (
+          <CalendarCheck2 className="w-6 h-6 text-[#080808] stroke-[2.2]" />
+        );
       case "pay":
         return <CreditCard className="w-6 h-6 text-[#080808] stroke-[2.2]" />;
       case "done":
-        return <Play className="w-6 h-6 text-[#080808] fill-[#080808] ml-0.5" />;
+        return (
+          <Play className="w-6 h-6 text-[#080808] fill-[#080808] ml-0.5" />
+        );
     }
   };
 
