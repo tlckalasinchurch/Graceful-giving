@@ -114,7 +114,7 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach`) so old clas
 ## Layout
 
 - Max content width `--content-max: 88rem`; full-width pages pad `px-4 sm:px-6`.
-- Mobile bottom nav reserves `--mobile-nav-clearance: 5.5rem` — content must not hide behind it.
+- Mobile bottom nav reserves `--mobile-nav-clearance: 7rem` — content must not hide behind it.
 - Viewports: use `min-h-dvh` and `env(safe-area-inset-*)` (never `100vh`); `html` sets `viewport-fit=cover` and `text-size-adjust: 100%`.
 - Data tables get `overflow-x-auto` (or a `hidden md:block` table + card fallback on mobile, as in `Transactions`/`Expenses`).
 - Tab strips and chip rows scroll horizontally (`overflow-x-auto no-scrollbar`), with `touch-pan-x` where the strip could fight vertical scroll.
