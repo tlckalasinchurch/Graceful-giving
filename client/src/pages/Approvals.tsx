@@ -181,7 +181,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-all active:scale-[0.97]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-all "
         >
           <Banknote className="size-4" />
           ยื่นคำขอเบิกเงิน
@@ -291,7 +291,7 @@ export default function Approvals() {
                         <span className="text-xs font-mono font-bold text-ink-2 bg-paper px-3 py-1 rounded-full border border-line/70">
                           {`REQ-${new Date(reqDate || Date.now()).getFullYear()}-${String(req.id).padStart(3, "0")}`}
                         </span>
-                        <span className="text-xs font-bold text-ink-2 bg-paper px-3 py-1 rounded-full border border-line/70">
+                        <span className="text-xs font-medium text-ink-2 bg-paper px-3 py-1 rounded-full border border-line/70">
                           {fundName}
                         </span>
                         <StatusBadge
@@ -339,7 +339,7 @@ export default function Approvals() {
                     {/* Amount & Actions */}
                     <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-4 pt-4 md:pt-0 border-t md:border-t-0 border-line/50 flex-shrink-0">
                       <div className="text-left md:text-right">
-                        <p className="text-xs font-bold text-ink-3">
+                        <p className="text-xs font-medium text-ink-3">
                           ยอดขอเบิก
                         </p>
                         <MoneyDisplay
@@ -358,14 +358,14 @@ export default function Approvals() {
                                 setShowRejectModal(true);
                               }}
                               disabled={signMutation.isPending}
-                              className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
+                              className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-medium transition-all  disabled:opacity-50"
                             >
                               ไม่อนุมัติ
                             </button>
                             <button
                               onClick={() => handleApprove(req)}
                               disabled={signMutation.isPending}
-                              className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
+                              className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-medium transition-all  disabled:opacity-50"
                             >
                               ลงนามอนุมัติ
                             </button>
@@ -376,7 +376,7 @@ export default function Approvals() {
                           <button
                             onClick={() => handleDisburse(req)}
                             disabled={disburseMutation.isPending}
-                            className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
+                            className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-medium transition-all  disabled:opacity-50"
                           >
                             จ่ายแล้ว
                           </button>
@@ -389,7 +389,7 @@ export default function Approvals() {
                               setShowCancelModal(true);
                             }}
                             disabled={cancelMutation.isPending}
-                            className="min-h-11 px-3.5 py-2 rounded-2xl border border-line bg-paper hover:bg-paper-2 text-ink-2 hover:text-danger text-xs font-bold transition-colors disabled:opacity-50"
+                            className="min-h-11 px-3.5 py-2 rounded-2xl border border-line bg-paper hover:bg-paper-2 text-ink-2 hover:text-danger text-xs font-medium transition-colors disabled:opacity-50"
                           >
                             ยกเลิกคำขอ
                           </button>
@@ -464,14 +464,14 @@ export default function Approvals() {
                 <button
                   onClick={() => setShowRejectModal(false)}
                   disabled={signMutation.isPending}
-                  className="px-4 py-2.5 rounded-2xl border border-line bg-paper text-xs font-bold text-ink-2"
+                  className="px-4 py-2.5 rounded-2xl border border-line bg-paper text-xs font-medium text-ink-2"
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={handleRejectSubmit}
                   disabled={signMutation.isPending}
-                  className="px-5 py-2.5 rounded-2xl bg-danger text-white text-xs font-bold hover:opacity-95 disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-2xl bg-danger text-white text-xs font-medium hover:opacity-95 disabled:opacity-50"
                 >
                   {signMutation.isPending
                     ? "กำลังบันทึก..."
@@ -519,14 +519,14 @@ export default function Approvals() {
                 <button
                   onClick={() => setShowCancelModal(false)}
                   disabled={cancelMutation.isPending}
-                  className="px-4 py-2.5 rounded-2xl border border-line bg-paper text-xs font-bold text-ink-2"
+                  className="px-4 py-2.5 rounded-2xl border border-line bg-paper text-xs font-medium text-ink-2"
                 >
                   กลับ
                 </button>
                 <button
                   onClick={handleCancelSubmit}
                   disabled={cancelMutation.isPending}
-                  className="px-5 py-2.5 rounded-2xl bg-danger text-white text-xs font-bold hover:opacity-95 disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-2xl bg-danger text-white text-xs font-medium hover:opacity-95 disabled:opacity-50"
                 >
                   {cancelMutation.isPending
                     ? "กำลังยกเลิก..."

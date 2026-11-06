@@ -15,7 +15,7 @@ export function FieldLabel({
   required?: boolean;
 }) {
   return (
-    <label className="mb-1.5 block text-xs font-bold text-ink-2">
+    <label className="mb-1.5 block text-xs font-medium text-ink-2">
       {children} {required && <span className="text-danger">*</span>}
     </label>
   );
@@ -145,7 +145,7 @@ export function Step2({
         />
       </div>
       <div className="rounded-2xl border border-line bg-paper p-4">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-ink">
           <Info className="size-3.5 text-brand-ink" aria-hidden="true" />
           เกี่ยวกับบทบาทผู้ใช้
         </p>
@@ -213,7 +213,7 @@ export function Step3({
         placeholder="08X-XXX-XXXX หรือเลขประจำตัว 13 หลัก (ไม่บังคับ)"
       />
       <div className="rounded-2xl border border-line bg-paper p-4">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-ink">
           <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
           ความปลอดภัย
         </p>
@@ -307,7 +307,7 @@ export function Step5({ data }: { data: SetupData }) {
         </div>
       ))}
       <div className="rounded-2xl border border-line bg-paper p-4">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-ink">
           <Info className="size-3.5 text-brand-ink" aria-hidden="true" />
           สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
@@ -356,7 +356,7 @@ export function Step6({
         />
       </div>
       <div className="rounded-2xl border border-line bg-paper p-4 space-y-2">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-ink">
           <Calendar className="size-3.5 text-brand-ink" aria-hidden="true" />
           ตัวอย่างรอบปีงบประมาณ
         </p>
@@ -409,7 +409,7 @@ export function Step7() {
           className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-3.5"
         >
           <span
-            className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-bold ${color}`}
+            className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-medium ${color}`}
           >
             {role}
           </span>
@@ -420,7 +420,7 @@ export function Step7() {
         </div>
       ))}
       <div className="rounded-2xl border border-line bg-paper p-4">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-ink">
           <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
           การกำหนดสิทธิ์
         </p>

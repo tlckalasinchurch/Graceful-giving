@@ -58,7 +58,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
         {/* Body Preview */}
         <div className="p-4 sm:p-6 flex-1 overflow-y-auto flex items-center justify-center bg-paper min-h-[300px]">
           {isPdf ? (
-            <div className="text-center p-8 bg-surface rounded-2xl border border-line shadow-xs max-w-sm">
+            <div className="text-center p-8 bg-surface rounded-2xl border border-line max-w-sm">
               <FileText className="w-16 h-16 text-brand mx-auto mb-3" />
               <p className="font-bold text-sm text-ink">เอกสารแนบรูปแบบ PDF</p>
               <p className="text-xs text-ink-3 mt-1 mb-4">
@@ -68,7 +68,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
                 href={receiptUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold shadow-xs transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-medium transition-colors"
               >
                 <Download className="w-4 h-4" />
                 <span>เปิดและดาวน์โหลด PDF</span>
@@ -79,7 +79,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
               <img
                 src={receiptUrl}
                 alt="Receipt Full Preview"
-                className="max-h-[65vh] w-auto object-contain rounded-lg shadow-xs"
+                className="max-h-[65vh] w-auto object-contain rounded-lg"
               />
             </div>
           )}

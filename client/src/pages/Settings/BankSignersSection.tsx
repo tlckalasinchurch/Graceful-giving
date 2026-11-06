@@ -99,7 +99,7 @@ export function BankSignersSection() {
 
       {/* Signers list */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold text-ink-2">
+        <h4 className="text-xs font-medium text-ink-2">
           รายชื่อผู้มีอำนาจลงนามปัจจุบัน ({signers.length} คน)
         </h4>
 
@@ -119,7 +119,7 @@ export function BankSignersSection() {
                 className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl border border-line bg-surface flex items-center justify-center font-bold text-xs text-ink">
+                  <div className="w-10 h-10 rounded-xl border border-line bg-surface flex items-center justify-center font-medium text-xs text-ink">
                     {s.name?.slice(0, 1) || "U"}
                   </div>
                   <div>
@@ -155,7 +155,7 @@ export function BankSignersSection() {
                           }
                         }}
                         disabled={setRequiredSignerMutation.isPending}
-                        className="px-3.5 py-2 rounded-2xl border border-line bg-surface hover:bg-paper-2 text-xs font-bold text-ink-2 transition-colors disabled:opacity-50"
+                        className="px-3.5 py-2 rounded-2xl border border-line bg-surface hover:bg-paper-2 text-xs font-medium text-ink-2 transition-colors disabled:opacity-50"
                       >
                         ตั้งเป็นผู้ที่ต้องลงนามทุกครั้ง
                       </button>
@@ -173,7 +173,7 @@ export function BankSignersSection() {
                         }
                       }}
                       disabled={removeSignerMutation.isPending}
-                      className="px-3.5 py-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/15 text-danger text-xs font-bold transition-colors disabled:opacity-50"
+                      className="px-3.5 py-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/15 text-danger text-xs font-medium transition-colors disabled:opacity-50"
                     >
                       นำออก
                     </button>
@@ -188,7 +188,7 @@ export function BankSignersSection() {
       {/* Add new signer */}
       {canManageSigners && (
         <div className="pt-4 border-t border-line/60 space-y-2.5">
-          <h4 className="text-xs font-bold text-ink-2">เพิ่มผู้มีอำนาจลงนาม</h4>
+          <h4 className="text-xs font-medium text-ink-2">เพิ่มผู้มีอำนาจลงนาม</h4>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="flex-1">
               <NativeSelect
@@ -221,7 +221,7 @@ export function BankSignersSection() {
                   });
                 }
               }}
-              className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-black text-xs font-bold transition-all shrink-0"
+              className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-black text-xs font-medium transition-all shrink-0"
             >
               {addSignerMutation.isPending ? "กำลังเพิ่ม..." : "เพิ่มผู้ลงนาม"}
             </button>

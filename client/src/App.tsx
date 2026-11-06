@@ -166,7 +166,7 @@ function RoleGuard({
   if (!user || !canAccess(user)) {
     return (
       <div className="min-h-screen bg-paper flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-surface rounded-3xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
+        <div className="max-w-md w-full bg-surface rounded-3xl p-8 border-2 border-line text-center space-y-4">
           <div className="w-16 h-16 rounded-full bg-rose-500/15 border-2 border-rose-500/30 mx-auto flex items-center justify-center text-rose-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -187,7 +187,7 @@ function RoleGuard({
           <div className="pt-2">
             <a
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-brand text-black font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-brand text-black font-bold text-sm hover:bg-brand-ink transition-all"
             >
               กลับสู่หน้าหลัก
             </a>

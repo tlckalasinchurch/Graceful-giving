@@ -7,6 +7,10 @@ interface PrimaryActionsProps {
   onNewExpense: () => void;
 }
 
+/**
+ * The two things this page exists to do. One filled button, one outline: no
+ * icon chips, no press scale, no shadow — the label is enough.
+ */
 export function PrimaryActions({
   canRecordOffering,
   canRecordExpense,
@@ -17,17 +21,19 @@ export function PrimaryActions({
 
   return (
     <div
-      className={`grid gap-2.5 sm:gap-3 w-full ${canRecordOffering && canRecordExpense ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}
+      className={`grid w-full gap-2 ${
+        canRecordOffering && canRecordExpense
+          ? "grid-cols-1 sm:grid-cols-2"
+          : "grid-cols-1"
+      }`}
     >
       {canRecordOffering && (
         <button
           onClick={onNewOffering}
-          className="group flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl bg-brand px-5 text-sm sm:text-base font-bold text-black hover:bg-brand-ink transition-all shadow-xs active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black transition-colors hover:bg-brand-ink"
           aria-label="บันทึกการถวาย"
         >
-          <span className="flex size-7 items-center justify-center rounded-xl bg-black/15 text-black">
-            <HandCoins className="size-4.5" aria-hidden="true" />
-          </span>
+          <HandCoins className="size-4" aria-hidden="true" />
           <span>บันทึกการถวาย</span>
         </button>
       )}
@@ -35,12 +41,10 @@ export function PrimaryActions({
       {canRecordExpense && (
         <button
           onClick={onNewExpense}
-          className="group flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl border border-line bg-surface px-5 text-sm sm:text-base font-bold text-ink hover:bg-paper-2 transition-all shadow-xs active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand"
+          className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-paper"
           aria-label="บันทึกรายจ่าย"
         >
-          <span className="flex size-7 items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60">
-            <ReceiptText className="size-4.5" aria-hidden="true" />
-          </span>
+          <ReceiptText className="size-4 text-ink-3" aria-hidden="true" />
           <span>บันทึกรายจ่าย</span>
         </button>
       )}

@@ -260,13 +260,13 @@ export function AdminManager() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={openNewNews}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-bold text-black hover:bg-brand-ink transition"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-medium text-black hover:bg-brand-ink transition"
           >
             <Plus className="size-4" /> ข่าวสารใหม่
           </button>
           <button
             onClick={openNewEvent}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-xs font-bold text-ink hover:bg-paper-2 transition"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-xs font-medium text-ink hover:bg-paper-2 transition"
           >
             <CalendarDays className="size-4" /> กิจกรรมใหม่
           </button>
@@ -334,7 +334,7 @@ export function AdminManager() {
                       <StatusPill status={item.status} />
                       {item.status === "draft" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-income hover:underline"
+                          className="min-h-11 px-2 text-xs font-medium text-income hover:underline"
                           onClick={() =>
                             setNewsStatus.mutate({
                               id: item.id,
@@ -347,7 +347,7 @@ export function AdminManager() {
                       )}
                       {item.status === "published" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-danger hover:underline"
+                          className="min-h-11 px-2 text-xs font-medium text-danger hover:underline"
                           onClick={() =>
                             setNewsStatus.mutate({
                               id: item.id,
@@ -415,7 +415,7 @@ export function AdminManager() {
                       <StatusPill status={item.status} />
                       {item.status === "draft" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-income hover:underline"
+                          className="min-h-11 px-2 text-xs font-medium text-income hover:underline"
                           onClick={() =>
                             setEventStatus.mutate({
                               id: item.id,
@@ -428,7 +428,7 @@ export function AdminManager() {
                       )}
                       {item.status === "published" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-bold text-danger hover:underline"
+                          className="min-h-11 px-2 text-xs font-medium text-danger hover:underline"
                           onClick={() =>
                             setEventStatus.mutate({
                               id: item.id,
@@ -504,7 +504,7 @@ export function AdminManager() {
                 <button
                   type="button"
                   onClick={() => setDeletingNews(null)}
-                  className="min-h-[44px] rounded-xl border border-line py-2.5 text-xs font-bold text-ink-2 hover:bg-paper-2"
+                  className="min-h-[44px] rounded-xl border border-line py-2.5 text-xs font-medium text-ink-2 hover:bg-paper-2"
                 >
                   ยกเลิก
                 </button>
@@ -512,7 +512,7 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteNews.isPending}
                   onClick={() => deleteNews.mutate({ id: deletingNews.id })}
-                  className="min-h-11 rounded-xl bg-danger py-2.5 text-xs font-bold text-white hover:opacity-90 disabled:opacity-60"
+                  className="min-h-11 rounded-xl bg-danger py-2.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-60"
                 >
                   {deleteNews.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
                 </button>
@@ -552,7 +552,7 @@ export function AdminManager() {
                 <button
                   type="button"
                   onClick={() => setDeletingEvent(null)}
-                  className="min-h-[44px] rounded-xl border border-line py-2.5 text-xs font-bold text-ink-2 hover:bg-paper-2"
+                  className="min-h-[44px] rounded-xl border border-line py-2.5 text-xs font-medium text-ink-2 hover:bg-paper-2"
                 >
                   ยกเลิก
                 </button>
@@ -560,7 +560,7 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteEvent.isPending}
                   onClick={() => deleteEvent.mutate({ id: deletingEvent.id })}
-                  className="min-h-11 rounded-xl bg-danger py-2.5 text-xs font-bold text-white hover:opacity-90 disabled:opacity-60"
+                  className="min-h-11 rounded-xl bg-danger py-2.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-60"
                 >
                   {deleteEvent.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
                 </button>

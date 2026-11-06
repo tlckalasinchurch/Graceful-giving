@@ -189,7 +189,7 @@ export default function Counting() {
         <button
           type="button"
           onClick={() => (showCreate ? closeCreate() : setShowCreate(true))}
-          className="min-h-11 inline-flex items-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-bold text-black transition-all hover:bg-brand-ink active:scale-[0.97]"
+          className="min-h-11 inline-flex items-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-bold text-black transition-all hover:bg-brand-ink "
         >
           <Plus className="h-4 w-4" />
           เปิดรอบใหม่
@@ -303,7 +303,7 @@ export default function Counting() {
                 type="button"
                 aria-pressed={activeTab === tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-colors ${
+                className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-colors ${
                   activeTab === tab.id
                     ? "bg-paper-2 text-ink"
                     : "text-ink-2 hover:bg-paper hover:text-ink"
@@ -439,7 +439,7 @@ export default function Counting() {
                         <button
                           type="button"
                           onClick={() => setLocation(`/counting/${session.id}`)}
-                          className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl bg-brand px-4 py-2 text-xs font-bold text-black hover:bg-brand-ink transition-all active:scale-[0.97]"
+                          className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl bg-brand px-4 py-2 text-xs font-medium text-black hover:bg-brand-ink transition-all "
                         >
                           <span>นับต่อ</span>
                           <ChevronRight className="h-3.5 w-3.5" />
@@ -451,7 +451,7 @@ export default function Counting() {
                           title="ล้างข้อมูลทั้งหมดในรอบนี้เพื่อเริ่มนับใหม่"
                           onClick={() => handleResetSession(session)}
                           disabled={resetSession.isPending}
-                          className="min-h-11 inline-flex items-center gap-1 rounded-2xl border border-line px-3.5 py-2 text-xs font-bold text-ink-2 hover:bg-paper hover:text-ink transition-colors disabled:opacity-50"
+                          className="min-h-11 inline-flex items-center gap-1 rounded-2xl border border-line px-3.5 py-2 text-xs font-medium text-ink-2 hover:bg-paper hover:text-ink transition-colors disabled:opacity-50"
                         >
                           <RotateCcw className="h-3.5 w-3.5" />
                           <span>นับใหม่</span>
@@ -463,7 +463,7 @@ export default function Counting() {
                           title="ลบรอบนับเงินค้างนี้อย่างถาวร"
                           onClick={() => handleDeleteSession(session)}
                           disabled={deleteSession.isPending}
-                          className="min-h-11 inline-flex items-center gap-1 rounded-2xl px-3.5 py-2 text-xs font-bold text-danger hover:bg-paper transition-colors disabled:opacity-50"
+                          className="min-h-11 inline-flex items-center gap-1 rounded-2xl px-3.5 py-2 text-xs font-medium text-danger hover:bg-paper transition-colors disabled:opacity-50"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>ลบรอบค้าง</span>
@@ -474,7 +474,7 @@ export default function Counting() {
                       <button
                         type="button"
                         onClick={() => setLocation(`/counting/${session.id}`)}
-                        className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-line px-4 py-2 text-xs font-bold text-ink-2 hover:bg-paper hover:text-ink transition-colors disabled:opacity-50"
+                        className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-line px-4 py-2 text-xs font-medium text-ink-2 hover:bg-paper hover:text-ink transition-colors disabled:opacity-50"
                       >
                         <FileText className="h-3.5 w-3.5 text-ink-3" />
                         <span>ดูสรุป & รายงาน</span>

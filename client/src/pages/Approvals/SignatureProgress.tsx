@@ -58,8 +58,8 @@ export function SignatureProgress({
               <span
                 className={
                   sig.decision === "approved"
-                    ? "text-xs font-bold text-ink"
-                    : "text-xs font-bold text-danger"
+                    ? "text-xs font-medium text-ink"
+                    : "text-xs font-medium text-danger"
                 }
               >
                 {sig.decision === "approved" ? "ลงนามแล้ว" : "ปฏิเสธ"}
@@ -78,12 +78,12 @@ export function SignatureProgress({
       )}
 
       {approval.outcome === "approved" && (
-        <p className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold text-ink">
+        <p className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink">
           ครบตามเงื่อนไขธนาคาร
         </p>
       )}
       {approval.outcome === "rejected" && (
-        <p className="inline-flex items-center rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-bold text-danger">
+        <p className="inline-flex items-center rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-medium text-danger">
           ถูกปฏิเสธ คำขอนี้ไปไม่ถึงการจ่ายเงิน
         </p>
       )}

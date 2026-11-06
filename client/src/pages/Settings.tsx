@@ -667,7 +667,7 @@ export default function Settings() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-line/70 text-xs font-bold text-ink-3">
+                      <tr className="border-b border-line/70 text-xs font-medium text-ink-3">
                         <th className="pb-3 px-3">ผู้ใช้งาน</th>
                         <th className="pb-3 px-3">อีเมล</th>
                         <th className="pb-3 px-3">เข้าใช้ล่าสุด</th>
@@ -918,7 +918,7 @@ export default function Settings() {
                     </p>
 
                     <div className="pt-1">
-                      <p className="text-xs font-bold text-ink mb-1.5">
+                      <p className="text-xs font-medium text-ink mb-1.5">
                         ขอบเขตหน้าที่ในระบบ:
                       </p>
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-ink-2">
@@ -1264,7 +1264,7 @@ export default function Settings() {
                             log.action === "AUTH_SET_CHURCH_ROLE"
                           ) {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
+                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-medium text-[11px] border border-emerald-500/30">
                                 เปลี่ยนบทบาทผู้ใช้
                               </span>
                             );
@@ -1273,7 +1273,7 @@ export default function Settings() {
                             log.action === "AUTH_UPDATE_PROFILE"
                           ) {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-paper-2 text-brand-ink font-bold text-[11px] border border-line">
+                              <span className="px-2.5 py-1 rounded-full bg-paper-2 text-brand-ink font-medium text-[11px] border border-line">
                                 แก้ไขโปรไฟล์
                               </span>
                             );
@@ -1282,19 +1282,19 @@ export default function Settings() {
                             log.action === "CHURCH_UPDATE_PROFILE"
                           ) {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 font-bold text-[11px] border border-amber-500/30">
+                              <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 font-medium text-[11px] border border-amber-500/30">
                                 แก้ไขข้อมูลคริสตจักร
                               </span>
                             );
                           } else if (log.action === "approve_user") {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
+                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-medium text-[11px] border border-emerald-500/30">
                                 อนุมัติบัญชีผู้ใช้
                               </span>
                             );
                           } else if (log.action === "disable_user") {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 font-bold text-[11px] border border-rose-500/30">
+                              <span className="px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 font-medium text-[11px] border border-rose-500/30">
                                 ปิดการใช้งานบัญชี
                               </span>
                             );

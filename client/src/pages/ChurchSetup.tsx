@@ -166,7 +166,7 @@ export default function ChurchSetup() {
           >
             <X className="size-4" />
           </button>
-          <p className="text-xs font-bold text-brand-ink">
+          <p className="text-xs font-medium text-brand-ink">
             GRACE-GIVING · ตั้งค่าคริสตจักร
           </p>
           <h1 className="font-display mt-2 text-2xl font-bold leading-tight tracking-tight text-ink">
@@ -177,7 +177,7 @@ export default function ChurchSetup() {
 
           {/* Progress bar */}
           <div className="mt-5">
-            <div className="mb-2 flex items-center justify-between text-xs font-bold text-ink-2">
+            <div className="mb-2 flex items-center justify-between text-xs font-medium text-ink-2">
               <span>
                 ขั้นตอนที่ {step} จาก {totalSteps}
               </span>
@@ -228,7 +228,7 @@ export default function ChurchSetup() {
                 <StepIcon className={`size-6 ${currentStepConfig.color}`} />
               </span>
               <div>
-                <p className="text-xs font-bold text-brand-ink">
+                <p className="text-xs font-medium text-brand-ink">
                   ขั้นตอนที่ {step}
                 </p>
                 <h2 className="font-display text-lg font-bold leading-tight text-ink">
@@ -255,7 +255,7 @@ export default function ChurchSetup() {
         {/* All Steps Overview (collapsed) */}
         <div className="px-4 pt-3 sm:px-6">
           <details className="group rounded-2xl border border-line bg-surface overflow-hidden">
-            <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-xs font-bold text-ink-2 select-none">
+            <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-xs font-medium text-ink-2 select-none">
               <span className="flex items-center gap-2">
                 <Settings2 className="size-4 text-brand-ink" />
                 ขั้นตอนทั้งหมด
@@ -276,7 +276,7 @@ export default function ChurchSetup() {
                     }`}
                   >
                     <span
-                      className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold ${
+                      className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-medium ${
                         done
                           ? "bg-brand text-black font-bold"
                           : active
@@ -312,7 +312,7 @@ export default function ChurchSetup() {
             {step > 1 && (
               <button
                 onClick={back}
-                className="min-h-[48px] flex-1 rounded-2xl border border-line bg-surface text-sm font-bold text-ink-2 hover:bg-paper-2 active:scale-[0.98] transition"
+                className="min-h-[48px] flex-1 rounded-2xl border border-line bg-surface text-sm font-bold text-ink-2 hover:bg-paper-2  transition"
               >
                 ← ย้อนกลับ
               </button>
@@ -320,7 +320,7 @@ export default function ChurchSetup() {
             {step < totalSteps ? (
               <button
                 onClick={next}
-                className="min-h-[48px] flex-[2] rounded-2xl bg-brand text-sm font-bold text-black hover:bg-brand-ink active:scale-[0.98] transition"
+                className="min-h-[48px] flex-[2] rounded-2xl bg-brand text-sm font-bold text-black hover:bg-brand-ink  transition"
               >
                 ถัดไป →
               </button>
@@ -328,7 +328,7 @@ export default function ChurchSetup() {
               <button
                 onClick={handleFinish}
                 disabled={saving}
-                className="min-h-[48px] flex-[2] rounded-2xl bg-brand text-sm font-bold text-black hover:bg-brand-ink active:scale-[0.98] transition disabled:opacity-60"
+                className="min-h-[48px] flex-[2] rounded-2xl bg-brand text-sm font-bold text-black hover:bg-brand-ink  transition disabled:opacity-60"
               >
                 {saving ? "กำลังบันทึก..." : "ยืนยันและเริ่มใช้งาน"}
               </button>
@@ -336,7 +336,7 @@ export default function ChurchSetup() {
           </div>
           <button
             onClick={skipSetup}
-            className="mt-2 w-full py-2 text-center text-xs font-bold text-ink-2 transition hover:text-ink"
+            className="mt-2 w-full py-2 text-center text-xs font-medium text-ink-2 transition hover:text-ink"
           >
             ไว้ทีหลัง →
           </button>

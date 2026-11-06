@@ -272,7 +272,7 @@ export default function TransactionDetail() {
           {transaction && (
             <button
               onClick={() => setShowVoucher(true)}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-paper-2 hover:bg-brand hover:text-black text-ink-2 text-xs font-bold border border-line flex items-center gap-1.5 transition-colors"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-paper-2 hover:bg-brand hover:text-black text-ink-2 text-xs font-medium border border-line flex items-center gap-1.5 transition-colors"
             >
               <Printer className="w-4 h-4" />
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
@@ -285,7 +285,7 @@ export default function TransactionDetail() {
                   return;
                 setIsEditing(value => !value);
               }}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-emerald-50 text-income text-xs font-bold border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1.5"
+              className="min-h-11 px-3.5 py-2 rounded-xl bg-emerald-50 text-income text-xs font-medium border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1.5"
             >
               <Pencil className="w-4 h-4" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
@@ -308,7 +308,7 @@ export default function TransactionDetail() {
                 if (isExpense) deleteExpense.mutate({ id: recordId });
               }}
               disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="min-h-11 px-3.5 py-2 rounded-2xl bg-rose-500/10 text-rose-300 text-xs font-bold border border-rose-500/30 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              className="min-h-11 px-3.5 py-2 rounded-2xl bg-rose-500/10 text-rose-300 text-xs font-medium border border-rose-500/30 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
             >
               <Ban className="w-4 h-4" />
               <span>ยกเลิกรายการ</span>
@@ -401,7 +401,7 @@ export default function TransactionDetail() {
               </div>
               <button
                 disabled={updateOffering.isPending || updateExpense.isPending}
-                className="rounded-xl bg-income px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+                className="rounded-xl bg-income px-4 py-2 text-xs font-medium text-white disabled:opacity-50"
               >
                 บันทึกการแก้ไข
               </button>
@@ -410,7 +410,7 @@ export default function TransactionDetail() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-line/60">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-ink-3">
+                <span className="text-xs font-medium text-ink-3">
                   {transaction.type === "income" ? "รายรับ (ถวาย)" : "รายจ่าย"}
                 </span>
                 <StatusBadge status={transaction.status} />
@@ -466,13 +466,13 @@ export default function TransactionDetail() {
           {transaction.receiptUrl && (
             <div className="rounded-2xl bg-surface border border-line/70 p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-ink-2 flex items-center gap-1.5">
+                <span className="text-xs font-medium text-ink-2 flex items-center gap-1.5">
                   <Paperclip className="w-4 h-4 text-brand" />
                   หลักฐานสลิป / ใบเสร็จแนบ (Supabase Storage)
                 </span>
                 <button
                   onClick={() => setShowReceiptModal(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-300 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/15 px-3 py-1.5 rounded-xl border border-emerald-500/30 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-emerald-300 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/15 px-3 py-1.5 rounded-xl border border-emerald-500/30 transition-colors"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>เปิดดูหลักฐานเต็มจอ</span>
@@ -486,7 +486,7 @@ export default function TransactionDetail() {
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">
                     <FileText className="w-12 h-12 text-brand mx-auto mb-2" />
-                    <span className="text-xs font-bold text-ink-2">
+                    <span className="text-xs font-medium text-ink-2">
                       เอกสารแนบ PDF
                     </span>
                     <p className="text-xs text-ink-3 mt-1">
@@ -500,7 +500,7 @@ export default function TransactionDetail() {
                       alt="Receipt thumbnail"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-bold">
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-medium">
                       คลิกเพื่อขยาย
                     </div>
                   </>

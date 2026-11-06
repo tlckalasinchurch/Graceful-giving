@@ -135,104 +135,50 @@ export type StatusType =
   | "posted"
   | "closed";
 
+const STATUS_STYLES: Record<
+  string,
+  { dot: string; label: string; strong?: boolean }
+> = {
+  approved: { dot: "bg-income", label: "อนุมัติแล้ว" },
+  completed: { dot: "bg-income", label: "อนุมัติแล้ว" },
+  active: { dot: "bg-income", label: "ใช้งานอยู่" },
+  rejected: { dot: "bg-danger", label: "ปฏิเสธ / ยกเลิก" },
+  inactive: { dot: "bg-ink-3", label: "ปิดใช้งาน" },
+  draft: { dot: "bg-ink-3", label: "ฉบับร่าง" },
+  submitted: { dot: "bg-brand", label: "ส่งตรวจสอบแล้ว" },
+  needs_review: { dot: "bg-brand", label: "ต้องตรวจสอบ" },
+  unknown: { dot: "bg-ink-3", label: "ไม่ทราบสถานะ" },
+  voided: { dot: "bg-ink-3", label: "ยกเลิกรายการ" },
+  counting: { dot: "bg-brand", label: "กำลังนับ" },
+  counted: { dot: "bg-brand", label: "รอตรวจสอบ" },
+  verified: { dot: "bg-ink-3", label: "ตรวจสอบแล้ว" },
+  posted: { dot: "bg-paper", label: "ลงบัญชีแล้ว", strong: true },
+  closed: { dot: "bg-ink-3", label: "ปิดรอบแล้ว" },
+  pending: { dot: "bg-brand", label: "รอดำเนินการ" },
+};
+
 export const StatusBadge: React.FC<{
   status: StatusType | string;
   label?: string;
   className?: string;
 }> = ({ status, label, className = "" }) => {
-  const getStyle = () => {
-    switch (status) {
-      case "approved":
-      case "completed":
-        return {
-          bg: "bg-tile-mint text-tile-mint-ink border-emerald-500/30",
-          defaultLabel: "อนุมัติแล้ว",
-        };
-      case "active":
-        return {
-          bg: "bg-tile-mint text-tile-mint-ink border-emerald-500/30",
-          defaultLabel: "ใช้งานอยู่",
-        };
-      case "rejected":
-        return {
-          bg: "bg-tile-rose text-tile-rose-ink border-rose-500/30",
-          defaultLabel: "ปฏิเสธ / ยกเลิก",
-        };
-      case "inactive":
-        return {
-          bg: "bg-paper-2 text-ink-2 border-line",
-          defaultLabel: "ปิดใช้งาน",
-        };
-      case "draft":
-        return {
-          bg: "bg-paper-2 text-ink-2 border-line",
-          defaultLabel: "ฉบับร่าง",
-        };
-      case "submitted":
-        return {
-          bg: "bg-tile-sky text-tile-sky-ink border-sky-500/30",
-          defaultLabel: "ส่งตรวจสอบแล้ว",
-        };
-      case "needs_review":
-        return {
-          bg: "bg-tile-peach text-tile-peach-ink border-amber-500/30",
-          defaultLabel: "ต้องตรวจสอบ",
-        };
-      case "unknown":
-        return {
-          bg: "bg-paper-2 text-ink-2 border-line",
-          defaultLabel: "ไม่ทราบสถานะ",
-        };
-      case "voided":
-        return {
-          bg: "bg-paper-2 text-ink-3 border-line",
-          defaultLabel: "ยกเลิกรายการ",
-        };
-      case "counting":
-        return {
-          bg: "bg-tile-sand text-tile-sand-ink border-amber-500/30",
-          defaultLabel: "กำลังนับ",
-        };
-      case "counted":
-        return {
-          bg: "bg-tile-sky text-tile-sky-ink border-sky-500/30",
-          defaultLabel: "รอตรวจสอบ",
-        };
-      case "verified":
-        return {
-          bg: "bg-tile-lilac text-tile-lilac-ink border-line",
-          defaultLabel: "ตรวจสอบแล้ว",
-        };
-      case "posted":
-        return {
-          bg: "bg-brand text-black border-brand",
-          defaultLabel: "ลงบัญชีแล้ว",
-        };
-      case "closed":
-        return {
-          bg: "bg-paper-2 text-ink-2 border-line",
-          defaultLabel: "ปิดรอบแล้ว",
-        };
-      case "pending":
-      default:
-        return {
-          bg: "bg-tile-sand text-tile-sand-ink border-amber-500/30",
-          defaultLabel: "รอดำเนินการ",
-        };
-    }
-  };
+  const style = STATUS_STYLES[status] ?? STATUS_STYLES.pending;
 
-  const style = getStyle();
-
+  // One badge shape; the dot carries the state and only "posted" fills solid,
+  // so a page can show ten statuses without ten competing pastel backgrounds.
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-full text-xs font-bold border ${style.bg} ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium ${
+        style.strong
+          ? "border-ink bg-ink text-paper"
+          : "border-line bg-surface text-ink-2"
+      } ${className}`}
     >
       <span
-        className="w-1.5 h-1.5 shrink-0 rounded-full bg-current"
+        className={`size-1.5 shrink-0 rounded-full ${style.dot}`}
         aria-hidden="true"
       />
-      <span>{label || style.defaultLabel}</span>
+      <span>{label || style.label}</span>
     </span>
   );
 };
@@ -255,8 +201,8 @@ export const MoneyDisplay: React.FC<{
     sm: { whole: "text-sm font-bold", satang: "" },
     base: { whole: "text-base font-bold", satang: "text-sm" },
     md: { whole: "text-lg md:text-xl font-bold", satang: "text-sm" },
-    lg: { whole: "text-2xl md:text-3xl font-extrabold", satang: "text-base" },
-    xl: { whole: "text-3xl md:text-4xl font-extrabold", satang: "text-xl" },
+    lg: { whole: "text-2xl md:text-3xl font-semibold", satang: "text-base" },
+    xl: { whole: "text-3xl md:text-4xl font-semibold", satang: "text-xl" },
   } as const;
   const sizeStyle = SIZES[size];
 
@@ -292,12 +238,14 @@ export const PageHeader: React.FC<{
 }> = ({ title, subtitle, action, className = "" }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface rounded-2xl border border-line p-5 md:p-6 ${className}`}
+      className={`flex flex-col justify-between gap-4 border-b border-line pb-5 sm:flex-row sm:items-end ${className}`}
     >
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold text-ink break-words">{title}</h1>
+        <h1 className="display text-2xl text-ink break-words">{title}</h1>
         {subtitle && (
-          <p className="text-xs text-ink-3 mt-1 leading-relaxed">{subtitle}</p>
+          <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ink-2">
+            {subtitle}
+          </p>
         )}
       </div>
       {action && (
@@ -334,8 +282,8 @@ export const Chip: React.FC<
     className={`min-h-11 shrink-0 whitespace-nowrap rounded-2xl border px-4 py-2 text-sm transition-all ${
       active
         ? variant === "quiet"
-          ? "border-white/30 bg-paper-2 font-bold text-ink"
-          : "border-brand bg-brand font-bold text-black"
+          ? "border-ink/25 bg-paper-2 font-semibold text-ink"
+          : "border-brand bg-brand font-semibold text-black"
         : "border-line bg-surface font-semibold text-ink-2 hover:bg-paper hover:text-ink"
     } ${className}`}
     {...props}
@@ -470,7 +418,7 @@ export const ConfirmDialog: React.FC<{
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm bg-surface border-line rounded-3xl p-6 text-ink shadow-xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-extrabold text-ink">
+          <DialogTitle className="text-lg font-bold text-ink">
             {title}
           </DialogTitle>
           <DialogDescription className="text-sm text-ink-2 leading-relaxed">
@@ -482,7 +430,7 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="flex-1 py-2.5 rounded-2xl bg-paper text-ink-2 font-bold text-xs border border-line hover:bg-paper-2"
+            className="flex-1 py-2.5 rounded-2xl bg-paper text-ink-2 font-medium text-xs border border-line hover:bg-paper-2"
           >
             {cancelText}
           </button>
@@ -490,7 +438,7 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`flex-1 py-2.5 rounded-2xl font-bold text-xs button-elevation transition-all ${
+            className={`flex-1 py-2.5 rounded-2xl font-medium text-xs button-elevation transition-all ${
               variant === "danger"
                 ? "bg-danger hover:opacity-90 text-white"
                 : "bg-brand hover:bg-brand-ink text-black"

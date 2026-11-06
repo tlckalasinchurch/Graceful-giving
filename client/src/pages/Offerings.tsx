@@ -137,14 +137,14 @@ export default function Offerings() {
         <div className="flex items-center gap-2">
           <button
             onClick={exportCSV}
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2/70 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2/70 text-xs font-medium transition-all flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />
             <span>ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/giving/station")}
-            className="px-3.5 py-2 rounded-2xl bg-paper hover:bg-paper-2 text-brand-ink border border-line text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 rounded-2xl bg-paper hover:bg-paper-2 text-brand-ink border border-line text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <QrCode className="w-3.5 h-3.5" />
             <span>ป้าย QR & จุดถวาย</span>
@@ -152,7 +152,7 @@ export default function Offerings() {
           {canCreate && (
             <button
               onClick={() => setLocation("/offerings/new")}
-              className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold button-elevation transition-all flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-medium button-elevation transition-all flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>บันทึกถวายใหม่</span>

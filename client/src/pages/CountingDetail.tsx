@@ -331,7 +331,7 @@ export default function CountingDetail() {
                 title="ล้างข้อมูลเพื่อนับใหม่"
                 onClick={handleResetThisSession}
                 disabled={resetSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-line bg-paper-2 px-3.5 py-2 text-xs font-bold text-brand-ink hover:bg-paper-2 transition-colors disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-line bg-paper-2 px-3.5 py-2 text-xs font-medium text-brand-ink hover:bg-paper-2 transition-colors disabled:opacity-50"
               >
                 <RotateCcw className="h-4 w-4 text-brand-ink" />
                 <span className="hidden sm:inline">นับใหม่</span>
@@ -341,7 +341,7 @@ export default function CountingDetail() {
                 title="ลบรอบนับเงินนี้"
                 onClick={handleDeleteThisSession}
                 disabled={deleteSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-danger hover:bg-rose-500/15 transition-colors disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-medium text-danger hover:bg-rose-500/15 transition-colors disabled:opacity-50"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="hidden sm:inline">ลบรอบนี้</span>

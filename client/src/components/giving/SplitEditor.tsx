@@ -44,7 +44,7 @@ export function SplitEditor({
       className="space-y-3 rounded-2xl border border-line bg-surface p-3"
     >
       <div>
-        <p className="mb-2 text-xs font-bold text-ink-2">
+        <p className="mb-2 text-xs font-medium text-ink-2">
           ถวายอะไรบ้าง? แตะเลือกได้หลายอัน
         </p>
         <div className="flex flex-wrap gap-2">
@@ -59,7 +59,7 @@ export function SplitEditor({
                 onClick={() =>
                   total !== null && onChange(toggleCategory(lines, c.id, total))
                 }
-                className={`inline-flex items-center gap-1 min-h-11 rounded-xl border px-3 text-xs font-bold transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                className={`inline-flex items-center gap-1 min-h-11 rounded-xl border px-3 text-xs font-medium transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                   on
                     ? "border-brand bg-brand text-black"
                     : "border-line bg-paper text-ink-2 hover:text-ink"
@@ -113,7 +113,7 @@ export function SplitEditor({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p
           role="status"
-          className={`text-xs font-bold tabular-nums ${
+          className={`text-xs font-medium tabular-nums ${
             problem === null ? "text-emerald-300" : "text-amber-200"
           }`}
         >
@@ -126,7 +126,7 @@ export function SplitEditor({
             type="button"
             disabled={disabled}
             onClick={onCancel}
-            className="min-h-11 px-3 text-xs font-bold text-ink-3 underline underline-offset-2 hover:text-ink"
+            className="min-h-11 px-3 text-xs font-medium text-ink-3 underline underline-offset-2 hover:text-ink"
           >
             ยกเลิกการแบ่งยอด
           </button>

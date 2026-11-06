@@ -39,7 +39,7 @@ export function GiveChooser({
       className="lg:col-span-2 rounded-[28px] bg-surface border border-line p-5 space-y-4"
     >
       <div>
-        <h3 className="mb-2 text-xs font-bold text-ink-2">
+        <h3 className="mb-2 text-xs font-medium text-ink-2">
           ถวายอะไรบ้าง? แตะเลือกได้หลายอัน
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -108,7 +108,7 @@ export function GiveChooser({
                       type="button"
                       aria-label={`${label} ${amount.toLocaleString()} บาท`}
                       onClick={() => setAmount(line.category, String(amount))}
-                      className="min-h-9 rounded-lg border border-line bg-surface px-2.5 text-xs font-bold tabular-nums text-ink-2 hover:bg-paper hover:text-ink cursor-pointer"
+                      className="min-h-9 rounded-lg border border-line bg-surface px-2.5 text-xs font-medium tabular-nums text-ink-2 hover:bg-paper hover:text-ink cursor-pointer"
                     >
                       {amount.toLocaleString()}
                     </button>
@@ -125,7 +125,7 @@ export function GiveChooser({
         aria-label="ยอดรวมที่ต้องโอน"
         className="flex items-baseline justify-between gap-2 border-t border-line pt-3"
       >
-        <span className="text-xs font-bold text-ink-2">
+        <span className="text-xs font-medium text-ink-2">
           ยอดรวมที่ต้องโอน
           {lines.length > 1 ? ` (${lines.length} ประเภท)` : ""}
         </span>

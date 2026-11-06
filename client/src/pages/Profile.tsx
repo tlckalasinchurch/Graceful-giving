@@ -378,7 +378,7 @@ export default function Profile() {
               {/* Role Badge */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1.5">
                 <span
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold border ${userRoleInfo.badgeColor}`}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-medium border ${userRoleInfo.badgeColor}`}
                 >
                   <span>{userRoleInfo.badgeLabel}</span>
                 </span>
@@ -393,7 +393,7 @@ export default function Profile() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-line/60">
             <button
               onClick={() => setShowIdCardModal(true)}
-              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-2xl bg-paper-2 hover:bg-paper-2 text-ink-2 font-bold text-xs sm:text-sm border border-line flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-2xl bg-paper-2 hover:bg-paper-2 text-ink-2 font-medium text-xs sm:text-sm border border-line flex items-center justify-center gap-2 transition-all "
             >
               <QrCode className="w-4 h-4 text-brand shrink-0" />
               <span className="truncate">
@@ -402,7 +402,7 @@ export default function Profile() {
             </button>
             <button
               onClick={() => setShowEditProfileModal(true)}
-              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              className="w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl bg-brand hover:bg-brand-ink text-black font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all "
             >
               <Edit3 className="w-4 h-4 stroke-[2.5] shrink-0" />
               <span>แก้ไขโปรไฟล์และรูปภาพ</span>
@@ -429,7 +429,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setLocation("/counting")}
-              className="min-h-11 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-transform active:scale-[0.97]"
+              className="min-h-11 px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-medium text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-transform "
             >
               <span>เข้าสู่ห้องนับเงิน</span>
               <ChevronRight className="w-4 h-4" />
@@ -455,7 +455,7 @@ export default function Profile() {
             </div>
             <button
               onClick={() => setLocation("/settings")}
-              className="min-h-11 px-5 py-2.5 rounded-2xl border border-line bg-surface hover:bg-paper-2 text-ink font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-transform active:scale-[0.97]"
+              className="min-h-11 px-5 py-2.5 rounded-2xl border border-line bg-surface hover:bg-paper-2 text-ink font-medium text-xs sm:text-sm flex items-center gap-2 shrink-0 transition-transform "
             >
               <span>ไปที่หน้าตั้งค่าและสิทธิ์</span>
               <ChevronRight className="w-4 h-4" />
@@ -466,7 +466,7 @@ export default function Profile() {
         {/* ── SECTION: โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ ── */}
         <section className="bg-surface rounded-2xl border border-line p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
           <div className="border-b border-line/60 pb-3 sm:pb-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-paper-2 text-ink-2 border border-line mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-medium bg-paper-2 text-ink-2 border border-line mb-2">
               <Award className="w-3.5 h-3.5 text-brand" />
               มติคริสตจักรอย่างเป็นทางการ
             </span>
@@ -488,7 +488,7 @@ export default function Profile() {
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${roster.badgeStyle.bg} ${roster.badgeStyle.text} ${roster.badgeStyle.border}`}
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${roster.badgeStyle.bg} ${roster.badgeStyle.text} ${roster.badgeStyle.border}`}
                     >
                       <span>{roster.badgeStyle.icon}</span>
                       <span>{roster.title}</span>
@@ -496,7 +496,7 @@ export default function Profile() {
                   </div>
 
                   <div>
-                    <span className="text-[11px] font-bold text-ink-3">
+                    <span className="text-[11px] font-medium text-ink-3">
                       ผู้รับผิดชอบ:
                     </span>
                     <p className="text-sm font-bold text-ink">
@@ -509,7 +509,7 @@ export default function Profile() {
                   </p>
 
                   <div className="pt-2 border-t border-line/50">
-                    <span className="text-[11px] font-bold text-ink-3 block mb-1.5">
+                    <span className="text-[11px] font-medium text-ink-3 block mb-1.5">
                       ขอบเขตหน้าที่ในระบบ:
                     </span>
                     <ul className="space-y-1">
@@ -563,7 +563,7 @@ export default function Profile() {
                   await logout();
                 }
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300 transition-colors hover:bg-rose-500/15 active:scale-[0.97]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-300 transition-colors hover:bg-rose-500/15 "
             >
               <LogOut className="h-4 w-4" />
               ออกจากระบบ
@@ -585,7 +585,7 @@ export default function Profile() {
             </button>
 
             <div className="text-center space-y-1 pt-1 sm:pt-2">
-              <span className="px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-surface border border-line text-income">
+              <span className="px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-medium bg-surface border border-line text-income">
                 Digital Church Member Card
               </span>
               <h3 className="text-lg sm:text-xl font-bold text-ink pt-1">
@@ -613,7 +613,7 @@ export default function Profile() {
                 </h4>
                 <div className="inline-block">
                   <span
-                    className={`px-3 py-0.5 rounded-full text-xs font-bold border ${userRoleInfo.badgeColor}`}
+                    className={`px-3 py-0.5 rounded-full text-xs font-medium border ${userRoleInfo.badgeColor}`}
                   >
                     {userRoleInfo.badgeLabel}
                   </span>
@@ -648,14 +648,14 @@ export default function Profile() {
             <div className="flex gap-2">
               <button
                 onClick={() => window.print()}
-                className="flex-1 min-h-11 py-2.5 rounded-2xl bg-paper-2 border border-line text-ink-2 font-bold text-xs sm:text-sm hover:bg-paper-2 transition-all flex items-center justify-center gap-1.5"
+                className="flex-1 min-h-11 py-2.5 rounded-2xl bg-paper-2 border border-line text-ink-2 font-medium text-xs sm:text-sm hover:bg-paper-2 transition-all flex items-center justify-center gap-1.5"
               >
                 <Printer className="w-4 h-4" />
                 <span>พิมพ์บัตร</span>
               </button>
               <button
                 onClick={() => setShowIdCardModal(false)}
-                className="flex-1 min-h-11 py-2.5 rounded-2xl bg-ink text-white font-bold text-xs sm:text-sm hover:bg-ink transition-all"
+                className="flex-1 min-h-11 py-2.5 rounded-2xl bg-ink text-white font-medium text-xs sm:text-sm hover:bg-ink transition-all"
               >
                 ปิดหน้าต่าง
               </button>
@@ -690,7 +690,7 @@ export default function Profile() {
               className="space-y-3 sm:space-y-4"
             >
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   ชื่อ-นามสกุลทางการ <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -704,7 +704,7 @@ export default function Profile() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   ลิงก์รูปภาพโปรไฟล์ (Avatar URL)
                 </label>
                 <input
@@ -743,7 +743,7 @@ export default function Profile() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-ink">
+                  <label className="text-xs font-medium text-ink">
                     เบอร์โทรศัพท์
                   </label>
                   <input
@@ -755,7 +755,7 @@ export default function Profile() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-ink">
+                  <label className="text-xs font-medium text-ink">
                     ฝ่าย / พันธกิจ
                   </label>
                   <input
@@ -769,7 +769,7 @@ export default function Profile() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   คติพจน์ / ข้อพระคัมภีร์ประจำใจ
                 </label>
                 <textarea
@@ -801,7 +801,7 @@ export default function Profile() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 min-h-11 py-2.5 sm:py-3 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs sm:text-sm font-bold transition-all disabled:opacity-50 active:scale-[0.98]"
+                  className="flex-1 min-h-11 py-2.5 sm:py-3 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs sm:text-sm font-bold transition-all disabled:opacity-50 "
                 >
                   {isSaving ? "กำลังบันทึก..." : "บันทึกโปรไฟล์"}
                 </button>
