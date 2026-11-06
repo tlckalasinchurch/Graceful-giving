@@ -23,27 +23,33 @@ type ShortcutProps = {
   label: string;
   icon: ComponentType<{ className?: string }>;
   onClick?: () => void;
+  className?: string;
 };
 
-/** A shortcut sits inside the actions card, so it is a plain button with a
- *  grey outline icon — no coloured tile. */
-const Shortcut = forwardRef<HTMLButtonElement, ShortcutProps>(
-  ({ label, icon: Icon, onClick, ...rest }, ref) => (
+const ShortcutTile = forwardRef<HTMLButtonElement, ShortcutProps>(
+  ({ label, icon: Icon, onClick, className = "", ...rest }, ref) => (
     <button
       ref={ref}
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="group flex min-h-12 w-full items-center gap-3 rounded-2xl px-3 text-left transition-colors hover:bg-paper focus-visible:ring-2 focus-visible:ring-brand"
+      className={`group flex min-h-[50px] w-full items-center gap-2.5 rounded-xl border border-line/80 bg-paper/60 px-3 py-2.5 text-left transition-all hover:bg-paper hover:border-line focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.98] ${className}`}
       {...rest}
     >
-      <Icon className="size-5 shrink-0 text-ink-2 transition-colors group-hover:text-ink" />
-      <span className="flex-1 text-sm font-semibold text-ink">{label}</span>
-      <ChevronRight className="size-4 shrink-0 text-ink-3" aria-hidden="true" />
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-surface border border-line/60 text-ink-2 transition-colors group-hover:text-ink shadow-2xs">
+        <Icon className="size-4 shrink-0" />
+      </span>
+      <span className="flex-1 truncate text-xs sm:text-sm font-semibold text-ink">
+        {label}
+      </span>
+      <ChevronRight
+        className="size-3.5 shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5"
+        aria-hidden="true"
+      />
     </button>
   )
 );
-Shortcut.displayName = "Shortcut";
+ShortcutTile.displayName = "ShortcutTile";
 
 export function SecondaryMenu({
   canOpenReports,
@@ -57,23 +63,33 @@ export function SecondaryMenu({
     <div
       role="group"
       aria-label="เมนูลัดอื่น ๆ"
-      className="w-full divide-y divide-line/60"
+      className="grid grid-cols-2 gap-2 sm:gap-2.5 pt-1"
     >
       {canOpenReports && (
-        <Shortcut label="รายงาน" icon={FileBarChart} onClick={onOpenReports} />
+        <ShortcutTile
+          label="รายงาน"
+          icon={FileBarChart}
+          onClick={onOpenReports}
+        />
       )}
       {canOpenMembers && (
-        <Shortcut label="สมาชิก" icon={UsersRound} onClick={onOpenMembers} />
+        <ShortcutTile
+          label="สมาชิก"
+          icon={UsersRound}
+          onClick={onOpenMembers}
+        />
       )}
-      <Shortcut label="กิจกรรม" icon={CalendarDays} onClick={onOpenNews} />
-      <Shortcut
+      <ShortcutTile label="กิจกรรม" icon={CalendarDays} onClick={onOpenNews} />
+      <ShortcutTile
         label="ขอเบิกเงิน"
         icon={Banknote}
         onClick={onOpenWithdrawals}
       />
-      <AppMenu>
-        <Shortcut label="เพิ่มเติม" icon={MoreHorizontal} />
-      </AppMenu>
+      <div className="col-span-2 sm:col-span-1">
+        <AppMenu>
+          <ShortcutTile label="เพิ่มเติม" icon={MoreHorizontal} />
+        </AppMenu>
+      </div>
     </div>
   );
 }
