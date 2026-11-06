@@ -7,13 +7,7 @@ import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
-import {
-  Calendar,
-  CheckCircle2,
-  FileUp,
-  HandCoins,
-  Sparkles,
-} from "lucide-react";
+import { Calendar, CheckCircle2, FileUp, HandCoins } from "lucide-react";
 import { toast } from "sonner";
 import {
   OFFERING_CATEGORIES,
@@ -50,7 +44,7 @@ export default function NewOffering() {
   const [notes, setNotes] = useState("");
   const [donorName, setDonorName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
-const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const [lastSaved, setLastSaved] = useState<{
@@ -172,7 +166,7 @@ const [isSuccessOpen, setIsSuccessOpen] = useState(false);
           </div>
         </div>
 
-{funds.length === 0 && !fundsQuery.isLoading ? (
+        {funds.length === 0 && !fundsQuery.isLoading ? (
           <EmptyState
             title="ยังไม่มีกองทุนในระบบ"
             description="ต้องตั้งค่ากองทุนก่อนบันทึกการถวาย โปรดไปที่หน้าตั้งค่าเพื่อเพิ่มกองทุน"
@@ -180,211 +174,234 @@ const [isSuccessOpen, setIsSuccessOpen] = useState(false);
             onAction={() => setLocation("/settings")}
           />
         ) : (
-        /* Main Step Form Card */
-        <form
-          onSubmit={handleSubmit}
-          className="bg-surface rounded-2xl p-6 sm:p-8 border border-line card-elevation-sm space-y-6"
-        >
-          {/* 1. ประเภทถวาย */}
-          <div className="space-y-2.5">
-            <label className="text-sm font-medium text-ink block">
-              1. เลือกประเภทการถวาย
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              {categories.map(cat => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategory(cat.id)}
-                  aria-pressed={category === cat.id}
-                  className={`min-h-11 px-3 py-2.5 rounded-2xl border text-sm text-center ${
-                    category === cat.id
-                      ? "bg-paper-2 border-brand text-brand-ink font-semibold"
-                      : "bg-surface border-field text-ink font-medium hover:bg-ground"
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 2. จำนวนเงิน + Shortcuts */}
-          <div className="space-y-2.5">
-            <label className="text-sm font-medium text-ink block">
-              2. ระบุจำนวนเงิน (บาท)
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-income">
-                ฿
-              </span>
-              <input
-                ref={amountRef}
-                type="number"
-                required
-                min="1"
-                aria-invalid={Boolean(formError)}
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-                placeholder="0.00"
-                className="money w-full min-h-14 pl-12 pr-4 rounded-2xl bg-surface border border-field text-2xl font-semibold text-income focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-              />
-            </div>
-            {formError && (
-              <p role="alert" className="text-sm text-danger">
-                {formError}
-              </p>
-            )}
-
-            {/* Shortcut Chips */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              {quickAmounts.map(q => (
-                <Chip
-                  key={q}
-                  type="button"
-                  onClick={() => setAmount(String(q))}
-                >
-                  +{formatBaht(q, 0)}
-                </Chip>
-              ))}
-            </div>
-          </div>
-
-          {/* 3. กองทุน */}
-          <div className="space-y-2.5">
-            <label className="text-sm font-medium text-ink block">
-              3. เข้ากองทุน
-            </label>
-            <NativeSelect
-              required
-              value={fundId}
-              onChange={e => setFundId(e.target.value)}
-            >
-              <option value="" disabled>
-                — เลือกกองทุน —
-              </option>
-              {funds.map(f => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
-              ))}
-            </NativeSelect>
-            {funds.length === 0 && (
-              <p className="text-xs text-danger">
-                ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย
-              </p>
-            )}
-          </div>
-
-          {/* 4. วิธีรับเงิน */}
-          <div className="space-y-2.5">
-            <label className="text-sm font-medium text-ink block">
-              4. วิธีการรับเงิน
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {paymentMethods.map(m => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setMethod(m)}
-                  aria-pressed={method === m}
-                  className={`min-h-11 py-2.5 px-3 rounded-2xl border text-sm ${
-                    method === m
-                      ? "bg-paper-2 border-brand text-brand-ink font-semibold"
-                      : "bg-surface border-field text-ink font-medium hover:bg-ground"
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 5. วันที่ & รายละเอียดเพิ่มเติม */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+          /* Main Step Form Card */
+          <form
+            onSubmit={handleSubmit}
+            className="bg-surface rounded-2xl p-6 sm:p-8 border border-line card-elevation-sm space-y-6"
+          >
+            {/* 1. ประเภทถวาย */}
+            <div className="space-y-2.5">
               <label className="text-sm font-medium text-ink block">
-                วันที่รับเงิน
+                1. เลือกประเภทการถวาย
               </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategory(cat.id)}
+                    aria-pressed={category === cat.id}
+                    className={`min-h-11 px-3 py-2.5 rounded-2xl border text-sm text-center ${
+                      category === cat.id
+                        ? "bg-paper-2 border-brand text-brand-ink font-semibold"
+                        : "bg-surface border-field text-ink font-medium hover:bg-ground"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 2. จำนวนเงิน + Shortcuts */}
+            <div className="space-y-2.5">
+              <label
+                htmlFor="offering-amount"
+                className="text-sm font-medium text-ink block"
+              >
+                2. ระบุจำนวนเงิน (บาท)
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-income">
+                  ฿
+                </span>
+                <input
+                  id="offering-amount"
+                  ref={amountRef}
+                  type="number"
+                  required
+                  min="1"
+                  aria-invalid={Boolean(formError)}
+                  value={amount}
+                  onChange={e => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="money w-full min-h-14 pl-12 pr-4 rounded-2xl bg-surface border border-field text-2xl font-semibold text-income focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+                />
+              </div>
+              {formError && (
+                <p role="alert" className="text-sm text-danger">
+                  {formError}
+                </p>
+              )}
+
+              {/* Shortcut Chips */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                {quickAmounts.map(q => (
+                  <Chip
+                    key={q}
+                    type="button"
+                    onClick={() => setAmount(String(q))}
+                  >
+                    +{formatBaht(q, 0)}
+                  </Chip>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. กองทุน */}
+            <div className="space-y-2.5">
+              <label
+                htmlFor="offering-fund"
+                className="text-sm font-medium text-ink block"
+              >
+                3. เข้ากองทุน
+              </label>
+              <NativeSelect
+                id="offering-fund"
+                required
+                value={fundId}
+                onChange={e => setFundId(e.target.value)}
+              >
+                <option value="" disabled>
+                  — เลือกกองทุน —
+                </option>
+                {funds.map(f => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </NativeSelect>
+              {funds.length === 0 && (
+                <p className="text-xs text-danger">
+                  ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย
+                </p>
+              )}
+            </div>
+
+            {/* 4. วิธีรับเงิน */}
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium text-ink block">
+                4. วิธีการรับเงิน
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {paymentMethods.map(m => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMethod(m)}
+                    aria-pressed={method === m}
+                    className={`min-h-11 py-2.5 px-3 rounded-2xl border text-sm ${
+                      method === m
+                        ? "bg-paper-2 border-brand text-brand-ink font-semibold"
+                        : "bg-surface border-field text-ink font-medium hover:bg-ground"
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 5. วันที่ & รายละเอียดเพิ่มเติม */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="offering-date"
+                  className="text-sm font-medium text-ink block"
+                >
+                  วันที่รับเงิน
+                </label>
+                <input
+                  id="offering-date"
+                  type="date"
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                  className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="offering-donor"
+                  className="text-sm font-medium text-ink block"
+                >
+                  ชื่อผู้ถวาย (ถ้ามี)
+                </label>
+                <input
+                  id="offering-donor"
+                  type="text"
+                  list="member-suggestions"
+                  disabled={isAnonymous}
+                  value={donorName}
+                  onChange={e => setDonorName(e.target.value)}
+                  placeholder={
+                    isAnonymous
+                      ? "ถวายโดยไม่เปิดเผยนาม"
+                      : "ชื่อ-นามสกุล หรือครอบครัว"
+                  }
+                  className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field disabled:opacity-60"
+                />
+                <datalist id="member-suggestions">
+                  {members.map(m => (
+                    <option key={m.id} value={m.name}>
+                      {m.envelopeNo ? `ซอง #${m.envelopeNo} ` : ""}
+                      {m.phone ? `· ${m.phone}` : ""}
+                    </option>
+                  ))}
+                </datalist>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
               <input
-                type="date"
-                value={date}
-                onChange={e => setDate(e.target.value)}
+                type="checkbox"
+                id="anon"
+                checked={isAnonymous}
+                onChange={e => {
+                  setIsAnonymous(e.target.checked);
+                  if (e.target.checked) setDonorName("");
+                }}
+                className="rounded text-brand focus:ring-brand w-4 h-4 border-line"
+              />
+              <label
+                htmlFor="anon"
+                className="text-xs text-ink-2 cursor-pointer"
+              >
+                ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
+              </label>
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="offering-notes"
+                className="text-sm font-medium text-ink block"
+              >
+                หมายเหตุ / คำอธิษฐานขอบพระคุณ
+              </label>
+              <textarea
+                id="offering-notes"
+                rows={2}
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="เช่น ถวายขอบพระคุณสำหรับวันเกิด, พันธกิจเด็ก"
                 className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-ink block">
-                ชื่อผู้ถวาย (ถ้ามี)
-              </label>
-              <input
-                type="text"
-                list="member-suggestions"
-                disabled={isAnonymous}
-                value={donorName}
-                onChange={e => setDonorName(e.target.value)}
-                placeholder={
-                  isAnonymous
-                    ? "ถวายโดยไม่เปิดเผยนาม"
-                    : "ชื่อ-นามสกุล หรือครอบครัว"
-                }
-                className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field disabled:opacity-60"
-              />
-              <datalist id="member-suggestions">
-                {members.map(m => (
-                  <option key={m.id} value={m.name}>
-                    {m.envelopeNo ? `ซอง #${m.envelopeNo} ` : ""}
-                    {m.phone ? `· ${m.phone}` : ""}
-                  </option>
-                ))}
-              </datalist>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="anon"
-              checked={isAnonymous}
-              onChange={e => {
-                setIsAnonymous(e.target.checked);
-                if (e.target.checked) setDonorName("");
-              }}
-              className="rounded text-brand focus:ring-brand w-4 h-4 border-line"
-            />
-            <label htmlFor="anon" className="text-xs text-ink-2 cursor-pointer">
-              ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
-            </label>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-ink block">
-              หมายเหตุ / คำอธิษฐานขอบพระคุณ
-            </label>
-            <textarea
-              rows={2}
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="เช่น ถวายขอบพระคุณสำหรับวันเกิด, พันธกิจเด็ก"
-              className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={createMutation.isPending}
-            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base flex items-center justify-center gap-2"
-          >
-            <HandCoins className="w-5 h-5" />
-            <span>
-              {createMutation.isPending
-                ? "กำลังบันทึก..."
-                : "ยืนยันบันทึกการถวาย"}
-            </span>
-          </button>
-        </form>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={createMutation.isPending}
+              className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base flex items-center justify-center gap-2"
+            >
+              <HandCoins className="w-5 h-5" />
+              <span>
+                {createMutation.isPending
+                  ? "กำลังบันทึก..."
+                  : "ยืนยันบันทึกการถวาย"}
+              </span>
+            </button>
+          </form>
         )}
       </div>
 

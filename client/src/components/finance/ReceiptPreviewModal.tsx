@@ -47,7 +47,8 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
             </a>
             <button
               onClick={onClose}
-              className="p-1.5 text-ink-3 hover:text-ink hover:bg-black/5 rounded-xl transition-colors"
+              aria-label="ปิดตัวอย่างใบเสร็จ"
+              className="min-h-11 min-w-11 inline-flex items-center justify-center p-1.5 text-ink-3 hover:text-ink hover:bg-black/5 rounded-xl transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -59,9 +60,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
           {isPdf ? (
             <div className="text-center p-8 bg-surface rounded-2xl border border-line shadow-xs max-w-sm">
               <FileText className="w-16 h-16 text-brand mx-auto mb-3" />
-              <p className="font-bold text-sm text-ink">
-                เอกสารแนบรูปแบบ PDF
-              </p>
+              <p className="font-bold text-sm text-ink">เอกสารแนบรูปแบบ PDF</p>
               <p className="text-xs text-ink-3 mt-1 mb-4">
                 ไฟล์เอกสาร PDF เก็บไว้ใน Supabase Storage อย่างปลอดภัย
               </p>

@@ -82,7 +82,8 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-ink-3 hover:text-ink hover:bg-black/5 rounded-xl transition-colors"
+              aria-label="ปิดใบสำคัญ"
+              className="min-h-11 min-w-11 inline-flex items-center justify-center p-2 text-ink-3 hover:text-ink hover:bg-black/5 rounded-xl transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -150,9 +151,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </p>
               </div>
               <div>
-                <span className="text-ink-3 font-medium">
-                  หมวดหมู่รายการ:
-                </span>
+                <span className="text-ink-3 font-medium">หมวดหมู่รายการ:</span>
                 <p className="font-semibold text-ink mt-0.5">
                   {data.categoryLabel || data.category || "ทั่วไป"}
                 </p>
@@ -195,9 +194,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                         {data.titleOrDescription}
                       </p>
                       {data.notes && (
-                        <p className="text-ink-3 text-xs mt-1">
-                          {data.notes}
-                        </p>
+                        <p className="text-ink-3 text-xs mt-1">{data.notes}</p>
                       )}
                     </td>
                     <td className="py-4 px-4 text-right font-mono font-bold text-ink text-sm">
@@ -312,9 +309,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     </p>
                   </div>
                   <div className="space-y-12">
-                    <p className="text-ink-2 font-medium">
-                      เหรัญญิกคริสตจักร
-                    </p>
+                    <p className="text-ink-2 font-medium">เหรัญญิกคริสตจักร</p>
                     <div className="border-b border-stone-400 mx-4"></div>
                     <p className="text-ink-3">
                       (

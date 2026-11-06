@@ -26,27 +26,27 @@ export function FinancialSummaryRow({
   return (
     <section aria-label="สรุปตัวเลขการเงินรายเดือน" className="w-full">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {/* Card 1: Signature Coral Card (Finexy Style) */}
-        <div className="flex flex-col justify-between rounded-3xl bg-brand p-5 sm:p-6 text-white shadow-xs">
+        {/* Card 1: Signature Coral Card (Finexy Style) — Dark text for WCAG AA compliance (6.66:1 contrast) */}
+        <div className="flex flex-col justify-between rounded-3xl bg-brand p-5 sm:p-6 text-black shadow-xs">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs sm:text-sm font-bold text-white/90">
+            <span className="text-xs sm:text-sm font-bold text-black/90">
               รายรับเดือนนี้
             </span>
-            <span className="flex size-9 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-xs">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-black/10 text-black backdrop-blur-xs">
               <HandCoins className="size-4.5" aria-hidden="true" />
             </span>
           </div>
           <div className="mt-4 sm:mt-6">
             {isBalanceLoading ? (
-              <div className="h-8 w-28 rounded-xl bg-white/20 animate-pulse" />
+              <div className="h-8 w-28 rounded-xl bg-black/10 animate-pulse" />
             ) : (
-              <p className="display money text-2xl sm:text-3xl font-bold leading-tight text-white">
+              <p className="display money text-2xl sm:text-3xl font-bold leading-tight text-black">
                 {showBalance && monthlyIncome !== undefined
                   ? `+฿ ${formatAmount(Math.abs(monthlyIncome), 0)}`
                   : "—"}
               </p>
             )}
-            <p className="mt-1.5 text-xs font-medium text-white/80">
+            <p className="mt-1.5 text-xs font-medium text-black/80">
               {incomeNote || "ยอดเงินถวายทั้งหมด"}
             </p>
           </div>

@@ -28,7 +28,6 @@ import {
   UserCheck,
   Building,
   Check,
-  Sparkles,
   X,
   FileText,
   DollarSign,
@@ -49,7 +48,12 @@ interface ChurchOfficialRoster {
   role: string;
   title: string;
   appointee: string;
-  badgeStyle: { bg: string; text: string; border: string; icon: React.ReactNode };
+  badgeStyle: {
+    bg: string;
+    text: string;
+    border: string;
+    icon: React.ReactNode;
+  };
   summary: string;
   responsibilities: string[];
 }
