@@ -396,7 +396,14 @@ describeDb("counting workflow: an unbalanced session", () => {
     });
     await asCounter().counting.submitCount({ id: strayId });
     await asTreasurer().counting.verify({ id: strayId });
-    // Carries in from the round above (cash 0); nothing was banked this week.
+    // The round above belongs to an earlier test group, which deleted it, so
+    // nothing carries in. Opening balances are set by hand (cash 0, bank 0);
+    // nothing was banked this week.
+    await asTreasurer().counting.setOpeningBalances({
+      id: strayId,
+      openingCash: 0,
+      openingBank: 0,
+    });
     await asTreasurer().counting.setClosingFigures({
       id: strayId,
       cashOnHandActual: 4900,
