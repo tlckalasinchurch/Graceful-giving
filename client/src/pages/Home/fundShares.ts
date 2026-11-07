@@ -2,6 +2,13 @@ export interface FundLike {
   id: number;
   name: string;
   balance: string | number;
+  type?: string | null;
+}
+
+export interface FundPoolSplit {
+  generalBalance: number;
+  restrictedBalance: number;
+  hasFunds: boolean;
 }
 
 export interface FundShare {
@@ -10,6 +17,29 @@ export interface FundShare {
   balance: number;
   /** Whole percent of the funds that hold money. */
   share: number;
+}
+
+/**
+ * Splits church funds into unrestricted operating balance (`type === "general"`)
+ * versus restricted/designated project funds (`type !== "general"`).
+ */
+export function fundPoolSplit(funds: readonly FundLike[]): FundPoolSplit {
+  let generalBalance = 0;
+  let restrictedBalance = 0;
+  for (const f of funds) {
+    const val = Number(f.balance);
+    if (!Number.isFinite(val)) continue;
+    if ((f.type ?? "general") === "general") {
+      generalBalance += val;
+    } else {
+      restrictedBalance += val;
+    }
+  }
+  return {
+    generalBalance,
+    restrictedBalance,
+    hasFunds: funds.length > 0,
+  };
 }
 
 /**

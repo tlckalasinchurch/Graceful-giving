@@ -1,6 +1,6 @@
 import { ChevronRight, Eye, EyeOff, Info, Loader2 } from "lucide-react";
 import { formatAmount } from "@/lib/format";
-import type { FundShare } from "../fundShares";
+import type { FundPoolSplit, FundShare } from "../fundShares";
 import { FundBreakdown } from "./FundBreakdown";
 
 interface BalanceCardProps {
@@ -15,6 +15,7 @@ interface BalanceCardProps {
   canOpenReports: boolean;
   onOpenReports: () => void;
   fundRows?: FundShare[];
+  poolSplit?: FundPoolSplit;
 }
 
 /** The one number the page exists for: read it from across the room. */
@@ -53,6 +54,7 @@ export function BalanceCard({
   canOpenReports,
   onOpenReports,
   fundRows = [],
+  poolSplit,
 }: BalanceCardProps) {
   return (
     <section
@@ -113,6 +115,34 @@ export function BalanceCard({
             </span>
           )}
         </p>
+      )}
+
+      {!isBalanceLoading && hasSummaryData && poolSplit?.hasFunds && (
+        <div
+          aria-label="สัดส่วนเงินทั่วไปและกองทุนเฉพาะกิจ"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 rounded-xl border border-line bg-paper-2/60 p-3 text-xs"
+        >
+          <div className="flex items-center justify-between sm:flex-col sm:items-start gap-1">
+            <span className="font-bold text-ink-2">
+              เงินหมุนเวียนทั่วไป (ใช้จ่ายได้)
+            </span>
+            <span className="font-mono text-sm font-extrabold text-income tabular-nums">
+              {showBalance
+                ? `฿ ${formatAmount(poolSplit.generalBalance)}`
+                : "฿ ••••"}
+            </span>
+          </div>
+          <div className="flex items-center justify-between sm:flex-col sm:items-start gap-1 border-t sm:border-t-0 sm:border-l border-line pt-2 sm:pt-0 sm:pl-3">
+            <span className="font-bold text-ink-2">
+              เงินกองทุนเฉพาะกิจ (ระบุวัตถุประสงค์)
+            </span>
+            <span className="font-mono text-sm font-extrabold text-ink tabular-nums">
+              {showBalance
+                ? `฿ ${formatAmount(poolSplit.restrictedBalance)}`
+                : "฿ ••••"}
+            </span>
+          </div>
+        </div>
       )}
 
       {!isBalanceLoading && hasSummaryData && (

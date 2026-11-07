@@ -91,40 +91,69 @@ export function CashCountTab({
             const quantity =
               draft !== undefined ? draft : String(saved?.quantity ?? "");
             const subtotal = denomination.value * (Number(quantity) || 0);
+            const currentQty = Math.max(0, Math.floor(Number(quantity) || 0));
+            const stepBy = (delta: number) => {
+              if (!editable) return;
+              const next = Math.max(0, currentQty + delta);
+              setDraftCounts(prev => ({
+                ...prev,
+                [key]: String(next),
+              }));
+            };
             return (
-              <li key={key} className="flex items-center gap-3 p-3 md:p-4 hover:bg-paper-2/40">
-                <span className="w-28 shrink-0 text-sm font-extrabold text-ink md:w-40">
+              <li key={key} className="flex items-center gap-2 sm:gap-3 p-3 md:p-4 hover:bg-paper-2/40">
+                <span className="w-24 shrink-0 text-sm font-extrabold text-ink sm:w-32 md:w-40">
                   {denomination.label}
                 </span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  inputMode="numeric"
-                  disabled={!editable}
-                  value={quantity}
-                  onChange={e =>
-                    setDraftCounts(prev => ({
-                      ...prev,
-                      [key]: e.target.value,
-                    }))
-                  }
-                  onBlur={e => {
-                    if (!editable) return;
-                    const next = Number(e.target.value || 0);
-                    if (!Number.isFinite(next) || next < 0) return;
-                    if (next === (saved?.quantity ?? 0)) return;
-                    setCashCount.mutate({
-                      sessionId,
-                      denomination: denomination.value,
-                      kind: denomination.kind,
-                      quantity: next,
-                    });
-                  }}
-                  placeholder="0"
-                  aria-label={`จำนวน ${denomination.label}`}
-                  className="w-24 rounded-xl border-2 border-[var(--ink)] bg-surface p-2.5 text-right text-base font-extrabold tabular-nums text-ink shadow-[2px_2px_0_var(--ink)] focus:border-brand focus:outline-none disabled:opacity-60"
-                />
+                <div className="inline-flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={!editable || currentQty <= 0}
+                    onClick={() => stepBy(-1)}
+                    aria-label={`ลดจำนวน ${denomination.label}`}
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-paper-2 text-lg font-black text-ink shadow-[2px_2px_0_var(--ink)] active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    inputMode="numeric"
+                    disabled={!editable}
+                    value={quantity}
+                    onChange={e =>
+                      setDraftCounts(prev => ({
+                        ...prev,
+                        [key]: e.target.value,
+                      }))
+                    }
+                    onBlur={e => {
+                      if (!editable) return;
+                      const next = Number(e.target.value || 0);
+                      if (!Number.isFinite(next) || next < 0) return;
+                      if (next === (saved?.quantity ?? 0)) return;
+                      setCashCount.mutate({
+                        sessionId,
+                        denomination: denomination.value,
+                        kind: denomination.kind,
+                        quantity: next,
+                      });
+                    }}
+                    placeholder="0"
+                    aria-label={`จำนวน ${denomination.label}`}
+                    className="w-20 sm:w-24 rounded-xl border-2 border-[var(--ink)] bg-surface p-2.5 text-right text-base font-extrabold tabular-nums text-ink shadow-[2px_2px_0_var(--ink)] focus:border-brand focus:outline-none disabled:opacity-60"
+                  />
+                  <button
+                    type="button"
+                    disabled={!editable}
+                    onClick={() => stepBy(1)}
+                    aria-label={`เพิ่มจำนวน ${denomination.label}`}
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-paper-2 text-lg font-black text-ink shadow-[2px_2px_0_var(--ink)] active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    +
+                  </button>
+                </div>
                 <span className="ml-auto text-right text-sm font-extrabold tabular-nums text-ink-2">
                   {fmtBaht(subtotal)}
                 </span>

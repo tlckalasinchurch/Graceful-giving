@@ -284,6 +284,7 @@ export default function GivingInbox() {
   const [editFundId, setEditFundId] = useState<number | undefined>(undefined);
   const [editCategory, setEditCategory] = useState<OfferingCategory>("cash");
   const [editMemberId, setEditMemberId] = useState<number | null>(null);
+  const [memberSearch, setMemberSearch] = useState<string>("");
   const [editReviewNote, setEditReviewNote] = useState<string>("");
   // The name that goes in the books. Prefilled from the slip, the treasurer may fix it.
   const [editDonorName, setEditDonorName] = useState<string>("");
@@ -335,6 +336,7 @@ export default function GivingInbox() {
         : "cash"
     );
     setEditMemberId(slip.matchedMemberId || null);
+    setMemberSearch("");
     setEditReviewNote(slip.reviewNote || "");
   };
 
@@ -1199,24 +1201,56 @@ export default function GivingInbox() {
                             </button>
                           )}
                       </label>
+                      {currentSlip.status !== "approved" &&
+                        (membersQuery.data ?? []).length > 0 && (
+                          <input
+                            type="search"
+                            value={memberSearch}
+                            onChange={e => setMemberSearch(e.target.value)}
+                            placeholder="พิมพ์ค้นหาสมาชิก หรือเลขซอง..."
+                            aria-label="ค้นหาสมาชิกผู้ถวาย"
+                            className="w-full rounded-xl border border-line bg-paper-2 px-3 py-1.5 text-xs font-bold text-ink placeholder:text-ink-3 focus:border-brand focus:outline-none"
+                          />
+                        )}
                       <NativeSelect
                         value={editMemberId ?? ""}
-                        onChange={e =>
-                          setEditMemberId(
-                            e.target.value ? Number(e.target.value) : null
-                          )
-                        }
+                        onChange={e => {
+                          const nextId = e.target.value
+                            ? Number(e.target.value)
+                            : null;
+                          setEditMemberId(nextId);
+                          if (nextId && !editDonorName.trim()) {
+                            const found = (membersQuery.data ?? []).find(
+                              (m: any) => m.id === nextId
+                            );
+                            if (found?.name) setEditDonorName(found.name);
+                          }
+                        }}
                         disabled={currentSlip.status === "approved"}
                         className="focus:ring-2 focus:ring-brand"
                       >
                         <option value="">
                           -- ไม่ระบุสมาชิก (ผู้ถวายนิรนาม) --
                         </option>
-                        {(membersQuery.data ?? []).map((m: any) => (
-                          <option key={m.id} value={m.id}>
-                            {m.name} {m.envelopeNo ? `(#${m.envelopeNo})` : ""}
-                          </option>
-                        ))}
+                        {(membersQuery.data ?? [])
+                          .filter((m: any) => {
+                            if (m.id === editMemberId) return true;
+                            const q = memberSearch.trim().toLowerCase();
+                            if (!q) return true;
+                            const nameMatch = String(m.name ?? "")
+                              .toLowerCase()
+                              .includes(q);
+                            const envMatch = String(m.envelopeNo ?? "")
+                              .toLowerCase()
+                              .includes(q);
+                            return nameMatch || envMatch;
+                          })
+                          .map((m: any) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name}{" "}
+                              {m.envelopeNo ? `(#${m.envelopeNo})` : ""}
+                            </option>
+                          ))}
                       </NativeSelect>
                       {currentSlip.matchMethod && (
                         <p className="text-xs font-bold text-brand">

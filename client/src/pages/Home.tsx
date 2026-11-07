@@ -28,7 +28,7 @@ import {
 import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
 import { formatThaiDate } from "@/lib/format";
 import { monthDelta } from "./Home/summaryFormat";
-import { fundShares } from "./Home/fundShares";
+import { fundPoolSplit, fundShares } from "./Home/fundShares";
 
 // ─── Formatting helpers ──────────────────────────────────────────────────────
 
@@ -96,6 +96,7 @@ export default function Home() {
     staleTime: 30_000,
   });
   const fundRows = useMemo(() => fundShares(fundsData ?? []), [fundsData]);
+  const poolSplit = useMemo(() => fundPoolSplit(fundsData ?? []), [fundsData]);
 
   const { data: offeringsData } = trpc.offerings.list.useQuery(
     { limit: 30 },
@@ -267,6 +268,7 @@ export default function Home() {
                 canOpenReports={canOpenReports}
                 onOpenReports={() => setLocation("/reports")}
                 fundRows={fundRows}
+                poolSplit={poolSplit}
               />
             </div>
           )}

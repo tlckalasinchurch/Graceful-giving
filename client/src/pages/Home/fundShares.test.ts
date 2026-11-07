@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { fundShares } from "./fundShares";
+import { fundPoolSplit, fundShares } from "./fundShares";
 
-const f = (id: number, name: string, balance: string | number) => ({
+const f = (
+  id: number,
+  name: string,
+  balance: string | number,
+  type?: string | null
+) => ({
   id,
   name,
   balance,
+  type,
 });
 
 describe("fundShares", () => {
@@ -46,5 +52,33 @@ describe("fundShares", () => {
   it("is empty when no fund holds money", () => {
     expect(fundShares([])).toEqual([]);
     expect(fundShares([f(1, "A", 0)])).toEqual([]);
+  });
+});
+
+describe("fundPoolSplit", () => {
+  it("separates general funds from designated/restricted funds", () => {
+    const split = fundPoolSplit([
+      f(1, "กองทุนทั่วไป", "15000", "general"),
+      f(2, "กองทุนอาคาร", "85000", "restricted"),
+      f(3, "กองทุนพันธกิจ", "5000", "designated"),
+    ]);
+    expect(split).toEqual({
+      generalBalance: 15000,
+      restrictedBalance: 90000,
+      hasFunds: true,
+    });
+  });
+
+  it("defaults missing type to general and reports empty funds", () => {
+    expect(fundPoolSplit([])).toEqual({
+      generalBalance: 0,
+      restrictedBalance: 0,
+      hasFunds: false,
+    });
+    expect(fundPoolSplit([f(1, "หลัก", 2500)])).toEqual({
+      generalBalance: 2500,
+      restrictedBalance: 0,
+      hasFunds: true,
+    });
   });
 });
