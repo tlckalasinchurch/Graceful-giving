@@ -60,24 +60,22 @@ export function CashCountTab({
     });
   };
 
-  // Debounce autosave after 600ms of inactivity without firing on every keystroke cleanup.
   useEffect(() => {
     if (!editable) return;
     const timer = setTimeout(() => flushRef.current(), 600);
     return () => clearTimeout(timer);
   }, [draftCounts, editable, sessionId]);
 
-  // Flush any remaining drafts when switching away from the tab or changing session.
   useEffect(() => {
     return () => flushRef.current();
   }, [sessionId]);
 
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
-        <div className="border-b border-line p-4">
-          <h2 className="font-bold text-foreground">ใบนับธนบัตรและเหรียญ</h2>
-          <p className="mt-1 text-sm text-ink-2">
+      <div className="bento-card-static overflow-hidden">
+        <div className="border-b-2 border-[var(--ink)] bg-paper-2 p-4">
+          <h2 className="font-extrabold text-ink">ใบนับธนบัตรและเหรียญ</h2>
+          <p className="mt-1 text-sm font-medium text-ink-2">
             กรอกจำนวนใบหรือเหรียญ ระบบคูณและรวมยอดให้ทันที
           </p>
         </div>
@@ -94,8 +92,8 @@ export function CashCountTab({
               draft !== undefined ? draft : String(saved?.quantity ?? "");
             const subtotal = denomination.value * (Number(quantity) || 0);
             return (
-              <li key={key} className="flex items-center gap-3 p-3 md:p-4">
-                <span className="w-28 shrink-0 text-sm font-bold text-foreground md:w-40">
+              <li key={key} className="flex items-center gap-3 p-3 md:p-4 hover:bg-paper-2/40">
+                <span className="w-28 shrink-0 text-sm font-extrabold text-ink md:w-40">
                   {denomination.label}
                 </span>
                 <input
@@ -125,19 +123,19 @@ export function CashCountTab({
                   }}
                   placeholder="0"
                   aria-label={`จำนวน ${denomination.label}`}
-                  className="w-24 rounded-xl border border-line p-2.5 text-right text-base font-bold tabular-nums text-foreground disabled:opacity-60"
+                  className="w-24 rounded-xl border-2 border-[var(--ink)] bg-surface p-2.5 text-right text-base font-extrabold tabular-nums text-ink shadow-[2px_2px_0_var(--ink)] focus:border-brand focus:outline-none disabled:opacity-60"
                 />
-                <span className="ml-auto text-right text-sm font-bold tabular-nums text-ink-2">
+                <span className="ml-auto text-right text-sm font-extrabold tabular-nums text-ink-2">
                   {fmtBaht(subtotal)}
                 </span>
               </li>
             );
           })}
         </ul>
-        <div className="flex items-center justify-between border-t-2 border-line bg-paper-2 p-4">
+        <div className="flex items-center justify-between border-t-2 border-[var(--ink)] bg-paper-2 p-4">
           <div>
-            <p className="font-bold text-ink">รวมนับได้</p>
-            <p className="text-sm text-ink-2">
+            <p className="font-extrabold text-ink">รวมนับได้</p>
+            <p className="text-sm font-medium text-ink-2">
               เทียบซองเงินสด {fmtBaht(envelopeCashTotal)}
             </p>
           </div>

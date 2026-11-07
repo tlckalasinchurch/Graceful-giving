@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { fetchLiffId, signInWithLiff } from "@/lib/liffSignIn";
 import { trpc } from "@/lib/trpc";
+import { HandHeart, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { PlainGivingStation } from "./GivingStation";
 
@@ -15,23 +16,33 @@ const ERRORS: Record<string, string> = {
     "ระบบเข้าสู่ระบบด้วย LINE ยังไม่ได้ตั้งค่า โปรดติดต่อเจ้าหน้าที่",
 };
 
-function LineMark() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-6"
-      aria-hidden="true"
-      fill="currentColor"
-    >
-      <path d="M12 2C6.48 2 2 5.58 2 9.99c0 3.95 3.5 7.26 8.23 7.89.32.07.76.21.87.49.1.25.07.64.03.9l-.14.84c-.04.25-.2.98.86.53 1.06-.45 5.72-3.37 7.8-5.77C20.99 12.5 22 11.33 22 9.99 22 5.58 17.52 2 12 2z" />
-    </svg>
-  );
-}
+/** What happens after the sign-in, in the order the donor meets it. */
+const NOTES = [
+  {
+    title: "เลือกประเภทการถวาย",
+    detail: "เลือกได้หลายประเภทในการถวายครั้งเดียว",
+  },
+  {
+    title: "แนบสลิปโอนเงิน",
+    detail: "ระบบช่วยอ่านยอดเงินจากสลิปให้",
+  },
+  {
+    title: "เหรัญญิกตรวจสอบ",
+    detail: "อนุมัติแล้วจึงบันทึกเข้าบัญชีของคริสตจักร",
+  },
+];
 
 function GiveShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh bg-ground text-ink">
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 px-[max(1.25rem,env(safe-area-inset-left))] pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+    <div className="relative isolate min-h-dvh overflow-x-clip bg-ground text-ink">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+      >
+        <div className="give-aurora absolute inset-0" />
+        <div className="give-ledger absolute inset-0" />
+      </div>
+      <main className="relative mx-auto flex min-h-dvh w-full max-w-[30rem] flex-col justify-center gap-8 px-[max(1.5rem,env(safe-area-inset-left))] pt-[max(3rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
         {children}
       </main>
     </div>
@@ -83,7 +94,7 @@ export default function Give() {
   if (loading) {
     return (
       <GiveShell>
-        <p role="status" className="text-center text-sm text-ink-2">
+        <p role="status" className="text-center text-sm font-bold text-ink-3">
           กำลังโหลด…
         </p>
       </GiveShell>
@@ -105,37 +116,91 @@ export default function Give() {
 
   return (
     <GiveShell>
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-extrabold">ถวายทรัพย์</h1>
-        <p className="text-sm text-ink-2">
-          เข้าสู่ระบบด้วย LINE เพื่อเลือกรายการถวายและแนบสลิปโอนเงิน
-        </p>
+      <header className="space-y-5">
+        <div className="flex items-center gap-2.5">
+          <span className="grid size-10 place-items-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
+            <HandHeart
+              className="size-5 text-brand"
+              strokeWidth={2.2}
+              aria-hidden="true"
+            />
+          </span>
+          <span className="text-sm font-extrabold text-ink">เกรซกิฟวิง</span>
+        </div>
+
+        <div className="space-y-3">
+          <h1 className="display text-[clamp(2.5rem,11vw,3.25rem)] font-extrabold text-ink">
+            ถวายทรัพย์
+          </h1>
+          <p className="max-w-[30ch] text-[15px] leading-[1.65] text-ink-2">
+            เข้าสู่ระบบด้วย LINE เพื่อเลือกประเภทการถวาย แนบสลิปโอนเงิน
+            และส่งให้เหรัญญิกตรวจสอบ
+          </p>
+        </div>
+      </header>
+
+      <div className="space-y-3">
+        {liffTrying ? (
+          <div
+            role="status"
+            className="bento-card-static flex min-h-14 items-center justify-center gap-2.5 text-sm font-bold text-ink-2"
+          >
+            <Loader2
+              className="size-4 animate-spin text-brand"
+              aria-hidden="true"
+            />
+            กำลังเข้าสู่ระบบด้วย LINE…
+          </div>
+        ) : disabled ? (
+          <p
+            role="alert"
+            className="rounded-2xl border-2 border-[var(--ink)] bg-danger/10 p-4 text-center text-sm font-bold leading-relaxed text-danger shadow-[3px_3px_0_var(--ink)]"
+          >
+            บัญชีนี้ถูกปิดการใช้งาน โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
+          </p>
+        ) : (
+          <>
+            <a
+              href={GIVE_LOGIN_URL}
+              className="alpha-press flex min-h-14 w-full items-center justify-center rounded-2xl border-2 border-[var(--ink)] bg-line-brand px-6 text-base font-extrabold text-[var(--ink)] shadow-[4px_4px_0_var(--ink)]"
+            >
+              เข้าสู่ระบบด้วย LINE
+            </a>
+            <p className="text-center text-xs font-medium text-ink-3">
+              ใช้บัญชี LINE ที่มีอยู่ ไม่ต้องสมัครใหม่
+            </p>
+          </>
+        )}
+
+        {error && (
+          <p
+            role="alert"
+            className="rounded-xl border-2 border-[var(--ink)] bg-danger/10 px-4 py-3 text-center text-sm font-bold leading-relaxed text-danger shadow-[2px_2px_0_var(--ink)]"
+          >
+            {error}
+          </p>
+        )}
       </div>
-      {liffTrying ? (
-        <p role="status" className="text-center text-sm text-ink-2">
-          กำลังเข้าสู่ระบบด้วย LINE…
-        </p>
-      ) : disabled ? (
-        <p
-          role="alert"
-          className="rounded-2xl border border-line bg-accent p-4 text-center text-sm text-ink"
-        >
-          บัญชีนี้ถูกปิดการใช้งาน โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
-        </p>
-      ) : (
-        <a
-          href={GIVE_LOGIN_URL}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl bg-line-brand px-4 text-base font-bold text-black hover:brightness-95 focus-visible:ring-2 focus-visible:ring-brand"
-        >
-          <LineMark />
-          เข้าสู่ระบบด้วย LINE
-        </a>
-      )}
-      {error && (
-        <p role="alert" className="text-center text-sm text-danger">
-          {error}
-        </p>
-      )}
+
+      <ol className="bento-card-static divide-y divide-line px-4">
+        {NOTES.map(({ title, detail }, index) => (
+          <li key={title} className="flex gap-4 py-3.5">
+            <span className="money mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-lg border border-[var(--ink)] bg-accent text-xs font-extrabold text-accent-foreground">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-extrabold text-ink">{title}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-ink-2">
+                {detail}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <p className="text-center text-xs leading-relaxed text-ink-3">
+        หากเข้าสู่ระบบไม่ได้ โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
+      </p>
     </GiveShell>
   );
 }

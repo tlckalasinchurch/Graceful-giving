@@ -240,7 +240,7 @@ export default function Home() {
   // a 7/5 grid so a wide screen gets two columns, not a stretched phone.
   return (
     <AppLayout>
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-5 sm:space-y-6">
         <HeroSection />
 
         {/* To-do queue: work waiting on this role (slips, withdrawals, counting) */}
@@ -274,12 +274,13 @@ export default function Home() {
           <section
             aria-labelledby="dashboard-actions"
             style={{ animationDelay: "160ms" }}
-            className={`animate-fade-up ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"} rounded-3xl border border-line bg-surface p-5 sm:p-6 space-y-4`}
+            className={`animate-fade-up bento-card space-y-4 p-5 sm:p-6 ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"}`}
           >
             <h2
               id="dashboard-actions"
-              className="px-1 text-base font-semibold text-ink"
+              className="flex items-center gap-2 px-1 text-xs font-bold uppercase tracking-[0.14em] text-ink-3"
             >
+              <span className="size-1.5 rounded-full bg-brand" aria-hidden="true" />
               ทำรายการ
             </h2>
             <PrimaryActions

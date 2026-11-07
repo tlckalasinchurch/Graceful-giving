@@ -12,7 +12,6 @@ import { Illustration } from "@/components/Illustration";
 import {
   Download,
   HandCoins,
-  Heart,
   Plus,
   QrCode,
   Printer,
@@ -45,7 +44,6 @@ export default function Offerings() {
     refetch,
   } = trpc.offerings.list.useQuery({ limit: 50 }, { retry: false });
 
-  // Rows store a fundId, so the fund's name has to come from the account list.
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
     staleTime: 60_000,
@@ -134,25 +132,25 @@ export default function Offerings() {
       title="ถวายทรัพย์"
       subtitle="บันทึกและตรวจสอบรายการเงินถวายทุกประเภทของคริสตจักร"
       action={
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={exportCSV}
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2/70 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="btn-secondary min-h-11 px-3.5 text-xs"
           >
             <Download className="w-3.5 h-3.5" />
             <span>ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/giving/station")}
-            className="px-3.5 py-2 rounded-2xl bg-paper hover:bg-paper-2 text-brand-ink border border-line text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            className="btn-secondary min-h-11 px-3.5 text-xs text-brand cursor-pointer"
           >
-            <QrCode className="w-3.5 h-3.5" />
+            <QrCode className="w-3.5 h-3.5 text-brand" />
             <span>ป้าย QR & จุดถวาย</span>
           </button>
           {canCreate && (
             <button
               onClick={() => setLocation("/offerings/new")}
-              className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold button-elevation transition-all flex items-center gap-1.5"
+              className="btn-primary min-h-11 px-4 text-xs"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>บันทึกถวายใหม่</span>
@@ -162,24 +160,24 @@ export default function Offerings() {
       }
     >
       {/* 1. Header Banner with 3D Offering Box Illustration */}
-      <div className="bg-surface rounded-2xl p-5 sm:p-7 border border-line flex flex-col sm:flex-row items-center justify-between gap-5">
-        <div className="space-y-2 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-paper-2 border border-line text-xs font-semibold text-ink-2">
+      <div className="bento-card p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div className="space-y-2.5 text-center sm:text-left">
+          <div className="eyebrow">
             <span>{bannerLabel}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-income">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-income">
             <MoneyDisplay amount={bannerAmount} type="income" size="xl" />
           </h2>
-          <p className="text-xs text-ink-3">
+          <p className="text-xs font-medium text-ink-3">
             "ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก" — 2 โครินธ์ 9:7
           </p>
         </div>
 
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-surface p-1.5 border border-line shrink-0">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-paper-2 p-1.5 border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] shrink-0">
           <Illustration
             src="/illustrations/offering_box.jpg"
             alt="กล่องถวาย"
-            className="w-full h-full object-cover rounded-2xl"
+            className="w-full h-full object-cover rounded-xl"
             width={112}
             height={112}
           />
@@ -187,7 +185,7 @@ export default function Offerings() {
       </div>
 
       {/* 2. Filter Bar */}
-      <div className="bg-surface rounded-2xl p-4 md:p-5 border border-line card-elevation-sm">
+      <div className="bento-card-static p-4 md:p-5">
         <FilterBar
           searchPlaceholder="ค้นหาประเภทถวายหรือกองทุน..."
           searchValue={searchTerm}
@@ -223,22 +221,22 @@ export default function Offerings() {
           onAction={canCreate ? () => setLocation("/offerings/new") : undefined}
         />
       ) : (
-        <div className="bg-surface rounded-2xl border border-line card-elevation-sm divide-y divide-line/60 overflow-hidden">
+        <div className="bento-card-static divide-y divide-line overflow-hidden">
           {filtered.map(o => (
             <div
               key={o.id}
               onClick={() => setLocation(`/transactions/offering-${o.id}`)}
-              className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-paper/70 cursor-pointer transition-colors"
+              className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-paper-2 cursor-pointer transition-colors"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-12 h-12 rounded-2xl bg-surface border border-line text-income flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-tile-mint border-2 border-[var(--ink)] text-tile-mint-ink shadow-[2px_2px_0_var(--ink)] flex items-center justify-center shrink-0">
                   <HandCoins className="w-6 h-6 stroke-[2.2]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-bold text-ink truncate">
+                  <h3 className="text-sm font-extrabold text-ink truncate">
                     {o.title}
                   </h3>
-                  <p className="text-xs text-ink-3 pt-0.5">
+                  <p className="text-xs font-medium text-ink-3 pt-0.5">
                     {formatThaiDateTime(o.date)} · {o.method} · {o.fund}
                   </p>
                 </div>
@@ -266,7 +264,7 @@ export default function Offerings() {
                       notes: o.notes || undefined,
                     });
                   }}
-                  className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-paper hover:bg-paper-2 hover:border-brand text-ink-2 border border-line transition-colors"
+                  className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-paper-2 border-2 border-[var(--ink)] text-ink shadow-[2px_2px_0_var(--ink)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                   title="พิมพ์ใบเสร็จเงินถวาย"
                 >
                   <Printer className="w-4 h-4 text-brand" />

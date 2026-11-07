@@ -15,6 +15,7 @@ import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 export default function MinistryDetail() {
   const [, setLocation] = useLocation();
@@ -60,7 +61,7 @@ export default function MinistryDetail() {
     onError: async error => {
       await Swal.error(
         "เกิดข้อผิดพลาด",
-        error.message || "ไม่สามารถบันทึกข้อมูลได้"
+        friendlyErrorMessage(error, "ไม่สามารถบันทึกข้อมูลได้")
       );
     },
   });
@@ -77,7 +78,7 @@ export default function MinistryDetail() {
     onError: async error => {
       await Swal.error(
         "เกิดข้อผิดพลาด",
-        error.message || "ไม่สามารถเปลี่ยนสถานะได้"
+        friendlyErrorMessage(error, "ไม่สามารถเปลี่ยนสถานะได้")
       );
     },
   });
@@ -133,18 +134,17 @@ export default function MinistryDetail() {
             onAction={() => setLocation("/ministries")}
           />
         ) : canManage ? (
-          <form
-            onSubmit={submit}
-            className="rounded-2xl border border-line bg-surface p-6 md:p-8"
-          >
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <form onSubmit={submit} className="bento-card p-6 md:p-8">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b-2 border-[var(--ink)]">
               <div>
-                <h1 className="text-2xl font-bold text-ink">
+                <h1 className="text-2xl font-extrabold tracking-tight text-ink">
                   แก้ไขข้อมูลฝ่ายงาน
                 </h1>
-                <p className="mt-1 text-sm text-ink-3">
+                <p className="mt-1 text-sm font-medium text-ink-3">
                   สถานะปัจจุบัน:{" "}
-                  {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
+                  <span className="font-extrabold text-ink">
+                    {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
+                  </span>
                 </p>
               </div>
               {query.data.status === "inactive" ? (
@@ -152,7 +152,7 @@ export default function MinistryDetail() {
                   type="button"
                   disabled={update.isPending}
                   onClick={() => update.mutate({ id, status: "active" })}
-                  className="min-h-11 rounded-2xl border border-line bg-surface hover:bg-paper-2 px-4 py-2 text-sm font-bold text-ink disabled:opacity-50"
+                  className="btn-secondary min-h-11 px-4 py-2 text-sm disabled:opacity-50"
                 >
                   เปิดใช้งานฝ่ายนี้ใหม่
                 </button>
@@ -172,7 +172,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-bold text-rose-300 disabled:opacity-50"
+                  className="min-h-11 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger shadow-[2px_2px_0_var(--ink)] transition-colors disabled:opacity-50"
                 >
                   พักงานฝ่าย
                 </button>
@@ -180,69 +180,71 @@ export default function MinistryDetail() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-semibold text-ink-2">
+              <label className="text-sm font-extrabold text-ink-2">
                 ชื่อฝ่ายงาน *
                 <input
                   required
                   value={name}
                   onChange={event => setName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2">
+              <label className="text-sm font-extrabold text-ink-2">
                 หัวหน้าฝ่าย
                 <input
                   value={leaderName}
                   onChange={event => setLeaderName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
+              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
                 เวลานัดประชุม
                 <input
                   value={meetingSchedule}
                   onChange={event => setMeetingSchedule(event.target.value)}
                   placeholder="เช่น ทุกวันอาทิตย์ 09:00"
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
+              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
                 รายละเอียดพันธกิจ
                 <textarea
                   value={description}
                   onChange={event => setDescription(event.target.value)}
                   rows={4}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
             </div>
 
             <button
               disabled={update.isPending}
-              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand hover:bg-brand-ink px-5 py-2 text-sm font-bold text-black disabled:opacity-50"
+              className="btn-primary mt-6 inline-flex min-h-11 items-center gap-2 px-5 py-2 text-sm disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
             </button>
           </form>
         ) : (
-          <section className="rounded-2xl border border-line bg-surface p-6 md:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h1 className="text-2xl font-bold text-ink">{query.data.name}</h1>
+          <section className="bento-card p-6 md:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b-2 border-[var(--ink)]">
+              <h1 className="text-2xl font-extrabold tracking-tight text-ink">
+                {query.data.name}
+              </h1>
               <span
-                className={`rounded-full px-2.5 py-1 text-[11px] ${
+                className={`rounded-full border px-2.5 py-1 text-[11px] font-extrabold ${
                   query.data.status === "active"
-                    ? "bg-surface text-ink"
-                    : "bg-paper text-ink-2"
+                    ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
+                    : "border-[var(--ink)]/20 bg-paper-2 text-ink-2"
                 }`}
               >
                 {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
               </span>
             </div>
 
-            <dl className="mt-5 space-y-3 text-sm text-ink-2">
+            <dl className="mt-5 space-y-3 text-sm font-bold text-ink-2">
               <div className="flex items-center gap-2">
-                <UserRound className="h-4 w-4 shrink-0 text-ink-3" />
+                <UserRound className="h-4 w-4 shrink-0 text-brand" />
                 <dt className="sr-only">หัวหน้าฝ่าย</dt>
                 <dd>{query.data.leaderName || "ยังไม่ระบุหัวหน้าฝ่าย"}</dd>
               </div>
@@ -256,7 +258,7 @@ export default function MinistryDetail() {
             </dl>
 
             {query.data.description && (
-              <p className="mt-5 whitespace-pre-line border-t border-line pt-5 text-sm leading-relaxed text-ink">
+              <p className="mt-5 whitespace-pre-line border-t-2 border-[var(--ink)] pt-5 text-sm font-medium leading-relaxed text-ink">
                 {query.data.description}
               </p>
             )}

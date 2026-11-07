@@ -10,7 +10,7 @@ import {
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
-import { Download, Plus } from "lucide-react";
+import { Download, Plus, HandCoins, CreditCard, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { csvCell, formatThaiDate, THAI_LOCALE } from "@/lib/format";
 import {
@@ -39,7 +39,7 @@ export default function Transactions() {
   const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [fundFilter, setFundFilter] = useState("all");
+  const [fundFilter] = useState("all");
 
   const {
     data: offeringsData,
@@ -48,9 +48,6 @@ export default function Transactions() {
     refetch: refetchOfferings,
   } = trpc.offerings.list.useQuery({ limit: 50 }, { retry: false });
 
-  // Rows carry a fundId only, so the fund column needs the account list to
-  // show a name. It used to print the constant "บัญชีทั่วไป" on every row
-  // regardless of which fund the money actually went to.
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
     staleTime: 60_000,
@@ -86,7 +83,6 @@ export default function Transactions() {
           fund: fundName(o.fundId),
           categoryLabel: offeringCategoryLabel(o.category),
           amount: Number(o.amount),
-          // Recorded ledger offerings are active entries in the books.
           status: "completed",
         });
       });
@@ -146,8 +142,6 @@ export default function Transactions() {
   );
   const netTotal = totalIncome - totalExpense;
 
-  // Export the currently filtered transactions, same pattern as Offerings'
-  // exportCSV: UTF-8 BOM so Excel reads Thai text correctly.
   const handleExport = () => {
     const typeLabel = (t: TransactionItem) =>
       t.type === "income" ? "รายรับ" : "รายจ่าย";
@@ -181,8 +175,6 @@ export default function Transactions() {
     toast.success("ส่งออกรายการธุรกรรมสำเร็จ");
   };
 
-  // The mobile feed groups rows under one date heading per day, so the date
-  // is read once instead of on every row. The list is already newest first.
   const feedByDay = useMemo(() => {
     const days: { label: string; items: TransactionItem[] }[] = [];
     for (const tx of filtered) {
@@ -207,14 +199,14 @@ export default function Transactions() {
           <button
             onClick={handleExport}
             aria-label="ส่งออก CSV"
-            className="min-h-11 px-3.5 rounded-xl border border-line bg-surface text-ink text-sm font-semibold hover:bg-ground flex items-center gap-1.5 transition-colors"
+            className="btn-secondary min-h-11 px-3.5 text-sm"
           >
-            <Download className="size-4 text-ink-2" aria-hidden="true" />
+            <Download className="size-4 text-ink" aria-hidden="true" />
             <span className="hidden sm:inline">ส่งออก CSV</span>
           </button>
           <button
             onClick={() => setLocation("/offerings/new")}
-            className="min-h-11 px-4 rounded-xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold flex items-center gap-1.5 transition-colors"
+            className="btn-primary flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-bold"
           >
             <Plus className="size-4" aria-hidden="true" />
             <span>บันทึกการถวาย</span>
@@ -222,48 +214,80 @@ export default function Transactions() {
         </div>
       }
     >
-      {/* 1. Summary: one card split by hairlines, label over figure */}
+      {/* Eyebrow + kicker for the section */}
+      <div className="flex items-center gap-2">
+        <span className="eyebrow">สมุดรายการ · การเงิน</span>
+      </div>
+
+      {/* 1. Summary KPI cards — bento layout with offset shadow */}
       <section
         aria-label="สรุปรายการที่เลือก"
-        className="bg-surface rounded-2xl border border-line px-5"
+        className="grid gap-4 sm:grid-cols-3"
       >
-        <dl className="grid grid-cols-1 divide-y divide-line/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          {[
-            {
-              label: "รายรับทั้งหมด",
-              amount: totalIncome,
-              type: "income" as const,
-              note: `${filtered.filter(t => t.type === "income").length} รายการ`,
-            },
-            {
-              label: "รายจ่ายทั้งหมด",
-              amount: totalExpense,
-              type: "expense" as const,
-              note: `${filtered.filter(t => t.type === "expense").length} รายการ`,
-            },
-            {
-              label: "ยอดสุทธิ",
-              amount: netTotal,
-              type: "neutral" as const,
-              note: "คงเหลือในรอบที่เลือก",
-            },
-          ].map(c => (
-            <div
-              key={c.label}
-              className="flex items-center justify-between gap-3 py-3.5 sm:block sm:px-6 sm:py-5 sm:first:pl-0 sm:last:pr-0"
-            >
-              <dt className="text-sm font-medium text-ink-2">{c.label}</dt>
-              <dd className="text-right sm:mt-1 sm:text-left">
-                <MoneyDisplay amount={c.amount} type={c.type} size="lg" />
-                <p className="text-xs text-ink-3">{c.note}</p>
-              </dd>
+        {[
+          {
+            label: "รายรับทั้งหมด",
+            amount: totalIncome,
+            type: "income" as const,
+            note: `${filtered.filter(t => t.type === "income").length} รายการ`,
+            tone: "income",
+          },
+          {
+            label: "รายจ่ายทั้งหมด",
+            amount: totalExpense,
+            type: "expense" as const,
+            note: `${filtered.filter(t => t.type === "expense").length} รายการ`,
+            tone: "expense",
+          },
+          {
+            label: "ยอดสุทธิ",
+            amount: netTotal,
+            type: "neutral" as const,
+            note: "คงเหลือในรอบที่เลือก",
+            tone: "neutral",
+          },
+        ].map(c => (
+          <div
+            key={c.label}
+            className="bento-card p-5 sm:p-6"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-extrabold text-ink-3 uppercase tracking-wider">
+                  {c.label}
+                </p>
+                <p className="text-[11px] font-medium text-ink-3 mt-0.5">{c.note}</p>
+              </div>
+              <div
+                className={`size-9 shrink-0 rounded-lg border-2 border-[var(--ink)] flex items-center justify-center ${
+                  c.tone === "income"
+                    ? "bg-tile-mint text-tile-mint-ink"
+                    : c.tone === "expense"
+                      ? "bg-tile-peach text-tile-peach-ink"
+                      : "bg-accent text-accent-foreground"
+                }`}
+              >
+                {c.tone === "income" ? (
+                  <HandCoins className="size-4" aria-hidden="true" />
+                ) : c.tone === "expense" ? (
+                  <CreditCard className="size-4" aria-hidden="true" />
+                ) : (
+                  <Wallet className="size-4" aria-hidden="true" />
+                )}
+              </div>
             </div>
-          ))}
-        </dl>
+            <MoneyDisplay
+              amount={c.amount}
+              type={c.type}
+              size="xl"
+              className="mt-2 block"
+            />
+          </div>
+        ))}
       </section>
 
       {/* 2. Filter Bar */}
-      <div className="bg-surface rounded-2xl border border-line p-4 md:p-5 space-y-3">
+      <div className="bento-card-static p-4 md:p-5">
         <FilterBar
           searchPlaceholder="ค้นหารายการ, หมวดหมู่, หรือพันธกิจ..."
           searchValue={searchTerm}
@@ -306,14 +330,14 @@ export default function Transactions() {
           onAction={() => setLocation("/offerings/new")}
         />
       ) : (
-        <div className="bg-surface rounded-2xl border border-line overflow-hidden">
+        <div className="bento-card-static overflow-hidden">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="border-b border-line text-ink-3 font-medium">
+              <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-ink">
                 <tr>
                   <th scope="col" className="p-4">
                     วันที่
@@ -337,11 +361,11 @@ export default function Transactions() {
               </thead>
               <tbody className="divide-y divide-line">
                 {filtered.map(tx => (
-                  <tr key={tx.id} className="transition-colors hover:bg-ground">
-                    <td className="p-4 text-ink-2 whitespace-nowrap">
+                  <tr key={tx.id} className="transition-colors hover:bg-paper-2">
+                    <td className="p-4 text-ink-2 font-medium whitespace-nowrap">
                       {formatThaiDate(tx.date)}
                     </td>
-                    <th scope="row" className="p-4 font-semibold text-ink">
+                    <th scope="row" className="p-4 font-bold text-ink">
                       <Link
                         href={`/transactions/${tx.id}`}
                         className="rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
@@ -349,8 +373,8 @@ export default function Transactions() {
                         {tx.title}
                       </Link>
                     </th>
-                    <td className="p-4 text-ink-2">{tx.categoryLabel}</td>
-                    <td className="p-4 text-ink-2">{tx.fund}</td>
+                    <td className="p-4 text-ink-2 font-medium">{tx.categoryLabel}</td>
+                    <td className="p-4 text-ink-2 font-medium">{tx.fund}</td>
                     <td className="p-4 text-right">
                       <MoneyDisplay
                         amount={tx.amount}
@@ -371,42 +395,40 @@ export default function Transactions() {
           <div className="md:hidden">
             {feedByDay.map(day => (
               <section key={day.label} aria-label={day.label}>
-                <h3 className="sticky top-0 z-10 bg-surface px-4 pb-1 pt-4 text-xs font-semibold text-ink-3">
+                <h3 className="sticky top-0 z-10 border-y border-line bg-paper-2 px-4 py-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">
                   {day.label}
                 </h3>
                 <ul className="divide-y divide-line">
-                  {day.items.map(tx => {
-                    return (
-                      <li key={tx.id}>
-                        <Link
-                          href={`/transactions/${tx.id}`}
-                          aria-label={`ดูรายละเอียด ${tx.title} วันที่ ${day.label} จำนวนเงิน ${tx.amount} บาท`}
-                          className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 active:bg-ground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-                        >
-                          <div className="flex min-w-0 items-center">
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-ink">
-                                {tx.title}
-                              </p>
-                              <p className="truncate text-xs text-ink-2 pt-0.5">
-                                {tx.categoryLabel} · {tx.fund}
-                              </p>
-                            </div>
+                  {day.items.map(tx => (
+                    <li key={tx.id}>
+                      <Link
+                        href={`/transactions/${tx.id}`}
+                        aria-label={`ดูรายละเอียด ${tx.title} วันที่ ${day.label} จำนวนเงิน ${tx.amount} บาท`}
+                        className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 active:bg-paper-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                      >
+                        <div className="flex min-w-0 items-center">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-extrabold text-ink">
+                              {tx.title}
+                            </p>
+                            <p className="truncate text-xs font-medium text-ink-2 pt-0.5">
+                              {tx.categoryLabel} · {tx.fund}
+                            </p>
                           </div>
-                          <div className="shrink-0 space-y-1 text-right">
-                            <MoneyDisplay
-                              amount={tx.amount}
-                              type={tx.type}
-                              size="base"
-                            />
-                            <div>
-                              <StatusBadge status={tx.status} />
-                            </div>
+                        </div>
+                        <div className="shrink-0 space-y-1 text-right">
+                          <MoneyDisplay
+                            amount={tx.amount}
+                            type={tx.type}
+                            size="base"
+                          />
+                          <div>
+                            <StatusBadge status={tx.status} />
                           </div>
-                        </Link>
-                      </li>
-                    );
-                  })}
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </section>
             ))}

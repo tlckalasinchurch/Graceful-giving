@@ -21,7 +21,7 @@ export default function Updates() {
 
   if (loading) {
     return (
-      <div className="min-h-dvh bg-paper p-6 text-center text-sm text-ink-3">
+      <div className="min-h-dvh bg-paper p-6 text-center text-sm font-bold text-ink-3">
         กำลังตรวจสอบบัญชีผู้ใช้...
       </div>
     );
@@ -33,24 +33,24 @@ export default function Updates() {
         <div className="mx-auto max-w-lg">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-bold text-brand-ink hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-extrabold text-brand hover:underline"
           >
             <ArrowLeft className="size-4" />
             กลับหน้าหลัก
           </Link>
-          <div className="mt-16 rounded-2xl border border-line bg-surface p-8 text-center">
-            <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-paper-2 text-brand-ink">
+          <div className="bento-card mt-16 p-8 text-center">
+            <div className="mx-auto grid size-16 place-items-center rounded-2xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
               <Bell className="size-8" />
             </div>
-            <h1 className="mt-5 font-display text-2xl font-bold text-ink-2">
+            <h1 className="mt-5 font-display text-2xl font-extrabold text-ink">
               ติดตามข่าวสารคริสตจักร
             </h1>
-            <p className="mt-2 text-sm leading-6 text-ink-2">
+            <p className="mt-2 text-sm font-medium leading-6 text-ink-2">
               เข้าสู่ระบบเพื่อดูประกาศ กิจกรรม และข้อมูลอัปเดตสำหรับสมาชิก
             </p>
             <button
               onClick={startLogin}
-              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-black hover:bg-brand-ink transition"
+              className="btn-primary mt-6 inline-flex min-h-11 items-center gap-2 px-6 py-3 text-sm"
             >
               <UsersRound className="size-4" />
               เข้าสู่ระบบ
@@ -70,30 +70,30 @@ export default function Updates() {
       <div className="space-y-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
-            <div className="grid size-12 place-items-center rounded-2xl bg-paper-2 text-ink">
+            <div className="grid size-12 place-items-center rounded-2xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
               <Megaphone className="size-6" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-bold text-ink">
+              <h2 className="font-display text-xl font-extrabold text-ink">
                 ประกาศและตารางกิจกรรม
               </h2>
-              <p className="mt-0.5 text-xs text-ink-3">
+              <p className="mt-0.5 text-xs font-medium text-ink-3">
                 ข่าวสารการรับใช้ กิจกรรมพิเศษ และประกาศของคริสตจักร
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-3.5 py-1.5 text-xs text-ink-2">
+          <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface px-3.5 py-1.5 text-xs font-extrabold text-ink-2 shadow-[2px_2px_0_var(--ink)]">
             <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
           </div>
         </header>
 
-        <div className="flex gap-2 rounded-2xl bg-surface border border-line p-1.5 sm:w-fit">
+        <div className="bento-card-static flex gap-2 p-1.5 sm:w-fit">
           <button
             onClick={() => setActiveTab("feed")}
-            className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
+            className={`min-h-11 rounded-xl px-5 py-2 text-sm transition-all ${
               activeTab === "feed"
-                ? "bg-paper-2 text-ink"
-                : "text-ink-3 hover:text-ink"
+                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                : "font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             สำหรับสมาชิก
@@ -101,10 +101,10 @@ export default function Updates() {
           {canManage && (
             <button
               onClick={() => setActiveTab("manage")}
-              className={`min-h-11 rounded-xl px-5 py-2 text-sm font-bold transition-all ${
+              className={`min-h-11 rounded-xl px-5 py-2 text-sm transition-all ${
                 activeTab === "manage"
-                  ? "bg-paper-2 text-ink"
-                  : "text-ink-3 hover:text-ink"
+                  ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                  : "font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
               }`}
             >
               <Settings2 className="mr-1.5 inline size-4" />

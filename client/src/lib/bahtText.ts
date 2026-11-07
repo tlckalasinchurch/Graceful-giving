@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Convert number into Thai Baht text representation
  * e.g. 1250.50 -> หนึ่งพันสองร้อยห้าสิบบาทห้าสิบสตางค์
  */

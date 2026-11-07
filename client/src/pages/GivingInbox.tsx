@@ -11,27 +11,20 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
-  Clock,
   ExternalLink,
-  UserCheck,
-  Building,
   Calendar,
   CreditCard,
   Copy,
   RefreshCw,
   Search,
   Check,
-  ChevronRight,
   ShieldAlert,
   Link2,
   UploadCloud,
   QrCode,
-  ArrowRight,
   BookOpen,
   Image as ImageIcon,
-  HelpCircle,
   X,
-  Zap,
   Loader2,
 } from "lucide-react";
 import {
@@ -75,57 +68,57 @@ const STATUS_LABELS: Record<
 > = {
   pending: {
     text: "รอดึงข้อมูล",
-    bg: "bg-paper",
+    bg: "bg-paper-2",
     textCol: "text-ink-2",
-    border: "border-field",
+    border: "border-[var(--ink)]/20",
   },
   processing: {
     text: "กำลังอ่านสลิป",
-    bg: "bg-amber-50",
-    textCol: "text-amber-800",
-    border: "border-amber-200",
+    bg: "bg-tile-sand",
+    textCol: "text-tile-sand-ink",
+    border: "border-[var(--ink)]/20",
   },
   extracted: {
     text: "อ่านข้อมูลแล้ว",
     bg: "bg-paper-2",
     textCol: "text-ink",
-    border: "border-line",
+    border: "border-[var(--ink)]/20",
   },
   needs_review: {
     text: "ต้องตรวจสอบ",
-    bg: "bg-amber-50",
-    textCol: "text-amber-800",
-    border: "border-amber-200",
+    bg: "bg-tile-sand",
+    textCol: "text-tile-sand-ink",
+    border: "border-[var(--ink)]/30",
   },
   matched: {
     text: "พร้อมอนุมัติ",
-    bg: "bg-emerald-50",
-    textCol: "text-emerald-800",
-    border: "border-emerald-200",
+    bg: "bg-tile-mint",
+    textCol: "text-tile-mint-ink",
+    border: "border-[var(--ink)]/30",
   },
   duplicate: {
     text: "สลิปซ้ำ",
-    bg: "bg-rose-50",
-    textCol: "text-rose-800",
-    border: "border-line",
+    bg: "bg-danger/10",
+    textCol: "text-danger",
+    border: "border-danger/40",
   },
   approved: {
     text: "อนุมัติแล้ว",
-    bg: "bg-emerald-50",
-    textCol: "text-emerald-800",
-    border: "border-emerald-200",
+    bg: "bg-tile-mint",
+    textCol: "text-tile-mint-ink",
+    border: "border-[var(--ink)]/30",
   },
   rejected: {
     text: "ปฏิเสธ",
-    bg: "bg-rose-50",
-    textCol: "text-rose-800",
-    border: "border-rose-200",
+    bg: "bg-danger/10",
+    textCol: "text-danger",
+    border: "border-danger/40",
   },
   failed: {
     text: "อ่านสลิปล้มเหลว",
-    bg: "bg-rose-50",
-    textCol: "text-rose-800",
-    border: "border-rose-200",
+    bg: "bg-danger/10",
+    textCol: "text-danger",
+    border: "border-danger/40",
   },
 };
 
@@ -540,7 +533,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setLocation("/offerings")}
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="btn-secondary min-h-10 px-3.5 py-2 text-xs flex items-center gap-1.5"
             title="ดูสมุดบัญชีเงินถวายที่อนุมัติแล้ว"
           >
             <BookOpen className="w-3.5 h-3.5" />
@@ -552,7 +545,7 @@ export default function GivingInbox() {
             type="button"
             onClick={() => setShowLineInfoModal(true)}
             aria-label="LINE บอท"
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="btn-secondary min-h-10 px-3.5 py-2 text-xs flex items-center gap-1.5"
             title="ข้อมูลการเชื่อมต่อ LINE และ QR Code"
           >
             <QrCode className="w-3.5 h-3.5" aria-hidden="true" />
@@ -563,7 +556,7 @@ export default function GivingInbox() {
             type="button"
             onClick={() => setLocation("/giving/station")}
             aria-label="ป้าย QR หน้าห้อง"
-            className="px-3.5 py-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            className="btn-secondary min-h-10 px-3.5 py-2 text-xs flex items-center gap-1.5 cursor-pointer"
             title="เปิดป้าย QR Code สำหรับติดหน้าห้องและหน้าถวายอัตโนมัติ"
           >
             <QrCode className="w-3.5 h-3.5" aria-hidden="true" />
@@ -576,7 +569,7 @@ export default function GivingInbox() {
           <button
             type="button"
             onClick={() => setShowUploadModal(true)}
-            className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all flex items-center gap-1.5"
+            className="btn-primary min-h-10 px-4 py-2 text-xs flex items-center gap-1.5"
           >
             <UploadCloud className="w-4 h-4" />
             <span>อัปโหลดสลิป</span>
@@ -587,7 +580,7 @@ export default function GivingInbox() {
             type="button"
             onClick={() => drainWorkerMutation.mutate()}
             disabled={drainWorkerMutation.isPending}
-            className="p-2 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 transition-all cursor-pointer"
+            className="btn-secondary min-h-10 p-2 cursor-pointer"
             title="รีเฟรชข้อมูลและประมวลผลคิวสลิป"
           >
             <RefreshCw
@@ -603,7 +596,7 @@ export default function GivingInbox() {
         <div
           role="group"
           aria-label="กรองสลิปตามสถานะ"
-          className="grid grid-cols-2 divide-x divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface sm:grid-cols-5 sm:divide-y-0"
+          className="bento-card-static grid grid-cols-2 divide-x-2 divide-y-2 divide-[var(--ink)] overflow-hidden p-0 sm:grid-cols-5 sm:divide-y-0"
         >
           {(
             [
@@ -611,7 +604,7 @@ export default function GivingInbox() {
                 id: "needs_review",
                 label: "ต้องตรวจสอบ",
                 value: stats?.needs_review ?? 0,
-                tone: "text-brand-ink",
+                tone: "text-brand",
               },
               {
                 id: "matched",
@@ -638,43 +631,54 @@ export default function GivingInbox() {
                 tone: "text-ink",
               },
             ] as const
-          ).map((tab, i) => (
-            <button
-              key={tab.id}
-              type="button"
-              aria-pressed={selectedStatus === tab.id}
-              onClick={() => setSelectedStatus(tab.id)}
-              className={`min-h-11 px-4 py-3.5 text-left transition-colors hover:bg-paper ${
-                selectedStatus === tab.id ? "bg-paper-2" : ""
-              } ${i === 4 ? "col-span-2 sm:col-span-1" : ""}`}
-            >
-              <span className="block text-xs font-medium text-ink-2">
-                {tab.label}
-              </span>
-              <span
-                className={`money mt-1 block text-2xl font-semibold ${tab.tone}`}
+          ).map((tab, i) => {
+            const active = selectedStatus === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setSelectedStatus(tab.id)}
+                className={`min-h-11 px-4 py-3.5 text-left transition-colors ${
+                  active
+                    ? "bg-accent text-accent-foreground"
+                    : "hover:bg-paper-2"
+                } ${i === 4 ? "col-span-2 sm:col-span-1" : ""}`}
               >
-                {tab.value}
-              </span>
-            </button>
-          ))}
+                <span
+                  className={`block text-xs font-extrabold ${
+                    active ? "text-accent-foreground" : "text-ink-2"
+                  }`}
+                >
+                  {tab.label}
+                </span>
+                <span
+                  className={`money mt-1 block text-2xl font-extrabold ${
+                    active ? "text-accent-foreground" : tab.tone
+                  }`}
+                >
+                  {tab.value}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* ── Nothing yet: say how slips arrive, in order ── */}
         {totalSlips === 0 && !slipsQuery.isLoading && (
-          <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
+          <div className="bento-card p-6 sm:p-8">
             <div className="max-w-3xl space-y-5">
               <div>
-                <h3 className="text-xl font-semibold text-ink">
+                <h3 className="text-xl font-extrabold text-ink">
                   ยังไม่มีสลิปเข้ามา
                 </h3>
-                <p className="mt-1 text-sm text-ink-2">
+                <p className="mt-1 text-sm font-medium text-ink-2">
                   สมาชิกส่งรูปสลิปมาทาง LINE OA ระบบอ่านข้อมูลให้
                   แล้วเหรัญญิกตรวจและอนุมัติ
                 </p>
               </div>
 
-              <ol className="list-decimal space-y-2 pl-5 text-sm text-ink marker:text-ink-3">
+              <ol className="list-decimal space-y-2 pl-5 text-sm font-medium text-ink marker:font-bold marker:text-ink-3">
                 <li>
                   สมาชิกโอนเงินเข้าบัญชีคริสตจักร แล้วส่งรูปสลิปเข้าห้องแชท LINE
                   OA
@@ -693,14 +697,14 @@ export default function GivingInbox() {
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(true)}
-                  className="px-5 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-sm transition-all flex items-center gap-2"
+                  className="btn-primary min-h-11 px-5 py-3 text-sm flex items-center gap-2"
                 >
                   <UploadCloud className="w-4 h-4" /> ลองอัปโหลดสลิปจากเครื่อง
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowLineInfoModal(true)}
-                  className="px-5 py-3 rounded-2xl bg-surface border border-line text-ink-2 hover:bg-paper-2 font-bold text-sm transition-all flex items-center gap-2"
+                  className="btn-secondary min-h-11 px-5 py-3 text-sm flex items-center gap-2"
                 >
                   <QrCode className="w-4 h-4" /> ดูวิธีเชื่อมต่อ LINE OA
                 </button>
@@ -714,32 +718,34 @@ export default function GivingInbox() {
           {/* Left Column: List (5 cols on lg) */}
           <div className="lg:col-span-5 space-y-4">
             {/* Search and Filters */}
-            <div className="bg-surface rounded-2xl border border-line p-3 flex items-center gap-2">
+            <div className="bento-card-static p-3 flex items-center gap-2">
               <Search className="w-4 h-4 text-ink-3 ml-2" />
               <input
                 type="text"
                 placeholder="ค้นหาชื่อผู้โอน, สมาชิก, ยอดเงิน..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="min-h-11 w-full text-base md:text-sm bg-transparent border-0 focus:outline-none text-ink"
+                className="min-h-11 w-full text-base md:text-sm font-medium bg-transparent border-0 focus:outline-none text-ink"
               />
             </div>
 
             {/* Slips Cards */}
             {slipsQuery.isLoading ? (
-              <div className="p-12 text-center text-sm text-ink-3 bg-surface rounded-2xl border border-line">
+              <div className="bento-card-static p-12 text-center text-sm font-bold text-ink-3">
                 กำลังโหลดรายการสลิป...
               </div>
             ) : filteredSlips.length === 0 ? (
-              <div className="p-12 text-center text-ink-3 bg-surface rounded-2xl border border-line space-y-3">
-                <p className="font-bold">ไม่มีรายการสลิปในหมวดนี้</p>
-                <p className="text-xs text-ink-3 max-w-xs mx-auto">
+              <div className="bento-card-static p-12 text-center text-ink-3 space-y-3">
+                <p className="font-extrabold text-ink">
+                  ไม่มีรายการสลิปในหมวดนี้
+                </p>
+                <p className="text-xs font-medium text-ink-3 max-w-xs mx-auto">
                   สลิปใหม่ที่ส่งเข้า LINE หรืออัปโหลดทดสอบจะปรากฏที่นี่
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(true)}
-                  className="min-h-11 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-paper-2 border border-line text-ink-2 text-xs font-bold hover:bg-paper-2 transition-all"
+                  className="btn-secondary min-h-11 inline-flex items-center gap-1.5 px-4 py-2 text-xs"
                 >
                   <UploadCloud className="w-3.5 h-3.5" /> อัปโหลดสลิปทดสอบ
                 </button>
@@ -749,9 +755,9 @@ export default function GivingInbox() {
                 {filteredSlips.map(slip => {
                   const statusConf = STATUS_LABELS[slip.status] || {
                     text: slip.status,
-                    bg: "bg-paper",
+                    bg: "bg-paper-2",
                     textCol: "text-ink-2",
-                    border: "border-line",
+                    border: "border-[var(--ink)]/20",
                   };
                   const isSelected = slip.id === selectedSlipId;
 
@@ -759,10 +765,10 @@ export default function GivingInbox() {
                     <div
                       key={slip.id}
                       onClick={() => handleSelectSlip(slip)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                      className={`p-4 rounded-2xl cursor-pointer transition-all ${
                         isSelected
-                          ? "bg-paper-2 border-white/30"
-                          : "bg-surface border-line hover:bg-paper"
+                          ? "border-2 border-[var(--ink)] bg-paper-2 shadow-[4px_4px_0_var(--ink)]"
+                          : "border-[1.5px] border-[var(--ink)] bg-surface shadow-[2px_2px_0_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--ink)]"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -771,30 +777,30 @@ export default function GivingInbox() {
                             <img
                               src={slip.signedImageUrl}
                               alt="สลิป"
-                              className="w-14 h-14 object-cover rounded-xl border border-line shrink-0 bg-paper"
+                              className="w-14 h-14 object-cover rounded-xl border-[1.5px] border-[var(--ink)] shrink-0 bg-paper-2"
                             />
                           ) : (
-                            <div className="w-14 h-14 rounded-xl bg-paper border border-line flex items-center justify-center text-ink-3 shrink-0">
+                            <div className="w-14 h-14 rounded-xl bg-paper-2 border-[1.5px] border-[var(--ink)] flex items-center justify-center text-ink-3 shrink-0">
                               <CreditCard className="w-6 h-6" />
                             </div>
                           )}
                           <div className="min-w-0">
-                            <div className="font-bold text-base text-ink truncate">
+                            <div className="font-extrabold text-base text-ink truncate">
                               {slip.matchedMemberName ||
                                 slip.extractedSenderName ||
                                 slip.typedDonorName ||
                                 slip.lineDisplayName ||
                                 "ผู้ถวาย"}
                             </div>
-                            <div className="text-xs text-ink-3 flex items-center gap-1.5 mt-0.5 truncate">
+                            <div className="text-xs font-medium text-ink-3 flex items-center gap-1.5 mt-0.5 truncate">
                               {Array.isArray(slip.declaredItems) &&
                                 slip.declaredItems.length >= 2 && (
-                                  <span className="px-1.5 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/40 text-sky-200 text-xs font-bold shrink-0">
+                                  <span className="px-1.5 py-0.5 rounded-md bg-tile-sky border border-[var(--ink)]/20 text-tile-sky-ink text-xs font-extrabold shrink-0">
                                     แบ่ง {slip.declaredItems.length} ประเภท
                                   </span>
                                 )}
                               {slip.source === "no_slip" && (
-                                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs font-bold shrink-0">
+                                <span className="px-1.5 py-0.5 rounded-md bg-tile-sand border border-[var(--ink)]/25 text-tile-sand-ink text-xs font-extrabold shrink-0">
                                   ไม่มีสลิป
                                 </span>
                               )}
@@ -815,7 +821,7 @@ export default function GivingInbox() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <div className="money text-lg font-semibold text-ink">
+                          <div className="money text-lg font-extrabold text-ink">
                             {slip.extractedAmount
                               ? formatBaht(Number(slip.extractedAmount))
                               : slip.source === "no_slip" && slip.declaredAmount
@@ -823,14 +829,14 @@ export default function GivingInbox() {
                                 : "—"}
                           </div>
                           <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-bold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
+                            className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-extrabold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
                           >
                             {statusConf.text}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-line/50 text-xs text-ink-3">
+                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-line text-xs font-medium text-ink-3">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5" />
                           {slip.extractedDate
@@ -852,7 +858,7 @@ export default function GivingInbox() {
                           <button
                             type="button"
                             onClick={e => handleQuickApprove(e, slip)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand hover:bg-brand-ink text-black font-bold text-[11px] transition-all"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold text-[11px] shadow-[1px_1px_0_var(--ink)] transition-all"
                             title="อนุมัติด่วนด้วยข้อมูลที่จับคู่ได้"
                           >
                             <Check className="w-3 h-3" /> อนุมัติด่วน
@@ -875,27 +881,27 @@ export default function GivingInbox() {
           {/* Right Column: Slip Detail & Review Form (7 cols on lg) */}
           <div className="lg:col-span-7">
             {!selectedSlipId || !currentSlip ? (
-              <div className="p-12 text-center bg-surface rounded-2xl border border-dashed border-line text-ink-3 space-y-3 min-h-[420px] flex flex-col items-center justify-center">
+              <div className="p-12 text-center bg-surface rounded-2xl border-2 border-dashed border-[var(--ink)]/30 text-ink-3 space-y-3 min-h-[420px] flex flex-col items-center justify-center">
                 <Inbox className="w-10 h-10 text-ink-3" />
-                <div className="font-bold text-base text-ink">
+                <div className="font-extrabold text-base text-ink">
                   เลือกสลิปจากรายการด้านซ้าย
                 </div>
-                <p className="text-xs max-w-sm text-ink-3">
+                <p className="text-xs font-medium max-w-sm text-ink-3">
                   เพื่อตรวจสอบหลักฐาน ข้อมูลที่ AI แนะนำ
                   และอนุมัติบันทึกลงบัญชีเงินถวาย
                 </p>
               </div>
             ) : (
-              <div className="bg-surface rounded-2xl border border-line p-5 sm:p-6 space-y-6 animate-in fade-in duration-150">
+              <div className="bento-card-static p-5 sm:p-6 space-y-6 animate-in fade-in duration-150">
                 {/* Header of Detail */}
-                <div className="flex items-start justify-between gap-4 pb-4 border-b border-line">
+                <div className="flex items-start justify-between gap-4 pb-4 border-b-2 border-[var(--ink)]">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-lg sm:text-xl font-bold text-ink">
+                      <h2 className="text-lg sm:text-xl font-extrabold text-ink">
                         ตรวจสอบสลิป #{currentSlip.id}
                       </h2>
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${
                           STATUS_LABELS[currentSlip.status]?.bg
                         } ${STATUS_LABELS[currentSlip.status]?.textCol} ${
                           STATUS_LABELS[currentSlip.status]?.border
@@ -905,7 +911,7 @@ export default function GivingInbox() {
                           currentSlip.status}
                       </span>
                     </div>
-                    <p className="text-xs text-ink-3 mt-1">
+                    <p className="text-xs font-medium text-ink-3 mt-1">
                       ส่งเข้ามาเมื่อ:{" "}
                       {new Date(currentSlip.createdAt).toLocaleString(
                         THAI_LOCALE
@@ -920,11 +926,11 @@ export default function GivingInbox() {
                           type="button"
                           onClick={() => handleRescan(currentSlip.id)}
                           disabled={rescanMutation.isPending}
-                          className="min-h-11 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs font-bold text-amber-300 hover:bg-amber-500/15 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="btn-secondary min-h-10 px-3 py-1.5 text-xs inline-flex items-center gap-1.5 cursor-pointer"
                           title="สแกนอ่านข้อมูลสลิปนี้ใหม่"
                         >
                           <RefreshCw
-                            className={`w-3.5 h-3.5 text-amber-400 ${rescanMutation.isPending ? "animate-spin" : ""}`}
+                            className={`w-3.5 h-3.5 ${rescanMutation.isPending ? "animate-spin" : ""}`}
                           />
                           <span>
                             {rescanMutation.isPending
@@ -938,12 +944,12 @@ export default function GivingInbox() {
 
                 {/* Duplicate Warning */}
                 {currentSlip.status === "duplicate" && (
-                  <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 space-y-1">
-                    <div className="flex items-center gap-2 font-bold text-sm">
+                  <div className="p-4 rounded-xl bg-danger/10 border-2 border-danger text-danger space-y-1">
+                    <div className="flex items-center gap-2 font-extrabold text-sm">
                       <ShieldAlert className="w-5 h-5 text-danger" />
                       ตรวจพบสลิปซ้ำในระบบ
                     </div>
-                    <p className="text-xs leading-relaxed text-rose-700">
+                    <p className="text-xs font-medium leading-relaxed text-danger">
                       {currentSlip.lastErrorMessage ||
                         "สลิปนี้มีหมายเลขอ้างอิง รูปภาพ หรือรายการธุรกรรมที่ตรงกับข้อมูลที่มีอยู่แล้วในระบบ"}
                     </p>
@@ -951,26 +957,26 @@ export default function GivingInbox() {
                 )}
 
                 {/* Who sent it. Never overwritten by the name in the books. */}
-                <div className="rounded-xl border border-line bg-surface p-3 text-xs space-y-1">
-                  <div className="font-bold text-ink-2">ผู้ส่งรายการ</div>
-                  <div className="text-ink">
+                <div className="rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-3 text-xs space-y-1">
+                  <div className="font-extrabold text-ink-2">ผู้ส่งรายการ</div>
+                  <div className="font-bold text-ink">
                     {currentSlip.submittedByName ||
                       currentSlip.lineDisplayName ||
                       "—"}
                     {currentSlip.submitterLineId && (
-                      <span className="text-ink-3 break-all">
+                      <span className="font-medium text-ink-3 break-all">
                         {" "}
                         · LINE ID: {currentSlip.submitterLineId}
                       </span>
                     )}
                   </div>
                   {currentSlip.typedDonorName && (
-                    <div className="text-ink-3">
+                    <div className="font-medium text-ink-3">
                       ชื่อที่ผู้ถวายพิมพ์: {currentSlip.typedDonorName}
                     </div>
                   )}
                   {currentSlip.source === "no_slip" && (
-                    <div className="text-amber-200 font-bold">
+                    <div className="text-tile-sand-ink font-extrabold">
                       ส่งโดยไม่มีสลิป · วันที่โอนที่แจ้ง:{" "}
                       {currentSlip.declaredDate
                         ? new Date(currentSlip.declaredDate).toLocaleDateString(
@@ -981,7 +987,7 @@ export default function GivingInbox() {
                   )}
                   {currentSlip.lastErrorMessage &&
                     currentSlip.status !== "rejected" && (
-                      <div className="text-amber-200">
+                      <div className="text-tile-sand-ink font-medium">
                         {currentSlip.lastErrorMessage}
                       </div>
                     )}
@@ -990,7 +996,7 @@ export default function GivingInbox() {
                 {/* ── 1. หลักฐาน (Evidence) ── */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-ink-2">
+                    <h3 className="text-sm font-extrabold text-ink-2">
                       1. หลักฐานการโอน (สลิป)
                     </h3>
                     {currentSlip.signedImageUrl && (
@@ -998,13 +1004,13 @@ export default function GivingInbox() {
                         href={currentSlip.signedImageUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="min-h-11 px-3 py-1.5 rounded-xl border border-line bg-paper-2 text-xs font-bold text-ink-2 hover:bg-paper-2 inline-flex items-center gap-1.5 transition-colors"
+                        className="btn-secondary min-h-10 px-3 py-1.5 text-xs inline-flex items-center gap-1.5"
                       >
                         <ExternalLink className="w-3.5 h-3.5" /> ดูภาพเต็ม
                       </a>
                     )}
                   </div>
-                  <div className="rounded-xl border border-line overflow-hidden bg-paper max-h-[340px] flex items-center justify-center p-2">
+                  <div className="rounded-xl border-2 border-[var(--ink)] overflow-hidden bg-paper-2 max-h-[340px] flex items-center justify-center p-2">
                     {currentSlip.signedImageUrl ? (
                       <img
                         src={currentSlip.signedImageUrl}
@@ -1012,7 +1018,7 @@ export default function GivingInbox() {
                         className="max-h-[320px] w-auto object-contain rounded-lg"
                       />
                     ) : (
-                      <div className="py-16 text-xs text-stone-400">
+                      <div className="py-16 text-xs font-bold text-ink-3">
                         {currentSlip.source === "no_slip"
                           ? "ผู้ถวายไม่ได้แนบสลิป ตรวจกับยอดเข้าบัญชีธนาคารก่อนอนุมัติ"
                           : "ไม่มีรูปภาพสลิป"}
@@ -1022,21 +1028,21 @@ export default function GivingInbox() {
                 </div>
 
                 {/* ── 2. ข้อมูลที่ AI อ่านได้ (AI Extraction) ── */}
-                <div className="space-y-3 bg-surface border border-line p-4 rounded-xl text-xs">
-                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-line/50">
-                    <div className="font-bold text-sm text-ink flex items-center gap-1.5">
+                <div className="space-y-3 bg-surface border-[1.5px] border-[var(--ink)] p-4 rounded-xl text-xs shadow-[2px_2px_0_var(--ink)]">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-line">
+                    <div className="font-extrabold text-sm text-ink flex items-center gap-1.5">
                       <Search className="w-4 h-4 text-brand" />
                       <span>2. ข้อมูลที่อ่านได้จากสลิป</span>
                     </div>
-                    <span className="text-[11px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/30">
+                    <span className="text-[11px] font-bold text-tile-sand-ink bg-tile-sand px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
                       ข้อมูลจากการตรวจสอบอัตโนมัติ กรุณาตรวจสอบก่อนบันทึก
                     </span>
                   </div>
 
                   {currentSlip.declaredAmount && (
-                    <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-200 text-xs font-medium">
+                    <div className="p-3 rounded-xl bg-tile-sky border-[1.5px] border-[var(--ink)]/25 text-tile-sky-ink text-xs font-bold">
                       ผู้ถวายแจ้งผ่านจุดถวาย:{" "}
-                      <span className="font-bold tabular-nums">
+                      <span className="font-extrabold tabular-nums">
                         {formatBaht(Number(currentSlip.declaredAmount))}
                       </span>
                       {Array.isArray(currentSlip.declaredItems) &&
@@ -1059,18 +1065,18 @@ export default function GivingInbox() {
                           Number(currentSlip.declaredAmount) -
                             Number(currentSlip.extractedAmount)
                         ) < 0.005 ? (
-                          <span className="block pt-1 font-bold text-emerald-300">
+                          <span className="block pt-1 font-extrabold text-brand">
                             ตรงกับยอดที่ AI อ่านจากสลิป
                           </span>
                         ) : (
-                          <span className="block pt-1 font-bold text-rose-300">
+                          <span className="block pt-1 font-extrabold text-danger">
                             ไม่ตรงกับยอดที่ AI อ่านจากสลิป (
                             {formatBaht(Number(currentSlip.extractedAmount))})
                             ตรวจภาพสลิปก่อนอนุมัติ
                           </span>
                         )
                       ) : (
-                        <span className="block pt-1">
+                        <span className="block pt-1 font-medium">
                           (ยังไม่ได้ตรวจสอบ ให้เทียบกับภาพสลิปก่อนอนุมัติ)
                         </span>
                       )}
@@ -1078,17 +1084,17 @@ export default function GivingInbox() {
                   )}
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-                    <div className="p-2.5 rounded-lg bg-surface border border-line/60">
-                      <span className="text-ink-3 block text-[11px]">
+                    <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
+                      <span className="text-ink-3 font-bold block text-[11px]">
                         ยอดเงินที่ตรวจพบ
                       </span>
-                      <span className="text-base font-bold text-brand tabular-nums block mt-0.5">
+                      <span className="text-base font-extrabold text-brand tabular-nums block mt-0.5">
                         {currentSlip.extractedAmount
                           ? formatBaht(Number(currentSlip.extractedAmount))
                           : "อ่านไม่ได้"}
                       </span>
                       {currentSlip.extractedAmountConfidence && (
-                        <span className="text-[10px] text-emerald-300 font-medium">
+                        <span className="text-[10px] text-brand font-bold">
                           ความมั่นใจ{" "}
                           {(
                             Number(currentSlip.extractedAmountConfidence) * 100
@@ -1098,29 +1104,29 @@ export default function GivingInbox() {
                       )}
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-surface border border-line/60">
-                      <span className="text-ink-3 block text-[11px]">
+                    <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
+                      <span className="text-ink-3 font-bold block text-[11px]">
                         ชื่อผู้โอนในสลิป
                       </span>
-                      <span className="text-xs font-bold text-ink block mt-1 truncate">
+                      <span className="text-xs font-extrabold text-ink block mt-1 truncate">
                         {currentSlip.extractedSenderName || "—"}
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-surface border border-line/60">
-                      <span className="text-ink-3 block text-[11px]">
+                    <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
+                      <span className="text-ink-3 font-bold block text-[11px]">
                         ธนาคาร
                       </span>
-                      <span className="text-xs font-medium text-ink block mt-1 truncate">
+                      <span className="text-xs font-bold text-ink block mt-1 truncate">
                         {currentSlip.extractedBank || "—"}
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-surface border border-line/60">
-                      <span className="text-ink-3 block text-[11px]">
+                    <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
+                      <span className="text-ink-3 font-bold block text-[11px]">
                         วันที่โอน
                       </span>
-                      <span className="text-xs font-medium text-ink block mt-1 truncate">
+                      <span className="text-xs font-bold text-ink block mt-1 truncate">
                         {currentSlip.extractedDate
                           ? new Date(currentSlip.extractedDate).toLocaleString(
                               THAI_LOCALE
@@ -1134,14 +1140,14 @@ export default function GivingInbox() {
                   <ReceiverCheck aiData={currentSlip.aiData} />
 
                   {currentSlip.extractedRef && (
-                    <div className="pt-1 text-[11px] text-ink-3 font-mono">
+                    <div className="pt-1 text-[11px] font-bold text-ink-3 font-mono">
                       หมายเลขอ้างอิงสลิป: {currentSlip.extractedRef}
                     </div>
                   )}
 
                   {!currentSlip.extractedAmount && (
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-center gap-2 font-medium">
-                      <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <div className="p-3 rounded-xl bg-tile-sand border border-[var(--ink)]/25 text-tile-sand-ink text-xs flex items-center gap-2 font-bold">
+                      <AlertTriangle className="w-4 h-4 text-tile-sand-ink shrink-0" />
                       <span>
                         AI ไม่สามารถระบุยอดเงินจากสลิปนี้ได้ชัดเจน
                         กรุณาตรวจดูภาพสลิปแล้วกรอกจำนวนเงินด้วยตนเอง
@@ -1151,8 +1157,8 @@ export default function GivingInbox() {
 
                   {currentSlip.extractedAmountConfidence &&
                     Number(currentSlip.extractedAmountConfidence) < 0.85 && (
-                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2 font-medium">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <div className="p-2.5 rounded-xl bg-tile-sand border border-[var(--ink)]/25 text-tile-sand-ink text-xs flex items-center gap-2 font-bold">
+                        <AlertTriangle className="w-3.5 h-3.5 text-tile-sand-ink shrink-0" />
                         <span>
                           ความมั่นใจของ AI ต่ำกว่าเกณฑ์ (
                           {(
@@ -1165,12 +1171,12 @@ export default function GivingInbox() {
                 </div>
 
                 {/* ── 3. ข้อมูลที่จะบันทึกบัญชี (Ledger Record) ── */}
-                <div className="space-y-4 pt-2 border-t border-line">
+                <div className="space-y-4 pt-2 border-t-2 border-[var(--ink)]">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-ink-2">
+                    <h3 className="text-sm font-extrabold text-ink-2">
                       3. ข้อมูลที่จะบันทึกบัญชีจริง
                     </h3>
-                    <span className="text-[11px] text-ink-3">
+                    <span className="text-[11px] font-bold text-ink-3">
                       ตรวจสอบและระบุบัญชีกองทุนที่ถูกต้อง
                     </span>
                   </div>
@@ -1178,7 +1184,7 @@ export default function GivingInbox() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Member Selector */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-ink-2 flex items-center justify-between">
+                      <label className="text-xs font-extrabold text-ink-2 flex items-center justify-between">
                         <span>สมาชิกผู้ถวาย</span>
                         {currentSlip.lineUserId &&
                           editMemberId &&
@@ -1187,7 +1193,7 @@ export default function GivingInbox() {
                               type="button"
                               onClick={handleLinkMember}
                               disabled={linkMemberMutation.isPending}
-                              className="text-[11px] text-income hover:underline flex items-center gap-1 font-semibold"
+                              className="text-[11px] text-income hover:underline flex items-center gap-1 font-extrabold"
                             >
                               <Link2 className="w-3 h-3" /> เชื่อมโยง LINE ID
                             </button>
@@ -1213,7 +1219,7 @@ export default function GivingInbox() {
                         ))}
                       </NativeSelect>
                       {currentSlip.matchMethod && (
-                        <p className="text-[11px] text-emerald-300">
+                        <p className="text-[11px] font-bold text-brand">
                           จับคู่โดย:{" "}
                           {currentSlip.matchMethod === "line_id"
                             ? "LINE Account"
@@ -1231,10 +1237,10 @@ export default function GivingInbox() {
                     <div className="space-y-1.5 sm:col-span-2">
                       <label
                         htmlFor="inbox-ledger-name"
-                        className="text-xs font-bold text-ink-2"
+                        className="text-xs font-extrabold text-ink-2"
                       >
                         ชื่อที่ลงบัญชีถวาย{" "}
-                        <span className="text-rose-500">*</span>
+                        <span className="text-danger">*</span>
                       </label>
                       <input
                         id="inbox-ledger-name"
@@ -1243,9 +1249,9 @@ export default function GivingInbox() {
                         value={editDonorName}
                         onChange={e => setEditDonorName(e.target.value)}
                         disabled={currentSlip.status === "approved"}
-                        className="min-h-11 w-full text-sm rounded-xl border border-line bg-surface p-2.5 focus:ring-2 focus:ring-brand focus:outline-none"
+                        className="neo-input min-h-11 w-full text-sm p-2.5"
                       />
-                      <p className="text-[11px] text-ink-3">
+                      <p className="text-[11px] font-medium text-ink-3">
                         ระบบใส่ชื่อบนสลิปให้ ชื่อบนสลิปธนาคารมักถูกปิดบังบางส่วน
                         แก้เป็นชื่อเต็มได้ ผู้ส่งรายการยังบันทึกแยกไว้เสมอ
                       </p>
@@ -1253,14 +1259,14 @@ export default function GivingInbox() {
 
                     {/* Fund Account */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-ink-2">
-                        เข้ากองทุน <span className="text-rose-500">*</span>
+                      <label className="text-xs font-extrabold text-ink-2">
+                        เข้ากองทุน <span className="text-danger">*</span>
                       </label>
                       <NativeSelect
                         value={editFundId ?? ""}
                         onChange={e => setEditFundId(Number(e.target.value))}
                         disabled={currentSlip.status === "approved"}
-                        className="focus:ring-2 focus:ring-brand font-medium"
+                        className="focus:ring-2 focus:ring-brand font-bold"
                       >
                         {(fundsQuery.data ?? []).map((f: any) => (
                           <option key={f.id} value={f.id}>
@@ -1272,8 +1278,8 @@ export default function GivingInbox() {
 
                     {/* Amount */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-ink-2">
-                        ยอดเงิน (บาท) <span className="text-rose-500">*</span>
+                      <label className="text-xs font-extrabold text-ink-2">
+                        ยอดเงิน (บาท) <span className="text-danger">*</span>
                       </label>
                       <input
                         type="number"
@@ -1281,14 +1287,14 @@ export default function GivingInbox() {
                         value={editAmount}
                         onChange={e => setEditAmount(e.target.value)}
                         disabled={currentSlip.status === "approved"}
-                        className="min-h-11 w-full text-base font-bold tabular-nums text-brand rounded-xl border border-line bg-surface p-2.5 focus:ring-2 focus:ring-brand focus:outline-none"
+                        className="neo-input min-h-11 w-full text-base font-extrabold tabular-nums text-brand p-2.5"
                       />
                     </div>
 
                     {/* Category, or one transfer split over several categories */}
                     <div className="space-y-1.5 sm:col-span-2">
                       <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-bold text-ink-2">
+                        <label className="text-xs font-extrabold text-ink-2">
                           {editSplit
                             ? "แบ่งยอดตามประเภทการถวาย"
                             : "ประเภทการถวาย"}
@@ -1304,7 +1310,7 @@ export default function GivingInbox() {
                               }
                               setEditSplit(startSplit(editCategory, total));
                             }}
-                            className="min-h-11 px-2 text-[11px] font-bold text-brand underline underline-offset-2"
+                            className="min-h-11 px-2 text-[11px] font-extrabold text-brand underline underline-offset-2"
                           >
                             แบ่งเป็นหลายประเภท
                           </button>
@@ -1345,7 +1351,7 @@ export default function GivingInbox() {
 
                   {/* Notes */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-ink-2">
+                    <label className="text-xs font-extrabold text-ink-2">
                       หมายเหตุการตรวจสอบ
                     </label>
                     <input
@@ -1354,7 +1360,7 @@ export default function GivingInbox() {
                       value={editReviewNote}
                       onChange={e => setEditReviewNote(e.target.value)}
                       disabled={currentSlip.status === "approved"}
-                      className="min-h-11 w-full text-sm rounded-xl border border-line bg-surface p-2.5 focus:ring-2 focus:ring-brand focus:outline-none"
+                      className="neo-input min-h-11 w-full text-sm p-2.5"
                     />
                   </div>
                 </div>
@@ -1362,9 +1368,9 @@ export default function GivingInbox() {
                 {/* ── 4. Action ── */}
                 {currentSlip.status !== "approved" &&
                 currentSlip.status !== "rejected" ? (
-                  <div className="space-y-3 pt-4 border-t border-line">
+                  <div className="space-y-3 pt-4 border-t-2 border-[var(--ink)]">
                     {currentSlip.status === "duplicate" && (
-                      <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                      <div className="p-3 rounded-xl bg-danger/10 border-2 border-danger text-danger text-xs font-bold flex items-center gap-2">
                         <ShieldAlert className="w-4 h-4 text-danger shrink-0" />
                         <span>
                           สลิปนี้ได้รับการระบุว่าเป็นสลิปซ้ำ (Duplicate)
@@ -1373,7 +1379,7 @@ export default function GivingInbox() {
                       </div>
                     )}
                     {currentSlip.source === "no_slip" && (
-                      <label className="flex items-start gap-2.5 p-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-xs text-amber-100 cursor-pointer">
+                      <label className="flex items-start gap-2.5 p-3 rounded-xl border-[1.5px] border-[var(--ink)] bg-tile-sand text-xs font-bold text-tile-sand-ink cursor-pointer">
                         <input
                           type="checkbox"
                           checked={confirmBank}
@@ -1393,7 +1399,7 @@ export default function GivingInbox() {
                         disabled={
                           approveMutation.isPending || rejectMutation.isPending
                         }
-                        className="min-h-11 w-full sm:w-auto px-5 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/15 text-rose-300 font-bold text-sm transition-colors cursor-pointer disabled:opacity-50"
+                        className="min-h-11 w-full sm:w-auto px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 text-danger font-extrabold text-sm shadow-[2px_2px_0_var(--ink)] transition-colors cursor-pointer disabled:opacity-50"
                       >
                         ปฏิเสธสลิป
                       </button>
@@ -1407,7 +1413,7 @@ export default function GivingInbox() {
                           currentSlip.status === "duplicate" ||
                           (currentSlip.source === "no_slip" && !confirmBank)
                         }
-                        className="min-h-11 w-full sm:w-auto px-7 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="btn-primary min-h-11 w-full sm:w-auto px-7 py-2.5 text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                       >
                         {approveMutation.isPending ? (
                           <>
@@ -1424,7 +1430,7 @@ export default function GivingInbox() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-paper border border-line text-xs text-ink-2 flex items-center justify-between">
+                  <div className="p-4 rounded-xl bg-paper-2 border-[1.5px] border-[var(--ink)] text-xs font-bold text-ink-2 flex items-center justify-between">
                     <span>
                       รายการนี้ได้รับการ
                       {currentSlip.status === "approved"
@@ -1452,26 +1458,26 @@ export default function GivingInbox() {
       {/* ── Modal: Manual / Test Slip Upload ── */}
       {showUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-surface rounded-2xl border-2 border-line p-6 max-w-lg w-full space-y-5 shadow-2xl relative">
+          <div className="neo-modal p-6 max-w-lg w-full space-y-5 relative">
             <button
               onClick={() => {
                 setShowUploadModal(false);
                 setUploadPreview(null);
               }}
-              className="absolute top-5 right-5 text-stone-400 hover:text-ink-2 p-1"
+              className="absolute top-5 right-5 text-ink-3 hover:text-ink p-1"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-brand/20 text-brand flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)] flex items-center justify-center">
                 <UploadCloud className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-ink">
+                <h3 className="text-lg font-extrabold text-ink">
                   อัปโหลดสลิปทดสอบ / ด้วยตนเอง
                 </h3>
-                <p className="text-xs text-ink-3">
+                <p className="text-xs font-medium text-ink-3">
                   เลือกรูปสลิปจากคอมพิวเตอร์ เพื่อให้ AI
                   ดึงข้อมูลและนำเข้ากล่องสลิปทันที
                 </p>
@@ -1483,8 +1489,8 @@ export default function GivingInbox() {
               onClick={() => fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
                 uploadPreview
-                  ? "border-brand bg-paper"
-                  : "border-line hover:border-brand bg-paper"
+                  ? "border-brand bg-paper-2"
+                  : "border-[var(--ink)]/40 hover:border-brand bg-paper-2"
               }`}
             >
               <input
@@ -1502,17 +1508,17 @@ export default function GivingInbox() {
                     alt="ตัวอย่างสลิป"
                     className="max-h-48 mx-auto rounded-xl object-contain"
                   />
-                  <p className="text-xs text-brand font-bold">
+                  <p className="text-xs text-brand font-extrabold">
                     คลิกเพื่อเปลี่ยนรูปภาพ
                   </p>
                 </div>
               ) : (
                 <div className="space-y-2 py-4">
-                  <ImageIcon className="w-10 h-10 text-stone-400 mx-auto" />
-                  <p className="font-bold text-sm text-ink">
+                  <ImageIcon className="w-10 h-10 text-ink-3 mx-auto" />
+                  <p className="font-extrabold text-sm text-ink">
                     คลิกเพื่อเลือกไฟล์รูปสลิป
                   </p>
-                  <p className="text-xs text-ink-3">
+                  <p className="text-xs font-medium text-ink-3">
                     รองรับไฟล์ JPG, PNG, WEBP
                   </p>
                 </div>
@@ -1521,7 +1527,7 @@ export default function GivingInbox() {
 
             {/* Optional donor name */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-ink-2">
+              <label className="text-xs font-extrabold text-ink-2">
                 ชื่อผู้ถวาย (ระบุเพิ่มเติมหรือไม่ก็ได้)
               </label>
               <input
@@ -1529,7 +1535,7 @@ export default function GivingInbox() {
                 placeholder="เช่น นายสมชาย สุขใจ"
                 value={uploadDonorName}
                 onChange={e => setUploadDonorName(e.target.value)}
-                className="w-full text-sm rounded-xl border border-line p-2.5 focus:ring-2 focus:ring-brand focus:outline-none"
+                className="neo-input w-full text-sm p-2.5"
               />
             </div>
 
@@ -1541,7 +1547,7 @@ export default function GivingInbox() {
                   setShowUploadModal(false);
                   setUploadPreview(null);
                 }}
-                className="px-5 py-2.5 rounded-2xl border border-line text-ink-2 font-bold text-sm hover:bg-paper"
+                className="btn-secondary min-h-11 px-5 py-2.5 text-sm"
               >
                 ยกเลิก
               </button>
@@ -1549,7 +1555,7 @@ export default function GivingInbox() {
                 type="button"
                 onClick={handleUploadSubmit}
                 disabled={!uploadPreview || uploadSlipMutation.isPending}
-                className="px-6 py-2.5 rounded-xl bg-brand hover:bg-brand-ink text-black font-bold text-sm disabled:opacity-50 flex items-center gap-2"
+                className="btn-primary min-h-11 px-6 py-2.5 text-sm disabled:opacity-50 flex items-center gap-2"
               >
                 {uploadSlipMutation.isPending
                   ? "กำลังประมวลผล..."
@@ -1563,31 +1569,31 @@ export default function GivingInbox() {
       {/* ── Modal: LINE Bot Setup & Info ── */}
       {showLineInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-surface rounded-2xl border-2 border-line p-6 max-w-lg w-full space-y-5 shadow-2xl relative">
+          <div className="neo-modal p-6 max-w-lg w-full space-y-5 relative">
             <button
               onClick={() => setShowLineInfoModal(false)}
-              className="absolute top-5 right-5 text-stone-400 hover:text-ink-2 p-1"
+              className="absolute top-5 right-5 text-ink-3 hover:text-ink p-1"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-income/20 text-income flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl border-2 border-[var(--ink)] bg-tile-mint text-tile-mint-ink shadow-[2px_2px_0_var(--ink)] flex items-center justify-center">
                 <QrCode className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-ink">
+                <h3 className="text-lg font-extrabold text-ink">
                   ข้อมูลการเชื่อมต่อ LINE Official Account
                 </h3>
-                <p className="text-xs text-ink-3">
+                <p className="text-xs font-medium text-ink-3">
                   รายละเอียดสำหรับการแอดบอทและการตั้งค่าระบบ
                 </p>
               </div>
             </div>
 
             {/* Webhook URL Box */}
-            <div className="bg-paper border border-line p-3.5 rounded-2xl space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-ink-2">
+            <div className="bg-paper-2 border-[1.5px] border-[var(--ink)] p-3.5 rounded-2xl space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-extrabold text-ink-2">
                 <span>Webhook URL สำหรับ LINE Developers</span>
                 <button
                   type="button"
@@ -1600,7 +1606,7 @@ export default function GivingInbox() {
                     navigator.clipboard.writeText(webhookUrl);
                     toast.success("คัดลอก Webhook URL แล้ว");
                   }}
-                  className="text-emerald-300 hover:underline flex items-center gap-1 font-semibold"
+                  className="text-brand hover:underline flex items-center gap-1 font-extrabold"
                 >
                   <Copy className="w-3.5 h-3.5" /> คัดลอก
                 </button>
@@ -1613,8 +1619,8 @@ export default function GivingInbox() {
             </div>
 
             {/* Instructions */}
-            <div className="space-y-3 text-xs text-ink-2">
-              <div className="font-bold text-sm text-ink">
+            <div className="space-y-3 text-xs font-medium text-ink-2">
+              <div className="font-extrabold text-sm text-ink">
                 วิธีใช้งานสำหรับสมาชิก:
               </div>
               <ol className="list-decimal pl-4 space-y-1.5 leading-relaxed">
@@ -1634,7 +1640,7 @@ export default function GivingInbox() {
                   setShowLineInfoModal(false);
                   setLocation("/giving/station");
                 }}
-                className="px-4 py-2.5 rounded-xl bg-surface border border-line text-ink-2 font-bold text-xs hover:bg-paper-2 flex items-center gap-1.5 cursor-pointer"
+                className="btn-secondary min-h-11 px-4 py-2.5 text-xs flex items-center gap-1.5 cursor-pointer"
               >
                 <QrCode className="w-4 h-4" />
                 <span>เปิดโปสเตอร์ป้าย QR ติดหน้าห้อง</span>
@@ -1642,16 +1648,7 @@ export default function GivingInbox() {
               <button
                 type="button"
                 onClick={() => setShowLineInfoModal(false)}
-                className="px-6 py-2.5 rounded-xl bg-brand text-black font-bold text-sm hover:bg-brand-ink"
-              >
-                เข้าใจแล้ว
-              </button>
-            </div>
-            <div className="hidden">
-              <button
-                type="button"
-                onClick={() => setShowLineInfoModal(false)}
-                className="px-6 py-2.5 rounded-xl bg-brand text-black font-bold text-sm hover:bg-brand-ink"
+                className="btn-primary min-h-11 px-6 py-2.5 text-sm"
               >
                 เข้าใจแล้ว
               </button>
@@ -1662,20 +1659,20 @@ export default function GivingInbox() {
 
       {/* ── Custom Reject Dialog (Phase 5) ── */}
       <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
-        <DialogContent className="max-w-md bg-surface border border-line rounded-2xl p-6 text-ink space-y-4 shadow-xl">
+        <DialogContent className="neo-modal max-w-md p-6 text-ink space-y-4">
           <DialogHeader className="space-y-1 text-left">
-            <DialogTitle className="text-lg font-bold text-ink flex items-center gap-2">
-              <XCircle className="w-5 h-5 text-rose-400" />
+            <DialogTitle className="text-lg font-extrabold text-ink flex items-center gap-2">
+              <XCircle className="w-5 h-5 text-danger" />
               <span>ปฏิเสธสลิป #{currentSlip?.id}</span>
             </DialogTitle>
-            <DialogDescription className="text-xs text-ink-3">
+            <DialogDescription className="text-xs font-medium text-ink-3">
               ระบุเหตุผลการปฏิเสธเพื่อบันทึกประวัติการตรวจสอบ ในระบบ
             </DialogDescription>
           </DialogHeader>
 
           {/* Quick Preset Reason Chips */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-ink-2 block">
+            <span className="text-xs font-extrabold text-ink-2 block">
               เลือกเหตุผลด่วน:
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -1690,10 +1687,10 @@ export default function GivingInbox() {
                   key={preset}
                   type="button"
                   onClick={() => setRejectReason(preset)}
-                  className={`px-2.5 py-1 text-xs rounded-lg border transition-all ${
+                  className={`px-2.5 py-1 text-xs rounded-lg border-[1.5px] transition-all ${
                     rejectReason === preset
-                      ? "bg-rose-500/15 border-rose-500/30 text-rose-300 font-bold"
-                      : "bg-paper border-line text-ink-2 hover:bg-paper"
+                      ? "bg-danger/15 border-danger text-danger font-extrabold"
+                      : "bg-paper-2 border-[var(--ink)]/30 text-ink-2 font-bold hover:bg-surface"
                   }`}
                 >
                   {preset}
@@ -1706,9 +1703,9 @@ export default function GivingInbox() {
           <div className="space-y-1.5">
             <label
               htmlFor="reject-reason"
-              className="text-xs font-bold text-ink-2 block"
+              className="text-xs font-extrabold text-ink-2 block"
             >
-              ระบุเหตุผล <span className="text-rose-500">*</span>
+              ระบุเหตุผล <span className="text-danger">*</span>
             </label>
             <textarea
               id="reject-reason"
@@ -1716,7 +1713,7 @@ export default function GivingInbox() {
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
               placeholder="ระบุรายละเอียดเหตุผลการปฏิเสธสลิปนี้..."
-              className="w-full text-sm rounded-xl border border-line p-3 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"
+              className="neo-input w-full text-sm p-3 resize-none"
             />
           </div>
 
@@ -1725,7 +1722,7 @@ export default function GivingInbox() {
               type="button"
               onClick={() => setShowRejectModal(false)}
               disabled={rejectMutation.isPending}
-              className="px-4 py-2 text-xs font-bold rounded-xl border border-field text-ink-2 hover:bg-paper transition-colors"
+              className="btn-secondary min-h-10 px-4 py-2 text-xs"
             >
               ยกเลิก
             </button>
@@ -1733,7 +1730,7 @@ export default function GivingInbox() {
               type="button"
               onClick={handleConfirmReject}
               disabled={rejectMutation.isPending || !rejectReason.trim()}
-              className="px-4 py-2 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              className="min-h-10 px-4 py-2 text-xs font-extrabold rounded-xl border-2 border-[var(--ink)] bg-danger hover:bg-danger/90 text-white shadow-[2px_2px_0_var(--ink)] transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
               {rejectMutation.isPending ? (
                 <>
@@ -1756,19 +1753,19 @@ type ReceiverKind = "match" | "mismatch" | "suspect" | "unknown";
 const RECEIVER_NOTE: Record<ReceiverKind, { text: string; cls: string }> = {
   match: {
     text: "ตรงกับบัญชีของคริสตจักร",
-    cls: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
+    cls: "bg-tile-mint border-[var(--ink)]/30 text-tile-mint-ink",
   },
   mismatch: {
     text: "ไม่ตรงกับบัญชีของคริสตจักร ตรวจภาพสลิปก่อนอนุมัติ",
-    cls: "bg-rose-500/10 border-rose-500/30 text-rose-300",
+    cls: "bg-danger/10 border-danger/40 text-danger",
   },
   suspect: {
     text: "ต่างจากบัญชีคริสตจักร 1 หลัก อาจอ่านผิด ตรวจภาพสลิปก่อนอนุมัติ",
-    cls: "bg-amber-500/10 border-amber-500/30 text-amber-200",
+    cls: "bg-tile-sand border-[var(--ink)]/30 text-tile-sand-ink",
   },
   unknown: {
     text: "ตรวจเทียบอัตโนมัติไม่ได้ (พร้อมเพย์ ปิดเลขมาก หรือยังไม่ได้ตั้งเลขบัญชีคริสตจักร) ให้ดูภาพสลิป",
-    cls: "bg-paper border-line text-ink-2",
+    cls: "bg-paper-2 border-[var(--ink)]/20 text-ink-2",
   },
 };
 
@@ -1788,8 +1785,10 @@ export function ReceiverCheck({ aiData }: { aiData: unknown }) {
     .filter(Boolean)
     .join(" · ");
   return (
-    <div className={`p-3 rounded-xl border text-xs font-medium ${note.cls}`}>
-      <div className="font-bold">ผู้รับในสลิป</div>
+    <div
+      className={`p-3 rounded-xl border-[1.5px] text-xs font-bold ${note.cls}`}
+    >
+      <div className="font-extrabold">ผู้รับในสลิป</div>
       {shown && <div className="font-mono pt-0.5 break-all">{shown}</div>}
       <div className="pt-1">{note.text}</div>
     </div>
@@ -1805,9 +1804,9 @@ export function EscalationNote({ aiData }: { aiData: unknown }) {
   return (
     <div
       role="note"
-      className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs font-medium"
+      className="p-3 rounded-xl border-[1.5px] border-[var(--ink)]/30 bg-tile-sand text-tile-sand-ink text-xs font-bold"
     >
-      <span className="font-bold">
+      <span className="font-extrabold">
         ผู้ถวายส่งไม่ผ่านการตรวจอัตโนมัติหลายครั้งใน 24 ชั่วโมง
       </span>{" "}
       ระบบจึงไม่ปฏิเสธเอง ให้เทียบภาพสลิปกับยอดและบัญชีที่แจ้งด้วยตาก่อนอนุมัติ

@@ -137,14 +137,19 @@ function SetupGate() {
 function RouteLoading() {
   return (
     <div
-      className="min-h-[50vh] flex items-center justify-center px-6"
+      className="min-h-[55vh] flex items-center justify-center px-6"
       role="status"
       aria-live="polite"
     >
-      <div className="w-full max-w-md space-y-3">
-        <div className="h-8 w-40 rounded-xl bg-line/60 animate-pulse" />
-        <div className="h-24 w-full rounded-2xl bg-line/40 animate-pulse" />
-        <p className="text-center text-sm text-ink-3">กำลังโหลดหน้า…</p>
+      <div className="w-full max-w-md rounded-2xl border-2 border-[var(--ink)] bg-surface p-6 shadow-[4px_4px_0_var(--ink)] space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="h-6 w-24 rounded-lg bg-accent animate-pulse border border-[var(--ink)]" />
+          <div className="h-4 w-32 rounded-md bg-paper-2 animate-pulse" />
+        </div>
+        <div className="h-20 w-full rounded-xl bg-paper-2 animate-pulse border border-line" />
+        <p className="text-center text-xs font-bold uppercase tracking-wider text-ink-3">
+          กำลังโหลดหน้า…
+        </p>
       </div>
     </div>
   );
@@ -165,16 +170,16 @@ function RoleGuard({
   if (loading) return <RouteLoading />;
   if (!user || !canAccess(user)) {
     return (
-      <div className="min-h-screen bg-paper flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-surface rounded-3xl p-8 border-2 border-line text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-rose-500/15 border-2 border-rose-500/30 mx-auto flex items-center justify-center text-rose-400">
+      <div className="min-h-screen bg-ground flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-surface rounded-2xl p-8 border-2 border-[var(--ink)] text-center space-y-5 shadow-[6px_6px_0_var(--ink)]">
+          <div className="w-16 h-16 rounded-2xl bg-coral/20 border-2 border-[var(--ink)] mx-auto flex items-center justify-center text-danger shadow-[3px_3px_0_var(--ink)]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-8 h-8"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -182,12 +187,15 @@ function RoleGuard({
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-ink">{title}</h2>
-          <p className="text-sm text-ink-3 leading-relaxed">{message}</p>
+          <div className="space-y-2">
+            <span className="eyebrow">จำกัดสิทธิ์การเข้าถึง</span>
+            <h2 className="display text-2xl text-ink pt-1">{title}</h2>
+            <p className="text-sm text-ink-2 leading-relaxed">{message}</p>
+          </div>
           <div className="pt-2">
             <a
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-brand text-black font-bold text-sm hover:bg-brand-ink transition-all shadow-xs"
+              className="btn-primary inline-flex min-h-11 items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
             >
               กลับสู่หน้าหลัก
             </a>

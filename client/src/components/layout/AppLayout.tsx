@@ -77,18 +77,20 @@ function MobileTab({
       aria-label={tab.ariaLabel}
       aria-current={active ? "page" : undefined}
       className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl transition-colors ${
-        active ? "text-ink" : "text-ink-3 hover:text-ink"
+        active ? "text-brand" : "text-ink-3 hover:text-ink"
       }`}
     >
       <span
-        className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
-          active ? "bg-[#080808] text-brand" : ""
+        className={`flex h-7 w-12 items-center justify-center rounded-full transition-all ${
+          active
+            ? "bg-brand text-white shadow-[2px_2px_0_var(--ink)]"
+            : ""
         }`}
       >
         <Icon className="size-5" />
       </span>
       <span
-        className={`text-xs leading-none ${active ? "font-bold text-ink" : "font-medium"}`}
+        className={`text-xs leading-none ${active ? "font-bold text-brand" : "font-medium text-ink-2"}`}
       >
         {tab.label}
       </span>
@@ -114,14 +116,14 @@ function SidebarLink({
     <GuardedLink
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all focus-visible:ring-2 focus-visible:ring-brand ${
+      className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 text-sm transition-all border-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ${
         active
-          ? "bg-[#080808] font-semibold text-white shadow-xs"
-          : "font-medium text-ink-2 hover:bg-paper hover:text-ink"
+          ? "border-[var(--ink)] bg-brand text-white font-bold shadow-[3px_3px_0_var(--ink)]"
+          : "border-transparent font-medium text-ink-2 hover:bg-accent hover:text-accent-foreground hover:border-[var(--ink)]"
       }`}
     >
       <Icon
-        className={`size-[18px] shrink-0 ${active ? "text-brand" : ""}`}
+        className={`size-[18px] shrink-0 ${active ? "text-white" : "text-ink-3"}`}
         aria-hidden="true"
       />
       <span className="min-w-0 flex-1 truncate">{label}</span>
@@ -194,14 +196,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           <GuardedLink
             href="/"
             aria-label="Grace Giving หน้าหลัก"
-            className="flex items-center gap-3 rounded-2xl px-1.5 py-1.5 hover:bg-paper/60 transition-colors"
+            className="flex items-center gap-3 rounded-2xl px-1.5 py-1.5 hover:bg-ground transition-colors"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-black">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-brand text-white shadow-[3px_3px_0_var(--ink)]">
               <Sprout className="size-5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
-              <span className="display block truncate text-lg leading-none text-ink">
-                Grace <span className="text-brand">Ledger</span>
+              <span className="font-display font-extrabold block truncate text-lg leading-none tracking-tight text-ink">
+                Grace <span className="text-brand">Giving</span>
               </span>
               <span className="mt-1 block truncate text-xs font-medium text-ink-3">
                 {churchName}
@@ -212,7 +214,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {canRecordOffering && (
             <button
               onClick={() => navigate("/offerings/new")}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="btn-primary flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <Plus className="size-4" aria-hidden="true" />
               บันทึกการถวาย
@@ -230,7 +232,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                 content.push(
                   <p
                     key={`group-${item.path}`}
-                    className={`px-3.5 pb-1 text-xs font-medium text-ink-3 ${index === 0 ? "" : "pt-3.5"}`}
+                    className={`px-3.5 pb-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-ink-3 ${index === 0 ? "" : "pt-4"}`}
                   >
                     {group}
                   </p>
@@ -259,9 +261,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             <GuardedLink
               href="/profile"
               aria-label={`โปรไฟล์ ${user?.name ?? ""} ${roleLabel}`}
-              className="flex items-center gap-3 rounded-2xl bg-paper/70 border border-line/60 px-3 py-2.5 hover:bg-paper-2 transition-colors"
+              className="flex items-center gap-3 rounded-xl border-2 border-line bg-paper px-3 py-2.5 transition-colors hover:border-[var(--ink)] hover:bg-accent/30"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-paper-2 text-sm font-bold text-ink-2">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </span>
               <span className="min-w-0">
@@ -279,15 +281,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         {/* Main Content Column */}
         <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] sm:pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-12 min-w-0">
           <header
-            className={`flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 ${
-              title ? "border-b border-line/80 pb-5 sm:pb-6" : ""
+            className={`mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-8 ${
+              title ? "border-b border-line pb-5 sm:pb-6" : ""
             } ${hideHeaderOnPrint ? "print:hidden" : ""}`}
           >
-            <div className="flex w-full items-center justify-between lg:hidden">
+            <div className="flex w-full items-center justify-between gap-2 lg:hidden">
               <AppMenu />
               <GuardedLink
                 href="/notifications"
-                className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-ink-2 hover:bg-paper hover:text-ink"
+                className="flex size-11 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-surface text-ink-2 shadow-[2px_2px_0_var(--ink)] hover:bg-ground"
                 aria-label="การแจ้งเตือน"
               >
                 <Bell className="size-5" aria-hidden="true" />
@@ -295,11 +297,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             </div>
             {title && (
               <div className="min-w-0 flex-1 basis-full sm:basis-0">
-                <h1 className="display text-2xl text-ink break-words">
+                <span className="eyebrow-quiet mb-2.5 block">
+                  <span className="size-1.5 rounded-full bg-brand" aria-hidden="true" />
+                  {getNavGroup(activeRoute || location)}
+                </span>
+                <h1 className="display max-w-[22ch] text-[clamp(1.9rem,3.6vw,2.85rem)] leading-[1.04] text-ink break-words">
                   {title}
                 </h1>
+                <span className="title-rule mt-3" aria-hidden="true" />
                 {subtitle && (
-                  <p className="text-sm leading-relaxed text-ink-2 mt-2 max-w-2xl">
+                  <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-2">
                     {subtitle}
                   </p>
                 )}
@@ -315,14 +322,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             )}
           </header>
 
-          <div className="space-y-6 w-full">{children}</div>
+          <div className="w-full space-y-5 sm:space-y-6">{children}</div>
         </main>
       </div>
 
       {/* MOBILE BOTTOM BAR */}
       <nav
         aria-label="เมนูนำทางหลักบนมือถือ"
-        className="lg:hidden print:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]"
+        className="lg:hidden print:hidden fixed bottom-0 inset-x-0 z-40 border-t border-line bg-surface/95 backdrop-blur pb-[env(safe-area-inset-bottom)]"
       >
         <div
           className="mx-auto grid max-w-lg items-center px-2 py-1.5"
@@ -345,7 +352,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               aria-label="บันทึกการถวายใหม่"
               className="flex min-h-14 flex-col items-center justify-center gap-1"
             >
-              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
+              <span className="alpha-press flex size-10 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-brand text-white shadow-[2px_2px_0_var(--ink)]">
                 <Plus className="size-5 stroke-[2.5]" />
               </span>
               <span className="text-xs font-bold leading-none text-ink">

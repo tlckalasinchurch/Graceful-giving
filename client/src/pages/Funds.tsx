@@ -10,6 +10,7 @@ import { fundShares } from "./Home/fundShares";
 import { NativeSelect } from "@/components/ui/native-select";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 type AccountItem = RouterOutputs["finance"]["accounts"][number];
 
@@ -36,7 +37,6 @@ export default function Funds() {
 
   const {
     data: accountsData,
-    isLoading,
     refetch,
   } = trpc.finance.accounts.useQuery(undefined, { retry: false });
 
@@ -50,7 +50,9 @@ export default function Funds() {
       void utils.finance.fundOptions.invalidate();
     },
     onError: error => {
-      toast.error("สร้างกองทุนไม่สำเร็จ", { description: error.message });
+      toast.error("สร้างกองทุนไม่สำเร็จ", {
+        description: friendlyErrorMessage(error),
+      });
     },
   });
 
@@ -106,7 +108,7 @@ export default function Funds() {
         canCreate ? (
           <button
             onClick={() => setShowNewFundModal(true)}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black hover:bg-brand-ink"
+            className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold"
           >
             <Plus className="size-4" />
             สร้างกองทุนใหม่
@@ -118,16 +120,16 @@ export default function Funds() {
         {/* Overview: the total, and the bar that shows where it sits */}
         <section
           aria-label="ยอดเงินรวมทุกกองทุน"
-          className="rounded-2xl border border-line bg-surface p-5 sm:p-6 space-y-4"
+          className="bento-card space-y-4 p-5 sm:p-6"
         >
           <div>
-            <p className="text-sm text-ink-2">ยอดเงินรวมทุกกองทุน</p>
+            <p className="eyebrow">ยอดเงินรวมทุกกองทุน</p>
             <p
-              className={`money mt-1 text-3xl font-semibold ${totalFundsBalance < 0 ? "text-danger" : "text-ink"}`}
+              className={`display money mt-2 text-[clamp(2rem,4vw,2.75rem)] leading-none ${totalFundsBalance < 0 ? "text-danger" : "text-ink"}`}
             >
               {formatBaht(totalFundsBalance)}
             </p>
-            <p className="mt-1 text-xs text-ink-3">
+            <p className="mt-1.5 text-xs font-bold text-ink-3">
               จาก {fundsList.length} กองทุนที่เปิดใช้งาน
             </p>
           </div>
@@ -137,21 +139,22 @@ export default function Funds() {
         {/* Funds: one divided list, name and type left, balance and share right */}
         <section
           aria-label="รายการกองทุน"
-          className="rounded-2xl border border-line bg-surface"
+          className="bento-card-static overflow-hidden p-0"
         >
           {fundsList.length === 0 ? (
-            <div className="m-5 rounded-2xl border border-dashed border-line p-6 text-center space-y-3">
-              <p className="text-sm font-semibold text-ink">
+            <div className="m-5 rounded-2xl border-2 border-dashed border-[var(--ink)]/30 bg-paper-2 p-6 text-center space-y-3">
+              <p className="text-sm font-extrabold text-ink">
                 ยังไม่มีข้อมูลกองทุนในระบบ
               </p>
-              <p className="text-xs text-ink-3 max-w-md mx-auto">
-                เริ่มต้นสร้างกองทุนแรกของคริสตจักร เช่น กองทุนทั่วไป หรือกองทุนพันธกิจ เพื่อเริ่มบันทึกเงินถวายและค่าใช้จ่าย
+              <p className="text-xs font-medium text-ink-3 max-w-md mx-auto">
+                เริ่มต้นสร้างกองทุนแรกของคริสตจักร เช่น กองทุนทั่วไป
+                หรือกองทุนพันธกิจ เพื่อเริ่มบันทึกเงินถวายและค่าใช้จ่าย
               </p>
               {canCreate && (
                 <button
                   type="button"
                   onClick={() => setShowNewFundModal(true)}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-xs font-bold text-black hover:bg-brand-ink"
+                  className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-xs font-bold"
                 >
                   <Plus className="size-4" />
                   สร้างกองทุนแรก
@@ -167,31 +170,31 @@ export default function Funds() {
                     <button
                       type="button"
                       onClick={() => setLocation(`/funds/${f.id}`)}
-                      className="flex min-h-16 w-full items-center gap-4 px-5 py-3.5 text-left hover:bg-paper focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                      className="flex min-h-16 w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-paper-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                     >
                       <span
                         aria-hidden="true"
-                        className={`size-2 shrink-0 rounded-full ${
+                        className={`size-3 shrink-0 rounded-md border border-[var(--ink)] ${
                           toneIndexById.has(f.id)
                             ? fundTone(toneIndexById.get(f.id) ?? 3)
-                            : "border border-line"
+                            : "bg-paper-2"
                         }`}
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold text-ink">
+                        <span className="block truncate text-sm font-extrabold text-ink">
                           {f.name}
                         </span>
-                        <span className="block truncate text-xs text-ink-3">
+                        <span className="block truncate text-xs font-medium text-ink-3">
                           {FUND_TYPE_LABELS[f.type] || f.type} · {f.code}
                         </span>
                       </span>
                       <span className="shrink-0 text-right">
                         <span
-                          className={`money block text-base font-semibold ${f.balance < 0 ? "text-danger" : "text-ink"}`}
+                          className={`money block text-base font-extrabold ${f.balance < 0 ? "text-danger" : "text-ink"}`}
                         >
                           {formatBaht(f.balance)}
                         </span>
-                        <span className="money block text-xs text-ink-3">
+                        <span className="money block text-xs font-medium text-ink-3">
                           {share === undefined
                             ? "—"
                             : `${share}% ของเงินทั้งหมด`}
@@ -212,16 +215,16 @@ export default function Funds() {
         {/* Create Fund Modal */}
         {showNewFundModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-surface rounded-2xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b border-line pb-3">
-                <h3 className="text-lg font-bold text-foreground">
+            <div className="neo-modal max-h-[calc(100dvh-2rem)] w-full max-w-md space-y-5 overflow-y-auto overscroll-contain p-6 md:p-8 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
+                <h3 className="text-lg font-extrabold text-ink">
                   สร้างกองทุนใหม่
                 </h3>
                 <button
                   onClick={() => setShowNewFundModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-foreground"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
                 >
                   ×
                 </button>
@@ -229,8 +232,8 @@ export default function Funds() {
 
               <form onSubmit={handleCreateFund} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    ชื่อกองทุน <span className="text-red-500">*</span>
+                  <label className="text-xs font-extrabold text-ink-2">
+                    ชื่อกองทุน <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
@@ -238,12 +241,12 @@ export default function Funds() {
                     placeholder="เช่น กองทุนทุนการศึกษาบุตรศิษยาภิบาล"
                     value={newFundName}
                     onChange={e => setNewFundName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm focus:border-primary focus:outline-none"
+                    className="neo-input w-full px-4 py-2.5 text-sm"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
+                  <label className="text-xs font-extrabold text-ink-2">
                     ประเภทกองทุน
                   </label>
                   <NativeSelect
@@ -266,7 +269,7 @@ export default function Funds() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
+                  <label className="text-xs font-extrabold text-ink-2">
                     คำอธิบายและวัตถุประสงค์
                   </label>
                   <textarea
@@ -274,7 +277,7 @@ export default function Funds() {
                     placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้..."
                     value={newFundDesc}
                     onChange={e => setNewFundDesc(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-line text-sm focus:border-primary focus:outline-none"
+                    className="neo-input w-full px-4 py-2.5 text-sm"
                   />
                 </div>
 
@@ -282,13 +285,13 @@ export default function Funds() {
                   <button
                     type="button"
                     onClick={() => setShowNewFundModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-line text-xs font-medium text-ink-2"
+                    className="btn-secondary min-h-11 px-4 py-2.5 text-xs"
                   >
                     ยกเลิก
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-primary text-black text-xs font-semibold hover:bg-brand-ink"
+                    className="btn-primary min-h-11 px-6 py-2.5 text-xs"
                   >
                     สร้างกองทุน
                   </button>

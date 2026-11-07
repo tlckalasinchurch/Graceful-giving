@@ -38,6 +38,7 @@ import { THAI_LOCALE } from "@/lib/format";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 export default function TransactionDetail() {
   const [, setLocation] = useLocation();
@@ -72,7 +73,7 @@ export default function TransactionDetail() {
       toast.success("ยกเลิกรายการถวายเรียบร้อยแล้ว");
       setLocation("/transactions");
     },
-    onError: error => toast.error(error.message || "ยกเลิกรายการถวายไม่สำเร็จ"),
+    onError: error => toast.error(friendlyErrorMessage(error, "ยกเลิกรายการถวายไม่สำเร็จ")),
   });
   const deleteExpense = trpc.expenses.delete.useMutation({
     onSuccess: async () => {
@@ -87,7 +88,7 @@ export default function TransactionDetail() {
       setLocation("/transactions");
     },
     onError: error =>
-      toast.error(error.message || "ยกเลิกรายการรายจ่ายไม่สำเร็จ"),
+      toast.error(friendlyErrorMessage(error, "ยกเลิกรายการรายจ่ายไม่สำเร็จ")),
   });
   const updateOffering = trpc.offerings.update.useMutation({
     onSuccess: async () => {
@@ -101,7 +102,7 @@ export default function TransactionDetail() {
       setIsEditing(false);
       toast.success("แก้ไขรายการถวายเรียบร้อยแล้ว");
     },
-    onError: error => toast.error(error.message || "แก้ไขรายการถวายไม่สำเร็จ"),
+    onError: error => toast.error(friendlyErrorMessage(error, "แก้ไขรายการถวายไม่สำเร็จ")),
   });
   const updateExpense = trpc.expenses.update.useMutation({
     onSuccess: async () => {
@@ -117,7 +118,7 @@ export default function TransactionDetail() {
       toast.success("แก้ไขรายการรายจ่ายเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error(error.message || "แก้ไขรายการรายจ่ายไม่สำเร็จ"),
+      toast.error(friendlyErrorMessage(error, "แก้ไขรายการรายจ่ายไม่สำเร็จ")),
   });
   const offeringQuery = trpc.offerings.getById.useQuery(
     { id: recordId },
@@ -128,8 +129,6 @@ export default function TransactionDetail() {
     { enabled: isExpense && hasValidId, retry: false }
   );
 
-  // Detail rows hold a fundId; without the account list the page showed the
-  // internal id ("กองทุน #1") where the reader expects the fund's name.
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
     staleTime: 60_000,
@@ -268,13 +267,13 @@ export default function TransactionDetail() {
           : "ตรวจสอบข้อมูลจากระบบ"
       }
       action={
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {transaction && (
             <button
               onClick={() => setShowVoucher(true)}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-paper-2 hover:bg-brand hover:text-black text-ink-2 text-xs font-bold border border-line flex items-center gap-1.5 transition-colors"
+              className="btn-secondary min-h-11 px-3.5 py-2 text-xs"
             >
-              <Printer className="w-4 h-4" />
+              <Printer className="w-4 h-4 text-brand" />
               <span>{isExpense ? "พิมพ์ใบสำคัญจ่าย" : "พิมพ์ใบเสร็จ"}</span>
             </button>
           )}
@@ -285,7 +284,7 @@ export default function TransactionDetail() {
                   return;
                 setIsEditing(value => !value);
               }}
-              className="min-h-11 px-3.5 py-2 rounded-xl bg-emerald-50 text-income text-xs font-bold border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1.5"
+              className="flex min-h-11 items-center gap-1.5 rounded-xl border-2 border-[var(--ink)] bg-tile-mint px-3.5 py-2 text-xs font-extrabold text-tile-mint-ink shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-accent hover:text-accent-foreground active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
             >
               <Pencil className="w-4 h-4" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
@@ -308,7 +307,7 @@ export default function TransactionDetail() {
                 if (isExpense) deleteExpense.mutate({ id: recordId });
               }}
               disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="min-h-11 px-3.5 py-2 rounded-2xl bg-rose-500/10 text-rose-300 text-xs font-bold border border-rose-500/30 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[var(--ink)] bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-danger hover:text-white disabled:opacity-50"
             >
               <Ban className="w-4 h-4" />
               <span>ยกเลิกรายการ</span>
@@ -334,15 +333,17 @@ export default function TransactionDetail() {
           onAction={() => setLocation("/transactions")}
         />
       ) : (
-        <div className="bg-surface rounded-2xl p-6 sm:p-8 border border-line card-elevation-sm space-y-6">
+        <div className="bento-card-static space-y-6 p-6 sm:p-8">
           {isEditing && (
             <form
               onSubmit={submitEdit}
-              className="rounded-2xl bg-paper border border-line p-4 space-y-3"
+              className="space-y-4 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 p-5 shadow-[3px_3px_0_var(--ink)]"
             >
-              <p className="text-sm font-bold text-ink">แก้ไขข้อมูลรายการ</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-xs font-semibold text-ink-2">
+              <p className="text-sm font-extrabold uppercase tracking-wider text-ink">
+                แก้ไขข้อมูลรายการ
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="text-xs font-bold text-ink">
                   จำนวนเงิน (บาท)
                   <input
                     type="number"
@@ -350,10 +351,10 @@ export default function TransactionDetail() {
                     step="0.01"
                     value={editAmount}
                     onChange={event => setEditAmount(event.target.value)}
-                    className="mt-1 w-full rounded-xl border border-line p-3 text-sm bg-surface"
+                    className="neo-input mt-1 font-bold tabular-nums"
                   />
                 </label>
-                <label className="text-xs font-semibold text-ink-2">
+                <label className="text-xs font-bold text-ink">
                   กองทุน
                   <select
                     value={editFundId ?? ""}
@@ -362,7 +363,7 @@ export default function TransactionDetail() {
                         event.target.value ? Number(event.target.value) : null
                       )
                     }
-                    className="mt-1 w-full rounded-xl border border-line p-3 text-sm bg-surface text-ink"
+                    className="neo-input mt-1 font-medium"
                   >
                     <option value="" disabled>
                       — เลือกกองทุน —
@@ -374,7 +375,7 @@ export default function TransactionDetail() {
                     ))}
                   </select>
                 </label>
-                <label className="text-xs font-semibold text-ink-2">
+                <label className="text-xs font-bold text-ink">
                   {isOffering ? "ชื่อผู้ถวาย" : "ผู้รับเงิน / ร้านค้า"}
                   <input
                     value={editPerson}
@@ -384,10 +385,10 @@ export default function TransactionDetail() {
                         ? "ชื่อผู้ถวาย (เว้นว่าง = นิรนาม)"
                         : "ชื่อร้านค้าหรือผู้รับเงิน"
                     }
-                    className="mt-1 w-full rounded-xl border border-line p-3 text-sm bg-surface"
+                    className="neo-input mt-1"
                   />
                 </label>
-                <label className="text-xs font-semibold text-ink-2">
+                <label className="text-xs font-bold text-ink">
                   {isOffering ? "หมายเหตุ" : "รายละเอียดรายการ"}
                   <input
                     value={editText}
@@ -395,36 +396,38 @@ export default function TransactionDetail() {
                     placeholder={
                       isOffering ? "หมายเหตุเพิ่มเติม" : "รายละเอียดค่าใช้จ่าย"
                     }
-                    className="mt-1 w-full rounded-xl border border-line p-3 text-sm bg-surface"
+                    className="neo-input mt-1"
                   />
                 </label>
               </div>
               <button
                 disabled={updateOffering.isPending || updateExpense.isPending}
-                className="rounded-xl bg-income px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+                className="btn-primary min-h-11 px-5 py-2 text-xs disabled:opacity-50"
               >
                 บันทึกการแก้ไข
               </button>
             </form>
           )}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-line/60">
-            <div className="space-y-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b-2 border-[var(--ink)]">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-ink-3">
+                <span className="eyebrow">
                   {transaction.type === "income" ? "รายรับ (ถวาย)" : "รายจ่าย"}
                 </span>
                 <StatusBadge status={transaction.status} />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-ink">
+              <h2 className="display text-2xl sm:text-3xl text-ink">
                 {transaction.title}
               </h2>
-              <p className="text-xs text-ink-3 flex items-center gap-1.5">
+              <p className="text-xs font-semibold text-ink-3 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-brand" />
                 {new Date(transaction.date).toLocaleString(THAI_LOCALE)}
               </p>
             </div>
             <div className="text-left sm:text-right">
-              <span className="text-xs text-ink-3 block">จำนวนเงินสุทธิ</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-ink-3 block">
+                จำนวนเงินสุทธิ
+              </span>
               <MoneyDisplay
                 amount={transaction.amount}
                 type={transaction.type}
@@ -456,32 +459,32 @@ export default function TransactionDetail() {
             <Detail label="เลขอ้างอิง" value={transaction.refCode} />
           </div>
           {transaction.notes && (
-            <div className="rounded-2xl bg-surface border border-line/70 p-4">
-              <p className="text-xs text-ink-3">หมายเหตุ</p>
-              <p className="text-sm text-ink mt-1">{transaction.notes}</p>
+            <div className="rounded-2xl bg-paper-2 border-2 border-[var(--ink)] p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-ink-3">หมายเหตุ</p>
+              <p className="text-sm font-medium text-ink mt-1">{transaction.notes}</p>
             </div>
           )}
 
           {/* Receipt Attachment from Supabase Storage */}
           {transaction.receiptUrl && (
-            <div className="rounded-2xl bg-surface border border-line/70 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-ink-2 flex items-center gap-1.5">
+            <div className="rounded-2xl bg-paper-2 border-2 border-[var(--ink)] p-5 space-y-3 shadow-[3px_3px_0_var(--ink)]">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-extrabold text-ink flex items-center gap-1.5">
                   <Paperclip className="w-4 h-4 text-brand" />
                   หลักฐานสลิป / ใบเสร็จแนบ (Supabase Storage)
                 </span>
                 <button
                   onClick={() => setShowReceiptModal(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-300 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/15 px-3 py-1.5 rounded-xl border border-emerald-500/30 transition-colors"
+                  className="btn-secondary min-h-9 px-3 py-1.5 text-xs"
                 >
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3.5 h-3.5 text-brand" />
                   <span>เปิดดูหลักฐานเต็มจอ</span>
                 </button>
               </div>
 
               <div
                 onClick={() => setShowReceiptModal(true)}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-line bg-paper flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity group relative"
+                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border-2 border-[var(--ink)] bg-surface flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity group relative shadow-[2px_2px_0_var(--ink)]"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">
@@ -500,7 +503,7 @@ export default function TransactionDetail() {
                       alt="Receipt thumbnail"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-bold">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-bold">
                       คลิกเพื่อขยาย
                     </div>
                   </>
@@ -558,9 +561,9 @@ function Detail({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="bg-surface p-4 rounded-2xl border border-line/70 space-y-1">
-      <span className="text-xs text-ink-3 block">{label}</span>
-      <span className="text-sm font-bold text-ink-2 flex items-center gap-1.5">
+    <div className="bg-paper-2 p-4 rounded-xl border-1.5 border-[var(--ink)] space-y-1">
+      <span className="text-[11px] font-bold uppercase tracking-wider text-ink-3 block">{label}</span>
+      <span className="text-sm font-extrabold text-ink flex items-center gap-1.5">
         {icon}
         {value}
       </span>

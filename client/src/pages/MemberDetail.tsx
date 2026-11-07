@@ -8,12 +8,12 @@ import {
 } from "@/components/common/CommonUI";
 import { trpc } from "@/lib/trpc";
 import { Save } from "lucide-react";
-import { toast } from "sonner";
 import { Swal } from "@/lib/sweetalert";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 export default function MemberDetail() {
   const [, setLocation] = useLocation();
@@ -52,7 +52,7 @@ export default function MemberDetail() {
     onError: async error => {
       await Swal.error(
         "เกิดข้อผิดพลาด",
-        error.message || "ไม่สามารถบันทึกข้อมูลได้"
+        friendlyErrorMessage(error, "ไม่สามารถบันทึกข้อมูลได้")
       );
     },
   });
@@ -66,7 +66,7 @@ export default function MemberDetail() {
     onError: async error => {
       await Swal.error(
         "เกิดข้อผิดพลาด",
-        error.message || "ไม่สามารถปิดใช้งานได้"
+        friendlyErrorMessage(error, "ไม่สามารถปิดใช้งานได้")
       );
     },
   });
@@ -120,22 +120,21 @@ export default function MemberDetail() {
             onAction={() => setLocation("/members")}
           />
         ) : (
-          <form
-            onSubmit={submit}
-            className="rounded-2xl border border-line bg-surface p-6 md:p-8"
-          >
-            <div className="mb-6 flex items-center justify-between gap-4">
+          <form onSubmit={submit} className="bento-card p-6 md:p-8">
+            <div className="mb-6 flex items-center justify-between gap-4 pb-4 border-b-2 border-[var(--ink)]">
               <div>
-                <h1 className="text-2xl font-bold text-ink">
+                <h1 className="text-2xl font-extrabold tracking-tight text-ink">
                   แก้ไขข้อมูลสมาชิก
                 </h1>
-                <p className="mt-1 text-sm text-ink-3">
+                <p className="mt-1 text-sm font-medium text-ink-3">
                   สถานะปัจจุบัน:{" "}
-                  {query.data.status === "active"
-                    ? "ใช้งานอยู่ (active)"
-                    : query.data.status === "inactive"
-                      ? "ปิดใช้งาน (inactive)"
-                      : query.data.status}
+                  <span className="font-extrabold text-ink">
+                    {query.data.status === "active"
+                      ? "ใช้งานอยู่ (active)"
+                      : query.data.status === "inactive"
+                        ? "ปิดใช้งาน (inactive)"
+                        : query.data.status}
+                  </span>
                 </p>
               </div>
               {query.data.status === "inactive" ? (
@@ -155,7 +154,7 @@ export default function MemberDetail() {
                       update.mutate({ id, status: "active" });
                     }
                   }}
-                  className="min-h-11 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-300 disabled:opacity-50 cursor-pointer"
+                  className="btn-secondary min-h-11 px-4 py-2 text-xs text-brand disabled:opacity-50 cursor-pointer"
                 >
                   เปิดใช้งานอีกครั้ง
                 </button>
@@ -177,52 +176,52 @@ export default function MemberDetail() {
                       deactivate.mutate({ id });
                     }
                   }}
-                  className="min-h-11 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-300 disabled:opacity-50 cursor-pointer"
+                  className="min-h-11 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-xs font-extrabold text-danger shadow-[2px_2px_0_var(--ink)] transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   ปิดใช้งาน
                 </button>
               )}
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-semibold text-ink-2">
+              <label className="text-sm font-extrabold text-ink-2">
                 ชื่อ-นามสกุล *
                 <input
                   required
                   value={name}
                   onChange={event => setName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2">
+              <label className="text-sm font-extrabold text-ink-2">
                 โทรศัพท์
                 <input
                   value={phone}
                   onChange={event => setPhone(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2">
+              <label className="text-sm font-extrabold text-ink-2">
                 อีเมล
                 <input
                   type="email"
                   value={email}
                   onChange={event => setEmail(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
+              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
                 หมายเหตุ
                 <textarea
                   value={notes}
                   onChange={event => setNotes(event.target.value)}
                   rows={4}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
             </div>
             <button
               disabled={update.isPending}
-              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand hover:bg-brand-ink px-5 py-2 text-sm font-bold text-black disabled:opacity-50"
+              className="btn-primary mt-5 inline-flex min-h-11 items-center gap-2 px-5 py-2 text-sm disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}

@@ -8,12 +8,13 @@ import {
   LoadingSkeleton,
 } from "@/components/common/CommonUI";
 import { trpc } from "@/lib/trpc";
-import { Plus, UsersRound, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 const MEMBER_STATUS_LABEL: Record<string, string> = {
   active: "ใช้งาน",
@@ -66,7 +67,8 @@ export default function Members() {
       setShowCreate(false);
       toast.success("เพิ่มสมาชิกเรียบร้อยแล้ว");
     },
-    onError: error => toast.error(error.message || "เพิ่มสมาชิกไม่สำเร็จ"),
+    onError: error =>
+      toast.error(friendlyErrorMessage(error, "เพิ่มสมาชิกไม่สำเร็จ")),
   });
 
   const submit = (event: React.FormEvent) => {
@@ -97,7 +99,7 @@ export default function Members() {
               setShowCreate(true);
             }
           }}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-xs font-bold text-black"
+          className="btn-primary min-h-11 inline-flex items-center gap-2 px-4 py-2 text-xs"
         >
           <Plus className="h-4 w-4" />
           เพิ่มสมาชิก
@@ -106,61 +108,58 @@ export default function Members() {
     >
       <div className="space-y-6">
         {showCreate && (
-          <form
-            onSubmit={submit}
-            className="rounded-2xl border border-line bg-surface p-6"
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="font-bold text-ink">เพิ่มสมาชิกใหม่</h2>
+          <form onSubmit={submit} className="bento-card p-6">
+            <div className="mb-5 flex items-center justify-between pb-3 border-b-2 border-[var(--ink)]">
+              <h2 className="font-extrabold text-ink">เพิ่มสมาชิกใหม่</h2>
               <button
                 type="button"
                 aria-label="ปิดแบบฟอร์ม"
                 onClick={closeCreateForm}
-                className="text-ink-3"
+                className="flex size-10 items-center justify-center rounded-xl text-ink-3 hover:bg-paper-2 hover:text-ink"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-semibold text-ink-2">
+              <label className="text-sm font-extrabold text-ink-2">
                 ชื่อ-นามสกุล *
                 <input
                   required
                   value={name}
                   onChange={event => setName(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2">
+              <label className="text-sm font-extrabold text-ink-2">
                 โทรศัพท์
                 <input
                   value={phone}
                   onChange={event => setPhone(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2">
+              <label className="text-sm font-extrabold text-ink-2">
                 อีเมล
                 <input
                   type="email"
                   value={email}
                   onChange={event => setEmail(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
+              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
                 หมายเหตุ
                 <textarea
                   value={notes}
                   onChange={event => setNotes(event.target.value)}
                   rows={3}
-                  className="mt-1 w-full rounded-xl border border-line p-3 font-normal text-ink"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
             </div>
             <button
               disabled={createMember.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-income px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              className="btn-primary mt-5 min-h-11 px-5 py-2 text-sm disabled:opacity-50"
             >
               {createMember.isPending ? "กำลังบันทึก…" : "บันทึกสมาชิก"}
             </button>
@@ -212,26 +211,32 @@ export default function Members() {
             description="ลองเปลี่ยนคำค้นหาหรือตัวกรองสถานะใหม่"
           />
         ) : (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {filteredMembers.map(member => (
               <button
                 key={member.id}
                 type="button"
                 onClick={() => setLocation(`/members/${member.id}`)}
-                className="rounded-2xl border border-line bg-surface p-5 text-left hover:bg-paper"
+                className="bento-card p-5 text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)]"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-bold text-ink">{member.name}</h2>
+                  <h2 className="font-extrabold text-ink">{member.name}</h2>
                   <span
-                    className={`rounded-full border border-line px-2 py-1 text-[11px] font-medium ${member.status === "active" ? "bg-surface text-ink" : "bg-paper text-ink-3"}`}
+                    className={`rounded-full border px-2.5 py-0.5 text-[11px] font-extrabold ${
+                      member.status === "active"
+                        ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
+                        : member.status === "pending"
+                          ? "border-[var(--ink)]/30 bg-tile-sand text-tile-sand-ink"
+                          : "border-[var(--ink)]/20 bg-paper-2 text-ink-3"
+                    }`}
                   >
                     {MEMBER_STATUS_LABEL[member.status] ?? member.status}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-ink-3">
+                <p className="mt-2.5 text-sm font-medium text-ink-2">
                   {member.phone || "ไม่ระบุเบอร์โทรศัพท์"}
                 </p>
-                <p className="text-sm text-ink-3">
+                <p className="text-sm font-medium text-ink-3">
                   {member.email || "ไม่ระบุอีเมล"}
                 </p>
               </button>

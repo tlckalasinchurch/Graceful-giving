@@ -15,6 +15,7 @@ import { BarChart3, Download, Landmark, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { formatBaht, THAI_LOCALE } from "@/lib/format";
 import { NativeSelect } from "@/components/ui/native-select";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 type ReportTab = "cashflow" | "funds";
 
@@ -97,7 +98,7 @@ export default function Reports() {
         toast.info("ไม่มีรายการในช่วงเวลาที่เลือก จึงไม่มีข้อมูลให้ส่งออก");
         return;
       }
-      const blob = new Blob(["﻿" + result.csv], {
+      const blob = new Blob(["\uFEFF" + result.csv], {
         type: "text/csv;charset=utf-8",
       });
       const url = URL.createObjectURL(blob);
@@ -111,7 +112,7 @@ export default function Reports() {
       toast.success(`ส่งออก ${result.rowCount} รายการเรียบร้อยแล้ว`);
     } catch (error) {
       toast.error("ส่งออกรายงานไม่สำเร็จ", {
-        description: error instanceof Error ? error.message : undefined,
+        description: friendlyErrorMessage(error),
       });
     }
   };
@@ -128,7 +129,7 @@ export default function Reports() {
           type="button"
           onClick={handleExportCsv}
           disabled={!hasData}
-          className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm font-bold text-ink-2 transition-colors hover:bg-paper-2 disabled:opacity-50"
+          className="btn-secondary inline-flex min-h-11 items-center gap-2 px-4 py-2.5 text-sm disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
           ส่งออก CSV
@@ -136,11 +137,17 @@ export default function Reports() {
       }
     >
       <div className="space-y-6">
-        <p className="text-sm text-ink-3">
-          คำนวณจากรายการถวายและรายจ่ายที่บันทึกไว้ ไม่รวมรายการที่ยกเลิกแล้ว
-          {summary
-            ? ` · ช่วง ${fmtThaiDate(summary.from)} ถึง ${fmtThaiDate(summary.to)}`
-            : ""}
+        <p className="bento-card-static flex items-start gap-2.5 px-4 py-3 text-sm font-medium text-ink-2">
+          <span
+            className="mt-1.5 size-2 shrink-0 rounded-full bg-brand border border-[var(--ink)]"
+            aria-hidden="true"
+          />
+          <span>
+            คำนวณจากรายการถวายและรายจ่ายที่บันทึกไว้ ไม่รวมรายการที่ยกเลิกแล้ว
+            {summary
+              ? ` · ช่วง ${fmtThaiDate(summary.from)} ถึง ${fmtThaiDate(summary.to)}`
+              : ""}
+          </span>
         </p>
 
         {/* Tabs and period */}
@@ -156,10 +163,10 @@ export default function Reports() {
                 key={id}
                 type="button"
                 onClick={() => setTab(id)}
-                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
+                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm transition-all ${
                   tab === id
-                    ? "border border-line bg-paper-2 text-ink"
-                    : "border border-line bg-surface text-ink-2 hover:bg-paper"
+                    ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                    : "btn-secondary"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -168,7 +175,7 @@ export default function Reports() {
             ))}
           </div>
 
-          <label className="text-sm font-semibold text-ink-2">
+          <label className="text-sm font-extrabold text-ink-2">
             <span className="sr-only">ช่วงเวลา</span>
             <NativeSelect
               value={period}
@@ -190,12 +197,15 @@ export default function Reports() {
         ) : summaryQuery.isError ? (
           <ErrorState
             title="โหลดรายงานไม่สำเร็จ"
-            description={summaryQuery.error.message}
+            description={friendlyErrorMessage(
+              summaryQuery.error,
+              "ดึงข้อมูลรายงานจากฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+            )}
             onRetry={() => summaryQuery.refetch()}
           />
         ) : tab === "funds" ? (
-          <section className="overflow-hidden rounded-2xl border border-line bg-surface">
-            <h2 className="border-b border-line p-4 font-bold text-ink">
+          <section className="bento-card-static overflow-hidden p-0">
+            <h2 className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 font-extrabold text-ink">
               ยอดคงเหลือแต่ละกองทุน
             </h2>
             {!summary || summary.funds.length === 0 ? (
@@ -214,14 +224,16 @@ export default function Reports() {
                     >
                       <div className="flex items-center gap-3">
                         <Wallet className="h-5 w-5 shrink-0 text-brand" />
-                        <span className="font-bold text-ink">{fund.name}</span>
+                        <span className="font-extrabold text-ink">
+                          {fund.name}
+                        </span>
                       </div>
                       <MoneyDisplay amount={fund.balance} />
                     </li>
                   ))}
                 </ul>
-                <div className="flex items-center justify-between border-t-2 border-line bg-paper p-4">
-                  <span className="font-bold text-ink">รวมทุกกองทุน</span>
+                <div className="flex items-center justify-between border-t-2 border-[var(--ink)] bg-paper-2 p-4">
+                  <span className="font-extrabold text-ink">รวมทุกกองทุน</span>
                   <MoneyDisplay
                     amount={summary.funds.reduce((t, f) => t + f.balance, 0)}
                     size="lg"
@@ -238,10 +250,12 @@ export default function Reports() {
         ) : (
           <>
             {/* Totals */}
-            <section className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-line rounded-2xl border border-line bg-surface">
+            <section className="bento-card p-0 grid grid-cols-1 sm:grid-cols-3 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[var(--ink)] overflow-hidden">
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-sm text-ink-2">รายรับรวม</p>
-                <div className="text-right sm:text-left sm:mt-1">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+                  รายรับรวม
+                </p>
+                <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.totalIncome}
                     type="income"
@@ -250,8 +264,10 @@ export default function Reports() {
                 </div>
               </div>
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-sm text-ink-2">รายจ่ายรวม</p>
-                <div className="text-right sm:text-left sm:mt-1">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+                  รายจ่ายรวม
+                </p>
+                <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.totalExpense}
                     type="expense"
@@ -260,14 +276,16 @@ export default function Reports() {
                 </div>
               </div>
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-sm text-ink-2">คงเหลือสุทธิ</p>
-                <div className="text-right sm:text-left sm:mt-1">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+                  คงเหลือสุทธิ
+                </p>
+                <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.net}
                     type={summary!.net >= 0 ? "income" : "expense"}
                     size="lg"
                   />
-                  <p className="mt-1 text-sm text-ink-2">
+                  <p className="mt-1 text-xs font-bold text-ink-3">
                     {summary!.transactionCount} รายการ
                   </p>
                 </div>
@@ -275,13 +293,13 @@ export default function Reports() {
             </section>
 
             {/* Statement by category */}
-            <section className="overflow-hidden rounded-2xl border border-line bg-surface">
-              <h2 className="border-b border-line p-4 font-bold text-ink">
+            <section className="bento-card-static overflow-hidden p-0">
+              <h2 className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 font-extrabold text-ink">
                 สรุปตามหมวดหมู่
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="border-b border-line bg-paper text-sm font-bold text-ink-2">
+                  <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">
                     <tr>
                       <th className="p-4">รายการ</th>
                       <th className="p-4 text-right">จำนวนรายการ</th>
@@ -289,8 +307,8 @@ export default function Reports() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
-                    <tr className="bg-paper-2/40">
-                      <td colSpan={3} className="p-3 font-bold text-ink">
+                    <tr className="bg-paper-2/70">
+                      <td colSpan={3} className="p-3 font-extrabold text-ink">
                         รายรับ (เงินถวาย)
                       </td>
                     </tr>
@@ -303,21 +321,21 @@ export default function Reports() {
                     ) : (
                       summary!.income.map(row => (
                         <tr key={`income-${row.category}`}>
-                          <td className="py-3 pl-8 pr-4 text-ink-2">
+                          <td className="py-3 pl-8 pr-4 font-medium text-ink-2">
                             {offeringCategoryLabel(row.category)}
                           </td>
-                          <td className="p-4 text-right tabular-nums text-ink-2">
+                          <td className="p-4 text-right font-bold tabular-nums text-ink-2">
                             {row.count}
                           </td>
-                          <td className="p-4 text-right font-bold tabular-nums text-income">
+                          <td className="p-4 text-right font-extrabold tabular-nums text-income">
                             {fmtBaht(row.total)}
                           </td>
                         </tr>
                       ))
                     )}
 
-                    <tr className="bg-paper-2/40">
-                      <td colSpan={3} className="p-3 font-bold text-ink">
+                    <tr className="bg-paper-2/70">
+                      <td colSpan={3} className="p-3 font-extrabold text-ink">
                         รายจ่าย
                       </td>
                     </tr>
@@ -330,23 +348,25 @@ export default function Reports() {
                     ) : (
                       summary!.expense.map(row => (
                         <tr key={`expense-${row.category}`}>
-                          <td className="py-3 pl-8 pr-4 text-ink-2">
+                          <td className="py-3 pl-8 pr-4 font-medium text-ink-2">
                             {expenseCategoryLabel(row.category)}
                           </td>
-                          <td className="p-4 text-right tabular-nums text-ink-2">
+                          <td className="p-4 text-right font-bold tabular-nums text-ink-2">
                             {row.count}
                           </td>
-                          <td className="p-4 text-right font-bold tabular-nums text-ink">
+                          <td className="p-4 text-right font-extrabold tabular-nums text-danger">
                             {fmtBaht(row.total)}
                           </td>
                         </tr>
                       ))
                     )}
 
-                    <tr className="border-t-2 border-line bg-paper">
-                      <td className="p-4 font-bold text-ink">คงเหลือสุทธิ</td>
+                    <tr className="border-t-2 border-[var(--ink)] bg-paper-2">
+                      <td className="p-4 font-extrabold text-ink">
+                        คงเหลือสุทธิ
+                      </td>
                       <td className="p-4" />
-                      <td className="p-4 text-right font-bold tabular-nums text-ink">
+                      <td className="p-4 text-right font-extrabold tabular-nums text-ink">
                         {fmtBaht(summary!.net)}
                       </td>
                     </tr>
@@ -356,18 +376,18 @@ export default function Reports() {
             </section>
 
             {/* Six month trend */}
-            <section className="rounded-2xl border border-line bg-surface p-6">
-              <div className="mb-4 flex flex-col gap-2 border-b border-line/60 pb-4 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="font-bold text-ink">
+            <section className="bento-card-static p-6">
+              <div className="mb-4 flex flex-col gap-2 border-b-2 border-[var(--ink)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="font-extrabold text-ink">
                   เปรียบเทียบ 6 เดือนล่าสุด
                 </h2>
-                <div className="flex items-center gap-4 text-sm font-bold text-ink">
+                <div className="flex items-center gap-4 text-sm font-extrabold text-ink">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-income" />
+                    <span className="h-3.5 w-3.5 rounded-sm border border-[var(--ink)] bg-income" />
                     รายรับ
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-danger" />
+                    <span className="h-3.5 w-3.5 rounded-sm border border-[var(--ink)] bg-danger" />
                     รายจ่าย
                   </span>
                 </div>
@@ -375,7 +395,7 @@ export default function Reports() {
               {monthlyQuery.isLoading ? (
                 <LoadingSkeleton count={1} height="h-56" />
               ) : monthlyFlow.length === 0 || chartMax === 0 ? (
-                <p className="py-12 text-center text-sm text-ink-2">
+                <p className="py-12 text-center text-sm font-medium text-ink-2">
                   ยังไม่มีข้อมูลย้อนหลังพอที่จะเปรียบเทียบรายเดือน
                 </p>
               ) : (
@@ -390,18 +410,18 @@ export default function Reports() {
                           style={{
                             height: `${(month.income / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-income sm:w-8"
+                          className="w-4 rounded-t-md border-[1.5px] border-b-0 border-[var(--ink)] bg-income sm:w-8"
                           title={`รายรับ ${fmtBaht(month.income)}`}
                         />
                         <div
                           style={{
                             height: `${(month.expense / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-lg bg-danger sm:w-8"
+                          className="w-4 rounded-t-md border-[1.5px] border-b-0 border-[var(--ink)] bg-danger sm:w-8"
                           title={`รายจ่าย ${fmtBaht(month.expense)}`}
                         />
                       </div>
-                      <span className="mt-3 whitespace-nowrap text-sm font-semibold text-ink-2">
+                      <span className="mt-3 whitespace-nowrap text-xs sm:text-sm font-extrabold text-ink-2">
                         {month.month}
                       </span>
                     </div>

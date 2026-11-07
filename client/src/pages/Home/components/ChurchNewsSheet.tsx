@@ -15,10 +15,12 @@ interface ChurchNewsSheetProps {
 export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="bg-surface border-l border-line w-full sm:max-w-lg p-6 sm:p-8 overflow-y-auto">
+      <SheetContent className="w-full overflow-y-auto border-l-2 border-[var(--ink)] bg-surface p-6 sm:max-w-lg sm:p-8">
         <SheetHeader className="mb-6">
-          <SheetTitle className="text-xl sm:text-2xl font-bold text-ink-2 flex items-center gap-3">
-            <BookOpen className="w-6 h-6 text-primary" />
+          <SheetTitle className="display flex items-center gap-3 text-xl text-ink sm:text-2xl">
+            <span className="flex size-10 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
+              <BookOpen className="size-5" />
+            </span>
             <span>ข่าวสารและประกาศคริสตจักร</span>
           </SheetTitle>
           <SheetDescription className="text-sm sm:text-base text-ink-3 font-medium mt-1">
@@ -27,11 +29,11 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
         </SheetHeader>
 
         <div className="space-y-5">
-          <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line space-y-3 shadow-xs">
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary text-black inline-block">
+          <div className="space-y-3 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 p-5 shadow-[3px_3px_0_var(--ink)] sm:p-6">
+            <span className="inline-block rounded-md border border-[var(--ink)] bg-brand px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">
               ประกาศสำคัญ
             </span>
-            <h4 className="text-lg sm:text-xl font-bold text-ink">
+            <h4 className="display text-lg text-ink sm:text-xl">
               ค่ายสามัคคีธรรมประจำปี 2026
             </h4>
             <p className="text-sm sm:text-base text-ink-2 leading-relaxed font-medium">
@@ -40,11 +42,11 @@ export function ChurchNewsSheet({ open, onOpenChange }: ChurchNewsSheetProps) {
             </p>
           </div>
 
-          <div className="p-5 sm:p-6 rounded-2xl bg-tile-mint border border-emerald-200/80 space-y-3 shadow-xs">
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 inline-block">
+          <div className="space-y-3 rounded-2xl border-2 border-[var(--ink)] bg-tile-mint p-5 shadow-[3px_3px_0_var(--ink)] sm:p-6">
+            <span className="inline-block rounded-md border border-[var(--ink)] bg-accent px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-accent-foreground">
               รายงานพันธกิจ
             </span>
-            <h4 className="text-lg sm:text-xl font-bold text-tile-mint-ink">
+            <h4 className="display text-lg text-tile-mint-ink sm:text-xl">
               โครงการแจกถุงยังชีพสู่ชุมชนรอบโบสถ์
             </h4>
             <p className="text-sm sm:text-base text-ink-2 leading-relaxed font-medium">

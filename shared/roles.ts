@@ -22,7 +22,7 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
     label: "ผู้ดูแลระบบสูงสุด",
     labelWithCode: "ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)",
     badgeLabel: "👑 ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)",
-    badgeColor: "bg-amber-100 text-amber-900 border-amber-300",
+    badgeColor: "bg-tile-sand text-tile-sand-ink border-tile-sand-ink/30",
     icon: "👑",
     description:
       "มีสิทธิ์สูงสุดในการดูแลระบบ ตั้งค่าคริสตจักร และกำหนดสิทธิ์ผู้ใช้งาน",
@@ -32,7 +32,7 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
     label: "ศิษยาภิบาล",
     labelWithCode: "ศิษยาภิบาล (PASTOR)",
     badgeLabel: "✝️ ศิษยาภิบาล (PASTOR)",
-    badgeColor: "bg-blue-100 text-blue-900 border-blue-300",
+    badgeColor: "bg-tile-sky text-tile-sky-ink border-tile-sky-ink/30",
     icon: "✝️",
     description:
       "ผู้นำฝ่ายจิตวิญญาณและพันธกิจคริสตจักร ดูแลภาพรวมและรายงานการเงิน",
@@ -42,7 +42,7 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
     label: "เหรัญญิกคริสตจักร",
     labelWithCode: "เหรัญญิกคริสตจักร (TREASURER)",
     badgeLabel: "💰 เหรัญญิกคริสตจักร (TREASURER)",
-    badgeColor: "bg-emerald-100 text-emerald-900 border-emerald-300",
+    badgeColor: "bg-tile-mint text-tile-mint-ink border-tile-mint-ink/30",
     icon: "💰",
     description:
       "ผู้รับผิดชอบการเงิน บัญชี ตรวจสอบเงินถวาย และอนุมัติการเบิกจ่าย",
@@ -52,7 +52,7 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
     label: "ผู้รับผิดชอบฝ่าย",
     labelWithCode: "ผู้รับผิดชอบฝ่าย",
     badgeLabel: "🤝 ผู้รับผิดชอบฝ่าย",
-    badgeColor: "bg-purple-100 text-purple-900 border-purple-300",
+    badgeColor: "bg-tile-lilac text-tile-lilac-ink border-tile-lilac-ink/30",
     icon: "🤝",
     description:
       "รับผิดชอบงานและงบประมาณของฝ่าย เสนอคำของบประมาณและรายการเบิกจ่าย",
@@ -62,7 +62,7 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
     label: "กรรมการนับเงิน",
     labelWithCode: "กรรมการนับเงิน (COUNTER)",
     badgeLabel: "📝 กรรมการนับเงิน (COUNTER)",
-    badgeColor: "bg-orange-100 text-orange-900 border-orange-300",
+    badgeColor: "bg-tile-peach text-tile-peach-ink border-tile-peach-ink/30",
     icon: "📝",
     description: "บันทึกและตรวจนับเงินถวายรอบนมัสการร่วมกับทีม",
   },
@@ -71,7 +71,7 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
     label: "สมาชิกคริสตจักร",
     labelWithCode: "สมาชิกคริสตจักร (MEMBER)",
     badgeLabel: "👤 สมาชิกคริสตจักร (MEMBER)",
-    badgeColor: "bg-stone-100 text-stone-800 border-stone-300",
+    badgeColor: "bg-paper-2 text-ink-2 border-line",
     icon: "👤",
     description:
       "เข้าใช้งานจุดถวายทรัพย์ (Giving Station) เพื่อถวายทรัพย์และแนบสลิป",

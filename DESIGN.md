@@ -1,22 +1,22 @@
 ---
-name: Grace Ledger (Grace-giving)
-description: Thai church finance ledger — contemporary Editorial FinTech (WW/STUDIO x Finexy), signature coral brand, jet-black ink on a warm stone canvas.
+name: GraceBox — Grace-giving
+description: Thai church finance ledger — dark warm charcoal system, signature orange gradient CTA with glow, glass cards, near-white ink on charcoal.
 colors:
-  canvas: "#F6F4F1"
-  paper: "#FAF8F5"
-  paper-2: "#EDE8E1"
-  surface: "#FFFFFF"
-  ink: "#080808"
-  ink-muted: "#5C5850"
-  line: "#E4DED2"
-  field: "#6C675F"
-  brand: "#F95C4B"
-  brand-ink: "#E54937"
-  income: "#047857"
-  danger: "#B91C1C"
+  canvas: "#0E0A08"
+  paper: "#1A1210"
+  paper-2: "#2A1D17"
+  surface: "#211915"
+  ink: "#FFF7ED"
+  ink-muted: "#D6C7B8"
+  line: "#3A2B22"
+  field: "#C9B8A8"
+  brand: "#FF7A1A"
+  brand-ink: "#FF6200"
+  income: "#4ADE80"
+  danger: "#F87171"
   line-brand: "#06C755"
-  dark-background: "#080808"
-  dark-card: "#121214"
+  dark-background: "#0E0A08"
+  dark-card: "#211915"
 typography:
   display:
     fontFamily: "Plus Jakarta Sans, Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
@@ -41,9 +41,9 @@ rounded:
   sm: "6px"
   md: "8px"
   lg: "12px"
-  xl: "14px"
-  2xl: "16px"
-  3xl: "20px"
+  xl: "16px"
+  2xl: "20px"
+  3xl: "24px"
 spacing:
   xs: "8px"
   sm: "12px"
@@ -52,51 +52,53 @@ spacing:
   xl: "32px"
 components:
   button-primary:
-    backgroundColor: "{colors.brand}"
-    textColor: "#080808"
-    rounded: "{rounded.2xl}"
-    height: "44px"
+    background: "linear-gradient(135deg, #FFB347, #FF7A1A, #FF5E00)"
+    textColor: "#0A0A0A"
+    rounded: "{rounded.xl}"
+    height: "48px"
+    shadow: "0 0 24px rgba(255,122,26,0.55)"
   button-primary-hover:
-    backgroundColor: "{colors.brand-ink}"
+    background: "linear-gradient(135deg, #FFBE6A, #FF8A2A, #FF6A00)"
   button-danger:
     backgroundColor: "{colors.danger}"
-    textColor: "#FFFFFF"
-    rounded: "{rounded.2xl}"
-    height: "44px"
+    textColor: "#0A0A0A"
+    rounded: "{rounded.xl}"
+    height: "48px"
   card:
     backgroundColor: "{colors.surface}"
-    rounded: "{rounded.3xl}"
+    rounded: "{rounded.2xl}"
+    border: "1px solid rgba(255,247,237,0.12)"
   input:
-    backgroundColor: "{colors.surface}"
+    backgroundColor: "{colors.canvas}"
     rounded: "{rounded.xl}"
   linemark-button:
     backgroundColor: "{colors.line-brand}"
-    textColor: "#080808"
-    rounded: "{rounded.2xl}"
+    textColor: "#0A0A0A"
+    rounded: "{rounded.xl}"
     height: "48px"
 ---
 
-# Grace Ledger — Design System
+# GraceBox — Design System
 
 ## Overview
 
-A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **flat surfaces, jet-black ink, warm stone canvas (#F6F4F1), signature coral accent (#F95C4B)**. Depth is tonal, not shadowed; the only edge is a 1px ring of `--line` (#E4DED2). Dark mode is a first-class counterpart (`.dark` class, tokens swatch everything) and is guarded by `client/src/theme.contrast.test.ts`.
+A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world — **dark warm charcoal (#0E0A08), near-white ink (#FFF7ED), signature orange gradient CTA (#FF7A1A → #FF5E00) with glow**. Depth is glass + glow, not flat tonal steps. All pages are dark-first (`.dark` is default); token values are guarded by `client/src/theme.contrast.test.ts`.
 
 All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`). **`index.css` is the single source of truth — never copy a hex into a component** outside the exceptions listed under Colors.
 
 ## Colors
 
-| Role                | Token                           | Value                                             |
-| ------------------- | ------------------------------- | ------------------------------------------------- |
-| Canvas (page bg)    | `--background`, `--color-ground`| `#F6F4F1`                                         |
-| Raised surfaces     | `--card` / `--popover`          | `#FFFFFF` / `#121214` (dark)                      |
-| Body text           | `--foreground`, `--color-ink`   | `#080808` (dark: `#F8FAFC`)                       |
-| Secondary text      | `text-ink-2`, `text-ink-3`      | `#5C5850`                                         |
-| Hairlines / borders | `--border`, `--color-line`      | `#E4DED2`                                         |
-| Brand actions       | `bg-brand`, `--primary`         | `#F95C4B`, text **black** (6.66:1 contrast)      |
-| Brand hover         | `bg-brand-ink`                  | `#E54937`                                         |
-| Money-in semantics  | `text-income`, `--color-income` | `#047857`                                         |
-| Danger              | `text-danger`, `--destructive`  | `#B91C1C` (light; dark `--destructive` `#FB7185`) |
+| Role                | Token                            | Value                                                                |
+| ------------------- | -------------------------------- | -------------------------------------------------------------------- |
+| Canvas (page bg)    | `--background`, `--color-ground` | `#0E0A08`                                                            |
+| Raised surfaces     | `--card` / `--popover`           | `#211915`                                                            |
+| Body text           | `--foreground`, `--color-ink`    | `#FFF7ED`                                                            |
+| Secondary text      | `text-ink-2`, `text-ink-3`       | `#D6C7B8`                                                            |
+| Hairlines / borders | `--border`, `--color-line`       | `#3A2B22`                                                            |
+| Brand actions       | `btn-cta-gradient`, `--primary`  | `linear-gradient(135deg, #FFB347, #FF7A1A, #FF5E00)`, text **black** |
+| Brand hover         | `.btn-cta-gradient:hover`        | `linear-gradient(135deg, #FFBE6A, #FF8A2A, #FF6A00)`                 |
+| Money-in semantics  | `text-income`, `--color-income`  | `#4ADE80`                                                            |
+| Danger              | `text-danger`, `--destructive`   | `#F87171`                                                            |
 
 **Allowed hard-coded colors:** LINE corporate green `#06C755` ONLY on LINE sign-in buttons, and the print poster kit (`station-giving-kit.tsx`) colors, which must render opaque on paper. Everything else uses tokens.
 
@@ -121,27 +123,27 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach`) so old clas
 
 ## Elevation & Depth
 
-**Flat by design.** No blurred glows, no large soft shadows at rest:
+**Glass + glow by design:**
 
-- Elevation is tonal: canvas → surface → accent step (`ground → paper → surface`).
-- The only shadows in the system: the `.card-elevation-sm` family (2–6% near-black, sub-visible) and the focus ring (2px `--color-brand` outline, 2px offset).
-- Floating bars (`fintech-glass`) are **opaque** fills with a 1px `--line` border, never backdrop blur.
-- Buttons declare no shadow at rest (`button-elevation: none`).
+- Elevation is glass: `glass-dark` (backdrop-blur + 1px white/12 border) + glow (`--glow-cta: 0 0 24px rgba(255,122,26,0.55)`).
+- CTA buttons have orange gradient + outer glow; hover strengthens glow.
+- Floating bars (`.fintech-glass`) are semi-transparent with blur, never opaque.
+- Buttons declare glow shadow at rest (`.button-elevation: glow-cta`).
 
 ## Shapes
 
-Radius scale in `index.css`: 6 / 8 / 12 / 14 / 16 / 20px (`sm`–`3xl`). Convention:
+Radius scale in `index.css`: 6 / 8 / 12 / 16 / 20 / 24px (`sm`–`3xl`). Convention:
 
-- **Cards & sheets: 16–20px** (`rounded-2xl`, `rounded-3xl`).
-- **Controls (buttons, inputs, chips): 8–14px** (`rounded-xl`/`2xl`).
+- **Cards & sheets: 20–24px** (`rounded-2xl`, `rounded-3xl`). Mobile sheet frames use `rounded-[28px]`.
+- **Controls (buttons, inputs, chips): 12–20px** (`rounded-xl`/`2xl`).
 - **Pills (`rounded-full`) only for small status chips, badges, and nav indicators — never as card radius.**
 - Dialogs: `rounded-2xl` with a `border-line` ring, opaque `bg-surface`.
 
 ## Components
 
-- **Buttons:** primary = `bg-brand` + black text (AA-certified by the contrast test), hover `bg-brand-ink`, press `active:scale-[0.98]`; minimum interactive height 44px (`min-h-11`+). Focus is a global 2px brand `:focus-visible` ring — don't re-declare per component.
-- **Confirm dialogs** go through `client/src/lib/sweetalert.ts` (`Swal.confirm/fire`) — the custom token-rendered helper. Custom confirm buttons take a **CSS color string, so use `var(--destructive)`**, never a hex. Forward-looking commitments (post, close, match) take no color override and render the default brand `bg-brand text-black` button.
-- **Inputs:** `bg-surface`, `border-line`, `rounded-xl`, focus `ring-brand`; labels and error text from `SetupSteps.tsx` lead (`text-danger`, required `*`).
+- **Buttons:** primary = `.btn-cta-gradient` (orange gradient + black text, AA-certified by the contrast test), hover stronger gradient + glow, press `active:scale-[0.98]`; minimum interactive height 44px (`min-h-11`+). Focus is a global 2px brand `:focus-visible` ring — don't re-declare per component.
+- **Confirm dialogs** go through `client/src/lib/sweetalert.ts` (`Swal.confirm/fire`) — the custom token-rendered helper. Custom confirm buttons take a **CSS color string, so use `var(--destructive)`**, never a hex. Forward-looking commitments (post, close, match) take no color override and render the default brand CTA button.
+- **Inputs:** dark `bg-background/60`, `border-line`, `rounded-xl`, focus `ring-brand`; labels and error text from `SetupSteps.tsx` lead (`text-danger`, required `*`).
 - **Toasts:** Sonner, `position="top-center"` `richColors` — errors speak Thai and name the recovery.
 - **Icons:** Lucide, single stroke weight (`size-5`/`size-[18px]`), `aria-hidden` when decorative; interactive icon buttons carry Thai `aria-label`s.
 - **Print kit:** `station-giving-kit.tsx` renders opaque, `[print-color-adjust:exact]`, poster-safe.
@@ -150,15 +152,15 @@ Radius scale in `index.css`: 6 / 8 / 12 / 14 / 16 / 20px (`sm`–`3xl`). Convent
 
 **Do**
 
-- Add new colors by editing `client/src/index.css`, then using utilities (`text-ink-2`, `bg-accent`).
-- Run `pnpm exec vitest run client/src/theme.contrast.test.ts` after any token change; keep every light-surface pair ≥ 4.5:1 (danger included, canvas included).
+- Add new colors by editing `client/src/index.css`, then using utilities (`text-ink-2`, `bg-accent`, `btn-cta-gradient`, `glass-dark`).
+- Run `pnpm exec vitest run client/src/theme.contrast.test.ts` after any token change; keep every dark-surface pair ≥ 4.5:1 (danger included, canvas included).
 - Keep motion inside the gated patterns: `.animate-fade-up`, `.flip-char`, and the `prefers-reduced-motion` guards; one authored moment per page.
 - Write UI copy and ARIA labels in Thai; errors name the problem and the recovery.
-- Verify dark mode after new surfaces — every token must have a `.dark` value that reads on `--card: #121214`.
+- Use `glow-orange` and gradient CTA for primary actions only — secondary stays glass.
 
 **Don't**
 
-- Don't re-hard-code old-world utilities on light surfaces (`text-white/60`, `text-stone-300`, `border-white/15`, `bg-white/5`). This class of bug has shipped twice (pre-#120, and `/login` + `/give` in 2026-11); new dark surfaces must derive from `.dark` tokens.
-- Don't color confirm dialogs ad hoc; the amber/brown/green hex sprinkles (`#D97706`, `#51443A`, …) were removed — intent expresses through `var(--destructive)` or the default brand button.
-- Don't add glass/blur, gradient text, or colored zero-offset halos.
-- Don't invent category-default light/dark: theme from the scene this surface is used in, and keep the switch through `ThemeContext`.
+- Don't re-hard-code old light-world utilities (`bg-white`, `text-stone-900`, `border-stone-200`) on dark surfaces.
+- Don't color confirm dialogs ad hoc; intent expresses through `var(--destructive)` or the default brand CTA button.
+- Don't add gradient text on body copy (glow is reserved for CTA and hero numbers).
+- Don't invent category-default light/dark: the entire system is dark; keep the switch through `ThemeContext`.

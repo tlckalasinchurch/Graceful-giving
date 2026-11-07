@@ -41,10 +41,10 @@ export function SplitEditor({
     <div
       role="group"
       aria-label="แบ่งยอดถวายหลายประเภท"
-      className="space-y-3 rounded-2xl border border-line bg-surface p-3"
+      className="space-y-3 rounded-2xl border-2 border-[var(--ink)] bg-surface p-4 shadow-[3px_3px_0_var(--ink)]"
     >
       <div>
-        <p className="mb-2 text-xs font-bold text-ink-2">
+        <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">
           ถวายอะไรบ้าง? แตะเลือกได้หลายอัน
         </p>
         <div className="flex flex-wrap gap-2">
@@ -59,10 +59,10 @@ export function SplitEditor({
                 onClick={() =>
                   total !== null && onChange(toggleCategory(lines, c.id, total))
                 }
-                className={`inline-flex items-center gap-1 min-h-11 rounded-xl border px-3 text-xs font-bold transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                className={`inline-flex items-center gap-1 min-h-11 rounded-xl px-3 text-xs font-bold transition-all disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                   on
-                    ? "border-brand bg-brand text-black"
-                    : "border-line bg-paper text-ink-2 hover:text-ink"
+                    ? "border-2 border-[var(--ink)] bg-brand text-white shadow-[2px_2px_0_var(--ink)]"
+                    : "border border-line bg-paper-2 text-ink-2 hover:border-[var(--ink)] hover:text-ink"
                 }`}
               >
                 {on && <Check className="size-3.5 shrink-0 stroke-[2.5]" aria-hidden="true" />}
@@ -97,9 +97,9 @@ export function SplitEditor({
                   total !== null &&
                   onChange(setLineAmount(lines, index, e.target.value, total))
                 }
-                className="min-h-11 w-32 shrink-0 rounded-xl border border-line bg-paper px-3 text-right text-sm font-bold tabular-nums text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                className="neo-input min-h-11 w-32 shrink-0 text-right text-sm font-bold tabular-nums text-ink"
               />
-              <span className="shrink-0 text-xs text-ink-3">บาท</span>
+              <span className="shrink-0 text-xs font-semibold text-ink-3">บาท</span>
             </div>
           );
         })}
@@ -110,11 +110,11 @@ export function SplitEditor({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-line">
         <p
           role="status"
           className={`text-xs font-bold tabular-nums ${
-            problem === null ? "text-emerald-300" : "text-amber-200"
+            problem === null ? "text-brand" : "text-danger"
           }`}
         >
           ผลรวม {sum.toLocaleString()} / ยอดที่โอน{" "}

@@ -42,39 +42,39 @@ export const Swal = {
       const container = document.createElement("div");
       container.id = "grace-sweetalert-container";
       container.className =
-        "fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 transition-opacity duration-200 animate-in fade-in";
+        "fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm transition-opacity duration-200 animate-in fade-in";
 
       const iconSvgs: Record<string, string> = {
         success: `
-          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] text-brand">
             <svg class="h-8 w-8 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
         `,
         error: `
-          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-600">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-danger/15 border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] text-danger">
             <svg class="h-8 w-8 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
         `,
         warning: `
-          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-tile-sand border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] text-tile-sand-ink">
             <svg class="h-8 w-8 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
         `,
         info: `
-          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-600">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-tile-sky border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] text-tile-sky-ink">
             <svg class="h-8 w-8 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
         `,
         question: `
-          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/20 border border-brand/40 text-black">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] text-accent-foreground">
             <svg class="h-8 w-8 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -89,12 +89,12 @@ export const Swal = {
       const customCancelColor = options.cancelButtonColor || null;
 
       container.innerHTML = `
-        <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-surface p-6 sm:p-8 text-center shadow-2xl border border-line transition-all duration-200">
+        <div class="neo-modal relative w-full max-w-md transform overflow-hidden p-6 sm:p-8 text-center transition-all duration-200">
           <div class="relative z-10">
             ${iconHtml}
             ${
               options.title
-                ? `<h3 class="mt-4 text-xl sm:text-2xl font-bold text-ink tracking-tight leading-snug">${escapeHtml(options.title)}</h3>`
+                ? `<h3 class="mt-4 text-xl sm:text-2xl font-extrabold text-ink tracking-tight leading-snug">${escapeHtml(options.title)}</h3>`
                 : ""
             }
             ${
@@ -107,12 +107,12 @@ export const Swal = {
             <div class="mt-6 flex flex-col-reverse sm:flex-row items-center justify-center gap-2.5">
               ${
                 options.showCancelButton
-                  ? `<button id="swal-cancel-btn" type="button" style="${customCancelColor ? `background:${customCancelColor};` : ""}" class="w-full sm:w-auto min-h-11 px-5 py-2.5 rounded-xl border border-line ${customCancelColor ? "hover:opacity-90 text-white" : "bg-paper-2 hover:bg-paper text-ink"} font-semibold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand active:scale-[0.98] cursor-pointer">
+                  ? `<button id="swal-cancel-btn" type="button" style="${customCancelColor ? `background:${customCancelColor};` : ""}" class="w-full sm:w-auto min-h-11 px-5 py-2.5 rounded-xl ${customCancelColor ? "border-2 border-[var(--ink)] hover:opacity-90 text-white" : "btn-secondary"} font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand active:scale-[0.98] cursor-pointer">
                       ${cancelText}
                     </button>`
                   : ""
               }
-              <button id="swal-confirm-btn" type="button" style="${customConfirmColor ? `background:${customConfirmColor};` : ""}" class="w-full sm:w-auto min-h-11 px-6 py-2.5 rounded-xl ${customConfirmColor ? "hover:opacity-90 text-white" : "bg-brand hover:bg-brand-ink text-black"} font-bold text-sm shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-brand active:scale-[0.98] cursor-pointer">
+              <button id="swal-confirm-btn" type="button" style="${customConfirmColor ? `background:${customConfirmColor};` : ""}" class="w-full sm:w-auto min-h-11 px-6 py-2.5 rounded-xl ${customConfirmColor ? "border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] hover:opacity-90 text-white" : "btn-primary"} font-extrabold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand active:scale-[0.98] cursor-pointer">
                 ${confirmText}
               </button>
             </div>

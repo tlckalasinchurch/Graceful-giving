@@ -12,16 +12,15 @@ const ERRORS: Record<string, string> = {
     "ระบบเข้าสู่ระบบด้วย LINE ยังไม่ได้ตั้งค่า โปรดติดต่อผู้ดูแลระบบ",
 };
 
-function LineMark() {
+/** The brand lockup, used on both the verse panel and the phone layout. */
+function BrandMark() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-6"
-      aria-hidden="true"
-      fill="currentColor"
-    >
-      <path d="M12 2C6.48 2 2 5.58 2 9.99c0 3.95 3.5 7.26 8.23 7.89.32.07.76.21.87.49.1.25.07.64.03.9l-.14.84c-.04.25-.2.98.86.53 1.06-.45 5.72-3.37 7.8-5.77C20.99 12.5 22 11.33 22 9.99 22 5.58 17.52 2 12 2z" />
-    </svg>
+    <div className="flex items-center gap-3">
+      <span className="grid size-11 place-items-center rounded-[12px] border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
+        <Sprout className="size-5 text-brand" aria-hidden="true" />
+      </span>
+      <span className="alpha-display text-lg font-extrabold">เกรซกิฟวิง</span>
+    </div>
   );
 }
 
@@ -46,91 +45,94 @@ export default function Login() {
   const error = errorKey ? (ERRORS[errorKey] ?? ERRORS.failed) : null;
 
   return (
-    <div className="grid min-h-dvh bg-ground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-      {/* Editorial panel: the verse the ministry stands on. Desktop only. */}
-      <aside className="relative hidden flex-col justify-between bg-surface border-r border-line p-12 text-ink lg:flex xl:p-16">
-        <div className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
-            <Sprout className="size-5" aria-hidden="true" />
-          </span>
-          <span className="display text-xl font-black">Grace Ledger</span>
-        </div>
-        <figure className="max-w-md space-y-6">
-          <p className="text-xs font-semibold text-ink-3">2 โครินธ์ 9:7</p>
-          <blockquote className="display text-4xl font-black leading-tight xl:text-6xl">
-            “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
-          </blockquote>
-        </figure>
-        <p className="text-sm text-ink-3">
-          ระบบบัญชีการเงินคริสตจักร · เพื่อพันธกิจของพระเจ้า
-        </p>
-      </aside>
+    <div className="min-h-dvh bg-ground text-ink">
+      <div className="mx-auto grid min-h-dvh w-full max-w-[1180px] lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
+        {/* The verse the ministry stands on. Desktop only. */}
+        <aside className="hidden flex-col justify-between gap-12 border-r-2 border-[var(--ink)] bg-paper-2 p-12 lg:flex xl:p-16">
+          <BrandMark />
 
-      <main className="flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-sm">
-          <div className="mb-10 space-y-3">
-            <div className="flex items-center gap-3 lg:hidden">
-              <span className="flex size-10 items-center justify-center rounded-2xl bg-brand text-black">
-                <Sprout className="size-5" aria-hidden="true" />
-              </span>
-              <span className="display text-xl font-black text-ink">
-                Grace Ledger
-              </span>
-            </div>
-            <p className="text-xs font-semibold text-ink-3">Sign in</p>
-            <h1 className="display text-5xl font-black text-ink">
-              เข้าสู่ระบบ
-            </h1>
-            <p className="text-sm text-ink-2">
-              ใช้บัญชี LINE ของคุณ ผู้ดูแลระบบจะอนุมัติสิทธิ์ให้ในครั้งแรก
-            </p>
-          </div>
+          <figure className="space-y-6">
+            <span className="inline-flex items-center rounded-full border-2 border-[var(--ink)] bg-accent px-3.5 py-1 text-xs font-extrabold text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
+              2 โครินธ์ 9:7
+            </span>
+            <blockquote className="alpha-display max-w-[13ch] text-[clamp(2.25rem,3.6vw,3.5rem)] leading-[1.15] text-ink">
+              “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
+            </blockquote>
+            <figcaption className="text-sm font-semibold text-ink-2">
+              ความโปร่งใส ความสัตย์ซื่อ และความชื่นชมยินดีในการถวายเพื่อพระราชกิจ
+            </figcaption>
+          </figure>
 
-          {state === "pending" || state === "disabled" ? (
-            <div className="space-y-4 rounded-[28px] border border-line bg-surface p-6">
-              <p className="display text-xl font-black text-ink">
-                {state === "pending"
-                  ? "รอผู้ดูแลระบบอนุมัติ"
-                  : "บัญชีนี้ถูกปิดการใช้งาน"}
-              </p>
-              <p className="text-sm text-ink-2">
-                {state === "pending"
-                  ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน โปรดแจ้งผู้ดูแลระบบของคริสตจักรให้อนุมัติบัญชีของคุณ แล้วกลับมาเปิดหน้านี้อีกครั้ง`
-                  : "โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
-              </p>
-              <button
-                type="button"
-                onClick={() => void logout()}
-                className="w-full rounded-2xl border border-line px-4 py-3 text-sm font-bold text-ink hover:bg-accent"
-              >
-                ออกจากระบบ
-              </button>
+          <p className="text-sm font-bold text-ink-3">
+            ระบบบัญชีการเงินคริสตจักร · เพื่อพันธกิจของพระเจ้า
+          </p>
+        </aside>
+
+        <main className="flex flex-col justify-center px-6 py-12 sm:px-10 lg:bg-surface">
+          <div className="mx-auto w-full max-w-[380px] space-y-8">
+            <div className="lg:hidden">
+              <BrandMark />
             </div>
-          ) : (
-            <div className="space-y-4">
-              <a
-                href="/api/auth/line/login"
-                className="py-2 px-3 rounded-xl bg-line-brand hover:bg-line-brand/80 text-black font-bold text-xs"
-              >
-                <LineMark />
-                เข้าสู่ระบบด้วย LINE
-              </a>
-              {error && (
-                <p role="alert" className="text-sm text-danger">
-                  {error}
+
+            <header className="space-y-3">
+              <h1 className="alpha-display text-[44px] leading-[1.05] text-ink">
+                เข้าสู่ระบบ
+              </h1>
+              <p className="text-sm leading-relaxed text-ink-2">
+                ใช้บัญชี LINE ของคุณ ผู้ดูแลระบบจะอนุมัติสิทธิ์ให้ในครั้งแรก
+              </p>
+            </header>
+
+            {state === "pending" || state === "disabled" ? (
+              <div className="space-y-4 rounded-[16px] border-2 border-[var(--ink)] bg-surface p-5 shadow-[4px_4px_0_var(--ink)]">
+                <p className="alpha-display text-xl leading-snug text-ink">
+                  {state === "pending"
+                    ? "รอผู้ดูแลระบบอนุมัติ"
+                    : "บัญชีนี้ถูกปิดการใช้งาน"}
                 </p>
-              )}
-              <p className="border-t border-line pt-4 text-xs text-ink-3">
-                ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
-                โปรดติดต่อผู้ดูแลระบบของคริสตจักร ·{" "}
-                <a href="/privacy" className="underline hover:text-ink">
-                  นโยบายความเป็นส่วนตัว (PDPA)
+                <p className="text-sm leading-relaxed text-ink-2">
+                  {state === "pending"
+                    ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน โปรดแจ้งผู้ดูแลระบบของคริสตจักรให้อนุมัติบัญชีของคุณ แล้วกลับมาเปิดหน้านี้อีกครั้ง`
+                    : "โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void logout()}
+                  className="btn-secondary w-full rounded-[12px] px-4 py-3 text-sm font-bold"
+                >
+                  ออกจากระบบ
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <a
+                  href="/api/auth/line/login"
+                  className="alpha-press flex min-h-[54px] w-full items-center justify-center rounded-[14px] border-2 border-[var(--ink)] bg-[var(--line-brand)] px-5 text-[15px] font-extrabold text-[var(--ink)] shadow-[4px_4px_0_var(--ink)]"
+                >
+                  เข้าสู่ระบบด้วย LINE
                 </a>
-              </p>
-            </div>
-          )}
-        </div>
-      </main>
+
+                {error && (
+                  <p
+                    role="alert"
+                    className="rounded-[12px] border-2 border-[var(--ink)] bg-danger/10 px-4 py-3 text-sm font-bold leading-relaxed text-danger shadow-[2px_2px_0_var(--ink)]"
+                  >
+                    {error}
+                  </p>
+                )}
+
+                <p className="border-t-2 border-[var(--ink)]/20 pt-5 text-xs leading-relaxed text-ink-3">
+                  ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
+                  โปรดติดต่อผู้ดูแลระบบของคริสตจักร ·{" "}
+                  <a href="/privacy" className="font-bold text-ink underline">
+                    นโยบายความเป็นส่วนตัว (PDPA)
+                  </a>
+                </p>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

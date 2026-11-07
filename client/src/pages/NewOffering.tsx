@@ -7,7 +7,7 @@ import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
-import { Calendar, CheckCircle2, FileUp, HandCoins } from "lucide-react";
+import { HandCoins } from "lucide-react";
 import { toast } from "sonner";
 import {
   OFFERING_CATEGORIES,
@@ -17,17 +17,15 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip, EmptyState } from "@/components/common/CommonUI";
 import { formatBaht, toLocalISODate } from "@/lib/format";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 export default function NewOffering() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
-  // Real funds from the database; ids are never assumed.
   const fundsQuery = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
   });
@@ -93,7 +91,7 @@ export default function NewOffering() {
       toast.success("บันทึกการถวายเรียบร้อยแล้ว");
     },
     onError: error => {
-      toast.error("บันทึกการถวายไม่สำเร็จ", { description: error.message });
+      toast.error("บันทึกการถวายไม่สำเร็จ", { description: friendlyErrorMessage(error) });
     },
   });
 
@@ -120,10 +118,6 @@ export default function NewOffering() {
           : method === "เช็ค"
             ? "check"
             : "cash",
-      // Noon keeps the calendar date stable: back-converting a UTC+7 local
-      // midnight to UTC lands on the previous day, which silently moved
-      // offerings between fiscal/report days. Noon never changes the date
-      // when shifted ±12h into UTC.
       receiptDate: new Date(`${date}T12:00:00`),
       donorName: isAnonymous ? undefined : donorName.trim() || undefined,
       notes: notes || undefined,
@@ -131,9 +125,7 @@ export default function NewOffering() {
   };
 
   const categories = OFFERING_CATEGORIES;
-
   const quickAmounts = [100, 300, 500, 1000, 2000, 5000];
-
   const paymentMethods = ["เงินสด", "โอนเงิน", "QR พร้อมเพย์", "เช็ค"];
 
   return (
@@ -145,21 +137,22 @@ export default function NewOffering() {
     >
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Hero Card with offering_box.jpg */}
-        <div className="bg-surface rounded-2xl border border-line p-6 flex items-center gap-5">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-surface p-1 border border-line shrink-0">
+        <div className="bento-card p-6 flex items-center gap-5">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-paper-2 p-1 border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] shrink-0">
             <Illustration
               src="/illustrations/offering_box.jpg"
               alt="กล่องถวาย"
-              className="w-full h-full object-cover rounded-2xl"
+              className="w-full h-full object-cover rounded-xl"
               width={96}
               height={96}
             />
           </div>
           <div className="space-y-1">
-            <h2 className="text-lg sm:text-xl font-bold text-ink-2">
+            <span className="eyebrow">การถวายทรัพย์</span>
+            <h2 className="display text-lg sm:text-xl text-ink">
               การถวายด้วยความยินดี
             </h2>
-            <p className="text-xs text-ink-3 leading-relaxed">
+            <p className="text-xs font-medium text-ink-2 leading-relaxed">
               "พระเจ้าทรงรักผู้ที่ให้ด้วยใจยินดี" —
               ทุกยอดการถวายจะถูกบันทึกอย่างถูกต้องและโปร่งใสเพื่อการงานของพระเจ้า
             </p>
@@ -177,11 +170,11 @@ export default function NewOffering() {
           /* Main Step Form Card */
           <form
             onSubmit={handleSubmit}
-            className="bg-surface rounded-2xl p-6 sm:p-8 border border-line card-elevation-sm space-y-6"
+            className="bento-card-static p-6 sm:p-8 space-y-6"
           >
             {/* 1. ประเภทถวาย */}
             <div className="space-y-2.5">
-              <label className="text-sm font-medium text-ink block">
+              <label className="text-sm font-extrabold text-ink block">
                 1. เลือกประเภทการถวาย
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -191,10 +184,10 @@ export default function NewOffering() {
                     type="button"
                     onClick={() => setCategory(cat.id)}
                     aria-pressed={category === cat.id}
-                    className={`min-h-11 px-3 py-2.5 rounded-2xl border text-sm text-center ${
+                    className={`min-h-11 px-3 py-2.5 rounded-xl border-2 border-[var(--ink)] text-sm text-center transition-all ${
                       category === cat.id
-                        ? "bg-paper-2 border-brand text-brand-ink font-semibold"
-                        : "bg-surface border-field text-ink font-medium hover:bg-ground"
+                        ? "bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                        : "bg-surface text-ink font-semibold hover:bg-paper-2"
                     }`}
                   >
                     {cat.label}
@@ -207,12 +200,12 @@ export default function NewOffering() {
             <div className="space-y-2.5">
               <label
                 htmlFor="offering-amount"
-                className="text-sm font-medium text-ink block"
+                className="text-sm font-extrabold text-ink block"
               >
                 2. ระบุจำนวนเงิน (บาท)
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-income">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-extrabold text-income">
                   ฿
                 </span>
                 <input
@@ -225,11 +218,11 @@ export default function NewOffering() {
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="money w-full min-h-14 pl-12 pr-4 rounded-2xl bg-surface border border-field text-2xl font-semibold text-income focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] text-2xl font-extrabold text-income focus:outline-none focus:border-brand focus:shadow-[3px_3px_0_var(--brand)]"
                 />
               </div>
               {formError && (
-                <p role="alert" className="text-sm text-danger">
+                <p role="alert" className="text-sm font-bold text-danger">
                   {formError}
                 </p>
               )}
@@ -252,7 +245,7 @@ export default function NewOffering() {
             <div className="space-y-2.5">
               <label
                 htmlFor="offering-fund"
-                className="text-sm font-medium text-ink block"
+                className="text-sm font-extrabold text-ink block"
               >
                 3. เข้ากองทุน
               </label>
@@ -272,7 +265,7 @@ export default function NewOffering() {
                 ))}
               </NativeSelect>
               {funds.length === 0 && (
-                <p className="text-xs text-danger">
+                <p className="text-xs font-bold text-danger">
                   ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย
                 </p>
               )}
@@ -280,7 +273,7 @@ export default function NewOffering() {
 
             {/* 4. วิธีรับเงิน */}
             <div className="space-y-2.5">
-              <label className="text-sm font-medium text-ink block">
+              <label className="text-sm font-extrabold text-ink block">
                 4. วิธีการรับเงิน
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -290,10 +283,10 @@ export default function NewOffering() {
                     type="button"
                     onClick={() => setMethod(m)}
                     aria-pressed={method === m}
-                    className={`min-h-11 py-2.5 px-3 rounded-2xl border text-sm ${
+                    className={`min-h-11 py-2.5 px-3 rounded-xl border-2 border-[var(--ink)] text-sm transition-all ${
                       method === m
-                        ? "bg-paper-2 border-brand text-brand-ink font-semibold"
-                        : "bg-surface border-field text-ink font-medium hover:bg-ground"
+                        ? "bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                        : "bg-surface text-ink font-semibold hover:bg-paper-2"
                     }`}
                   >
                     {m}
@@ -307,7 +300,7 @@ export default function NewOffering() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="offering-date"
-                  className="text-sm font-medium text-ink block"
+                  className="text-sm font-extrabold text-ink block"
                 >
                   วันที่รับเงิน
                 </label>
@@ -316,14 +309,14 @@ export default function NewOffering() {
                   type="date"
                   value={date}
                   onChange={e => setDate(e.target.value)}
-                  className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field"
+                  className="neo-input font-medium"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <label
                   htmlFor="offering-donor"
-                  className="text-sm font-medium text-ink block"
+                  className="text-sm font-extrabold text-ink block"
                 >
                   ชื่อผู้ถวาย (ถ้ามี)
                 </label>
@@ -339,7 +332,7 @@ export default function NewOffering() {
                       ? "ถวายโดยไม่เปิดเผยนาม"
                       : "ชื่อ-นามสกุล หรือครอบครัว"
                   }
-                  className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field disabled:opacity-60"
+                  className="neo-input disabled:opacity-60"
                 />
                 <datalist id="member-suggestions">
                   {members.map(m => (
@@ -352,7 +345,7 @@ export default function NewOffering() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <input
                 type="checkbox"
                 id="anon"
@@ -361,11 +354,11 @@ export default function NewOffering() {
                   setIsAnonymous(e.target.checked);
                   if (e.target.checked) setDonorName("");
                 }}
-                className="rounded text-brand focus:ring-brand w-4 h-4 border-line"
+                className="rounded border-2 border-[var(--ink)] text-brand focus:ring-brand w-4 h-4"
               />
               <label
                 htmlFor="anon"
-                className="text-xs text-ink-2 cursor-pointer"
+                className="text-xs font-bold text-ink-2 cursor-pointer"
               >
                 ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
               </label>
@@ -374,7 +367,7 @@ export default function NewOffering() {
             <div className="space-y-1.5">
               <label
                 htmlFor="offering-notes"
-                className="text-sm font-medium text-ink block"
+                className="text-sm font-extrabold text-ink block"
               >
                 หมายเหตุ / คำอธิษฐานขอบพระคุณ
               </label>
@@ -384,7 +377,7 @@ export default function NewOffering() {
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="เช่น ถวายขอบพระคุณสำหรับวันเกิด, พันธกิจเด็ก"
-                className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field"
+                className="neo-input"
               />
             </div>
 
@@ -392,7 +385,7 @@ export default function NewOffering() {
             <button
               type="submit"
               disabled={createMutation.isPending}
-              className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base flex items-center justify-center gap-2"
+              className="btn-primary w-full min-h-12 text-base"
             >
               <HandCoins className="w-5 h-5" />
               <span>
@@ -407,41 +400,41 @@ export default function NewOffering() {
 
       {/* Success Celebration Dialog */}
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
-        <DialogContent className="max-w-sm bg-surface border-line rounded-2xl p-6 text-center text-ink space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-line p-1 bg-surface">
+        <DialogContent className="max-w-sm bg-surface rounded-2xl p-6 text-center text-ink space-y-4">
+          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] p-1 bg-paper-2">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
               alt="ถวายสำเร็จ"
-              className="w-full h-full object-cover rounded-2xl"
+              className="w-full h-full object-cover rounded-xl"
               width={80}
               height={80}
             />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-ink-2">
+            <h3 className="display text-xl text-ink">
               บันทึกการถวายเรียบร้อยแล้ว
             </h3>
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs font-medium text-ink-3 mt-1">
               "ขอพระเจ้าทรงอวยพระพรและตอบแทนทุกน้ำใจที่ท่านได้มอบให้เพื่อพันธกิจของพระองค์"
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-ground border border-line text-xs text-left space-y-1.5">
+          <div className="p-4 rounded-xl bg-paper-2 border-2 border-[var(--ink)] text-xs text-left space-y-1.5">
             <p className="flex justify-between">
-              <span className="text-ink-3">ประเภท:</span>
-              <span className="font-bold text-ink-2">
+              <span className="font-semibold text-ink-3">ประเภท:</span>
+              <span className="font-extrabold text-ink">
                 {offeringCategoryLabel(lastSaved?.category ?? category)}
               </span>
             </p>
             <p className="flex justify-between">
-              <span className="text-ink-3">จำนวนเงิน:</span>
-              <span className="font-bold text-income">
+              <span className="font-semibold text-ink-3">จำนวนเงิน:</span>
+              <span className="font-extrabold text-income tabular-nums">
                 {formatBaht(lastSaved?.amount ?? Number(amount))}
               </span>
             </p>
             <p className="flex justify-between">
-              <span className="text-ink-3">ช่องทาง:</span>
-              <span className="font-medium text-ink-2">
+              <span className="font-semibold text-ink-3">ช่องทาง:</span>
+              <span className="font-bold text-ink">
                 {lastSaved?.method ?? method}
               </span>
             </p>
@@ -452,7 +445,7 @@ export default function NewOffering() {
               setIsSuccessOpen(false);
               setLocation("/offerings");
             }}
-            className="w-full min-h-12 rounded-2xl bg-brand hover:bg-brand-ink text-black font-semibold text-base"
+            className="btn-primary w-full min-h-12 text-base"
           >
             ดูรายการถวายทั้งหมด
           </button>

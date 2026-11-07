@@ -3,9 +3,10 @@ import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { EmptyState, LoadingSkeleton } from "@/components/common/CommonUI";
 import { trpc } from "@/lib/trpc";
-import { Bell, CheckCheck } from "lucide-react";
+import { CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { formatThaiDate } from "@/lib/format";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 export default function Notifications() {
   const [, setLocation] = useLocation();
@@ -14,7 +15,9 @@ export default function Notifications() {
   const markRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => void utils.notifications.list.invalidate(),
     onError: error =>
-      toast.error(error.message || "อัปเดตสถานะการแจ้งเตือนไม่สำเร็จ"),
+      toast.error(
+        friendlyErrorMessage(error, "อัปเดตสถานะการแจ้งเตือนไม่สำเร็จ")
+      ),
   });
   const markAllRead = trpc.notifications.markAllAsRead.useMutation({
     onSuccess: async () => {
@@ -22,7 +25,9 @@ export default function Notifications() {
       toast.success("ทำเครื่องหมายว่าอ่านแล้วทั้งหมด");
     },
     onError: error =>
-      toast.error(error.message || "อัปเดตสถานะการแจ้งเตือนไม่สำเร็จ"),
+      toast.error(
+        friendlyErrorMessage(error, "อัปเดตสถานะการแจ้งเตือนไม่สำเร็จ")
+      ),
   });
 
   return (
@@ -34,7 +39,7 @@ export default function Notifications() {
           type="button"
           onClick={() => markAllRead.mutate()}
           disabled={markAllRead.isPending || !query.data?.some(n => !n.readAt)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-medium text-ink-2 hover:bg-paper-2 disabled:opacity-50"
+          className="btn-secondary inline-flex min-h-11 items-center gap-2 px-4 text-sm disabled:opacity-50"
         >
           <CheckCheck className="size-4" />
           อ่านแล้วทั้งหมด
@@ -68,26 +73,30 @@ export default function Notifications() {
                   if (!item.readAt) markRead.mutate({ id: item.id });
                   if (item.link) setLocation(item.link);
                 }}
-                className="relative w-full rounded-2xl border border-line bg-surface p-4 pl-8 text-left hover:bg-paper"
+                className={`relative w-full rounded-2xl border-[1.5px] border-[var(--ink)] p-4 pl-9 text-left transition-all ${
+                  item.readAt
+                    ? "bg-surface shadow-[2px_2px_0_var(--ink)] hover:bg-paper-2"
+                    : "bg-paper-2 shadow-[4px_4px_0_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5"
+                }`}
               >
                 {!item.readAt && (
                   <span
-                    className="absolute left-3.5 top-6 size-2 rounded-full bg-brand"
+                    className="absolute left-3.5 top-5.5 size-2.5 rounded-full border border-[var(--ink)] bg-brand"
                     aria-hidden="true"
                   />
                 )}
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2
-                      className={`text-[15px] text-ink ${item.readAt ? "font-medium" : "font-semibold"}`}
+                      className={`text-[15px] text-ink ${item.readAt ? "font-bold" : "font-extrabold"}`}
                     >
                       {item.title}
                     </h2>
-                    <p className="mt-0.5 text-sm text-ink-3">
+                    <p className="mt-0.5 text-sm font-medium text-ink-3">
                       {item.description || ""}
                     </p>
                   </div>
-                  <span className="shrink-0 text-xs text-ink-3">
+                  <span className="shrink-0 text-xs font-bold text-ink-3">
                     {formatThaiDate(item.createdAt)}
                     <span className="sr-only">
                       {item.readAt ? " อ่านแล้ว" : " ยังไม่อ่าน"}
