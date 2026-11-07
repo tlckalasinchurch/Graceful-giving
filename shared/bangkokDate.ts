@@ -25,3 +25,28 @@ export function bangkokDateString(value: Date): string {
     parts.find(p => p.type === type)?.value ?? "";
   return `${pick("year")}-${pick("month")}-${pick("day")}`;
 }
+
+/**
+ * Asia/Bangkok is UTC+7 all year. It has had no daylight saving since 1920.
+ * Month boundaries use this fixed offset so they need no time zone database.
+ */
+const BANGKOK_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+/** Year and month (1 to 12) of the Asia/Bangkok calendar at the given instant. */
+export function bangkokCalendarMonth(now: Date): {
+  year: number;
+  month: number;
+} {
+  const shifted = new Date(now.getTime() + BANGKOK_OFFSET_MS);
+  return { year: shifted.getUTCFullYear(), month: shifted.getUTCMonth() + 1 };
+}
+
+/**
+ * The instant when the given Thai calendar month starts: 00:00 on the 1st in
+ * Asia/Bangkok. `month` is 1 to 12 and may run over (13 is January of the next
+ * year, 0 is December of the year before). A month is the half-open range
+ * `[bangkokMonthStart(y, m), bangkokMonthStart(y, m + 1))`.
+ */
+export function bangkokMonthStart(year: number, month: number): Date {
+  return new Date(Date.UTC(year, month - 1, 1) - BANGKOK_OFFSET_MS);
+}

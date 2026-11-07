@@ -69,7 +69,10 @@ beforeAll(async () => {
     });
 
   await expense(1000, "utilities", `${YEAR}-01-10T00:00:00Z`, fundA);
-  await expense(250.5, "utilities", `${YEAR}-01-31T23:00:00Z`, fundB);
+  // Budget months are Thai calendar months (Asia/Bangkok, UTC+7). 16:00Z on
+  // 31 January is 23:00 in Bangkok: the last hour of January.
+  await expense(250.5, "utilities", `${YEAR}-01-31T16:00:00Z`, fundB);
+  // 00:00Z on 1 February is 07:00 in Bangkok: February.
   await expense(400, "utilities", `${YEAR}-02-01T00:00:00Z`, fundA);
   await expense(700, "worship", `${YEAR}-01-15T00:00:00Z`, fundA);
   // Outside the year: must never count.

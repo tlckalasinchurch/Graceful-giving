@@ -845,6 +845,14 @@ function bangkokDateString(value) {
   const pick = type => parts.find(p => p.type === type)?.value ?? "";
   return `${pick("year")}-${pick("month")}-${pick("day")}`;
 }
+var BANGKOK_OFFSET_MS = 7 * 60 * 60 * 1e3;
+function bangkokCalendarMonth(now) {
+  const shifted = new Date(now.getTime() + BANGKOK_OFFSET_MS);
+  return { year: shifted.getUTCFullYear(), month: shifted.getUTCMonth() + 1 };
+}
+function bangkokMonthStart(year, month) {
+  return new Date(Date.UTC(year, month - 1, 1) - BANGKOK_OFFSET_MS);
+}
 
 // server/csvLimit.ts
 import { TRPCError } from "@trpc/server";
@@ -1542,28 +1550,16 @@ async function createFinanceAccount(input) {
     .returning({ id: financeAccounts.id });
   return result[0].id;
 }
-async function getFinancialSummary(churchId = DEFAULT_CHURCH_ID) {
+async function getFinancialSummary(
+  churchId = DEFAULT_CHURCH_ID,
+  now = /* @__PURE__ */ new Date()
+) {
   const db = await getDb();
   if (!db) return null;
-  const now = /* @__PURE__ */ new Date();
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const thisMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0,
-    23,
-    59,
-    59
-  );
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const prevMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    0,
-    23,
-    59,
-    59
-  );
+  const { year, month } = bangkokCalendarMonth(now);
+  const prevMonthStart = bangkokMonthStart(year, month - 1);
+  const thisMonthStart = bangkokMonthStart(year, month);
+  const nextMonthStart = bangkokMonthStart(year, month + 1);
   try {
     const [accounts, thisOfferings, prevOfferings, thisExpenses, prevExpenses] =
       await Promise.all([
@@ -1583,7 +1579,8 @@ async function getFinancialSummary(churchId = DEFAULT_CHURCH_ID) {
             and(
               eq(offerings.churchId, churchId),
               ne(offerings.status, "voided"),
-              between(offerings.receiptDate, thisMonthStart, thisMonthEnd)
+              gte(offerings.receiptDate, thisMonthStart),
+              lt(offerings.receiptDate, nextMonthStart)
             )
           ),
         db
@@ -1593,7 +1590,8 @@ async function getFinancialSummary(churchId = DEFAULT_CHURCH_ID) {
             and(
               eq(offerings.churchId, churchId),
               ne(offerings.status, "voided"),
-              between(offerings.receiptDate, prevMonthStart, prevMonthEnd)
+              gte(offerings.receiptDate, prevMonthStart),
+              lt(offerings.receiptDate, thisMonthStart)
             )
           ),
         db
@@ -1603,7 +1601,8 @@ async function getFinancialSummary(churchId = DEFAULT_CHURCH_ID) {
             and(
               eq(expenses.churchId, churchId),
               ne(expenses.status, "voided"),
-              between(expenses.expenseDate, thisMonthStart, thisMonthEnd)
+              gte(expenses.expenseDate, thisMonthStart),
+              lt(expenses.expenseDate, nextMonthStart)
             )
           ),
         db
@@ -1613,7 +1612,8 @@ async function getFinancialSummary(churchId = DEFAULT_CHURCH_ID) {
             and(
               eq(expenses.churchId, churchId),
               ne(expenses.status, "voided"),
-              between(expenses.expenseDate, prevMonthStart, prevMonthEnd)
+              gte(expenses.expenseDate, prevMonthStart),
+              lt(expenses.expenseDate, thisMonthStart)
             )
           ),
       ]);
@@ -1642,11 +1642,14 @@ async function getFinancialSummary(churchId = DEFAULT_CHURCH_ID) {
     return null;
   }
 }
-async function getMonthlyStats(churchId = DEFAULT_CHURCH_ID, months = 6) {
+async function getMonthlyStats(
+  churchId = DEFAULT_CHURCH_ID,
+  months = 6,
+  now = /* @__PURE__ */ new Date()
+) {
   const db = await getDb();
   if (!db) return [];
   const result = [];
-  const now = /* @__PURE__ */ new Date();
   const thaiMonths = [
     "\u0E21.\u0E04.",
     "\u0E01.\u0E1E.",
@@ -1661,10 +1664,11 @@ async function getMonthlyStats(churchId = DEFAULT_CHURCH_ID, months = 6) {
     "\u0E1E.\u0E22.",
     "\u0E18.\u0E04.",
   ];
+  const { year, month } = bangkokCalendarMonth(now);
   for (let i = months - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const start = new Date(d.getFullYear(), d.getMonth(), 1);
-    const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
+    const start = bangkokMonthStart(year, month - i);
+    const end = bangkokMonthStart(year, month - i + 1);
+    const monthIndex = new Date(Date.UTC(year, month - i - 1, 1)).getUTCMonth();
     const [inc, exp] = await Promise.all([
       db
         .select({ total: sum(offerings.amount) })
@@ -1673,7 +1677,8 @@ async function getMonthlyStats(churchId = DEFAULT_CHURCH_ID, months = 6) {
           and(
             eq(offerings.churchId, churchId),
             ne(offerings.status, "voided"),
-            between(offerings.receiptDate, start, end)
+            gte(offerings.receiptDate, start),
+            lt(offerings.receiptDate, end)
           )
         ),
       db
@@ -1683,12 +1688,13 @@ async function getMonthlyStats(churchId = DEFAULT_CHURCH_ID, months = 6) {
           and(
             eq(expenses.churchId, churchId),
             ne(expenses.status, "voided"),
-            between(expenses.expenseDate, start, end)
+            gte(expenses.expenseDate, start),
+            lt(expenses.expenseDate, end)
           )
         ),
     ]);
     result.push({
-      month: thaiMonths[d.getMonth()],
+      month: thaiMonths[monthIndex],
       income: parseFloat(inc[0]?.total ?? "0") || 0,
       expense: parseFloat(exp[0]?.total ?? "0") || 0,
     });
@@ -2858,8 +2864,14 @@ async function disburseWithdrawal(
     return { attachedSessionId };
   });
 }
-function bangkokDate(expr) {
-  return sql2`(${expr} AT TIME ZONE 'Asia/Bangkok')::date`;
+function bangkokLocalOfColumn(expr) {
+  return sql2`((${expr} AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Bangkok')`;
+}
+function bangkokDateOfColumn(expr) {
+  return sql2`${bangkokLocalOfColumn(expr)}::date`;
+}
+function bangkokDateOfInstant(value) {
+  return sql2`(${value.toISOString()}::timestamptz AT TIME ZONE 'Asia/Bangkok')::date`;
 }
 async function attachWithdrawalToCounting(
   requestId,
@@ -2899,7 +2911,7 @@ async function attachWithdrawalToCounting(
       and(
         eq(countingSessions.churchId, churchId),
         inArray(countingSessions.status, ["counting", "counted", "verified"]),
-        sql2`${bangkokDate(sql2`${countingSessions.serviceDate}`)} >= ${bangkokDate(sql2`${request.disbursedAt}::timestamp`)}`
+        sql2`${bangkokDateOfColumn(sql2`${countingSessions.serviceDate}`)} >= ${bangkokDateOfInstant(request.disbursedAt)}`
       )
     )
     .orderBy(
@@ -2942,7 +2954,7 @@ async function attachPendingWithdrawals(session, churchId = DEFAULT_CHURCH_ID) {
           eq(withdrawalRequests.churchId, churchId),
           eq(withdrawalRequests.status, "disbursed"),
           isNull(bankRecords.withdrawalRequestId),
-          sql2`${bangkokDate(sql2`${withdrawalRequests.disbursedAt}`)} <= ${bangkokDate(sql2`${session.serviceDate}::timestamp`)}`
+          sql2`${bangkokDateOfColumn(sql2`${withdrawalRequests.disbursedAt}`)} <= ${bangkokDateOfInstant(session.serviceDate)}`
         )
       );
     let attached = 0;
@@ -3248,10 +3260,10 @@ async function getFinancialReportData(
   return rows.sort((a, b) => a.date.localeCompare(b.date));
 }
 function budgetPeriod(year, month) {
-  const from = new Date(Date.UTC(year, month ? month - 1 : 0, 1));
+  const from = bangkokMonthStart(year, month ? month : 1);
   const to = month
-    ? new Date(Date.UTC(year, month, 1))
-    : new Date(Date.UTC(year + 1, 0, 1));
+    ? bangkokMonthStart(year, month + 1)
+    : bangkokMonthStart(year + 1, 1);
   return { from, to };
 }
 function budgetExpenseFilter(plan) {
@@ -3288,7 +3300,7 @@ async function listBudgetPlans(year, churchId = DEFAULT_CHURCH_ID) {
     );
   if (plans.length === 0) return [];
   const { from, to } = budgetPeriod(year, null);
-  const monthExpr = sql2`extract(month from ${expenses.expenseDate})::int`;
+  const monthExpr = sql2`extract(month from ${bangkokLocalOfColumn(sql2`${expenses.expenseDate}`)})::int`;
   const buckets = await db
     .select({
       category: expenses.category,
@@ -3536,7 +3548,7 @@ async function getCountingSession(id, churchId = DEFAULT_CHURCH_ID) {
   return rows[0] ?? null;
 }
 function countingSessionsBefore(session) {
-  return sql2`(${countingSessions.serviceDate}, ${countingSessions.serviceRound}, ${countingSessions.id}) < (${session.serviceDate}, ${session.serviceRound}, ${session.id})`;
+  return sql2`(${countingSessions.serviceDate}, ${countingSessions.serviceRound}, ${countingSessions.id}) < (${session.serviceDate.toISOString()}::timestamp, ${session.serviceRound}, ${session.id})`;
 }
 async function findPreviousPostedSession(
   session,
@@ -4097,8 +4109,8 @@ async function getFinancialReportSummary(
   toDate
 ) {
   const empty = {
-    from: fromDate.toISOString().slice(0, 10),
-    to: toDate.toISOString().slice(0, 10),
+    from: bangkokDateString(fromDate),
+    to: bangkokDateString(toDate),
     income: [],
     expense: [],
     totalIncome: 0,

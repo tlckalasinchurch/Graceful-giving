@@ -68,7 +68,11 @@ import {
   withdrawalApprovals,
   withdrawalRequests,
 } from "../drizzle/schema";
-import { bangkokDateString } from "@shared/bangkokDate";
+import {
+  bangkokCalendarMonth,
+  bangkokDateString,
+  bangkokMonthStart,
+} from "@shared/bangkokDate";
 import { assertCsvWithinLimit } from "./csvLimit";
 import {
   type OfferingCategory,
@@ -459,30 +463,17 @@ export type FinancialSummary = {
 };
 
 export async function getFinancialSummary(
-  churchId = DEFAULT_CHURCH_ID
+  churchId = DEFAULT_CHURCH_ID,
+  now: Date = new Date()
 ): Promise<FinancialSummary | null> {
   const db = await getDb();
   if (!db) return null;
 
-  const now = new Date();
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const thisMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0,
-    23,
-    59,
-    59
-  );
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const prevMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    0,
-    23,
-    59,
-    59
-  );
+  // Thai calendar months (Asia/Bangkok), half-open [start, next start).
+  const { year, month } = bangkokCalendarMonth(now);
+  const prevMonthStart = bangkokMonthStart(year, month - 1);
+  const thisMonthStart = bangkokMonthStart(year, month);
+  const nextMonthStart = bangkokMonthStart(year, month + 1);
 
   try {
     const [accounts, thisOfferings, prevOfferings, thisExpenses, prevExpenses] =
@@ -503,7 +494,8 @@ export async function getFinancialSummary(
             and(
               eq(offerings.churchId, churchId),
               ne(offerings.status, "voided"),
-              between(offerings.receiptDate, thisMonthStart, thisMonthEnd)
+              gte(offerings.receiptDate, thisMonthStart),
+              lt(offerings.receiptDate, nextMonthStart)
             )
           ),
         db
@@ -513,7 +505,8 @@ export async function getFinancialSummary(
             and(
               eq(offerings.churchId, churchId),
               ne(offerings.status, "voided"),
-              between(offerings.receiptDate, prevMonthStart, prevMonthEnd)
+              gte(offerings.receiptDate, prevMonthStart),
+              lt(offerings.receiptDate, thisMonthStart)
             )
           ),
         db
@@ -523,7 +516,8 @@ export async function getFinancialSummary(
             and(
               eq(expenses.churchId, churchId),
               ne(expenses.status, "voided"),
-              between(expenses.expenseDate, thisMonthStart, thisMonthEnd)
+              gte(expenses.expenseDate, thisMonthStart),
+              lt(expenses.expenseDate, nextMonthStart)
             )
           ),
         db
@@ -533,7 +527,8 @@ export async function getFinancialSummary(
             and(
               eq(expenses.churchId, churchId),
               ne(expenses.status, "voided"),
-              between(expenses.expenseDate, prevMonthStart, prevMonthEnd)
+              gte(expenses.expenseDate, prevMonthStart),
+              lt(expenses.expenseDate, thisMonthStart)
             )
           ),
       ]);
@@ -577,13 +572,13 @@ export type MonthlyStats = Array<{
 
 export async function getMonthlyStats(
   churchId = DEFAULT_CHURCH_ID,
-  months = 6
+  months = 6,
+  now: Date = new Date()
 ): Promise<MonthlyStats> {
   const db = await getDb();
   if (!db) return [];
 
   const result: MonthlyStats = [];
-  const now = new Date();
   const thaiMonths = [
     "ม.ค.",
     "ก.พ.",
@@ -599,10 +594,12 @@ export async function getMonthlyStats(
     "ธ.ค.",
   ];
 
+  const { year, month } = bangkokCalendarMonth(now);
   for (let i = months - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const start = new Date(d.getFullYear(), d.getMonth(), 1);
-    const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
+    // Thai calendar month, half-open [start, end).
+    const start = bangkokMonthStart(year, month - i);
+    const end = bangkokMonthStart(year, month - i + 1);
+    const monthIndex = new Date(Date.UTC(year, month - i - 1, 1)).getUTCMonth();
 
     const [inc, exp] = await Promise.all([
       db
@@ -612,7 +609,8 @@ export async function getMonthlyStats(
           and(
             eq(offerings.churchId, churchId),
             ne(offerings.status, "voided"),
-            between(offerings.receiptDate, start, end)
+            gte(offerings.receiptDate, start),
+            lt(offerings.receiptDate, end)
           )
         ),
       db
@@ -622,13 +620,14 @@ export async function getMonthlyStats(
           and(
             eq(expenses.churchId, churchId),
             ne(expenses.status, "voided"),
-            between(expenses.expenseDate, start, end)
+            gte(expenses.expenseDate, start),
+            lt(expenses.expenseDate, end)
           )
         ),
     ]);
 
     result.push({
-      month: thaiMonths[d.getMonth()],
+      month: thaiMonths[monthIndex],
       income: parseFloat((inc[0]?.total as unknown as string) ?? "0") || 0,
       expense: parseFloat((exp[0]?.total as unknown as string) ?? "0") || 0,
     });
@@ -2125,9 +2124,30 @@ export async function disburseWithdrawal(
 /**
  * "Date" means the calendar date in Asia/Bangkok, because the counting rounds
  * are planned by Thai Sundays, not UTC days.
+ *
+ * Storage: `timestamp` (without time zone) columns hold the UTC wall clock.
+ * Drizzle writes `toISOString()` and reads `value + "+0000"`. A plain
+ * `col AT TIME ZONE 'Asia/Bangkok'` would read that UTC value as Bangkok local
+ * time and return a date that is up to 14 hours off. The column is read as
+ * UTC first, then converted. The result does not depend on the session time
+ * zone.
  */
-function bangkokDate(expr: SQL) {
-  return sql`(${expr} AT TIME ZONE 'Asia/Bangkok')::date`;
+export function bangkokLocalOfColumn(expr: SQL) {
+  return sql`((${expr} AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Bangkok')`;
+}
+
+/** Calendar date in Asia/Bangkok of a stored `timestamp` column. */
+export function bangkokDateOfColumn(expr: SQL) {
+  return sql`${bangkokLocalOfColumn(expr)}::date`;
+}
+
+/**
+ * Same date, for a JS `Date` used as a query parameter. It is bound as an ISO
+ * string: drizzle's postgres-js driver does not serialise a raw `Date` inside
+ * a `sql` template, and the query then fails.
+ */
+export function bangkokDateOfInstant(value: Date) {
+  return sql`(${value.toISOString()}::timestamptz AT TIME ZONE 'Asia/Bangkok')::date`;
 }
 
 /**
@@ -2180,7 +2200,7 @@ export async function attachWithdrawalToCounting(
       and(
         eq(countingSessions.churchId, churchId),
         inArray(countingSessions.status, ["counting", "counted", "verified"]),
-        sql`${bangkokDate(sql`${countingSessions.serviceDate}`)} >= ${bangkokDate(sql`${request.disbursedAt}::timestamp`)}`
+        sql`${bangkokDateOfColumn(sql`${countingSessions.serviceDate}`)} >= ${bangkokDateOfInstant(request.disbursedAt)}`
       )
     )
     .orderBy(
@@ -2234,7 +2254,7 @@ export async function attachPendingWithdrawals(
           eq(withdrawalRequests.churchId, churchId),
           eq(withdrawalRequests.status, "disbursed"),
           isNull(bankRecords.withdrawalRequestId),
-          sql`${bangkokDate(sql`${withdrawalRequests.disbursedAt}`)} <= ${bangkokDate(sql`${session.serviceDate}::timestamp`)}`
+          sql`${bangkokDateOfColumn(sql`${withdrawalRequests.disbursedAt}`)} <= ${bangkokDateOfInstant(session.serviceDate)}`
         )
       );
     let attached = 0;
@@ -2663,10 +2683,11 @@ export async function getFinancialReportData(
  * neither set compares against all spending of the year.
  */
 function budgetPeriod(year: number, month: number | null) {
-  const from = new Date(Date.UTC(year, month ? month - 1 : 0, 1));
+  // Thai calendar months (Asia/Bangkok), half-open [from, to).
+  const from = bangkokMonthStart(year, month ? month : 1);
   const to = month
-    ? new Date(Date.UTC(year, month, 1))
-    : new Date(Date.UTC(year + 1, 0, 1));
+    ? bangkokMonthStart(year, month + 1)
+    : bangkokMonthStart(year + 1, 1);
   return { from, to };
 }
 
@@ -2719,7 +2740,7 @@ export async function listBudgetPlans(
   // One grouped read for the whole year, then each plan sums the buckets that
   // match its filters. This avoids one query per plan.
   const { from, to } = budgetPeriod(year, null);
-  const monthExpr = sql<number>`extract(month from ${expenses.expenseDate})::int`;
+  const monthExpr = sql<number>`extract(month from ${bangkokLocalOfColumn(sql`${expenses.expenseDate}`)})::int`;
   const buckets = await db
     .select({
       category: expenses.category,
@@ -3028,9 +3049,15 @@ export async function getCountingSession(
   return rows[0] ?? null;
 }
 
-/** Sessions are ordered by Sunday, then service round, then id. */
+/**
+ * Sessions are ordered by Sunday, then service round, then id.
+ *
+ * The date is bound as an ISO string cast to `timestamp`: drizzle's
+ * postgres-js driver does not serialise a raw `Date` inside a `sql` template.
+ * The cast keeps the UTC wall clock, the same form the column stores.
+ */
 function countingSessionsBefore(session: CountingSession) {
-  return sql`(${countingSessions.serviceDate}, ${countingSessions.serviceRound}, ${countingSessions.id}) < (${session.serviceDate}, ${session.serviceRound}, ${session.id})`;
+  return sql`(${countingSessions.serviceDate}, ${countingSessions.serviceRound}, ${countingSessions.id}) < (${session.serviceDate.toISOString()}::timestamp, ${session.serviceRound}, ${session.id})`;
 }
 
 /** The latest posted or closed session before `session`. */
@@ -3739,8 +3766,8 @@ export async function getFinancialReportSummary(
   toDate: Date
 ): Promise<ReportSummary> {
   const empty: ReportSummary = {
-    from: fromDate.toISOString().slice(0, 10),
-    to: toDate.toISOString().slice(0, 10),
+    from: bangkokDateString(fromDate),
+    to: bangkokDateString(toDate),
     income: [],
     expense: [],
     totalIncome: 0,
