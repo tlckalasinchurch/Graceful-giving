@@ -350,7 +350,12 @@ async function drawQrContent(
   );
   if (qrSvg) {
     const vbAttr = qrSvg.getAttribute("viewBox");
-    const vbParts = vbAttr ? vbAttr.trim().split(/[\s,]+/).map(Number) : [];
+    const vbParts = vbAttr
+      ? vbAttr
+          .trim()
+          .split(/[\s,]+/)
+          .map(Number)
+      : [];
     const vbWidth = vbParts[2] && vbParts[2] > 0 ? vbParts[2] : 41;
     const vbHeight = vbParts[3] && vbParts[3] > 0 ? vbParts[3] : vbWidth;
 
@@ -774,11 +779,7 @@ export async function renderPosterExport(
   const dataUrl = canvas.toDataURL(mime, 0.95);
   const blob = await new Promise<Blob>(resolve => {
     if (typeof canvas.toBlob === "function") {
-      canvas.toBlob(
-        b => resolve(b ?? dataUrlToBlob(dataUrl)),
-        mime,
-        0.95
-      );
+      canvas.toBlob(b => resolve(b ?? dataUrlToBlob(dataUrl)), mime, 0.95);
     } else {
       resolve(dataUrlToBlob(dataUrl));
     }

@@ -123,13 +123,21 @@ const OUTPUT_SCHEMA = {
       notes: { type: ["string", "null"] },
     },
     required: [
-      "amount", "amountConfidence",
-      "transferDate", "transferTime", "dateConfidence",
-      "senderName", "senderConfidence",
-      "referenceNumber", "referenceConfidence",
-      "bankName", "receiverName",
-      "receiverAccount", "receiverAccountConfidence",
-      "receiverAccountType", "receiverBank",
+      "amount",
+      "amountConfidence",
+      "transferDate",
+      "transferTime",
+      "dateConfidence",
+      "senderName",
+      "senderConfidence",
+      "referenceNumber",
+      "referenceConfidence",
+      "bankName",
+      "receiverName",
+      "receiverAccount",
+      "receiverAccountConfidence",
+      "receiverAccountType",
+      "receiverBank",
       "notes",
     ],
     additionalProperties: false,
@@ -140,7 +148,10 @@ const OUTPUT_SCHEMA = {
 // ─── Error Handling & Types ──────────────────────────────────────────────────
 
 export class TransientOcrError extends Error {
-  constructor(message: string, public readonly status?: number) {
+  constructor(
+    message: string,
+    public readonly status?: number
+  ) {
     super(message);
     this.name = "TransientOcrError";
   }
@@ -203,8 +214,13 @@ export function normalizeAndValidateDate(
 
     // Sanity check: Plausible range
     if (parsedDate > twoDaysInFuture || parsedDate < oneYearAgo) {
-      console.warn(`[SlipOCR] Extracted date ${normalized} failed plausibility check`);
-      return { transferDate: normalized, dateConfidence: Math.min(confidence, 0.4) };
+      console.warn(
+        `[SlipOCR] Extracted date ${normalized} failed plausibility check`
+      );
+      return {
+        transferDate: normalized,
+        dateConfidence: Math.min(confidence, 0.4),
+      };
     }
 
     return { transferDate: normalized, dateConfidence: confidence };
@@ -319,15 +335,23 @@ export async function extractSlipData(
   const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (geminiKey) {
     try {
-      console.log("[SlipOCR] Extracting slip data via Google Gemini Vision API...");
+      console.log(
+        "[SlipOCR] Extracting slip data via Google Gemini Vision API..."
+      );
       return await extractWithGemini(signedImageUrl, geminiKey);
     } catch (geminiErr) {
       // If it's a transient rate limit or service outage, throw so the worker retries
       if (isTransientError(geminiErr)) {
-        console.warn("[SlipOCR] Gemini transient error — throwing for worker retry:", geminiErr);
+        console.warn(
+          "[SlipOCR] Gemini transient error — throwing for worker retry:",
+          geminiErr
+        );
         throw geminiErr;
       }
-      console.warn("[SlipOCR] Gemini extraction error, trying fallback:", geminiErr);
+      console.warn(
+        "[SlipOCR] Gemini extraction error, trying fallback:",
+        geminiErr
+      );
     }
   }
 
@@ -354,7 +378,8 @@ export async function extractSlipData(
     });
 
     const content = result.choices[0]?.message?.content;
-    rawText = typeof content === "string" ? content : JSON.stringify(content ?? "");
+    rawText =
+      typeof content === "string" ? content : JSON.stringify(content ?? "");
 
     // Parse JSON — handle cases where model wraps in markdown fence
     let parsed: Omit<SlipExtraction, "rawText">;
@@ -379,11 +404,17 @@ export async function extractSlipData(
   } catch (err) {
     // Re-throw transient errors (e.g. rate limit, 503, connection dropped) so queue retries
     if (isTransientError(err)) {
-      console.warn("[SlipOCR] Transient error during invokeLLM — rethrowing for worker retry:", err);
+      console.warn(
+        "[SlipOCR] Transient error during invokeLLM — rethrowing for worker retry:",
+        err
+      );
       throw err;
     }
 
-    console.error("[SlipOCR] Permanent extraction failure (unreadable image):", err);
+    console.error(
+      "[SlipOCR] Permanent extraction failure (unreadable image):",
+      err
+    );
     return {
       rawText,
       amount: null,

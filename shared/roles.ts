@@ -134,6 +134,14 @@ export function canViewReports(user?: RoleUser | null): boolean {
 }
 
 /**
+ * Donor identities on offerings and member giving history are visible only to
+ * the treasurer and super admin (mirrors canViewDonorNames in server/routers.ts).
+ */
+export function canViewDonorNames(user?: RoleUser | null): boolean {
+  return hasChurchRole(user, "SUPER_ADMIN", "TREASURER");
+}
+
+/**
  * Ministry records are managed by church leadership and by deacons, whose
  * role is defined above as overseeing ministry and service work. Reading the
  * ministry list stays open to every signed-in member.

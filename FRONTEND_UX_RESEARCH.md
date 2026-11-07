@@ -30,13 +30,13 @@ A financial table must preserve the relationship between its headers, records, a
 
 ## Implemented scope
 
-| Area | Adaptation | Status |
-|---|---|---|
-| Dashboard | Overview → actions → tracking sections | Implemented |
-| Transactions | Native detail links, table caption, `scope`, row header, unknown status | Implemented |
-| Expenses | Native detail links, table caption, `scope`, row header, unknown status | Implemented |
-| Expense form | Inline amount/description/fund errors, first-error focus, ARIA state, amount helper text | Implemented |
-| Shared status badge | Explicit active, inactive, draft, submitted, needs-review, unknown labels | Implemented |
+| Area                   | Adaptation                                                                                                          | Status      |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Dashboard              | Overview → actions → tracking sections                                                                              | Implemented |
+| Transactions           | Native detail links, table caption, `scope`, row header, unknown status                                             | Implemented |
+| Expenses               | Native detail links, table caption, `scope`, row header, unknown status                                             | Implemented |
+| Expense form           | Inline amount/description/fund errors, first-error focus, ARIA state, amount helper text                            | Implemented |
+| Shared status badge    | Explicit active, inactive, draft, submitted, needs-review, unknown labels                                           | Implemented |
 | Global visual language | Dark ink navigation chrome, `#FC6C26` display accent, accessible `#C94F16` action color, `#FFF4D6` vanilla surfaces | Implemented |
 
 ## Recommended next UX tasks

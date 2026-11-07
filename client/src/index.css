@@ -224,30 +224,30 @@
   --content-max: 88rem;
 
   /* Surfaces — Warm White ground, Warm Stone secondary, White surface */
-  --ground: #F8F9F4;
-  --paper: #FFFFFF;
-  --paper-2: #F1F3EC;
-  --surface: #FFFFFF;
-  --line: #E2E5DC;
+  --ground: #f8f9f4;
+  --paper: #ffffff;
+  --paper-2: #f1f3ec;
+  --surface: #ffffff;
+  --line: #e2e5dc;
 
   /* Ink — Deep Ink foreground */
-  --ink: #171A18;
-  --ink-2: #3A3F39;
-  --ink-3: #6B7069;
-  --field: #171A18;
+  --ink: #171a18;
+  --ink-2: #3a3f39;
+  --ink-3: #6b7069;
+  --field: #171a18;
 
   /* Meaning — Emerald brand, Acid Lime accent, Coral secondary highlight */
-  --income: #087F5B;
-  --danger: #B3261E;
-  --brand: #087F5B;
-  --brand-ink: #FFFFFF;
-  --line-brand: #06C755;
+  --income: #087f5b;
+  --danger: #b3261e;
+  --brand: #087f5b;
+  --brand-ink: #ffffff;
+  --line-brand: #06c755;
 
   /* Accent / highlight */
-  --accent-lime: #B8F34A;
-  --accent-lime-ink: #3F4A0B;
-  --coral: #FF6B7D;
-  --coral-ink: #FFFFFF;
+  --accent-lime: #b8f34a;
+  --accent-lime-ink: #3f4a0b;
+  --coral: #ff6b7d;
+  --coral-ink: #ffffff;
 
   /* Category tiles — pastel ground, matching deep ink */
   --tile-sky: #e6f0ff;
@@ -279,7 +279,7 @@
   --accent: var(--accent-lime);
   --accent-foreground: var(--accent-lime-ink);
   --destructive: var(--danger);
-  --destructive-foreground: #FFFFFF;
+  --destructive-foreground: #ffffff;
   --border: var(--line);
   --input: var(--ink);
   --ring: var(--brand);
@@ -291,34 +291,34 @@
 [data-theme="dark"] {
   color-scheme: dark;
   --ground: #121615;
-  --paper: #1A1E1D;
+  --paper: #1a1e1d;
   --paper-2: #222826;
-  --surface: #1A1E1D;
-  --line: #2E3432;
+  --surface: #1a1e1d;
+  --line: #2e3432;
 
-  --ink: #F5F8F6;
-  --ink-2: #C9D2CD;
-  --ink-3: #8F9992;
-  --field: #F5F8F6;
+  --ink: #f5f8f6;
+  --ink-2: #c9d2cd;
+  --ink-3: #8f9992;
+  --field: #f5f8f6;
 
-  --income: #4ADE80;
-  --danger: #FF6B6B;
-  --brand: #087F5B;
-  --brand-ink: #FFFFFF;
+  --income: #4ade80;
+  --danger: #ff6b6b;
+  --brand: #087f5b;
+  --brand-ink: #ffffff;
 
-  --accent-lime: #B8F34A;
-  --accent-lime-ink: #3F4A0B;
-  --coral: #FF6B7D;
-  --coral-ink: #FFFFFF;
+  --accent-lime: #b8f34a;
+  --accent-lime-ink: #3f4a0b;
+  --coral: #ff6b7d;
+  --coral-ink: #ffffff;
 
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #ffffff;
   --secondary: var(--paper-2);
   --secondary-foreground: var(--ink);
   --muted: var(--paper-2);
   --muted-foreground: var(--ink-3);
   --accent: var(--accent-lime);
   --accent-foreground: var(--accent-lime-ink);
-  --destructive-foreground: #FFFFFF;
+  --destructive-foreground: #ffffff;
 }
 
 .alpha-display {
@@ -329,7 +329,9 @@
 }
 
 .alpha-press {
-  transition: transform 90ms ease, box-shadow 90ms ease;
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease;
 }
 .alpha-press:active {
   transform: translate(3px, 3px);
@@ -481,7 +483,8 @@ select:focus-visible {
 }
 
 .give-ledger {
-  background-image: linear-gradient(
+  background-image:
+    linear-gradient(
       to right,
       color-mix(in srgb, var(--ink) 5%, transparent) 1px,
       transparent 1px
@@ -555,7 +558,7 @@ select:focus-visible {
   box-shadow: 4px 4px 0 var(--ink);
 }
 .btn-primary:hover {
-  background: #066B48;
+  background: #066b48;
   box-shadow: 4px 4px 0 var(--ink);
 }
 .btn-primary:active {
@@ -571,7 +574,7 @@ select:focus-visible {
   box-shadow: 4px 4px 0 var(--ink);
 }
 .btn-accent:hover {
-  background: #A7E33E;
+  background: #a7e33e;
   box-shadow: 4px 4px 0 var(--ink);
 }
 .btn-accent:active {
@@ -587,7 +590,7 @@ select:focus-visible {
   box-shadow: 4px 4px 0 var(--ink);
 }
 .btn-coral:hover {
-  background: #FF4E60;
+  background: #ff4e60;
   box-shadow: 4px 4px 0 var(--ink);
 }
 .btn-coral:active {
@@ -662,7 +665,9 @@ select:focus-visible {
   padding: 0.6875rem 0.9375rem;
   font-size: max(16px, 0.95rem);
   line-height: 1.5;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 .neo-input:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--ink) 45%, transparent);
@@ -679,7 +684,9 @@ select:focus-visible {
   border-radius: var(--radius-2xl);
   background: var(--card);
   box-shadow: 3px 3px 0 var(--ink);
-  transition: transform 0.15s ease, box-shadow 0.15s ease,
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
     border-color 0.15s ease;
 }
 .bento-card:hover {

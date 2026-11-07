@@ -236,89 +236,104 @@ export type ChurchProfile = typeof churchProfiles.$inferSelect;
 export type InsertChurchProfile = typeof churchProfiles.$inferInsert;
 
 // ─── Members ──────────────────────────────────────────────────────────────────
-export const members = pgTable("members", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull(),
-  name: varchar("name", { length: 180 }).notNull(),
-  phone: varchar("phone", { length: 30 }),
-  email: varchar("email", { length: 320 }),
-  status: memberStatusEnum("status").default("active").notNull(),
-  /** Standing offering-envelope number issued to this member. */
-  envelopeNo: varchar("envelopeNo", { length: 30 }),
-  avatarUrl: varchar("avatarUrl", { length: 500 }),
-  notes: text("notes"),
-  /** LINE userId linked to this member (for slip auto-matching) */
-  lineUserId: varchar("lineUserId", { length: 64 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-}, t => [
-    index("members_church_idx").on(t.churchId),
-  ]);
+export const members = pgTable(
+  "members",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    name: varchar("name", { length: 180 }).notNull(),
+    phone: varchar("phone", { length: 30 }),
+    email: varchar("email", { length: 320 }),
+    status: memberStatusEnum("status").default("active").notNull(),
+    /** Standing offering-envelope number issued to this member. */
+    envelopeNo: varchar("envelopeNo", { length: 30 }),
+    avatarUrl: varchar("avatarUrl", { length: 500 }),
+    notes: text("notes"),
+    /** LINE userId linked to this member (for slip auto-matching) */
+    lineUserId: varchar("lineUserId", { length: 64 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  t => [index("members_church_idx").on(t.churchId)]
+);
 
 export type Member = typeof members.$inferSelect;
 export type InsertMember = typeof members.$inferInsert;
 
 // ─── Ministries (teams and service departments) ──────────────────────────────
-export const ministries = pgTable("ministries", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull(),
-  name: varchar("name", { length: 180 }).notNull(),
-  description: text("description"),
-  /**
-   * Free text rather than a reference to members: a ministry leader is not
-   * always on the member roll, and the roster is optional in this app. Swap
-   * for a members FK if leaders must become registered members.
-   */
-  leaderName: varchar("leaderName", { length: 180 }),
-  /** Human-readable meeting time, e.g. "ทุกวันอาทิตย์ 09:00". */
-  meetingSchedule: varchar("meetingSchedule", { length: 180 }),
-  status: ministryStatusEnum("status").default("active").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-}, t => [
-    index("ministries_church_idx").on(t.churchId),
-  ]);
+export const ministries = pgTable(
+  "ministries",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    name: varchar("name", { length: 180 }).notNull(),
+    description: text("description"),
+    /**
+     * Free text rather than a reference to members: a ministry leader is not
+     * always on the member roll, and the roster is optional in this app. Swap
+     * for a members FK if leaders must become registered members.
+     */
+    leaderName: varchar("leaderName", { length: 180 }),
+    /** Human-readable meeting time, e.g. "ทุกวันอาทิตย์ 09:00". */
+    meetingSchedule: varchar("meetingSchedule", { length: 180 }),
+    status: ministryStatusEnum("status").default("active").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  t => [index("ministries_church_idx").on(t.churchId)]
+);
 
 export type Ministry = typeof ministries.$inferSelect;
 export type InsertMinistry = typeof ministries.$inferInsert;
 
 // ─── Persistent Notifications ────────────────────────────────────────────────
-export const notifications = pgTable("notifications", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull(),
-  userId: integer("userId").notNull(),
-  type: varchar("type", { length: 40 }).notNull(),
-  title: varchar("title", { length: 180 }).notNull(),
-  description: text("description"),
-  link: varchar("link", { length: 500 }),
-  readAt: timestamp("readAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-}, t => [
-    index("notifications_user_idx").on(t.churchId, t.userId, t.createdAt),
-  ]);
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    userId: integer("userId").notNull(),
+    type: varchar("type", { length: 40 }).notNull(),
+    title: varchar("title", { length: 180 }).notNull(),
+    description: text("description"),
+    link: varchar("link", { length: 500 }),
+    readAt: timestamp("readAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  t => [index("notifications_user_idx").on(t.churchId, t.userId, t.createdAt)]
+);
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
 
 // ─── Audit Log ────────────────────────────────────────────────────────────────
-export const auditLogs = pgTable("audit_logs", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull(),
-  userId: integer("userId").notNull(),
-  action: varchar("action", { length: 40 }).notNull(),
-  entity: varchar("entity", { length: 80 }).notNull(),
-  entityId: integer("entityId"),
-  metadata: jsonb("metadata"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-}, t => [
-    index("audit_logs_entity_idx").on(t.churchId, t.entity, t.entityId, t.createdAt),
-  ]);
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    userId: integer("userId").notNull(),
+    action: varchar("action", { length: 40 }).notNull(),
+    entity: varchar("entity", { length: 80 }).notNull(),
+    entityId: integer("entityId"),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  t => [
+    index("audit_logs_entity_idx").on(
+      t.churchId,
+      t.entity,
+      t.entityId,
+      t.createdAt
+    ),
+  ]
+);
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
@@ -351,40 +366,44 @@ export type InsertFinanceAccount = typeof financeAccounts.$inferInsert;
 // ─── Offerings / Donations ────────────────────────────────────────────────────
 
 /** Individual offering / donation records. Donor name is optional for privacy. */
-export const offerings = pgTable("offerings", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull(),
-  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
-  category: offeringCategoryEnum("category").default("general").notNull(),
-  fundId: integer("fundId"),
-  /** Visible only to TREASURER and SUPER_ADMIN */
-  donorName: varchar("donorName", { length: 120 }),
-  donorMemberId: integer("donorMemberId"),
-  /** Set when the row was posted from a weekly counting session. */
-  sessionId: integer("sessionId"),
-  receiptDate: timestamp("receiptDate").defaultNow().notNull(),
-  method: offeringMethodEnum("method").default("cash").notNull(),
-  /** Bank transfer reference or cheque number */
-  reference: varchar("reference", { length: 120 }),
-  notes: text("notes"),
-  status: offeringStatusEnum("status").default("active").notNull(),
-  voidedAt: timestamp("voidedAt"),
-  recordedBy: integer("recordedBy").notNull(),
-  /** users.id of the person who sent the giving from the app, when known. */
-  submittedByUserId: integer("submittedByUserId"),
-  /** Their LINE name when they sent it. */
-  submittedByName: varchar("submittedByName", { length: 180 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-}, t => [
+export const offerings = pgTable(
+  "offerings",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+    category: offeringCategoryEnum("category").default("general").notNull(),
+    fundId: integer("fundId"),
+    /** Visible only to TREASURER and SUPER_ADMIN */
+    donorName: varchar("donorName", { length: 120 }),
+    donorMemberId: integer("donorMemberId"),
+    /** Set when the row was posted from a weekly counting session. */
+    sessionId: integer("sessionId"),
+    receiptDate: timestamp("receiptDate").defaultNow().notNull(),
+    method: offeringMethodEnum("method").default("cash").notNull(),
+    /** Bank transfer reference or cheque number */
+    reference: varchar("reference", { length: 120 }),
+    notes: text("notes"),
+    status: offeringStatusEnum("status").default("active").notNull(),
+    voidedAt: timestamp("voidedAt"),
+    recordedBy: integer("recordedBy").notNull(),
+    /** users.id of the person who sent the giving from the app, when known. */
+    submittedByUserId: integer("submittedByUserId"),
+    /** Their LINE name when they sent it. */
+    submittedByName: varchar("submittedByName", { length: 180 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  t => [
     /** Financial integrity backstop: one active offering per bank reference. */
     uniqueIndex("offerings_ref_active_uniq")
       .on(t.churchId, t.reference)
       .where(sql`"reference" IS NOT NULL AND "status" = 'active'`),
-  ]);
+  ]
+);
 
 export type Offering = typeof offerings.$inferSelect;
 export type InsertOffering = typeof offerings.$inferInsert;
@@ -652,38 +671,42 @@ export const sessionDeductions = pgTable("session_deductions", {
 });
 
 /** Money arriving in or leaving for the bank account, matched to the passbook. */
-export const bankRecords = pgTable("bank_records", {
-  id: serial("id").primaryKey(),
-  sessionId: integer("sessionId").notNull(),
-  churchId: varchar("churchId", { length: 64 })
-    .notNull()
-    .default("demo-church"),
-  type: bankRecordTypeEnum("type").notNull(),
-  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
-  /** Who sent the transfer; null for a cash deposit made by the treasurer. */
-  transferredBy: integer("transferredBy"),
-  transferredByName: varchar("transferredByName", { length: 180 }),
-  bankRef: varchar("bankRef", { length: 120 }),
-  occurredAt: timestamp("occurredAt").defaultNow().notNull(),
-  /** Passbook reconciliation. */
-  passbookMatched: boolean("passbookMatched").default(false).notNull(),
-  passbookDate: timestamp("passbookDate"),
-  matchedBy: integer("matchedBy"),
-  recordedBy: integer("recordedBy").notNull(),
-  notes: text("notes"),
-  /** The withdrawal request that produced this record; null for a hand-entered record. */
-  withdrawalRequestId: integer("withdrawalRequestId"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-}, t => [
+export const bankRecords = pgTable(
+  "bank_records",
+  {
+    id: serial("id").primaryKey(),
+    sessionId: integer("sessionId").notNull(),
+    churchId: varchar("churchId", { length: 64 })
+      .notNull()
+      .default("demo-church"),
+    type: bankRecordTypeEnum("type").notNull(),
+    amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+    /** Who sent the transfer; null for a cash deposit made by the treasurer. */
+    transferredBy: integer("transferredBy"),
+    transferredByName: varchar("transferredByName", { length: 180 }),
+    bankRef: varchar("bankRef", { length: 120 }),
+    occurredAt: timestamp("occurredAt").defaultNow().notNull(),
+    /** Passbook reconciliation. */
+    passbookMatched: boolean("passbookMatched").default(false).notNull(),
+    passbookDate: timestamp("passbookDate"),
+    matchedBy: integer("matchedBy"),
+    recordedBy: integer("recordedBy").notNull(),
+    notes: text("notes"),
+    /** The withdrawal request that produced this record; null for a hand-entered record. */
+    withdrawalRequestId: integer("withdrawalRequestId"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  t => [
     /** A withdrawal request lands in the counting round exactly once. */
     uniqueIndex("bank_records_withdrawal_uniq")
       .on(t.withdrawalRequestId)
       .where(sql`"withdrawalRequestId" IS NOT NULL`),
-  ]);
+  ]
+);
 
 /**
  * Evidence for the session. Files live in the church's Google Drive; only the
@@ -731,40 +754,48 @@ export type InsertSessionDocument = typeof sessionDocuments.$inferInsert;
  * People named on the church's bank account. A withdrawal request is approved
  * only when the required signer approves and the approvals total at least two.
  */
-export const bankSigners = pgTable("bank_signers", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull(),
-  userId: integer("userId").notNull(),
-  /** "ต้องลงนามทุกครั้ง" — at most one signer per church carries this flag. */
-  isRequired: boolean("isRequired").default(false).notNull(),
-  addedBy: integer("addedBy"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-}, t => [
+export const bankSigners = pgTable(
+  "bank_signers",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    userId: integer("userId").notNull(),
+    /** "ต้องลงนามทุกครั้ง" — at most one signer per church carries this flag. */
+    isRequired: boolean("isRequired").default(false).notNull(),
+    addedBy: integer("addedBy"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  t => [
     uniqueIndex("bank_signers_user_uniq").on(t.churchId, t.userId),
     /** At most one signer who must sign every time, per church. */
     uniqueIndex("bank_signers_required_uniq")
       .on(t.churchId)
       .where(sql`"isRequired" = true`),
-  ]);
+  ]
+);
 
 export type BankSigner = typeof bankSigners.$inferSelect;
 export type InsertBankSigner = typeof bankSigners.$inferInsert;
 
 /** One row per signer per withdrawal request — every signature is evidence. */
-export const withdrawalApprovals = pgTable("withdrawal_approvals", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull(),
-  requestId: integer("requestId").notNull(),
-  userId: integer("userId").notNull(),
-  decision: varchar("decision", { length: 10 }).notNull(),
-  note: text("note"),
-  /** Captured at signing time so later signer-list changes cannot alter the outcome. */
-  wasRequiredSigner: boolean("wasRequiredSigner").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-}, t => [
+export const withdrawalApprovals = pgTable(
+  "withdrawal_approvals",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    requestId: integer("requestId").notNull(),
+    userId: integer("userId").notNull(),
+    decision: varchar("decision", { length: 10 }).notNull(),
+    note: text("note"),
+    /** Captured at signing time so later signer-list changes cannot alter the outcome. */
+    wasRequiredSigner: boolean("wasRequiredSigner").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  t => [
     /** One signature row per signer per request. */
     uniqueIndex("withdrawal_approvals_signer_uniq").on(t.requestId, t.userId),
-  ]);
+  ]
+);
 
 export type WithdrawalApproval = typeof withdrawalApprovals.$inferSelect;
 export type InsertWithdrawalApproval = typeof withdrawalApprovals.$inferInsert;
@@ -778,116 +809,134 @@ export type InsertWithdrawalApproval = typeof withdrawalApprovals.$inferInsert;
  *
  * Financial source of truth: `offerings` — this table is evidence/audit trail only.
  */
-export const lineSlips = pgTable("line_slips", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull().default("demo-church"),
+export const lineSlips = pgTable(
+  "line_slips",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 })
+      .notNull()
+      .default("demo-church"),
 
-  // ─── LINE sender info ───
-  /** LINE user ID of the sender */
-  lineUserId: varchar("lineUserId", { length: 64 }).notNull(),
-  /** LINE display name at time of send */
-  lineDisplayName: varchar("lineDisplayName", { length: 120 }),
-  /**
-   * LINE event ID for idempotency.
-   * Unique constraint: (churchId, lineEventId) — prevents duplicate processing
-   * when LINE re-delivers the same event.
-   */
-  lineEventId: varchar("lineEventId", { length: 64 }).notNull(),
+    // ─── LINE sender info ───
+    /** LINE user ID of the sender */
+    lineUserId: varchar("lineUserId", { length: 64 }).notNull(),
+    /** LINE display name at time of send */
+    lineDisplayName: varchar("lineDisplayName", { length: 120 }),
+    /**
+     * LINE event ID for idempotency.
+     * Unique constraint: (churchId, lineEventId) — prevents duplicate processing
+     * when LINE re-delivers the same event.
+     */
+    lineEventId: varchar("lineEventId", { length: 64 }).notNull(),
 
-  // ─── Stored image (private bucket — no public URL stored) ───
-  /** Supabase Storage key in the private 'slips' bucket */
-  slipImageKey: varchar("slipImageKey", { length: 500 }).notNull(),
-  /** SHA-256 hex of the raw image bytes — Level 2 duplicate detection */
-  slipHash: varchar("slipHash", { length: 64 }).notNull(),
+    // ─── Stored image (private bucket — no public URL stored) ───
+    /** Supabase Storage key in the private 'slips' bucket */
+    slipImageKey: varchar("slipImageKey", { length: 500 }).notNull(),
+    /** SHA-256 hex of the raw image bytes — Level 2 duplicate detection */
+    slipHash: varchar("slipHash", { length: 64 }).notNull(),
 
-  // ─── Status (see state machine in implementation_plan.md) ───
-  status: lineSlipStatusEnum("status").default("pending").notNull(),
+    // ─── Status (see state machine in implementation_plan.md) ───
+    status: lineSlipStatusEnum("status").default("pending").notNull(),
 
-  // ─── Worker / retry tracking ───
-  processingAttempts: integer("processingAttempts").default(0).notNull(),
-  lastErrorMessage: text("lastErrorMessage"),
+    // ─── Worker / retry tracking ───
+    processingAttempts: integer("processingAttempts").default(0).notNull(),
+    lastErrorMessage: text("lastErrorMessage"),
 
-  // ─── AI extraction results (set by worker after OCR) ───
-  aiRawText: text("aiRawText"),
-  /** Full structured JSON blob returned by AI */
-  aiData: jsonb("aiData"),
-  /** Extracted transfer amount in THB */
-  extractedAmount: decimal("extractedAmount", { precision: 15, scale: 2 }),
-  /** AI confidence 0.0–1.0 for the amount field */
-  extractedAmountConfidence: decimal("extractedAmountConfidence", { precision: 4, scale: 3 }),
-  /** Extracted transfer date/time */
-  extractedDate: timestamp("extractedDate"),
-  /** AI confidence 0.0–1.0 for the date field */
-  extractedDateConfidence: decimal("extractedDateConfidence", { precision: 4, scale: 3 }),
-  /** Bank transaction reference / transaction ID */
-  extractedRef: varchar("extractedRef", { length: 120 }),
-  /** AI confidence 0.0–1.0 for the reference field */
-  extractedRefConfidence: decimal("extractedRefConfidence", { precision: 4, scale: 3 }),
-  /** Sender name as printed on the slip */
-  extractedSenderName: varchar("extractedSenderName", { length: 180 }),
-  /** AI confidence 0.0–1.0 for the sender name field */
-  extractedSenderConfidence: decimal("extractedSenderConfidence", { precision: 4, scale: 3 }),
-  /** Source bank name (e.g. "SCB", "กสิกรไทย") */
-  extractedBank: varchar("extractedBank", { length: 80 }),
+    // ─── AI extraction results (set by worker after OCR) ───
+    aiRawText: text("aiRawText"),
+    /** Full structured JSON blob returned by AI */
+    aiData: jsonb("aiData"),
+    /** Extracted transfer amount in THB */
+    extractedAmount: decimal("extractedAmount", { precision: 15, scale: 2 }),
+    /** AI confidence 0.0–1.0 for the amount field */
+    extractedAmountConfidence: decimal("extractedAmountConfidence", {
+      precision: 4,
+      scale: 3,
+    }),
+    /** Extracted transfer date/time */
+    extractedDate: timestamp("extractedDate"),
+    /** AI confidence 0.0–1.0 for the date field */
+    extractedDateConfidence: decimal("extractedDateConfidence", {
+      precision: 4,
+      scale: 3,
+    }),
+    /** Bank transaction reference / transaction ID */
+    extractedRef: varchar("extractedRef", { length: 120 }),
+    /** AI confidence 0.0–1.0 for the reference field */
+    extractedRefConfidence: decimal("extractedRefConfidence", {
+      precision: 4,
+      scale: 3,
+    }),
+    /** Sender name as printed on the slip */
+    extractedSenderName: varchar("extractedSenderName", { length: 180 }),
+    /** AI confidence 0.0–1.0 for the sender name field */
+    extractedSenderConfidence: decimal("extractedSenderConfidence", {
+      precision: 4,
+      scale: 3,
+    }),
+    /** Source bank name (e.g. "SCB", "กสิกรไทย") */
+    extractedBank: varchar("extractedBank", { length: 80 }),
 
-  // ─── Duplicate detection ───
-  /** If a duplicate is found, reference the existing slip or offering */
-  duplicateOfSlipId: integer("duplicateOfSlipId"),
-  duplicateOfOfferingId: integer("duplicateOfOfferingId"),
+    // ─── Duplicate detection ───
+    /** If a duplicate is found, reference the existing slip or offering */
+    duplicateOfSlipId: integer("duplicateOfSlipId"),
+    duplicateOfOfferingId: integer("duplicateOfOfferingId"),
 
-  // ─── Member matching ───
-  matchedMemberId: integer("matchedMemberId"),
-  matchedMemberName: varchar("matchedMemberName", { length: 180 }),
-  /** 0.0–1.0 confidence score from memberMatcher */
-  matchedConfidence: decimal("matchedConfidence", { precision: 4, scale: 3 }),
-  /** How the match was determined */
-  matchMethod: varchar("matchMethod", { length: 30 }),
+    // ─── Member matching ───
+    matchedMemberId: integer("matchedMemberId"),
+    matchedMemberName: varchar("matchedMemberName", { length: 180 }),
+    /** 0.0–1.0 confidence score from memberMatcher */
+    matchedConfidence: decimal("matchedConfidence", { precision: 4, scale: 3 }),
+    /** How the match was determined */
+    matchMethod: varchar("matchMethod", { length: 30 }),
 
-  // ─── Donor declaration (set when a person submits a slip from the app) ───
-  // What the donor said they gave. Staff still confirm the real values in
-  // review; nothing here credits a fund.
-  declaredAmount: decimal("declaredAmount", { precision: 15, scale: 2 }),
-  declaredCategory: offeringCategoryEnum("declaredCategory"),
-  declaredFundId: integer("declaredFundId"),
-  /**
-   * When one transfer pays for several categories: `[{category, amount}]`.
-   * Null for a single category. `declaredAmount` is then the total.
-   */
-  declaredItems: jsonb("declaredItems").$type<
-    Array<{ category: string; amount: number }>
-  >(),
-  /** The date the donor says the transfer was made (entries without a slip). */
-  declaredDate: timestamp("declaredDate"),
-  /** "slip": an image was attached. "no_slip": the donor sent the details only. */
-  source: varchar("source", { length: 16 }).default("slip").notNull(),
+    // ─── Donor declaration (set when a person submits a slip from the app) ───
+    // What the donor said they gave. Staff still confirm the real values in
+    // review; nothing here credits a fund.
+    declaredAmount: decimal("declaredAmount", { precision: 15, scale: 2 }),
+    declaredCategory: offeringCategoryEnum("declaredCategory"),
+    declaredFundId: integer("declaredFundId"),
+    /**
+     * When one transfer pays for several categories: `[{category, amount}]`.
+     * Null for a single category. `declaredAmount` is then the total.
+     */
+    declaredItems:
+      jsonb("declaredItems").$type<
+        Array<{ category: string; amount: number }>
+      >(),
+    /** The date the donor says the transfer was made (entries without a slip). */
+    declaredDate: timestamp("declaredDate"),
+    /** "slip": an image was attached. "no_slip": the donor sent the details only. */
+    source: varchar("source", { length: 16 }).default("slip").notNull(),
 
-  // ─── Who sent it, kept apart from the name that goes in the books ───
-  /** users.id of the signed-in person who sent it from the app. */
-  submittedByUserId: integer("submittedByUserId"),
-  /** The sender's LINE name when it was sent. Never overwritten. */
-  submittedByName: varchar("submittedByName", { length: 180 }),
-  /** The name the donor typed in the form. */
-  typedDonorName: varchar("typedDonorName", { length: 180 }),
+    // ─── Who sent it, kept apart from the name that goes in the books ───
+    /** users.id of the signed-in person who sent it from the app. */
+    submittedByUserId: integer("submittedByUserId"),
+    /** The sender's LINE name when it was sent. Never overwritten. */
+    submittedByName: varchar("submittedByName", { length: 180 }),
+    /** The name the donor typed in the form. */
+    typedDonorName: varchar("typedDonorName", { length: 180 }),
 
-  // ─── Staff decisions (set during review) ───
-  /** Fund to credit — must be a valid finance_accounts.id */
-  fundId: integer("fundId"),
-  /** Amount confirmed by staff (may differ from extractedAmount) */
-  approvedAmount: decimal("approvedAmount", { precision: 15, scale: 2 }),
-  reviewedBy: integer("reviewedBy"),
-  reviewedAt: timestamp("reviewedAt"),
-  reviewNote: text("reviewNote"),
+    // ─── Staff decisions (set during review) ───
+    /** Fund to credit — must be a valid finance_accounts.id */
+    fundId: integer("fundId"),
+    /** Amount confirmed by staff (may differ from extractedAmount) */
+    approvedAmount: decimal("approvedAmount", { precision: 15, scale: 2 }),
+    reviewedBy: integer("reviewedBy"),
+    reviewedAt: timestamp("reviewedAt"),
+    reviewNote: text("reviewNote"),
 
-  // ─── Result ───
-  /** Set when status = 'approved'; FK to the offerings row created */
-  approvedOfferingId: integer("approvedOfferingId"),
+    // ─── Result ───
+    /** Set when status = 'approved'; FK to the offerings row created */
+    approvedOfferingId: integer("approvedOfferingId"),
 
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-}, t => [
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  t => [
     /** Idempotency: one LINE event creates one slip. */
     uniqueIndex("line_slips_event_uniq").on(t.churchId, t.lineEventId),
     /** Duplicate detection level 2: same image hash. */
@@ -900,7 +949,8 @@ export const lineSlips = pgTable("line_slips", {
       ),
     /** Status dashboard: slips per church by status and age. */
     index("line_slips_status_idx").on(t.churchId, t.status, t.createdAt),
-  ]);
+  ]
+);
 
 export type LineSlip = typeof lineSlips.$inferSelect;
 export type InsertLineSlip = typeof lineSlips.$inferInsert;
@@ -910,24 +960,30 @@ export type InsertLineSlip = typeof lineSlips.$inferInsert;
  * The Vercel Cron worker polls this table and processes queued jobs.
  * This decouples the webhook (must return < 5s) from the OCR work.
  */
-export const lineProcessingJobs = pgTable("line_processing_jobs", {
-  id: serial("id").primaryKey(),
-  slipId: integer("slipId").notNull(),
-  churchId: varchar("churchId", { length: 64 }).notNull().default("demo-church"),
-  /** queued → processing → done | failed */
-  status: varchar("status", { length: 20 }).default("queued").notNull(),
-  attempts: integer("attempts").default(0).notNull(),
-  lastAttemptAt: timestamp("lastAttemptAt"),
-  errorMessage: text("errorMessage"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-}, t => [
+export const lineProcessingJobs = pgTable(
+  "line_processing_jobs",
+  {
+    id: serial("id").primaryKey(),
+    slipId: integer("slipId").notNull(),
+    churchId: varchar("churchId", { length: 64 })
+      .notNull()
+      .default("demo-church"),
+    /** queued → processing → done | failed */
+    status: varchar("status", { length: 20 }).default("queued").notNull(),
+    attempts: integer("attempts").default(0).notNull(),
+    lastAttemptAt: timestamp("lastAttemptAt"),
+    errorMessage: text("errorMessage"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  t => [
     /** Worker polling: queued jobs by age. */
     index("line_jobs_status_idx").on(t.status, t.createdAt),
-  ]);
+  ]
+);
 
 export type LineProcessingJob = typeof lineProcessingJobs.$inferSelect;
 export type InsertLineProcessingJob = typeof lineProcessingJobs.$inferInsert;

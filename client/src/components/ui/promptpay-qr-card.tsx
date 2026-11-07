@@ -38,9 +38,7 @@ export function PromptPayQrCard({
       className="bento-card-static p-5 space-y-3 text-center"
     >
       <span className="eyebrow">PROMPTPAY QR</span>
-      <h3 className="display text-base text-ink pt-1">
-        สแกนจ่ายด้วยแอปธนาคาร
-      </h3>
+      <h3 className="display text-base text-ink pt-1">สแกนจ่ายด้วยแอปธนาคาร</h3>
       <p className="text-xs text-ink-2">
         ยอด{" "}
         <span className="font-extrabold text-brand tabular-nums">

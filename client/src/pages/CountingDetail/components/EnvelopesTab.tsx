@@ -59,6 +59,31 @@ export function EnvelopesTab({
   const [amount, setAmount] = useState("");
   const amountRef = useRef<HTMLInputElement>(null);
 
+  const handleEnvelopeNoChange = (value: string) => {
+    setEnvelopeNo(value);
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed || isAnonymous) return;
+    const matched = members.find(
+      m => (m.envelopeNo ?? "").trim().toLowerCase() === trimmed
+    );
+    if (matched) {
+      setMemberId(String(matched.id));
+      setDonorName(matched.name);
+    }
+  };
+
+  const handleMemberChange = (value: string) => {
+    setMemberId(value);
+    if (!value) return;
+    const matched = members.find(m => String(m.id) === value);
+    if (matched) {
+      if (matched.envelopeNo) {
+        setEnvelopeNo(matched.envelopeNo);
+      }
+      setDonorName(matched.name);
+    }
+  };
+
   const submitEnvelope = (event: React.FormEvent) => {
     event.preventDefault();
     const value = Number(amount);
@@ -128,8 +153,8 @@ export function EnvelopesTab({
               เลขซอง
               <input
                 value={envelopeNo}
-                onChange={e => setEnvelopeNo(e.target.value)}
-                placeholder="เช่น 012 (เว้นว่างได้)"
+                onChange={e => handleEnvelopeNoChange(e.target.value)}
+                placeholder="เช่น 012 (พิมพ์เพื่อจับคู่สมาชิก)"
                 className="neo-input mt-1 font-normal"
               />
             </label>
@@ -137,7 +162,7 @@ export function EnvelopesTab({
               สมาชิก
               <NativeSelect
                 value={memberId}
-                onChange={e => setMemberId(e.target.value)}
+                onChange={e => handleMemberChange(e.target.value)}
                 disabled={isAnonymous}
                 className="mt-1"
               >
@@ -306,7 +331,7 @@ export function EnvelopesTab({
                         aria-label="ลบซองนี้"
                         onClick={() => void handleRemoveEnvelope(envelope)}
                         disabled={removeEnvelope.isPending}
-                        className="flex size-10 items-center justify-center rounded-xl border border-[var(--ink)] bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

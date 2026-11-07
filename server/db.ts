@@ -6,6 +6,7 @@ import {
   desc,
   eq,
   gte,
+  ilike,
   inArray,
   isNotNull,
   isNull,
@@ -67,7 +68,17 @@ import {
   withdrawalApprovals,
   withdrawalRequests,
 } from "../drizzle/schema";
-import type { OfferingCategory } from "@shared/categories";
+import {
+  bangkokCalendarMonth,
+  bangkokDateString,
+  bangkokMonthStart,
+} from "@shared/bangkokDate";
+import { assertCsvWithinLimit } from "./csvLimit";
+import {
+  type OfferingCategory,
+  offeringCategoryLabel,
+  expenseCategoryLabel,
+} from "@shared/categories";
 import type { CountingStatus } from "@shared/counting";
 import { reconcile } from "@shared/counting";
 import { resolveLedgerName } from "@shared/ledgerName";
@@ -452,30 +463,17 @@ export type FinancialSummary = {
 };
 
 export async function getFinancialSummary(
-  churchId = DEFAULT_CHURCH_ID
+  churchId = DEFAULT_CHURCH_ID,
+  now: Date = new Date()
 ): Promise<FinancialSummary | null> {
   const db = await getDb();
   if (!db) return null;
 
-  const now = new Date();
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const thisMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0,
-    23,
-    59,
-    59
-  );
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const prevMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    0,
-    23,
-    59,
-    59
-  );
+  // Thai calendar months (Asia/Bangkok), half-open [start, next start).
+  const { year, month } = bangkokCalendarMonth(now);
+  const prevMonthStart = bangkokMonthStart(year, month - 1);
+  const thisMonthStart = bangkokMonthStart(year, month);
+  const nextMonthStart = bangkokMonthStart(year, month + 1);
 
   try {
     const [accounts, thisOfferings, prevOfferings, thisExpenses, prevExpenses] =
@@ -496,7 +494,8 @@ export async function getFinancialSummary(
             and(
               eq(offerings.churchId, churchId),
               ne(offerings.status, "voided"),
-              between(offerings.receiptDate, thisMonthStart, thisMonthEnd)
+              gte(offerings.receiptDate, thisMonthStart),
+              lt(offerings.receiptDate, nextMonthStart)
             )
           ),
         db
@@ -506,7 +505,8 @@ export async function getFinancialSummary(
             and(
               eq(offerings.churchId, churchId),
               ne(offerings.status, "voided"),
-              between(offerings.receiptDate, prevMonthStart, prevMonthEnd)
+              gte(offerings.receiptDate, prevMonthStart),
+              lt(offerings.receiptDate, thisMonthStart)
             )
           ),
         db
@@ -516,7 +516,8 @@ export async function getFinancialSummary(
             and(
               eq(expenses.churchId, churchId),
               ne(expenses.status, "voided"),
-              between(expenses.expenseDate, thisMonthStart, thisMonthEnd)
+              gte(expenses.expenseDate, thisMonthStart),
+              lt(expenses.expenseDate, nextMonthStart)
             )
           ),
         db
@@ -526,7 +527,8 @@ export async function getFinancialSummary(
             and(
               eq(expenses.churchId, churchId),
               ne(expenses.status, "voided"),
-              between(expenses.expenseDate, prevMonthStart, prevMonthEnd)
+              gte(expenses.expenseDate, prevMonthStart),
+              lt(expenses.expenseDate, thisMonthStart)
             )
           ),
       ]);
@@ -570,13 +572,13 @@ export type MonthlyStats = Array<{
 
 export async function getMonthlyStats(
   churchId = DEFAULT_CHURCH_ID,
-  months = 6
+  months = 6,
+  now: Date = new Date()
 ): Promise<MonthlyStats> {
   const db = await getDb();
   if (!db) return [];
 
   const result: MonthlyStats = [];
-  const now = new Date();
   const thaiMonths = [
     "ม.ค.",
     "ก.พ.",
@@ -592,10 +594,12 @@ export async function getMonthlyStats(
     "ธ.ค.",
   ];
 
+  const { year, month } = bangkokCalendarMonth(now);
   for (let i = months - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const start = new Date(d.getFullYear(), d.getMonth(), 1);
-    const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
+    // Thai calendar month, half-open [start, end).
+    const start = bangkokMonthStart(year, month - i);
+    const end = bangkokMonthStart(year, month - i + 1);
+    const monthIndex = new Date(Date.UTC(year, month - i - 1, 1)).getUTCMonth();
 
     const [inc, exp] = await Promise.all([
       db
@@ -605,7 +609,8 @@ export async function getMonthlyStats(
           and(
             eq(offerings.churchId, churchId),
             ne(offerings.status, "voided"),
-            between(offerings.receiptDate, start, end)
+            gte(offerings.receiptDate, start),
+            lt(offerings.receiptDate, end)
           )
         ),
       db
@@ -615,18 +620,36 @@ export async function getMonthlyStats(
           and(
             eq(expenses.churchId, churchId),
             ne(expenses.status, "voided"),
-            between(expenses.expenseDate, start, end)
+            gte(expenses.expenseDate, start),
+            lt(expenses.expenseDate, end)
           )
         ),
     ]);
 
     result.push({
-      month: thaiMonths[d.getMonth()],
+      month: thaiMonths[monthIndex],
       income: parseFloat((inc[0]?.total as unknown as string) ?? "0") || 0,
       expense: parseFloat((exp[0]?.total as unknown as string) ?? "0") || 0,
     });
   }
   return result;
+}
+
+// ─── CSV Sanitization Helper ──────────────────────────────────────────────────
+
+/**
+ * Escapes a value safely for CSV export:
+ * - Doubles internal double quotes
+ * - Quotes strings
+ * - Prefixes dangerous formula characters (=, +, -, @, \t, \r) with a single quote to prevent CSV formula injection
+ */
+export function sanitizeCsvCell(
+  value: string | number | null | undefined
+): string {
+  if (value == null) return '""';
+  const raw = String(value);
+  const safe = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+  return `"${safe.replace(/"/g, '""')}"`;
 }
 
 // ─── Offerings ────────────────────────────────────────────────────────────────
@@ -636,53 +659,267 @@ export type OfferingRow = {
   amount: number;
   category: string;
   donorName: string | null;
+  donorMemberId: number | null;
   receiptDate: Date;
   method: string;
+  reference: string | null;
   notes: string | null;
   fundId: number | null;
 };
 
-export async function listOfferings(
-  churchId = DEFAULT_CHURCH_ID,
-  opts: {
-    limit?: number;
-    showDonorNames?: boolean;
-    fromDate?: Date;
-    toDate?: Date;
-  } = {}
-): Promise<OfferingRow[]> {
-  const db = await getDb();
-  if (!db) return [];
-  const { limit = 50, showDonorNames = false, fromDate, toDate } = opts;
+export type OfferingFilterOpts = {
+  limit?: number;
+  showDonorNames?: boolean;
+  fromDate?: Date;
+  toDate?: Date;
+  fundId?: number;
+  category?: string;
+  donorMemberId?: number;
+  search?: string;
+  cursor?: { date: Date; id: number };
+};
 
-  const conditions = [
+export function buildOfferingConditions(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: OfferingFilterOpts = {}
+): SQL[] {
+  const conditions: SQL[] = [
     eq(offerings.churchId, churchId),
     ne(offerings.status, "voided"),
   ];
-  if (fromDate) conditions.push(gte(offerings.receiptDate, fromDate));
-  if (toDate) conditions.push(lte(offerings.receiptDate, toDate));
+  if (opts.fromDate) conditions.push(gte(offerings.receiptDate, opts.fromDate));
+  if (opts.toDate) conditions.push(lte(offerings.receiptDate, opts.toDate));
+  if (opts.fundId !== undefined)
+    conditions.push(eq(offerings.fundId, opts.fundId));
+  if (opts.category && opts.category !== "all") {
+    conditions.push(eq(offerings.category, opts.category as any));
+  }
+  if (opts.donorMemberId !== undefined) {
+    if (opts.showDonorNames) {
+      conditions.push(eq(offerings.donorMemberId, opts.donorMemberId));
+    } else {
+      conditions.push(sql`1=0`);
+    }
+  }
+  if (opts.search && opts.search.trim()) {
+    const pattern = `%${opts.search.trim()}%`;
+    const searchTerms: SQL[] = [
+      ilike(offerings.reference, pattern),
+      ilike(offerings.notes, pattern),
+    ];
+    if (opts.showDonorNames) {
+      searchTerms.push(ilike(offerings.donorName, pattern));
+    }
+    conditions.push(or(...searchTerms)!);
+  }
+  if (opts.cursor) {
+    conditions.push(
+      or(
+        lt(offerings.receiptDate, opts.cursor.date),
+        and(
+          eq(offerings.receiptDate, opts.cursor.date),
+          lt(offerings.id, opts.cursor.id)
+        )
+      )!
+    );
+  }
+  return conditions;
+}
+
+export async function getOfferingsSummary(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: OfferingFilterOpts = {}
+): Promise<{ totalAmount: number; totalCount: number }> {
+  const db = await getDb();
+  if (!db) return { totalAmount: 0, totalCount: 0 };
+
+  const { cursor: _ignoredCursor, ...filterWithoutCursor } = opts;
+  const conditions = buildOfferingConditions(churchId, filterWithoutCursor);
+
+  const [res] = await db
+    .select({
+      total: sum(offerings.amount),
+      count: count(offerings.id),
+    })
+    .from(offerings)
+    .where(and(...conditions));
+
+  const totalAmount =
+    Math.round(parseFloat((res?.total as string) ?? "0") * 100) / 100;
+  const totalCount = Number(res?.count ?? 0);
+  return { totalAmount, totalCount };
+}
+
+export async function listOfferingsPaged(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: OfferingFilterOpts = {}
+): Promise<{
+  items: OfferingRow[];
+  nextCursor: { date: Date; id: number } | null;
+  hasMore: boolean;
+}> {
+  const db = await getDb();
+  if (!db) return { items: [], nextCursor: null, hasMore: false };
+
+  const limit = Math.min(Math.max(opts.limit ?? 50, 1), 200);
+  const conditions = buildOfferingConditions(churchId, opts);
 
   const rows = await db
     .select()
     .from(offerings)
     .where(and(...conditions))
-    .orderBy(desc(offerings.receiptDate))
+    .orderBy(desc(offerings.receiptDate), desc(offerings.id))
+    .limit(limit + 1);
+
+  const hasMore = rows.length > limit;
+  const sliced = hasMore ? rows.slice(0, limit) : rows;
+
+  const items: OfferingRow[] = sliced.map(r => ({
+    id: r.id,
+    amount: parseFloat((r.amount as unknown as string) ?? "0"),
+    category: r.category,
+    donorName: opts.showDonorNames
+      ? r.donorName
+      : r.donorName
+        ? "ผู้ถวายนิรนาม"
+        : null,
+    donorMemberId: opts.showDonorNames ? (r.donorMemberId ?? null) : null,
+    receiptDate: r.receiptDate,
+    method: r.method,
+    reference: r.reference ?? null,
+    notes: r.notes,
+    fundId: r.fundId,
+  }));
+
+  const last = items[items.length - 1];
+  const nextCursor =
+    hasMore && last ? { date: last.receiptDate, id: last.id } : null;
+
+  return { items, nextCursor, hasMore };
+}
+
+export async function listOfferings(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: OfferingFilterOpts = {}
+): Promise<OfferingRow[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const limit = Math.min(Math.max(opts.limit ?? 50, 1), 1000);
+  const conditions = buildOfferingConditions(churchId, opts);
+
+  const rows = await db
+    .select()
+    .from(offerings)
+    .where(and(...conditions))
+    .orderBy(desc(offerings.receiptDate), desc(offerings.id))
     .limit(limit);
 
   return rows.map(r => ({
     id: r.id,
     amount: parseFloat((r.amount as unknown as string) ?? "0"),
     category: r.category,
-    donorName: showDonorNames
+    donorName: opts.showDonorNames
       ? r.donorName
       : r.donorName
         ? "ผู้ถวายนิรนาม"
         : null,
+    donorMemberId: opts.showDonorNames ? (r.donorMemberId ?? null) : null,
     receiptDate: r.receiptDate,
     method: r.method,
+    reference: r.reference ?? null,
     notes: r.notes,
     fundId: r.fundId,
   }));
+}
+
+/**
+ * Keyset-based batch retrieval for offerings.
+ * Fetches matching offerings in safe sequential chunks using (receiptDate, id) cursor
+ * to avoid memory exhaustion while guaranteeing 100% complete retrieval.
+ */
+export async function fetchAllOfferingsInBatches(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: OfferingFilterOpts = {},
+  batchSize = 1000,
+  fetchBatch: (
+    churchId: string,
+    opts: OfferingFilterOpts
+  ) => Promise<OfferingRow[]> = listOfferings
+): Promise<OfferingRow[]> {
+  const all: OfferingRow[] = [];
+  let cursor: { date: Date; id: number } | undefined = undefined;
+
+  while (true) {
+    const batch = await fetchBatch(churchId, {
+      ...opts,
+      limit: batchSize,
+      cursor,
+    });
+    if (batch.length === 0) break;
+    all.push(...batch);
+    if (batch.length < batchSize) break;
+    const last = batch[batch.length - 1];
+    cursor = { date: last.receiptDate, id: last.id };
+  }
+  return all;
+}
+
+export async function exportOfferingsCsvData(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: OfferingFilterOpts = {},
+  deps = {
+    fetchOfferings: fetchAllOfferingsInBatches,
+    fetchFunds: listFinanceAccounts,
+  }
+): Promise<{ csv: string; rowCount: number; totalAmount: number }> {
+  const header =
+    "ID,วันที่,ประเภทการถวาย,ผู้ถวาย,จำนวนเงิน,ช่องทาง,กองทุน,เลขอ้างอิง,หมายเหตุ";
+  const db = await getDb();
+  if (!db && deps.fetchOfferings === fetchAllOfferingsInBatches) {
+    return { csv: "\uFEFF" + header, rowCount: 0, totalAmount: 0 };
+  }
+
+  const { cursor: _c, ...filterWithoutCursor } = opts;
+  const [rows, funds] = await Promise.all([
+    deps.fetchOfferings(churchId, filterWithoutCursor, 1000),
+    deps.fetchFunds(churchId),
+  ]);
+
+  const fundMap = new Map<number, string>();
+  for (const f of funds) fundMap.set(f.id, f.name);
+
+  let totalSatang = 0;
+
+  const lines = rows.map(r => {
+    const satang = Math.round(r.amount * 100);
+    totalSatang += satang;
+    const donorName = opts.showDonorNames
+      ? (r.donorName ?? "ผู้ถวายนิรนาม")
+      : r.donorName
+        ? "ผู้ถวายนิรนาม"
+        : "—";
+    const fundName = r.fundId ? (fundMap.get(r.fundId) ?? "—") : "—";
+    const dateStr = bangkokDateString(r.receiptDate);
+
+    return [
+      sanitizeCsvCell(r.id),
+      sanitizeCsvCell(dateStr),
+      sanitizeCsvCell(r.category),
+      sanitizeCsvCell(donorName),
+      r.amount.toFixed(2),
+      sanitizeCsvCell(r.method),
+      sanitizeCsvCell(fundName),
+      sanitizeCsvCell(r.reference ?? "—"),
+      sanitizeCsvCell(r.notes ?? "—"),
+    ].join(",");
+  });
+
+  const totalAmount = totalSatang / 100;
+  return {
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
+    rowCount: rows.length,
+    totalAmount,
+  };
 }
 
 export async function getOfferingById(
@@ -714,8 +951,10 @@ export async function getOfferingById(
       : row.donorName
         ? "ผู้ถวายนิรนาม"
         : null,
+    donorMemberId: showDonorNames ? (row.donorMemberId ?? null) : null,
     receiptDate: row.receiptDate,
     method: row.method,
+    reference: row.reference ?? null,
     notes: row.notes,
     fundId: row.fundId,
   };
@@ -760,6 +999,7 @@ export async function updateOffering(
           ne(offerings.status, "voided")
         )
       )
+      .for("update")
       .limit(1);
     if (!existing[0]) return null;
     const updatedRows = await tx
@@ -804,6 +1044,7 @@ export type ExpenseRow = {
   amount: number;
   category: string;
   description: string;
+  details: string | null;
   expenseDate: Date;
   payee: string | null;
   status: string;
@@ -812,33 +1053,110 @@ export type ExpenseRow = {
   receiptUrl: string | null;
 };
 
-export async function listExpenses(
-  churchId = DEFAULT_CHURCH_ID,
-  opts: { limit?: number; fromDate?: Date; toDate?: Date } = {}
-): Promise<ExpenseRow[]> {
-  const db = await getDb();
-  if (!db) return [];
-  const { limit = 50, fromDate, toDate } = opts;
+export type ExpenseFilterOpts = {
+  limit?: number;
+  fromDate?: Date;
+  toDate?: Date;
+  fundId?: number;
+  category?: string;
+  search?: string;
+  cursor?: { date: Date; id: number };
+};
 
-  const conditions = [
+export function buildExpenseConditions(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: ExpenseFilterOpts = {}
+): SQL[] {
+  const conditions: SQL[] = [
     eq(expenses.churchId, churchId),
     ne(expenses.status, "voided"),
   ];
-  if (fromDate) conditions.push(gte(expenses.expenseDate, fromDate));
-  if (toDate) conditions.push(lte(expenses.expenseDate, toDate));
+  if (opts.fromDate) conditions.push(gte(expenses.expenseDate, opts.fromDate));
+  if (opts.toDate) conditions.push(lte(expenses.expenseDate, opts.toDate));
+  if (opts.fundId !== undefined)
+    conditions.push(eq(expenses.fundId, opts.fundId));
+  if (opts.category && opts.category !== "all") {
+    conditions.push(eq(expenses.category, opts.category as any));
+  }
+  if (opts.search && opts.search.trim()) {
+    const pattern = `%${opts.search.trim()}%`;
+    conditions.push(
+      or(
+        ilike(expenses.description, pattern),
+        ilike(expenses.details, pattern),
+        ilike(expenses.payee, pattern),
+        ilike(expenses.receiptRef, pattern)
+      )!
+    );
+  }
+  if (opts.cursor) {
+    conditions.push(
+      or(
+        lt(expenses.expenseDate, opts.cursor.date),
+        and(
+          eq(expenses.expenseDate, opts.cursor.date),
+          lt(expenses.id, opts.cursor.id)
+        )
+      )!
+    );
+  }
+  return conditions;
+}
+
+export async function getExpensesSummary(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: ExpenseFilterOpts = {}
+): Promise<{ totalAmount: number; totalCount: number }> {
+  const db = await getDb();
+  if (!db) return { totalAmount: 0, totalCount: 0 };
+
+  const { cursor: _c, ...filterWithoutCursor } = opts;
+  const conditions = buildExpenseConditions(churchId, filterWithoutCursor);
+
+  const [res] = await db
+    .select({
+      total: sum(expenses.amount),
+      count: count(expenses.id),
+    })
+    .from(expenses)
+    .where(and(...conditions));
+
+  const totalAmount =
+    Math.round(parseFloat((res?.total as string) ?? "0") * 100) / 100;
+  const totalCount = Number(res?.count ?? 0);
+  return { totalAmount, totalCount };
+}
+
+export async function listExpensesPaged(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: ExpenseFilterOpts = {}
+): Promise<{
+  items: ExpenseRow[];
+  nextCursor: { date: Date; id: number } | null;
+  hasMore: boolean;
+}> {
+  const db = await getDb();
+  if (!db) return { items: [], nextCursor: null, hasMore: false };
+
+  const limit = Math.min(Math.max(opts.limit ?? 50, 1), 200);
+  const conditions = buildExpenseConditions(churchId, opts);
 
   const rows = await db
     .select()
     .from(expenses)
     .where(and(...conditions))
-    .orderBy(desc(expenses.expenseDate))
-    .limit(limit);
+    .orderBy(desc(expenses.expenseDate), desc(expenses.id))
+    .limit(limit + 1);
 
-  return rows.map(r => ({
+  const hasMore = rows.length > limit;
+  const sliced = hasMore ? rows.slice(0, limit) : rows;
+
+  const items: ExpenseRow[] = sliced.map(r => ({
     id: r.id,
     amount: parseFloat((r.amount as unknown as string) ?? "0"),
     category: r.category,
     description: r.description,
+    details: r.details ?? null,
     expenseDate: r.expenseDate,
     payee: r.payee,
     status: r.status,
@@ -846,6 +1164,485 @@ export async function listExpenses(
     receiptRef: r.receiptRef ?? null,
     receiptUrl: (r as any).receiptUrl ?? null,
   }));
+
+  const last = items[items.length - 1];
+  const nextCursor =
+    hasMore && last ? { date: last.expenseDate, id: last.id } : null;
+
+  return { items, nextCursor, hasMore };
+}
+
+export async function listExpenses(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: ExpenseFilterOpts = {}
+): Promise<ExpenseRow[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const limit = Math.min(Math.max(opts.limit ?? 50, 1), 1000);
+  const conditions = buildExpenseConditions(churchId, opts);
+
+  const rows = await db
+    .select()
+    .from(expenses)
+    .where(and(...conditions))
+    .orderBy(desc(expenses.expenseDate), desc(expenses.id))
+    .limit(limit);
+
+  return rows.map(r => ({
+    id: r.id,
+    amount: parseFloat((r.amount as unknown as string) ?? "0"),
+    category: r.category,
+    description: r.description,
+    details: r.details ?? null,
+    expenseDate: r.expenseDate,
+    payee: r.payee,
+    status: r.status,
+    fundId: r.fundId,
+    receiptRef: r.receiptRef ?? null,
+    receiptUrl: (r as any).receiptUrl ?? null,
+  }));
+}
+
+/**
+ * Keyset-based batch retrieval for expenses.
+ * Fetches matching expenses in safe sequential chunks using (expenseDate, id) cursor
+ * to avoid memory exhaustion while guaranteeing 100% complete retrieval.
+ */
+export async function fetchAllExpensesInBatches(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: ExpenseFilterOpts = {},
+  batchSize = 1000,
+  fetchBatch: (
+    churchId: string,
+    opts: ExpenseFilterOpts
+  ) => Promise<ExpenseRow[]> = listExpenses
+): Promise<ExpenseRow[]> {
+  const all: ExpenseRow[] = [];
+  let cursor: { date: Date; id: number } | undefined = undefined;
+
+  while (true) {
+    const batch = await fetchBatch(churchId, {
+      ...opts,
+      limit: batchSize,
+      cursor,
+    });
+    if (batch.length === 0) break;
+    all.push(...batch);
+    if (batch.length < batchSize) break;
+    const last = batch[batch.length - 1];
+    cursor = { date: last.expenseDate, id: last.id };
+  }
+  return all;
+}
+
+export async function exportExpensesCsvData(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: ExpenseFilterOpts = {},
+  deps = {
+    fetchExpenses: fetchAllExpensesInBatches,
+    fetchFunds: listFinanceAccounts,
+  }
+): Promise<{ csv: string; rowCount: number; totalAmount: number }> {
+  const header =
+    "ID,วันที่,รายการ,ผู้รับเงิน,หมวดหมู่,จำนวนเงิน,กองทุน,เลขที่ใบเสร็จ,สถานะ";
+  const db = await getDb();
+  if (!db && deps.fetchExpenses === fetchAllExpensesInBatches) {
+    return { csv: "\uFEFF" + header, rowCount: 0, totalAmount: 0 };
+  }
+
+  const { cursor: _c, ...filterWithoutCursor } = opts;
+  const [rows, funds] = await Promise.all([
+    deps.fetchExpenses(churchId, filterWithoutCursor, 1000),
+    deps.fetchFunds(churchId),
+  ]);
+
+  const fundMap = new Map<number, string>();
+  for (const f of funds) fundMap.set(f.id, f.name);
+
+  let totalSatang = 0;
+
+  const lines = rows.map(r => {
+    const satang = Math.round(r.amount * 100);
+    totalSatang += satang;
+    const fundName = r.fundId ? (fundMap.get(r.fundId) ?? "—") : "—";
+    const dateStr = bangkokDateString(r.expenseDate);
+
+    return [
+      sanitizeCsvCell(r.id),
+      sanitizeCsvCell(dateStr),
+      sanitizeCsvCell(r.description),
+      sanitizeCsvCell(r.payee ?? "ทั่วไป"),
+      sanitizeCsvCell(r.category),
+      r.amount.toFixed(2),
+      sanitizeCsvCell(fundName),
+      sanitizeCsvCell(r.receiptRef ?? "—"),
+      sanitizeCsvCell(r.status),
+    ].join(",");
+  });
+
+  const totalAmount = totalSatang / 100;
+  return {
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
+    rowCount: rows.length,
+    totalAmount,
+  };
+}
+
+// ─── Unified Transactions Helpers ─────────────────────────────────────────────
+
+export type TransactionFilterOpts = {
+  limit?: number;
+  fromDate?: Date;
+  toDate?: Date;
+  fundId?: number;
+  type?: "all" | "income" | "expense";
+  search?: string;
+  showDonorNames?: boolean;
+  cursor?: { date: Date; id: number; type: "income" | "expense" };
+};
+
+export type UnifiedTransactionItem = {
+  id: string;
+  rawId: number;
+  title: string;
+  donorOrPayee: string | null;
+  reference: string | null;
+  notes: string | null;
+  date: Date;
+  type: "income" | "expense";
+  category: string;
+  categoryLabel: string;
+  fundId: number | null;
+  fundName: string;
+  amount: number;
+  status: string;
+};
+
+export async function getTransactionsSummary(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: TransactionFilterOpts = {}
+): Promise<{
+  totalIncome: number;
+  totalExpense: number;
+  netTotal: number;
+  incomeCount: number;
+  expenseCount: number;
+  totalCount: number;
+}> {
+  const type = opts.type ?? "all";
+  let totalIncome = 0;
+  let incomeCount = 0;
+  let totalExpense = 0;
+  let expenseCount = 0;
+
+  if (type === "all" || type === "income") {
+    const inc = await getOfferingsSummary(churchId, {
+      fromDate: opts.fromDate,
+      toDate: opts.toDate,
+      fundId: opts.fundId,
+      search: opts.search,
+      showDonorNames: opts.showDonorNames,
+    });
+    totalIncome = inc.totalAmount;
+    incomeCount = inc.totalCount;
+  }
+
+  if (type === "all" || type === "expense") {
+    const exp = await getExpensesSummary(churchId, {
+      fromDate: opts.fromDate,
+      toDate: opts.toDate,
+      fundId: opts.fundId,
+      search: opts.search,
+    });
+    totalExpense = exp.totalAmount;
+    expenseCount = exp.totalCount;
+  }
+
+  const netTotal = Math.round((totalIncome - totalExpense) * 100) / 100;
+  return {
+    totalIncome,
+    totalExpense,
+    netTotal,
+    incomeCount,
+    expenseCount,
+    totalCount: incomeCount + expenseCount,
+  };
+}
+
+export async function listTransactionsPaged(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: TransactionFilterOpts = {}
+): Promise<{
+  items: UnifiedTransactionItem[];
+  nextCursor: { date: Date; id: number; type: "income" | "expense" } | null;
+  hasMore: boolean;
+}> {
+  const db = await getDb();
+  if (!db) return { items: [], nextCursor: null, hasMore: false };
+
+  const limit = Math.min(Math.max(opts.limit ?? 50, 1), 200);
+  const type = opts.type ?? "all";
+  const funds = await listFinanceAccounts(churchId);
+  const fundMap = new Map<number, string>();
+  for (const f of funds) fundMap.set(f.id, f.name);
+
+  // Helper to compare items strictly: date DESC, type ASC ("income" < "expense"), id DESC
+  const compareTx = (
+    a: { date: Date; type: "income" | "expense"; rawId: number },
+    b: { date: Date; type: "income" | "expense"; rawId: number }
+  ) => {
+    const timeDiff = b.date.getTime() - a.date.getTime();
+    if (timeDiff !== 0) return timeDiff;
+    if (a.type !== b.type) return a.type === "income" ? -1 : 1;
+    return b.rawId - a.rawId;
+  };
+
+  const isAfterCursor = (
+    item: { date: Date; type: "income" | "expense"; rawId: number },
+    cursor: { date: Date; id: number; type: "income" | "expense" }
+  ) => {
+    const cItem = { date: cursor.date, type: cursor.type, rawId: cursor.id };
+    return compareTx(item, cItem) > 0;
+  };
+
+  let candidateOfferings: OfferingRow[] = [];
+  let candidateExpenses: ExpenseRow[] = [];
+
+  if (type === "all" || type === "income") {
+    let offeringCursor: { date: Date; id: number } | undefined;
+    if (opts.cursor) {
+      if (opts.cursor.type === "income") {
+        offeringCursor = { date: opts.cursor.date, id: opts.cursor.id };
+      } else {
+        // When cursor is on an expense at date D, all offerings on date D came before it (since income < expense).
+        // Only offerings strictly before date D should be included. Setting id: 0 guarantees lt(id, 0) is false.
+        offeringCursor = {
+          date: opts.cursor.date,
+          id: 0,
+        };
+      }
+    }
+    candidateOfferings = await listOfferings(churchId, {
+      limit: limit + 1,
+      fromDate: opts.fromDate,
+      toDate: opts.toDate,
+      fundId: opts.fundId,
+      search: opts.search,
+      showDonorNames: opts.showDonorNames,
+      cursor: offeringCursor,
+    });
+  }
+
+  if (type === "all" || type === "expense") {
+    let expenseCursor: { date: Date; id: number } | undefined;
+    if (opts.cursor) {
+      if (opts.cursor.type === "expense") {
+        expenseCursor = { date: opts.cursor.date, id: opts.cursor.id };
+      } else {
+        expenseCursor = { date: opts.cursor.date, id: Number.MAX_SAFE_INTEGER };
+      }
+    }
+    candidateExpenses = await listExpenses(churchId, {
+      limit: limit + 1,
+      fromDate: opts.fromDate,
+      toDate: opts.toDate,
+      fundId: opts.fundId,
+      search: opts.search,
+      cursor: expenseCursor,
+    });
+  }
+
+  const unified: UnifiedTransactionItem[] = [
+    ...candidateOfferings.map(o => ({
+      id: `offering-${o.id}`,
+      rawId: o.id,
+      title: offeringCategoryLabel(o.category),
+      donorOrPayee: o.donorName ?? null,
+      reference: o.reference ?? null,
+      notes: o.notes ?? null,
+      date: o.receiptDate,
+      type: "income" as const,
+      category: o.category,
+      categoryLabel: offeringCategoryLabel(o.category),
+      fundId: o.fundId ?? null,
+      fundName: o.fundId ? (fundMap.get(o.fundId) ?? "—") : "—",
+      amount: o.amount,
+      status: "completed",
+    })),
+    ...candidateExpenses.map(e => ({
+      id: `expense-${e.id}`,
+      rawId: e.id,
+      title: expenseCategoryLabel(e.category),
+      donorOrPayee: e.payee ?? null,
+      reference: e.receiptRef ?? null,
+      notes: e.details ?? null,
+      date: e.expenseDate,
+      type: "expense" as const,
+      category: e.category,
+      categoryLabel: expenseCategoryLabel(e.category),
+      fundId: e.fundId ?? null,
+      fundName: e.fundId ? (fundMap.get(e.fundId) ?? "—") : "—",
+      amount: e.amount,
+      status: e.status || "completed",
+    })),
+  ];
+
+  const afterCursorList = opts.cursor
+    ? unified.filter(item => isAfterCursor(item, opts.cursor!))
+    : unified;
+
+  afterCursorList.sort(compareTx);
+
+  const hasMore = afterCursorList.length > limit;
+  const items = hasMore ? afterCursorList.slice(0, limit) : afterCursorList;
+  const last = items[items.length - 1];
+  const nextCursor =
+    hasMore && last
+      ? { date: last.date, id: last.rawId, type: last.type }
+      : null;
+
+  return { items, nextCursor, hasMore };
+}
+
+export async function exportTransactionsCsvData(
+  churchId = DEFAULT_CHURCH_ID,
+  opts: TransactionFilterOpts = {},
+  deps = {
+    fetchOfferings: fetchAllOfferingsInBatches,
+    fetchExpenses: fetchAllExpensesInBatches,
+    fetchFunds: listFinanceAccounts,
+  }
+): Promise<{
+  csv: string;
+  rowCount: number;
+  totalIncome: number;
+  totalExpense: number;
+  netTotal: number;
+}> {
+  const header =
+    "ID,วันที่,รายการ,ผู้ถวาย/ผู้รับเงิน,หมวดหมู่,ประเภท,กองทุน,จำนวนเงิน,เลขอ้างอิง,หมายเหตุ";
+  const db = await getDb();
+  if (
+    !db &&
+    deps.fetchOfferings === fetchAllOfferingsInBatches &&
+    deps.fetchExpenses === fetchAllExpensesInBatches
+  )
+    return {
+      csv: "\uFEFF" + header,
+      rowCount: 0,
+      totalIncome: 0,
+      totalExpense: 0,
+      netTotal: 0,
+    };
+
+  const type = opts.type ?? "all";
+  const funds = await deps.fetchFunds(churchId);
+  const fundMap = new Map<number, string>();
+  for (const f of funds) fundMap.set(f.id, f.name);
+
+  const [offeringsList, expensesList] = await Promise.all([
+    type === "all" || type === "income"
+      ? deps.fetchOfferings(
+          churchId,
+          {
+            fromDate: opts.fromDate,
+            toDate: opts.toDate,
+            fundId: opts.fundId,
+            search: opts.search,
+            showDonorNames: opts.showDonorNames,
+          },
+          1000
+        )
+      : Promise.resolve([]),
+    type === "all" || type === "expense"
+      ? deps.fetchExpenses(
+          churchId,
+          {
+            fromDate: opts.fromDate,
+            toDate: opts.toDate,
+            fundId: opts.fundId,
+            search: opts.search,
+          },
+          1000
+        )
+      : Promise.resolve([]),
+  ]);
+
+  let totalIncomeSatang = 0;
+  let totalExpenseSatang = 0;
+
+  const unified = [
+    ...offeringsList.map(o => {
+      totalIncomeSatang += Math.round(o.amount * 100);
+      return {
+        id: `offering-${o.id}`,
+        rawId: o.id,
+        date: o.receiptDate,
+        title: offeringCategoryLabel(o.category),
+        donorOrPayee: o.donorName ?? "—",
+        category: o.category,
+        categoryLabel: offeringCategoryLabel(o.category),
+        type: "income" as const,
+        typeLabel: "รายรับ",
+        fundName: o.fundId ? (fundMap.get(o.fundId) ?? "—") : "—",
+        amount: o.amount,
+        reference: o.reference ?? "—",
+        notes: o.notes ?? "—",
+      };
+    }),
+    ...expensesList.map(e => {
+      totalExpenseSatang += Math.round(e.amount * 100);
+      return {
+        id: `expense-${e.id}`,
+        rawId: e.id,
+        date: e.expenseDate,
+        title: expenseCategoryLabel(e.category),
+        donorOrPayee: e.payee ?? "—",
+        category: e.category,
+        categoryLabel: expenseCategoryLabel(e.category),
+        type: "expense" as const,
+        typeLabel: "รายจ่าย",
+        fundName: e.fundId ? (fundMap.get(e.fundId) ?? "—") : "—",
+        amount: e.amount,
+        reference: e.receiptRef ?? "—",
+        notes: e.details ?? "—",
+      };
+    }),
+  ];
+
+  unified.sort((a, b) => {
+    const timeDiff = b.date.getTime() - a.date.getTime();
+    if (timeDiff !== 0) return timeDiff;
+    if (a.type !== b.type) return a.type === "income" ? -1 : 1;
+    return b.rawId - a.rawId;
+  });
+
+  const lines = unified.map(t =>
+    [
+      sanitizeCsvCell(t.id),
+      sanitizeCsvCell(bangkokDateString(t.date)),
+      sanitizeCsvCell(t.title),
+      sanitizeCsvCell(t.donorOrPayee),
+      sanitizeCsvCell(t.categoryLabel),
+      sanitizeCsvCell(t.typeLabel),
+      sanitizeCsvCell(t.fundName),
+      t.amount.toFixed(2),
+      sanitizeCsvCell(t.reference),
+      sanitizeCsvCell(t.notes),
+    ].join(",")
+  );
+
+  const totalIncome = totalIncomeSatang / 100;
+  const totalExpense = totalExpenseSatang / 100;
+  const netTotal = (totalIncomeSatang - totalExpenseSatang) / 100;
+
+  return {
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
+    rowCount: unified.length,
+    totalIncome,
+    totalExpense,
+    netTotal,
+  };
 }
 
 export async function getExpenseById(
@@ -872,6 +1669,7 @@ export async function getExpenseById(
     amount: parseFloat((row.amount as unknown as string) ?? "0"),
     category: row.category,
     description: row.description,
+    details: row.details ?? null,
     expenseDate: row.expenseDate,
     payee: row.payee,
     status: row.status,
@@ -920,6 +1718,7 @@ export async function updateExpense(
           ne(expenses.status, "voided")
         )
       )
+      .for("update")
       .limit(1);
     if (!existing[0]) return null;
     const updatedRows = await tx
@@ -975,6 +1774,7 @@ export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
           ne(offerings.status, "voided")
         )
       )
+      .for("update")
       .limit(1);
     if (!existing[0] || existing[0].status === "voided") return false;
     const updatedRows = await tx
@@ -1015,6 +1815,7 @@ export async function voidExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
           ne(expenses.status, "voided")
         )
       )
+      .for("update")
       .limit(1);
     if (!existing[0] || existing[0].status === "voided") return false;
     const updatedRows = await tx
@@ -1323,9 +2124,30 @@ export async function disburseWithdrawal(
 /**
  * "Date" means the calendar date in Asia/Bangkok, because the counting rounds
  * are planned by Thai Sundays, not UTC days.
+ *
+ * Storage: `timestamp` (without time zone) columns hold the UTC wall clock.
+ * Drizzle writes `toISOString()` and reads `value + "+0000"`. A plain
+ * `col AT TIME ZONE 'Asia/Bangkok'` would read that UTC value as Bangkok local
+ * time and return a date that is up to 14 hours off. The column is read as
+ * UTC first, then converted. The result does not depend on the session time
+ * zone.
  */
-function bangkokDate(expr: SQL) {
-  return sql`(${expr} AT TIME ZONE 'Asia/Bangkok')::date`;
+export function bangkokLocalOfColumn(expr: SQL) {
+  return sql`((${expr} AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Bangkok')`;
+}
+
+/** Calendar date in Asia/Bangkok of a stored `timestamp` column. */
+export function bangkokDateOfColumn(expr: SQL) {
+  return sql`${bangkokLocalOfColumn(expr)}::date`;
+}
+
+/**
+ * Same date, for a JS `Date` used as a query parameter. It is bound as an ISO
+ * string: drizzle's postgres-js driver does not serialise a raw `Date` inside
+ * a `sql` template, and the query then fails.
+ */
+export function bangkokDateOfInstant(value: Date) {
+  return sql`(${value.toISOString()}::timestamptz AT TIME ZONE 'Asia/Bangkok')::date`;
 }
 
 /**
@@ -1378,7 +2200,7 @@ export async function attachWithdrawalToCounting(
       and(
         eq(countingSessions.churchId, churchId),
         inArray(countingSessions.status, ["counting", "counted", "verified"]),
-        sql`${bangkokDate(sql`${countingSessions.serviceDate}`)} >= ${bangkokDate(sql`${request.disbursedAt}::timestamp`)}`
+        sql`${bangkokDateOfColumn(sql`${countingSessions.serviceDate}`)} >= ${bangkokDateOfInstant(request.disbursedAt)}`
       )
     )
     .orderBy(
@@ -1432,7 +2254,7 @@ export async function attachPendingWithdrawals(
           eq(withdrawalRequests.churchId, churchId),
           eq(withdrawalRequests.status, "disbursed"),
           isNull(bankRecords.withdrawalRequestId),
-          sql`${bangkokDate(sql`${withdrawalRequests.disbursedAt}`)} <= ${bangkokDate(sql`${session.serviceDate}::timestamp`)}`
+          sql`${bangkokDateOfColumn(sql`${withdrawalRequests.disbursedAt}`)} <= ${bangkokDateOfInstant(session.serviceDate)}`
         )
       );
     let attached = 0;
@@ -1544,7 +2366,7 @@ export async function setRequiredBankSigner(
 
 // ─── Members / Notifications / Audit ──────────────────────────────────────────
 
-export async function listMembers(churchId = DEFAULT_CHURCH_ID, limit = 100) {
+export async function listMembers(churchId = DEFAULT_CHURCH_ID, limit = 500) {
   const db = await getDb();
   if (!db) return [];
   return db
@@ -1833,7 +2655,7 @@ export async function getFinancialReportData(
 
   const rows: ReportRow[] = [
     ...offeringsRows.map(r => ({
-      date: r.receiptDate.toISOString().split("T")[0],
+      date: bangkokDateString(r.receiptDate),
       type: "income" as const,
       category: r.category,
       description: r.notes || `ถวาย${r.category}`,
@@ -1841,7 +2663,7 @@ export async function getFinancialReportData(
       method: r.method,
     })),
     ...expensesRows.map(r => ({
-      date: r.expenseDate.toISOString().split("T")[0],
+      date: bangkokDateString(r.expenseDate),
       type: "expense" as const,
       category: r.category,
       description: r.description,
@@ -1861,10 +2683,11 @@ export async function getFinancialReportData(
  * neither set compares against all spending of the year.
  */
 function budgetPeriod(year: number, month: number | null) {
-  const from = new Date(Date.UTC(year, month ? month - 1 : 0, 1));
+  // Thai calendar months (Asia/Bangkok), half-open [from, to).
+  const from = bangkokMonthStart(year, month ? month : 1);
   const to = month
-    ? new Date(Date.UTC(year, month, 1))
-    : new Date(Date.UTC(year + 1, 0, 1));
+    ? bangkokMonthStart(year, month + 1)
+    : bangkokMonthStart(year + 1, 1);
   return { from, to };
 }
 
@@ -1917,7 +2740,7 @@ export async function listBudgetPlans(
   // One grouped read for the whole year, then each plan sums the buckets that
   // match its filters. This avoids one query per plan.
   const { from, to } = budgetPeriod(year, null);
-  const monthExpr = sql<number>`extract(month from ${expenses.expenseDate})::int`;
+  const monthExpr = sql<number>`extract(month from ${bangkokLocalOfColumn(sql`${expenses.expenseDate}`)})::int`;
   const buckets = await db
     .select({
       category: expenses.category,
@@ -2226,9 +3049,15 @@ export async function getCountingSession(
   return rows[0] ?? null;
 }
 
-/** Sessions are ordered by Sunday, then service round, then id. */
+/**
+ * Sessions are ordered by Sunday, then service round, then id.
+ *
+ * The date is bound as an ISO string cast to `timestamp`: drizzle's
+ * postgres-js driver does not serialise a raw `Date` inside a `sql` template.
+ * The cast keeps the UTC wall clock, the same form the column stores.
+ */
 function countingSessionsBefore(session: CountingSession) {
-  return sql`(${countingSessions.serviceDate}, ${countingSessions.serviceRound}, ${countingSessions.id}) < (${session.serviceDate}, ${session.serviceRound}, ${session.id})`;
+  return sql`(${countingSessions.serviceDate}, ${countingSessions.serviceRound}, ${countingSessions.id}) < (${session.serviceDate.toISOString()}::timestamp, ${session.serviceRound}, ${session.id})`;
 }
 
 /** The latest posted or closed session before `session`. */
@@ -2937,8 +3766,8 @@ export async function getFinancialReportSummary(
   toDate: Date
 ): Promise<ReportSummary> {
   const empty: ReportSummary = {
-    from: fromDate.toISOString().slice(0, 10),
-    to: toDate.toISOString().slice(0, 10),
+    from: bangkokDateString(fromDate),
+    to: bangkokDateString(toDate),
     income: [],
     expense: [],
     totalIncome: 0,

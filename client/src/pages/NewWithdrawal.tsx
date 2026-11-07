@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -35,6 +35,15 @@ export default function NewWithdrawal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  useEffect(() => {
+    if (!showSuccessModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowSuccessModal(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showSuccessModal]);
+
   const isDirty =
     !showSuccessModal && Boolean(purpose || amount || fundId || details);
   useUnsavedChanges(isDirty);
@@ -56,7 +65,9 @@ export default function NewWithdrawal() {
     },
     onError: error => {
       setIsSubmitting(false);
-      toast.error("ยื่นคำขอเบิกเงินไม่สำเร็จ", { description: friendlyErrorMessage(error) });
+      toast.error("ยื่นคำขอเบิกเงินไม่สำเร็จ", {
+        description: friendlyErrorMessage(error),
+      });
     },
   });
 
@@ -219,13 +230,21 @@ export default function NewWithdrawal() {
         </form>
 
         {showSuccessModal && (
-          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="withdrawal-success-title"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          >
             <div className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6">
               <div className="w-16 h-16 rounded-2xl border-2 border-[var(--ink)] bg-accent shadow-[3px_3px_0_var(--ink)] flex items-center justify-center text-accent-foreground mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <div className="space-y-2">
-                <h3 className="display text-2xl text-ink">
+                <h3
+                  id="withdrawal-success-title"
+                  className="display text-2xl text-ink"
+                >
                   ส่งคำขอเบิกเงินสำเร็จ!
                 </h3>
                 <p className="text-sm font-medium text-ink-3">

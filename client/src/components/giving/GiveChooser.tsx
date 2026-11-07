@@ -59,7 +59,12 @@ export function GiveChooser({
                     : "bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
                 }`}
               >
-                {on && <Check className="size-4 shrink-0 stroke-[2.5]" aria-hidden="true" />}
+                {on && (
+                  <Check
+                    className="size-4 shrink-0 stroke-[2.5]"
+                    aria-hidden="true"
+                  />
+                )}
                 {c.label}
               </button>
             );
@@ -99,7 +104,9 @@ export function GiveChooser({
                     onChange={e => setAmount(line.category, e.target.value)}
                     className="min-h-11 w-32 shrink-0 rounded-xl bg-surface border-2 border-[var(--ink)] px-3 text-right text-sm font-extrabold tabular-nums text-ink shadow-[2px_2px_0_var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                   />
-                  <span className="shrink-0 text-xs font-bold text-ink-3">บาท</span>
+                  <span className="shrink-0 text-xs font-bold text-ink-3">
+                    บาท
+                  </span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {presets[line.category].map(amount => (

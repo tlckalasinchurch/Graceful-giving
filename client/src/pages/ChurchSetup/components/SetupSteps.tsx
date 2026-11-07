@@ -1,5 +1,14 @@
 import React from "react";
-import { AlertTriangle, Calendar, Check, HandCoins, Heart, Info, ShieldCheck, WalletCards } from "lucide-react";
+import {
+  AlertTriangle,
+  Calendar,
+  Check,
+  HandCoins,
+  Heart,
+  Info,
+  ShieldCheck,
+  WalletCards,
+} from "lucide-react";
 import {
   DEFAULT_OFFERING_CATEGORIES,
   SetupData,
@@ -467,10 +476,7 @@ export function Step8({ data }: { data: SetupData }) {
         ))}
       </div>
       <div className="rounded-2xl border-2 border-[var(--ink)] bg-accent p-4 text-center shadow-[3px_3px_0_var(--ink)]">
-        <Heart
-          className="mx-auto mb-2 size-8 text-brand"
-          fill="currentColor"
-        />
+        <Heart className="mx-auto mb-2 size-8 text-brand" fill="currentColor" />
         <p className="text-sm font-extrabold text-accent-foreground">
           พร้อมเริ่มต้นใช้งาน!
         </p>

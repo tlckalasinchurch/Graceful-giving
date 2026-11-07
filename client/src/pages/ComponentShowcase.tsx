@@ -1458,7 +1458,9 @@ export default function ComponentsShowcase() {
                     <StationStatusCard />
                     <StationHeroCTA
                       onClick={() =>
-                        sonnerToast.success("เริ่มเข้าสู่ขั้นตอนเลือกประเภทถวาย")
+                        sonnerToast.success(
+                          "เริ่มเข้าสู่ขั้นตอนเลือกประเภทถวาย"
+                        )
                       }
                     />
                   </div>
@@ -1471,13 +1473,13 @@ export default function ComponentsShowcase() {
                       subtitle="พร้อมเริ่มทำรายการและส่งสลิปได้ทันที"
                       amountThb={1000}
                       presetAmounts={[300, 500, 1000, 2000]}
-                      onSelect={() =>
-                        sonnerToast.info("เปิดหน้าสรุปการถวาย")
-                      }
+                      onSelect={() => sonnerToast.info("เปิดหน้าสรุปการถวาย")}
                     />
                     <StationUnlockConfirmCard
                       onConfirm={() =>
-                        sonnerToast.success("ยืนยันและส่งสลิปถวายเรียบร้อยแล้ว!")
+                        sonnerToast.success(
+                          "ยืนยันและส่งสลิปถวายเรียบร้อยแล้ว!"
+                        )
                       }
                     />
                   </div>

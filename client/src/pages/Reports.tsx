@@ -15,7 +15,8 @@ import { BarChart3, Download, Landmark, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { formatBaht, THAI_LOCALE } from "@/lib/format";
 import { NativeSelect } from "@/components/ui/native-select";
-import { friendlyErrorMessage } from "@/lib/errors";
+import { csvExportErrorMessage, friendlyErrorMessage } from "@/lib/errors";
+import { toCsvBlob } from "@/lib/csvDownload";
 
 type ReportTab = "cashflow" | "funds";
 
@@ -98,9 +99,7 @@ export default function Reports() {
         toast.info("ไม่มีรายการในช่วงเวลาที่เลือก จึงไม่มีข้อมูลให้ส่งออก");
         return;
       }
-      const blob = new Blob(["\uFEFF" + result.csv], {
-        type: "text/csv;charset=utf-8",
-      });
+      const blob = toCsvBlob(result.csv);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -112,7 +111,7 @@ export default function Reports() {
       toast.success(`ส่งออก ${result.rowCount} รายการเรียบร้อยแล้ว`);
     } catch (error) {
       toast.error("ส่งออกรายงานไม่สำเร็จ", {
-        description: friendlyErrorMessage(error),
+        description: csvExportErrorMessage(error),
       });
     }
   };
@@ -294,9 +293,12 @@ export default function Reports() {
 
             {/* Statement by category */}
             <section className="bento-card-static overflow-hidden p-0">
-              <h2 className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 font-extrabold text-ink">
-                สรุปตามหมวดหมู่
-              </h2>
+              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] bg-paper-2 p-4">
+                <h2 className="font-extrabold text-ink">สรุปตามหมวดหมู่</h2>
+                <span className="text-[11px] font-semibold text-ink-3 md:hidden">
+                  (เลื่อนซ้าย-ขวาเพื่อดูตาราง)
+                </span>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">

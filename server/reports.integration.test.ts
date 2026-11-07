@@ -14,6 +14,7 @@ import { getDb } from "./db";
 import type { TrpcContext } from "./_core/context";
 import {
   EXPENSE_CATEGORY_IDS,
+  LEGACY_OFFERING_CATEGORY_LABELS,
   OFFERING_CATEGORY_IDS,
 } from "@shared/categories";
 import { TEST_CHURCH_ID, purgeTenant } from "./test/tenant";
@@ -127,7 +128,10 @@ describeDb("expense category enum is one value set everywhere", () => {
     expect(fromDatabase).toEqual([...EXPENSE_CATEGORY_IDS]);
   });
 
-  it("shared offering ids match the live Postgres enum", async () => {
+  it("the live Postgres enum is the shared offering ids plus the legacy ids it keeps", async () => {
+    // Postgres cannot drop an enum value, so the enum keeps the ids that old
+    // rows hold (shared/categories.ts: LEGACY_OFFERING_CATEGORY_LABELS).
+    // Order is not part of the contract, so the two sides are compared sorted.
     const db = await getDb();
     const rows = await db!.execute(
       sql`SELECT e.enumlabel AS label
@@ -138,7 +142,12 @@ describeDb("expense category enum is one value set everywhere", () => {
     const fromDatabase = (rows as unknown as Array<{ label: string }>).map(
       r => r.label
     );
-    expect(fromDatabase).toEqual([...OFFERING_CATEGORY_IDS]);
+    expect([...fromDatabase].sort()).toEqual(
+      [
+        ...OFFERING_CATEGORY_IDS,
+        ...Object.keys(LEGACY_OFFERING_CATEGORY_LABELS),
+      ].sort()
+    );
   });
 
   it("no stored expense row sits outside the enum", async () => {

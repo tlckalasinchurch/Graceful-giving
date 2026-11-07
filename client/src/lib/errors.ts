@@ -19,10 +19,19 @@ const CODE_MESSAGES: Record<string, string> = {
 };
 
 const ENGLISH_HINTS: Array<[RegExp, string]> = [
-  [/failed to fetch|network ?error|fetch failed/i, "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่"],
-  [/please login|unauthori[sz]ed|not authenticated/i, CODE_MESSAGES.UNAUTHORIZED],
+  [
+    /failed to fetch|network ?error|fetch failed/i,
+    "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่",
+  ],
+  [
+    /please login|unauthori[sz]ed|not authenticated/i,
+    CODE_MESSAGES.UNAUTHORIZED,
+  ],
   [/permission|forbidden/i, CODE_MESSAGES.FORBIDDEN],
-  [/database|db|postgres|relation .* does not exist/i, "เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาแจ้งผู้ดูแลระบบ"],
+  [
+    /database|db|postgres|relation .* does not exist/i,
+    "เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาแจ้งผู้ดูแลระบบ",
+  ],
 ];
 
 type ErrorLike = {
@@ -59,4 +68,30 @@ export function friendlyErrorMessage(
   if (isEnglishOnly) return fallback;
 
   return message;
+}
+
+export const CSV_EXPORT_TOO_LARGE_MESSAGE =
+  "ข้อมูลที่ส่งออกมีขนาดใหญ่เกินที่ระบบรองรับ กรุณาเลือกช่วงวันที่ให้แคบลง แล้วส่งออกใหม่ทีละช่วง";
+
+/**
+ * Thai message for a failed CSV export. A response above the Vercel limit can
+ * reach the browser as a gateway error with no tRPC code, so the raw text is
+ * matched too. Both cases tell the person to narrow the date range.
+ */
+export function csvExportErrorMessage(error: unknown): string {
+  const err = error as ErrorLike | null | undefined;
+  const message =
+    typeof err?.message === "string" ? err.message : String(error ?? "");
+  if (
+    (err && codeOf(err) === "PAYLOAD_TOO_LARGE") ||
+    /payload[_ ]too[_ ]large|FUNCTION_PAYLOAD|\b413\b|is not valid JSON|Unexpected token/i.test(
+      message
+    )
+  ) {
+    return CSV_EXPORT_TOO_LARGE_MESSAGE;
+  }
+  return friendlyErrorMessage(
+    error,
+    "ส่งออกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+  );
 }

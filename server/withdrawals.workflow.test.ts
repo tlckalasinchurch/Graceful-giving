@@ -9,7 +9,15 @@
  * (see server/test/tenant.ts), and the whole tenant is dropped afterwards, so
  * a run cannot reach the application's data.
  */
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { appRouter } from "./routers";
 import { getDb } from "./db";
 import type { TrpcContext } from "./_core/context";
@@ -20,6 +28,25 @@ type User = NonNullable<TrpcContext["user"]>;
 
 const hasDb = Boolean(process.env.DATABASE_URL);
 const describeDb = hasDb ? describe : describe.skip;
+
+/**
+ * The payout tests below create rounds dated Sundays in September 2026 and
+ * disburse with `new Date()`. A round only takes a payout dated on or before
+ * its own date, so they hold only while the clock is on or before that Sunday.
+ * They fix the clock instead, and they close rounds that earlier tests left
+ * open, so each test sees only its own rounds.
+ */
+async function startOnSunday() {
+  vi.setSystemTime(new Date("2026-09-20T02:00:00.000Z")); // Sunday 09:00 Bangkok
+  const db = await getDb();
+  if (!db) throw new Error("unreachable");
+  await db.execute(
+    sql`UPDATE counting_sessions SET status = 'closed' WHERE "churchId" = ${TEST_CHURCH_ID} AND status IN ('counting', 'counted', 'verified')`
+  );
+}
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 // Safety net: drop the whole tenant once the file is done.
 afterAll(async () => {
@@ -252,6 +279,7 @@ describeDb("withdrawal signing workflow against a real database", () => {
   it("puts the payout into this Sunday's open round", async () => {
     const db = await getDb();
     if (!db) throw new Error("unreachable");
+    await startOnSunday();
     const created = await asTreasurer().counting.create({
       serviceDate: new Date("2026-09-20T01:00:00.000Z"),
       serviceRound: 1,
@@ -261,7 +289,7 @@ describeDb("withdrawal signing workflow against a real database", () => {
     await asTreasurer().withdrawals.sign({ id, decision: "approved" });
 
     const res = await asTreasurer().withdrawals.disburse({ id });
-    await expect(res).resolves.toMatchObject({ sessionId: created.id });
+    expect(res).toMatchObject({ sessionId: created.id });
 
     const rows = await db.execute(
       sql`SELECT type, "withdrawalRequestId", "sessionId" FROM bank_records WHERE "withdrawalRequestId" = ${id}`
@@ -281,9 +309,12 @@ describeDb("withdrawal signing workflow against a real database", () => {
     // lands in the first round created afterwards, exactly once.
     const db = await getDb();
     if (!db) throw new Error("unreachable");
+    await startOnSunday();
     const id = await newRequest(requester.id);
     await asPastor().withdrawals.sign({ id, decision: "approved" });
     await asTreasurer().withdrawals.sign({ id, decision: "approved" });
+    // Paid with no round open: the request waits, with no bank line yet.
+    await asTreasurer().withdrawals.disburse({ id });
 
     const beforeRows = await db.execute(
       sql`SELECT id FROM bank_records WHERE "withdrawalRequestId" = ${id}`
@@ -319,6 +350,7 @@ describeDb("withdrawal signing workflow against a real database", () => {
     // round; it lands in the first round that is still open.
     const db = await getDb();
     if (!db) throw new Error("unreachable");
+    await startOnSunday();
     const posted = await asTreasurer().counting.create({
       serviceDate: new Date("2026-09-20T01:00:00.000Z"),
       serviceRound: 1,
@@ -338,6 +370,6 @@ describeDb("withdrawal signing workflow against a real database", () => {
     await asPastor().withdrawals.sign({ id, decision: "approved" });
     await asTreasurer().withdrawals.sign({ id, decision: "approved" });
     const res = await asTreasurer().withdrawals.disburse({ id });
-    await expect(res).resolves.toMatchObject({ sessionId: open.id });
+    expect(res).toMatchObject({ sessionId: open.id });
   });
 });

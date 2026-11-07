@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
-import { requiresReview, CONFIDENCE_THRESHOLD, type SlipExtraction } from "./line/slipOcr";
+import {
+  requiresReview,
+  CONFIDENCE_THRESHOLD,
+  type SlipExtraction,
+} from "./line/slipOcr";
 
 type User = NonNullable<TrpcContext["user"]>;
 
@@ -173,7 +177,7 @@ describe("LINE Slip AI: Confidence & Review Threshold Logic", () => {
       senderName: "นายสมใจ นึก",
       senderConfidence: 0.95,
       referenceNumber: "TX12345",
-      referenceConfidence: 0.80, // below 0.85
+      referenceConfidence: 0.8, // below 0.85
       bankName: "KBANK",
       receiverName: "คริสตจักร",
       notes: null,

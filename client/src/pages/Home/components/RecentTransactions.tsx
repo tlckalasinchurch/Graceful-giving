@@ -73,7 +73,10 @@ export function RecentTransactions({
                             aria-hidden="true"
                           />
                         ) : (
-                          <ArrowUpRight className="size-5 stroke-[2.2]" aria-hidden="true" />
+                          <ArrowUpRight
+                            className="size-5 stroke-[2.2]"
+                            aria-hidden="true"
+                          />
                         )}
                       </div>
                       <div className="min-w-0">

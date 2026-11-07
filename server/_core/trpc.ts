@@ -1,4 +1,4 @@
-import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from '@shared/const';
+import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from "@shared/const";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -9,10 +9,7 @@ import type { TrpcContext } from "./context";
  * the forms show to people as it is. Use the first issue's own message instead.
  * The status code and the rest of the shape stay the same.
  */
-export function readableInputMessage(
-  cause: unknown,
-  fallback: string
-): string {
+export function readableInputMessage(cause: unknown, fallback: string): string {
   if (!(cause instanceof ZodError)) return fallback;
   const message = cause.issues[0]?.message?.trim();
   return message ? message : fallback;
@@ -33,7 +30,8 @@ export function safeErrorMessage(
   }
   const isSuperAdmin =
     ctx?.user &&
-    (ctx.user.role === "admin" || (ctx.user as any).churchRole === "SUPER_ADMIN");
+    (ctx.user.role === "admin" ||
+      (ctx.user as any).churchRole === "SUPER_ADMIN");
   if (!isSuperAdmin && error.code === "INTERNAL_SERVER_ERROR") {
     return "เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง";
   }
@@ -74,7 +72,7 @@ export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
 
-    if (!ctx.user || ctx.user.role !== 'admin') {
+    if (!ctx.user || ctx.user.role !== "admin") {
       throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
     }
 
@@ -84,5 +82,5 @@ export const adminProcedure = t.procedure.use(
         user: ctx.user,
       },
     });
-  }),
+  })
 );

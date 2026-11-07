@@ -30,11 +30,17 @@ import {
 import { VoucherModal } from "@/components/finance/VoucherModal";
 import { ReceiptPreviewModal } from "@/components/finance/ReceiptPreviewModal";
 import {
+  EXPENSE_CATEGORIES,
   expenseCategoryLabel,
+  OFFERING_CATEGORIES,
   offeringCategoryLabel,
+  PAYMENT_METHODS,
   paymentMethodLabel,
+  type ExpenseCategory,
+  type OfferingCategory,
+  type PaymentMethod,
 } from "@shared/categories";
-import { THAI_LOCALE } from "@/lib/format";
+import { THAI_LOCALE, toLocalISODate } from "@/lib/format";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
@@ -50,15 +56,34 @@ export default function TransactionDetail() {
   const isExpense = txId?.startsWith("expense-") ?? false;
   const recordId = Number(txId?.split("-")[1]);
   const hasValidId = Number.isInteger(recordId) && recordId > 0;
+
   const [isEditing, setIsEditing] = useState(false);
   const [editAmount, setEditAmount] = useState("");
   const [editText, setEditText] = useState("");
+  const [editDetails, setEditDetails] = useState("");
   const [editFundId, setEditFundId] = useState<number | null>(null);
   const [editPerson, setEditPerson] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editMethod, setEditMethod] = useState<PaymentMethod>("cash");
+  const [editReference, setEditReference] = useState("");
+  const [editDonorMemberId, setEditDonorMemberId] = useState<number | null>(
+    null
+  );
+
   const [baselineAmount, setBaselineAmount] = useState("");
   const [baselineText, setBaselineText] = useState("");
+  const [baselineDetails, setBaselineDetails] = useState("");
   const [baselineFundId, setBaselineFundId] = useState<number | null>(null);
   const [baselinePerson, setBaselinePerson] = useState("");
+  const [baselineCategory, setBaselineCategory] = useState("");
+  const [baselineDate, setBaselineDate] = useState("");
+  const [baselineMethod, setBaselineMethod] = useState<PaymentMethod>("cash");
+  const [baselineReference, setBaselineReference] = useState("");
+  const [baselineDonorMemberId, setBaselineDonorMemberId] = useState<
+    number | null
+  >(null);
+
   const [showVoucher, setShowVoucher] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const utils = trpc.useUtils();
@@ -73,7 +98,8 @@ export default function TransactionDetail() {
       toast.success("ยกเลิกรายการถวายเรียบร้อยแล้ว");
       setLocation("/transactions");
     },
-    onError: error => toast.error(friendlyErrorMessage(error, "ยกเลิกรายการถวายไม่สำเร็จ")),
+    onError: error =>
+      toast.error(friendlyErrorMessage(error, "ยกเลิกรายการถวายไม่สำเร็จ")),
   });
   const deleteExpense = trpc.expenses.delete.useMutation({
     onSuccess: async () => {
@@ -102,7 +128,8 @@ export default function TransactionDetail() {
       setIsEditing(false);
       toast.success("แก้ไขรายการถวายเรียบร้อยแล้ว");
     },
-    onError: error => toast.error(friendlyErrorMessage(error, "แก้ไขรายการถวายไม่สำเร็จ")),
+    onError: error =>
+      toast.error(friendlyErrorMessage(error, "แก้ไขรายการถวายไม่สำเร็จ")),
   });
   const updateExpense = trpc.expenses.update.useMutation({
     onSuccess: async () => {
@@ -134,6 +161,13 @@ export default function TransactionDetail() {
     staleTime: 60_000,
   });
 
+  const membersQuery = trpc.members.list.useQuery(undefined, {
+    enabled: isOffering && canEdit,
+    retry: false,
+    staleTime: 60_000,
+  });
+  const members = membersQuery.data ?? [];
+
   const transaction = useMemo(() => {
     const fundName = (id: number | null | undefined) => {
       if (id == null) return "ไม่ระบุกองทุน";
@@ -151,14 +185,17 @@ export default function TransactionDetail() {
         amount: item.amount,
         type: "income" as const,
         date: item.receiptDate,
+        rawCategory: item.category,
         category: offeringCategoryLabel(item.category),
         fundId: item.fundId,
         fund: fundName(item.fundId),
+        rawMethod: (item.method || "cash") as PaymentMethod,
         paymentMethod: paymentMethodLabel(item.method),
         donorOrPayee: item.donorName || "ผู้ถวายนิรนาม",
+        donorMemberId: item.donorMemberId ?? null,
         status: "approved",
         notes: item.notes,
-        receiptRef: "-",
+        receiptRef: item.reference || "-",
         receiptUrl: null,
       };
     }
@@ -172,15 +209,18 @@ export default function TransactionDetail() {
         amount: item.amount,
         type: "expense" as const,
         date: item.expenseDate,
+        rawCategory: item.category,
         category: expenseCategoryLabel(item.category),
         fundId: item.fundId,
         fund: fundName(item.fundId),
-        paymentMethod: "ไม่ระบุ",
+        rawMethod: "cash" as PaymentMethod,
+        paymentMethod: "ตามใบสำคัญจ่าย",
         donorOrPayee: item.payee || "ไม่ระบุผู้รับเงิน",
+        donorMemberId: null,
         status: item.status,
-        notes: null,
+        notes: item.details ?? null,
         receiptRef: item.receiptRef || "-",
-        receiptUrl: (item as any).receiptUrl || null,
+        receiptUrl: item.receiptUrl || null,
       };
     }
     return null;
@@ -201,28 +241,63 @@ export default function TransactionDetail() {
         transaction.type === "income"
           ? transaction.notes || ""
           : transaction.title;
+      const details =
+        transaction.type === "expense" ? (transaction.notes ?? "") : "";
       const person =
         transaction.type === "income"
           ? offeringQuery.data?.donorName || ""
           : expenseQuery.data?.payee || "";
       const fund = transaction.fundId ?? null;
+      const category = transaction.rawCategory;
+      const dateStr = toLocalISODate(new Date(transaction.date));
+      const method = transaction.rawMethod;
+      const ref =
+        transaction.type === "income"
+          ? (offeringQuery.data?.reference ?? "")
+          : (expenseQuery.data?.receiptRef ?? "");
+      const memberId =
+        transaction.type === "income"
+          ? (offeringQuery.data?.donorMemberId ?? null)
+          : null;
+
       setEditAmount(amount);
       setEditText(text);
+      setEditDetails(details);
       setEditPerson(person);
       setEditFundId(fund);
+      setEditCategory(category);
+      setEditDate(dateStr);
+      setEditMethod(method);
+      setEditReference(ref);
+      setEditDonorMemberId(memberId);
+
       setBaselineAmount(amount);
       setBaselineText(text);
+      setBaselineDetails(details);
       setBaselinePerson(person);
       setBaselineFundId(fund);
+      setBaselineCategory(category);
+      setBaselineDate(dateStr);
+      setBaselineMethod(method);
+      setBaselineReference(ref);
+      setBaselineDonorMemberId(memberId);
     }
   }, [transaction, offeringQuery.data, expenseQuery.data]);
+
   const isDirty =
     isEditing &&
     (editAmount !== baselineAmount ||
       editText !== baselineText ||
+      editDetails !== baselineDetails ||
       editPerson !== baselinePerson ||
-      editFundId !== baselineFundId);
+      editFundId !== baselineFundId ||
+      editCategory !== baselineCategory ||
+      editDate !== baselineDate ||
+      editMethod !== baselineMethod ||
+      editReference !== baselineReference ||
+      editDonorMemberId !== baselineDonorMemberId);
   useUnsavedChanges(isDirty);
+
   const submitEdit = (event: React.FormEvent) => {
     event.preventDefault();
     const amount = Number(editAmount);
@@ -240,22 +315,41 @@ export default function TransactionDetail() {
       );
       return;
     }
-    if (isOffering)
+    if (!editDate) {
+      toast.error("กรุณาระบุวันที่ทำรายการ");
+      return;
+    }
+    if (isOffering) {
       updateOffering.mutate({
         id: recordId,
         amount,
         fundId: editFundId,
+        category: editCategory as OfferingCategory,
+        receiptDate: new Date(`${editDate}T12:00:00`),
+        method: editMethod,
+        reference: editReference.trim() || null,
         donorName: editPerson.trim() || null,
+        donorMemberId: editDonorMemberId,
         notes: editText.trim() || null,
       });
-    if (isExpense)
+    }
+    if (isExpense) {
+      if (!editText.trim() || editText.trim().length < 2) {
+        toast.error("กรุณาระบุชื่อรายการค่าใช้จ่ายอย่างน้อย 2 ตัวอักษร");
+        return;
+      }
       updateExpense.mutate({
         id: recordId,
         amount,
         fundId: editFundId,
+        category: editCategory as ExpenseCategory,
+        expenseDate: new Date(`${editDate}T12:00:00`),
+        receiptRef: editReference.trim() || null,
         payee: editPerson.trim() || null,
-        description: editText.trim() || undefined,
+        description: editText.trim(),
+        details: editDetails.trim() || null,
       });
+    }
   };
   return (
     <AppLayout
@@ -344,18 +438,19 @@ export default function TransactionDetail() {
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-xs font-bold text-ink">
-                  จำนวนเงิน (บาท)
+                  จำนวนเงิน (บาท) *
                   <input
                     type="number"
                     min="0.01"
                     step="0.01"
+                    required
                     value={editAmount}
                     onChange={event => setEditAmount(event.target.value)}
                     className="neo-input mt-1 font-bold tabular-nums"
                   />
                 </label>
                 <label className="text-xs font-bold text-ink">
-                  กองทุน
+                  กองทุน *
                   <select
                     value={editFundId ?? ""}
                     onChange={event =>
@@ -376,6 +471,66 @@ export default function TransactionDetail() {
                   </select>
                 </label>
                 <label className="text-xs font-bold text-ink">
+                  หมวดหมู่ *
+                  <select
+                    value={editCategory}
+                    onChange={event => setEditCategory(event.target.value)}
+                    className="neo-input mt-1 font-medium"
+                  >
+                    {(isOffering
+                      ? OFFERING_CATEGORIES
+                      : EXPENSE_CATEGORIES
+                    ).map(cat => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-xs font-bold text-ink">
+                  วันที่ทำรายการ *
+                  <input
+                    type="date"
+                    required
+                    value={editDate}
+                    onChange={event => setEditDate(event.target.value)}
+                    className="neo-input mt-1 font-medium"
+                  />
+                </label>
+                {isOffering && (
+                  <label className="text-xs font-bold text-ink">
+                    ช่องทางรับเงิน
+                    <select
+                      value={editMethod}
+                      onChange={event =>
+                        setEditMethod(event.target.value as PaymentMethod)
+                      }
+                      className="neo-input mt-1 font-medium"
+                    >
+                      {PAYMENT_METHODS.map(m => (
+                        <option key={m.id} value={m.id}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                <label className="text-xs font-bold text-ink">
+                  {isOffering
+                    ? "เลขอ้างอิง / เลขซอง"
+                    : "เลขที่ใบเสร็จ / อ้างอิง"}
+                  <input
+                    value={editReference}
+                    onChange={event => setEditReference(event.target.value)}
+                    placeholder={
+                      isOffering
+                        ? "เช่น ซอง #001 หรือเลขอ้างอิงสลิป"
+                        : "เช่น INV-2026-001"
+                    }
+                    className="neo-input mt-1"
+                  />
+                </label>
+                <label className="text-xs font-bold text-ink">
                   {isOffering ? "ชื่อผู้ถวาย" : "ผู้รับเงิน / ร้านค้า"}
                   <input
                     value={editPerson}
@@ -388,9 +543,37 @@ export default function TransactionDetail() {
                     className="neo-input mt-1"
                   />
                 </label>
-                <label className="text-xs font-bold text-ink">
-                  {isOffering ? "หมายเหตุ" : "รายละเอียดรายการ"}
+                {isOffering && (
+                  <label className="text-xs font-bold text-ink">
+                    เชื่อมโยงทะเบียนสมาชิก
+                    <select
+                      value={editDonorMemberId ?? ""}
+                      onChange={event => {
+                        const val = event.target.value
+                          ? Number(event.target.value)
+                          : null;
+                        setEditDonorMemberId(val);
+                        if (val != null) {
+                          const found = members.find(m => m.id === val);
+                          if (found) setEditPerson(found.name);
+                        }
+                      }}
+                      className="neo-input mt-1 font-medium"
+                    >
+                      <option value="">— ไม่เชื่อมโยงสมาชิก —</option>
+                      {members.map(m => (
+                        <option key={m.id} value={m.id}>
+                          {m.envelopeNo ? `[ซอง #${m.envelopeNo}] ` : ""}
+                          {m.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                <label className="text-xs font-bold text-ink sm:col-span-2">
+                  {isOffering ? "หมายเหตุ" : "ชื่อรายการค่าใช้จ่าย *"}
                   <input
+                    required={isExpense}
                     value={editText}
                     onChange={event => setEditText(event.target.value)}
                     placeholder={
@@ -399,6 +582,18 @@ export default function TransactionDetail() {
                     className="neo-input mt-1"
                   />
                 </label>
+                {isExpense && (
+                  <label className="text-xs font-bold text-ink sm:col-span-2">
+                    หมายเหตุเพิ่มเติม / วัตถุประสงค์
+                    <textarea
+                      rows={2}
+                      value={editDetails}
+                      onChange={event => setEditDetails(event.target.value)}
+                      placeholder="ระบุวัตถุประสงค์หรือรายละเอียดประกอบการเบิกจ่าย"
+                      className="neo-input mt-1"
+                    />
+                  </label>
+                )}
               </div>
               <button
                 disabled={updateOffering.isPending || updateExpense.isPending}
@@ -456,12 +651,26 @@ export default function TransactionDetail() {
               value={transaction.donorOrPayee}
               icon={<User className="w-4 h-4 text-ink-2" />}
             />
-            <Detail label="เลขอ้างอิง" value={transaction.refCode} />
+            <Detail label="รหัสรายการ" value={transaction.refCode} />
+            <Detail
+              label={
+                transaction.type === "income"
+                  ? "เลขอ้างอิง / ซอง"
+                  : "เลขที่ใบเสร็จ"
+              }
+              value={transaction.receiptRef}
+            />
           </div>
           {transaction.notes && (
             <div className="rounded-2xl bg-paper-2 border-2 border-[var(--ink)] p-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-ink-3">หมายเหตุ</p>
-              <p className="text-sm font-medium text-ink mt-1">{transaction.notes}</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-ink-3">
+                {transaction.type === "income"
+                  ? "หมายเหตุ"
+                  : "หมายเหตุเพิ่มเติม / วัตถุประสงค์"}
+              </p>
+              <p className="text-sm font-medium text-ink mt-1 whitespace-pre-line">
+                {transaction.notes}
+              </p>
             </div>
           )}
 
@@ -475,7 +684,7 @@ export default function TransactionDetail() {
                 </span>
                 <button
                   onClick={() => setShowReceiptModal(true)}
-                  className="btn-secondary min-h-9 px-3 py-1.5 text-xs"
+                  className="btn-secondary min-h-11 px-3.5 py-2 text-xs"
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-brand" />
                   <span>เปิดดูหลักฐานเต็มจอ</span>
@@ -562,7 +771,9 @@ function Detail({
 }) {
   return (
     <div className="bg-paper-2 p-4 rounded-xl border-1.5 border-[var(--ink)] space-y-1">
-      <span className="text-xs font-bold uppercase tracking-wider text-ink-3 block">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-wider text-ink-3 block">
+        {label}
+      </span>
       <span className="text-sm font-extrabold text-ink flex items-center gap-1.5">
         {icon}
         {value}

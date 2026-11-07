@@ -19,11 +19,7 @@
 
 import type { Request, Response, Express } from "express";
 import { ENV } from "../_core/env";
-import {
-  countRecentSystemRejectedSlips,
-  getChurchProfile,
-  getDb,
-} from "../db";
+import { countRecentSystemRejectedSlips, getChurchProfile, getDb } from "../db";
 import {
   lineSlips,
   lineProcessingJobs,
@@ -225,9 +221,12 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
           escalated: verification.escalated,
         },
       } as unknown as Record<string, unknown>,
-      extractedAmount: extraction.amount !== null ? String(extraction.amount) : null,
+      extractedAmount:
+        extraction.amount !== null ? String(extraction.amount) : null,
       extractedAmountConfidence: String(extraction.amountConfidence),
-      extractedDate: extraction.transferDate ? new Date(extraction.transferDate) : null,
+      extractedDate: extraction.transferDate
+        ? new Date(extraction.transferDate)
+        : null,
       extractedDateConfidence: String(extraction.dateConfidence),
       extractedRef: extraction.referenceNumber,
       extractedRefConfidence: String(extraction.referenceConfidence),
@@ -236,7 +235,8 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
       extractedBank: extraction.bankName,
       matchedMemberId,
       matchedMemberName,
-      matchedConfidence: matchedConfidence !== null ? String(matchedConfidence) : null,
+      matchedConfidence:
+        matchedConfidence !== null ? String(matchedConfidence) : null,
       matchMethod,
       duplicateOfSlipId: duplicateSlipId,
       duplicateOfOfferingId: duplicateOfferingId,
@@ -260,7 +260,10 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
 
 // ─── Worker batch runner ──────────────────────────────────────────────────────
 
-export async function runWorkerBatch(): Promise<{ processed: number; errors: number }> {
+export async function runWorkerBatch(): Promise<{
+  processed: number;
+  errors: number;
+}> {
   const db = await getDb();
   if (!db) return { processed: 0, errors: 0 };
 
@@ -269,7 +272,11 @@ export async function runWorkerBatch(): Promise<{ processed: number; errors: num
   // seconds, because every drain trigger (webhook, upload, rescan, refresh) re-picks
   // the job the instant it returns to "queued".
   const jobs = await db
-    .select({ id: lineProcessingJobs.id, slipId: lineProcessingJobs.slipId, attempts: lineProcessingJobs.attempts })
+    .select({
+      id: lineProcessingJobs.id,
+      slipId: lineProcessingJobs.slipId,
+      attempts: lineProcessingJobs.attempts,
+    })
     .from(lineProcessingJobs)
     .where(
       and(
@@ -312,7 +319,10 @@ export async function runWorkerBatch(): Promise<{ processed: number; errors: num
       processed++;
     } catch (err) {
       errors++;
-      console.error(`[Worker] Job #${job.id} (slip #${job.slipId}) failed:`, err);
+      console.error(
+        `[Worker] Job #${job.id} (slip #${job.slipId}) failed:`,
+        err
+      );
 
       const nextStatus =
         (job.attempts ?? 0) + 1 >= MAX_ATTEMPTS ? "failed" : "queued";
@@ -325,7 +335,9 @@ export async function runWorkerBatch(): Promise<{ processed: number; errors: num
           updatedAt: new Date(),
         })
         .where(eq(lineProcessingJobs.id, job.id))
-        .catch((e: unknown) => console.error("[Worker] Failed to update job status:", e));
+        .catch((e: unknown) =>
+          console.error("[Worker] Failed to update job status:", e)
+        );
 
       // Mark slip as failed if max retries exceeded
       if (nextStatus === "failed") {
@@ -337,7 +349,9 @@ export async function runWorkerBatch(): Promise<{ processed: number; errors: num
             updatedAt: new Date(),
           })
           .where(eq(lineSlips.id, job.slipId))
-          .catch((e: unknown) => console.error("[Worker] Failed to mark slip failed:", e));
+          .catch((e: unknown) =>
+            console.error("[Worker] Failed to mark slip failed:", e)
+          );
       }
     }
   }
@@ -348,19 +362,24 @@ export async function runWorkerBatch(): Promise<{ processed: number; errors: num
 // ─── Express Route Registration ───────────────────────────────────────────────
 
 export function registerLineWorker(app: Express): void {
-  app.get("/api/line/process-worker", async (req: Request, res: Response): Promise<void> => {
-    if (!isAuthorizedCron(req)) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
+  app.get(
+    "/api/line/process-worker",
+    async (req: Request, res: Response): Promise<void> => {
+      if (!isAuthorizedCron(req)) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
 
-    try {
-      const result = await runWorkerBatch();
-      console.log(`[Worker] Batch complete: processed=${result.processed}, errors=${result.errors}`);
-      res.status(200).json({ ok: true, ...result });
-    } catch (err) {
-      console.error("[Worker] Batch runner failed:", err);
-      res.status(500).json({ error: "Worker batch failed" });
+      try {
+        const result = await runWorkerBatch();
+        console.log(
+          `[Worker] Batch complete: processed=${result.processed}, errors=${result.errors}`
+        );
+        res.status(200).json({ ok: true, ...result });
+      } catch (err) {
+        console.error("[Worker] Batch runner failed:", err);
+        res.status(500).json({ error: "Worker batch failed" });
+      }
     }
-  });
+  );
 }

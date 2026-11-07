@@ -46,6 +46,15 @@ import {
   getFinancialSummary,
   getMonthlyStats,
   getOfferingById,
+  getOfferingsSummary,
+  listOfferingsPaged,
+  exportOfferingsCsvData,
+  getExpensesSummary,
+  listExpensesPaged,
+  exportExpensesCsvData,
+  getTransactionsSummary,
+  listTransactionsPaged,
+  exportTransactionsCsvData,
   getMemberById,
   getMinistryById,
   listAllChurchEvents,
@@ -145,6 +154,7 @@ import {
 } from "@shared/givingLimits";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
+import { assertCsvWithinLimit } from "./csvLimit";
 import type { CountingStatus } from "@shared/counting";
 import { BANK_RECORD_TYPES, canTransition, isEditable } from "@shared/counting";
 import {
@@ -929,9 +939,13 @@ export const appRouter = router({
       .input(
         z
           .object({
-            limit: z.number().int().min(1).max(200).default(50),
+            limit: z.number().int().min(1).max(1000).default(50),
             fromDate: z.coerce.date().optional(),
             toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            category: offeringCategory.optional(),
+            donorMemberId: z.number().int().positive().optional(),
+            search: z.string().trim().optional(),
           })
           .optional()
       )
@@ -942,6 +956,91 @@ export const appRouter = router({
           showDonorNames,
           fromDate: input?.fromDate,
           toDate: input?.toDate,
+          fundId: input?.fundId,
+          category: input?.category,
+          donorMemberId: input?.donorMemberId,
+          search: input?.search,
+        });
+      }),
+    summary: financeViewProcedure
+      .input(
+        z
+          .object({
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            category: offeringCategory.optional(),
+            donorMemberId: z.number().int().positive().optional(),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ ctx, input }) => {
+        return await getOfferingsSummary(DEFAULT_CHURCH_ID, {
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          category: input?.category,
+          donorMemberId: input?.donorMemberId,
+          search: input?.search,
+          showDonorNames: canViewDonorNames(ctx.user),
+        });
+      }),
+    paged: financeViewProcedure
+      .input(
+        z
+          .object({
+            limit: z.number().int().min(1).max(200).default(50),
+            cursor: z
+              .object({
+                date: z.coerce.date(),
+                id: z.number().int().positive(),
+              })
+              .optional(),
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            category: offeringCategory.optional(),
+            donorMemberId: z.number().int().positive().optional(),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ ctx, input }) => {
+        return await listOfferingsPaged(DEFAULT_CHURCH_ID, {
+          limit: input?.limit ?? 50,
+          cursor: input?.cursor,
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          category: input?.category,
+          donorMemberId: input?.donorMemberId,
+          search: input?.search,
+          showDonorNames: canViewDonorNames(ctx.user),
+        });
+      }),
+    exportCsv: financeViewProcedure
+      .input(
+        z
+          .object({
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            category: offeringCategory.optional(),
+            donorMemberId: z.number().int().positive().optional(),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ ctx, input }) => {
+        return await exportOfferingsCsvData(DEFAULT_CHURCH_ID, {
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          category: input?.category,
+          donorMemberId: input?.donorMemberId,
+          search: input?.search,
+          showDonorNames: canViewDonorNames(ctx.user),
         });
       }),
     getById: financeViewProcedure
@@ -962,6 +1061,7 @@ export const appRouter = router({
           // total balance stops matching the income and expense totals.
           fundId: z.number().int().positive(),
           donorName: z.string().trim().max(120).optional(),
+          donorMemberId: z.number().int().positive().nullable().optional(),
           receiptDate: z.coerce.date().optional(),
           method: paymentMethod.default("cash"),
           reference: z.string().trim().max(120).optional(),
@@ -975,6 +1075,7 @@ export const appRouter = router({
           category: input.category,
           fundId: input.fundId,
           donorName: input.donorName ?? null,
+          donorMemberId: input.donorMemberId ?? null,
           receiptDate: input.receiptDate ?? new Date(),
           method: input.method,
           reference: input.reference ?? null,
@@ -1012,6 +1113,7 @@ export const appRouter = router({
           // amount out of the fund and put it in no fund.
           fundId: z.number().int().positive().optional(),
           donorName: z.string().trim().max(120).nullable().optional(),
+          donorMemberId: z.number().int().positive().nullable().optional(),
           receiptDate: z.coerce.date().optional(),
           method: paymentMethod.optional(),
           reference: z.string().trim().max(120).nullable().optional(),
@@ -1067,9 +1169,12 @@ export const appRouter = router({
       .input(
         z
           .object({
-            limit: z.number().int().min(1).max(200).default(50),
+            limit: z.number().int().min(1).max(1000).default(50),
             fromDate: z.coerce.date().optional(),
             toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            category: expenseCategory.optional(),
+            search: z.string().trim().optional(),
           })
           .optional()
       )
@@ -1078,6 +1183,81 @@ export const appRouter = router({
           limit: input?.limit ?? 50,
           fromDate: input?.fromDate,
           toDate: input?.toDate,
+          fundId: input?.fundId,
+          category: input?.category,
+          search: input?.search,
+        });
+      }),
+    summary: financeViewProcedure
+      .input(
+        z
+          .object({
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            category: expenseCategory.optional(),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ input }) => {
+        return await getExpensesSummary(DEFAULT_CHURCH_ID, {
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          category: input?.category,
+          search: input?.search,
+        });
+      }),
+    paged: financeViewProcedure
+      .input(
+        z
+          .object({
+            limit: z.number().int().min(1).max(200).default(50),
+            cursor: z
+              .object({
+                date: z.coerce.date(),
+                id: z.number().int().positive(),
+              })
+              .optional(),
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            category: expenseCategory.optional(),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ input }) => {
+        return await listExpensesPaged(DEFAULT_CHURCH_ID, {
+          limit: input?.limit ?? 50,
+          cursor: input?.cursor,
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          category: input?.category,
+          search: input?.search,
+        });
+      }),
+    exportCsv: financeViewProcedure
+      .input(
+        z
+          .object({
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            category: expenseCategory.optional(),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ input }) => {
+        return await exportExpensesCsvData(DEFAULT_CHURCH_ID, {
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          category: input?.category,
+          search: input?.search,
         });
       }),
     getById: financeViewProcedure
@@ -1164,7 +1344,9 @@ export const appRouter = router({
             "[uploadReceipt] Storage upload failed, falling back to inline data URL:",
             err
           );
-          const raw = input.base64Data.replace(/^data:[^;,]*;base64,/, "").trim();
+          const raw = input.base64Data
+            .replace(/^data:[^;,]*;base64,/, "")
+            .trim();
           return { url: `data:${input.contentType};base64,${raw}` };
         }
       }),
@@ -1191,6 +1373,8 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         const { id, amount, ...rest } = input;
+        if (typeof rest.fundId === "number")
+          await assertActiveFund(rest.fundId);
         const updated = await updateExpense(id, {
           ...rest,
           ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
@@ -1227,6 +1411,86 @@ export const appRouter = router({
           entityId: input.id,
         });
         return { id: input.id };
+      }),
+  }),
+
+  // ── Unified Transactions (Ledger) ───────────────────────────────────────────
+  transactions: router({
+    summary: financeViewProcedure
+      .input(
+        z
+          .object({
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            type: z.enum(["all", "income", "expense"]).default("all"),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ ctx, input }) => {
+        return await getTransactionsSummary(DEFAULT_CHURCH_ID, {
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          type: input?.type ?? "all",
+          search: input?.search,
+          showDonorNames: canViewDonorNames(ctx.user),
+        });
+      }),
+    paged: financeViewProcedure
+      .input(
+        z
+          .object({
+            limit: z.number().int().min(1).max(200).default(50),
+            cursor: z
+              .object({
+                date: z.coerce.date(),
+                id: z.number().int().positive(),
+                type: z.enum(["income", "expense"]),
+              })
+              .optional(),
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            type: z.enum(["all", "income", "expense"]).default("all"),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ ctx, input }) => {
+        return await listTransactionsPaged(DEFAULT_CHURCH_ID, {
+          limit: input?.limit ?? 50,
+          cursor: input?.cursor,
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          type: input?.type ?? "all",
+          search: input?.search,
+          showDonorNames: canViewDonorNames(ctx.user),
+        });
+      }),
+    exportCsv: financeViewProcedure
+      .input(
+        z
+          .object({
+            fromDate: z.coerce.date().optional(),
+            toDate: z.coerce.date().optional(),
+            fundId: z.number().int().positive().optional(),
+            type: z.enum(["all", "income", "expense"]).default("all"),
+            search: z.string().trim().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ ctx, input }) => {
+        return await exportTransactionsCsvData(DEFAULT_CHURCH_ID, {
+          fromDate: input?.fromDate,
+          toDate: input?.toDate,
+          fundId: input?.fundId,
+          type: input?.type ?? "all",
+          search: input?.search,
+          showDonorNames: canViewDonorNames(ctx.user),
+        });
       }),
   }),
 
@@ -1462,6 +1726,7 @@ export const appRouter = router({
       .input(
         z.object({
           name: z.string().trim().min(2).max(180),
+          envelopeNo: z.string().trim().max(32).optional(),
           phone: z.string().trim().max(30).optional(),
           email: z.string().email().max(320).optional(),
           status: z.enum(["active", "inactive", "pending"]).default("active"),
@@ -1469,12 +1734,30 @@ export const appRouter = router({
           notes: z.string().trim().max(2000).optional(),
         })
       )
-      .mutation(async ({ input }) => ({ id: await createMember(input) })),
+      .mutation(async ({ ctx, input }) => {
+        const id = await createMember({
+          ...input,
+          envelopeNo: input.envelopeNo?.trim() || null,
+        });
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "CREATE",
+          entity: "member",
+          entityId: id,
+          metadata: {
+            name: input.name,
+            envelopeNo: input.envelopeNo?.trim() || null,
+          },
+        });
+        return { id };
+      }),
     update: churchLeaderProcedure
       .input(
         z.object({
           id: z.number().int().positive(),
           name: z.string().trim().min(2).max(180).optional(),
+          envelopeNo: z.string().trim().max(32).nullable().optional(),
           phone: z.string().trim().max(30).nullable().optional(),
           email: z.string().email().max(320).nullable().optional(),
           status: z.enum(["active", "inactive", "pending"]).optional(),
@@ -1482,19 +1765,40 @@ export const appRouter = router({
           notes: z.string().trim().max(2000).nullable().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { id, ...data } = input;
-        const updated = await updateMember(id, data);
+        const normalized = {
+          ...data,
+          ...(data.envelopeNo !== undefined
+            ? { envelopeNo: data.envelopeNo?.trim() || null }
+            : {}),
+        };
+        const updated = await updateMember(id, normalized);
         if (updated === null)
           throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบสมาชิก" });
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "UPDATE",
+          entity: "member",
+          entityId: id,
+          metadata: normalized,
+        });
         return { id: updated };
       }),
     deactivate: churchLeaderProcedure
       .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
         const updated = await deactivateMember(input.id);
         if (updated === null)
           throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบสมาชิก" });
+        await createAuditLog({
+          churchId: DEFAULT_CHURCH_ID,
+          userId: ctx.user.id,
+          action: "DEACTIVATE",
+          entity: "member",
+          entityId: input.id,
+        });
         return { id: updated };
       }),
   }),
@@ -1712,7 +2016,10 @@ export const appRouter = router({
             .map(csvCell)
             .join(",")
         );
-        return { csv: [header, ...lines].join("\n"), rowCount: rows.length };
+        return {
+          csv: assertCsvWithinLimit([header, ...lines].join("\n")),
+          rowCount: rows.length,
+        };
       }),
   }),
 
@@ -2904,12 +3211,12 @@ export const appRouter = router({
           );
         } catch (err: any) {
           const msg = typeof err?.message === "string" ? err.message : "";
-          const isExpected =
-            msg.includes("ไม่พบ") || msg.includes("ไม่สามารถ");
+          const isExpected = msg.includes("ไม่พบ") || msg.includes("ไม่สามารถ");
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message:
-              isExpected ? msg : "เกิดข้อผิดพลาดในการเชื่อมโยงสมาชิกกับ LINE",
+            message: isExpected
+              ? msg
+              : "เกิดข้อผิดพลาดในการเชื่อมโยงสมาชิกกับ LINE",
           });
         }
       }),

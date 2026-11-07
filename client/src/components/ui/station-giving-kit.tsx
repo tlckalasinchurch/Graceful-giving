@@ -185,11 +185,7 @@ export function StationHeroCTA({
       >
         <div className="flex min-w-0 items-center gap-4">
           <div className="grid size-14 shrink-0 place-items-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground sm:size-16">
-            <svg
-              viewBox="0 0 40 40"
-              className="size-8"
-              aria-hidden="true"
-            >
+            <svg viewBox="0 0 40 40" className="size-8" aria-hidden="true">
               <line
                 x1="10"
                 y1="17"
@@ -587,15 +583,11 @@ export function StationQrPoster({
       case "scan":
         return <Smartphone className="w-6 h-6 text-white stroke-[2.2]" />;
       case "select":
-        return (
-          <CalendarCheck2 className="w-6 h-6 text-white stroke-[2.2]" />
-        );
+        return <CalendarCheck2 className="w-6 h-6 text-white stroke-[2.2]" />;
       case "pay":
         return <CreditCard className="w-6 h-6 text-white stroke-[2.2]" />;
       case "done":
-        return (
-          <Play className="w-6 h-6 text-white fill-white ml-0.5" />
-        );
+        return <Play className="w-6 h-6 text-white fill-white ml-0.5" />;
     }
   };
 

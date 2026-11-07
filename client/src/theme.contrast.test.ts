@@ -73,7 +73,9 @@ describe.each(["light", "dark"] as const)("%s theme contrast", mode => {
   });
 
   it("keeps body and muted text readable on a card", () => {
-    expect(contrast(token("ink", mode), token("surface", mode))).toBeGreaterThanOrEqual(7);
+    expect(
+      contrast(token("ink", mode), token("surface", mode))
+    ).toBeGreaterThanOrEqual(7);
     expect(
       contrast(token("ink-3", mode), token("surface", mode))
     ).toBeGreaterThanOrEqual(4.5);

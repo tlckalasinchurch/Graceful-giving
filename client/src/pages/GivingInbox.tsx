@@ -26,6 +26,8 @@ import {
   Image as ImageIcon,
   X,
   Loader2,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import {
   Dialog,
@@ -128,6 +130,7 @@ export default function GivingInbox() {
     useState<InboxStatus>("needs_review");
   const [selectedSlipId, setSelectedSlipId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isZoomed, setIsZoomed] = useState(false);
 
   // Modals
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -1001,23 +1004,48 @@ export default function GivingInbox() {
                     <h3 className="text-sm font-extrabold text-ink-2">
                       1. หลักฐานการโอน (สลิป)
                     </h3>
-                    {currentSlip.signedImageUrl && (
-                      <a
-                        href={currentSlip.signedImageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-secondary min-h-10 px-3 py-1.5 text-xs inline-flex items-center gap-1.5"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" /> ดูภาพเต็ม
-                      </a>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {currentSlip.signedImageUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setIsZoomed(z => !z)}
+                          className="btn-secondary min-h-10 px-3 py-1.5 text-xs inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          {isZoomed ? (
+                            <>
+                              <ZoomOut className="w-3.5 h-3.5" />
+                              <span>ย่อขนาด</span>
+                            </>
+                          ) : (
+                            <>
+                              <ZoomIn className="w-3.5 h-3.5" />
+                              <span>ซูมสลิป</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                      {currentSlip.signedImageUrl && (
+                        <a
+                          href={currentSlip.signedImageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-secondary min-h-10 px-3 py-1.5 text-xs inline-flex items-center gap-1.5"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" /> ดูภาพเต็ม
+                        </a>
+                      )}
+                    </div>
                   </div>
-                  <div className="rounded-xl border-2 border-[var(--ink)] overflow-hidden bg-paper-2 max-h-[340px] flex items-center justify-center p-2">
+                  <div
+                    className={`rounded-xl border-2 border-[var(--ink)] overflow-auto bg-paper-2 flex items-center justify-center p-2 transition-all ${isZoomed ? "max-h-[580px]" : "max-h-[340px]"}`}
+                  >
                     {currentSlip.signedImageUrl ? (
                       <img
                         src={currentSlip.signedImageUrl}
-                        alt="สลิปการโอนเงิน"
-                        className="max-h-[320px] w-auto object-contain rounded-lg"
+                        alt="สลิปการโอนเงิน (คลิกเพื่อซูม)"
+                        onClick={() => setIsZoomed(z => !z)}
+                        title="คลิกเพื่อซูมเข้า/ออก"
+                        className={`w-auto object-contain rounded-lg transition-all cursor-pointer ${isZoomed ? "max-h-[560px] scale-105" : "max-h-[320px] hover:opacity-90"}`}
                       />
                     ) : (
                       <div className="py-16 text-xs font-bold text-ink-3">

@@ -40,10 +40,7 @@ function WalletLedger({
   const headingId = useId();
   return (
     <section aria-labelledby={headingId} className="p-5">
-      <h3
-        id={headingId}
-        className="display text-lg text-ink"
-      >
+      <h3 id={headingId} className="display text-lg text-ink">
         {title}
       </h3>
       <dl className="mt-3 text-sm">
@@ -155,9 +152,7 @@ export function CarryForwardLedger({
     const bank = parseAmount(openingBank);
     return (
       <section className="bento-card-static p-5">
-        <h3 className="display text-lg text-ink">
-          ยอดยกมา (รอบแรก)
-        </h3>
+        <h3 className="display text-lg text-ink">ยอดยกมา (รอบแรก)</h3>
         <p className="mt-1 text-sm font-medium text-ink-2">
           ยังไม่มีรอบก่อนหน้าให้ยกยอดมา กรอกเงินสดที่มีอยู่ในกล่องตอนนี้
           และยอดล่าสุดในสมุดบัญชี กรอกได้ครั้งเดียว รอบต่อไประบบจะยกยอดให้เอง

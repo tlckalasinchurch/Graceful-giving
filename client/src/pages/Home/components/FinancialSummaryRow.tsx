@@ -98,7 +98,9 @@ export function FinancialSummaryRow({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className={`text-xs sm:text-sm font-bold uppercase tracking-[0.08em] ${tone.label}`}>
+                  <p
+                    className={`text-xs sm:text-sm font-bold uppercase tracking-[0.08em] ${tone.label}`}
+                  >
                     {card.label}
                   </p>
                   <p className={`mt-1 text-xs ${tone.note}`}>{card.note}</p>

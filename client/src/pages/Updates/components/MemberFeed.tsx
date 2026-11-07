@@ -259,9 +259,7 @@ export function MemberFeed() {
               </DialogHeader>
 
               <div className="mt-2 rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium leading-6 text-ink-2">
-                <p className="mb-1 font-extrabold text-brand">
-                  สรุปสาระสำคัญ:
-                </p>
+                <p className="mb-1 font-extrabold text-brand">สรุปสาระสำคัญ:</p>
                 {selectedNews.summary}
               </div>
 

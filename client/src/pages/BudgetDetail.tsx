@@ -254,7 +254,7 @@ export default function BudgetDetail() {
                     <li key={expense.id}>
                       <Link
                         href={`/transactions/expense-${expense.id}`}
-                        className="flex items-start justify-between gap-3 py-3 hover:bg-paper-2 rounded-xl px-2 -mx-2 transition-colors"
+                        className="flex min-h-11 items-center justify-between gap-3 py-3 hover:bg-paper-2 rounded-xl px-2.5 -mx-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                       >
                         <div className="min-w-0">
                           <p className="truncate text-sm font-extrabold text-ink hover:underline">

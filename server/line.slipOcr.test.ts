@@ -13,19 +13,25 @@ import {
 
 describe("isTransientError", () => {
   it("treats TransientOcrError as transient", () => {
-    expect(isTransientError(new TransientOcrError("Gemini 429", 429))).toBe(true);
+    expect(isTransientError(new TransientOcrError("Gemini 429", 429))).toBe(
+      true
+    );
   });
 
   it("treats retryable LLM statuses as transient", () => {
     for (const status of [408, 429, 500, 502, 503, 504]) {
-      const err = new Error(`LLM invoke failed: ${status} Server Error – upstream`);
+      const err = new Error(
+        `LLM invoke failed: ${status} Server Error – upstream`
+      );
       expect(isTransientError(err), `status ${status}`).toBe(true);
     }
   });
 
   it("treats client errors as permanent", () => {
     for (const status of [400, 401, 403, 404, 422]) {
-      const err = new Error(`LLM invoke failed: ${status} Bad Request – invalid image`);
+      const err = new Error(
+        `LLM invoke failed: ${status} Bad Request – invalid image`
+      );
       expect(isTransientError(err), `status ${status}`).toBe(false);
     }
   });
@@ -33,7 +39,7 @@ describe("isTransientError", () => {
   it("does not match status digits quoted inside an error body", () => {
     // A permanent 400 whose body mentions 500/429 must not be retried.
     const err = new Error(
-      "LLM invoke failed: 400 Bad Request – {\"error\":\"maxOutputTokens: 500 exceeds limit 1429\"}"
+      'LLM invoke failed: 400 Bad Request – {"error":"maxOutputTokens: 500 exceeds limit 1429"}'
     );
     expect(isTransientError(err)).toBe(false);
   });
@@ -45,7 +51,9 @@ describe("isTransientError", () => {
   });
 
   it("treats an unreadable image as permanent", () => {
-    expect(isTransientError(new Error("AI returned non-JSON response"))).toBe(false);
+    expect(isTransientError(new Error("AI returned non-JSON response"))).toBe(
+      false
+    );
   });
 });
 
@@ -74,14 +82,22 @@ describe("normalizeAndValidateDate", () => {
   });
 
   it("downgrades confidence for a date older than one year", () => {
-    const result = normalizeAndValidateDate(isoDaysFromNow(-400), "09:00", 0.99);
+    const result = normalizeAndValidateDate(
+      isoDaysFromNow(-400),
+      "09:00",
+      0.99
+    );
     expect(result.dateConfidence).toBeLessThan(0.5);
   });
 
   it("returns null for a missing or unparseable date", () => {
     expect(normalizeAndValidateDate(null, null, 0.9).transferDate).toBeNull();
-    expect(normalizeAndValidateDate("ไม่ระบุ", null, 0.9).transferDate).toBeNull();
-    expect(normalizeAndValidateDate("15/03/2024", null, 0.9).transferDate).toBeNull();
+    expect(
+      normalizeAndValidateDate("ไม่ระบุ", null, 0.9).transferDate
+    ).toBeNull();
+    expect(
+      normalizeAndValidateDate("15/03/2024", null, 0.9).transferDate
+    ).toBeNull();
   });
 
   it("pads single-digit month and day", () => {

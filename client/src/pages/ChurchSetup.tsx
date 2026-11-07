@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -59,6 +59,9 @@ export default function ChurchSetup() {
     budgetYear: new Date().getFullYear(),
   });
 
+  const profileQuery = trpc.church.getProfile.useQuery(undefined, {
+    retry: false,
+  });
   const updateProfileMutation = trpc.church.updateProfile.useMutation();
   const completeSetupMutation = trpc.church.completeSetup.useMutation();
   const createAccountMutation = trpc.finance.createAccount.useMutation();
@@ -66,6 +69,30 @@ export default function ChurchSetup() {
     retry: false,
   });
   const utils = trpc.useUtils();
+
+  // Seed existing church profile once so revisiting /setup never wipes saved data
+  const seededProfileRef = useRef(false);
+  useEffect(() => {
+    if (!profileQuery.data || seededProfileRef.current) return;
+    seededProfileRef.current = true;
+    const p = profileQuery.data;
+    setData(prev => ({
+      ...prev,
+      name: p.name ?? prev.name,
+      address: p.address ?? prev.address,
+      phone: p.phone ?? prev.phone,
+      email: p.email ?? prev.email,
+      website: p.website ?? prev.website,
+      pastorName: p.pastorName ?? prev.pastorName,
+      assistantPastorName: p.assistantPastorName ?? prev.assistantPastorName,
+      treasurerName: p.treasurerName ?? prev.treasurerName,
+      motto: p.motto ?? prev.motto,
+      bankName: p.bankName ?? prev.bankName,
+      bankAccount: p.bankAccount ?? prev.bankAccount,
+      bankAccountName: p.bankAccountName ?? prev.bankAccountName,
+      fiscalYearStartMonth: p.fiscalYearStartMonth ?? prev.fiscalYearStartMonth,
+    }));
+  }, [profileQuery.data]);
 
   function skipSetup() {
     markSetupSkipped();
@@ -127,8 +154,14 @@ export default function ChurchSetup() {
         motto: data.motto,
       });
       const existingFunds = accountsQuery.data ?? [];
-      if (existingFunds.length === 0 && data.funds.length > 0) {
-        for (const fund of data.funds) {
+      const existingFundNames = new Set(
+        existingFunds.map(f => f.name.trim().toLowerCase())
+      );
+      const fundsToCreate = data.funds.filter(
+        f => !existingFundNames.has(f.name.trim().toLowerCase())
+      );
+      if (fundsToCreate.length > 0) {
+        for (const fund of fundsToCreate) {
           try {
             await createAccountMutation.mutateAsync({
               name: fund.name,
@@ -162,7 +195,7 @@ export default function ChurchSetup() {
           <button
             onClick={skipSetup}
             aria-label="กลับหน้าหลัก"
-            className="absolute right-5 top-5 grid size-9 place-items-center rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 text-ink hover:bg-accent transition"
+            className="absolute right-5 top-5 grid size-11 place-items-center rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 text-ink hover:bg-accent transition"
           >
             <X className="size-4" />
           </button>
@@ -205,6 +238,7 @@ export default function ChurchSetup() {
                 key={s.id}
                 onClick={() => step > s.id && setStep(s.id)}
                 aria-label={`ขั้นตอน ${s.id}`}
+                aria-current={s.id === step ? "step" : undefined}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   s.id === step
                     ? "w-6 bg-brand border border-[var(--ink)]"

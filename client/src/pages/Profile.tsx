@@ -193,10 +193,6 @@ export default function Profile() {
   const utils = trpc.useUtils();
 
   // Queries for live financial data
-  const pendingApprovalsQuery = trpc.withdrawals.list.useQuery(
-    { myOnly: false },
-    { staleTime: 60_000 }
-  );
   const notificationsQuery = trpc.notifications.list.useQuery(undefined, {
     staleTime: 30_000,
   });
@@ -305,10 +301,20 @@ export default function Profile() {
     }));
   }, [churchProfile, usersQuery.data]);
 
-  const pendingApprovalsCount =
-    pendingApprovalsQuery.data?.filter(w => w.status === "pending").length || 0;
   const unreadCount =
     notificationsQuery.data?.filter(n => !n.readAt).length || 0;
+
+  // Keyboard accessibility: Close modals on Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (showIdCardModal) setShowIdCardModal(false);
+        if (showEditProfileModal) setShowEditProfileModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showIdCardModal, showEditProfileModal]);
 
   const effectiveAvatar =
     (user as any)?.avatarUrl ||
@@ -518,9 +524,7 @@ export default function Profile() {
                           key={rIdx}
                           className="text-xs text-ink flex items-start gap-1.5"
                         >
-                          <span className="text-brand font-bold mt-0.5">
-                            •
-                          </span>
+                          <span className="text-brand font-bold mt-0.5">•</span>
                           <span>{resp}</span>
                         </li>
                       ))}
@@ -574,11 +578,16 @@ export default function Profile() {
 
       {/* ── MODAL 1: ดูโปรไฟล์ / บัตรประจำตัวคริสตจักร (Digital ID Card) ──────── */}
       {showIdCardModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="id-card-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+        >
           <div className="neo-modal max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowIdCardModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface hover:bg-paper-2 text-ink transition-colors min-h-11 min-w-10 flex items-center justify-center"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface hover:bg-paper-2 text-ink transition-colors min-h-11 min-w-10 flex items-center justify-center cursor-pointer"
               aria-label="ปิดหน้าต่าง"
             >
               <X className="w-5 h-5" />
@@ -588,7 +597,10 @@ export default function Profile() {
               <span className="px-3 py-0.5 sm:py-1 rounded-full text-xs font-extrabold bg-accent border-[1.5px] border-[var(--ink)] text-accent-foreground">
                 Digital Church Member Card
               </span>
-              <h3 className="text-lg sm:text-xl font-extrabold text-ink pt-1">
+              <h3
+                id="id-card-title"
+                className="text-lg sm:text-xl font-extrabold text-ink pt-1"
+              >
                 บัตรประจำตัวคริสตจักร
               </h3>
               <p className="text-xs text-ink-2">{churchName}</p>
@@ -631,16 +643,12 @@ export default function Profile() {
 
               <div className="grid grid-cols-2 gap-2 text-left pt-2 border-t border-line text-xs">
                 <div>
-                  <span className="text-xs text-ink-3">
-                    สังกัดคริสตจักร:
-                  </span>
+                  <span className="text-xs text-ink-3">สังกัดคริสตจักร:</span>
                   <p className="font-bold text-ink truncate">{churchName}</p>
                 </div>
                 <div>
                   <span className="text-xs text-ink-3">สถานะสมาชิก:</span>
-                  <p className="font-bold text-brand">
-                    ยืนยันแล้ว (Active)
-                  </p>
+                  <p className="font-bold text-brand">ยืนยันแล้ว (Active)</p>
                 </div>
               </div>
             </div>
@@ -648,14 +656,14 @@ export default function Profile() {
             <div className="flex gap-2">
               <button
                 onClick={() => window.print()}
-                className="btn-secondary flex-1 min-h-11 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5"
+                className="btn-secondary flex-1 min-h-11 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
                 <span>พิมพ์บัตร</span>
               </button>
               <button
                 onClick={() => setShowIdCardModal(false)}
-                className="btn-primary flex-1 min-h-11 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm"
+                className="btn-primary flex-1 min-h-11 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm cursor-pointer"
               >
                 ปิดหน้าต่าง
               </button>
@@ -666,18 +674,26 @@ export default function Profile() {
 
       {/* ── MODAL 2: แก้ไขโปรไฟล์ (Edit Profile Dialog) ───────────────────── */}
       {showEditProfileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-profile-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+        >
           <div className="neo-modal max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 relative max-h-[92vh] overflow-y-auto overscroll-contain">
             <button
               onClick={() => setShowEditProfileModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface hover:bg-paper-2 text-ink transition-colors min-h-11 min-w-10 flex items-center justify-center"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface hover:bg-paper-2 text-ink transition-colors min-h-11 min-w-10 flex items-center justify-center cursor-pointer"
               aria-label="ปิดหน้าต่าง"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="space-y-1">
-              <h3 className="text-lg sm:text-xl font-extrabold text-ink">
+              <h3
+                id="edit-profile-title"
+                className="text-lg sm:text-xl font-extrabold text-ink"
+              >
                 แก้ไขโปรไฟล์ผู้ใช้งาน
               </h3>
               <p className="text-xs text-ink-3">
@@ -714,26 +730,27 @@ export default function Profile() {
                   className="neo-input w-full px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-ink"
                   placeholder="https://..."
                 />
-                <div className="flex items-center gap-2 pt-1">
-                  <span className="text-xs text-ink-3">
+                <div className="space-y-1.5 pt-1">
+                  <span className="text-xs text-ink-3 block font-bold">
                     หรือเลือกรูปสำเร็จรูป:
                   </span>
-                  <div className="flex gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {PRESET_AVATARS.map((p, i) => (
                       <button
                         key={i}
                         type="button"
+                        aria-label={`เลือกรูปโปรไฟล์แบบที่ ${i + 1}`}
                         onClick={() => setEditAvatarUrl(p)}
-                        className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all ${
+                        className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border-2 transition-all cursor-pointer p-0.5 ${
                           editAvatarUrl === p
-                            ? "border-[var(--ink)] scale-105 shadow-[2px_2px_0_var(--ink)]"
-                            : "border-transparent"
+                            ? "border-brand scale-110 shadow-[2px_2px_0_var(--ink)]"
+                            : "border-[var(--ink)]/30 hover:border-[var(--ink)]"
                         }`}
                       >
                         <img
                           src={p}
                           alt={`Avatar ${i}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full rounded-full object-cover"
                         />
                       </button>
                     ))}
