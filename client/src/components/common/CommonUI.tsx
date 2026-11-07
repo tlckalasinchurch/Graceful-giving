@@ -300,7 +300,9 @@ export const PageHeader: React.FC<{
   className?: string;
 }> = ({ title, subtitle, action, className = "" }) => {
   return (
-    <div className={`flex flex-col justify-between gap-4 sm:flex-row sm:items-end ${className}`}>
+    <div
+      className={`flex flex-col justify-between gap-4 sm:flex-row sm:items-end ${className}`}
+    >
       <div className="min-w-0">
         <h1 className="display text-[clamp(1.85rem,4.2vw,2.65rem)] leading-[1.14] text-ink break-words">
           {title}
@@ -482,7 +484,9 @@ export const ConfirmDialog: React.FC<{
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm rounded-2xl border-2 border-[var(--ink)] bg-surface p-6 text-ink shadow-[6px_6px_0_var(--ink)]">
         <DialogHeader>
-          <DialogTitle className="display text-xl text-ink">{title}</DialogTitle>
+          <DialogTitle className="display text-xl text-ink">
+            {title}
+          </DialogTitle>
           <DialogDescription className="text-base leading-relaxed text-ink-2">
             {description}
           </DialogDescription>

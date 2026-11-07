@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { formatBaht } from "@/lib/format";
 import { useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
@@ -35,10 +35,10 @@ export default function Funds() {
   >("mission");
   const [newFundDesc, setNewFundDesc] = useState("");
 
-  const {
-    data: accountsData,
-    refetch,
-  } = trpc.finance.accounts.useQuery(undefined, { retry: false });
+  const { data: accountsData, refetch } = trpc.finance.accounts.useQuery(
+    undefined,
+    { retry: false }
+  );
 
   const createAccountMutation = trpc.finance.createAccount.useMutation({
     onSuccess: () => {
@@ -86,6 +86,30 @@ export default function Funds() {
     return m;
   }, [fundsList]);
   const barRows = useMemo(() => fundShares(fundsList, 6), [fundsList]);
+
+  const generalFundBalance = useMemo(
+    () =>
+      fundsList
+        .filter(f => f.type === "general")
+        .reduce((sum, f) => sum + f.balance, 0),
+    [fundsList]
+  );
+  const restrictedFundBalance = useMemo(
+    () =>
+      fundsList
+        .filter(f => f.type !== "general")
+        .reduce((sum, f) => sum + f.balance, 0),
+    [fundsList]
+  );
+
+  useEffect(() => {
+    if (!showNewFundModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowNewFundModal(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showNewFundModal]);
 
   const handleCreateFund = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,6 +159,33 @@ export default function Funds() {
           </div>
           <FundBreakdown rows={barRows} hidden={false} legend={false} />
         </section>
+
+        {/* Subtotal Split: General (Unrestricted) vs. Restricted */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="rounded-2xl border-2 border-[var(--ink)] bg-tile-mint p-4 sm:p-5 shadow-[2px_2px_0_var(--ink)] space-y-1">
+            <span className="eyebrow text-tile-mint-ink font-extrabold text-xs">
+              กองทุนทั่วไป (คล่องตัว ไม่ผูกพัน)
+            </span>
+            <p className="money text-xl sm:text-2xl font-extrabold text-tile-mint-ink">
+              {formatBaht(generalFundBalance)}
+            </p>
+            <p className="text-xs text-tile-mint-ink/80 font-medium">
+              ใช้จ่ายในพันธกิจและดำเนินงานทั่วไปของคริสตจักรได้
+            </p>
+          </div>
+          <div className="rounded-2xl border-2 border-[var(--ink)] bg-tile-sand p-4 sm:p-5 shadow-[2px_2px_0_var(--ink)] space-y-1">
+            <span className="eyebrow text-tile-sand-ink font-extrabold text-xs">
+              กองทุนเฉพาะพันธกิจ (เงินผูกพัน)
+            </span>
+            <p className="money text-xl sm:text-2xl font-extrabold text-tile-sand-ink">
+              {formatBaht(restrictedFundBalance)}
+            </p>
+            <p className="text-xs text-tile-sand-ink/80 font-medium">
+              ผูกพันตามวัตถุประสงค์เฉพาะของผู้ถวาย เช่น อาคาร, สงเคราะห์,
+              โครงการพิเศษ
+            </p>
+          </div>
+        </div>
 
         {/* Funds: one divided list, name and type left, balance and share right */}
         <section
@@ -214,10 +265,18 @@ export default function Funds() {
 
         {/* Create Fund Modal */}
         {showNewFundModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-fund-title"
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+          >
             <div className="neo-modal max-h-[calc(100dvh-2rem)] w-full max-w-md space-y-5 overflow-y-auto overscroll-contain p-6 md:p-8 animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
-                <h3 className="text-lg font-extrabold text-ink">
+                <h3
+                  id="create-fund-title"
+                  className="text-lg font-extrabold text-ink"
+                >
                   สร้างกองทุนใหม่
                 </h3>
                 <button

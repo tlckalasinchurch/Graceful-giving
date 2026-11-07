@@ -59,7 +59,8 @@ export default function Login() {
               “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
             </blockquote>
             <figcaption className="text-base font-semibold text-ink-2">
-              ความโปร่งใส ความสัตย์ซื่อ และความชื่นชมยินดีในการถวายเพื่อพระราชกิจ
+              ความโปร่งใส ความสัตย์ซื่อ
+              และความชื่นชมยินดีในการถวายเพื่อพระราชกิจ
             </figcaption>
           </figure>
 

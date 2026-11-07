@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -7,17 +7,14 @@ import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
-import { HandCoins } from "lucide-react";
+import { HandCoins, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import {
   OFFERING_CATEGORIES,
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip, EmptyState } from "@/components/common/CommonUI";
 import { formatBaht, toLocalISODate } from "@/lib/format";
@@ -31,7 +28,7 @@ export default function NewOffering() {
   });
   const funds = fundsQuery.data ?? [];
   const membersQuery = trpc.members.list.useQuery(undefined, { retry: false });
-  const members = membersQuery.data ?? [];
+  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
 
   // Form State
   const [category, setCategory] = useState<OfferingCategory>("cash");
@@ -40,7 +37,9 @@ export default function NewOffering() {
   const [method, setMethod] = useState("เงินสด");
   const [date, setDate] = useState(() => toLocalISODate());
   const [notes, setNotes] = useState("");
+  const [envelopeNo, setEnvelopeNo] = useState("");
   const [donorName, setDonorName] = useState("");
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -50,11 +49,59 @@ export default function NewOffering() {
     amount: number;
     method: string;
   } | null>(null);
+
+  const matchedMember = useMemo(
+    () =>
+      selectedMemberId != null
+        ? (members.find(m => m.id === selectedMemberId) ?? null)
+        : null,
+    [members, selectedMemberId]
+  );
+
+  const handleEnvelopeChange = (value: string) => {
+    setEnvelopeNo(value);
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed || isAnonymous) {
+      return;
+    }
+    const found = members.find(
+      m => (m.envelopeNo ?? "").trim().toLowerCase() === trimmed
+    );
+    if (found) {
+      setSelectedMemberId(found.id);
+      setDonorName(found.name);
+    }
+  };
+
+  const handleDonorNameChange = (value: string) => {
+    setDonorName(value);
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed) {
+      setSelectedMemberId(null);
+      return;
+    }
+    const found = members.find(
+      m =>
+        m.name.trim().toLowerCase() === trimmed ||
+        (m.envelopeNo &&
+          `${m.name} (#${m.envelopeNo})`.toLowerCase() === trimmed)
+    );
+    if (found) {
+      setSelectedMemberId(found.id);
+      if (found.envelopeNo && !envelopeNo.trim()) {
+        setEnvelopeNo(found.envelopeNo);
+      }
+    } else {
+      setSelectedMemberId(null);
+    }
+  };
+
   const isDirty =
     !isSuccessOpen &&
     Boolean(
       amount ||
         notes ||
+        envelopeNo ||
         donorName ||
         isAnonymous ||
         fundId ||
@@ -77,7 +124,9 @@ export default function NewOffering() {
       });
       setAmount("");
       setNotes("");
+      setEnvelopeNo("");
       setDonorName("");
+      setSelectedMemberId(null);
       setIsAnonymous(false);
       setIsSuccessOpen(true);
       void Promise.all([
@@ -91,7 +140,9 @@ export default function NewOffering() {
       toast.success("บันทึกการถวายเรียบร้อยแล้ว");
     },
     onError: error => {
-      toast.error("บันทึกการถวายไม่สำเร็จ", { description: friendlyErrorMessage(error) });
+      toast.error("บันทึกการถวายไม่สำเร็จ", {
+        description: friendlyErrorMessage(error),
+      });
     },
   });
 
@@ -120,6 +171,8 @@ export default function NewOffering() {
             : "cash",
       receiptDate: new Date(`${date}T12:00:00`),
       donorName: isAnonymous ? undefined : donorName.trim() || undefined,
+      donorMemberId: isAnonymous ? null : selectedMemberId,
+      reference: envelopeNo.trim() ? `ซอง #${envelopeNo.trim()}` : undefined,
       notes: notes || undefined,
     });
   };
@@ -214,6 +267,7 @@ export default function NewOffering() {
                   type="number"
                   required
                   min="1"
+                  step="0.01"
                   aria-invalid={Boolean(formError)}
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
@@ -295,8 +349,8 @@ export default function NewOffering() {
               </div>
             </div>
 
-            {/* 5. วันที่ & รายละเอียดเพิ่มเติม */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 5. วันที่, รหัสซองถวาย & ชื่อผู้ถวาย */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1.5">
                 <label
                   htmlFor="offering-date"
@@ -315,6 +369,25 @@ export default function NewOffering() {
 
               <div className="space-y-1.5">
                 <label
+                  htmlFor="offering-envelope"
+                  className="text-sm font-extrabold text-ink block"
+                >
+                  รหัสซองถวาย (ถ้ามี)
+                </label>
+                <input
+                  id="offering-envelope"
+                  type="text"
+                  disabled={isAnonymous}
+                  value={envelopeNo}
+                  onChange={e => handleEnvelopeChange(e.target.value)}
+                  placeholder="เช่น 001, A-12"
+                  maxLength={32}
+                  className="neo-input disabled:opacity-60"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label
                   htmlFor="offering-donor"
                   className="text-sm font-extrabold text-ink block"
                 >
@@ -326,7 +399,7 @@ export default function NewOffering() {
                   list="member-suggestions"
                   disabled={isAnonymous}
                   value={donorName}
-                  onChange={e => setDonorName(e.target.value)}
+                  onChange={e => handleDonorNameChange(e.target.value)}
                   placeholder={
                     isAnonymous
                       ? "ถวายโดยไม่เปิดเผยนาม"
@@ -345,6 +418,27 @@ export default function NewOffering() {
               </div>
             </div>
 
+            {!isAnonymous && matchedMember && (
+              <div className="flex items-center justify-between gap-2 rounded-xl border border-[var(--ink)] bg-tile-mint/60 px-3.5 py-2.5 text-xs font-extrabold text-tile-mint-ink">
+                <span className="flex items-center gap-1.5">
+                  <UserCheck className="size-4 shrink-0 text-brand" />
+                  <span>
+                    เชื่อมโยงทะเบียนสมาชิก: {matchedMember.name}
+                    {matchedMember.envelopeNo
+                      ? ` (ซอง #${matchedMember.envelopeNo})`
+                      : ""}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedMemberId(null)}
+                  className="underline hover:opacity-80"
+                >
+                  ยกเลิกการเชื่อมโยง
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center gap-2.5">
               <input
                 type="checkbox"
@@ -352,7 +446,11 @@ export default function NewOffering() {
                 checked={isAnonymous}
                 onChange={e => {
                   setIsAnonymous(e.target.checked);
-                  if (e.target.checked) setDonorName("");
+                  if (e.target.checked) {
+                    setDonorName("");
+                    setEnvelopeNo("");
+                    setSelectedMemberId(null);
+                  }
                 }}
                 className="rounded border-2 border-[var(--ink)] text-brand focus:ring-brand w-4 h-4"
               />

@@ -8,7 +8,10 @@ export default function NotFound() {
     <div className="min-h-dvh w-full flex items-center justify-center bg-ground p-4 text-ink">
       <div className="bento-card w-full max-w-md p-8 sm:p-10 text-center">
         <div className="mx-auto mb-6 grid size-20 place-items-center rounded-2xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
-          <Compass className="size-10 text-brand animate-pulse" strokeWidth={2} />
+          <Compass
+            className="size-10 text-brand animate-pulse"
+            strokeWidth={2}
+          />
         </div>
 
         <p className="font-display text-4xl font-extrabold text-brand">404</p>

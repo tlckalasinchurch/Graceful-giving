@@ -75,7 +75,7 @@ returns the SPA `index.html` (tested on a preview of PR #50).
 **Theme tokens** (burnt-orange vanilla, no dark mode in the app):
 
 - Page/background paper: `#FAF8F5`; cream tint bands: `#FFF4D6` / `#FFF8EA`.
-- Card surfaces are `bg-white` with border `#E7DCC8`; anything sitting *inside* a
+- Card surfaces are `bg-white` with border `#E7DCC8`; anything sitting _inside_ a
   white card uses `#FFF8EA` as the single inset step.
 - Ink: `#171311` (headings), `#51443A` (body), `#807266` (muted), pill text on
   `#FAF8F5` with `#807266`.
@@ -94,7 +94,7 @@ replacement:
 - Body text now renders `\n` as a line break (`whitespace-pre-line` was added).
 - Existing pattern to follow for new confirms:
   `await Swal.confirm(title, text, { icon, confirmButtonText, confirmButtonColor,
-  cancelButtonText }); if (confirmed) mutate(...)` — see `handleDeleteThisSession`
+cancelButtonText }); if (confirmed) mutate(...)` — see `handleDeleteThisSession`
   in `client/src/pages/CountingDetail.tsx`.
 - Button color semantics used with `confirmButtonColor`: red `#C8372D` = delete,
   green `#1F5C33` / `#2F7A45` = post/verify, brown `#51443A` = permanent close,
@@ -155,7 +155,6 @@ file. No build artifact (`api/index.js`) is part of the history.
 The owner has not yet stated his first product idea — when he does, start the
 loop from Hard rules and produce an HTML mockup before any code.
 
-
 ## Session changes & Production Audit (2026-11-02)
 
 **PR #85 Merged into `main` (`184fdf9`):** `fix: resolve production audit issues for timezone, state leak, CSV export, and role descriptions`
@@ -180,6 +179,7 @@ loop from Hard rules and produce an HTML mockup before any code.
    - Updated `MEMBER` description to accurately reflect Giving Station access.
 
 **Verification Status**:
+
 - `pnpm check`: 0 errors
 - `pnpm test`: 65 passed, 4 skipped, 769 tests passed
 - `pnpm run ci`: 100% PASS
@@ -271,7 +271,7 @@ so never put that value in a local shell.
    `SUPER_ADMIN`/`TREASURER`/`PASTOR`/`MEMBER`) and `finance_accounts` (the default
    tenant is `demo-church`). For the signing flow, add `bank_signers` rows.
 4. Start the app: `NODE_ENV=development JWT_SECRET=<test value> PORT=3300
-   APP_URL=http://localhost:3300 pnpm exec tsx server/_core/index.ts`.
+APP_URL=http://localhost:3300 pnpm exec tsx server/_core/index.ts`.
 5. No LINE needed: sign a session with `signSession("line:test-<role>")` from
    `server/_core/session.ts` and send it as the `app_session_id` cookie.
 6. A `PASTOR` is redirected to `/setup` until `church.updateProfile` and

@@ -71,7 +71,9 @@ export const BudgetProgress: React.FC<{
       </div>
       <div className="mt-1.5 flex items-center justify-between text-xs tabular-nums">
         <span className={`font-bold ${style.text}`}>{style.label}</span>
-        <span className="font-semibold text-ink-3">ใช้ไป {percent.toFixed(0)}%</span>
+        <span className="font-semibold text-ink-3">
+          ใช้ไป {percent.toFixed(0)}%
+        </span>
       </div>
     </div>
   );
@@ -122,8 +124,7 @@ export function parseBudgetForm(values: BudgetFormValues):
   };
 }
 
-const inputClass =
-  "neo-input mt-1 text-base font-medium";
+const inputClass = "neo-input mt-1 text-base font-medium";
 
 export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;

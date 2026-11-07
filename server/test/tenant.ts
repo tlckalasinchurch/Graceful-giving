@@ -65,7 +65,9 @@ export async function purgeTenant(db: {
 
   for (const table of TENANT_TABLES) {
     await db
-      .execute(sql`DELETE FROM ${sql.identifier(table)} WHERE "churchId" = ${TEST_CHURCH_ID}`)
+      .execute(
+        sql`DELETE FROM ${sql.identifier(table)} WHERE "churchId" = ${TEST_CHURCH_ID}`
+      )
       .catch(() => undefined);
   }
 }

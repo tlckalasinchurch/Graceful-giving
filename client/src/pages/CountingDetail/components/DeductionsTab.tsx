@@ -228,7 +228,10 @@ export function DeductionsTab({
         ) : (
           <ul className="divide-y divide-line">
             {deductions.map(deduction => (
-              <li key={deduction.id} className="space-y-2 p-4 hover:bg-paper-2/40">
+              <li
+                key={deduction.id}
+                className="space-y-2 p-4 hover:bg-paper-2/40"
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="font-extrabold text-ink">

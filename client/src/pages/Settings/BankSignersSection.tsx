@@ -188,7 +188,9 @@ export function BankSignersSection() {
       {/* Add new signer */}
       {canManageSigners && (
         <div className="pt-4 border-t border-line space-y-2.5">
-          <h4 className="text-xs font-extrabold text-ink-2">เพิ่มผู้มีอำนาจลงนาม</h4>
+          <h4 className="text-xs font-extrabold text-ink-2">
+            เพิ่มผู้มีอำนาจลงนาม
+          </h4>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="flex-1">
               <NativeSelect

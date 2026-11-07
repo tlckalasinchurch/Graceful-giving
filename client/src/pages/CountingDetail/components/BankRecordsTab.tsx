@@ -147,7 +147,9 @@ export function BankRecordsTab({
           }}
           className="bento-card-static p-5 md:p-6"
         >
-          <h2 className="mb-4 display text-base text-ink">บันทึกรายการธนาคาร</h2>
+          <h2 className="mb-4 display text-base text-ink">
+            บันทึกรายการธนาคาร
+          </h2>
           <div className="grid gap-4 md:grid-cols-4">
             <label className="text-sm font-extrabold text-ink">
               ประเภท
@@ -223,8 +225,15 @@ export function BankRecordsTab({
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="bento-card p-4">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">เงินโอนเข้าบัญชีจริง</p>
-          <MoneyDisplay amount={actualTransferIn} type="income" size="lg" className="mt-1 block" />
+          <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+            เงินโอนเข้าบัญชีจริง
+          </p>
+          <MoneyDisplay
+            amount={actualTransferIn}
+            type="income"
+            size="lg"
+            className="mt-1 block"
+          />
           <p className="mt-1 text-sm font-medium text-ink-2">
             เทียบซองโอน {fmtBaht(envelopeTransferTotal)}
           </p>
@@ -233,8 +242,14 @@ export function BankRecordsTab({
           </div>
         </div>
         <div className="bento-card p-4">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">นำเงินสดเข้าฝากจริง</p>
-          <MoneyDisplay amount={actualCashDeposit} size="lg" className="mt-1 block" />
+          <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+            นำเงินสดเข้าฝากจริง
+          </p>
+          <MoneyDisplay
+            amount={actualCashDeposit}
+            size="lg"
+            className="mt-1 block"
+          />
         </div>
       </div>
 

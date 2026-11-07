@@ -77,7 +77,9 @@ export default function Counting() {
       setLocation(`/counting/${id}`);
     },
     onError: error =>
-      toast.error("เปิดรอบไม่สำเร็จ", { description: friendlyErrorMessage(error) }),
+      toast.error("เปิดรอบไม่สำเร็จ", {
+        description: friendlyErrorMessage(error),
+      }),
   });
 
   const deleteSession = trpc.counting.deleteSession.useMutation({
@@ -86,7 +88,9 @@ export default function Counting() {
       toast.success("ลบรอบนับเงินถวายเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error("ลบรอบไม่สำเร็จ", { description: friendlyErrorMessage(error) }),
+      toast.error("ลบรอบไม่สำเร็จ", {
+        description: friendlyErrorMessage(error),
+      }),
   });
 
   const resetSession = trpc.counting.resetSession.useMutation({
@@ -97,7 +101,9 @@ export default function Counting() {
       setLocation(`/counting/${variables.id}`);
     },
     onError: error =>
-      toast.error("รีเซ็ตรอบไม่สำเร็จ", { description: friendlyErrorMessage(error) }),
+      toast.error("รีเซ็ตรอบไม่สำเร็จ", {
+        description: friendlyErrorMessage(error),
+      }),
   });
 
   const handleDeleteSession = async (session: {

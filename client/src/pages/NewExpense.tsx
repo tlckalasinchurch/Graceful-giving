@@ -274,7 +274,10 @@ export default function NewExpense() {
                   className={`w-full pl-12 pr-4 py-4 rounded-xl border-2 focus:border-brand focus:outline-none bg-surface shadow-[3px_3px_0_var(--ink)] money text-3xl font-extrabold text-ink placeholder:text-ink-3 ${errors.amount ? "border-danger" : "border-[var(--ink)]"}`}
                 />
               </div>
-              <p id="expense-amount-hint" className="text-xs font-medium text-ink-3">
+              <p
+                id="expense-amount-hint"
+                className="text-xs font-medium text-ink-3"
+              >
                 ระบุจำนวนเงินบาทได้ไม่เกิน 2 ตำแหน่งทศนิยม
               </p>
               {errors.amount && (
@@ -289,7 +292,9 @@ export default function NewExpense() {
 
               {/* Amount Quick Presets */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="text-xs font-semibold text-ink-3 py-1">จำนวนเงินแนะนำ:</span>
+                <span className="text-xs font-semibold text-ink-3 py-1">
+                  จำนวนเงินแนะนำ:
+                </span>
                 {amountPresets.map(val => (
                   <Chip key={val} onClick={() => handlePreset(val)}>
                     +{formatBaht(val, 0)}
@@ -522,7 +527,9 @@ export default function NewExpense() {
                   <p className="text-sm font-bold text-ink">
                     กำลังอัปโหลดไฟล์...
                   </p>
-                  <p className="text-xs font-medium text-ink-3">{receiptFileName}</p>
+                  <p className="text-xs font-medium text-ink-3">
+                    {receiptFileName}
+                  </p>
                 </div>
               </div>
             ) : receiptFile ? (

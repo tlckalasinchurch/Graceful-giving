@@ -282,7 +282,10 @@ export default function Home() {
               id="dashboard-actions"
               className="flex items-center gap-2 px-1 text-xs font-bold uppercase tracking-[0.14em] text-ink-3"
             >
-              <span className="size-1.5 rounded-full bg-brand" aria-hidden="true" />
+              <span
+                className="size-1.5 rounded-full bg-brand"
+                aria-hidden="true"
+              />
               ทำรายการ
             </h2>
             <PrimaryActions

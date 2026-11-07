@@ -65,7 +65,12 @@ export function SplitEditor({
                     : "border border-line bg-paper-2 text-ink-2 hover:border-[var(--ink)] hover:text-ink"
                 }`}
               >
-                {on && <Check className="size-3.5 shrink-0 stroke-[2.5]" aria-hidden="true" />}
+                {on && (
+                  <Check
+                    className="size-3.5 shrink-0 stroke-[2.5]"
+                    aria-hidden="true"
+                  />
+                )}
                 {c.label}
               </button>
             );
@@ -99,14 +104,14 @@ export function SplitEditor({
                 }
                 className="neo-input min-h-11 w-32 shrink-0 text-right text-sm font-bold tabular-nums text-ink"
               />
-              <span className="shrink-0 text-xs font-semibold text-ink-3">บาท</span>
+              <span className="shrink-0 text-xs font-semibold text-ink-3">
+                บาท
+              </span>
             </div>
           );
         })}
         {lines.length === 1 && (
-          <p className="text-xs text-ink-3">
-            แตะประเภทอื่นด้านบนเพื่อแบ่งยอด
-          </p>
+          <p className="text-xs text-ink-3">แตะประเภทอื่นด้านบนเพื่อแบ่งยอด</p>
         )}
       </div>
 

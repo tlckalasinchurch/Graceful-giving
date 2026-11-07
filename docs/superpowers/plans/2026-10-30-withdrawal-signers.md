@@ -45,11 +45,20 @@
 **Files:** Create `shared/withdrawals.ts`. Test: `server/withdrawals.rules.test.ts`.
 
 **Produces:**
+
 ```ts
 export type SignatureDecision = "approved" | "rejected";
-export interface Signature { userId: number; decision: SignatureDecision; wasRequiredSigner: boolean }
+export interface Signature {
+  userId: number;
+  decision: SignatureDecision;
+  wasRequiredSigner: boolean;
+}
 export type ApprovalOutcome = "pending" | "approved" | "rejected";
-export interface ApprovalState { outcome: ApprovalOutcome; approvedCount: number; requiredSignerApproved: boolean }
+export interface ApprovalState {
+  outcome: ApprovalOutcome;
+  approvedCount: number;
+  requiredSignerApproved: boolean;
+}
 export function approvalState(signatures: readonly Signature[]): ApprovalState;
 export const MIN_APPROVALS = 2;
 ```
@@ -74,6 +83,7 @@ export const MIN_APPROVALS = 2;
 **Files:** Modify `drizzle/schema.ts` (`withdrawalStatusEnum`, `withdrawalRequests`, `bankRecords`, two new tables), `server/schema_init.ts`. Create `drizzle/0007_withdrawal_signers.sql`. Test: `server/schema_init.test.ts`.
 
 **Produces** (column names exact):
+
 - `bank_signers`: `id` serial PK, `churchId` varchar(64) not null, `userId` integer not null, `isRequired` boolean not null default false, `addedBy` integer, `createdAt` timestamp default now. Indexes: unique (`churchId`, `userId`) `bank_signers_user_uniq`; partial unique `bank_signers_required_uniq` on (`churchId`) where `"isRequired" = true`.
 - `withdrawal_approvals`: `id` serial PK, `churchId` varchar(64) not null, `requestId` integer not null, `userId` integer not null, `decision` varchar(10) not null, `note` text, `wasRequiredSigner` boolean not null, `createdAt` timestamp default now. Unique (`requestId`, `userId`) `withdrawal_approvals_signer_uniq`.
 - `withdrawal_requests` + `disbursedAt` timestamp, `disbursedBy` integer, `cancelledAt` timestamp, `cancelledBy` integer, `cancelReason` text.
@@ -82,7 +92,7 @@ export const MIN_APPROVALS = 2;
 - Drizzle exports: `bankSigners`, `withdrawalApprovals`, types `BankSigner`, `InsertBankSigner`, `WithdrawalApproval`, `InsertWithdrawalApproval`.
 
 - [x] **Step 1: Failing tests** in `server/schema_init.test.ts`, following the existing `describe("counting carry-forward schema")` block:
-  - `ENUM_STATEMENTS` contains exactly ``ALTER TYPE "public"."withdrawal_status" ADD VALUE IF NOT EXISTS 'cancelled';``
+  - `ENUM_STATEMENTS` contains exactly `ALTER TYPE "public"."withdrawal_status" ADD VALUE IF NOT EXISTS 'cancelled';`
   - `TABLE_STATEMENTS` has a `CREATE TABLE IF NOT EXISTS "bank_signers"` and one for `"withdrawal_approvals"`
   - `TABLE_STATEMENTS` has `ADD COLUMN IF NOT EXISTS` for each of the 5 new `withdrawal_requests` columns and `bank_records.withdrawalRequestId`
   - `INDEX_STATEMENTS` contains the four index names above
@@ -99,6 +109,7 @@ export const MIN_APPROVALS = 2;
 
 **Consumes:** Task 2 tables.
 **Produces** (`server/db.ts`):
+
 ```ts
 listBankSigners(churchId?): Promise<Array<{ userId: number; name: string | null; isRequired: boolean }>>
 isBankSigner(userId: number, churchId?): Promise<{ isRequired: boolean } | null>
@@ -106,7 +117,9 @@ addBankSigner(userId: number, addedBy: number, churchId?): Promise<boolean>     
 removeBankSigner(userId: number, churchId?): Promise<boolean>
 setRequiredBankSigner(userId: number, churchId?): Promise<boolean>                 // clears the old flag and sets the new one in one transaction
 ```
+
 Router `bankSigners`:
+
 - `list`: readable by finance roles (`canManageFinance`) or any signer. Everyone else gets `FORBIDDEN`.
 - `add({ userId })`, `remove({ userId })`, `setRequired({ userId })`: SUPER_ADMIN only (use the existing `isSuperAdmin`-style check in `routers.ts`). Audit actions `SIGNER_ADD` / `SIGNER_REMOVE` / `SIGNER_REQUIRED`.
 
@@ -129,6 +142,7 @@ Router `bankSigners`:
 
 **Consumes:** `approvalState` (Task 1), `isBankSigner` (Task 3).
 **Produces:**
+
 - `withdrawals.sign({ id, decision: "approved" | "rejected", note?: string })`. `protectedProcedure`, then `isBankSigner(ctx.user.id)`; not a signer → `FORBIDDEN "เฉพาะผู้มีอำนาจลงนามในบัญชีธนาคาร"`. `rejected` without a note → `BAD_REQUEST`, enforced in the zod schema (`.refine`), because input parsing runs before the handler. In one `db.transaction`:
   1. load the request; not `pending` → `CONFLICT`
   2. insert the signature with `wasRequiredSigner` from the signer row; a unique violation → `CONFLICT "คุณลงนามคำขอนี้แล้ว"`
@@ -137,6 +151,7 @@ Router `bankSigners`:
   5. audit `SIGN`
 
   Return `{ outcome }`.
+
 - `withdrawals.cancel({ id, reason: z.string().trim().min(3).max(500) })`. Only the requester or a signer may cancel; anyone else → `FORBIDDEN`. Status must be `pending` / `approved`, otherwise `CONFLICT`. Sets `cancelled`, `cancelledAt`, `cancelledBy`, `cancelReason`. Audit `CANCEL`.
 - `withdrawals.list`: signers see all requests, like finance roles. Each row gains `signatures: Array<{ userId; name; decision; note; createdAt; wasRequiredSigner }>` and `approval: ApprovalState`.
 - Delete `withdrawals.approve`, the `canApproveWithdrawals` helper and `db.approveWithdrawal` once no caller remains. `client/src/pages/Approvals.tsx` is the only client caller and is rewritten in Task 6. Keep `pnpm check` green at commit time by stubbing the page call minimally, the same way Part 1's Task 1 did.
@@ -163,10 +178,12 @@ Router `bankSigners`:
 
 **Consumes:** `bank_records.withdrawalRequestId` (Task 2). The `withdrawal` bank record type and counting ordering `(serviceDate, serviceRound, id)` come from Part 1 (`findPreviousPostedSession` shows the tuple-compare pattern).
 **Produces:**
+
 ```ts
 attachWithdrawalToCounting(requestId: number, tx, churchId?): Promise<number | null>  // returns the counting session id or null
 attachPendingWithdrawals(session: CountingSession, churchId?): Promise<number>        // returns how many were attached
 ```
+
 - "Date" means the calendar date in Asia/Bangkok. Compare with `(... AT TIME ZONE 'Asia/Bangkok')::date` in SQL, or one helper in `shared/` if the codebase already has one; search `THAI_LOCALE` / `Asia/Bangkok` first.
 - The target round is the first with status `counting|counted|verified` whose date is ≥ the `disbursedAt` date, ordered by `(serviceDate, serviceRound, id)`.
 - `disburse` runs the status CAS (`approved`→`disbursed`, setting `disbursedAt` and `disbursedBy`) and the attach in **one transaction**. Audit `DISBURSE` with the attached session id (or null).
@@ -191,6 +208,7 @@ attachPendingWithdrawals(session: CountingSession, churchId?): Promise<number>  
 
 **Consumes:** `withdrawals.list` rows with `signatures` and `approval`, `withdrawals.sign` / `cancel` / `disburse`, `bankSigners.*`, `auth.me().isBankSigner`.
 **Produces:**
+
 - `SignatureProgress` component (`client/src/pages/Approvals/SignatureProgress.tsx`), props `{ signatures, approval }`. Lists each signer's decision and time, and states what is missing: `"รอศิษยาภิบาลลงนาม"` when `!approval.requiredSignerApproved`, `"รออีก N คน"` when `approvedCount < MIN_APPROVALS`, `"ครบตามเงื่อนไขธนาคาร"` when approved.
 - Approvals row actions:
   - อนุมัติ / ปฏิเสธ: only for a signer who hasn't signed and only while `pending`. ปฏิเสธ asks for a reason via `Swal`.

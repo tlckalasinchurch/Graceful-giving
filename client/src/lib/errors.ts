@@ -19,10 +19,19 @@ const CODE_MESSAGES: Record<string, string> = {
 };
 
 const ENGLISH_HINTS: Array<[RegExp, string]> = [
-  [/failed to fetch|network ?error|fetch failed/i, "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่"],
-  [/please login|unauthori[sz]ed|not authenticated/i, CODE_MESSAGES.UNAUTHORIZED],
+  [
+    /failed to fetch|network ?error|fetch failed/i,
+    "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่",
+  ],
+  [
+    /please login|unauthori[sz]ed|not authenticated/i,
+    CODE_MESSAGES.UNAUTHORIZED,
+  ],
   [/permission|forbidden/i, CODE_MESSAGES.FORBIDDEN],
-  [/database|db|postgres|relation .* does not exist/i, "เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาแจ้งผู้ดูแลระบบ"],
+  [
+    /database|db|postgres|relation .* does not exist/i,
+    "เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาแจ้งผู้ดูแลระบบ",
+  ],
 ];
 
 type ErrorLike = {

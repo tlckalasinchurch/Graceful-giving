@@ -10,184 +10,208 @@ import {
   MoneyDisplay,
   StatusBadge,
 } from "@/components/common/CommonUI";
-import { Download, Plus, HandCoins, CreditCard, Wallet } from "lucide-react";
+import {
+  Download,
+  Plus,
+  HandCoins,
+  CreditCard,
+  Wallet,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
-import { csvCell, formatThaiDate, THAI_LOCALE } from "@/lib/format";
+import { formatThaiDate } from "@/lib/format";
 import {
   expenseCategoryLabel,
   offeringCategoryLabel,
 } from "@shared/categories";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageFinance } from "@shared/roles";
+import {
+  getPeriodDateRange,
+  LEDGER_PERIOD_OPTIONS,
+  type LedgerPeriod,
+} from "@/lib/datePeriod";
 
-type OfferingItem = RouterOutputs["offerings"]["list"][number];
-type ExpenseItem = RouterOutputs["expenses"]["list"][number];
-
-interface TransactionItem {
-  id: string;
-  rawId: number;
-  title: string;
-  date: string | Date;
-  type: "income" | "expense";
-  category: string;
-  /** Resolved from fundId against finance.accounts; "—" when the row has none. */
-  fund: string;
-  categoryLabel: string;
-  amount: number;
-  status: string;
-}
+type TransactionItem = RouterOutputs["transactions"]["paged"]["items"][number];
 
 export default function Transactions() {
+  const utils = trpc.useUtils();
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const canCreate = canManageFinance(user);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [fundFilter] = useState("all");
+  const [fundFilter, setFundFilter] = useState("all");
+  const [periodFilter, setPeriodFilter] = useState<LedgerPeriod>("all");
+  const [cursor, setCursor] = useState<{
+    date: Date;
+    id: number;
+    type: "income" | "expense";
+  } | null>(null);
+  const [cursorHistory, setCursorHistory] = useState<
+    Array<{ date: Date; id: number; type: "income" | "expense" } | null>
+  >([]);
+  const [isExporting, setIsExporting] = useState(false);
 
-  const {
-    data: offeringsData,
-    isLoading: loadingOfferings,
-    isError: offeringsError,
-    refetch: refetchOfferings,
-  } = trpc.offerings.list.useQuery({ limit: 50 }, { retry: false });
+  const periodRange = useMemo(
+    () => getPeriodDateRange(periodFilter),
+    [periodFilter]
+  );
+
+  const selectedFundId =
+    fundFilter !== "all" && Number.isInteger(Number(fundFilter))
+      ? Number(fundFilter)
+      : undefined;
+
+  const handlePeriodChange = (p: LedgerPeriod) => {
+    setPeriodFilter(p);
+    setCursor(null);
+    setCursorHistory([]);
+  };
+
+  const handleTypeChange = (t: string) => {
+    setTypeFilter(t);
+    setCursor(null);
+    setCursorHistory([]);
+  };
+
+  const handleFundChange = (f: string) => {
+    setFundFilter(f);
+    setCursor(null);
+    setCursorHistory([]);
+  };
+
+  const handleSearchChange = (q: string) => {
+    setSearchTerm(q);
+    setCursor(null);
+    setCursorHistory([]);
+  };
 
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
     staleTime: 60_000,
   });
 
+  // 1. Complete Server-Side Aggregation (Sums & Counts across full DB)
   const {
-    data: expensesData,
-    isLoading: loadingExpenses,
-    isError: expensesError,
-    refetch: refetchExpenses,
-  } = trpc.expenses.list.useQuery({ limit: 50 }, { retry: false });
+    data: summaryData,
+    isLoading: loadingSummary,
+    isError: isSummaryError,
+  } = trpc.transactions.summary.useQuery(
+    {
+      fromDate: periodRange.fromDate,
+      toDate: periodRange.toDate,
+      fundId: selectedFundId,
+      type: typeFilter as any,
+      search: searchTerm.trim() || undefined,
+    },
+    { retry: false }
+  );
 
-  const fundNameById = useMemo(() => {
-    const m = new Map<number, string>();
-    for (const a of accountsData ?? []) m.set(a.id, a.name);
-    return m;
-  }, [accountsData]);
+  // 2. Server-side Cursor Paginated Transactions
+  const {
+    data: pagedData,
+    isLoading: loadingPaged,
+    isError: isPagedError,
+    refetch,
+  } = trpc.transactions.paged.useQuery(
+    {
+      limit: 50,
+      cursor: cursor ?? undefined,
+      fromDate: periodRange.fromDate,
+      toDate: periodRange.toDate,
+      fundId: selectedFundId,
+      type: typeFilter as any,
+      search: searchTerm.trim() || undefined,
+    },
+    { retry: false }
+  );
 
-  // Map and combine transactions
-  const transactions = useMemo(() => {
-    const list: TransactionItem[] = [];
-    const fundName = (id: number | null | undefined) =>
-      (id != null && fundNameById.get(id)) || "—";
-    if (offeringsData && offeringsData.length > 0) {
-      offeringsData.forEach((o: OfferingItem) => {
-        list.push({
-          id: `offering-${o.id}`,
-          rawId: o.id,
-          title: offeringCategoryLabel(o.category),
-          date: o.receiptDate,
-          type: "income",
-          category: o.category,
-          fund: fundName(o.fundId),
-          categoryLabel: offeringCategoryLabel(o.category),
-          amount: Number(o.amount),
-          status: "completed",
-        });
+  const totalIncome = summaryData?.totalIncome ?? 0;
+  const totalExpense = summaryData?.totalExpense ?? 0;
+  const netTotal = summaryData?.netTotal ?? 0;
+  const totalCount = summaryData?.totalCount ?? 0;
+  const incomeCount = summaryData?.incomeCount ?? 0;
+  const expenseCount = summaryData?.expenseCount ?? 0;
+
+  const transactions = pagedData?.items ?? [];
+  const hasMore = pagedData?.hasMore ?? false;
+  const nextCursor = pagedData?.nextCursor ?? null;
+
+  const currentPage = cursorHistory.length + 1;
+  const totalPages = Math.max(1, Math.ceil(totalCount / 50));
+
+  const handleNextPage = () => {
+    if (nextCursor) {
+      setCursorHistory(prev => [...prev, cursor]);
+      setCursor(nextCursor);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (cursorHistory.length > 0) {
+      setCursorHistory(prev => {
+        const nextHist = [...prev];
+        const prevCursor = nextHist.pop() ?? null;
+        setCursor(prevCursor);
+        return nextHist;
       });
     }
+  };
 
-    if (expensesData && expensesData.length > 0) {
-      expensesData.forEach((e: ExpenseItem) => {
-        list.push({
-          id: `expense-${e.id}`,
-          rawId: e.id,
-          title: e.description,
-          date: e.expenseDate,
-          type: "expense",
-          category: e.category,
-          fund: fundName(e.fundId),
-          categoryLabel: expenseCategoryLabel(e.category),
-          amount: Number(e.amount),
-          status: e.status || "unknown",
-        });
+  // 3. Complete Server-Side CSV Export
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const res = await utils.transactions.exportCsv.fetch({
+        fromDate: periodRange.fromDate,
+        toDate: periodRange.toDate,
+        fundId: selectedFundId,
+        type: typeFilter as any,
+        search: searchTerm.trim() || undefined,
       });
+      if (res.rowCount === 0) {
+        toast.info("ไม่มีรายการที่ตรงกับเงื่อนไข จึงไม่มีข้อมูลให้ส่งออก");
+        return;
+      }
+      const blob = new Blob(["\uFEFF" + res.csv], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `transactions-${periodFilter}-${new Date().toISOString().slice(0, 10)}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success(`ส่งออกข้อมูลครบถ้วนแล้ว (${res.rowCount} รายการ)`);
+    } catch (err) {
+      toast.error("ส่งออกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setIsExporting(false);
     }
-
-    if (list.length === 0) return [];
-
-    return list.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-  }, [offeringsData, expensesData, fundNameById]);
-
-  // Filtered transactions
-  const filtered = useMemo(() => {
-    return transactions.filter(t => {
-      const matchSearch =
-        t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.categoryLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.fund.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchType = typeFilter === "all" || t.type === typeFilter;
-      const matchFund = fundFilter === "all" || t.fund === fundFilter;
-      return matchSearch && matchType && matchFund;
-    });
-  }, [transactions, searchTerm, typeFilter, fundFilter]);
-
-  // Summary figures
-  const totalIncome = useMemo(
-    () =>
-      filtered
-        .filter(t => t.type === "income")
-        .reduce((sum, t) => sum + t.amount, 0),
-    [filtered]
-  );
-  const totalExpense = useMemo(
-    () =>
-      filtered
-        .filter(t => t.type === "expense")
-        .reduce((sum, t) => sum + t.amount, 0),
-    [filtered]
-  );
-  const netTotal = totalIncome - totalExpense;
-
-  const handleExport = () => {
-    const typeLabel = (t: TransactionItem) =>
-      t.type === "income" ? "รายรับ" : "รายจ่าย";
-    const headers = "ID,วันที่,รายการ,หมวดหมู่,ประเภท,กองทุน,จำนวนเงิน\n";
-    const rows = filtered
-      .map(t =>
-        [
-          csvCell(t.rawId),
-          csvCell(new Date(t.date).toLocaleDateString(THAI_LOCALE)),
-          csvCell(t.title),
-          csvCell(t.categoryLabel),
-          csvCell(typeLabel(t)),
-          csvCell(t.fund),
-          t.amount.toFixed(2),
-        ].join(",")
-      )
-      .join("\n");
-    const blob = new Blob(["\uFEFF" + headers + rows], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `grace-giving-transactions-${new Date().toISOString().slice(0, 10)}.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("ส่งออกรายการธุรกรรมสำเร็จ");
   };
 
   const feedByDay = useMemo(() => {
     const days: { label: string; items: TransactionItem[] }[] = [];
-    for (const tx of filtered) {
+    for (const tx of transactions) {
       const label = formatThaiDate(tx.date);
       const last = days[days.length - 1];
       if (last && last.label === label) last.items.push(tx);
       else days.push({ label, items: [tx] });
     }
     return days;
-  }, [filtered]);
+  }, [transactions]);
 
-  const isLoading = loadingOfferings || loadingExpenses;
-  const isError = offeringsError || expensesError;
+  const isLoading = loadingSummary || loadingPaged;
+  const isError = isSummaryError || isPagedError;
 
   return (
     <AppLayout
@@ -195,68 +219,130 @@ export default function Transactions() {
       title="รายการธุรกรรม"
       subtitle="บันทึกการรับถวายและค่าใช้จ่ายทั้งหมดของคริสตจักร"
       action={
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleExport}
+            disabled={isExporting}
             aria-label="ส่งออก CSV"
-            className="btn-secondary min-h-11 px-3.5 text-sm"
+            className="btn-secondary min-h-11 px-3.5 text-sm disabled:opacity-50 inline-flex items-center gap-1.5"
           >
-            <Download className="size-4 text-ink" aria-hidden="true" />
-            <span className="hidden sm:inline">ส่งออก CSV</span>
+            {isExporting ? (
+              <Loader2
+                className="size-4 animate-spin text-ink"
+                aria-hidden="true"
+              />
+            ) : (
+              <Download className="size-4 text-ink" aria-hidden="true" />
+            )}
+            <span className="hidden sm:inline">
+              {isExporting ? "กำลังส่งออก…" : "ส่งออก CSV"}
+            </span>
           </button>
-          <button
-            onClick={() => setLocation("/offerings/new")}
-            className="btn-primary flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-bold"
-          >
-            <Plus className="size-4" aria-hidden="true" />
-            <span>บันทึกการถวาย</span>
-          </button>
+          {canCreate && (
+            <>
+              <button
+                onClick={() => setLocation("/expenses/new")}
+                className="btn-secondary flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 text-sm font-bold"
+              >
+                <Plus className="size-4" aria-hidden="true" />
+                <span>บันทึกรายจ่าย</span>
+              </button>
+              <button
+                onClick={() => setLocation("/offerings/new")}
+                className="btn-primary flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-bold"
+              >
+                <Plus className="size-4" aria-hidden="true" />
+                <span>บันทึกการถวาย</span>
+              </button>
+            </>
+          )}
         </div>
       }
     >
-      {/* Eyebrow + kicker for the section */}
-      <div className="flex items-center gap-2">
-        <span className="eyebrow">สมุดรายการ · การเงิน</span>
+      {/* Eyebrow + Period & Fund Scope Controls */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <span className="eyebrow">สมุดรายการ · การเงิน</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            role="group"
+            aria-label="กรองตามช่วงเวลา"
+            className="inline-flex flex-wrap items-center gap-1 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface p-1"
+          >
+            <Calendar
+              className="ml-2 size-3.5 text-brand shrink-0"
+              aria-hidden="true"
+            />
+            {LEDGER_PERIOD_OPTIONS.map(opt => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => handlePeriodChange(opt.id)}
+                aria-pressed={periodFilter === opt.id}
+                className={`min-h-9 rounded-lg px-3 py-1 text-xs font-extrabold transition-colors ${
+                  periodFilter === opt.id
+                    ? "bg-accent text-accent-foreground border border-[var(--ink)]"
+                    : "text-ink-2 hover:bg-paper-2"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <select
+            aria-label="กรองตามกองทุน"
+            value={fundFilter}
+            onChange={e => handleFundChange(e.target.value)}
+            className="neo-input min-h-11 w-auto px-3 py-1.5 text-xs font-bold"
+          >
+            <option value="all">ทุกกองทุน</option>
+            {(accountsData ?? []).map(a => (
+              <option key={a.id} value={String(a.id)}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* 1. Summary KPI cards — bento layout with offset shadow */}
+      {/* 1. Summary KPI cards — scoped to the exact same period & filter */}
       <section
         aria-label="สรุปรายการที่เลือก"
         className="grid gap-4 sm:grid-cols-3"
       >
         {[
           {
-            label: "รายรับทั้งหมด",
+            label: `รายรับ (${periodRange.label})`,
             amount: totalIncome,
             type: "income" as const,
-            note: `${filtered.filter(t => t.type === "income").length} รายการ`,
+            note: `${incomeCount.toLocaleString()} รายการ`,
             tone: "income",
           },
           {
-            label: "รายจ่ายทั้งหมด",
+            label: `รายจ่าย (${periodRange.label})`,
             amount: totalExpense,
             type: "expense" as const,
-            note: `${filtered.filter(t => t.type === "expense").length} รายการ`,
+            note: `${expenseCount.toLocaleString()} รายการ`,
             tone: "expense",
           },
           {
-            label: "ยอดสุทธิ",
+            label: `ดุลสุทธิ (${periodRange.label})`,
             amount: netTotal,
             type: "neutral" as const,
-            note: "คงเหลือในรอบที่เลือก",
+            note: "รายรับหักรายจ่ายในช่วงเวลาที่เลือก",
             tone: "neutral",
           },
         ].map(c => (
-          <div
-            key={c.label}
-            className="bento-card p-5 sm:p-6"
-          >
+          <div key={c.label} className="bento-card p-5 sm:p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-extrabold text-ink-3 uppercase tracking-wider">
                   {c.label}
                 </p>
-                <p className="text-xs font-medium text-ink-3 mt-0.5">{c.note}</p>
+                <p className="text-xs font-medium text-ink-3 mt-0.5">
+                  {c.note}
+                </p>
               </div>
               <div
                 className={`size-9 shrink-0 rounded-lg border-2 border-[var(--ink)] flex items-center justify-center ${
@@ -289,24 +375,24 @@ export default function Transactions() {
       {/* 2. Filter Bar */}
       <div className="bento-card-static p-4 md:p-5">
         <FilterBar
-          searchPlaceholder="ค้นหารายการ, หมวดหมู่, หรือพันธกิจ..."
+          searchPlaceholder="ค้นหารายการ, ชื่อผู้ถวาย, ผู้รับเงิน, กองทุน หรือเลขอ้างอิง..."
           searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
+          onSearchChange={handleSearchChange}
           filters={[
-            { id: "all", label: "ทั้งหมด", count: transactions.length },
+            { id: "all", label: "ทั้งหมด", count: totalCount },
             {
               id: "income",
               label: "รายรับ (ถวาย)",
-              count: transactions.filter(t => t.type === "income").length,
+              count: incomeCount,
             },
             {
               id: "expense",
               label: "รายจ่าย",
-              count: transactions.filter(t => t.type === "expense").length,
+              count: expenseCount,
             },
           ]}
           activeFilter={typeFilter}
-          onFilterChange={setTypeFilter}
+          onFilterChange={handleTypeChange}
         />
       </div>
 
@@ -318,16 +404,15 @@ export default function Transactions() {
           title="โหลดรายการธุรกรรมไม่สำเร็จ"
           description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
           onRetry={() => {
-            void refetchOfferings();
-            void refetchExpenses();
+            void refetch();
           }}
         />
-      ) : filtered.length === 0 ? (
+      ) : transactions.length === 0 ? (
         <EmptyState
           title="ไม่พบรายการธุรกรรม"
-          description="ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา ลองเปลี่ยนคำค้นหาหรือเลือกหมวดหมู่อื่น"
-          actionText="บันทึกการถวายใหม่"
-          onAction={() => setLocation("/offerings/new")}
+          description="ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา ลองเปลี่ยนช่วงเวลา คำค้นหา หรือเลือกหมวดหมู่อื่น"
+          actionText={canCreate ? "บันทึกการถวายใหม่" : undefined}
+          onAction={canCreate ? () => setLocation("/offerings/new") : undefined}
         />
       ) : (
         <div className="bento-card-static overflow-hidden">
@@ -343,7 +428,7 @@ export default function Transactions() {
                     วันที่
                   </th>
                   <th scope="col" className="p-4">
-                    รายการ
+                    รายการ / ผู้ถวาย-ผู้รับเงิน
                   </th>
                   <th scope="col" className="p-4">
                     ประเภท
@@ -360,8 +445,11 @@ export default function Transactions() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {filtered.map(tx => (
-                  <tr key={tx.id} className="transition-colors hover:bg-paper-2">
+                {transactions.map(tx => (
+                  <tr
+                    key={tx.id}
+                    className="transition-colors hover:bg-paper-2"
+                  >
                     <td className="p-4 text-ink-2 font-medium whitespace-nowrap">
                       {formatThaiDate(tx.date)}
                     </td>
@@ -372,9 +460,21 @@ export default function Transactions() {
                       >
                         {tx.title}
                       </Link>
+                      {tx.donorOrPayee && (
+                        <p className="mt-0.5 text-xs font-medium text-ink-3">
+                          {tx.donorOrPayee}
+                          {tx.reference && tx.reference !== "-"
+                            ? ` · #${tx.reference}`
+                            : ""}
+                        </p>
+                      )}
                     </th>
-                    <td className="p-4 text-ink-2 font-medium">{tx.categoryLabel}</td>
-                    <td className="p-4 text-ink-2 font-medium">{tx.fund}</td>
+                    <td className="p-4 text-ink-2 font-medium">
+                      {tx.categoryLabel}
+                    </td>
+                    <td className="p-4 text-ink-2 font-medium">
+                      {tx.fundName}
+                    </td>
                     <td className="p-4 text-right">
                       <MoneyDisplay
                         amount={tx.amount}
@@ -412,7 +512,8 @@ export default function Transactions() {
                               {tx.title}
                             </p>
                             <p className="truncate text-xs font-medium text-ink-2 pt-0.5">
-                              {tx.categoryLabel} · {tx.fund}
+                              {tx.donorOrPayee ? `${tx.donorOrPayee} · ` : ""}
+                              {tx.categoryLabel} · {tx.fundName}
                             </p>
                           </div>
                         </div>
@@ -433,6 +534,43 @@ export default function Transactions() {
               </section>
             ))}
           </div>
+
+          {/* PAGINATION BAR */}
+          {totalCount > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t-2 border-[var(--ink)] bg-paper-2">
+              <p className="text-xs text-ink-2 font-medium">
+                แสดงหน้า{" "}
+                <span className="font-extrabold text-ink">{currentPage}</span>{" "}
+                จาก{" "}
+                <span className="font-extrabold text-ink">{totalPages}</span>{" "}
+                หน้า (ข้อมูลทั้งหมด{" "}
+                <span className="font-extrabold text-ink">
+                  {totalCount.toLocaleString()}
+                </span>{" "}
+                รายการ)
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrevPage}
+                  disabled={cursorHistory.length === 0}
+                  className="btn-secondary min-h-11 px-4 py-2 text-xs font-bold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+                >
+                  <ChevronLeft className="size-4" aria-hidden="true" />
+                  <span>ก่อนหน้า</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextPage}
+                  disabled={!hasMore}
+                  className="btn-secondary min-h-11 px-4 py-2 text-xs font-bold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+                >
+                  <span>ถัดไป</span>
+                  <ChevronRight className="size-4" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </AppLayout>

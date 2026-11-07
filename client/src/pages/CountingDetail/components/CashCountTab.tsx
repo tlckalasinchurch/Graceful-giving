@@ -38,36 +38,63 @@ export function CashCountTab({
   setCashCount,
 }: CashCountTabProps) {
   const flushRef = useRef<() => void>(() => {});
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSentRef = useRef<Record<string, number>>({});
+
+  const flushSingle = (key: string, nextValue: number) => {
+    if (!editable) return;
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    const [valStr, kind] = key.split("-");
+    const val = Number(valStr);
+    const saved = cashCounts.find(
+      r => r.denomination === val && r.kind === kind
+    );
+    const currentSaved = saved?.quantity ?? 0;
+    const lastSent = lastSentRef.current[key];
+
+    // Prevent duplicate mutations: if the quantity is already matching saved and hasn't changed,
+    // or if we already sent this exact quantity, do not fire another mutation.
+    if (nextValue === currentSaved && lastSent === undefined) return;
+    if (lastSent !== undefined && nextValue === lastSent) return;
+
+    lastSentRef.current[key] = nextValue;
+    setCashCount.mutate({
+      sessionId,
+      denomination: val,
+      kind: kind as "note" | "coin",
+      quantity: nextValue,
+    });
+  };
+
   flushRef.current = () => {
     if (!editable) return;
     Object.entries(draftCounts).forEach(([key, draftVal]) => {
       if (draftVal === undefined) return;
-      const [valStr, kind] = key.split("-");
-      const val = Number(valStr);
       const next = Number(draftVal || 0);
       if (!Number.isFinite(next) || next < 0) return;
-      const saved = cashCounts.find(
-        r => r.denomination === val && r.kind === kind
-      );
-      if (next !== (saved?.quantity ?? 0)) {
-        setCashCount.mutate({
-          sessionId,
-          denomination: val,
-          kind: kind as "note" | "coin",
-          quantity: next,
-        });
-      }
+      flushSingle(key, next);
     });
   };
 
   useEffect(() => {
     if (!editable) return;
-    const timer = setTimeout(() => flushRef.current(), 600);
-    return () => clearTimeout(timer);
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      flushRef.current();
+    }, 600);
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
   }, [draftCounts, editable, sessionId]);
 
   useEffect(() => {
-    return () => flushRef.current();
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      flushRef.current();
+    };
   }, [sessionId]);
 
   return (
@@ -101,7 +128,10 @@ export function CashCountTab({
               }));
             };
             return (
-              <li key={key} className="flex items-center gap-2 sm:gap-3 p-3 md:p-4 hover:bg-paper-2/40">
+              <li
+                key={key}
+                className="flex items-center gap-2 sm:gap-3 p-3 md:p-4 hover:bg-paper-2/40"
+              >
                 <span className="w-24 shrink-0 text-sm font-extrabold text-ink sm:w-32 md:w-40">
                   {denomination.label}
                 </span>
@@ -132,13 +162,7 @@ export function CashCountTab({
                       if (!editable) return;
                       const next = Number(e.target.value || 0);
                       if (!Number.isFinite(next) || next < 0) return;
-                      if (next === (saved?.quantity ?? 0)) return;
-                      setCashCount.mutate({
-                        sessionId,
-                        denomination: denomination.value,
-                        kind: denomination.kind,
-                        quantity: next,
-                      });
+                      flushSingle(key, next);
                     }}
                     placeholder="0"
                     aria-label={`จำนวน ${denomination.label}`}

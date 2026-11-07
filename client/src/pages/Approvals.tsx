@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -43,6 +43,18 @@ export default function Approvals() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [showCancelModal, setShowCancelModal] = useState(false);
+
+  useEffect(() => {
+    if (!showRejectModal && !showCancelModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowRejectModal(false);
+        setShowCancelModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showRejectModal, showCancelModal]);
 
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
@@ -429,17 +441,25 @@ export default function Approvals() {
 
         {/* Reject Reason Modal */}
         {showRejectModal && selectedReq && (
-          <div className="fixed inset-0 z-50 bg-ink/40 flex items-center justify-center p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reject-modal-title"
+            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4"
+          >
             <div className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
-                <h3 className="display text-lg font-extrabold text-ink">
+                <h3
+                  id="reject-modal-title"
+                  className="display text-lg font-extrabold text-ink"
+                >
                   ระบุเหตุผลที่ไม่อนุมัติ
                 </h3>
                 <button
                   onClick={() => setShowRejectModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink cursor-pointer"
                 >
                   ×
                 </button>
@@ -464,14 +484,14 @@ export default function Approvals() {
                 <button
                   onClick={() => setShowRejectModal(false)}
                   disabled={signMutation.isPending}
-                  className="btn-secondary min-h-10 px-4 py-2.5 text-xs"
+                  className="btn-secondary min-h-11 px-4 py-2.5 text-xs cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={handleRejectSubmit}
                   disabled={signMutation.isPending}
-                  className="min-h-10 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50"
+                  className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50 cursor-pointer"
                 >
                   {signMutation.isPending
                     ? "กำลังบันทึก..."
@@ -484,17 +504,25 @@ export default function Approvals() {
 
         {/* Cancel Reason Modal */}
         {showCancelModal && selectedReq && (
-          <div className="fixed inset-0 z-50 bg-ink/40 flex items-center justify-center p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancel-modal-title"
+            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4"
+          >
             <div className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
-                <h3 className="display text-lg font-extrabold text-ink">
+                <h3
+                  id="cancel-modal-title"
+                  className="display text-lg font-extrabold text-ink"
+                >
                   ระบุเหตุผลในการยกเลิกคำขอ
                 </h3>
                 <button
                   onClick={() => setShowCancelModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink cursor-pointer"
                 >
                   ×
                 </button>
@@ -519,18 +547,18 @@ export default function Approvals() {
                 <button
                   onClick={() => setShowCancelModal(false)}
                   disabled={cancelMutation.isPending}
-                  className="btn-secondary min-h-10 px-4 py-2.5 text-xs"
+                  className="btn-secondary min-h-11 px-4 py-2.5 text-xs cursor-pointer"
                 >
                   กลับ
                 </button>
                 <button
                   onClick={handleCancelSubmit}
                   disabled={cancelMutation.isPending}
-                  className="min-h-10 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50"
+                  className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50 cursor-pointer"
                 >
                   {cancelMutation.isPending
-                    ? "กำลังยกเลิก..."
-                    : "ยืนยันยกเลิกคำขอ"}
+                    ? "กำลังบันทึก..."
+                    : "ยืนยันการยกเลิก"}
                 </button>
               </div>
             </div>

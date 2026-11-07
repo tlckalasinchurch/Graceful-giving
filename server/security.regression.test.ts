@@ -90,8 +90,6 @@ describe("security regressions", () => {
       join(import.meta.dirname, "../client/src/_core/hooks/useAuth.ts"),
       "utf8"
     );
-    expect(source).toMatch(
-      /loading:\s*meQuery\.isLoading/
-    );
+    expect(source).toMatch(/loading:\s*meQuery\.isLoading/);
   });
 });

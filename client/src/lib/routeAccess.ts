@@ -57,6 +57,7 @@ export const STATION_ONLY_PATHS = [
   "/give",
   "/privacy",
   "/404",
+  "/withdrawals/new",
 ];
 
 /**

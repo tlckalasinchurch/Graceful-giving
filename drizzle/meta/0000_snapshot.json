@@ -779,9 +779,7 @@
         "church_profiles_churchId_unique": {
           "name": "church_profiles_churchId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "churchId"
-          ]
+          "columns": ["churchId"]
         }
       },
       "policies": {},
@@ -2450,9 +2448,7 @@
         "users_openId_unique": {
           "name": "users_openId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         }
       },
       "policies": {},
@@ -2697,30 +2693,17 @@
     "public.cash_kind": {
       "name": "cash_kind",
       "schema": "public",
-      "values": [
-        "note",
-        "coin"
-      ]
+      "values": ["note", "coin"]
     },
     "public.counting_session_status": {
       "name": "counting_session_status",
       "schema": "public",
-      "values": [
-        "counting",
-        "counted",
-        "verified",
-        "posted",
-        "closed"
-      ]
+      "values": ["counting", "counted", "verified", "posted", "closed"]
     },
     "public.event_status": {
       "name": "event_status",
       "schema": "public",
-      "values": [
-        "draft",
-        "published",
-        "cancelled"
-      ]
+      "values": ["draft", "published", "cancelled"]
     },
     "public.expense_category": {
       "name": "expense_category",
@@ -2739,12 +2722,7 @@
     "public.expense_status": {
       "name": "expense_status",
       "schema": "public",
-      "values": [
-        "draft",
-        "approved",
-        "paid",
-        "voided"
-      ]
+      "values": ["draft", "approved", "paid", "voided"]
     },
     "public.finance_account_type": {
       "name": "finance_account_type",
@@ -2776,38 +2754,22 @@
     "public.member_status": {
       "name": "member_status",
       "schema": "public",
-      "values": [
-        "active",
-        "inactive",
-        "pending"
-      ]
+      "values": ["active", "inactive", "pending"]
     },
     "public.ministry_status": {
       "name": "ministry_status",
       "schema": "public",
-      "values": [
-        "active",
-        "inactive"
-      ]
+      "values": ["active", "inactive"]
     },
     "public.news_category": {
       "name": "news_category",
       "schema": "public",
-      "values": [
-        "announcement",
-        "ministry",
-        "finance",
-        "pastoral"
-      ]
+      "values": ["announcement", "ministry", "finance", "pastoral"]
     },
     "public.news_status": {
       "name": "news_status",
       "schema": "public",
-      "values": [
-        "draft",
-        "published",
-        "archived"
-      ]
+      "values": ["draft", "published", "archived"]
     },
     "public.offering_category": {
       "name": "offering_category",
@@ -2824,19 +2786,12 @@
     "public.offering_method": {
       "name": "offering_method",
       "schema": "public",
-      "values": [
-        "cash",
-        "transfer",
-        "check"
-      ]
+      "values": ["cash", "transfer", "check"]
     },
     "public.offering_status": {
       "name": "offering_status",
       "schema": "public",
-      "values": [
-        "active",
-        "voided"
-      ]
+      "values": ["active", "voided"]
     },
     "public.session_document_kind": {
       "name": "session_document_kind",
@@ -2854,21 +2809,12 @@
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": [
-        "user",
-        "admin"
-      ]
+      "values": ["user", "admin"]
     },
     "public.withdrawal_status": {
       "name": "withdrawal_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "approved",
-        "rejected",
-        "disbursed",
-        "cancelled"
-      ]
+      "values": ["pending", "approved", "rejected", "disbursed", "cancelled"]
     }
   },
   "schemas": {},

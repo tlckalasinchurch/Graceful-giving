@@ -33,22 +33,36 @@
 ### Task 1: Two-wallet reconcile
 
 **Files:**
+
 - Modify: `shared/counting.ts` (types ~L47-100, `reconcile` ~L103-149, `checkDepositIdentity` ~L151-163)
 - Test: `server/counting.reconcile.test.ts`
 
 **Interfaces:**
+
 - Produces:
+
   ```ts
-  export const BANK_RECORD_TYPES = ["transfer_in","cash_deposit","withdrawal","other_in","other_out"] as const;
+  export const BANK_RECORD_TYPES = [
+    "transfer_in",
+    "cash_deposit",
+    "withdrawal",
+    "other_in",
+    "other_out",
+  ] as const;
   export type BankRecordType = (typeof BANK_RECORD_TYPES)[number];
-  export interface BankRecordInput { amount: number; type: BankRecordType }
+  export interface BankRecordInput {
+    amount: number;
+    type: BankRecordType;
+  }
   export interface CarryForwardInput {
-    openingCash: number | null;      // null = no opening known (legacy / not set)
+    openingCash: number | null; // null = no opening known (legacy / not set)
     openingBank: number | null;
     cashOnHandActual: number | null;
     passbookBalance: number | null;
   }
-  export interface ReconciliationInput { /* existing 4 fields */ carry?: CarryForwardInput }
+  export interface ReconciliationInput {
+    /* existing 4 fields */ carry?: CarryForwardInput;
+  }
   // Reconciliation: REMOVE expectedDeposit, depositVariance. ADD:
   //   hasCarryForward: boolean   (openingCash !== null && openingBank !== null)
   //   openingCash, openingBank: number | null
@@ -61,6 +75,7 @@
   // isBalanced = cashVariance === 0 && transferVariance === 0
   //              && (!hasCarryForward || cashOnHandVariance === 0)
   ```
+
   `checkDepositIdentity` is deleted. Keep `actualCashDeposit`, `actualTransferIn`.
 
 - [ ] **Step 1: Rewrite the tests**
@@ -75,10 +90,17 @@ const sunday = {
 };
 
 it("keeps part of the cash and deposits the rest", () => {
-  const r = reconcile({ ...sunday,
+  const r = reconcile({
+    ...sunday,
     bankRecords: [{ amount: 5000, type: "cash_deposit" }],
-    carry: { openingCash: 2000, openingBank: 50000, cashOnHandActual: 3500, passbookBalance: null } });
-  expect(r.closingCashExpected).toBe(3500);   // 2000 + 8000 + 0 − 1500 − 5000
+    carry: {
+      openingCash: 2000,
+      openingBank: 50000,
+      cashOnHandActual: 3500,
+      passbookBalance: null,
+    },
+  });
+  expect(r.closingCashExpected).toBe(3500); // 2000 + 8000 + 0 − 1500 − 5000
   expect(r.cashOnHandVariance).toBe(0);
   expect(r.closingBankExpected).toBe(55000);
   expect(r.passbookVariance).toBeNull();
@@ -86,39 +108,86 @@ it("keeps part of the cash and deposits the rest", () => {
 });
 
 it("withdraws from the bank to cover a heavy week", () => {
-  const r = reconcile({ ...sunday, deductions: [{ amount: 12000 }],
+  const r = reconcile({
+    ...sunday,
+    deductions: [{ amount: 12000 }],
     bankRecords: [{ amount: 5000, type: "withdrawal" }],
-    carry: { openingCash: 0, openingBank: 50000, cashOnHandActual: 1000, passbookBalance: 45000 } });
-  expect(r.closingCashExpected).toBe(1000);   // 0 + 8000 + 5000 − 12000
+    carry: {
+      openingCash: 0,
+      openingBank: 50000,
+      cashOnHandActual: 1000,
+      passbookBalance: 45000,
+    },
+  });
+  expect(r.closingCashExpected).toBe(1000); // 0 + 8000 + 5000 − 12000
   expect(r.closingBankExpected).toBe(45000);
   expect(r.passbookVariance).toBe(0);
 });
 
 it("counts fees, interest and bills on the bank side only", () => {
-  const r = reconcile({ ...sunday, deductions: [],
-    bankRecords: [{ amount: 12.5, type: "other_in" }, { amount: 30, type: "other_out" }],
-    carry: { openingCash: 0, openingBank: 1000, cashOnHandActual: 8000, passbookBalance: null } });
+  const r = reconcile({
+    ...sunday,
+    deductions: [],
+    bankRecords: [
+      { amount: 12.5, type: "other_in" },
+      { amount: 30, type: "other_out" },
+    ],
+    carry: {
+      openingCash: 0,
+      openingBank: 1000,
+      cashOnHandActual: 8000,
+      passbookBalance: null,
+    },
+  });
   expect(r.closingBankExpected).toBe(982.5);
   expect(r.closingCashExpected).toBe(8000);
 });
 
 it("reports a short cash box as a negative variance and unbalanced", () => {
-  const r = reconcile({ ...sunday, bankRecords: [],
-    carry: { openingCash: 0, openingBank: 0, cashOnHandActual: 6000, passbookBalance: null } });
+  const r = reconcile({
+    ...sunday,
+    bankRecords: [],
+    carry: {
+      openingCash: 0,
+      openingBank: 0,
+      cashOnHandActual: 6000,
+      passbookBalance: null,
+    },
+  });
   expect(r.cashOnHandVariance).toBe(-500);
   expect(r.isBalanced).toBe(false);
 });
 
-it("shows a negative expected cash instead of clamping", () => {   // Review Focus 4
-  const r = reconcile({ ...sunday, deductions: [{ amount: 20000 }], bankRecords: [],
-    carry: { openingCash: 0, openingBank: 0, cashOnHandActual: 0, passbookBalance: null } });
+it("shows a negative expected cash instead of clamping", () => {
+  // Review Focus 4
+  const r = reconcile({
+    ...sunday,
+    deductions: [{ amount: 20000 }],
+    bankRecords: [],
+    carry: {
+      openingCash: 0,
+      openingBank: 0,
+      cashOnHandActual: 0,
+      passbookBalance: null,
+    },
+  });
   expect(r.closingCashExpected).toBe(-12000);
   expect(r.cashOnHandVariance).toBe(12000);
 });
 
-it("stays exact with satang in the opening figures", () => {        // Review Focus 5
-  const r = reconcile({ ...sunday, deductions: [], bankRecords: [],
-    carry: { openingCash: 1000.75, openingBank: 0.25, cashOnHandActual: 9000.75, passbookBalance: 0.25 } });
+it("stays exact with satang in the opening figures", () => {
+  // Review Focus 5
+  const r = reconcile({
+    ...sunday,
+    deductions: [],
+    bankRecords: [],
+    carry: {
+      openingCash: 1000.75,
+      openingBank: 0.25,
+      cashOnHandActual: 9000.75,
+      passbookBalance: 0.25,
+    },
+  });
   expect(r.closingCashExpected).toBe(9000.75);
   expect(r.cashOnHandVariance).toBe(0);
   expect(r.passbookVariance).toBe(0);
@@ -128,12 +197,20 @@ it("leaves carry-forward figures empty for a round without an opening", () => {
   const r = reconcile({ ...sunday, bankRecords: [] });
   expect(r.hasCarryForward).toBe(false);
   expect(r.closingCashExpected).toBeNull();
-  expect(r.isBalanced).toBe(true);   // cash and transfer variances are 0
+  expect(r.isBalanced).toBe(true); // cash and transfer variances are 0
 });
 
 it("does not let a passbook difference unbalance the round", () => {
-  const r = reconcile({ ...sunday, bankRecords: [],
-    carry: { openingCash: 0, openingBank: 0, cashOnHandActual: 6500, passbookBalance: 999 } });
+  const r = reconcile({
+    ...sunday,
+    bankRecords: [],
+    carry: {
+      openingCash: 0,
+      openingBank: 0,
+      cashOnHandActual: 6500,
+      passbookBalance: 999,
+    },
+  });
   expect(r.passbookVariance).toBe(999);
   expect(r.isBalanced).toBe(true);
 });
@@ -167,12 +244,14 @@ git commit -m "feat(counting): two-wallet reconcile with cash and bank carry-for
 ### Task 2: Schema
 
 **Files:**
+
 - Modify: `drizzle/schema.ts` (`bankRecordTypeEnum` L97, `countingSessions` L479-505)
 - Modify: `server/schema_init.ts` (`ENUM_STATEMENTS`, `TABLE_STATEMENTS` after `counting_sessions`)
 - Create: generated migration under `drizzle/` (via drizzle-kit)
 - Test: `server/schema_init.test.ts`
 
 **Interfaces:**
+
 - Consumes: `BANK_RECORD_TYPES` (Task 1) — `bankRecordTypeEnum` uses it.
 - Produces: `countingSessions` columns, all `decimal(15,2)` nullable unless noted: `openingCash`, `openingBank`, `closingBank`, `cashOnHandActual`, `passbookBalance`; `passbookBalanceDate: timestamp` nullable.
 
@@ -182,7 +261,8 @@ git commit -m "feat(counting): two-wallet reconcile with cash and bank carry-for
 import { ENUM_STATEMENTS, TABLE_STATEMENTS } from "./schema_init";
 
 describe("counting carry-forward schema", () => {
-  it("adds the new bank record types to an existing enum", () => {   // Review Focus 1
+  it("adds the new bank record types to an existing enum", () => {
+    // Review Focus 1
     for (const v of ["withdrawal", "other_in", "other_out"]) {
       expect(ENUM_STATEMENTS).toContain(
         `ALTER TYPE "public"."bank_record_type" ADD VALUE IF NOT EXISTS '${v}';`
@@ -190,9 +270,21 @@ describe("counting carry-forward schema", () => {
     }
   });
   it("adds the carry-forward columns to existing counting_sessions", () => {
-    for (const col of ["openingCash", "openingBank", "closingBank", "cashOnHandActual", "passbookBalance", "passbookBalanceDate"]) {
-      expect(TABLE_STATEMENTS.some(s =>
-        s.includes(`ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "${col}"`))).toBe(true);
+    for (const col of [
+      "openingCash",
+      "openingBank",
+      "closingBank",
+      "cashOnHandActual",
+      "passbookBalance",
+      "passbookBalanceDate",
+    ]) {
+      expect(
+        TABLE_STATEMENTS.some(s =>
+          s.includes(
+            `ALTER TABLE "counting_sessions" ADD COLUMN IF NOT EXISTS "${col}"`
+          )
+        )
+      ).toBe(true);
     }
   });
 });
@@ -218,24 +310,50 @@ git commit -m "feat(counting): schema for carry-forward balances and new bank re
 ### Task 3: Opening balances and closing figures (server)
 
 **Files:**
+
 - Modify: `server/db.ts` (`getCountingSessionDetail` L1694-1754; add helpers near it)
 - Modify: `server/routers.ts` (`counting` router: `addBankRecord` L1495, new procedures after `matchPassbook`)
 - Test: `server/counting.workflow.test.ts`, `server/counting.access.test.ts`
 
 **Interfaces:**
+
 - Consumes: `CarryForwardInput`, `BANK_RECORD_TYPES` (Task 1); columns (Task 2).
 - Produces (`server/db.ts`):
   ```ts
-  export async function findPreviousPostedSession(session: CountingSession, churchId?): Promise<CountingSession | null>
+  export async function findPreviousPostedSession(
+    session: CountingSession,
+    churchId?
+  ): Promise<CountingSession | null>;
   // latest posted/closed row ordered by (serviceDate, serviceRound, id) strictly before `session`
-  export async function findEarlierUnpostedSession(session: CountingSession, churchId?): Promise<CountingSession | null>
+  export async function findEarlierUnpostedSession(
+    session: CountingSession,
+    churchId?
+  ): Promise<CountingSession | null>;
   // earliest row before `session` (same ordering) with status counting|counted|verified
-  export async function resolveOpeningBalances(session: CountingSession, churchId?):
-    Promise<{ openingCash: number; openingBank: number; source: "stored" | "previous" } | null>
+  export async function resolveOpeningBalances(
+    session: CountingSession,
+    churchId?
+  ): Promise<{
+    openingCash: number;
+    openingBank: number;
+    source: "stored" | "previous";
+  } | null>;
   // stored = session.openingCash/openingBank non-null; else previous posted session's
   // cashOnHandActual + closingBank when both non-null; else null (legacy prev or first round)
-  export async function setCountingCarryFields(id: number, fields: Partial<Pick<InsertCountingSession,
-    "openingCash"|"openingBank"|"cashOnHandActual"|"passbookBalance"|"passbookBalanceDate">>, churchId?): Promise<boolean>
+  export async function setCountingCarryFields(
+    id: number,
+    fields: Partial<
+      Pick<
+        InsertCountingSession,
+        | "openingCash"
+        | "openingBank"
+        | "cashOnHandActual"
+        | "passbookBalance"
+        | "passbookBalanceDate"
+      >
+    >,
+    churchId?
+  ): Promise<boolean>;
   ```
   `getCountingSessionDetail` returns `openingSource: "stored" | "previous" | null` and passes `carry` to `reconcile`.
 - Produces (router):
@@ -248,10 +366,11 @@ git commit -m "feat(counting): schema for carry-forward balances and new bank re
 `server/counting.access.test.ts` (no DB): a `MEMBER` and a counter-only user calling `setOpeningBalances` / `setClosingFigures` reject with `FORBIDDEN`.
 
 `server/counting.workflow.test.ts`, new `describeDb("counting workflow: carry forward", …)` using the file's existing helpers and tenant:
+
 - `it("asks for opening balances on the first round")` → `get` shows `reconciliation.hasCarryForward === false`, `openingSource === null`; `setOpeningBalances({ openingCash: 2000, openingBank: 50000 })` then `openingSource === "stored"`; a second `setOpeningBalances` rejects `CONFLICT`.
 - `it("records a withdrawal and other bank items")` → `addBankRecord` with `withdrawal`, `other_in`, `other_out` succeeds and shows in `reconciliation.withdrawalTotal` etc.
 - `it("rejects a negative cash-on-hand figure")` → `setClosingFigures({ cashOnHandActual: -1 })` rejects `BAD_REQUEST`.
-- `it("orders two rounds on the same Sunday by serviceRound")` (Review Focus 2) → after Task 4 posts round 1, round 2 on the same date gets `openingSource === "previous"` from round 1. *(Write it now; it passes after Task 4.)*
+- `it("orders two rounds on the same Sunday by serviceRound")` (Review Focus 2) → after Task 4 posts round 1, round 2 on the same date gets `openingSource === "previous"` from round 1. _(Write it now; it passes after Task 4.)_
 - `it("does not carry forward from a pre-feature round")` (Review Focus 3) → seed a posted session with `closingBank` null via `db` directly, create the next round, assert `openingSource === null`.
 
 - [ ] **Step 2: Run and see them fail**
@@ -274,11 +393,13 @@ git commit -m "feat(counting): resolve opening balances and record closing figur
 ### Task 4: Post guards and freezing the carry-forward
 
 **Files:**
+
 - Modify: `server/routers.ts` (`counting.post` ~L1712-1776)
 - Modify: `server/db.ts` (`postCountingSession` L1976)
 - Test: `server/counting.workflow.test.ts`
 
 **Interfaces:**
+
 - Consumes: `findEarlierUnpostedSession`, `resolveOpeningBalances`, `getCountingSessionDetail` (Task 3).
 - Produces: `postCountingSession(id, postedBy, carry: { openingCash: number; openingBank: number; closingBank: number }, churchId?)` — writes the three columns in the same `update ... set` that claims `status: "posted"`.
 
@@ -309,11 +430,13 @@ git commit -m "feat(counting): require cash count and in-order posting, freeze c
 ### Task 5: Counting screen
 
 **Files:**
+
 - Modify: `client/src/pages/CountingDetail/components/BankRecordsTab.tsx` (type select L47-48, L111-112, label L194)
 - Modify: `client/src/pages/CountingDetail/components/ReconciliationSummaryTab.tsx`
 - Modify: `client/src/pages/CountingDetail.tsx` (wire the two new mutations, pass `openingSource`)
 
 **Interfaces:**
+
 - Consumes: `counting.get` output (`reconciliation` fields from Task 1, `openingSource`), `counting.setOpeningBalances`, `counting.setClosingFigures`, `BANK_RECORD_TYPES`.
 
 - [ ] **Step 1: BankRecordsTab** — select options and row labels for all five types: `cash_deposit` นำเงินสดเข้าฝาก, `transfer_in` สมาชิกโอนเข้าบัญชี, `withdrawal` ถอนเงินสดจากธนาคาร, `other_in` เงินเข้าอื่นๆ (ดอกเบี้ย ฯลฯ), `other_out` เงินออกอื่นๆ (ค่าธรรมเนียม โอนจ่ายบิล). Make `notes` required in the form for `other_in` / `other_out`.

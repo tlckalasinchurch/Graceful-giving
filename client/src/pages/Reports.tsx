@@ -294,9 +294,12 @@ export default function Reports() {
 
             {/* Statement by category */}
             <section className="bento-card-static overflow-hidden p-0">
-              <h2 className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 font-extrabold text-ink">
-                สรุปตามหมวดหมู่
-              </h2>
+              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] bg-paper-2 p-4">
+                <h2 className="font-extrabold text-ink">สรุปตามหมวดหมู่</h2>
+                <span className="text-[11px] font-semibold text-ink-3 md:hidden">
+                  (เลื่อนซ้าย-ขวาเพื่อดูตาราง)
+                </span>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">

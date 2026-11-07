@@ -157,6 +157,7 @@ export default function Settings() {
   const [pastorName, setPastorName] = useState("");
   const [assistantPastorName, setAssistantPastorName] = useState("");
   const [treasurerName, setTreasurerName] = useState("");
+  const [fiscalYearStartMonth, setFiscalYearStartMonth] = useState("1");
   const [bankName, setBankName] = useState("");
   const [bankAccount, setBankAccount] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
@@ -173,8 +174,11 @@ export default function Settings() {
       address: churchProfile?.address || "",
       phone: churchProfile?.phone || "",
       email: churchProfile?.email || "",
+      website: churchProfile?.website || "",
       pastorName: churchProfile?.pastorName || "",
+      assistantPastorName: churchProfile?.assistantPastorName || "",
       treasurerName: churchProfile?.treasurerName || "",
+      fiscalYearStartMonth: String(churchProfile?.fiscalYearStartMonth ?? 1),
       motto: churchProfile?.motto || "",
       bankName: churchProfile?.bankName || "",
       bankAccount: churchProfile?.bankAccount || "",
@@ -185,10 +189,11 @@ export default function Settings() {
     setAddress(loaded.address);
     setPhone(loaded.phone);
     setEmail(loaded.email);
-    setWebsite(churchProfile?.website || "");
+    setWebsite(loaded.website);
     setPastorName(loaded.pastorName);
-    setAssistantPastorName(churchProfile?.assistantPastorName || "");
+    setAssistantPastorName(loaded.assistantPastorName);
     setTreasurerName(loaded.treasurerName);
+    setFiscalYearStartMonth(loaded.fiscalYearStartMonth);
     setBankName(churchProfile?.bankName || "");
     setBankAccount(churchProfile?.bankAccount || "");
     setBankAccountName(churchProfile?.bankAccountName || "");
@@ -203,8 +208,11 @@ export default function Settings() {
       address,
       phone,
       email,
+      website,
       pastorName,
+      assistantPastorName,
       treasurerName,
+      fiscalYearStartMonth,
       motto,
       bankName,
       bankAccount,
@@ -229,7 +237,10 @@ export default function Settings() {
       setIsSaving(false);
       await Swal.error(
         "บันทึกไม่สำเร็จ",
-        friendlyErrorMessage(error, "บันทึกการตั้งค่าไม่สำเร็จ กรุณาลองใหม่อีกครั้ง")
+        friendlyErrorMessage(
+          error,
+          "บันทึกการตั้งค่าไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+        )
       );
     },
   });
@@ -242,15 +253,15 @@ export default function Settings() {
       address,
       phone,
       email,
-      website,
+      website: website.trim() || undefined,
       pastorName,
-      assistantPastorName,
+      assistantPastorName: assistantPastorName.trim() || undefined,
       treasurerName,
       bankName,
       bankAccount,
       bankAccountName,
       promptPayId,
-      fiscalYearStartMonth: churchProfile?.fiscalYearStartMonth ?? 1,
+      fiscalYearStartMonth: parseInt(fiscalYearStartMonth, 10) || 1,
       motto,
     });
   };
@@ -335,6 +346,19 @@ export default function Settings() {
           "เสนอรายการเบิกจ่าย",
           "ตรวจสอบการใช้ทรัพยากรของฝ่าย",
           "ดูรายงานเฉพาะส่วนที่ได้รับมอบหมาย",
+        ],
+      },
+      {
+        role: "COUNTER",
+        title: "ทีมนับเงิน / กรรมการนับเงิน",
+        appointee: assigneesFor("COUNTER"),
+        desc: "บันทึกและตรวจนับเงินถวายสด ซองถวาย ร่วมกับพยานนับเงิน และกระทบยอดก่อนส่งมอบให้เหรัญญิกโพสต์ลงบัญชี",
+        duties: [
+          "บันทึกและตรวจนับเงินสดแต่ละรอบนมัสการ",
+          "บันทึกซองถวายและผู้ถวายที่มีหมายเลขซอง",
+          "ร่วมลงชื่อเป็นพยานในการตรวจนับเงินถวาย",
+          "กระทบยอดเงินสดกับยอดซองให้ตรงกัน",
+          "ส่งมอบรอบการนับให้เหรัญญิกโพสต์ลงบัญชี",
         ],
       },
       {
@@ -486,9 +510,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="font-bold text-ink">
-                    ที่อยู่คริสตจักร
-                  </label>
+                  <label className="font-bold text-ink">ที่อยู่คริสตจักร</label>
                   <textarea
                     rows={2}
                     value={address}
@@ -498,9 +520,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink">
-                    เบอร์โทรศัพท์
-                  </label>
+                  <label className="font-bold text-ink">เบอร์โทรศัพท์</label>
                   <input
                     type="text"
                     value={phone}
@@ -521,12 +541,35 @@ export default function Settings() {
 
                 <div className="space-y-1.5">
                   <label className="font-bold text-ink">
-                    ศิษยาภิบาลอาวุโส
+                    เว็บไซต์ / เพจคริสตจักร
                   </label>
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={website}
+                    onChange={e => setWebsite(e.target.value)}
+                    className="neo-input w-full px-4 py-2.5 text-sm text-ink"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-ink">ศิษยาภิบาลอาวุโส</label>
                   <input
                     type="text"
                     value={pastorName}
                     onChange={e => setPastorName(e.target.value)}
+                    className="neo-input w-full px-4 py-2.5 text-sm text-ink"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-ink">
+                    ผู้ช่วยศิษยาภิบาล / ผู้ประกาศ
+                  </label>
+                  <input
+                    type="text"
+                    value={assistantPastorName}
+                    onChange={e => setAssistantPastorName(e.target.value)}
                     className="neo-input w-full px-4 py-2.5 text-sm text-ink"
                   />
                 </div>
@@ -541,6 +584,30 @@ export default function Settings() {
                     onChange={e => setTreasurerName(e.target.value)}
                     className="neo-input w-full px-4 py-2.5 text-sm text-ink"
                   />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-ink">
+                    เดือนเริ่มต้นปีงบประมาณ
+                  </label>
+                  <NativeSelect
+                    value={fiscalYearStartMonth}
+                    onChange={e => setFiscalYearStartMonth(e.target.value)}
+                    className="w-full font-semibold"
+                  >
+                    <option value="1">มกราคม (มาตรฐาน ปฏิทินสากล)</option>
+                    <option value="2">กุมภาพันธ์</option>
+                    <option value="3">มีนาคม</option>
+                    <option value="4">เมษายน</option>
+                    <option value="5">พฤษภาคม</option>
+                    <option value="6">มิถุนายน</option>
+                    <option value="7">กรกฎาคม</option>
+                    <option value="8">สิงหาคม</option>
+                    <option value="9">กันยายน</option>
+                    <option value="10">ตุลาคม (ปีงบประมาณราชการ)</option>
+                    <option value="11">พฤศจิกายน</option>
+                    <option value="12">ธันวาคม</option>
+                  </NativeSelect>
                 </div>
               </div>
             </div>
@@ -645,7 +712,9 @@ export default function Settings() {
                     className="font-semibold focus:ring-2 focus:ring-brand/20"
                   >
                     <option value="ALL">บทบาททั้งหมด</option>
-                    <option value="SUPER_ADMIN">ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)</option>
+                    <option value="SUPER_ADMIN">
+                      ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
+                    </option>
                     <option value="PASTOR">ศิษยาภิบาล (PASTOR)</option>
                     <option value="TREASURER">เหรัญญิก (TREASURER)</option>
                     <option value="DEACON">ผู้รับผิดชอบฝ่าย (DEACON)</option>
@@ -665,118 +734,101 @@ export default function Settings() {
                   ยังไม่พบข้อมูลผู้ใช้งานในระบบ
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b-2 border-[var(--ink)] text-xs font-extrabold text-ink">
-                        <th className="pb-3 px-3">ผู้ใช้งาน</th>
-                        <th className="pb-3 px-3">อีเมล</th>
-                        <th className="pb-3 px-3">เข้าใช้ล่าสุด</th>
-                        <th className="pb-3 px-3 text-right">บทบาทในระบบ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-line">
-                      {(() => {
-                        const filteredUsers = (usersQuery.data || []).filter(
-                          u => {
-                            const matchesSearch =
-                              !roleSearch ||
-                              (u.name &&
-                                u.name
-                                  .toLowerCase()
-                                  .includes(roleSearch.toLowerCase())) ||
-                              (u.email &&
-                                u.email
-                                  .toLowerCase()
-                                  .includes(roleSearch.toLowerCase()));
-                            const matchesFilter =
-                              roleFilter === "ALL" ||
-                              (u.churchRole || "MEMBER") === roleFilter;
-                            return matchesSearch && matchesFilter;
-                          }
-                        );
+                (() => {
+                  const filteredUsers = (usersQuery.data || []).filter(u => {
+                    const matchesSearch =
+                      !roleSearch ||
+                      (u.name &&
+                        u.name
+                          .toLowerCase()
+                          .includes(roleSearch.toLowerCase())) ||
+                      (u.email &&
+                        u.email
+                          .toLowerCase()
+                          .includes(roleSearch.toLowerCase()));
+                    const matchesFilter =
+                      roleFilter === "ALL" ||
+                      (u.churchRole || "MEMBER") === roleFilter;
+                    return matchesSearch && matchesFilter;
+                  });
 
-                        if (filteredUsers.length === 0) {
-                          return (
-                            <tr>
-                              <td
-                                colSpan={4}
-                                className="py-8 text-center text-xs text-ink-3 bg-paper-2/50"
-                              >
-                                ไม่พบผู้ใช้งานที่ตรงกับเงื่อนไขการค้นหา
-                              </td>
-                            </tr>
-                          );
-                        }
+                  if (filteredUsers.length === 0) {
+                    return (
+                      <div className="py-8 text-center text-xs text-ink-3 bg-paper-2/50 rounded-xl border border-[var(--ink)]/20">
+                        ไม่พบผู้ใช้งานที่ตรงกับเงื่อนไขการค้นหา
+                      </div>
+                    );
+                  }
 
-                        return filteredUsers.map(u => {
+                  const canEdit =
+                    user?.churchRole === "SUPER_ADMIN" ||
+                    user?.role === "admin";
+
+                  return (
+                    <>
+                      {/* Mobile Card List (md:hidden) */}
+                      <div className="md:hidden space-y-3">
+                        {filteredUsers.map(u => {
                           const isMe = u.openId === user?.openId;
                           const isUpdating = updatingUserId === u.id;
-                          const canEdit =
-                            user?.churchRole === "SUPER_ADMIN" ||
-                            user?.role === "admin";
 
                           return (
-                            <tr
+                            <div
                               key={u.id}
-                              className="hover:bg-paper-2/60 transition-colors"
+                              className="p-4 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 shadow-[2px_2px_0_var(--ink)] space-y-3"
                             >
-                              <td className="py-3.5 px-3">
-                                <div className="font-bold text-ink flex items-center gap-2">
-                                  <span>{u.name || "ไม่ระบุชื่อ"}</span>
-                                  {isMe && (
-                                    <span className="text-xs bg-accent text-accent-foreground font-extrabold px-2 py-0.5 rounded-full border border-[var(--ink)]">
-                                      คุณ
-                                    </span>
-                                  )}
-                                  {u.status === "pending" && (
-                                    <span className="text-xs bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-[var(--ink)]/20">
-                                      รออนุมัติ
-                                    </span>
-                                  )}
-                                  {u.status === "disabled" && (
-                                    <span className="text-xs bg-danger/10 text-danger font-bold px-2 py-0.5 rounded-full border border-danger/30">
-                                      ปิดใช้งาน
-                                    </span>
-                                  )}
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="space-y-0.5">
+                                  <div className="font-extrabold text-sm text-ink flex flex-wrap items-center gap-1.5">
+                                    <span>{u.name || "ไม่ระบุชื่อ"}</span>
+                                    {isMe && (
+                                      <span className="text-[11px] bg-accent text-accent-foreground font-extrabold px-2 py-0.5 rounded-full border border-[var(--ink)]">
+                                        คุณ
+                                      </span>
+                                    )}
+                                    {u.status === "pending" && (
+                                      <span className="text-[11px] bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-[var(--ink)]/20">
+                                        รออนุมัติ
+                                      </span>
+                                    )}
+                                    {u.status === "disabled" && (
+                                      <span className="text-[11px] bg-danger/10 text-danger font-bold px-2 py-0.5 rounded-full border border-danger/30">
+                                        ปิดใช้งาน
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-ink-2 font-mono">
+                                    {u.email || "ไม่มีอีเมล"}
+                                  </div>
                                 </div>
-                              </td>
-                              <td className="py-3.5 px-3 text-ink-2">
-                                {u.email || "-"}
-                              </td>
-                              <td className="py-3.5 px-3 text-xs text-ink-3">
-                                {u.lastSignedIn
-                                  ? new Date(u.lastSignedIn).toLocaleDateString(
-                                      THAI_LOCALE,
-                                      {
-                                        year: "numeric",
-                                        month: "short",
+                                <div className="text-[11px] text-ink-3 font-mono shrink-0">
+                                  {u.lastSignedIn
+                                    ? new Date(
+                                        u.lastSignedIn
+                                      ).toLocaleDateString(THAI_LOCALE, {
                                         day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      }
-                                    )
-                                  : "-"}
-                              </td>
-                              <td className="py-3.5 px-3 text-right">
+                                        month: "short",
+                                      })
+                                    : "-"}
+                                </div>
+                              </div>
+
+                              <div className="space-y-1.5 pt-1 border-t border-[var(--ink)]/10">
+                                <label className="text-xs font-bold text-ink-2">
+                                  บทบาทในระบบ:
+                                </label>
                                 {canEdit ? (
-                                  <div className="inline-flex items-center gap-2">
+                                  <div className="flex items-center gap-2">
                                     {isUpdating && (
-                                      <Loader2 className="w-4 h-4 animate-spin text-brand" />
+                                      <Loader2 className="w-4 h-4 animate-spin text-brand shrink-0" />
                                     )}
                                     <NativeSelect
                                       value={u.churchRole || "MEMBER"}
-                                      // Your own role is changed by another super admin.
                                       disabled={isUpdating || isMe}
-                                      title={
-                                        isMe
-                                          ? "เปลี่ยนบทบาทของตัวเองไม่ได้"
-                                          : undefined
-                                      }
                                       onChange={e =>
                                         handleRoleChange(u.id, e.target.value)
                                       }
-                                      className="font-semibold hover:border-brand focus:ring-2 focus:ring-brand/20 transition-all"
+                                      className="w-full min-h-11 font-semibold text-xs"
                                     >
                                       <option value="SUPER_ADMIN">
                                         ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
@@ -797,84 +849,269 @@ export default function Settings() {
                                         สมาชิกคริสตจักร (MEMBER)
                                       </option>
                                     </NativeSelect>
-                                    {!isMe && u.status !== "active" && (
-                                      <button
-                                        type="button"
-                                        disabled={statusMutation.isPending}
-                                        onClick={() =>
-                                          statusMutation.mutate({
-                                            userId: u.id,
-                                            status: "active",
-                                          })
-                                        }
-                                        className="btn-primary whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-extrabold"
-                                      >
-                                        {u.status === "pending"
-                                          ? "อนุมัติ"
-                                          : "เปิดใช้งาน"}
-                                      </button>
-                                    )}
-                                    {!isMe && u.status !== "active" && (
-                                      <button
-                                        type="button"
-                                        disabled={deleteUserMutation.isPending}
-                                        onClick={async () => {
-                                          const ok = await Swal.confirm(
-                                            "ลบบัญชีนี้?",
-                                            `${u.name || "ผู้ใช้"} จะถูกลบออกจากรายชื่อถาวร หากเขาล็อกอินด้วย LINE อีก จะกลับมาเป็นสถานะรออนุมัติ`,
-                                            {
-                                              confirmButtonText: "ลบบัญชี",
-                                              cancelButtonText: "ไม่ลบ",
-                                            }
-                                          );
-                                          if (ok)
-                                            deleteUserMutation.mutate({
-                                              userId: u.id,
-                                            });
-                                        }}
-                                        className="whitespace-nowrap rounded-lg border-[1.5px] border-[var(--ink)] bg-danger/10 px-2.5 py-1.5 text-xs font-bold text-danger hover:bg-danger/15"
-                                      >
-                                        ลบ
-                                      </button>
-                                    )}
-                                    {!isMe && u.status === "active" && (
-                                      <button
-                                        type="button"
-                                        disabled={statusMutation.isPending}
-                                        onClick={async () => {
-                                          const ok = await Swal.confirm(
-                                            "ปิดการใช้งานบัญชี?",
-                                            `${u.name || "ผู้ใช้"} จะเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใช้งานอีกครั้ง`,
-                                            {
-                                              confirmButtonText: "ปิดการใช้งาน",
-                                              cancelButtonText: "ไม่ปิด",
-                                            }
-                                          );
-                                          if (ok)
-                                            statusMutation.mutate({
-                                              userId: u.id,
-                                              status: "disabled",
-                                            });
-                                        }}
-                                        className="whitespace-nowrap rounded-lg border-[1.5px] border-[var(--ink)] bg-danger/10 px-2.5 py-1.5 text-xs font-bold text-danger hover:bg-danger/15"
-                                      >
-                                        ปิดใช้งาน
-                                      </button>
-                                    )}
                                   </div>
                                 ) : (
-                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-paper-2 text-ink border-[1.5px] border-[var(--ink)]/30">
+                                  <span className="inline-block px-3 py-1.5 rounded-xl text-xs font-extrabold bg-surface text-ink border border-[var(--ink)]">
                                     {u.churchRole || "MEMBER"}
                                   </span>
                                 )}
-                              </td>
-                            </tr>
+                              </div>
+
+                              {!isMe && canEdit && (
+                                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--ink)]/10">
+                                  {u.status !== "active" && (
+                                    <button
+                                      type="button"
+                                      disabled={statusMutation.isPending}
+                                      onClick={() =>
+                                        statusMutation.mutate({
+                                          userId: u.id,
+                                          status: "active",
+                                        })
+                                      }
+                                      className="btn-primary min-h-11 flex-1 py-2 px-3 text-xs font-extrabold cursor-pointer"
+                                    >
+                                      {u.status === "pending"
+                                        ? "อนุมัติผู้ใช้"
+                                        : "เปิดใช้งาน"}
+                                    </button>
+                                  )}
+                                  {u.status === "active" && (
+                                    <button
+                                      type="button"
+                                      disabled={statusMutation.isPending}
+                                      onClick={async () => {
+                                        const ok = await Swal.confirm(
+                                          "ปิดการใช้งานบัญชี?",
+                                          `${u.name || "ผู้ใช้"} จะเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใช้งานอีกครั้ง`,
+                                          {
+                                            confirmButtonText: "ปิดการใช้งาน",
+                                            cancelButtonText: "ไม่ปิด",
+                                          }
+                                        );
+                                        if (ok)
+                                          statusMutation.mutate({
+                                            userId: u.id,
+                                            status: "disabled",
+                                          });
+                                      }}
+                                      className="min-h-11 flex-1 py-2 px-3 rounded-xl border-2 border-[var(--ink)] bg-danger/10 text-danger text-xs font-bold hover:bg-danger/15 cursor-pointer"
+                                    >
+                                      ปิดใช้งาน
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    disabled={deleteUserMutation.isPending}
+                                    onClick={async () => {
+                                      const ok = await Swal.confirm(
+                                        "ลบบัญชีนี้?",
+                                        `${u.name || "ผู้ใช้"} จะถูกลบออกจากรายชื่อถาวร หากเขาล็อกอินด้วย LINE อีก จะกลับมาเป็นสถานะรออนุมัติ`,
+                                        {
+                                          confirmButtonText: "ลบบัญชี",
+                                          cancelButtonText: "ไม่ลบ",
+                                        }
+                                      );
+                                      if (ok)
+                                        deleteUserMutation.mutate({
+                                          userId: u.id,
+                                        });
+                                    }}
+                                    className="min-h-11 px-4 rounded-xl border-2 border-[var(--ink)] bg-surface text-danger text-xs font-bold hover:bg-danger/10 cursor-pointer"
+                                  >
+                                    ลบ
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           );
-                        });
-                      })()}
-                    </tbody>
-                  </table>
-                </div>
+                        })}
+                      </div>
+
+                      {/* Desktop Table (hidden md:block) */}
+                      <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                          <thead>
+                            <tr className="border-b-2 border-[var(--ink)] text-xs font-extrabold text-ink">
+                              <th className="pb-3 px-3">ผู้ใช้งาน</th>
+                              <th className="pb-3 px-3">อีเมล</th>
+                              <th className="pb-3 px-3">เข้าใช้ล่าสุด</th>
+                              <th className="pb-3 px-3 text-right">
+                                บทบาทในระบบ
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-line">
+                            {filteredUsers.map(u => {
+                              const isMe = u.openId === user?.openId;
+                              const isUpdating = updatingUserId === u.id;
+
+                              return (
+                                <tr
+                                  key={u.id}
+                                  className="hover:bg-paper-2/60 transition-colors"
+                                >
+                                  <td className="py-3.5 px-3">
+                                    <div className="font-bold text-ink flex items-center gap-2">
+                                      <span>{u.name || "ไม่ระบุชื่อ"}</span>
+                                      {isMe && (
+                                        <span className="text-xs bg-accent text-accent-foreground font-extrabold px-2 py-0.5 rounded-full border border-[var(--ink)]">
+                                          คุณ
+                                        </span>
+                                      )}
+                                      {u.status === "pending" && (
+                                        <span className="text-xs bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-[var(--ink)]/20">
+                                          รออนุมัติ
+                                        </span>
+                                      )}
+                                      {u.status === "disabled" && (
+                                        <span className="text-xs bg-danger/10 text-danger font-bold px-2 py-0.5 rounded-full border border-danger/30">
+                                          ปิดใช้งาน
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="py-3.5 px-3 text-ink-2">
+                                    {u.email || "-"}
+                                  </td>
+                                  <td className="py-3.5 px-3 text-xs text-ink-3">
+                                    {u.lastSignedIn
+                                      ? new Date(
+                                          u.lastSignedIn
+                                        ).toLocaleDateString(THAI_LOCALE, {
+                                          year: "numeric",
+                                          month: "short",
+                                          day: "numeric",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })
+                                      : "-"}
+                                  </td>
+                                  <td className="py-3.5 px-3 text-right">
+                                    {canEdit ? (
+                                      <div className="inline-flex items-center gap-2">
+                                        {isUpdating && (
+                                          <Loader2 className="w-4 h-4 animate-spin text-brand" />
+                                        )}
+                                        <NativeSelect
+                                          value={u.churchRole || "MEMBER"}
+                                          // Your own role is changed by another super admin.
+                                          disabled={isUpdating || isMe}
+                                          title={
+                                            isMe
+                                              ? "เปลี่ยนบทบาทของตัวเองไม่ได้"
+                                              : undefined
+                                          }
+                                          onChange={e =>
+                                            handleRoleChange(
+                                              u.id,
+                                              e.target.value
+                                            )
+                                          }
+                                          className="font-semibold hover:border-brand focus:ring-2 focus:ring-brand/20 transition-all"
+                                        >
+                                          <option value="SUPER_ADMIN">
+                                            ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
+                                          </option>
+                                          <option value="PASTOR">
+                                            ศิษยาภิบาล (PASTOR)
+                                          </option>
+                                          <option value="TREASURER">
+                                            เหรัญญิกคริสตจักร (TREASURER)
+                                          </option>
+                                          <option value="DEACON">
+                                            ผู้รับผิดชอบฝ่าย (DEACON)
+                                          </option>
+                                          <option value="COUNTER">
+                                            ทีมนับเงินถวาย (COUNTER)
+                                          </option>
+                                          <option value="MEMBER">
+                                            สมาชิกคริสตจักร (MEMBER)
+                                          </option>
+                                        </NativeSelect>
+                                        {!isMe && u.status !== "active" && (
+                                          <button
+                                            type="button"
+                                            disabled={statusMutation.isPending}
+                                            onClick={() =>
+                                              statusMutation.mutate({
+                                                userId: u.id,
+                                                status: "active",
+                                              })
+                                            }
+                                            className="btn-primary min-h-9 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-extrabold cursor-pointer"
+                                          >
+                                            {u.status === "pending"
+                                              ? "อนุมัติ"
+                                              : "เปิดใช้งาน"}
+                                          </button>
+                                        )}
+                                        {!isMe && u.status !== "active" && (
+                                          <button
+                                            type="button"
+                                            disabled={
+                                              deleteUserMutation.isPending
+                                            }
+                                            onClick={async () => {
+                                              const ok = await Swal.confirm(
+                                                "ลบบัญชีนี้?",
+                                                `${u.name || "ผู้ใช้"} จะถูกลบออกจากรายชื่อถาวร หากเขาล็อกอินด้วย LINE อีก จะกลับมาเป็นสถานะรออนุมัติ`,
+                                                {
+                                                  confirmButtonText: "ลบบัญชี",
+                                                  cancelButtonText: "ไม่ลบ",
+                                                }
+                                              );
+                                              if (ok)
+                                                deleteUserMutation.mutate({
+                                                  userId: u.id,
+                                                });
+                                            }}
+                                            className="min-h-9 whitespace-nowrap rounded-lg border-[1.5px] border-[var(--ink)] bg-danger/10 px-2.5 py-1.5 text-xs font-bold text-danger hover:bg-danger/15 cursor-pointer"
+                                          >
+                                            ลบ
+                                          </button>
+                                        )}
+                                        {!isMe && u.status === "active" && (
+                                          <button
+                                            type="button"
+                                            disabled={statusMutation.isPending}
+                                            onClick={async () => {
+                                              const ok = await Swal.confirm(
+                                                "ปิดการใช้งานบัญชี?",
+                                                `${u.name || "ผู้ใช้"} จะเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใช้งานอีกครั้ง`,
+                                                {
+                                                  confirmButtonText:
+                                                    "ปิดการใช้งาน",
+                                                  cancelButtonText: "ไม่ปิด",
+                                                }
+                                              );
+                                              if (ok)
+                                                statusMutation.mutate({
+                                                  userId: u.id,
+                                                  status: "disabled",
+                                                });
+                                            }}
+                                            className="min-h-9 whitespace-nowrap rounded-lg border-[1.5px] border-[var(--ink)] bg-danger/10 px-2.5 py-1.5 text-xs font-bold text-danger hover:bg-danger/15 cursor-pointer"
+                                          >
+                                            ปิดใช้งาน
+                                          </button>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-paper-2 text-ink border-[1.5px] border-[var(--ink)]/30">
+                                        {u.churchRole || "MEMBER"}
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  );
+                })()
               )}
             </div>
 
@@ -925,9 +1162,7 @@ export default function Settings() {
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-ink-2">
                         {r.duties.map((duty, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
-                            <span className="text-brand font-bold">
-                              •
-                            </span>
+                            <span className="text-brand font-bold">•</span>
                             <span>{duty}</span>
                           </li>
                         ))}
@@ -1173,24 +1408,58 @@ export default function Settings() {
                   className="font-semibold focus:ring-2 focus:ring-brand/20"
                 >
                   <option value="ALL">กิจกรรมทั้งหมด</option>
-                  <option value="update_user_role">
-                    เปลี่ยนบทบาทผู้ใช้ (update_user_role)
-                  </option>
-                  <option value="approve_user">
-                    อนุมัติบัญชีผู้ใช้ (approve_user)
-                  </option>
-                  <option value="disable_user">
-                    ปิดการใช้งานบัญชี (disable_user)
-                  </option>
-                  <option value="update_profile">
-                    แก้ไขโปรไฟล์ (update_profile)
-                  </option>
-                  <option value="update_church_profile">
-                    แก้ไขข้อมูลคริสตจักร (update_church_profile)
-                  </option>
-                  <option value="CREATE">บันทึกรายการใหม่ (CREATE)</option>
-                  <option value="UPDATE">แก้ไขรายการ (UPDATE)</option>
-                  <option value="VOID">ยกเลิกรายการ (VOID)</option>
+                  <optgroup label="ธุรกรรมการเงิน">
+                    <option value="CREATE">สร้างรายการใหม่ (CREATE)</option>
+                    <option value="UPDATE">แก้ไขรายการ (UPDATE)</option>
+                    <option value="VOID">ยกเลิกรายการ (VOID)</option>
+                    <option value="DELETE">ลบรายการ (DELETE)</option>
+                  </optgroup>
+                  <optgroup label="การนับเงินและโพสต์">
+                    <option value="POST">โพสต์ลงบัญชี (POST)</option>
+                    <option value="SUBMIT">ส่งตรวจนับ (SUBMIT)</option>
+                    <option value="VERIFY">ตรวจนับ / รับรอง (VERIFY)</option>
+                  </optgroup>
+                  <optgroup label="การเบิกจ่ายและลงนาม">
+                    <option value="APPROVE">อนุมัติคำขอเบิก (APPROVE)</option>
+                    <option value="SIGN">ลงนามคำขอเบิก (SIGN)</option>
+                    <option value="DISBURSE">จ่ายเงินสำเร็จ (DISBURSE)</option>
+                  </optgroup>
+                  <optgroup label="สลิปถวายทรัพย์">
+                    <option value="APPROVE_LINE_SLIP">
+                      อนุมัติสลิป (APPROVE_LINE_SLIP)
+                    </option>
+                    <option value="REJECT_LINE_SLIP">
+                      ปฏิเสธสลิป (REJECT_LINE_SLIP)
+                    </option>
+                    <option value="LINK_LINE_MEMBER">
+                      เชื่อมโยงสมาชิก (LINK_LINE_MEMBER)
+                    </option>
+                  </optgroup>
+                  <optgroup label="ผู้ใช้งานและความปลอดภัย">
+                    <option value="update_user_role">
+                      เปลี่ยนบทบาท (update_user_role)
+                    </option>
+                    <option value="approve_user">
+                      อนุมัติบัญชี (approve_user)
+                    </option>
+                    <option value="disable_user">
+                      ปิดการใช้งาน (disable_user)
+                    </option>
+                    <option value="delete_user">
+                      ลบบัญชีผู้ใช้ (delete_user)
+                    </option>
+                  </optgroup>
+                  <optgroup label="การตั้งค่าระบบ">
+                    <option value="update_church_profile">
+                      ตั้งค่าคริสตจักร (update_church_profile)
+                    </option>
+                    <option value="update_profile">
+                      แก้ไขโปรไฟล์ส่วนตัว (update_profile)
+                    </option>
+                    <option value="save_station_poster">
+                      บันทึกโปสเตอร์จุดถวาย (save_station_poster)
+                    </option>
+                  </optgroup>
                 </NativeSelect>
               </div>
             </div>
@@ -1230,124 +1499,224 @@ export default function Settings() {
                   );
                 }
 
+                const renderBadge = (action: string) => {
+                  switch (action) {
+                    case "CREATE":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-accent text-accent-foreground font-extrabold text-[11px] border border-[var(--ink)]">
+                          บันทึกใหม่
+                        </span>
+                      );
+                    case "UPDATE":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sky text-tile-sky-ink font-bold text-[11px] border border-[var(--ink)]/20">
+                          แก้ไขข้อมูล
+                        </span>
+                      );
+                    case "VOID":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-danger/15 text-danger font-extrabold text-[11px] border border-danger/30">
+                          ยกเลิกรายการ
+                        </span>
+                      );
+                    case "DELETE":
+                    case "delete_user":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-danger/20 text-danger font-extrabold text-[11px] border border-danger/40">
+                          ลบข้อมูล
+                        </span>
+                      );
+                    case "APPROVE":
+                    case "APPROVE_LINE_SLIP":
+                    case "approve_user":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-mint text-tile-mint-ink font-extrabold text-[11px] border border-[var(--ink)]">
+                          อนุมัติ
+                        </span>
+                      );
+                    case "REJECT_LINE_SLIP":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-peach text-tile-peach-ink font-extrabold text-[11px] border border-danger/30">
+                          ปฏิเสธสลิป
+                        </span>
+                      );
+                    case "SIGN":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-lavender text-tile-lavender-ink font-extrabold text-[11px] border border-[var(--ink)]">
+                          ลงนาม
+                        </span>
+                      );
+                    case "DISBURSE":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-brand text-white font-extrabold text-[11px] border border-[var(--ink)]">
+                          จ่ายเงินแล้ว
+                        </span>
+                      );
+                    case "POST":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-mint text-tile-mint-ink font-extrabold text-[11px] border border-[var(--ink)]">
+                          โพสต์ลงบัญชี
+                        </span>
+                      );
+                    case "SUBMIT":
+                    case "VERIFY":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-[11px] border border-[var(--ink)]/30">
+                          {action === "SUBMIT" ? "ส่งตรวจนับ" : "ตรวจนับแล้ว"}
+                        </span>
+                      );
+                    case "update_user_role":
+                    case "AUTH_SET_CHURCH_ROLE":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-brand/15 text-brand font-extrabold text-[11px] border border-brand/30">
+                          เปลี่ยนบทบาท
+                        </span>
+                      );
+                    case "disable_user":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-danger/15 text-danger font-bold text-[11px] border border-danger/30">
+                          ปิดการใช้งาน
+                        </span>
+                      );
+                    default:
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-paper-2 text-ink-2 font-mono text-[11px] border border-[var(--ink)]/20">
+                          {action}
+                        </span>
+                      );
+                  }
+                };
+
                 return (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead>
-                        <tr className="border-b-2 border-[var(--ink)] font-extrabold text-ink">
-                          <th className="pb-3 px-3">วัน-เวลา</th>
-                          <th className="pb-3 px-3">ผู้ดำเนินการ (Actor)</th>
-                          <th className="pb-3 px-3">กิจกรรม (Action)</th>
-                          <th className="pb-3 px-3">เป้าหมาย (Target)</th>
-                          <th className="pb-3 px-3">รายละเอียด (Details)</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-line">
-                        {logs.map(log => {
-                          const dateStr = new Date(
-                            log.createdAt
-                          ).toLocaleDateString(THAI_LOCALE, {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          });
+                  <>
+                    {/* Mobile Cards (md:hidden) */}
+                    <div className="md:hidden space-y-3">
+                      {logs.map(log => {
+                        const dateStr = new Date(
+                          log.createdAt
+                        ).toLocaleDateString(THAI_LOCALE, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
 
-                          let actionBadge = (
-                            <span className="px-2.5 py-1 rounded-full bg-paper-2 text-ink-2 font-mono text-xs border border-[var(--ink)]/20">
-                              {log.action}
-                            </span>
-                          );
-                          if (
-                            log.action === "update_user_role" ||
-                            log.action === "AUTH_SET_CHURCH_ROLE"
-                          ) {
-                            actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-brand/15 text-brand font-bold text-xs border border-brand/30">
-                                เปลี่ยนบทบาทผู้ใช้
-                              </span>
-                            );
-                          } else if (
-                            log.action === "update_profile" ||
-                            log.action === "AUTH_UPDATE_PROFILE"
-                          ) {
-                            actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-paper-2 text-brand font-bold text-xs border border-[var(--ink)]/20">
-                                แก้ไขโปรไฟล์
-                              </span>
-                            );
-                          } else if (
-                            log.action === "update_church_profile" ||
-                            log.action === "CHURCH_UPDATE_PROFILE"
-                          ) {
-                            actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-xs border border-[var(--ink)]/20">
-                                แก้ไขข้อมูลคริสตจักร
-                              </span>
-                            );
-                          } else if (log.action === "approve_user") {
-                            actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-accent text-accent-foreground font-extrabold text-xs border border-[var(--ink)]">
-                                อนุมัติบัญชีผู้ใช้
-                              </span>
-                            );
-                          } else if (log.action === "disable_user") {
-                            actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-danger/15 text-danger font-bold text-xs border border-danger/30">
-                                ปิดการใช้งานบัญชี
-                              </span>
-                            );
-                          }
-
-                          return (
-                            <tr
-                              key={log.id}
-                              className="hover:bg-paper-2/60 transition-colors"
-                            >
-                              <td className="py-3.5 px-3 text-ink-3 font-mono whitespace-nowrap">
+                        return (
+                          <div
+                            key={log.id}
+                            className="p-4 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 shadow-[2px_2px_0_var(--ink)] space-y-2.5"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              {renderBadge(log.action)}
+                              <span className="font-mono text-[11px] text-ink-3">
                                 {dateStr}
-                              </td>
-                              <td className="py-3.5 px-3 font-semibold text-ink">
-                                <div>{log.userName || "ไม่ระบุชื่อ"}</div>
-                                {log.userEmail && (
-                                  <div className="text-xs text-ink-3 font-normal">
-                                    {log.userEmail}
-                                  </div>
-                                )}
-                              </td>
-                              <td className="py-3.5 px-3 whitespace-nowrap">
-                                {actionBadge}
-                              </td>
-                              <td className="py-3.5 px-3 text-ink-2">
-                                <span className="font-mono text-xs bg-paper-2 px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
-                                  {log.entity}
-                                  {log.entityId ? ` #${log.entityId}` : ""}
+                              </span>
+                            </div>
+
+                            <div className="text-xs">
+                              <span className="text-ink-3">ผู้ดำเนินการ: </span>
+                              <span className="font-extrabold text-ink">
+                                {log.userName || "ไม่ระบุชื่อ"}
+                              </span>
+                              {log.userEmail && (
+                                <span className="text-ink-3 font-mono text-[11px] block">
+                                  {log.userEmail}
                                 </span>
-                              </td>
-                              <td className="py-3.5 px-3 text-ink-2 max-w-sm">
-                                {log.metadata ? (
-                                  <div
-                                    className="font-mono text-xs bg-paper-2 p-1.5 rounded-lg border border-[var(--ink)]/20 truncate max-w-[280px]"
-                                    title={JSON.stringify(
-                                      log.metadata,
-                                      null,
-                                      2
-                                    )}
-                                  >
-                                    {JSON.stringify(log.metadata)}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                              )}
+                            </div>
+
+                            <div className="text-xs flex items-center gap-2">
+                              <span className="text-ink-3">เป้าหมาย:</span>
+                              <span className="font-mono text-xs bg-surface px-2 py-0.5 rounded border border-[var(--ink)]/20 font-bold text-ink">
+                                {log.entity}
+                                {log.entityId ? ` #${log.entityId}` : ""}
+                              </span>
+                            </div>
+
+                            {Boolean(log.metadata) && (
+                              <div className="font-mono text-[11px] bg-surface p-2 rounded-lg border border-[var(--ink)]/15 text-ink-2 break-all max-h-24 overflow-y-auto">
+                                {JSON.stringify(log.metadata)}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Desktop Table (hidden md:block) */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b-2 border-[var(--ink)] font-extrabold text-ink">
+                            <th className="pb-3 px-3">วัน-เวลา</th>
+                            <th className="pb-3 px-3">ผู้ดำเนินการ (Actor)</th>
+                            <th className="pb-3 px-3">กิจกรรม (Action)</th>
+                            <th className="pb-3 px-3">เป้าหมาย (Target)</th>
+                            <th className="pb-3 px-3">รายละเอียด (Details)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-line">
+                          {logs.map(log => {
+                            const dateStr = new Date(
+                              log.createdAt
+                            ).toLocaleDateString(THAI_LOCALE, {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            });
+
+                            return (
+                              <tr
+                                key={log.id}
+                                className="hover:bg-paper-2/60 transition-colors"
+                              >
+                                <td className="py-3.5 px-3 text-ink-3 font-mono whitespace-nowrap">
+                                  {dateStr}
+                                </td>
+                                <td className="py-3.5 px-3 font-semibold text-ink">
+                                  <div>{log.userName || "ไม่ระบุชื่อ"}</div>
+                                  {log.userEmail && (
+                                    <div className="text-xs text-ink-3 font-normal">
+                                      {log.userEmail}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="py-3.5 px-3 whitespace-nowrap">
+                                  {renderBadge(log.action)}
+                                </td>
+                                <td className="py-3.5 px-3 text-ink-2">
+                                  <span className="font-mono text-xs bg-paper-2 px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
+                                    {log.entity}
+                                    {log.entityId ? ` #${log.entityId}` : ""}
+                                  </span>
+                                </td>
+                                <td className="py-3.5 px-3 text-ink-2 max-w-sm">
+                                  {log.metadata ? (
+                                    <div
+                                      className="font-mono text-xs bg-paper-2 p-1.5 rounded-lg border border-[var(--ink)]/20 truncate max-w-[280px]"
+                                      title={JSON.stringify(
+                                        log.metadata,
+                                        null,
+                                        2
+                                      )}
+                                    >
+                                      {JSON.stringify(log.metadata)}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 );
               })()
             )}

@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useTheme } from "@/contexts/ThemeContext";
 import { canAccessRoute } from "@/lib/routeAccess";
 import { getChurchRoleInfo, type RoleUser } from "@shared/roles";
 import { GuardedLink } from "./GuardedLink";
@@ -17,10 +18,12 @@ import {
   Inbox,
   Landmark,
   Menu,
+  Moon,
   PieChart,
   ReceiptText,
   Settings2,
   Sprout,
+  Sun,
   UsersRound,
 } from "lucide-react";
 import {
@@ -163,6 +166,7 @@ export function isActiveRoute(currentPath: string, path: string) {
 export function AppMenu({ children }: { children?: ReactNode }) {
   const [location] = useLocation();
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const authorizedNavItems = getAuthorizedNavItems(user);
   const roleLabel = getChurchRoleInfo(user?.churchRole).label;
 
@@ -252,6 +256,36 @@ export function AppMenu({ children }: { children?: ReactNode }) {
           }, [])}
         </nav>
         <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t-2 border-line bg-ground space-y-2">
+          {toggleTheme && (
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={
+                theme === "dark" ? "เปลี่ยนเป็นโหมดสว่าง" : "เปลี่ยนเป็นโหมดมืด"
+              }
+              className="flex min-h-11 w-full items-center justify-between rounded-xl border border-line bg-surface px-3.5 text-sm font-bold text-ink-2 hover:border-[var(--ink)] hover:text-ink cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                {theme === "dark" ? (
+                  <Sun
+                    className="size-4 text-accent-lime-ink shrink-0"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <Moon
+                    className="size-4 text-brand shrink-0"
+                    aria-hidden="true"
+                  />
+                )}
+                <span>
+                  {theme === "dark" ? "โหมดสว่าง (Light)" : "โหมดมืด (Dark)"}
+                </span>
+              </div>
+              <span className="text-xs text-ink-3 font-semibold">
+                {theme === "dark" ? "เปิดอยู่" : "ปิดอยู่"}
+              </span>
+            </button>
+          )}
           <SheetClose asChild>
             <GuardedLink
               href="/notifications"

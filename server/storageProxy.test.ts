@@ -55,14 +55,18 @@ describe("storageProxy scope & key validation", () => {
   });
 
   it("refuses key with directory traversal (..)", async () => {
-    const req = { params: { 0: "receipts/../../etc/passwd" } } as unknown as Request;
+    const req = {
+      params: { 0: "receipts/../../etc/passwd" },
+    } as unknown as Request;
     await handler(req, mockRes as unknown as Response);
     expect(mockRes.statusCode).toBe(400);
     expect(mockRes.sentText).toBe("Invalid storage key");
   });
 
   it("refuses key with backslashes", async () => {
-    const req = { params: { 0: "receipts\\windows\\file.jpg" } } as unknown as Request;
+    const req = {
+      params: { 0: "receipts\\windows\\file.jpg" },
+    } as unknown as Request;
     await handler(req, mockRes as unknown as Response);
     expect(mockRes.statusCode).toBe(400);
     expect(mockRes.sentText).toBe("Invalid storage key");
@@ -92,7 +96,9 @@ describe("storageProxy scope & key validation", () => {
   it("returns 404 when forge storage backend is not configured", async () => {
     ENV.forgeApiUrl = "";
     ENV.forgeApiKey = "";
-    const req = { params: { 0: "receipts/valid-name.jpg" } } as unknown as Request;
+    const req = {
+      params: { 0: "receipts/valid-name.jpg" },
+    } as unknown as Request;
     await handler(req, mockRes as unknown as Response);
     expect(mockRes.statusCode).toBe(404);
     expect(mockRes.sentText).toBe("Storage endpoint not found");

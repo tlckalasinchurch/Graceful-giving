@@ -339,6 +339,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     return funds[0]?.id ?? 0;
   }, [selectedFundId, funds]);
 
+  // GAP-05: Upload & submission error tracking with auto-scroll and retry
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const errorBannerRef = useRef<HTMLDivElement>(null);
+  const isSubmittingRef = useRef(false);
+
   const effectiveAmount = useMemo(() => giveTotal(giveLines), [giveLines]);
 
   const paymentQrQuery = trpc.church.paymentQr.useQuery(
@@ -471,14 +477,25 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     const file = input.files?.[0];
     input.value = "";
     if (!file) return;
+    setIsCompressing(true);
+    setSubmissionError(null);
     try {
       const prepared = await prepareSlipImage(file);
       setSlipPreview(prepared);
       void readAttachedSlip(prepared);
     } catch (err) {
-      toast.error(
-        err instanceof SlipFileError ? err.message : "แนบรูปสลิปไม่สำเร็จ"
-      );
+      const msg =
+        err instanceof SlipFileError ? err.message : "แนบรูปสลิปไม่สำเร็จ";
+      setSubmissionError(msg);
+      toast.error(msg);
+      setTimeout(() => {
+        errorBannerRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 50);
+    } finally {
+      setIsCompressing(false);
     }
   };
 
@@ -506,13 +523,18 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   };
 
   const handleConfirmGiving = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting || isSubmittingRef.current || isCompressing) return;
+    isSubmittingRef.current = true;
+    setSubmissionError(null);
+
     if (effectiveAmount === null) {
       toast.error("กรุณาระบุจำนวนเงินที่ต้องการถวาย");
+      isSubmittingRef.current = false;
       return;
     }
     if (!canSend(checklist)) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วนก่อนยืนยัน");
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -572,8 +594,20 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           utils.finance.accounts.invalidate(),
         ]);
       }
-    } catch {
+    } catch (err: any) {
+      const msg =
+        err?.message ||
+        "ไม่สามารถบันทึกสลิปได้ กรุณาตรวจสอบการเชื่อมต่อและลองใหม่อีกครั้ง";
+      setSubmissionError(msg);
+      setTimeout(() => {
+        errorBannerRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 50);
       return;
+    } finally {
+      isSubmittingRef.current = false;
     }
 
     setSubmission({
@@ -644,7 +678,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const isSubmitting =
     submitSlipMutation.isPending ||
     submitNoSlipMutation.isPending ||
-    createOfferingMutation.isPending;
+    createOfferingMutation.isPending ||
+    isCompressing;
 
   const shownStep: FlowStep = step === 4 && !submission ? 1 : step;
 
@@ -762,8 +797,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
                 {/* Station Breadcrumb */}
                 <div className="text-xs sm:text-sm font-extrabold tracking-[0.2em] text-ink-3 uppercase text-center sm:text-left">
-                  GRACEBOX STATION{" "}
-                  <span className="text-ink-3 mx-1">/</span>{" "}
+                  GRACEBOX STATION <span className="text-ink-3 mx-1">/</span>{" "}
                   {churchQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์"}
                 </div>
 
@@ -880,7 +914,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 {restoredFromDraft && (
                   <div className="rounded-xl border-2 border-[var(--ink)] bg-tile-mint p-3.5 text-xs font-extrabold text-tile-mint-ink flex items-center justify-between gap-2 shadow-[2px_2px_0_var(--ink)]">
                     <span>
-                      ดึงรายการที่คุณเลือกไว้กลับมาให้แล้ว แนบสลิปหรือกดยืนยันต่อได้เลย
+                      ดึงรายการที่คุณเลือกไว้กลับมาให้แล้ว
+                      แนบสลิปหรือกดยืนยันต่อได้เลย
                     </span>
                     <button
                       type="button"
@@ -1083,6 +1118,68 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   onConfirm={() => void handleConfirmGiving()}
                 >
                   <div className="space-y-3 my-2">
+                    {/* Submission Error Banner with Auto-scroll and Retry (GAP-05) */}
+                    {submissionError && (
+                      <div
+                        ref={errorBannerRef}
+                        role="alert"
+                        aria-live="assertive"
+                        className="rounded-xl border-2 border-danger bg-tile-peach p-4 text-left shadow-[2px_2px_0_var(--ink)] space-y-2.5"
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <AlertTriangle className="size-5 shrink-0 text-danger mt-0.5" />
+                          <div className="flex-1 space-y-1">
+                            <h4 className="font-extrabold text-tile-peach-ink text-sm sm:text-base">
+                              ไม่สามารถบันทึกสลิปได้ กรุณาลองใหม่อีกครั้ง
+                            </h4>
+                            <p className="text-xs sm:text-sm font-medium text-tile-peach-ink leading-relaxed">
+                              {submissionError}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 pt-1 border-t border-[var(--ink)]/15">
+                          <button
+                            type="button"
+                            onClick={() => void handleConfirmGiving()}
+                            disabled={isSubmitting}
+                            className="btn-primary py-2 px-4 text-xs font-extrabold cursor-pointer"
+                          >
+                            {isSubmitting
+                              ? "กำลังส่งอีกครั้ง..."
+                              : "ลองส่งใหม่อีกครั้ง"}
+                          </button>
+                          {submitMode === "slip" && (
+                            <button
+                              type="button"
+                              onClick={() => slipInputRef.current?.click()}
+                              className="btn-secondary py-2 px-4 text-xs font-bold cursor-pointer"
+                            >
+                              เลือกรูปสลิปใหม่
+                            </button>
+                          )}
+                          {submitMode === "slip" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSlipPreview(null);
+                                setSubmissionError(null);
+                              }}
+                              className="rounded-xl border-2 border-[var(--ink)] bg-paper-2 px-3 py-2 text-xs font-bold text-ink hover:bg-surface cursor-pointer"
+                            >
+                              ส่งแบบไม่แนบสลิปแทน
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {isCompressing && (
+                      <div className="flex items-center justify-center gap-2 rounded-xl bg-paper-2 border-2 border-[var(--ink)] p-3 text-xs font-bold text-ink">
+                        <Loader2 className="size-4 animate-spin text-brand" />
+                        กำลังปรับขนาดรูปสลิปและบีบอัดให้เหมาะสม...
+                      </div>
+                    )}
+
                     {/* Donor Name Input */}
                     <div className="space-y-1">
                       <label
@@ -1138,7 +1235,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <input
                         ref={slipInputRef}
                         type="file"
-                        accept="image/jpeg,image/png,image/webp"
+                        accept="image/*,image/jpeg,image/png,image/webp,image/heic,image/heif"
                         aria-label="รูปสลิปการโอน"
                         onChange={e => void handleSlipFileChange(e)}
                         className="hidden"
@@ -1891,14 +1988,26 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
 const SLIP_STATE_STYLE: Record<DonorSlipState, { label: string; cls: string }> =
   {
-    checking: { label: "กำลังตรวจสอบ", cls: "border border-[var(--ink)] bg-paper-2 text-ink" },
+    checking: {
+      label: "กำลังตรวจสอบ",
+      cls: "border border-[var(--ink)] bg-paper-2 text-ink",
+    },
     verified: {
       label: "ยอดตรง รอเหรัญญิก",
       cls: "border border-[var(--ink)] bg-tile-mint text-tile-mint-ink",
     },
-    in_review: { label: "รอเหรัญญิก", cls: "border border-[var(--ink)] bg-tile-sand text-tile-sand-ink" },
-    rejected: { label: "ไม่ผ่าน", cls: "border border-[var(--ink)] bg-tile-peach text-tile-peach-ink" },
-    duplicate: { label: "สลิปซ้ำ", cls: "border border-[var(--ink)] bg-tile-sand text-tile-sand-ink" },
+    in_review: {
+      label: "รอเหรัญญิก",
+      cls: "border border-[var(--ink)] bg-tile-sand text-tile-sand-ink",
+    },
+    rejected: {
+      label: "ไม่ผ่าน",
+      cls: "border border-[var(--ink)] bg-tile-peach text-tile-peach-ink",
+    },
+    duplicate: {
+      label: "สลิปซ้ำ",
+      cls: "border border-[var(--ink)] bg-tile-sand text-tile-sand-ink",
+    },
     approved: {
       label: "บันทึกแล้ว",
       cls: "border border-[var(--ink)] bg-tile-mint text-tile-mint-ink",
@@ -1989,7 +2098,13 @@ function SendChecklist({ items }: { items: ChecklistItem[] }) {
             )}
             <div className="min-w-0">
               <span className="font-extrabold text-ink">{item.label}: </span>
-              <span className={item.ok ? "font-medium text-ink-2" : "font-bold text-tile-sand-ink"}>
+              <span
+                className={
+                  item.ok
+                    ? "font-medium text-ink-2"
+                    : "font-bold text-tile-sand-ink"
+                }
+              >
                 {item.detail}
               </span>
             </div>

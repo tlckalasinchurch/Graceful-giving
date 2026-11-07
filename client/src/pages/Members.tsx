@@ -8,7 +8,7 @@ import {
   LoadingSkeleton,
 } from "@/components/common/CommonUI";
 import { trpc } from "@/lib/trpc";
-import { Plus, X } from "lucide-react";
+import { Mail, Phone, Plus, Tag, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   confirmDiscardChanges,
@@ -28,15 +28,19 @@ export default function Members() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [name, setName] = useState("");
+  const [envelopeNo, setEnvelopeNo] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
-  const isDirty = Boolean(showCreate && (name || phone || email || notes));
+  const isDirty = Boolean(
+    showCreate && (name || envelopeNo || phone || email || notes)
+  );
   useUnsavedChanges(isDirty);
   const closeCreateForm = async () => {
     if (!(await confirmDiscardChanges(isDirty))) return;
     setShowCreate(false);
     setName("");
+    setEnvelopeNo("");
     setPhone("");
     setEmail("");
     setNotes("");
@@ -50,6 +54,7 @@ export default function Members() {
       const matchSearch =
         !q ||
         member.name.toLowerCase().includes(q) ||
+        (member.envelopeNo ?? "").toLowerCase().includes(q) ||
         (member.phone ?? "").toLowerCase().includes(q) ||
         (member.email ?? "").toLowerCase().includes(q);
       const matchStatus =
@@ -61,6 +66,7 @@ export default function Members() {
     onSuccess: async () => {
       await utils.members.list.invalidate();
       setName("");
+      setEnvelopeNo("");
       setPhone("");
       setEmail("");
       setNotes("");
@@ -79,6 +85,7 @@ export default function Members() {
     }
     createMember.mutate({
       name: name.trim(),
+      envelopeNo: envelopeNo.trim() || undefined,
       phone: phone.trim() || undefined,
       email: email.trim() || undefined,
       notes: notes.trim() || undefined,
@@ -88,13 +95,13 @@ export default function Members() {
   return (
     <AppLayout
       title="สมาชิกคริสตจักร"
-      subtitle="รายชื่อ ข้อมูลติดต่อ และสถานะของสมาชิก"
+      subtitle="รายชื่อ รหัสซองถวาย ข้อมูลติดต่อ และสถานะของสมาชิก"
       action={
         <button
           type="button"
           onClick={() => {
             if (showCreate) {
-              closeCreateForm();
+              void closeCreateForm();
             } else {
               setShowCreate(true);
             }
@@ -114,8 +121,8 @@ export default function Members() {
               <button
                 type="button"
                 aria-label="ปิดแบบฟอร์ม"
-                onClick={closeCreateForm}
-                className="flex size-10 items-center justify-center rounded-xl text-ink-3 hover:bg-paper-2 hover:text-ink"
+                onClick={() => void closeCreateForm()}
+                className="flex size-11 items-center justify-center rounded-xl text-ink-3 hover:bg-paper-2 hover:text-ink"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -127,6 +134,17 @@ export default function Members() {
                   required
                   value={name}
                   onChange={event => setName(event.target.value)}
+                  placeholder="เช่น คุณสมชาย ใจดี"
+                  className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
+                />
+              </label>
+              <label className="text-sm font-extrabold text-ink-2">
+                รหัสซองถวายประจำตัว (ถ้ามี)
+                <input
+                  value={envelopeNo}
+                  onChange={event => setEnvelopeNo(event.target.value)}
+                  placeholder="เช่น 001, A-12"
+                  maxLength={32}
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
@@ -135,6 +153,7 @@ export default function Members() {
                 <input
                   value={phone}
                   onChange={event => setPhone(event.target.value)}
+                  placeholder="เช่น 081-234-5678"
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
@@ -144,6 +163,7 @@ export default function Members() {
                   type="email"
                   value={email}
                   onChange={event => setEmail(event.target.value)}
+                  placeholder="name@example.com"
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
@@ -166,7 +186,7 @@ export default function Members() {
           </form>
         )}
         <FilterBar
-          searchPlaceholder="ค้นหาชื่อ เบอร์โทรศัพท์ หรืออีเมลสมาชิก..."
+          searchPlaceholder="ค้นหาชื่อ, รหัสซองถวาย, เบอร์โทรศัพท์ หรืออีเมลสมาชิก..."
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           activeFilter={statusFilter}
@@ -219,10 +239,20 @@ export default function Members() {
                 onClick={() => setLocation(`/members/${member.id}`)}
                 className="bento-card p-5 text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)]"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-extrabold text-ink">{member.name}</h2>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h2 className="font-extrabold text-ink truncate">
+                      {member.name}
+                    </h2>
+                    {member.envelopeNo && (
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-lg border border-[var(--ink)]/30 bg-accent/60 px-2 py-0.5 text-xs font-extrabold text-ink">
+                        <Tag className="size-3 text-brand" />
+                        ซอง #{member.envelopeNo}
+                      </span>
+                    )}
+                  </div>
                   <span
-                    className={`rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${
+                    className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${
                       member.status === "active"
                         ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
                         : member.status === "pending"
@@ -233,12 +263,18 @@ export default function Members() {
                     {MEMBER_STATUS_LABEL[member.status] ?? member.status}
                   </span>
                 </div>
-                <p className="mt-2.5 text-sm font-medium text-ink-2">
-                  {member.phone || "ไม่ระบุเบอร์โทรศัพท์"}
-                </p>
-                <p className="text-sm font-medium text-ink-3">
-                  {member.email || "ไม่ระบุอีเมล"}
-                </p>
+                <div className="mt-3 space-y-1 text-xs font-medium text-ink-2">
+                  <p className="flex items-center gap-1.5">
+                    <Phone className="size-3.5 text-brand shrink-0" />
+                    <span>{member.phone || "ไม่ระบุเบอร์โทรศัพท์"}</span>
+                  </p>
+                  <p className="flex items-center gap-1.5 text-ink-3">
+                    <Mail className="size-3.5 shrink-0" />
+                    <span className="truncate">
+                      {member.email || "ไม่ระบุอีเมล"}
+                    </span>
+                  </p>
+                </div>
               </button>
             ))}
           </div>

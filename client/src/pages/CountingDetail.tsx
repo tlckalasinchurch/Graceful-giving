@@ -77,7 +77,9 @@ export default function CountingDetail() {
   };
 
   const onError = (verb: string) => (error: { message: string }) =>
-    toast.error(`${verb}ไม่สำเร็จ`, { description: friendlyErrorMessage(error) });
+    toast.error(`${verb}ไม่สำเร็จ`, {
+      description: friendlyErrorMessage(error),
+    });
 
   const addEnvelope = trpc.counting.addEnvelope.useMutation({
     onSuccess: () => void refreshAll(),
@@ -354,23 +356,49 @@ export default function CountingDetail() {
         {/* Running totals stay visible on every tab. */}
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <div className="bento-card p-4">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">ยอดถวายตามซอง</p>
-            <MoneyDisplay amount={r.offeringTotal} type="income" size="lg" className="mt-1 block" />
+            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+              ยอดถวายตามซอง
+            </p>
+            <MoneyDisplay
+              amount={r.offeringTotal}
+              type="income"
+              size="lg"
+              className="mt-1 block"
+            />
           </div>
           <div className="bento-card p-4">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">นับเงินสดได้</p>
-            <MoneyDisplay amount={r.countedCashTotal} size="lg" className="mt-1 block" />
+            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+              นับเงินสดได้
+            </p>
+            <MoneyDisplay
+              amount={r.countedCashTotal}
+              size="lg"
+              className="mt-1 block"
+            />
             <div className="mt-1 text-sm">
               <Variance amount={r.cashVariance} />
             </div>
           </div>
           <div className="bento-card p-4">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">หักเบิก</p>
-            <MoneyDisplay amount={r.deductionTotal} type="expense" size="lg" className="mt-1 block" />
+            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+              หักเบิก
+            </p>
+            <MoneyDisplay
+              amount={r.deductionTotal}
+              type="expense"
+              size="lg"
+              className="mt-1 block"
+            />
           </div>
           <div className="bento-card p-4">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">นำฝาก</p>
-            <MoneyDisplay amount={r.actualCashDeposit} size="lg" className="mt-1 block" />
+            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+              นำฝาก
+            </p>
+            <MoneyDisplay
+              amount={r.actualCashDeposit}
+              size="lg"
+              className="mt-1 block"
+            />
           </div>
         </section>
 

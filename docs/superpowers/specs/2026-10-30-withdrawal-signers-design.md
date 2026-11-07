@@ -8,6 +8,7 @@
 บัญชีธนาคารของโบสถ์เปิดโดยมีผู้มีอำนาจลงนาม 3 คน (ศิษยาภิบาล, ผู้ช่วยศิษยาภิบาล, ฝ่ายการเงิน) ธนาคารให้ถอนได้เมื่อ **ศิษยาภิบาลลงนามทุกครั้ง + อีกอย่างน้อย 1 คน**
 
 ระบบปัจจุบัน (`withdrawals.approve`) ไม่ตรงกับเงื่อนไขธนาคาร:
+
 - คนเดียวอนุมัติก็ผ่าน
 - ผู้อนุมัติคือ SUPER_ADMIN/TREASURER ตามบทบาท (`canApproveWithdrawals`) — ศิษยาภิบาลอนุมัติไม่ได้
 - "จ่ายแล้ว" (`disburse`) แค่เปลี่ยนสถานะ ไม่ไปถึงรอบนับเงิน เหรัญญิกต้องพิมพ์ยอดถอนซ้ำ
@@ -45,21 +46,23 @@
 
 ## แนวทางที่พิจารณา
 
-| แนวทาง | ได้ | เสีย |
-|---|---|---|
-| **A. ตาราง `bank_signers` + `withdrawal_approvals` หนึ่งแถวต่อลายเซ็น** (เลือก) | ตรวจย้อนหลังได้ทีละลายเซ็น, unique index กันเซ็นซ้ำ, กดพร้อมกันไม่ทับ | 2 ตารางใหม่ |
-| B. คอลัมน์บน `users` + ลายเซ็นเป็น JSON ใน `withdrawal_requests` | งานน้อยกว่า | กดพร้อมกันแล้วลายเซ็นหายได้เงียบๆ, ตรวจย้อนหลังยาก |
-| C. เพิ่มบทบาทผู้ช่วยศิษยาภิบาล อนุมัติตามบทบาท | ใช้ระบบบทบาทเดิม | ตัดทิ้ง: ผู้ใช้เลือกผูกกับตัวบุคคล |
+| แนวทาง                                                                          | ได้                                                                   | เสีย                                               |
+| ------------------------------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------- |
+| **A. ตาราง `bank_signers` + `withdrawal_approvals` หนึ่งแถวต่อลายเซ็น** (เลือก) | ตรวจย้อนหลังได้ทีละลายเซ็น, unique index กันเซ็นซ้ำ, กดพร้อมกันไม่ทับ | 2 ตารางใหม่                                        |
+| B. คอลัมน์บน `users` + ลายเซ็นเป็น JSON ใน `withdrawal_requests`                | งานน้อยกว่า                                                           | กดพร้อมกันแล้วลายเซ็นหายได้เงียบๆ, ตรวจย้อนหลังยาก |
+| C. เพิ่มบทบาทผู้ช่วยศิษยาภิบาล อนุมัติตามบทบาท                                  | ใช้ระบบบทบาทเดิม                                                      | ตัดทิ้ง: ผู้ใช้เลือกผูกกับตัวบุคคล                 |
 
 ## การออกแบบ
 
 ### ข้อมูล (`drizzle/schema.ts` + `server/schema_init.ts` + `drizzle/0007_withdrawal_signers.sql`)
 
 **`bank_signers`** — ผู้มีอำนาจลงนามปัจจุบัน
+
 - `id` serial, `churchId` varchar(64), `userId` integer not null, `isRequired` boolean default false, `addedBy` integer, `createdAt`
 - unique (`churchId`, `userId`); partial unique index: `isRequired = true` ได้ไม่เกิน 1 แถวต่อ `churchId`
 
 **`withdrawal_approvals`** — หนึ่งแถวต่อผู้ลงนามต่อคำขอ
+
 - `id`, `churchId`, `requestId` integer not null, `userId` integer not null, `decision` varchar(10) (`approved` | `rejected`), `note` text, `wasRequiredSigner` boolean not null, `createdAt`
 - unique (`requestId`, `userId`)
 
@@ -75,6 +78,7 @@ approvalState(signatures) →
   "approved"  ถ้ามี approved ที่ wasRequiredSigner และ approved รวม ≥ 2 คน
   "pending"   นอกนั้น
 ```
+
 ส่งคืนพร้อม `missingRequired: boolean`, `approvedCount: number` ให้หน้าจอแสดงความคืบหน้า
 
 ### ขั้นตอน (`withdrawals` router)
@@ -102,7 +106,7 @@ approvalState(signatures) →
 
 - **Settings**: ส่วน "ผู้มีอำนาจลงนามบัญชีธนาคาร" — รายชื่อ, เพิ่มจากผู้ใช้ในระบบ, ลบ, เลือกคนที่ต้องลงนามทุกครั้ง
 - **Approvals**: แต่ละคำขอแสดงลายเซ็นทีละคน และสิ่งที่ยังขาด ("รอศิษยาภิบาล", "รออีก 1 คน"); ปุ่ม อนุมัติ/ปฏิเสธ (เฉพาะผู้ลงนามที่ยังไม่เซ็น), จ่ายแล้ว (ฝ่ายการเงิน, เมื่อ approved), ยกเลิก
-- **Home task queue**: คำขอที่รอลายเซ็น *ของฉัน* แสดงให้ผู้ลงนาม
+- **Home task queue**: คำขอที่รอลายเซ็น _ของฉัน_ แสดงให้ผู้ลงนาม
 - `auth.me` ส่ง `isBankSigner` ให้ `canAccessRoute("/approvals")` เปิดให้ผู้ลงนามด้วย
 
 ## เรื่องที่ผมตัดสินเอง

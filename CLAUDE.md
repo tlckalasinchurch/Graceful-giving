@@ -60,6 +60,7 @@ Auth: sign-in is **LINE Login** (`server/_core/lineLogin.ts`). `/api/auth/line/l
 Single `appRouter` composed of sub-routers by domain: `auth`, `church`, `finance`, `offerings`, `expenses`, `withdrawals`, `reports`, `updates` (legacy news/events), plus `system` (`server/_core/systemRouter.ts`). Client consumes it type-safely via `@trpc/react-query` (`client/src/lib/trpc.ts` imports `AppRouter` directly from `server/routers.ts` — client and server are not independently deployable packages).
 
 Procedure layering, all defined in `routers.ts` on top of the base `publicProcedure`/`protectedProcedure` from `server/_core/trpc.ts`:
+
 - `adminProcedure` — `user.role === "admin"`
 - `financeProcedure` — admin or `churchRole` in `TREASURER`/`SUPER_ADMIN` (see `canManageFinance`)
 - `churchLeaderProcedure` — admin or `churchRole` in `SUPER_ADMIN`/`PASTOR` (see `canManageChurchSettings`)

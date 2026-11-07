@@ -76,7 +76,9 @@ export function BalanceCard({
           {isDataUnavailable && (
             <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[var(--ink)] bg-[var(--tile-sand)] px-3 py-1 text-xs font-semibold text-[var(--tile-sand-ink)]">
               <Info className="size-3.5" aria-hidden="true" />
-              {summaryError ? "เชื่อมต่อข้อมูลไม่สำเร็จ" : "ยังไม่มีข้อมูลการเงิน"}
+              {summaryError
+                ? "เชื่อมต่อข้อมูลไม่สำเร็จ"
+                : "ยังไม่มีข้อมูลการเงิน"}
             </span>
           )}
         </div>
@@ -151,9 +153,7 @@ export function BalanceCard({
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line)] pt-4">
         {isBalanceLoading ? (
-          <span className="text-xs text-ink-3">
-            กำลังตรวจสอบยอดเงินล่าสุด…
-          </span>
+          <span className="text-xs text-ink-3">กำลังตรวจสอบยอดเงินล่าสุด…</span>
         ) : isPositiveBalance ? (
           <span className="inline-flex items-center gap-2 rounded-md border border-tile-mint-ink/15 bg-tile-mint px-3 py-1.5 text-xs font-bold text-tile-mint-ink">
             ขอบคุณพระเจ้าสำหรับทุกการถวาย

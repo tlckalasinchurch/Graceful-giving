@@ -142,24 +142,24 @@ group, tooltip). Extend an existing primitive's variants before writing a new fi
 
 ## 3. Frameworks & Libraries
 
-| Layer | Choice | Notes |
-|---|---|---|
-| UI framework | React 19.2 | function components + hooks only |
-| Router | `wouter` 3.3.5 | flat `<Switch>` in `App.tsx`, no nested layouts; patched via `patches/wouter@3.7.1.patch` |
-| Server state | `@tanstack/react-query` 5 + `@trpc/react-query` | type-safe API client, no REST/OpenAPI layer |
-| Forms | `react-hook-form` 7 + `@hookform/resolvers` + `zod` | schema-first validation |
-| Styling | Tailwind CSS v4 (`@tailwindcss/vite` plugin, no PostCSS config needed) + `tailwindcss-animate` + `tw-animate-css` | utility-first, no CSS Modules/styled-components |
-| Component primitives | Radix UI (`@radix-ui/react-*`, ~25 packages) | headless/unstyled, styled via shadcn pattern |
-| Variant management | `class-variance-authority` + `clsx` + `tailwind-merge` | via `cn()` helper |
-| Icons | `lucide-react` 0.453 | see §5 |
-| Animation | `framer-motion` 12 | for JS-driven motion beyond CSS transitions |
-| Charts | `recharts` 2.15 | wrapped by `components/ui/chart.tsx` |
-| Date handling | `date-fns` 4, `react-day-picker` 9 | |
-| Build tool | **Vite 7** | not webpack/CRA/Next.js — this is a Vite SPA + separate Express backend, not a Next.js app despite CLAUDE.md mentioning "nextjs" in project-type metadata (that's inaccurate; verify against `vite.config.ts`) |
-| Bundler (server) | `esbuild` | bundles `server/_core/index.ts` → `dist/`, plus a separate serverless entry `api/index.js` for Vercel |
-| Type system | TypeScript 5.9, strict | `tsc --noEmit` is the only "lint" step (no ESLint config present) |
-| Formatting | Prettier 3.6 | `pnpm format` |
-| Package manager | pnpm 10 | required — see `packageManager` field |
+| Layer                | Choice                                                                                                            | Notes                                                                                                                                                                                                          |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI framework         | React 19.2                                                                                                        | function components + hooks only                                                                                                                                                                               |
+| Router               | `wouter` 3.3.5                                                                                                    | flat `<Switch>` in `App.tsx`, no nested layouts; patched via `patches/wouter@3.7.1.patch`                                                                                                                      |
+| Server state         | `@tanstack/react-query` 5 + `@trpc/react-query`                                                                   | type-safe API client, no REST/OpenAPI layer                                                                                                                                                                    |
+| Forms                | `react-hook-form` 7 + `@hookform/resolvers` + `zod`                                                               | schema-first validation                                                                                                                                                                                        |
+| Styling              | Tailwind CSS v4 (`@tailwindcss/vite` plugin, no PostCSS config needed) + `tailwindcss-animate` + `tw-animate-css` | utility-first, no CSS Modules/styled-components                                                                                                                                                                |
+| Component primitives | Radix UI (`@radix-ui/react-*`, ~25 packages)                                                                      | headless/unstyled, styled via shadcn pattern                                                                                                                                                                   |
+| Variant management   | `class-variance-authority` + `clsx` + `tailwind-merge`                                                            | via `cn()` helper                                                                                                                                                                                              |
+| Icons                | `lucide-react` 0.453                                                                                              | see §5                                                                                                                                                                                                         |
+| Animation            | `framer-motion` 12                                                                                                | for JS-driven motion beyond CSS transitions                                                                                                                                                                    |
+| Charts               | `recharts` 2.15                                                                                                   | wrapped by `components/ui/chart.tsx`                                                                                                                                                                           |
+| Date handling        | `date-fns` 4, `react-day-picker` 9                                                                                |                                                                                                                                                                                                                |
+| Build tool           | **Vite 7**                                                                                                        | not webpack/CRA/Next.js — this is a Vite SPA + separate Express backend, not a Next.js app despite CLAUDE.md mentioning "nextjs" in project-type metadata (that's inaccurate; verify against `vite.config.ts`) |
+| Bundler (server)     | `esbuild`                                                                                                         | bundles `server/_core/index.ts` → `dist/`, plus a separate serverless entry `api/index.js` for Vercel                                                                                                          |
+| Type system          | TypeScript 5.9, strict                                                                                            | `tsc --noEmit` is the only "lint" step (no ESLint config present)                                                                                                                                              |
+| Formatting           | Prettier 3.6                                                                                                      | `pnpm format`                                                                                                                                                                                                  |
+| Package manager      | pnpm 10                                                                                                           | required — see `packageManager` field                                                                                                                                                                          |
 
 **Important correction:** despite ambient session context describing this as a Next.js project,
 it is **not** — there's no `app/` or `pages/` router, no `next.config`, and `vite.config.ts` is

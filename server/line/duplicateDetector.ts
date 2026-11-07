@@ -30,7 +30,14 @@ export async function checkDuplicateByReference(
   currentSlipId: number
 ): Promise<DuplicateResult> {
   const db = await getDb();
-  if (!db) return { isDuplicate: false, level: null, duplicateSlipId: null, duplicateOfferingId: null, reason: null };
+  if (!db)
+    return {
+      isDuplicate: false,
+      level: null,
+      duplicateSlipId: null,
+      duplicateOfferingId: null,
+      reason: null,
+    };
 
   // Check in line_slips (same church + same ref, not the current slip, not rejected/failed)
   const existingSlip = await db
@@ -81,7 +88,13 @@ export async function checkDuplicateByReference(
     };
   }
 
-  return { isDuplicate: false, level: null, duplicateSlipId: null, duplicateOfferingId: null, reason: null };
+  return {
+    isDuplicate: false,
+    level: null,
+    duplicateSlipId: null,
+    duplicateOfferingId: null,
+    reason: null,
+  };
 }
 
 // ─── Level 3: Transaction similarity check ─────────────────────────────────────
@@ -99,7 +112,14 @@ export async function checkDuplicateByTransaction(
   currentSlipId: number
 ): Promise<DuplicateResult> {
   const db = await getDb();
-  if (!db) return { isDuplicate: false, level: null, duplicateSlipId: null, duplicateOfferingId: null, reason: null };
+  if (!db)
+    return {
+      isDuplicate: false,
+      level: null,
+      duplicateSlipId: null,
+      duplicateOfferingId: null,
+      reason: null,
+    };
 
   const dayBefore = new Date(transferDate);
   dayBefore.setDate(dayBefore.getDate() - 1);
@@ -166,5 +186,11 @@ export async function checkDuplicateByTransaction(
     }
   }
 
-  return { isDuplicate: false, level: null, duplicateSlipId: null, duplicateOfferingId: null, reason: null };
+  return {
+    isDuplicate: false,
+    level: null,
+    duplicateSlipId: null,
+    duplicateOfferingId: null,
+    reason: null,
+  };
 }

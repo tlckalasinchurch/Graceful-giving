@@ -64,7 +64,11 @@ describe("input errors reach the caller as one readable message", () => {
 });
 
 describe("safeErrorMessage", () => {
-  const shape = { message: "Raw database syntax error near WHERE", code: -32603, data: null };
+  const shape = {
+    message: "Raw database syntax error near WHERE",
+    code: -32603,
+    data: null,
+  };
   const internalErr = new TRPCError({
     code: "INTERNAL_SERVER_ERROR",
     message: "Raw database syntax error near WHERE",

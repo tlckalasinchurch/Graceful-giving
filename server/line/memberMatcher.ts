@@ -35,7 +35,10 @@ export interface MatchResult {
 /** Remove common Thai honorifics, spaces, and normalize case */
 function normalizeName(name: string): string {
   return name
-    .replace(/^(นาย|นาง|นางสาว|เด็กชาย|เด็กหญิง|ด\.ต\.|ร\.ต\.|Mr\.|Mrs\.|Ms\.|Miss\.?)\s*/i, "")
+    .replace(
+      /^(นาย|นาง|นางสาว|เด็กชาย|เด็กหญิง|ด\.ต\.|ร\.ต\.|Mr\.|Mrs\.|Ms\.|Miss\.?)\s*/i,
+      ""
+    )
     .replace(/\s+/g, "")
     .toLowerCase()
     .trim();
@@ -47,9 +50,7 @@ function levenshtein(a: string, b: string): number {
   const m = a.length;
   const n = b.length;
   const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
-    Array.from({ length: n + 1 }, (_, j) =>
-      i === 0 ? j : j === 0 ? i : 0
-    )
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
   );
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
@@ -82,12 +83,16 @@ export async function matchMember(
   if (!db) return null;
 
   const activeMembers = await db
-    .select({ id: members.id, name: members.name, lineUserId: members.lineUserId })
+    .select({
+      id: members.id,
+      name: members.name,
+      lineUserId: members.lineUserId,
+    })
     .from(members)
     .where(and(eq(members.churchId, churchId), eq(members.status, "active")));
 
   // ── Rule 1: Exact LINE userId match ───────────────────────────────────────
-  const byLineId = activeMembers.find((m) => m.lineUserId === lineUserId);
+  const byLineId = activeMembers.find(m => m.lineUserId === lineUserId);
   if (byLineId) {
     return {
       memberId: byLineId.id,
@@ -102,7 +107,8 @@ export async function matchMember(
 
   // ── Rule 2: Exact name match (raw) ────────────────────────────────────────
   const byExactName = activeMembers.find(
-    (m) => m.name.toLowerCase().trim() === extractedSenderName.toLowerCase().trim()
+    m =>
+      m.name.toLowerCase().trim() === extractedSenderName.toLowerCase().trim()
   );
   if (byExactName) {
     return {
@@ -117,13 +123,13 @@ export async function matchMember(
   // ── Rule 3: Normalized name exact match ───────────────────────────────────
   const normalizedExtracted = normalizeName(extractedSenderName);
   const byNormalizedName = activeMembers.find(
-    (m) => normalizeName(m.name) === normalizedExtracted
+    m => normalizeName(m.name) === normalizedExtracted
   );
   if (byNormalizedName) {
     return {
       memberId: byNormalizedName.id,
       memberName: byNormalizedName.name,
-      confidence: 0.90,
+      confidence: 0.9,
       method: "name_normalized",
       isAutoMatch: true,
     };

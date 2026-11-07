@@ -82,9 +82,7 @@ function MobileTab({
     >
       <span
         className={`flex h-7 w-12 items-center justify-center rounded-full transition-all ${
-          active
-            ? "bg-brand text-white shadow-[2px_2px_0_var(--ink)]"
-            : ""
+          active ? "bg-brand text-white shadow-[2px_2px_0_var(--ink)]" : ""
         }`}
       >
         <Icon className="size-5" />
@@ -298,7 +296,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             {title && (
               <div className="min-w-0 flex-1 basis-full sm:basis-0">
                 <span className="eyebrow-quiet mb-2.5 block">
-                  <span className="size-1.5 rounded-full bg-brand" aria-hidden="true" />
+                  <span
+                    className="size-1.5 rounded-full bg-brand"
+                    aria-hidden="true"
+                  />
                   {getNavGroup(activeRoute || location)}
                 </span>
                 <h1 className="display max-w-[24ch] text-[clamp(1.9rem,4.4vw,2.85rem)] leading-[1.14] text-ink break-words">
