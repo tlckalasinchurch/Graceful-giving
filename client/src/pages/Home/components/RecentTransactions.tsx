@@ -30,23 +30,23 @@ export function RecentTransactions({
       className="bento-card flex h-full w-full flex-col justify-between p-5 sm:p-6"
     >
       <div>
-        <div className="flex items-center justify-between pb-3">
+        <div className="flex items-center justify-between gap-3 pb-3">
           <div>
-            <h2 className="display text-lg text-ink">รายการล่าสุด</h2>
-            <p className="text-xs text-ink-3 mt-0.5">
+            <h2 className="display text-xl text-ink">รายการล่าสุด</h2>
+            <p className="text-xs sm:text-sm text-ink-3 mt-0.5">
               กิจกรรมการเงินที่บันทึกเข้าระบบ
             </p>
           </div>
           <button
             onClick={onViewAll}
-            className="inline-flex min-h-9 items-center rounded-xl border-2 border-[var(--ink)] bg-surface px-3 py-1.5 text-xs font-extrabold text-ink shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-paper-2 focus-visible:ring-2 focus-visible:ring-brand active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+            className="inline-flex min-h-10 shrink-0 items-center rounded-xl border-2 border-[var(--ink)] bg-surface px-3.5 py-1.5 text-xs sm:text-sm font-extrabold text-ink shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-paper-2 focus-visible:ring-2 focus-visible:ring-brand active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
           >
             ดูทั้งหมด
           </button>
         </div>
 
         {allTransactions.length === 0 ? (
-          <p className="px-3 py-10 text-center text-sm text-ink-2">
+          <p className="px-3 py-10 text-center text-base text-ink-2">
             ยังไม่มีรายการธุรกรรมล่าสุดจากระบบ
           </p>
         ) : (
@@ -61,7 +61,7 @@ export function RecentTransactions({
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <div
-                        className={`flex size-10 shrink-0 items-center justify-center rounded-xl border-1.5 border-[var(--ink)] ${
+                        className={`flex size-11 shrink-0 items-center justify-center rounded-xl border-1.5 border-[var(--ink)] ${
                           isIncome
                             ? "bg-tile-mint text-tile-mint-ink"
                             : "bg-tile-peach text-tile-peach-ink"
@@ -77,10 +77,10 @@ export function RecentTransactions({
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-extrabold text-ink">
+                        <p className="truncate text-base font-extrabold text-ink">
                           {tx.title}
                         </p>
-                        <p className="truncate text-xs font-medium text-ink-3 pt-0.5">
+                        <p className="truncate text-xs sm:text-sm font-medium text-ink-3 pt-0.5">
                           {tx.subCategory} · {fmtThaiDate(tx.date)}
                         </p>
                       </div>

@@ -61,7 +61,7 @@ import {
   downloadObjectUrl,
   posterFileName,
   printPosterImage,
-  renderPosterBlob,
+  renderPosterExport,
   renderPosterImage,
   shareImage,
   type PosterImageType,
@@ -289,6 +289,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const [posterBusy, setPosterBusy] = useState(false);
   const [posterFile, setPosterFile] = useState<{
     url: string;
+    dataUrl: string;
     name: string;
     blob: Blob;
   } | null>(null);
@@ -309,10 +310,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     setPosterBusy(true);
     try {
       if (action.kind === "save") {
-        const blob = await renderPosterBlob(node, action.type);
+        const { blob, dataUrl } = await renderPosterExport(node, action.type);
         const name = posterFileName(action.type);
         const url = URL.createObjectURL(blob);
-        setPosterFile({ url, name, blob });
+        setPosterFile({ url, dataUrl, name, blob });
         downloadObjectUrl(url, name);
         toast.success(
           "สร้างรูปโปสเตอร์แล้ว ดูตัวอย่างและปุ่มดาวน์โหลดด้านล่าง"
@@ -714,7 +715,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {activeTab === "flow" && (
         <div className="max-w-md sm:max-w-lg mx-auto">
           {/* Neo-Brutalist Station Shell */}
-          <div className="rounded-3xl bg-paper-2 p-5 sm:p-7 text-ink border-2 border-[var(--ink)] shadow-[6px_6px_0_var(--ink)] space-y-6 relative overflow-hidden">
+          <div className="rounded-2xl sm:rounded-3xl bg-paper-2 p-3.5 sm:p-7 text-ink border-2 border-[var(--ink)] shadow-[4px_4px_0_var(--ink)] sm:shadow-[6px_6px_0_var(--ink)] space-y-5 sm:space-y-6 relative overflow-hidden">
             {/* Top Bar: TH Language Pill & Step Back Button */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
@@ -1063,7 +1064,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         className="neo-input"
                       />
                       {nameFromSlip && (
-                        <p className="text-[11px] font-semibold text-brand">
+                        <p className="text-xs font-semibold text-brand">
                           ชื่อจากสลิป (AI อ่านให้) แก้ไขได้
                         </p>
                       )}
@@ -1135,7 +1136,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           ถ่ายรูปสลิปด้วยกล้อง
                         </span>
                       </button>
-                      <p className="mt-1.5 text-center text-[11px] font-medium text-ink-3">
+                      <p className="mt-1.5 text-center text-xs font-medium text-ink-3">
                         ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
                         วางบนพื้นเรียบ ไม่ให้เงาบัง
                       </p>
@@ -1591,7 +1592,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               />
               {liffLink && (
                 <div className="space-y-1.5">
-                  <p className="text-[11px] font-semibold text-ink-3">
+                  <p className="text-xs font-semibold text-ink-3">
                     ลิงก์สำหรับ LINE: เปิดในแอป LINE และเข้าสู่ระบบให้อัตโนมัติ
                     ใช้กับ Rich Menu และข้อความในแชต
                   </p>
@@ -1707,7 +1708,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               {posterFile && (
                 <div className="rounded-xl border-2 border-[var(--ink)] bg-paper-2 p-3 space-y-2.5">
                   <img
-                    src={posterFile.url}
+                    src={posterFile.dataUrl}
                     alt="ตัวอย่างโปสเตอร์ที่บันทึก"
                     className="mx-auto max-h-64 w-auto rounded-lg"
                   />
@@ -1736,7 +1737,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         className="btn-secondary min-h-11 px-4 text-sm cursor-pointer"
                       >
                         <Share2 className="w-4 h-4" />
-                        <span>แชร์รูป</span>
+                        <span>แชร์ / บันทึกรูป</span>
                       </button>
                     )}
                   </div>

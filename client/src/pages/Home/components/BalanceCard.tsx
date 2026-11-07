@@ -34,7 +34,7 @@ function BalanceAmount({
         ฿
       </span>
       {formatted.slice(0, dot)}
-      <span className="text-2xl font-medium text-ink-3 sm:text-3xl">
+      <span className="text-xl font-medium text-ink-3 sm:text-3xl">
         {formatted.slice(dot)}
       </span>
     </span>
@@ -57,20 +57,22 @@ export function BalanceCard({
   return (
     <section
       aria-label="ยอดเงินคงเหลือรวม"
-      className="relative flex h-full w-full flex-col justify-between gap-6 overflow-hidden rounded-[20px] border-2 border-[var(--ink)] bg-card p-6 text-foreground shadow-[5px_5px_0_var(--ink)] sm:p-7"
+      className="relative flex h-full w-full flex-col justify-between gap-6 overflow-hidden rounded-[20px] border-2 border-[var(--ink)] bg-card p-5 text-foreground shadow-[5px_5px_0_var(--ink)] sm:p-7"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink-3">ยอดเงินคงเหลือรวม</h2>
+          <h2 className="text-xs font-bold uppercase tracking-[0.1em] text-ink-3">
+            ยอดเงินคงเหลือรวม
+          </h2>
 
           {isBalanceLoading && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-paper px-2.5 py-1 text-xs font-semibold text-ink-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-paper px-3 py-1 text-xs font-semibold text-ink-2">
               <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
               กำลังโหลดข้อมูล
             </span>
           )}
           {isDataUnavailable && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[var(--ink)] bg-[var(--tile-sand)] px-2.5 py-1 text-xs font-semibold text-[var(--tile-sand-ink)]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[var(--ink)] bg-[var(--tile-sand)] px-3 py-1 text-xs font-semibold text-[var(--tile-sand-ink)]">
               <Info className="size-3.5" aria-hidden="true" />
               {summaryError ? "เชื่อมต่อข้อมูลไม่สำเร็จ" : "ยังไม่มีข้อมูลการเงิน"}
             </span>
@@ -79,14 +81,14 @@ export function BalanceCard({
 
         <button
           onClick={() => setShowBalance(!showBalance)}
-          className="alpha-press inline-flex size-10 shrink-0 items-center justify-center rounded-[12px] border-2 border-[var(--ink)] bg-paper text-ink shadow-[3px_3px_0_var(--ink)]"
+          className="alpha-press inline-flex size-11 shrink-0 items-center justify-center rounded-[12px] border-2 border-[var(--ink)] bg-paper text-ink shadow-[3px_3px_0_var(--ink)]"
           aria-label={showBalance ? "ซ่อนยอดเงิน" : "แสดงยอดเงิน"}
           aria-pressed={!showBalance}
         >
           {showBalance ? (
-            <Eye className="size-4" />
+            <Eye className="size-5" />
           ) : (
-            <EyeOff className="size-4" />
+            <EyeOff className="size-5" />
           )}
         </button>
       </div>
@@ -97,7 +99,7 @@ export function BalanceCard({
           aria-hidden="true"
         />
       ) : (
-        <p className="alpha-display money whitespace-nowrap text-[40px] leading-none tracking-tight sm:text-5xl lg:text-[56px]">
+        <p className="alpha-display money break-words text-[clamp(2.15rem,7.2vw,3.5rem)] leading-[1.08] tracking-tight sm:whitespace-nowrap">
           {!hasSummaryData ? (
             <span className="text-ink-3">—</span>
           ) : showBalance ? (
@@ -123,11 +125,11 @@ export function BalanceCard({
             กำลังตรวจสอบยอดเงินล่าสุด…
           </span>
         ) : isPositiveBalance ? (
-          <span className="inline-flex items-center gap-2 rounded-md border border-tile-mint-ink/15 bg-tile-mint px-2.5 py-1 text-xs font-bold text-tile-mint-ink">
+          <span className="inline-flex items-center gap-2 rounded-md border border-tile-mint-ink/15 bg-tile-mint px-3 py-1.5 text-xs font-bold text-tile-mint-ink">
             ขอบคุณพระเจ้าสำหรับทุกการถวาย
           </span>
         ) : (
-          <span className="inline-flex items-center gap-2 rounded-md border border-tile-rose-ink/15 bg-tile-rose px-2.5 py-1 text-xs font-bold text-tile-rose-ink">
+          <span className="inline-flex items-center gap-2 rounded-md border border-tile-rose-ink/15 bg-tile-rose px-3 py-1.5 text-xs font-bold text-tile-rose-ink">
             ยอดคงเหลือติดลบ — ควรตรวจสอบรายจ่าย
           </span>
         )}
@@ -135,10 +137,10 @@ export function BalanceCard({
         {canOpenReports && (
           <button
             onClick={onOpenReports}
-            className="alpha-press inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3.5 py-1.5 text-xs font-bold shadow-[2px_2px_0_var(--ink)]"
+            className="alpha-press inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-surface px-4 py-2 text-xs sm:text-sm font-bold shadow-[2px_2px_0_var(--ink)]"
           >
             ดูรายละเอียด
-            <ChevronRight className="size-3.5" aria-hidden="true" />
+            <ChevronRight className="size-4" aria-hidden="true" />
           </button>
         )}
       </div>

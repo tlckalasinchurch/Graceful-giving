@@ -84,7 +84,7 @@ import {
 } from "@shared/withdrawals";
 import { ENV } from "./_core/env";
 
-import { getSlipSignedUrl, storagePutPrivate } from "./storage";
+import { resolveSlipImageUrl, storagePutPrivate } from "./storage";
 import { createHash, randomUUID } from "crypto";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -3102,7 +3102,7 @@ export async function listLineSlips(
       let signedUrl = "";
       try {
         if (slip.slipImageKey) {
-          signedUrl = await getSlipSignedUrl(slip.slipImageKey);
+          signedUrl = await resolveSlipImageUrl(slip.slipImageKey, slip.aiData);
         }
       } catch (e) {
         console.warn(
@@ -3139,7 +3139,10 @@ export async function getLineSlipById(
   let signedImageUrl = "";
   try {
     if (slip.slipImageKey) {
-      signedImageUrl = await getSlipSignedUrl(slip.slipImageKey);
+      signedImageUrl = await resolveSlipImageUrl(
+        slip.slipImageKey,
+        slip.aiData
+      );
     }
   } catch (e) {
     console.warn(`[getLineSlipById] Failed to sign URL for slip #${id}:`, e);
@@ -3760,13 +3763,26 @@ export async function createManualSlip(input: {
   const hash = createHash("sha256").update(input.imageBuffer).digest("hex");
   const dateStr = new Date().toISOString().slice(0, 10);
   const extension = input.extension ?? "jpg";
+  const contentType = input.contentType ?? "image/jpeg";
   const storageKey = `manual/${churchId}/${input.userId}/${dateStr}/${hash.slice(0, 16)}.${extension}`;
 
-  const { key } = await storagePutPrivate(
-    storageKey,
-    input.imageBuffer,
-    input.contentType ?? "image/jpeg"
-  );
+  let key: string;
+  let inlineDataUrl: string | undefined;
+  try {
+    const uploaded = await storagePutPrivate(
+      storageKey,
+      input.imageBuffer,
+      contentType
+    );
+    key = uploaded.key;
+  } catch (storageErr) {
+    console.warn(
+      "[createManualSlip] Private storage upload failed, storing slip inline in DB:",
+      storageErr
+    );
+    key = `inline:${storageKey}`;
+    inlineDataUrl = `data:${contentType};base64,${input.imageBuffer.toString("base64")}`;
+  }
 
   const [slip] = await db
     .insert(lineSlips)
@@ -3783,6 +3799,7 @@ export async function createManualSlip(input: {
       slipHash: hash,
       status: "pending",
       processingAttempts: 0,
+      ...(inlineDataUrl ? { aiData: { inlineDataUrl } } : {}),
       declaredAmount: input.declared?.amount ?? null,
       declaredCategory: input.declared?.category ?? null,
       declaredFundId: input.declared?.fundId ?? null,

@@ -189,7 +189,7 @@ export default function Ministries() {
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-extrabold text-ink">{ministry.name}</h2>
                   <span
-                    className={`rounded-full border px-2.5 py-0.5 text-[11px] font-extrabold ${
+                    className={`rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${
                       ministry.status === "active"
                         ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
                         : "border-[var(--ink)]/20 bg-paper-2 text-ink-2"

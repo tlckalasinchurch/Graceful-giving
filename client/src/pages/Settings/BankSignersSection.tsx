@@ -128,7 +128,7 @@ export function BankSignersSection() {
                         {s.name || `ผู้ใช้ #${s.userId}`}
                       </span>
                       {s.isRequired && (
-                        <span className="rounded-full border border-[var(--ink)] bg-accent px-2.5 py-0.5 text-[11px] font-extrabold text-accent-foreground">
+                        <span className="rounded-full border border-[var(--ink)] bg-accent px-2.5 py-0.5 text-xs font-extrabold text-accent-foreground">
                           ต้องลงนามทุกครั้ง
                         </span>
                       )}

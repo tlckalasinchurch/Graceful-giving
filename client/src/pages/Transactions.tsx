@@ -256,7 +256,7 @@ export default function Transactions() {
                 <p className="text-xs font-extrabold text-ink-3 uppercase tracking-wider">
                   {c.label}
                 </p>
-                <p className="text-[11px] font-medium text-ink-3 mt-0.5">{c.note}</p>
+                <p className="text-xs font-medium text-ink-3 mt-0.5">{c.note}</p>
               </div>
               <div
                 className={`size-9 shrink-0 rounded-lg border-2 border-[var(--ink)] flex items-center justify-center ${
@@ -337,7 +337,7 @@ export default function Transactions() {
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-ink">
+              <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-[0.1em] text-ink">
                 <tr>
                   <th scope="col" className="p-4">
                     วันที่

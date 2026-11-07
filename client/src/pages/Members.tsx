@@ -222,7 +222,7 @@ export default function Members() {
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-extrabold text-ink">{member.name}</h2>
                   <span
-                    className={`rounded-full border px-2.5 py-0.5 text-[11px] font-extrabold ${
+                    className={`rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${
                       member.status === "active"
                         ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
                         : member.status === "pending"

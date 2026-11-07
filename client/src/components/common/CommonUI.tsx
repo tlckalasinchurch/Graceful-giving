@@ -70,13 +70,13 @@ export const EmptyState: React.FC<{
         />
       </div>
       <div className="max-w-sm space-y-1.5">
-        <h3 className="display text-lg text-ink">{title}</h3>
-        <p className="text-sm leading-relaxed text-ink-3">{description}</p>
+        <h3 className="display text-xl text-ink">{title}</h3>
+        <p className="text-base leading-relaxed text-ink-3">{description}</p>
       </div>
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="btn-primary mt-2 min-h-11 rounded-xl px-5 py-2 text-sm font-bold focus-visible:ring-2 focus-visible:ring-brand"
+          className="btn-primary mt-2 min-h-12 rounded-xl px-5 py-2.5 text-base font-bold focus-visible:ring-2 focus-visible:ring-brand"
         >
           {actionText}
         </button>
@@ -101,14 +101,14 @@ export const ErrorState: React.FC<{
     role="alert"
   >
     <div className="max-w-sm space-y-1.5">
-      <h3 className="display text-lg text-danger">{title}</h3>
-      <p className="text-sm leading-relaxed text-ink-2">{description}</p>
+      <h3 className="display text-xl text-danger">{title}</h3>
+      <p className="text-base leading-relaxed text-ink-2">{description}</p>
     </div>
     {onRetry && (
       <button
         type="button"
         onClick={onRetry}
-        className="btn-destructive min-h-11 rounded-xl px-4 py-2 text-sm font-bold"
+        className="btn-destructive min-h-12 rounded-xl px-5 py-2.5 text-base font-bold"
       >
         ลองใหม่
       </button>
@@ -228,7 +228,7 @@ export const StatusBadge: React.FC<{
 
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold border ${style.bg} ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold border ${style.bg} ${className}`}
     >
       <span
         className="w-1.5 h-1.5 shrink-0 rounded-full bg-current"
@@ -255,11 +255,17 @@ export const MoneyDisplay: React.FC<{
   };
 
   const SIZES = {
-    sm: { whole: "text-sm font-bold", satang: "" },
-    base: { whole: "text-base font-bold", satang: "text-sm" },
-    md: { whole: "text-lg md:text-xl font-bold", satang: "text-sm" },
-    lg: { whole: "text-2xl md:text-3xl font-extrabold", satang: "text-base" },
-    xl: { whole: "text-3xl md:text-4xl font-extrabold", satang: "text-xl" },
+    sm: { whole: "text-base font-bold", satang: "text-xs" },
+    base: { whole: "text-lg font-bold", satang: "text-sm" },
+    md: { whole: "text-xl md:text-2xl font-bold", satang: "text-base" },
+    lg: {
+      whole: "text-2xl sm:text-3xl md:text-4xl font-extrabold",
+      satang: "text-lg",
+    },
+    xl: {
+      whole: "text-3xl sm:text-4xl md:text-5xl font-extrabold",
+      satang: "text-xl",
+    },
   } as const;
   const sizeStyle = SIZES[size];
 
@@ -296,12 +302,12 @@ export const PageHeader: React.FC<{
   return (
     <div className={`flex flex-col justify-between gap-4 sm:flex-row sm:items-end ${className}`}>
       <div className="min-w-0">
-        <h1 className="display text-[clamp(1.75rem,3.2vw,2.5rem)] leading-[1.05] text-ink break-words">
+        <h1 className="display text-[clamp(1.85rem,4.2vw,2.65rem)] leading-[1.14] text-ink break-words">
           {title}
         </h1>
         <span className="title-rule mt-3" aria-hidden="true" />
         {subtitle && (
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-2">
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink-2">
             {subtitle}
           </p>
         )}
@@ -381,7 +387,7 @@ export const FilterBar: React.FC<{
       {/* Search Input */}
       <div className="relative w-full">
         <Search
-          className="pointer-events-none w-4 h-4 text-ink-3 absolute left-4 top-1/2 -translate-y-1/2"
+          className="pointer-events-none w-5 h-5 text-ink-3 absolute left-4 top-1/2 -translate-y-1/2"
           aria-hidden="true"
         />
         <input
@@ -390,7 +396,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full rounded-xl border-2 border-line bg-surface py-2.5 pl-10 pr-4 text-base text-ink transition-colors placeholder-ink-3 hover:border-[var(--ink)]/40 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 md:text-sm"
+          className="min-h-12 w-full rounded-xl border-2 border-line bg-surface py-2.5 pl-11 pr-4 text-base text-ink transition-colors placeholder-ink-3 hover:border-[var(--ink)]/40 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25"
         />
       </div>
 
@@ -477,16 +483,16 @@ export const ConfirmDialog: React.FC<{
       <DialogContent className="max-w-sm rounded-2xl border-2 border-[var(--ink)] bg-surface p-6 text-ink shadow-[6px_6px_0_var(--ink)]">
         <DialogHeader>
           <DialogTitle className="display text-xl text-ink">{title}</DialogTitle>
-          <DialogDescription className="text-sm leading-relaxed text-ink-2">
+          <DialogDescription className="text-base leading-relaxed text-ink-2">
             {description}
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="flex gap-2 pt-4">
+        <DialogFooter className="flex gap-2.5 pt-4">
           <button
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="btn-secondary min-h-11 flex-1 rounded-xl py-2.5 text-xs font-bold"
+            className="btn-secondary min-h-12 flex-1 rounded-xl py-2.5 text-sm font-bold"
           >
             {cancelText}
           </button>
@@ -494,7 +500,7 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`min-h-11 flex-1 rounded-xl py-2.5 text-xs font-bold transition-all ${
+            className={`min-h-12 flex-1 rounded-xl py-2.5 text-sm font-bold transition-all ${
               variant === "danger" ? "btn-destructive" : "btn-primary"
             }`}
           >

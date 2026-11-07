@@ -123,7 +123,7 @@ export function parseBudgetForm(values: BudgetFormValues):
 }
 
 const inputClass =
-  "neo-input mt-1 text-base font-medium md:text-sm";
+  "neo-input mt-1 text-base font-medium";
 
 export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;

@@ -206,3 +206,41 @@ export async function getSlipSignedUrl(slipImageKey: string): Promise<string> {
     : `/storage/v1${result.signedURL ?? ""}`;
   return `${url}${signedPath}`;
 }
+
+/**
+ * Extracts an inline base64 data URL stored in `line_slips.aiData` when
+ * Supabase Storage was unavailable at upload time.
+ */
+export function extractInlineSlipDataUrl(aiData: unknown): string | null {
+  if (!aiData || typeof aiData !== "object") return null;
+  const inline = (aiData as Record<string, unknown>).inlineDataUrl;
+  return typeof inline === "string" && inline.startsWith("data:image/")
+    ? inline
+    : null;
+}
+
+/**
+ * Resolves a slip image URL for OCR or staff review:
+ * - Returns the inline `data:image/...` URL immediately for `"inline:..."` keys
+ * - Otherwise requests a 1-hour signed URL from Supabase Storage, falling back
+ *   to `inlineDataUrl` if signing fails.
+ */
+export async function resolveSlipImageUrl(
+  slipImageKey: string,
+  aiData?: unknown
+): Promise<string> {
+  const inlineUrl = extractInlineSlipDataUrl(aiData);
+  if (!slipImageKey || slipImageKey.startsWith("inline:")) {
+    if (inlineUrl) return inlineUrl;
+    throw new Error("Slip inline image data is not available");
+  }
+  if (slipImageKey.startsWith("data:image/")) {
+    return slipImageKey;
+  }
+  try {
+    return await getSlipSignedUrl(slipImageKey);
+  } catch (err) {
+    if (inlineUrl) return inlineUrl;
+    throw err;
+  }
+}

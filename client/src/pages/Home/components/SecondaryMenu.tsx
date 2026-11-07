@@ -44,19 +44,19 @@ const ShortcutTile = forwardRef<HTMLButtonElement, ShortcutProps>(
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`group flex min-h-[52px] w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-left transition-all hover:border-[var(--ink)] hover:shadow-[2px_2px_0_var(--ink)] focus-visible:ring-2 focus-visible:ring-brand active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${className}`}
+      className={`group flex min-h-14 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-left transition-all hover:border-[var(--ink)] hover:shadow-[2px_2px_0_var(--ink)] focus-visible:ring-2 focus-visible:ring-brand active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${className}`}
       {...rest}
     >
       <span
-        className={`flex size-9 shrink-0 items-center justify-center rounded-lg border transition-transform group-hover:scale-105 ${iconClassName}`}
+        className={`flex size-10 shrink-0 items-center justify-center rounded-lg border transition-transform group-hover:scale-105 ${iconClassName}`}
       >
-        <Icon className="size-4.5 shrink-0" />
+        <Icon className="size-5 shrink-0" />
       </span>
-      <span className="flex-1 text-[13px] font-semibold leading-tight text-ink sm:text-sm">
+      <span className="flex-1 text-sm font-bold leading-snug text-ink sm:text-base">
         {label}
       </span>
       <ChevronRight
-        className="size-3.5 shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5"
+        className="size-4 shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5"
         aria-hidden="true"
       />
     </button>
@@ -76,7 +76,7 @@ export function SecondaryMenu({
     <div
       role="group"
       aria-label="เมนูลัดอื่น ๆ"
-      className="grid grid-cols-2 gap-2 sm:gap-2.5 pt-1"
+      className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1"
     >
       {canOpenReports && (
         <ShortcutTile

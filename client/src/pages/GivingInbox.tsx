@@ -725,7 +725,7 @@ export default function GivingInbox() {
                 placeholder="ค้นหาชื่อผู้โอน, สมาชิก, ยอดเงิน..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="min-h-11 w-full text-base md:text-sm font-medium bg-transparent border-0 focus:outline-none text-ink"
+                className="min-h-11 w-full text-base font-medium bg-transparent border-0 focus:outline-none text-ink"
               />
             </div>
 
@@ -829,7 +829,7 @@ export default function GivingInbox() {
                                 : "—"}
                           </div>
                           <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-extrabold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
+                            className={`inline-block px-2 py-0.5 rounded-full text-xs font-extrabold border mt-1 ${statusConf.bg} ${statusConf.textCol} ${statusConf.border}`}
                           >
                             {statusConf.text}
                           </span>
@@ -858,7 +858,7 @@ export default function GivingInbox() {
                           <button
                             type="button"
                             onClick={e => handleQuickApprove(e, slip)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold text-[11px] shadow-[1px_1px_0_var(--ink)] transition-all"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold text-xs shadow-[1px_1px_0_var(--ink)] transition-all"
                             title="อนุมัติด่วนด้วยข้อมูลที่จับคู่ได้"
                           >
                             <Check className="w-3 h-3" /> อนุมัติด่วน
@@ -866,7 +866,7 @@ export default function GivingInbox() {
                         )}
 
                         {slip.status !== "matched" && slip.extractedRef && (
-                          <span className="font-mono text-[11px] truncate max-w-[130px]">
+                          <span className="font-mono text-xs truncate max-w-[130px]">
                             Ref: {slip.extractedRef}
                           </span>
                         )}
@@ -1034,7 +1034,7 @@ export default function GivingInbox() {
                       <Search className="w-4 h-4 text-brand" />
                       <span>2. ข้อมูลที่อ่านได้จากสลิป</span>
                     </div>
-                    <span className="text-[11px] font-bold text-tile-sand-ink bg-tile-sand px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
+                    <span className="text-xs font-bold text-tile-sand-ink bg-tile-sand px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
                       ข้อมูลจากการตรวจสอบอัตโนมัติ กรุณาตรวจสอบก่อนบันทึก
                     </span>
                   </div>
@@ -1085,7 +1085,7 @@ export default function GivingInbox() {
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                     <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
-                      <span className="text-ink-3 font-bold block text-[11px]">
+                      <span className="text-ink-3 font-bold block text-xs">
                         ยอดเงินที่ตรวจพบ
                       </span>
                       <span className="text-base font-extrabold text-brand tabular-nums block mt-0.5">
@@ -1094,7 +1094,7 @@ export default function GivingInbox() {
                           : "อ่านไม่ได้"}
                       </span>
                       {currentSlip.extractedAmountConfidence && (
-                        <span className="text-[10px] text-brand font-bold">
+                        <span className="text-xs text-brand font-bold">
                           ความมั่นใจ{" "}
                           {(
                             Number(currentSlip.extractedAmountConfidence) * 100
@@ -1105,7 +1105,7 @@ export default function GivingInbox() {
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
-                      <span className="text-ink-3 font-bold block text-[11px]">
+                      <span className="text-ink-3 font-bold block text-xs">
                         ชื่อผู้โอนในสลิป
                       </span>
                       <span className="text-xs font-extrabold text-ink block mt-1 truncate">
@@ -1114,7 +1114,7 @@ export default function GivingInbox() {
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
-                      <span className="text-ink-3 font-bold block text-[11px]">
+                      <span className="text-ink-3 font-bold block text-xs">
                         ธนาคาร
                       </span>
                       <span className="text-xs font-bold text-ink block mt-1 truncate">
@@ -1123,7 +1123,7 @@ export default function GivingInbox() {
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
-                      <span className="text-ink-3 font-bold block text-[11px]">
+                      <span className="text-ink-3 font-bold block text-xs">
                         วันที่โอน
                       </span>
                       <span className="text-xs font-bold text-ink block mt-1 truncate">
@@ -1140,7 +1140,7 @@ export default function GivingInbox() {
                   <ReceiverCheck aiData={currentSlip.aiData} />
 
                   {currentSlip.extractedRef && (
-                    <div className="pt-1 text-[11px] font-bold text-ink-3 font-mono">
+                    <div className="pt-1 text-xs font-bold text-ink-3 font-mono">
                       หมายเลขอ้างอิงสลิป: {currentSlip.extractedRef}
                     </div>
                   )}
@@ -1176,7 +1176,7 @@ export default function GivingInbox() {
                     <h3 className="text-sm font-extrabold text-ink-2">
                       3. ข้อมูลที่จะบันทึกบัญชีจริง
                     </h3>
-                    <span className="text-[11px] font-bold text-ink-3">
+                    <span className="text-xs font-bold text-ink-3">
                       ตรวจสอบและระบุบัญชีกองทุนที่ถูกต้อง
                     </span>
                   </div>
@@ -1193,7 +1193,7 @@ export default function GivingInbox() {
                               type="button"
                               onClick={handleLinkMember}
                               disabled={linkMemberMutation.isPending}
-                              className="text-[11px] text-income hover:underline flex items-center gap-1 font-extrabold"
+                              className="text-xs text-income hover:underline flex items-center gap-1 font-extrabold"
                             >
                               <Link2 className="w-3 h-3" /> เชื่อมโยง LINE ID
                             </button>
@@ -1219,7 +1219,7 @@ export default function GivingInbox() {
                         ))}
                       </NativeSelect>
                       {currentSlip.matchMethod && (
-                        <p className="text-[11px] font-bold text-brand">
+                        <p className="text-xs font-bold text-brand">
                           จับคู่โดย:{" "}
                           {currentSlip.matchMethod === "line_id"
                             ? "LINE Account"
@@ -1251,7 +1251,7 @@ export default function GivingInbox() {
                         disabled={currentSlip.status === "approved"}
                         className="neo-input min-h-11 w-full text-sm p-2.5"
                       />
-                      <p className="text-[11px] font-medium text-ink-3">
+                      <p className="text-xs font-medium text-ink-3">
                         ระบบใส่ชื่อบนสลิปให้ ชื่อบนสลิปธนาคารมักถูกปิดบังบางส่วน
                         แก้เป็นชื่อเต็มได้ ผู้ส่งรายการยังบันทึกแยกไว้เสมอ
                       </p>
@@ -1310,7 +1310,7 @@ export default function GivingInbox() {
                               }
                               setEditSplit(startSplit(editCategory, total));
                             }}
-                            className="min-h-11 px-2 text-[11px] font-extrabold text-brand underline underline-offset-2"
+                            className="min-h-11 px-2 text-xs font-extrabold text-brand underline underline-offset-2"
                           >
                             แบ่งเป็นหลายประเภท
                           </button>

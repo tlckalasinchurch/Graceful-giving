@@ -232,7 +232,7 @@ export default function MinistryDetail() {
                 {query.data.name}
               </h1>
               <span
-                className={`rounded-full border px-2.5 py-1 text-[11px] font-extrabold ${
+                className={`rounded-full border px-2.5 py-1 text-xs font-extrabold ${
                   query.data.status === "active"
                     ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
                     : "border-[var(--ink)]/20 bg-paper-2 text-ink-2"
