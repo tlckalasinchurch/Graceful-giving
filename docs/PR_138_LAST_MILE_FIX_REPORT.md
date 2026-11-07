@@ -178,7 +178,7 @@ Phase 5 and 6 work for Graceful Giving: financial integrity fixes, a UX redesign
 
 ### Local quality gate
 
-Run on `748f7d6` with a fresh `pnpm install --frozen-lockfile`:
+Run on `748f7d6` with a fresh `pnpm install --frozen-lockfile`. The later commit changes `docs/` only.
 
 - `pnpm check`: exit 0.
 - `pnpm test`: exit 0. 957 passed, 56 skipped, 0 failed.
@@ -187,7 +187,7 @@ Run on `748f7d6` with a fresh `pnpm install --frozen-lockfile`:
 
 ### Vercel status
 
-At the time of this edit, the `Vercel` status for `748f7d6` is **pending** ("Vercel is deploying your app"). The `Vercel Preview Comments` check is **success**. Check the status again before you merge.
+Observed on the PR head `3e4a6aa` (2026-11-07, about 16:2x UTC): the `Vercel` status is **pending** ("Vercel is deploying your app"). The earlier head `748f7d6` was also pending when last read. The `Vercel Preview Comments` check on `748f7d6` is **success**. This status has not reached success yet. Check it again before you merge.
 
 `vercel.json` runs `db:migrate:deploy` in the build. `scripts/migrate.ts` runs migrations only on a production Vercel build. A merge to `main` therefore re-runs migrations 0000 to 0004. This PR adds none.
 
@@ -196,6 +196,7 @@ At the time of this edit, the `Vercel` status for `748f7d6` is **pending** ("Ver
 - **CSV response size.** The CSV is one string inside the JSON response. Vercel rejects a response above 4.5 MB (about 15,000 rows). The server now stops at 4,000,000 bytes and returns a clear Thai error. The user must narrow the date range. An all-time export of a large church fails.
 - **CSV memory.** The export holds all rows in memory (batch read, unbounded accumulation). There is no streaming. Details are in `docs/PHASE_6A_2_EXPORT_ARCHITECTURE_AUDIT.md` and `docs/PHASE_6A_3_PRODUCTION_READINESS_AUDIT.md`.
 - **Dates.** CSV dates are correct if the database stores UTC time. The database default `now()` follows the database session time zone. Confirm that it is UTC on the production database.
+- **Open finding in `main`.** `bangkokDate()` in `server/db.ts` (withdrawal-to-counting-round link) applies `AT TIME ZONE 'Asia/Bangkok'` to a UTC `timestamp` and is off by 14 hours. This PR does not change it. See section 4.4 of the report.
 - **Older reports.** Some files in `docs/` are older phase reports. They contain claims that later work replaced (for example "29 routes tested"). This description and `docs/PR_138_LAST_MILE_FIX_REPORT.md` are the current record.
 
 ### Scope
