@@ -715,7 +715,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {activeTab === "flow" && (
         <div className="max-w-md sm:max-w-lg mx-auto">
           {/* Neo-Brutalist Station Shell */}
-          <div className="rounded-3xl bg-paper-2 p-5 sm:p-7 text-ink border-2 border-[var(--ink)] shadow-[6px_6px_0_var(--ink)] space-y-6 relative overflow-hidden">
+          <div className="rounded-2xl sm:rounded-3xl bg-paper-2 p-3.5 sm:p-7 text-ink border-2 border-[var(--ink)] shadow-[4px_4px_0_var(--ink)] sm:shadow-[6px_6px_0_var(--ink)] space-y-5 sm:space-y-6 relative overflow-hidden">
             {/* Top Bar: TH Language Pill & Step Back Button */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (

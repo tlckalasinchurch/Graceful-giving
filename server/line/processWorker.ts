@@ -30,7 +30,7 @@ import {
   type LineSlip,
 } from "../../drizzle/schema";
 import { and, eq, lte, sql } from "drizzle-orm";
-import { getSlipSignedUrl } from "../storage";
+import { extractInlineSlipDataUrl, resolveSlipImageUrl } from "../storage";
 import { MAX_AUTO_REJECTS } from "../../shared/givingLimits";
 import { verifySlip } from "./slipVerification";
 import { extractSlipData, requiresReview } from "./slipOcr";
@@ -100,8 +100,8 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
     return;
   }
 
-  // 2. Get signed URL for private image
-  const signedUrl = await getSlipSignedUrl(slip.slipImageKey);
+  // 2. Get signed URL (or inline data URL) for private image
+  const signedUrl = await resolveSlipImageUrl(slip.slipImageKey, slip.aiData);
 
   // 3. AI OCR extraction
   const extraction = await extractSlipData(signedUrl);
@@ -209,12 +209,14 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
   }
 
   // 6. Update line_slips with all results
+  const inlineDataUrl = extractInlineSlipDataUrl(slip.aiData);
   await db
     .update(lineSlips)
     .set({
       status: finalStatus,
       aiRawText: extraction.rawText,
       aiData: {
+        ...(inlineDataUrl ? { inlineDataUrl } : {}),
         ...extraction,
         verification: {
           amount: verification.amount,

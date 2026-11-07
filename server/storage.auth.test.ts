@@ -42,3 +42,30 @@ describe("storagePutPrivate", () => {
     expect(headers.Authorization).toBe("Bearer sb_secret_abc");
   });
 });
+
+describe("resolveSlipImageUrl", () => {
+  it("returns inline data URL directly when slipImageKey uses inline: prefix", async () => {
+    const { resolveSlipImageUrl } = await import("./storage");
+    const dataUrl = "data:image/jpeg;base64,/9j/4AAQSkZJRg==";
+    const url = await resolveSlipImageUrl("inline:manual/demo/1/a.jpg", {
+      inlineDataUrl: dataUrl,
+    });
+    expect(url).toBe(dataUrl);
+  });
+
+  it("falls back to inlineDataUrl when Supabase signed URL fails", async () => {
+    vi.stubEnv("SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "sb_secret_abc");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("Invalid Compact JWS", { status: 400 }))
+    );
+
+    const { resolveSlipImageUrl } = await import("./storage");
+    const dataUrl = "data:image/png;base64,iVBORw0KGgo=";
+    const url = await resolveSlipImageUrl("manual/demo/1/a.png", {
+      inlineDataUrl: dataUrl,
+    });
+    expect(url).toBe(dataUrl);
+  });
+});

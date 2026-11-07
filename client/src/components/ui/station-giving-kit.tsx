@@ -504,7 +504,7 @@ export function StationUnlockConfirmCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border-2 border-[var(--ink)] bg-surface p-6 sm:p-8 text-center space-y-5 shadow-[4px_4px_0_var(--ink)]",
+        "rounded-2xl border-2 border-[var(--ink)] bg-surface p-4 sm:p-7 text-center space-y-4 sm:space-y-5 shadow-[3px_3px_0_var(--ink)] sm:shadow-[4px_4px_0_var(--ink)]",
         className
       )}
     >

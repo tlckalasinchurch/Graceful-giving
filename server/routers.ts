@@ -1152,12 +1152,21 @@ export const appRouter = router({
         // client's file name, so a file cannot be stored as receipt.html.
         const ext = RECEIPT_EXTENSIONS[input.contentType];
         const key = `expenses/receipt.${ext}`;
-        const { url } = await storagePut(
-          key,
-          input.base64Data,
-          input.contentType
-        );
-        return { url };
+        try {
+          const { url } = await storagePut(
+            key,
+            input.base64Data,
+            input.contentType
+          );
+          return { url };
+        } catch (err) {
+          console.warn(
+            "[uploadReceipt] Storage upload failed, falling back to inline data URL:",
+            err
+          );
+          const raw = input.base64Data.replace(/^data:[^;,]*;base64,/, "").trim();
+          return { url: `data:${input.contentType};base64,${raw}` };
+        }
       }),
     update: financeProcedure
       .input(

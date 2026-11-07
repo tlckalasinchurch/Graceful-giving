@@ -209,22 +209,22 @@ async function processImageEvent(
   const dateStr = now.toISOString().slice(0, 10);
   const storageKey = `line/${churchId}/${lineUserId}/${dateStr}/${slipHash.slice(0, 16)}.jpg`;
 
-  let uploadResult: { key: string };
+  let uploadKey: string;
+  let inlineDataUrl: string | undefined;
   try {
-    uploadResult = await storagePutPrivate(
+    const uploadResult = await storagePutPrivate(
       storageKey,
       imageBuffer,
       "image/jpeg"
     );
+    uploadKey = uploadResult.key;
   } catch (err) {
-    console.error("[LINE Webhook] Storage upload failed:", err);
-    if (event.replyToken) {
-      await replyToLine(
-        event.replyToken,
-        "ขออภัย เกิดข้อผิดพลาดในการบันทึกสลิป กรุณาลองใหม่อีกครั้งค่ะ 🙏"
-      );
-    }
-    return;
+    console.warn(
+      "[LINE Webhook] Storage upload failed, falling back to inline DB storage:",
+      err
+    );
+    uploadKey = `inline:${storageKey}`;
+    inlineDataUrl = `data:image/jpeg;base64,${imageBuffer.toString("base64")}`;
   }
 
   // ── Get LINE display name ──────────────────────────────────────────────────
@@ -240,10 +240,11 @@ async function processImageEvent(
         lineUserId,
         lineDisplayName,
         lineEventId,
-        slipImageKey: uploadResult.key,
+        slipImageKey: uploadKey,
         slipHash,
         status: "pending",
         processingAttempts: 0,
+        ...(inlineDataUrl ? { aiData: { inlineDataUrl } } : {}),
       })
       .onConflictDoNothing()
       .returning({ id: lineSlips.id });

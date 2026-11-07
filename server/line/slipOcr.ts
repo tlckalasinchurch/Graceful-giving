@@ -219,13 +219,21 @@ async function extractWithGemini(
   signedImageUrl: string,
   apiKey: string
 ): Promise<SlipExtraction> {
-  const imgRes = await fetch(signedImageUrl);
-  if (!imgRes.ok) {
-    throw new Error(`Failed to download slip image: ${imgRes.status}`);
+  let base64Data: string;
+  let contentType = "image/jpeg";
+  const dataUriMatch = signedImageUrl.match(/^data:([^;,]+);base64,([\s\S]+)$/);
+  if (dataUriMatch) {
+    contentType = dataUriMatch[1] || "image/jpeg";
+    base64Data = dataUriMatch[2].trim();
+  } else {
+    const imgRes = await fetch(signedImageUrl);
+    if (!imgRes.ok) {
+      throw new Error(`Failed to download slip image: ${imgRes.status}`);
+    }
+    const arrayBuffer = await imgRes.arrayBuffer();
+    base64Data = Buffer.from(arrayBuffer).toString("base64");
+    contentType = imgRes.headers.get("content-type") || "image/jpeg";
   }
-  const arrayBuffer = await imgRes.arrayBuffer();
-  const base64Data = Buffer.from(arrayBuffer).toString("base64");
-  const contentType = imgRes.headers.get("content-type") || "image/jpeg";
 
   // Prioritize gemini-3.5-flash, fallback to flash-lite and latest
   const models = [
