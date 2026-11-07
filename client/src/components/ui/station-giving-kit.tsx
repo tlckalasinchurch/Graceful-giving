@@ -601,6 +601,20 @@ export function StationQrPoster({
 
   return (
     <div
+      data-station-poster="true"
+      data-brand-prefix={brandPrefix}
+      data-brand-highlight={brandHighlight}
+      data-station-subheader={stationSubheader}
+      data-headline-white={headlineWhite}
+      data-headline-orange={headlineOrange}
+      data-scan-prompt={scanPrompt}
+      data-qr-value={qrValue}
+      data-qr-center-badge={qrCenterBadge ?? ""}
+      data-qr-caption={qrCaption ?? ""}
+      data-footer-lead-white={footerLeadWhite}
+      data-footer-lead-orange={footerLeadOrange}
+      data-footer-subtext={footerSubtext}
+      data-church-name={churchName ?? ""}
       className={cn(
         "inline-block w-full max-w-md mx-auto rounded-2xl border-2 border-[var(--ink)] bg-accent p-4 shadow-[6px_6px_0_var(--ink)] [print-color-adjust:exact] [-webkit-print-color-adjust:exact] sm:p-7 print:shadow-none",
         className
@@ -725,7 +739,10 @@ export function StationQrPoster({
             {scanPrompt}
           </div>
 
-          <div className="mx-auto w-52 space-y-1.5 rounded-xl border-2 border-[var(--ink)] bg-surface p-3.5 sm:w-56">
+          <div
+            data-qr-box="true"
+            className="mx-auto w-52 space-y-1.5 rounded-xl border-2 border-[var(--ink)] bg-surface p-3.5 sm:w-56"
+          >
             {customQrImageUrl ? (
               <img
                 src={customQrImageUrl}

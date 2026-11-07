@@ -61,7 +61,7 @@ import {
   downloadObjectUrl,
   posterFileName,
   printPosterImage,
-  renderPosterBlob,
+  renderPosterExport,
   renderPosterImage,
   shareImage,
   type PosterImageType,
@@ -289,6 +289,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const [posterBusy, setPosterBusy] = useState(false);
   const [posterFile, setPosterFile] = useState<{
     url: string;
+    dataUrl: string;
     name: string;
     blob: Blob;
   } | null>(null);
@@ -309,10 +310,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     setPosterBusy(true);
     try {
       if (action.kind === "save") {
-        const blob = await renderPosterBlob(node, action.type);
+        const { blob, dataUrl } = await renderPosterExport(node, action.type);
         const name = posterFileName(action.type);
         const url = URL.createObjectURL(blob);
-        setPosterFile({ url, name, blob });
+        setPosterFile({ url, dataUrl, name, blob });
         downloadObjectUrl(url, name);
         toast.success(
           "สร้างรูปโปสเตอร์แล้ว ดูตัวอย่างและปุ่มดาวน์โหลดด้านล่าง"
@@ -1707,7 +1708,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               {posterFile && (
                 <div className="rounded-xl border-2 border-[var(--ink)] bg-paper-2 p-3 space-y-2.5">
                   <img
-                    src={posterFile.url}
+                    src={posterFile.dataUrl}
                     alt="ตัวอย่างโปสเตอร์ที่บันทึก"
                     className="mx-auto max-h-64 w-auto rounded-lg"
                   />
@@ -1736,7 +1737,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         className="btn-secondary min-h-11 px-4 text-sm cursor-pointer"
                       >
                         <Share2 className="w-4 h-4" />
-                        <span>แชร์รูป</span>
+                        <span>แชร์ / บันทึกรูป</span>
                       </button>
                     )}
                   </div>
