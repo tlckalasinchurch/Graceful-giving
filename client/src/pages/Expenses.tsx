@@ -10,6 +10,8 @@ import {
   StatusBadge,
 } from "@/components/common/CommonUI";
 import { formatThaiDate } from "@/lib/format";
+import { toCsvBlob } from "@/lib/csvDownload";
+import { csvExportErrorMessage } from "@/lib/errors";
 import {
   Calendar,
   ChevronLeft,
@@ -175,9 +177,7 @@ export default function Expenses() {
         search: searchTerm.trim() || undefined,
       });
 
-      const blob = new Blob([res.csv], {
-        type: "text/csv;charset=utf-8;",
-      });
+      const blob = toCsvBlob(res.csv);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -193,7 +193,9 @@ export default function Expenses() {
         `ส่งออกข้อมูลรายจ่ายสำเร็จ (${res.rowCount.toLocaleString()} รายการ)`
       );
     } catch (err: any) {
-      toast.error(err?.message || "ส่งออกข้อมูลล้มเหลว กรุณาลองใหม่อีกครั้ง");
+      toast.error("ส่งออกข้อมูลไม่สำเร็จ", {
+        description: csvExportErrorMessage(err),
+      });
     } finally {
       setIsExporting(false);
     }

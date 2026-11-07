@@ -28,6 +28,8 @@ import {
 } from "@/components/finance/VoucherModal";
 import { paymentMethodLabel } from "@shared/categories";
 import { formatThaiDateTime } from "@/lib/format";
+import { toCsvBlob } from "@/lib/csvDownload";
+import { csvExportErrorMessage } from "@/lib/errors";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 import {
@@ -172,9 +174,7 @@ export default function Offerings() {
         search: searchTerm.trim() || undefined,
       });
 
-      const blob = new Blob([res.csv], {
-        type: "text/csv;charset=utf-8;",
-      });
+      const blob = toCsvBlob(res.csv);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -190,7 +190,9 @@ export default function Offerings() {
         `ส่งออกข้อมูลถวายสำเร็จ (${res.rowCount.toLocaleString()} รายการ)`
       );
     } catch (err: any) {
-      toast.error(err?.message || "ส่งออกข้อมูลล้มเหลว กรุณาลองใหม่อีกครั้ง");
+      toast.error("ส่งออกข้อมูลไม่สำเร็จ", {
+        description: csvExportErrorMessage(err),
+      });
     } finally {
       setIsExporting(false);
     }

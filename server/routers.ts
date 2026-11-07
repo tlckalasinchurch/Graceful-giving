@@ -154,6 +154,7 @@ import {
 } from "@shared/givingLimits";
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
+import { assertCsvWithinLimit } from "./csvLimit";
 import type { CountingStatus } from "@shared/counting";
 import { BANK_RECORD_TYPES, canTransition, isEditable } from "@shared/counting";
 import {
@@ -2015,7 +2016,10 @@ export const appRouter = router({
             .map(csvCell)
             .join(",")
         );
-        return { csv: [header, ...lines].join("\n"), rowCount: rows.length };
+        return {
+          csv: assertCsvWithinLimit([header, ...lines].join("\n")),
+          rowCount: rows.length,
+        };
       }),
   }),
 

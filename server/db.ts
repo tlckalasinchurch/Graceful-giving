@@ -68,6 +68,8 @@ import {
   withdrawalApprovals,
   withdrawalRequests,
 } from "../drizzle/schema";
+import { bangkokDateString } from "@shared/bangkokDate";
+import { assertCsvWithinLimit } from "./csvLimit";
 import {
   type OfferingCategory,
   offeringCategoryLabel,
@@ -898,7 +900,7 @@ export async function exportOfferingsCsvData(
         ? "ผู้ถวายนิรนาม"
         : "—";
     const fundName = r.fundId ? (fundMap.get(r.fundId) ?? "—") : "—";
-    const dateStr = r.receiptDate.toISOString().split("T")[0];
+    const dateStr = bangkokDateString(r.receiptDate);
 
     return [
       sanitizeCsvCell(r.id),
@@ -915,7 +917,7 @@ export async function exportOfferingsCsvData(
 
   const totalAmount = totalSatang / 100;
   return {
-    csv: "\uFEFF" + [header, ...lines].join("\n"),
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
     rowCount: rows.length,
     totalAmount,
   };
@@ -1264,7 +1266,7 @@ export async function exportExpensesCsvData(
     const satang = Math.round(r.amount * 100);
     totalSatang += satang;
     const fundName = r.fundId ? (fundMap.get(r.fundId) ?? "—") : "—";
-    const dateStr = r.expenseDate.toISOString().split("T")[0];
+    const dateStr = bangkokDateString(r.expenseDate);
 
     return [
       sanitizeCsvCell(r.id),
@@ -1281,7 +1283,7 @@ export async function exportExpensesCsvData(
 
   const totalAmount = totalSatang / 100;
   return {
-    csv: "\uFEFF" + [header, ...lines].join("\n"),
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
     rowCount: rows.length,
     totalAmount,
   };
@@ -1619,7 +1621,7 @@ export async function exportTransactionsCsvData(
   const lines = unified.map(t =>
     [
       sanitizeCsvCell(t.id),
-      sanitizeCsvCell(t.date.toISOString().split("T")[0]),
+      sanitizeCsvCell(bangkokDateString(t.date)),
       sanitizeCsvCell(t.title),
       sanitizeCsvCell(t.donorOrPayee),
       sanitizeCsvCell(t.categoryLabel),
@@ -1636,7 +1638,7 @@ export async function exportTransactionsCsvData(
   const netTotal = (totalIncomeSatang - totalExpenseSatang) / 100;
 
   return {
-    csv: "\uFEFF" + [header, ...lines].join("\n"),
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
     rowCount: unified.length,
     totalIncome,
     totalExpense,
@@ -2633,7 +2635,7 @@ export async function getFinancialReportData(
 
   const rows: ReportRow[] = [
     ...offeringsRows.map(r => ({
-      date: r.receiptDate.toISOString().split("T")[0],
+      date: bangkokDateString(r.receiptDate),
       type: "income" as const,
       category: r.category,
       description: r.notes || `ถวาย${r.category}`,
@@ -2641,7 +2643,7 @@ export async function getFinancialReportData(
       method: r.method,
     })),
     ...expensesRows.map(r => ({
-      date: r.expenseDate.toISOString().split("T")[0],
+      date: bangkokDateString(r.expenseDate),
       type: "expense" as const,
       category: r.category,
       description: r.description,

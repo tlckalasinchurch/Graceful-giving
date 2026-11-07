@@ -833,6 +833,34 @@ var lineProcessingJobs = pgTable(
   ]
 );
 
+// shared/bangkokDate.ts
+var BANGKOK_DATE_PARTS = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Bangkok",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+function bangkokDateString(value) {
+  const parts = BANGKOK_DATE_PARTS.formatToParts(value);
+  const pick = type => parts.find(p => p.type === type)?.value ?? "";
+  return `${pick("year")}-${pick("month")}-${pick("day")}`;
+}
+
+// server/csvLimit.ts
+import { TRPCError } from "@trpc/server";
+var MAX_CSV_RESPONSE_BYTES = 4e6;
+var CSV_TOO_LARGE_MESSAGE =
+  "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E17\u0E35\u0E48\u0E2A\u0E48\u0E07\u0E2D\u0E2D\u0E01\u0E21\u0E35\u0E02\u0E19\u0E32\u0E14\u0E43\u0E2B\u0E0D\u0E48\u0E40\u0E01\u0E34\u0E19\u0E17\u0E35\u0E48\u0E23\u0E30\u0E1A\u0E1A\u0E23\u0E2D\u0E07\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E0A\u0E48\u0E27\u0E07\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48\u0E43\u0E2B\u0E49\u0E41\u0E04\u0E1A\u0E25\u0E07 \u0E41\u0E25\u0E49\u0E27\u0E2A\u0E48\u0E07\u0E2D\u0E2D\u0E01\u0E43\u0E2B\u0E21\u0E48\u0E17\u0E35\u0E25\u0E30\u0E0A\u0E48\u0E27\u0E07";
+function assertCsvWithinLimit(csv, limit = MAX_CSV_RESPONSE_BYTES) {
+  if (Buffer.byteLength(JSON.stringify(csv), "utf8") > limit) {
+    throw new TRPCError({
+      code: "PAYLOAD_TOO_LARGE",
+      message: CSV_TOO_LARGE_MESSAGE,
+    });
+  }
+  return csv;
+}
+
 // shared/categories.ts
 var EXPENSE_CATEGORY_IDS = [
   "utilities",
@@ -1848,7 +1876,7 @@ async function exportOfferingsCsvData(
         ? "\u0E1C\u0E39\u0E49\u0E16\u0E27\u0E32\u0E22\u0E19\u0E34\u0E23\u0E19\u0E32\u0E21"
         : "\u2014";
     const fundName = r.fundId ? (fundMap.get(r.fundId) ?? "\u2014") : "\u2014";
-    const dateStr = r.receiptDate.toISOString().split("T")[0];
+    const dateStr = bangkokDateString(r.receiptDate);
     return [
       sanitizeCsvCell(r.id),
       sanitizeCsvCell(dateStr),
@@ -1863,7 +1891,7 @@ async function exportOfferingsCsvData(
   });
   const totalAmount = totalSatang / 100;
   return {
-    csv: "\uFEFF" + [header, ...lines].join("\n"),
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
     rowCount: rows.length,
     totalAmount,
   };
@@ -2123,7 +2151,7 @@ async function exportExpensesCsvData(
     const satang = Math.round(r.amount * 100);
     totalSatang += satang;
     const fundName = r.fundId ? (fundMap.get(r.fundId) ?? "\u2014") : "\u2014";
-    const dateStr = r.expenseDate.toISOString().split("T")[0];
+    const dateStr = bangkokDateString(r.expenseDate);
     return [
       sanitizeCsvCell(r.id),
       sanitizeCsvCell(dateStr),
@@ -2138,7 +2166,7 @@ async function exportExpensesCsvData(
   });
   const totalAmount = totalSatang / 100;
   return {
-    csv: "\uFEFF" + [header, ...lines].join("\n"),
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
     rowCount: rows.length,
     totalAmount,
   };
@@ -2391,7 +2419,7 @@ async function exportTransactionsCsvData(
   const lines = unified.map(t2 =>
     [
       sanitizeCsvCell(t2.id),
-      sanitizeCsvCell(t2.date.toISOString().split("T")[0]),
+      sanitizeCsvCell(bangkokDateString(t2.date)),
       sanitizeCsvCell(t2.title),
       sanitizeCsvCell(t2.donorOrPayee),
       sanitizeCsvCell(t2.categoryLabel),
@@ -2406,7 +2434,7 @@ async function exportTransactionsCsvData(
   const totalExpense = totalExpenseSatang / 100;
   const netTotal = (totalIncomeSatang - totalExpenseSatang) / 100;
   return {
-    csv: "\uFEFF" + [header, ...lines].join("\n"),
+    csv: assertCsvWithinLimit("\uFEFF" + [header, ...lines].join("\n")),
     rowCount: unified.length,
     totalIncome,
     totalExpense,
@@ -3202,7 +3230,7 @@ async function getFinancialReportData(
   ]);
   const rows = [
     ...offeringsRows.map(r => ({
-      date: r.receiptDate.toISOString().split("T")[0],
+      date: bangkokDateString(r.receiptDate),
       type: "income",
       category: r.category,
       description: r.notes || `\u0E16\u0E27\u0E32\u0E22${r.category}`,
@@ -3210,7 +3238,7 @@ async function getFinancialReportData(
       method: r.method,
     })),
     ...expensesRows.map(r => ({
-      date: r.expenseDate.toISOString().split("T")[0],
+      date: bangkokDateString(r.expenseDate),
       type: "expense",
       category: r.category,
       description: r.description,
@@ -6845,7 +6873,7 @@ import { z as z3 } from "zod";
 import { z } from "zod";
 
 // server/_core/notification.ts
-import { TRPCError } from "@trpc/server";
+import { TRPCError as TRPCError2 } from "@trpc/server";
 var TITLE_MAX_LENGTH = 1200;
 var CONTENT_MAX_LENGTH = 2e4;
 var trimValue = value => value.trim();
@@ -6860,13 +6888,13 @@ var buildEndpointUrl = baseUrl => {
 };
 var validatePayload = input => {
   if (!isNonEmptyString(input.title)) {
-    throw new TRPCError({
+    throw new TRPCError2({
       code: "BAD_REQUEST",
       message: "Notification title is required.",
     });
   }
   if (!isNonEmptyString(input.content)) {
-    throw new TRPCError({
+    throw new TRPCError2({
       code: "BAD_REQUEST",
       message: "Notification content is required.",
     });
@@ -6874,13 +6902,13 @@ var validatePayload = input => {
   const title = trimValue(input.title);
   const content = trimValue(input.content);
   if (title.length > TITLE_MAX_LENGTH) {
-    throw new TRPCError({
+    throw new TRPCError2({
       code: "BAD_REQUEST",
       message: `Notification title must be at most ${TITLE_MAX_LENGTH} characters.`,
     });
   }
   if (content.length > CONTENT_MAX_LENGTH) {
-    throw new TRPCError({
+    throw new TRPCError2({
       code: "BAD_REQUEST",
       message: `Notification content must be at most ${CONTENT_MAX_LENGTH} characters.`,
     });
@@ -6890,13 +6918,13 @@ var validatePayload = input => {
 async function notifyOwner(payload) {
   const { title, content } = validatePayload(payload);
   if (!ENV.forgeApiUrl) {
-    throw new TRPCError({
+    throw new TRPCError2({
       code: "INTERNAL_SERVER_ERROR",
       message: "Notification service URL is not configured.",
     });
   }
   if (!ENV.forgeApiKey) {
-    throw new TRPCError({
+    throw new TRPCError2({
       code: "INTERNAL_SERVER_ERROR",
       message: "Notification service API key is not configured.",
     });
@@ -6928,7 +6956,7 @@ async function notifyOwner(payload) {
 }
 
 // server/_core/trpc.ts
-import { initTRPC, TRPCError as TRPCError2 } from "@trpc/server";
+import { initTRPC, TRPCError as TRPCError3 } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 function readableInputMessage(cause, fallback) {
@@ -6962,7 +6990,7 @@ var publicProcedure = t.procedure;
 var requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
   if (!ctx.user) {
-    throw new TRPCError2({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
+    throw new TRPCError3({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
   }
   return next({
     ctx: {
@@ -6976,7 +7004,7 @@ var adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
     if (!ctx.user || ctx.user.role !== "admin") {
-      throw new TRPCError2({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
+      throw new TRPCError3({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
     }
     return next({
       ctx: {
@@ -7275,7 +7303,7 @@ function toSlipReading(extraction) {
 }
 
 // server/routers.ts
-import { TRPCError as TRPCError3 } from "@trpc/server";
+import { TRPCError as TRPCError4 } from "@trpc/server";
 function getUserRoles(user) {
   const list = [];
   if (user.churchRoles) {
@@ -7331,7 +7359,7 @@ function canApproveDeduction(user) {
 }
 var adminProcedure2 = protectedProcedure.use(({ ctx, next }) => {
   if (!hasAnyRole(ctx.user, "SUPER_ADMIN")) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1C\u0E39\u0E49\u0E14\u0E39\u0E41\u0E25\u0E23\u0E30\u0E1A\u0E1A\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
@@ -7341,7 +7369,7 @@ var adminProcedure2 = protectedProcedure.use(({ ctx, next }) => {
 });
 var financeProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canManageFinance(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E01\u0E32\u0E23\u0E40\u0E07\u0E34\u0E19",
@@ -7351,7 +7379,7 @@ var financeProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 var churchLeaderProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canManageChurchSettings(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1C\u0E39\u0E49\u0E19\u0E33\u0E04\u0E23\u0E34\u0E2A\u0E15\u0E08\u0E31\u0E01\u0E23\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
@@ -7361,7 +7389,7 @@ var churchLeaderProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 var fundManageProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canManageFinance(ctx.user) && !canManageChurchSettings(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19",
@@ -7371,7 +7399,7 @@ var fundManageProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 var ministryProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canManageMinistries(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1C\u0E39\u0E49\u0E19\u0E33\u0E04\u0E23\u0E34\u0E2A\u0E15\u0E08\u0E31\u0E01\u0E23\u0E41\u0E25\u0E30\u0E1C\u0E39\u0E49\u0E23\u0E31\u0E1A\u0E1C\u0E34\u0E14\u0E0A\u0E2D\u0E1A\u0E1D\u0E48\u0E32\u0E22\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
@@ -7381,7 +7409,7 @@ var ministryProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 var financeViewProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canViewFinanceRecords(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E40\u0E2B\u0E23\u0E31\u0E0D\u0E0D\u0E34\u0E01 \u0E28\u0E34\u0E29\u0E22\u0E32\u0E20\u0E34\u0E1A\u0E32\u0E25 \u0E2B\u0E23\u0E37\u0E2D\u0E1C\u0E39\u0E49\u0E14\u0E39\u0E41\u0E25\u0E23\u0E30\u0E1A\u0E1A\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
@@ -7391,7 +7419,7 @@ var financeViewProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 var fundReadProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canViewFinanceRecords(ctx.user) && !canCountOfferings(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E14\u0E39\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19",
@@ -7401,7 +7429,7 @@ var fundReadProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 var memberReadProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canViewMemberDirectory(ctx.user) && !canCountOfferings(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E14\u0E39\u0E23\u0E32\u0E22\u0E0A\u0E37\u0E48\u0E2D\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01",
@@ -7411,7 +7439,7 @@ var memberReadProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 var memberDetailProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canViewMemberDirectory(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E14\u0E39\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01",
@@ -7421,7 +7449,7 @@ var memberDetailProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 var budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!canManageBudgets(ctx.user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E40\u0E2B\u0E23\u0E31\u0E0D\u0E0D\u0E34\u0E01 \u0E28\u0E34\u0E29\u0E22\u0E32\u0E20\u0E34\u0E1A\u0E32\u0E25 \u0E2B\u0E23\u0E37\u0E2D\u0E1C\u0E39\u0E49\u0E14\u0E39\u0E41\u0E25\u0E23\u0E30\u0E1A\u0E1A\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
@@ -7432,7 +7460,7 @@ var budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
 async function assertActiveFund(fundId) {
   const funds = await listFinanceAccounts();
   if (!funds.some(f => f.id === fundId)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "BAD_REQUEST",
       message:
         "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19\u0E17\u0E35\u0E48\u0E40\u0E25\u0E37\u0E2D\u0E01",
@@ -7464,7 +7492,7 @@ function assertSplitSound(items, total) {
   if (!items) return;
   const problem = checkSplit(items, total);
   if (problem) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "BAD_REQUEST",
       message: SPLIT_MESSAGE[problem],
     });
@@ -7498,7 +7526,7 @@ function csvCell(value) {
 async function requireCountingSession(id) {
   const session = await getCountingSession(id);
   if (!session) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "NOT_FOUND",
       message:
         "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E2D\u0E1A\u0E19\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E16\u0E27\u0E32\u0E22",
@@ -7508,7 +7536,7 @@ async function requireCountingSession(id) {
 }
 function assertCountEditable(status) {
   if (!isEditable(status)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "CONFLICT",
       message:
         "\u0E23\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E2A\u0E48\u0E07\u0E19\u0E31\u0E1A\u0E41\u0E25\u0E49\u0E27 \u0E15\u0E49\u0E2D\u0E07\u0E2A\u0E48\u0E07\u0E01\u0E25\u0E31\u0E1A\u0E44\u0E1B\u0E41\u0E01\u0E49\u0E44\u0E02\u0E01\u0E48\u0E2D\u0E19\u0E08\u0E36\u0E07\u0E08\u0E30\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E44\u0E14\u0E49",
@@ -7517,7 +7545,7 @@ function assertCountEditable(status) {
 }
 function assertNotPosted(status) {
   if (status === "posted" || status === "closed") {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "CONFLICT",
       message:
         "\u0E23\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E41\u0E25\u0E49\u0E27 \u0E41\u0E01\u0E49\u0E44\u0E02\u0E22\u0E2D\u0E14\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49",
@@ -7526,7 +7554,7 @@ function assertNotPosted(status) {
 }
 function assertCanCount(user) {
   if (!canCountOfferings(user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E01\u0E32\u0E23\u0E19\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E16\u0E27\u0E32\u0E22",
@@ -7535,7 +7563,7 @@ function assertCanCount(user) {
 }
 function assertCanVerify(user) {
   if (!canVerifyCount(user)) {
-    throw new TRPCError3({
+    throw new TRPCError4({
       code: "FORBIDDEN",
       message:
         "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E40\u0E2B\u0E23\u0E31\u0E0D\u0E0D\u0E34\u0E01\u0E2B\u0E23\u0E37\u0E2D\u0E1C\u0E39\u0E49\u0E14\u0E39\u0E41\u0E25\u0E23\u0E30\u0E1A\u0E1A\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
@@ -7696,7 +7724,7 @@ var appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         if (input.userId === ctx.user.id) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E1A\u0E17\u0E1A\u0E32\u0E17\u0E02\u0E2D\u0E07\u0E15\u0E31\u0E27\u0E40\u0E2D\u0E07\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49 \u0E43\u0E2B\u0E49\u0E1C\u0E39\u0E49\u0E14\u0E39\u0E41\u0E25\u0E23\u0E30\u0E1A\u0E1A\u0E04\u0E19\u0E2D\u0E37\u0E48\u0E19\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E43\u0E2B\u0E49",
@@ -7729,7 +7757,7 @@ var appRouter = router({
       .input(z3.object({ userId: z3.number().int().positive() }))
       .mutation(async ({ ctx, input }) => {
         if (input.userId === ctx.user.id) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E25\u0E1A\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E02\u0E2D\u0E07\u0E15\u0E31\u0E27\u0E40\u0E2D\u0E07\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49",
@@ -7737,7 +7765,7 @@ var appRouter = router({
         }
         const target = (await getAllUsers()).find(u => u.id === input.userId);
         if (!target) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E1C\u0E39\u0E49\u0E43\u0E0A\u0E49",
@@ -7745,7 +7773,7 @@ var appRouter = router({
         }
         const deleted = await deleteInactiveUser(input.userId);
         if (!deleted) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E15\u0E49\u0E2D\u0E07\u0E1B\u0E34\u0E14\u0E01\u0E32\u0E23\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E01\u0E48\u0E2D\u0E19 \u0E08\u0E36\u0E07\u0E08\u0E30\u0E25\u0E1A\u0E44\u0E14\u0E49",
@@ -7776,7 +7804,7 @@ var appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         if (input.userId === ctx.user.id) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E1B\u0E34\u0E14\u0E01\u0E32\u0E23\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E02\u0E2D\u0E07\u0E15\u0E31\u0E27\u0E40\u0E2D\u0E07\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49",
@@ -8153,7 +8181,7 @@ var appRouter = router({
           ...(amount === void 0 ? {} : { amount: amount.toFixed(2) }),
         });
         if (updated === null)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E27\u0E32\u0E22\u0E2B\u0E23\u0E37\u0E2D\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
@@ -8173,7 +8201,7 @@ var appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const deleted = await voidOffering(input.id);
         if (!deleted)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E27\u0E32\u0E22\u0E2B\u0E23\u0E37\u0E2D\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
@@ -8407,7 +8435,7 @@ var appRouter = router({
           ...(amount === void 0 ? {} : { amount: amount.toFixed(2) }),
         });
         if (updated === null)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E23\u0E32\u0E22\u0E08\u0E48\u0E32\u0E22\u0E2B\u0E23\u0E37\u0E2D\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
@@ -8427,7 +8455,7 @@ var appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const deleted = await voidExpense(input.id);
         if (!deleted)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E23\u0E32\u0E22\u0E08\u0E48\u0E32\u0E22\u0E2B\u0E23\u0E37\u0E2D\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
@@ -8530,7 +8558,7 @@ var appRouter = router({
         !canManageChurchSettings(ctx.user) &&
         !(await isBankSigner(ctx.user.id))
       ) {
-        throw new TRPCError3({
+        throw new TRPCError4({
           code: "FORBIDDEN",
           message:
             "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1D\u0E48\u0E32\u0E22\u0E01\u0E32\u0E23\u0E40\u0E07\u0E34\u0E19\u0E41\u0E25\u0E30\u0E1C\u0E39\u0E49\u0E21\u0E35\u0E2D\u0E33\u0E19\u0E32\u0E08\u0E25\u0E07\u0E19\u0E32\u0E21\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19",
@@ -8649,7 +8677,7 @@ var appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const signer = await isBankSigner(ctx.user.id);
         if (!signer) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "FORBIDDEN",
             message:
               "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1C\u0E39\u0E49\u0E21\u0E35\u0E2D\u0E33\u0E19\u0E32\u0E08\u0E25\u0E07\u0E19\u0E32\u0E21\u0E43\u0E19\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E18\u0E19\u0E32\u0E04\u0E32\u0E23",
@@ -8673,7 +8701,7 @@ var appRouter = router({
           return { outcome };
         } catch (err) {
           if (err instanceof WorkflowError) {
-            throw new TRPCError3({ code: err.trpcCode, message: err.message });
+            throw new TRPCError4({ code: err.trpcCode, message: err.message });
           }
           throw err;
         }
@@ -8692,7 +8720,7 @@ var appRouter = router({
           DEFAULT_CHURCH_ID
         );
         if (!request) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E04\u0E33\u0E02\u0E2D\u0E40\u0E1A\u0E34\u0E01",
@@ -8702,7 +8730,7 @@ var appRouter = router({
           request.requestedBy === ctx.user.id ||
           (await isBankSigner(ctx.user.id)) !== null;
         if (!allowed) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "FORBIDDEN",
             message:
               "\u0E40\u0E09\u0E1E\u0E32\u0E30\u0E1C\u0E39\u0E49\u0E02\u0E2D\u0E40\u0E1A\u0E34\u0E01\u0E2B\u0E23\u0E37\u0E2D\u0E1C\u0E39\u0E49\u0E21\u0E35\u0E2D\u0E33\u0E19\u0E32\u0E08\u0E25\u0E07\u0E19\u0E32\u0E21\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19\u0E17\u0E35\u0E48\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E14\u0E49",
@@ -8714,7 +8742,7 @@ var appRouter = router({
           input.reason
         );
         if (!cancelled) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E04\u0E33\u0E02\u0E2D\u0E40\u0E1A\u0E34\u0E01\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E14\u0E33\u0E40\u0E19\u0E34\u0E19\u0E01\u0E32\u0E23\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49",
@@ -8735,7 +8763,7 @@ var appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const res = await disburseWithdrawal(input.id, ctx.user.id);
         if (!res) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E15\u0E49\u0E2D\u0E07\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34\u0E04\u0E33\u0E02\u0E2D\u0E40\u0E1A\u0E34\u0E01\u0E01\u0E48\u0E2D\u0E19\u0E08\u0E48\u0E32\u0E22\u0E40\u0E07\u0E34\u0E19",
@@ -8811,7 +8839,7 @@ var appRouter = router({
         };
         const updated = await updateMember(id, normalized);
         if (updated === null)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01",
@@ -8831,7 +8859,7 @@ var appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const updated = await deactivateMember(input.id);
         if (updated === null)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E2A\u0E21\u0E32\u0E0A\u0E34\u0E01",
@@ -8887,7 +8915,7 @@ var appRouter = router({
         const { id, ...data } = input;
         const updated = await updateMinistry(id, data);
         if (updated === null)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E1D\u0E48\u0E32\u0E22\u0E07\u0E32\u0E19",
@@ -8899,7 +8927,7 @@ var appRouter = router({
       .mutation(async ({ input }) => {
         const updated = await archiveMinistry(input.id);
         if (updated === null)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E1D\u0E48\u0E32\u0E22\u0E07\u0E32\u0E19",
@@ -8974,7 +9002,7 @@ var appRouter = router({
             : {}),
         });
         if (updated === null)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E07\u0E1A\u0E1B\u0E23\u0E30\u0E21\u0E32\u0E13",
@@ -8994,7 +9022,7 @@ var appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const deleted = await deleteBudgetPlan(input.id);
         if (deleted === null)
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E07\u0E1A\u0E1B\u0E23\u0E30\u0E21\u0E32\u0E13",
@@ -9070,7 +9098,10 @@ var appRouter = router({
             .map(csvCell)
             .join(",")
         );
-        return { csv: [header, ...lines].join("\n"), rowCount: rows.length };
+        return {
+          csv: assertCsvWithinLimit([header, ...lines].join("\n")),
+          rowCount: rows.length,
+        };
       }),
   }),
   // ── Updates (existing) ──────────────────────────────────────────────────────
@@ -9246,7 +9277,7 @@ var appRouter = router({
         assertCanCount(ctx.user);
         const detail = await getCountingSessionDetail(input.id);
         if (!detail) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E2D\u0E1A\u0E19\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E16\u0E27\u0E32\u0E22",
@@ -9361,7 +9392,7 @@ var appRouter = router({
           ...(amount === void 0 ? {} : { amount: amount.toFixed(2) }),
         });
         if (updated === null) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E0B\u0E2D\u0E07",
@@ -9382,7 +9413,7 @@ var appRouter = router({
         assertCountEditable(session.status);
         const removed = await deleteOfferingEnvelope(input.id, input.sessionId);
         if (!removed) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E0B\u0E2D\u0E07",
@@ -9455,7 +9486,7 @@ var appRouter = router({
       .input(z3.object({ id: z3.number().int().positive() }))
       .mutation(async ({ ctx, input }) => {
         if (!canApproveDeduction(ctx.user)) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "FORBIDDEN",
             message:
               "\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E2B\u0E31\u0E01\u0E40\u0E1A\u0E34\u0E01",
@@ -9463,7 +9494,7 @@ var appRouter = router({
         }
         const approved = await approveSessionDeduction(input.id, ctx.user.id);
         if (!approved) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23 \u0E2B\u0E23\u0E37\u0E2D\u0E1C\u0E39\u0E49\u0E02\u0E2D\u0E40\u0E1A\u0E34\u0E01\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E02\u0E2D\u0E07\u0E15\u0E31\u0E27\u0E40\u0E2D\u0E07\u0E44\u0E14\u0E49",
@@ -9492,7 +9523,7 @@ var appRouter = router({
         assertCountEditable(session.status);
         const removed = await deleteSessionDeduction(input.id, input.sessionId);
         if (!removed) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E2B\u0E31\u0E01\u0E40\u0E1A\u0E34\u0E01",
@@ -9557,7 +9588,7 @@ var appRouter = router({
         assertNotPosted(session.status);
         const removed = await deleteBankRecord(input.id, input.sessionId);
         if (!removed) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E18\u0E19\u0E32\u0E04\u0E32\u0E23 \u0E2B\u0E23\u0E37\u0E2D\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E01\u0E23\u0E30\u0E17\u0E1A\u0E2A\u0E21\u0E38\u0E14\u0E1A\u0E31\u0E0D\u0E0A\u0E35/\u0E1C\u0E39\u0E01\u0E01\u0E31\u0E1A\u0E04\u0E33\u0E02\u0E2D\u0E40\u0E1A\u0E34\u0E01\u0E41\u0E25\u0E49\u0E27",
@@ -9587,7 +9618,7 @@ var appRouter = router({
           input.passbookDate
         );
         if (!matched) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E18\u0E19\u0E32\u0E04\u0E32\u0E23",
@@ -9608,7 +9639,7 @@ var appRouter = router({
         const session = await requireCountingSession(input.id);
         assertNotPosted(session.status);
         if (await resolveOpeningBalances(session)) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E23\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E21\u0E35\u0E22\u0E2D\u0E14\u0E22\u0E01\u0E21\u0E32\u0E41\u0E25\u0E49\u0E27",
@@ -9619,7 +9650,7 @@ var appRouter = router({
           openingBank: input.openingBank.toFixed(2),
         });
         if (!saved) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E23\u0E2D\u0E1A\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E42\u0E2B\u0E25\u0E14\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E43\u0E2B\u0E21\u0E48",
@@ -9661,7 +9692,7 @@ var appRouter = router({
           }),
         });
         if (!saved) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E23\u0E2D\u0E1A\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E42\u0E2B\u0E25\u0E14\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E43\u0E2B\u0E21\u0E48",
@@ -9727,7 +9758,7 @@ var appRouter = router({
         assertCanCount(ctx.user);
         const session = await requireCountingSession(input.id);
         if (!canTransition(session.status, "counted")) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E23\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E44\u0E21\u0E48\u0E2D\u0E22\u0E39\u0E48\u0E43\u0E19\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E17\u0E35\u0E48\u0E2A\u0E48\u0E07\u0E19\u0E31\u0E1A\u0E44\u0E14\u0E49",
@@ -9743,7 +9774,7 @@ var appRouter = router({
           }
         );
         if (!moved) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E23\u0E2D\u0E1A\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E42\u0E2B\u0E25\u0E14\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E43\u0E2B\u0E21\u0E48",
@@ -9765,7 +9796,7 @@ var appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const session = await requireCountingSession(input.id);
         if (!canTransition(session.status, "counting")) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E23\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E2A\u0E48\u0E07\u0E01\u0E25\u0E31\u0E1A\u0E44\u0E1B\u0E19\u0E31\u0E1A\u0E43\u0E2B\u0E21\u0E48\u0E44\u0E14\u0E49",
@@ -9778,7 +9809,7 @@ var appRouter = router({
           { verifiedBy: null, verifiedAt: null }
         );
         if (!moved) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E23\u0E2D\u0E1A\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E42\u0E2B\u0E25\u0E14\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E43\u0E2B\u0E21\u0E48",
@@ -9801,14 +9832,14 @@ var appRouter = router({
         assertCanVerify(ctx.user);
         const session = await requireCountingSession(input.id);
         if (session.countedBy === ctx.user.id) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "FORBIDDEN",
             message:
               "\u0E1C\u0E39\u0E49\u0E19\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E23\u0E2D\u0E1A\u0E02\u0E2D\u0E07\u0E15\u0E31\u0E27\u0E40\u0E2D\u0E07\u0E44\u0E14\u0E49",
           });
         }
         if (!canTransition(session.status, "verified")) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E15\u0E49\u0E2D\u0E07\u0E2A\u0E48\u0E07\u0E19\u0E31\u0E1A\u0E43\u0E2B\u0E49\u0E40\u0E23\u0E35\u0E22\u0E1A\u0E23\u0E49\u0E2D\u0E22\u0E01\u0E48\u0E2D\u0E19\u0E08\u0E36\u0E07\u0E08\u0E30\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E44\u0E14\u0E49",
@@ -9821,7 +9852,7 @@ var appRouter = router({
           { verifiedBy: ctx.user.id, verifiedAt: /* @__PURE__ */ new Date() }
         );
         if (!moved) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E23\u0E2D\u0E1A\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E42\u0E2B\u0E25\u0E14\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E43\u0E2B\u0E21\u0E48",
@@ -9852,14 +9883,14 @@ var appRouter = router({
         assertCanVerify(ctx.user);
         const detail = await getCountingSessionDetail(input.id);
         if (!detail) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message:
               "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E2D\u0E1A\u0E19\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E16\u0E27\u0E32\u0E22",
           });
         }
         if (!canTransition(detail.session.status, "posted")) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E15\u0E49\u0E2D\u0E07\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E23\u0E2D\u0E1A\u0E43\u0E2B\u0E49\u0E40\u0E23\u0E35\u0E22\u0E1A\u0E23\u0E49\u0E2D\u0E22\u0E01\u0E48\u0E2D\u0E19\u0E08\u0E36\u0E07\u0E08\u0E30\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E44\u0E14\u0E49",
@@ -9867,14 +9898,14 @@ var appRouter = router({
         }
         const unapproved = detail.deductions.filter(d => !d.approvedBy);
         if (unapproved.length > 0) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message: `\u0E21\u0E35\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E2B\u0E31\u0E01\u0E40\u0E1A\u0E34\u0E01\u0E17\u0E35\u0E48\u0E22\u0E31\u0E07\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34 ${unapproved.length} \u0E23\u0E32\u0E22\u0E01\u0E32\u0E23`,
           });
         }
         const earlier = await findEarlierUnpostedSession(detail.session);
         if (earlier) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message: `\u0E15\u0E49\u0E2D\u0E07\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E23\u0E2D\u0E1A\u0E27\u0E31\u0E19\u0E17\u0E35\u0E48 ${new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Bangkok" }).format(earlier.serviceDate)} \u0E23\u0E2D\u0E1A\u0E17\u0E35\u0E48 ${earlier.serviceRound} \u0E01\u0E48\u0E2D\u0E19`,
           });
@@ -9886,14 +9917,14 @@ var appRouter = router({
           r.openingBank === null ||
           r.closingBankExpected === null
         ) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E23\u0E2D\u0E01\u0E22\u0E2D\u0E14\u0E22\u0E01\u0E21\u0E32\u0E01\u0E48\u0E2D\u0E19\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35",
           });
         }
         if (r.cashOnHandActual === null) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E15\u0E49\u0E2D\u0E07\u0E19\u0E31\u0E1A\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E14\u0E04\u0E07\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E43\u0E19\u0E01\u0E25\u0E48\u0E2D\u0E07\u0E01\u0E48\u0E2D\u0E19\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35",
@@ -9901,7 +9932,7 @@ var appRouter = router({
         }
         const note = input.varianceNote?.trim() || detail.session.varianceNote;
         if (!detail.reconciliation.isBalanced && !note) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E22\u0E2D\u0E14\u0E22\u0E31\u0E07\u0E44\u0E21\u0E48\u0E15\u0E23\u0E07\u0E01\u0E31\u0E19 \u0E15\u0E49\u0E2D\u0E07\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E04\u0E33\u0E2D\u0E18\u0E34\u0E1A\u0E32\u0E22\u0E1C\u0E25\u0E15\u0E48\u0E32\u0E07\u0E01\u0E48\u0E2D\u0E19\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35",
@@ -9921,7 +9952,7 @@ var appRouter = router({
           closingBank: r.closingBankExpected,
         });
         if (!result) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E23\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E2B\u0E23\u0E37\u0E2D\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27",
@@ -9943,7 +9974,7 @@ var appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const session = await requireCountingSession(input.id);
         if (!canTransition(session.status, "closed")) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E15\u0E49\u0E2D\u0E07\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E23\u0E2D\u0E1A\u0E19\u0E35\u0E49\u0E01\u0E48\u0E2D\u0E19\u0E08\u0E36\u0E07\u0E08\u0E30\u0E1B\u0E34\u0E14\u0E23\u0E2D\u0E1A\u0E44\u0E14\u0E49",
@@ -9956,7 +9987,7 @@ var appRouter = router({
           { closedAt: /* @__PURE__ */ new Date() }
         );
         if (!moved) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "CONFLICT",
             message:
               "\u0E2A\u0E16\u0E32\u0E19\u0E30\u0E23\u0E2D\u0E1A\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E42\u0E2B\u0E25\u0E14\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E43\u0E2B\u0E21\u0E48",
@@ -9979,7 +10010,7 @@ var appRouter = router({
         assertCanCount(ctx.user);
         const session = await requireCountingSession(input.id);
         if (session.status === "posted" || session.status === "closed") {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E25\u0E1A\u0E23\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E2B\u0E23\u0E37\u0E2D\u0E1B\u0E34\u0E14\u0E23\u0E2D\u0E1A\u0E41\u0E25\u0E49\u0E27\u0E44\u0E14\u0E49 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07\u0E02\u0E2D\u0E07\u0E23\u0E30\u0E1A\u0E1A\u0E1A\u0E31\u0E0D\u0E0A\u0E35",
@@ -9987,7 +10018,7 @@ var appRouter = router({
         }
         const res = await deleteCountingSession(input.id);
         if (!res.success) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: res.reason === "NOT_FOUND" ? "NOT_FOUND" : "BAD_REQUEST",
             message:
               res.reason === "NOT_FOUND"
@@ -10017,7 +10048,7 @@ var appRouter = router({
         assertCanCount(ctx.user);
         const session = await requireCountingSession(input.id);
         if (session.status === "posted" || session.status === "closed") {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message:
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E23\u0E35\u0E40\u0E0B\u0E47\u0E15\u0E23\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E25\u0E07\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E2B\u0E23\u0E37\u0E2D\u0E1B\u0E34\u0E14\u0E23\u0E2D\u0E1A\u0E41\u0E25\u0E49\u0E27\u0E44\u0E14\u0E49 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07\u0E02\u0E2D\u0E07\u0E23\u0E30\u0E1A\u0E1A\u0E1A\u0E31\u0E0D\u0E0A\u0E35",
@@ -10025,7 +10056,7 @@ var appRouter = router({
         }
         const res = await resetCountingSession(input.id);
         if (!res.success) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: res.reason === "NOT_FOUND" ? "NOT_FOUND" : "BAD_REQUEST",
             message:
               res.reason === "NOT_FOUND"
@@ -10103,7 +10134,7 @@ var appRouter = router({
       .query(async ({ input }) => {
         const slip = await getLineSlipById(input.id, DEFAULT_CHURCH_ID);
         if (!slip) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "NOT_FOUND",
             message: `\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E2A\u0E25\u0E34\u0E1B #${input.id}`,
           });
@@ -10171,9 +10202,9 @@ var appRouter = router({
               "\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A\u0E01\u0E32\u0E23\u0E2D\u0E19\u0E38\u0E21\u0E31\u0E15\u0E34\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27"
             )
           ) {
-            throw new TRPCError3({ code: "CONFLICT", message: msg });
+            throw new TRPCError4({ code: "CONFLICT", message: msg });
           }
-          throw new TRPCError3({ code: "BAD_REQUEST", message: msg });
+          throw new TRPCError4({ code: "BAD_REQUEST", message: msg });
         }
       }),
     /**
@@ -10217,7 +10248,7 @@ var appRouter = router({
             msg.includes(
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E1B\u0E0F\u0E34\u0E40\u0E2A\u0E18"
             );
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message: isExpected
               ? msg
@@ -10261,7 +10292,7 @@ var appRouter = router({
             msg.includes(
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E41\u0E01\u0E49\u0E44\u0E02"
             );
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message: isExpected
               ? msg
@@ -10299,7 +10330,7 @@ var appRouter = router({
             msg.includes(
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16"
             );
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message: isExpected
               ? msg
@@ -10328,7 +10359,7 @@ var appRouter = router({
           image = decodeSlipImage(input.base64Data);
         } catch (err) {
           if (err instanceof SlipImageError) {
-            throw new TRPCError3({ code: "BAD_REQUEST", message: err.message });
+            throw new TRPCError4({ code: "BAD_REQUEST", message: err.message });
           }
           throw err;
         }
@@ -10345,7 +10376,7 @@ var appRouter = router({
           });
         } catch (err) {
           console.error("[uploadSlip] Could not store slip:", err);
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "INTERNAL_SERVER_ERROR",
             message:
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E2D\u0E31\u0E1B\u0E42\u0E2B\u0E25\u0E14\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07",
@@ -10393,14 +10424,14 @@ var appRouter = router({
           image = decodeSlipImage(input.base64Data);
         } catch (err) {
           if (err instanceof SlipImageError) {
-            throw new TRPCError3({ code: "BAD_REQUEST", message: err.message });
+            throw new TRPCError4({ code: "BAD_REQUEST", message: err.message });
           }
           throw err;
         }
         if (input.fundId !== void 0) {
           const funds = await listFinanceAccounts();
           if (!funds.some(f => f.id === input.fundId)) {
-            throw new TRPCError3({
+            throw new TRPCError4({
               code: "BAD_REQUEST",
               message:
                 "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19\u0E17\u0E35\u0E48\u0E40\u0E25\u0E37\u0E2D\u0E01",
@@ -10412,7 +10443,7 @@ var appRouter = router({
           new Date(Date.now() - 24 * 60 * 60 * 1e3)
         );
         if (recent >= MAX_SLIPS_PER_DAY) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "TOO_MANY_REQUESTS",
             message:
               "\u0E2A\u0E48\u0E07\u0E2A\u0E25\u0E34\u0E1B\u0E04\u0E23\u0E1A\u0E08\u0E33\u0E19\u0E27\u0E19\u0E15\u0E48\u0E2D\u0E27\u0E31\u0E19\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E1E\u0E23\u0E38\u0E48\u0E07\u0E19\u0E35\u0E49",
@@ -10439,7 +10470,7 @@ var appRouter = router({
           });
         } catch (err) {
           console.error("[submitSlip] Could not store slip:", err);
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "INTERNAL_SERVER_ERROR",
             message:
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E2A\u0E25\u0E34\u0E1B\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07",
@@ -10520,7 +10551,7 @@ var appRouter = router({
         assertSplitSound(input.items, input.amount);
         const problem = checkTransferDate(input.transferDate);
         if (problem) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "BAD_REQUEST",
             message: TRANSFER_DATE_MESSAGE[problem],
           });
@@ -10528,7 +10559,7 @@ var appRouter = router({
         if (input.fundId !== void 0) {
           const funds = await listFinanceAccounts();
           if (!funds.some(f => f.id === input.fundId)) {
-            throw new TRPCError3({
+            throw new TRPCError4({
               code: "BAD_REQUEST",
               message:
                 "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E01\u0E2D\u0E07\u0E17\u0E38\u0E19\u0E17\u0E35\u0E48\u0E40\u0E25\u0E37\u0E2D\u0E01",
@@ -10540,7 +10571,7 @@ var appRouter = router({
           new Date(Date.now() - 24 * 60 * 60 * 1e3)
         );
         if (recent >= MAX_SLIPS_PER_DAY) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "TOO_MANY_REQUESTS",
             message:
               "\u0E2A\u0E48\u0E07\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E04\u0E23\u0E1A\u0E08\u0E33\u0E19\u0E27\u0E19\u0E15\u0E48\u0E2D\u0E27\u0E31\u0E19\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E1E\u0E23\u0E38\u0E48\u0E07\u0E19\u0E35\u0E49",
@@ -10561,10 +10592,10 @@ var appRouter = router({
           });
         } catch (err) {
           if (err instanceof DuplicateEntryError) {
-            throw new TRPCError3({ code: "CONFLICT", message: err.message });
+            throw new TRPCError4({ code: "CONFLICT", message: err.message });
           }
           console.error("[submitWithoutSlip] Could not store entry:", err);
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "INTERNAL_SERVER_ERROR",
             message:
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07",
@@ -10613,12 +10644,12 @@ var appRouter = router({
           image = decodeSlipImage(input.base64Data);
         } catch (err) {
           if (err instanceof SlipImageError) {
-            throw new TRPCError3({ code: "BAD_REQUEST", message: err.message });
+            throw new TRPCError4({ code: "BAD_REQUEST", message: err.message });
           }
           throw err;
         }
         if (!allowSlipRead(ctx.user.id)) {
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "TOO_MANY_REQUESTS",
             message:
               "\u0E2D\u0E48\u0E32\u0E19\u0E2A\u0E25\u0E34\u0E1B\u0E1A\u0E48\u0E2D\u0E22\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B \u0E01\u0E23\u0E38\u0E13\u0E32\u0E01\u0E23\u0E2D\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E40\u0E2D\u0E07\u0E2B\u0E23\u0E37\u0E2D\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48\u0E43\u0E19\u0E2D\u0E35\u0E01\u0E2A\u0E31\u0E01\u0E04\u0E23\u0E39\u0E48",
@@ -10675,7 +10706,7 @@ var appRouter = router({
             msg.includes(
               "\u0E44\u0E21\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16"
             );
-          throw new TRPCError3({
+          throw new TRPCError4({
             code: "INTERNAL_SERVER_ERROR",
             message: isExpected
               ? msg

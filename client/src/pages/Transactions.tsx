@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatThaiDate } from "@/lib/format";
+import { toCsvBlob } from "@/lib/csvDownload";
+import { csvExportErrorMessage } from "@/lib/errors";
 import {
   expenseCategoryLabel,
   offeringCategoryLabel,
@@ -177,9 +179,7 @@ export default function Transactions() {
         toast.info("ไม่มีรายการที่ตรงกับเงื่อนไข จึงไม่มีข้อมูลให้ส่งออก");
         return;
       }
-      const blob = new Blob(["\uFEFF" + res.csv], {
-        type: "text/csv;charset=utf-8;",
-      });
+      const blob = toCsvBlob(res.csv);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -193,7 +193,9 @@ export default function Transactions() {
       URL.revokeObjectURL(url);
       toast.success(`ส่งออกข้อมูลครบถ้วนแล้ว (${res.rowCount} รายการ)`);
     } catch (err) {
-      toast.error("ส่งออกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+      toast.error("ส่งออกข้อมูลไม่สำเร็จ", {
+        description: csvExportErrorMessage(err),
+      });
     } finally {
       setIsExporting(false);
     }
