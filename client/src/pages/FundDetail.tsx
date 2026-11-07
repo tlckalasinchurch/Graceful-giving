@@ -194,7 +194,7 @@ export default function FundDetail() {
               </p>
               <div className="text-right sm:text-left sm:mt-1">
                 <MoneyDisplay amount={balance} size="xl" />
-                <p className="text-[11px] font-medium text-ink-3 mt-1">
+                <p className="text-xs font-medium text-ink-3 mt-1">
                   ยอดจริงจากบัญชีกองทุน
                 </p>
               </div>
@@ -207,7 +207,7 @@ export default function FundDetail() {
                 <p className="text-2xl font-extrabold text-ink">
                   {FUND_TYPE_LABELS[fund.type] || fund.type}
                 </p>
-                <p className="text-[11px] font-medium text-ink-3 mt-1">
+                <p className="text-xs font-medium text-ink-3 mt-1">
                   รายการเคลื่อนไหวในระบบ {fundTransactions.length} รายการ
                 </p>
               </div>

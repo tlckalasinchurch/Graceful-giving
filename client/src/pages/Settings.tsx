@@ -725,17 +725,17 @@ export default function Settings() {
                                 <div className="font-bold text-ink flex items-center gap-2">
                                   <span>{u.name || "ไม่ระบุชื่อ"}</span>
                                   {isMe && (
-                                    <span className="text-[10px] bg-accent text-accent-foreground font-extrabold px-2 py-0.5 rounded-full border border-[var(--ink)]">
+                                    <span className="text-xs bg-accent text-accent-foreground font-extrabold px-2 py-0.5 rounded-full border border-[var(--ink)]">
                                       คุณ
                                     </span>
                                   )}
                                   {u.status === "pending" && (
-                                    <span className="text-[10px] bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-[var(--ink)]/20">
+                                    <span className="text-xs bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-[var(--ink)]/20">
                                       รออนุมัติ
                                     </span>
                                   )}
                                   {u.status === "disabled" && (
-                                    <span className="text-[10px] bg-danger/10 text-danger font-bold px-2 py-0.5 rounded-full border border-danger/30">
+                                    <span className="text-xs bg-danger/10 text-danger font-bold px-2 py-0.5 rounded-full border border-danger/30">
                                       ปิดใช้งาน
                                     </span>
                                   )}
@@ -1256,7 +1256,7 @@ export default function Settings() {
                           });
 
                           let actionBadge = (
-                            <span className="px-2.5 py-1 rounded-full bg-paper-2 text-ink-2 font-mono text-[11px] border border-[var(--ink)]/20">
+                            <span className="px-2.5 py-1 rounded-full bg-paper-2 text-ink-2 font-mono text-xs border border-[var(--ink)]/20">
                               {log.action}
                             </span>
                           );
@@ -1265,7 +1265,7 @@ export default function Settings() {
                             log.action === "AUTH_SET_CHURCH_ROLE"
                           ) {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-brand/15 text-brand font-bold text-[11px] border border-brand/30">
+                              <span className="px-2.5 py-1 rounded-full bg-brand/15 text-brand font-bold text-xs border border-brand/30">
                                 เปลี่ยนบทบาทผู้ใช้
                               </span>
                             );
@@ -1274,7 +1274,7 @@ export default function Settings() {
                             log.action === "AUTH_UPDATE_PROFILE"
                           ) {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-paper-2 text-brand font-bold text-[11px] border border-[var(--ink)]/20">
+                              <span className="px-2.5 py-1 rounded-full bg-paper-2 text-brand font-bold text-xs border border-[var(--ink)]/20">
                                 แก้ไขโปรไฟล์
                               </span>
                             );
@@ -1283,19 +1283,19 @@ export default function Settings() {
                             log.action === "CHURCH_UPDATE_PROFILE"
                           ) {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-[11px] border border-[var(--ink)]/20">
+                              <span className="px-2.5 py-1 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-xs border border-[var(--ink)]/20">
                                 แก้ไขข้อมูลคริสตจักร
                               </span>
                             );
                           } else if (log.action === "approve_user") {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-accent text-accent-foreground font-extrabold text-[11px] border border-[var(--ink)]">
+                              <span className="px-2.5 py-1 rounded-full bg-accent text-accent-foreground font-extrabold text-xs border border-[var(--ink)]">
                                 อนุมัติบัญชีผู้ใช้
                               </span>
                             );
                           } else if (log.action === "disable_user") {
                             actionBadge = (
-                              <span className="px-2.5 py-1 rounded-full bg-danger/15 text-danger font-bold text-[11px] border border-danger/30">
+                              <span className="px-2.5 py-1 rounded-full bg-danger/15 text-danger font-bold text-xs border border-danger/30">
                                 ปิดการใช้งานบัญชี
                               </span>
                             );
@@ -1312,7 +1312,7 @@ export default function Settings() {
                               <td className="py-3.5 px-3 font-semibold text-ink">
                                 <div>{log.userName || "ไม่ระบุชื่อ"}</div>
                                 {log.userEmail && (
-                                  <div className="text-[11px] text-ink-3 font-normal">
+                                  <div className="text-xs text-ink-3 font-normal">
                                     {log.userEmail}
                                   </div>
                                 )}
@@ -1321,7 +1321,7 @@ export default function Settings() {
                                 {actionBadge}
                               </td>
                               <td className="py-3.5 px-3 text-ink-2">
-                                <span className="font-mono text-[11px] bg-paper-2 px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
+                                <span className="font-mono text-xs bg-paper-2 px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
                                   {log.entity}
                                   {log.entityId ? ` #${log.entityId}` : ""}
                                 </span>
@@ -1329,7 +1329,7 @@ export default function Settings() {
                               <td className="py-3.5 px-3 text-ink-2 max-w-sm">
                                 {log.metadata ? (
                                   <div
-                                    className="font-mono text-[11px] bg-paper-2 p-1.5 rounded-lg border border-[var(--ink)]/20 truncate max-w-[280px]"
+                                    className="font-mono text-xs bg-paper-2 p-1.5 rounded-lg border border-[var(--ink)]/20 truncate max-w-[280px]"
                                     title={JSON.stringify(
                                       log.metadata,
                                       null,

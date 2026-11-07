@@ -356,7 +356,7 @@ export default function Profile() {
                     {(user as any)?.department || "สมาชิกครอบครัวของพระเจ้า"}
                   </span>
                 </p>
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-[11px] sm:text-xs text-ink-3">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs sm:text-sm text-ink-3">
                   <span className="flex items-center gap-1">
                     <Mail className="w-3.5 h-3.5" />
                     <span>{user?.email || "ไม่ระบุอีเมล"}</span>
@@ -496,7 +496,7 @@ export default function Profile() {
                   </div>
 
                   <div>
-                    <span className="text-[11px] font-bold text-ink-3">
+                    <span className="text-xs font-bold text-ink-3">
                       ผู้รับผิดชอบ:
                     </span>
                     <p className="text-sm font-extrabold text-ink">
@@ -509,7 +509,7 @@ export default function Profile() {
                   </p>
 
                   <div className="pt-2 border-t border-line">
-                    <span className="text-[11px] font-bold text-ink-3 block mb-1.5">
+                    <span className="text-xs font-bold text-ink-3 block mb-1.5">
                       ขอบเขตหน้าที่ในระบบ:
                     </span>
                     <ul className="space-y-1">
@@ -585,7 +585,7 @@ export default function Profile() {
             </button>
 
             <div className="text-center space-y-1 pt-1 sm:pt-2">
-              <span className="px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold bg-accent border-[1.5px] border-[var(--ink)] text-accent-foreground">
+              <span className="px-3 py-0.5 sm:py-1 rounded-full text-xs font-extrabold bg-accent border-[1.5px] border-[var(--ink)] text-accent-foreground">
                 Digital Church Member Card
               </span>
               <h3 className="text-lg sm:text-xl font-extrabold text-ink pt-1">
@@ -623,7 +623,7 @@ export default function Profile() {
               {/* QR Code */}
               <div className="p-3 sm:p-4 bg-surface rounded-2xl border-2 border-[var(--ink)] inline-block shadow-[2px_2px_0_var(--ink)]">
                 <QrCode className="w-24 h-24 sm:w-28 sm:h-28 text-ink mx-auto" />
-                <p className="text-[10px] text-ink-3 font-mono mt-1 font-bold">
+                <p className="text-xs text-ink-3 font-mono mt-1 font-bold">
                   ID: GL-
                   {user?.id ? user.id.toString().padStart(5, "0") : "00001"}
                 </p>
@@ -631,13 +631,13 @@ export default function Profile() {
 
               <div className="grid grid-cols-2 gap-2 text-left pt-2 border-t border-line text-xs">
                 <div>
-                  <span className="text-[10px] text-ink-3">
+                  <span className="text-xs text-ink-3">
                     สังกัดคริสตจักร:
                   </span>
                   <p className="font-bold text-ink truncate">{churchName}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-ink-3">สถานะสมาชิก:</span>
+                  <span className="text-xs text-ink-3">สถานะสมาชิก:</span>
                   <p className="font-bold text-brand">
                     ยืนยันแล้ว (Active)
                   </p>
@@ -715,7 +715,7 @@ export default function Profile() {
                   placeholder="https://..."
                 />
                 <div className="flex items-center gap-2 pt-1">
-                  <span className="text-[11px] text-ink-3">
+                  <span className="text-xs text-ink-3">
                     หรือเลือกรูปสำเร็จรูป:
                   </span>
                   <div className="flex gap-1.5">

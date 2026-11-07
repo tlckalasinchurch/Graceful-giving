@@ -5,27 +5,27 @@ export function HeroSection() {
   return (
     <section
       aria-label="Grace Giving ส่วนต้อนรับ"
-      className="dot-grid relative flex w-full flex-col justify-between gap-5 overflow-hidden rounded-2xl border border-line bg-surface p-6 sm:flex-row sm:items-center sm:p-7"
+      className="dot-grid relative flex w-full flex-col justify-between gap-5 overflow-hidden rounded-2xl border border-line bg-surface p-5 sm:flex-row sm:items-center sm:p-7"
     >
       <div className="relative z-10 min-w-0 space-y-3">
         <span className="eyebrow">
-          <Sparkles className="size-3" aria-hidden="true" />
+          <Sparkles className="size-3.5" aria-hidden="true" />
           Church Financial Ledger
         </span>
 
-        <h1 className="display text-[clamp(2rem,5vw,3.25rem)] leading-[0.98] tracking-tight text-ink">
+        <h1 className="display text-[clamp(2.15rem,5.5vw,3.25rem)] leading-[1.08] tracking-tight text-ink">
           Grace <span className="text-brand">Giving</span>
         </h1>
 
-        <p className="max-w-md text-sm font-medium leading-relaxed text-ink-2 sm:text-base">
+        <p className="max-w-md text-base font-medium leading-relaxed text-ink-2 sm:text-lg">
           การเงินเชื่อมใจ เพื่อพันธกิจของพระเจ้า
         </p>
 
-        <div className="inline-flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-xl border border-line bg-ground px-3.5 py-2">
-          <span className="text-xs font-semibold italic text-ink-2">
+        <div className="inline-flex flex-wrap items-center gap-x-2.5 gap-y-1.5 rounded-xl border border-line bg-ground px-3.5 py-2">
+          <span className="text-xs sm:text-sm font-semibold italic text-ink-2">
             “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
           </span>
-          <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-foreground">
+          <span className="rounded-md bg-accent px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-accent-foreground">
             2 โครินธ์ 9:7
           </span>
         </div>

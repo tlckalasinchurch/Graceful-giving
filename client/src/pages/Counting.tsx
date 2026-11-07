@@ -309,7 +309,7 @@ export default function Counting() {
                 }`}
               >
                 <span>{tab.label}</span>
-                <span className="money rounded-full border border-[var(--ink)] bg-surface px-1.5 py-0.5 text-[10px] font-bold text-ink">
+                <span className="money rounded-full border border-[var(--ink)] bg-surface px-1.5 py-0.5 text-xs font-bold text-ink">
                   {tab.count}
                 </span>
               </button>

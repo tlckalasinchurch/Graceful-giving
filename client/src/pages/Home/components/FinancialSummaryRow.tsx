@@ -59,7 +59,7 @@ export function FinancialSummaryRow({
     {
       tone: "income",
       label: "รายรับเดือนนี้",
-      icon: <HandCoins className="size-4" aria-hidden="true" />,
+      icon: <HandCoins className="size-5" aria-hidden="true" />,
       amount: monthlyIncome,
       prefix: "+",
       note: incomeNote || "ยอดเงินถวายทั้งหมด",
@@ -67,7 +67,7 @@ export function FinancialSummaryRow({
     {
       tone: "expense",
       label: "รายจ่ายเดือนนี้",
-      icon: <ReceiptText className="size-4" aria-hidden="true" />,
+      icon: <ReceiptText className="size-5" aria-hidden="true" />,
       amount: monthlyExpense,
       prefix: "−",
       note: expenseNote || "รายจ่ายพันธกิจและดำเนินงาน",
@@ -76,9 +76,9 @@ export function FinancialSummaryRow({
       tone: "net",
       label: "คงเหลือสุทธิเดือนนี้",
       icon: isPositiveNet ? (
-        <TrendingUp className="size-4" aria-hidden="true" />
+        <TrendingUp className="size-5" aria-hidden="true" />
       ) : (
-        <TrendingDown className="size-4" aria-hidden="true" />
+        <TrendingDown className="size-5" aria-hidden="true" />
       ),
       amount: netMonthly,
       prefix: isPositiveNet ? "+" : "−",
@@ -98,13 +98,13 @@ export function FinancialSummaryRow({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className={`text-xs font-bold uppercase tracking-[0.1em] ${tone.label}`}>
+                  <p className={`text-xs sm:text-sm font-bold uppercase tracking-[0.08em] ${tone.label}`}>
                     {card.label}
                   </p>
-                  <p className={`mt-1 text-[11px] ${tone.note}`}>{card.note}</p>
+                  <p className={`mt-1 text-xs ${tone.note}`}>{card.note}</p>
                 </div>
                 <span
-                  className={`flex size-9 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--ink)] ${tone.icon}`}
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--ink)] ${tone.icon}`}
                 >
                   {card.icon}
                 </span>
@@ -115,7 +115,7 @@ export function FinancialSummaryRow({
                   <div className="h-9 w-32 animate-pulse rounded-lg bg-ground" />
                 ) : (
                   <p
-                    className={`display money text-[26px] leading-none tracking-tight sm:text-[30px] ${tone.value}`}
+                    className={`display money break-words text-[clamp(1.7rem,5vw,2.15rem)] leading-tight tracking-tight ${tone.value}`}
                   >
                     {showBalance && card.amount !== undefined
                       ? `${card.prefix}฿ ${formatAmount(Math.abs(card.amount), 0)}`

@@ -41,7 +41,7 @@ export function StationCubeLogo({
           {brandTitle}
         </h1>
         {subtitle && (
-          <p className="mt-1.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3 sm:text-[11px]">
+          <p className="mt-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-ink-3">
             {subtitle}
           </p>
         )}
@@ -90,7 +90,7 @@ export function StationProfileCard({
       </div>
 
       <div className="shrink-0 text-right">
-        <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">
+        <div className="text-xs font-bold uppercase tracking-[0.12em] text-ink-3">
           {metricLabel}
         </div>
         <div className="text-base font-bold tabular-nums text-brand sm:text-lg">
@@ -169,7 +169,7 @@ export function StationHeroCTA({
   return (
     <div className={cn("space-y-3 pt-1", className)}>
       <div className="space-y-0.5">
-        <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink-3">
+        <div className="text-xs font-bold uppercase tracking-[0.14em] text-ink-3">
           {eyebrow}
         </div>
         <h3 className="display text-2xl tracking-tight text-ink sm:text-3xl">
@@ -762,7 +762,7 @@ export function StationQrPoster({
                 {/* Center Badge */}
                 {qrCenterBadge && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="rounded-sm border border-[var(--ink)] bg-accent px-1.5 py-0.5 text-[11px] font-black tracking-tight text-ink">
+                    <span className="rounded-sm border border-[var(--ink)] bg-accent px-1.5 py-0.5 text-xs font-black tracking-tight text-ink">
                       {qrCenterBadge}
                     </span>
                   </div>
@@ -771,7 +771,7 @@ export function StationQrPoster({
             )}
 
             {qrCaption && (
-              <div className="text-[11px] font-bold uppercase tracking-wider text-ink-3">
+              <div className="text-xs font-bold uppercase tracking-wider text-ink-3">
                 {qrCaption}
               </div>
             )}
@@ -788,10 +788,10 @@ export function StationQrPoster({
                     {renderStepIcon(step.icon)}
                   </div>
                   <div className="flex flex-col items-center gap-1 sm:flex-row">
-                    <span className="grid size-4 shrink-0 place-items-center rounded-full border border-[var(--ink)] bg-accent text-[10px] font-extrabold text-accent-foreground">
+                    <span className="grid size-4 shrink-0 place-items-center rounded-full border border-[var(--ink)] bg-accent text-xs font-extrabold text-accent-foreground">
                       {step.number}
                     </span>
-                    <span className="break-words text-center text-[11px] font-bold leading-tight text-ink sm:text-xs">
+                    <span className="break-words text-center text-xs font-bold leading-tight text-ink sm:text-xs">
                       {step.label}
                     </span>
                   </div>

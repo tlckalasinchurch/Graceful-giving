@@ -14,6 +14,26 @@
   --font-serif: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-script: "Manrope", system-ui, sans-serif;
 
+  /* Generous, legible Thai + Latin type scale across iOS, Android, Tablet & Desktop */
+  --text-xs: 0.84375rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.55;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.62;
+  --text-lg: 1.2rem;
+  --text-lg--line-height: 1.48;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.38;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 1.28;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 1.18;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 1.12;
+  --text-5xl: 3.125rem;
+  --text-5xl--line-height: 1.08;
+
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -200,7 +220,7 @@
    by hard-coding a hex. The light world is the default; .dark keeps the same
    hierarchy in deep violet ink for evening use. */
 :root {
-  --mobile-nav-clearance: 7rem;
+  --mobile-nav-clearance: 7.5rem;
   --content-max: 88rem;
 
   /* Surfaces — Warm White ground, Warm Stone secondary, White surface */
@@ -305,7 +325,7 @@
   font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -0.025em;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .alpha-press {
@@ -331,6 +351,29 @@ html {
   background-color: var(--background);
   color: var(--foreground);
   scrollbar-gutter: stable;
+  /* Responsive root font-size tuned for iOS, Android, Tablet & Desktop */
+  font-size: 16.5px;
+  overflow-x: clip;
+}
+@media (max-width: 359px) {
+  html {
+    font-size: 15.75px;
+  }
+}
+@media (min-width: 640px) {
+  html {
+    font-size: 17px;
+  }
+}
+@media (min-width: 1024px) {
+  html {
+    font-size: 17.5px;
+  }
+}
+@media (min-width: 1440px) {
+  html {
+    font-size: 18px;
+  }
 }
 
 body {
@@ -338,11 +381,14 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
   text-rendering: optimizeLegibility;
   min-height: 100dvh;
+  overflow-x: clip;
 }
 
 /* Amounts line up down a column and do not jitter while counting up. */
@@ -363,21 +409,21 @@ select:focus-visible {
 
 /* Grace Giving — design-system utilities ----------------------------------- */
 
-/* Eyebrow label — small, tracked section label on a lime tab. */
+/* Eyebrow label — tracked section label on a lime tab, sized clearly for Thai & English. */
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  font-size: 0.6875rem;
-  line-height: 1;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  line-height: 1.25;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent-lime-ink);
   background-color: var(--accent-lime);
-  padding: 0.4rem 0.7rem 0.35rem;
+  padding: 0.425rem 0.75rem 0.375rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--ink);
+  border: 1.5px solid var(--ink);
   box-shadow: 2px 2px 0 var(--ink);
 }
 
@@ -385,11 +431,11 @@ select:focus-visible {
 .eyebrow-quiet {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.6875rem;
-  line-height: 1;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+  line-height: 1.3;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-3);
 }
@@ -463,12 +509,12 @@ select:focus-visible {
   background-size: 1.1rem 1.1rem;
 }
 
-/* Oversized display headings. */
+/* Oversized display headings — 1.15 line-height prevents Thai vowel/tone clipping. */
 .display {
   font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -0.025em;
-  line-height: 1.1;
+  line-height: 1.15;
   font-variant-numeric: lining-nums tabular-nums;
 }
 
@@ -606,15 +652,16 @@ select:focus-visible {
   box-shadow: 6px 6px 0 var(--ink);
 }
 
-/* Unified form input styling. */
+/* Unified form input styling — >= 16px prevents iOS Safari auto-zoom on focus. */
 .neo-input {
-  min-height: 2.75rem;
+  min-height: 3rem;
   border-radius: var(--radius-xl);
   border: 1.5px solid var(--color-line);
   background: var(--surface);
   color: var(--ink);
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
+  padding: 0.6875rem 0.9375rem;
+  font-size: max(16px, 0.95rem);
+  line-height: 1.5;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 .neo-input:hover:not(:disabled) {
@@ -677,6 +724,23 @@ select:focus-visible {
   }
   * {
     border-color: var(--color-line);
+  }
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  label {
+    touch-action: manipulation;
+  }
+  /* Prevent iOS Safari from auto-zooming the viewport when focusing form fields */
+  @media (max-width: 1023px) {
+    input,
+    select,
+    textarea {
+      font-size: max(16px, 1rem);
+    }
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),

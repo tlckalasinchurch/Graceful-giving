@@ -58,7 +58,7 @@ export default function Login() {
             <blockquote className="alpha-display max-w-[13ch] text-[clamp(2.25rem,3.6vw,3.5rem)] leading-[1.15] text-ink">
               “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
             </blockquote>
-            <figcaption className="text-sm font-semibold text-ink-2">
+            <figcaption className="text-base font-semibold text-ink-2">
               ความโปร่งใส ความสัตย์ซื่อ และความชื่นชมยินดีในการถวายเพื่อพระราชกิจ
             </figcaption>
           </figure>
@@ -68,17 +68,17 @@ export default function Login() {
           </p>
         </aside>
 
-        <main className="flex flex-col justify-center px-6 py-12 sm:px-10 lg:bg-surface">
-          <div className="mx-auto w-full max-w-[380px] space-y-8">
+        <main className="flex flex-col justify-center px-[max(1.5rem,env(safe-area-inset-left))] pt-[max(3rem,env(safe-area-inset-top))] pb-[max(3rem,env(safe-area-inset-bottom))] sm:px-10 lg:bg-surface">
+          <div className="mx-auto w-full max-w-[400px] space-y-8">
             <div className="lg:hidden">
               <BrandMark />
             </div>
 
             <header className="space-y-3">
-              <h1 className="alpha-display text-[44px] leading-[1.05] text-ink">
+              <h1 className="alpha-display text-[clamp(2.25rem,8vw,2.75rem)] leading-[1.1] text-ink">
                 เข้าสู่ระบบ
               </h1>
-              <p className="text-sm leading-relaxed text-ink-2">
+              <p className="text-base leading-relaxed text-ink-2">
                 ใช้บัญชี LINE ของคุณ ผู้ดูแลระบบจะอนุมัติสิทธิ์ให้ในครั้งแรก
               </p>
             </header>
@@ -90,7 +90,7 @@ export default function Login() {
                     ? "รอผู้ดูแลระบบอนุมัติ"
                     : "บัญชีนี้ถูกปิดการใช้งาน"}
                 </p>
-                <p className="text-sm leading-relaxed text-ink-2">
+                <p className="text-base leading-relaxed text-ink-2">
                   {state === "pending"
                     ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน โปรดแจ้งผู้ดูแลระบบของคริสตจักรให้อนุมัติบัญชีของคุณ แล้วกลับมาเปิดหน้านี้อีกครั้ง`
                     : "โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
@@ -98,7 +98,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="btn-secondary w-full rounded-[12px] px-4 py-3 text-sm font-bold"
+                  className="btn-secondary min-h-12 w-full rounded-[12px] px-4 py-3 text-base font-bold"
                 >
                   ออกจากระบบ
                 </button>
@@ -107,7 +107,7 @@ export default function Login() {
               <div className="space-y-5">
                 <a
                   href="/api/auth/line/login"
-                  className="alpha-press flex min-h-[54px] w-full items-center justify-center rounded-[14px] border-2 border-[var(--ink)] bg-[var(--line-brand)] px-5 text-[15px] font-extrabold text-[var(--ink)] shadow-[4px_4px_0_var(--ink)]"
+                  className="alpha-press flex min-h-14 w-full items-center justify-center rounded-[14px] border-2 border-[var(--ink)] bg-[var(--line-brand)] px-5 text-base font-extrabold text-[var(--ink)] shadow-[4px_4px_0_var(--ink)]"
                 >
                   เข้าสู่ระบบด้วย LINE
                 </a>
@@ -121,7 +121,7 @@ export default function Login() {
                   </p>
                 )}
 
-                <p className="border-t-2 border-[var(--ink)]/20 pt-5 text-xs leading-relaxed text-ink-3">
+                <p className="border-t-2 border-[var(--ink)]/20 pt-5 text-xs sm:text-sm leading-relaxed text-ink-3">
                   ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
                   โปรดติดต่อผู้ดูแลระบบของคริสตจักร ·{" "}
                   <a href="/privacy" className="font-bold text-ink underline">

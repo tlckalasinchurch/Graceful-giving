@@ -88,7 +88,7 @@ export default function Notifications() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2
-                      className={`text-[15px] text-ink ${item.readAt ? "font-bold" : "font-extrabold"}`}
+                      className={`text-base text-ink ${item.readAt ? "font-bold" : "font-extrabold"}`}
                     >
                       {item.title}
                     </h2>

@@ -53,7 +53,7 @@ export function SignatureProgress({
                 {sig.name || `ผู้ใช้ #${sig.userId}`}
               </span>
               {sig.wasRequiredSigner && (
-                <span className="rounded-full border border-[var(--ink)]/30 bg-tile-sand px-2.5 py-0.5 text-[11px] font-extrabold text-tile-sand-ink">
+                <span className="rounded-full border border-[var(--ink)]/30 bg-tile-sand px-2.5 py-0.5 text-xs font-extrabold text-tile-sand-ink">
                   ต้องลงนามทุกครั้ง
                 </span>
               )}

@@ -1063,7 +1063,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         className="neo-input"
                       />
                       {nameFromSlip && (
-                        <p className="text-[11px] font-semibold text-brand">
+                        <p className="text-xs font-semibold text-brand">
                           ชื่อจากสลิป (AI อ่านให้) แก้ไขได้
                         </p>
                       )}
@@ -1135,7 +1135,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           ถ่ายรูปสลิปด้วยกล้อง
                         </span>
                       </button>
-                      <p className="mt-1.5 text-center text-[11px] font-medium text-ink-3">
+                      <p className="mt-1.5 text-center text-xs font-medium text-ink-3">
                         ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
                         วางบนพื้นเรียบ ไม่ให้เงาบัง
                       </p>
@@ -1591,7 +1591,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               />
               {liffLink && (
                 <div className="space-y-1.5">
-                  <p className="text-[11px] font-semibold text-ink-3">
+                  <p className="text-xs font-semibold text-ink-3">
                     ลิงก์สำหรับ LINE: เปิดในแอป LINE และเข้าสู่ระบบให้อัตโนมัติ
                     ใช้กับ Rich Menu และข้อความในแชต
                   </p>

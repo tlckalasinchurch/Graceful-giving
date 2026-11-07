@@ -294,7 +294,7 @@ export default function Expenses() {
                 <caption className="sr-only">
                   รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
                 </caption>
-                <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-ink">
+                <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-[0.1em] text-ink">
                   <tr>
                     <th scope="col" className="py-3.5 px-5">
                       วันที่
@@ -424,7 +424,7 @@ export default function Expenses() {
                       <div className="space-y-1 min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-[var(--ink)] text-[11px] font-bold ${cat.color}`}
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-[var(--ink)] text-xs font-bold ${cat.color}`}
                           >
                             <CatIcon className="w-3 h-3" />
                             {expenseCategoryLabel(e.category)}

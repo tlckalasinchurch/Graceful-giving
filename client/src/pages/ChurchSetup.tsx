@@ -292,7 +292,7 @@ export default function ChurchSetup() {
                       >
                         {s.title}
                       </p>
-                      <p className="text-[10px] text-ink-3">{s.subtitle}</p>
+                      <p className="text-xs text-ink-3">{s.subtitle}</p>
                     </div>
                     {done && (
                       <Check className="ml-auto size-3.5 shrink-0 text-income" />

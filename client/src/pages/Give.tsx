@@ -42,7 +42,7 @@ function GiveShell({ children }: { children: React.ReactNode }) {
         <div className="give-aurora absolute inset-0" />
         <div className="give-ledger absolute inset-0" />
       </div>
-      <main className="relative mx-auto flex min-h-dvh w-full max-w-[30rem] flex-col justify-center gap-8 px-[max(1.5rem,env(safe-area-inset-left))] pt-[max(3rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+      <main className="relative mx-auto flex min-h-dvh w-full max-w-[32rem] flex-col justify-center gap-8 px-[max(1.25rem,env(safe-area-inset-left))] pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
         {children}
       </main>
     </div>
@@ -94,7 +94,7 @@ export default function Give() {
   if (loading) {
     return (
       <GiveShell>
-        <p role="status" className="text-center text-sm font-bold text-ink-3">
+        <p role="status" className="text-center text-base font-bold text-ink-3">
           กำลังโหลด…
         </p>
       </GiveShell>
@@ -118,21 +118,21 @@ export default function Give() {
     <GiveShell>
       <header className="space-y-5">
         <div className="flex items-center gap-2.5">
-          <span className="grid size-10 place-items-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
+          <span className="grid size-11 place-items-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
             <HandHeart
               className="size-5 text-brand"
               strokeWidth={2.2}
               aria-hidden="true"
             />
           </span>
-          <span className="text-sm font-extrabold text-ink">เกรซกิฟวิง</span>
+          <span className="text-base font-extrabold text-ink">เกรซกิฟวิง</span>
         </div>
 
         <div className="space-y-3">
-          <h1 className="display text-[clamp(2.5rem,11vw,3.25rem)] font-extrabold text-ink">
+          <h1 className="display text-[clamp(2.4rem,10vw,3.25rem)] font-extrabold text-ink">
             ถวายทรัพย์
           </h1>
-          <p className="max-w-[30ch] text-[15px] leading-[1.65] text-ink-2">
+          <p className="max-w-[32ch] text-base leading-relaxed text-ink-2">
             เข้าสู่ระบบด้วย LINE เพื่อเลือกประเภทการถวาย แนบสลิปโอนเงิน
             และส่งให้เหรัญญิกตรวจสอบ
           </p>
@@ -143,10 +143,10 @@ export default function Give() {
         {liffTrying ? (
           <div
             role="status"
-            className="bento-card-static flex min-h-14 items-center justify-center gap-2.5 text-sm font-bold text-ink-2"
+            className="bento-card-static flex min-h-14 items-center justify-center gap-2.5 text-base font-bold text-ink-2"
           >
             <Loader2
-              className="size-4 animate-spin text-brand"
+              className="size-5 animate-spin text-brand"
               aria-hidden="true"
             />
             กำลังเข้าสู่ระบบด้วย LINE…
@@ -166,7 +166,7 @@ export default function Give() {
             >
               เข้าสู่ระบบด้วย LINE
             </a>
-            <p className="text-center text-xs font-medium text-ink-3">
+            <p className="text-center text-xs sm:text-sm font-medium text-ink-3">
               ใช้บัญชี LINE ที่มีอยู่ ไม่ต้องสมัครใหม่
             </p>
           </>
@@ -184,13 +184,13 @@ export default function Give() {
 
       <ol className="bento-card-static divide-y divide-line px-4">
         {NOTES.map(({ title, detail }, index) => (
-          <li key={title} className="flex gap-4 py-3.5">
-            <span className="money mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-lg border border-[var(--ink)] bg-accent text-xs font-extrabold text-accent-foreground">
+          <li key={title} className="flex gap-4 py-4">
+            <span className="money mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-[var(--ink)] bg-accent text-xs font-extrabold text-accent-foreground">
               {String(index + 1).padStart(2, "0")}
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-extrabold text-ink">{title}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-ink-2">
+              <p className="text-base font-extrabold text-ink">{title}</p>
+              <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
                 {detail}
               </p>
             </div>
@@ -198,7 +198,7 @@ export default function Give() {
         ))}
       </ol>
 
-      <p className="text-center text-xs leading-relaxed text-ink-3">
+      <p className="text-center text-xs sm:text-sm leading-relaxed text-ink-3">
         หากเข้าสู่ระบบไม่ได้ โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
       </p>
     </GiveShell>

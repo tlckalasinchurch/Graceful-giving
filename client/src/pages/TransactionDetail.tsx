@@ -562,7 +562,7 @@ function Detail({
 }) {
   return (
     <div className="bg-paper-2 p-4 rounded-xl border-1.5 border-[var(--ink)] space-y-1">
-      <span className="text-[11px] font-bold uppercase tracking-wider text-ink-3 block">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-wider text-ink-3 block">{label}</span>
       <span className="text-sm font-extrabold text-ink flex items-center gap-1.5">
         {icon}
         {value}
