@@ -169,6 +169,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const [transferState, setTransferState] = useState<"not_yet" | "done">(
     "not_yet"
   );
+  const [restoredFromDraft, setRestoredFromDraft] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const slipInputRef = useRef<HTMLInputElement>(null);
   const slipCameraRef = useRef<HTMLInputElement>(null);
@@ -398,6 +399,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     );
     setSelectedFundId(draft.fundId);
     setTransferState(draft.transferState);
+    setRestoredFromDraft(true);
     setStep(3);
   }, [user]);
 
@@ -618,6 +620,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
   const resetFlow = () => {
     setTransferState("not_yet");
+    setRestoredFromDraft(false);
     setSlipPreview(null);
     setGiveLines([]);
     setSubmission(null);
@@ -874,13 +877,31 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             {/* ── STEP 3: Confirm & Unlock / Submit Slip ── */}
             {shownStep === 3 && (
               <div className="space-y-5 animate-in fade-in duration-200">
+                {restoredFromDraft && (
+                  <div className="rounded-xl border-2 border-[var(--ink)] bg-tile-mint p-3.5 text-xs font-extrabold text-tile-mint-ink flex items-center justify-between gap-2 shadow-[2px_2px_0_var(--ink)]">
+                    <span>
+                      ดึงรายการที่คุณเลือกไว้กลับมาให้แล้ว แนบสลิปหรือกดยืนยันต่อได้เลย
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setRestoredFromDraft(false)}
+                      className="shrink-0 underline hover:opacity-80 cursor-pointer"
+                    >
+                      รับทราบ
+                    </button>
+                  </div>
+                )}
+
                 {/* Summary Pill */}
                 <div className="rounded-2xl bg-surface border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] p-5 space-y-3">
                   <div className="flex items-center justify-between text-xs font-extrabold text-ink-2">
                     <span>สรุปรายการถวายทรัพย์</span>
                     <button
                       type="button"
-                      onClick={() => setStep(2)}
+                      onClick={() => {
+                        setRestoredFromDraft(false);
+                        setStep(2);
+                      }}
                       className="underline hover:text-brand cursor-pointer"
                     >
                       เปลี่ยนประเภท/ยอด
@@ -956,6 +977,28 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       ? "โอนตามบัญชีหรือ QR ด้านล่าง แล้วกลับมาที่หน้านี้เพื่อแนบสลิปยืนยันยอด"
                       : "แนบสลิปและตรวจรายการด้านล่างเพื่อยืนยันยอดที่โอน"}
                   </p>
+                  {transferState === "not_yet" && (
+                    <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs font-bold text-ink">
+                      <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
+                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-black text-white">
+                          1
+                        </span>
+                        <span>คัดลอกเลขบัญชี หรือบันทึกรูป QR</span>
+                      </li>
+                      <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
+                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-black text-white">
+                          2
+                        </span>
+                        <span>เปิดแอปธนาคารเพื่อโอนเงิน</span>
+                      </li>
+                      <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
+                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-black text-white">
+                          3
+                        </span>
+                        <span>กลับมาหน้านี้เพื่อแนบรูปสลิป</span>
+                      </li>
+                    </ol>
+                  )}
                 </section>
 
                 {transferState === "not_yet" && (
@@ -1251,6 +1294,16 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         {outcome.message}
                       </p>
                     </div>
+
+                    {submission.mode === "slip" &&
+                      submission.check &&
+                      (submission.check.state === "in_review" ||
+                        submission.check.state === "verified") && (
+                        <div className="rounded-xl border-2 border-[var(--ink)] bg-tile-mint p-3 text-xs font-bold text-tile-mint-ink leading-relaxed">
+                          ระบบได้รับสลิปของคุณเรียบร้อยแล้ว ไม่ต้องกดส่งซ้ำ
+                          เหรัญญิกจะตรวจสอบและแจ้งผลให้ทราบ
+                        </div>
+                      )}
 
                     <div className="flex flex-col gap-2.5 pt-2">
                       {outcome.canRetry ? (
