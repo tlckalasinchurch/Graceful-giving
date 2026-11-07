@@ -24,6 +24,7 @@ import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 export default function Budgets() {
   const [, setLocation] = useLocation();
@@ -60,7 +61,8 @@ export default function Budgets() {
       setShowCreate(false);
       toast.success("บันทึกงบประมาณเรียบร้อยแล้ว");
     },
-    onError: error => toast.error(error.message || "บันทึกงบประมาณไม่สำเร็จ"),
+    onError: error =>
+      toast.error(friendlyErrorMessage(error, "บันทึกงบประมาณไม่สำเร็จ")),
   });
 
   const submit = (event: React.FormEvent) => {
@@ -97,7 +99,7 @@ export default function Budgets() {
         <button
           type="button"
           onClick={() => (showCreate ? closeCreateForm() : setShowCreate(true))}
-          className="min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-brand-ink"
+          className="btn-primary min-h-11 inline-flex items-center gap-2 px-4 py-2.5 text-sm"
         >
           <Plus className="h-4 w-4" />
           ตั้งงบประมาณ
@@ -107,7 +109,7 @@ export default function Budgets() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div
-            className="flex items-center gap-1 rounded-xl border border-line bg-surface p-1"
+            className="bento-card-static flex items-center gap-1 p-1"
             role="group"
             aria-label="เลือกปีงบประมาณ"
           >
@@ -119,7 +121,7 @@ export default function Budgets() {
             >
               <ChevronLeft className="size-5" />
             </button>
-            <span className="min-w-24 text-center text-sm font-semibold tabular-nums text-ink">
+            <span className="min-w-24 text-center text-sm font-extrabold tabular-nums text-ink">
               ปี ค.ศ. {year}
             </span>
             <button
@@ -131,25 +133,22 @@ export default function Budgets() {
               <ChevronRight className="size-5" />
             </button>
           </div>
-          <p className="max-w-xl text-sm text-ink-3">
+          <p className="max-w-xl text-sm font-medium text-ink-3">
             ยอดใช้จริงรวมจากรายจ่ายที่บันทึกไว้ (ไม่รวมรายการที่ยกเลิก)
             ตามช่วงเวลา หมวด และกองทุนของแต่ละแผน
           </p>
         </div>
 
         {showCreate && (
-          <form
-            onSubmit={submit}
-            className="rounded-2xl border border-line bg-surface p-6"
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="font-bold text-ink">
+          <form onSubmit={submit} className="bento-card p-6">
+            <div className="mb-5 flex items-center justify-between pb-3 border-b-2 border-[var(--ink)]">
+              <h2 className="font-extrabold text-ink">
                 ตั้งงบประมาณสำหรับปี {year}
               </h2>
               <button
                 type="button"
                 onClick={closeCreateForm}
-                className="flex h-11 w-11 items-center justify-center text-ink-3"
+                className="flex h-11 w-11 items-center justify-center rounded-xl text-ink-3 hover:bg-paper-2 hover:text-ink"
                 aria-label="ปิดแบบฟอร์ม"
               >
                 <X className="h-5 w-5" />
@@ -158,7 +157,7 @@ export default function Budgets() {
             <BudgetFormFields values={form} onChange={setForm} funds={funds} />
             <button
               disabled={createPlan.isPending}
-              className="mt-5 min-h-11 rounded-xl bg-brand hover:bg-brand-ink px-5 py-2 text-sm font-bold text-black disabled:opacity-50"
+              className="btn-primary mt-5 min-h-11 px-5 py-2 text-sm disabled:opacity-50"
             >
               {createPlan.isPending ? "กำลังบันทึก…" : "บันทึกงบประมาณ"}
             </button>
@@ -182,7 +181,7 @@ export default function Budgets() {
           />
         ) : (
           <>
-            <section className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-line rounded-2xl border border-line bg-surface">
+            <section className="bento-card-static p-0 grid grid-cols-1 sm:grid-cols-3 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[var(--ink)] overflow-hidden">
               <SummaryCard
                 label="อยู่ในงบ"
                 value={counts.ok}
@@ -191,7 +190,7 @@ export default function Budgets() {
               <SummaryCard
                 label="ใกล้เต็มงบ"
                 value={counts.warn}
-                className="text-brand-ink"
+                className="text-brand"
               />
               <SummaryCard
                 label="เกินงบ"
@@ -200,38 +199,38 @@ export default function Budgets() {
               />
             </section>
 
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {plans.map(plan => (
                 <button
                   key={plan.id}
                   type="button"
                   onClick={() => setLocation(`/budgets/${plan.id}`)}
-                  className="rounded-2xl border border-line bg-surface p-5 text-left hover:bg-paper"
+                  className="bento-card p-5 text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h2 className="font-bold text-ink">
+                      <h2 className="font-extrabold text-ink">
                         {budgetCategoryLabel(plan.category)}
                       </h2>
-                      <p className="mt-0.5 text-xs text-ink-3">
+                      <p className="mt-0.5 text-xs font-medium text-ink-3">
                         {budgetPeriodLabel(plan.year, plan.month)}
                         {fundName(plan.fundId)
                           ? ` · ${fundName(plan.fundId)}`
                           : ""}
                       </p>
                     </div>
-                    <span className="shrink-0 text-right text-xs text-ink-3">
+                    <span className="shrink-0 text-right text-xs font-bold text-ink-3">
                       {plan.remainingAmount < 0 ? "เกินงบ" : "คงเหลือ"}
                       <span
-                        className={`block text-sm font-bold tabular-nums ${plan.remainingAmount < 0 ? "text-danger" : "text-ink"}`}
+                        className={`block text-sm font-extrabold tabular-nums ${plan.remainingAmount < 0 ? "text-danger" : "text-ink"}`}
                       >
                         {formatBaht(Math.abs(plan.remainingAmount), 0)}
                       </span>
                     </span>
                   </div>
-                  <p className="mt-3 text-sm tabular-nums text-ink-2">
+                  <p className="mt-3 text-sm font-bold tabular-nums text-ink-2">
                     {formatBaht(plan.actualAmount, 0)}{" "}
-                    <span className="text-ink-3">
+                    <span className="font-medium text-ink-3">
                       จาก {formatBaht(plan.plannedAmount, 0)}
                     </span>
                   </p>
@@ -261,11 +260,13 @@ function SummaryCard({
 }) {
   return (
     <div className="flex items-baseline justify-between p-4 sm:block">
-      <p className="text-xs font-semibold text-ink-3">{label}</p>
+      <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+        {label}
+      </p>
       <p
-        className={`sm:mt-1 text-xl font-bold tabular-nums md:text-2xl ${className}`}
+        className={`sm:mt-1 text-xl font-extrabold tabular-nums md:text-2xl ${className}`}
       >
-        {value} <span className="text-sm font-semibold text-ink-3">แผน</span>
+        {value} <span className="text-sm font-bold text-ink-3">แผน</span>
       </p>
     </div>
   );

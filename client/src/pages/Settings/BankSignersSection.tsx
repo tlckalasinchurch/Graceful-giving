@@ -68,10 +68,10 @@ export function BankSignersSection() {
   }, [usersQuery.data, signers]);
 
   return (
-    <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-6">
+    <div className="bento-card-static p-6 md:p-8 space-y-6">
       <div className="space-y-1.5">
-        <h3 className="display text-base font-bold text-ink flex items-center gap-2.5">
-          <span className="size-9 rounded-xl border border-line bg-paper text-brand flex items-center justify-center">
+        <h3 className="display text-base font-extrabold text-ink flex items-center gap-2.5">
+          <span className="size-9 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 text-brand flex items-center justify-center shadow-[2px_2px_0_var(--ink)]">
             <UserCheck className="w-5 h-5" />
           </span>
           ผู้มีอำนาจลงนามบัญชีธนาคาร
@@ -85,10 +85,10 @@ export function BankSignersSection() {
 
       {/* Warning when signers condition is incomplete */}
       {showWarning && (
-        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-300 flex items-start gap-3">
+        <div className="rounded-2xl border-[1.5px] border-[var(--ink)]/30 bg-tile-sand p-4 text-xs text-tile-sand-ink flex items-start gap-3">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div>
-            <p className="font-bold">เงื่อนไขการลงนามยังไม่สมบูรณ์</p>
+            <p className="font-extrabold">เงื่อนไขการลงนามยังไม่สมบูรณ์</p>
             <p className="mt-0.5">
               ยังอนุมัติคำขอเบิกไม่ได้ จนกว่าจะมีผู้ลงนามที่ต้องลงนามทุกครั้ง
               และรวมอย่างน้อย 2 คน
@@ -99,7 +99,7 @@ export function BankSignersSection() {
 
       {/* Signers list */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold text-ink-2">
+        <h4 className="text-xs font-extrabold text-ink-2">
           รายชื่อผู้มีอำนาจลงนามปัจจุบัน ({signers.length} คน)
         </h4>
 
@@ -112,14 +112,14 @@ export function BankSignersSection() {
             ยังไม่มีรายชื่อผู้มีอำนาจลงนาม
           </p>
         ) : (
-          <div className="divide-y divide-line/60 border border-line rounded-2xl overflow-hidden bg-paper/50">
+          <div className="divide-y divide-line border-[1.5px] border-[var(--ink)] rounded-2xl overflow-hidden bg-paper-2">
             {signers.map(s => (
               <div
                 key={s.userId}
                 className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl border border-line bg-surface flex items-center justify-center font-bold text-xs text-ink">
+                  <div className="w-10 h-10 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface flex items-center justify-center font-extrabold text-xs text-ink">
                     {s.name?.slice(0, 1) || "U"}
                   </div>
                   <div>
@@ -128,7 +128,7 @@ export function BankSignersSection() {
                         {s.name || `ผู้ใช้ #${s.userId}`}
                       </span>
                       {s.isRequired && (
-                        <span className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-[11px] font-semibold text-ink-2">
+                        <span className="rounded-full border border-[var(--ink)] bg-accent px-2.5 py-0.5 text-[11px] font-extrabold text-accent-foreground">
                           ต้องลงนามทุกครั้ง
                         </span>
                       )}
@@ -155,7 +155,7 @@ export function BankSignersSection() {
                           }
                         }}
                         disabled={setRequiredSignerMutation.isPending}
-                        className="px-3.5 py-2 rounded-2xl border border-line bg-surface hover:bg-paper-2 text-xs font-bold text-ink-2 transition-colors disabled:opacity-50"
+                        className="btn-secondary px-3.5 py-2 rounded-xl text-xs font-bold disabled:opacity-50"
                       >
                         ตั้งเป็นผู้ที่ต้องลงนามทุกครั้ง
                       </button>
@@ -173,7 +173,7 @@ export function BankSignersSection() {
                         }
                       }}
                       disabled={removeSignerMutation.isPending}
-                      className="px-3.5 py-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/15 text-danger text-xs font-bold transition-colors disabled:opacity-50"
+                      className="px-3.5 py-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-danger/10 hover:bg-danger/15 text-danger text-xs font-bold transition-colors disabled:opacity-50"
                     >
                       นำออก
                     </button>
@@ -187,8 +187,8 @@ export function BankSignersSection() {
 
       {/* Add new signer */}
       {canManageSigners && (
-        <div className="pt-4 border-t border-line/60 space-y-2.5">
-          <h4 className="text-xs font-bold text-ink-2">เพิ่มผู้มีอำนาจลงนาม</h4>
+        <div className="pt-4 border-t border-line space-y-2.5">
+          <h4 className="text-xs font-extrabold text-ink-2">เพิ่มผู้มีอำนาจลงนาม</h4>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="flex-1">
               <NativeSelect
@@ -221,7 +221,7 @@ export function BankSignersSection() {
                   });
                 }
               }}
-              className="min-h-11 px-5 py-2 rounded-2xl bg-brand hover:bg-brand-ink disabled:opacity-50 text-black text-xs font-bold transition-all shrink-0"
+              className="btn-primary min-h-11 px-5 py-2 rounded-xl disabled:opacity-50 text-xs font-extrabold shrink-0"
             >
               {addSignerMutation.isPending ? "กำลังเพิ่ม..." : "เพิ่มผู้ลงนาม"}
             </button>

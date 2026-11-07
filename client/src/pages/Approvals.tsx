@@ -181,7 +181,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-ink transition-all active:scale-[0.97]"
+          className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all active:scale-[0.97]"
         >
           <Banknote className="size-4" />
           ยื่นคำขอเบิกเงิน
@@ -190,13 +190,13 @@ export default function Approvals() {
     >
       <div className="space-y-6">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-line bg-surface p-1.5 no-scrollbar">
+        <div className="bento-card-static flex items-center gap-1.5 overflow-x-auto p-1.5 no-scrollbar">
           <button
             onClick={() => setActiveTab("pending")}
-            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-all flex items-center gap-2 ${
               activeTab === "pending"
-                ? "bg-paper-2 text-ink"
-                : "text-ink-2 hover:bg-paper hover:text-ink"
+                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <Clock className="w-4 h-4" />
@@ -204,10 +204,10 @@ export default function Approvals() {
           </button>
           <button
             onClick={() => setActiveTab("approved")}
-            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-all flex items-center gap-2 ${
               activeTab === "approved"
-                ? "bg-paper-2 text-ink"
-                : "text-ink-2 hover:bg-paper hover:text-ink"
+                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />
@@ -215,10 +215,10 @@ export default function Approvals() {
           </button>
           <button
             onClick={() => setActiveTab("disbursed")}
-            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-all flex items-center gap-2 ${
               activeTab === "disbursed"
-                ? "bg-paper-2 text-ink"
-                : "text-ink-2 hover:bg-paper hover:text-ink"
+                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <Banknote className="w-4 h-4" />
@@ -226,10 +226,10 @@ export default function Approvals() {
           </button>
           <button
             onClick={() => setActiveTab("rejected")}
-            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-all flex items-center gap-2 ${
               activeTab === "rejected"
-                ? "bg-paper-2 text-ink"
-                : "text-ink-2 hover:bg-paper hover:text-ink"
+                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <XCircle className="w-4 h-4" />
@@ -237,10 +237,10 @@ export default function Approvals() {
           </button>
           <button
             onClick={() => setActiveTab("cancelled")}
-            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+            className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-all flex items-center gap-2 ${
               activeTab === "cancelled"
-                ? "bg-paper-2 text-ink"
-                : "text-ink-2 hover:bg-paper hover:text-ink"
+                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <Ban className="w-4 h-4" />
@@ -283,15 +283,15 @@ export default function Approvals() {
               return (
                 <div
                   key={req.id}
-                  className="bg-surface rounded-2xl border border-line p-6 sm:p-7 flex flex-col gap-5"
+                  className="bento-card-static p-6 sm:p-7 flex flex-col gap-5"
                 >
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                     <div className="space-y-2.5 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-mono font-bold text-ink-2 bg-paper px-3 py-1 rounded-full border border-line/70">
+                        <span className="text-xs font-mono font-extrabold text-ink bg-paper-2 px-3 py-1 rounded-full border border-[var(--ink)]/30">
                           {`REQ-${new Date(reqDate || Date.now()).getFullYear()}-${String(req.id).padStart(3, "0")}`}
                         </span>
-                        <span className="text-xs font-bold text-ink-2 bg-paper px-3 py-1 rounded-full border border-line/70">
+                        <span className="text-xs font-extrabold text-ink bg-paper-2 px-3 py-1 rounded-full border border-[var(--ink)]/30">
                           {fundName}
                         </span>
                         <StatusBadge
@@ -318,16 +318,16 @@ export default function Approvals() {
                         />
                       </div>
 
-                      <h3 className="display text-lg font-bold text-ink">
+                      <h3 className="display text-lg font-extrabold text-ink">
                         {req.purpose}
                       </h3>
 
-                      <p className="text-sm text-ink-2 leading-relaxed">
+                      <p className="text-sm font-medium text-ink-2 leading-relaxed">
                         {req.details || "เบิกจ่ายตามงบประมาณที่ได้รับอนุมัติ"}
                       </p>
 
-                      <div className="flex items-center gap-3 text-xs font-medium text-ink-3 pt-1">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-ink-2">
+                      <div className="flex items-center gap-3 text-xs font-bold text-ink-3 pt-1">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ink)]/20 bg-paper-2 px-2.5 py-1 text-ink-2">
                           <User className="w-3.5 h-3.5 text-ink-3" />
                           {req.requesterName || `ผู้ใช้ #${req.requestedBy}`}
                         </span>
@@ -337,9 +337,9 @@ export default function Approvals() {
                     </div>
 
                     {/* Amount & Actions */}
-                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-4 pt-4 md:pt-0 border-t md:border-t-0 border-line/50 flex-shrink-0">
+                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-4 pt-4 md:pt-0 border-t border-line md:border-t-0 flex-shrink-0">
                       <div className="text-left md:text-right">
-                        <p className="text-xs font-bold text-ink-3">
+                        <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
                           ยอดขอเบิก
                         </p>
                         <MoneyDisplay
@@ -358,14 +358,14 @@ export default function Approvals() {
                                 setShowRejectModal(true);
                               }}
                               disabled={signMutation.isPending}
-                              className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
+                              className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 text-danger text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] transition-all active:scale-[0.97] disabled:opacity-50"
                             >
                               ไม่อนุมัติ
                             </button>
                             <button
                               onClick={() => handleApprove(req)}
                               disabled={signMutation.isPending}
-                              className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
+                              className="btn-primary min-h-11 px-5 py-2.5 text-xs disabled:opacity-50"
                             >
                               ลงนามอนุมัติ
                             </button>
@@ -376,7 +376,7 @@ export default function Approvals() {
                           <button
                             onClick={() => handleDisburse(req)}
                             disabled={disburseMutation.isPending}
-                            className="min-h-11 px-5 py-2.5 rounded-2xl bg-brand hover:bg-brand-ink text-black text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
+                            className="btn-primary min-h-11 px-5 py-2.5 text-xs disabled:opacity-50"
                           >
                             จ่ายแล้ว
                           </button>
@@ -389,7 +389,7 @@ export default function Approvals() {
                               setShowCancelModal(true);
                             }}
                             disabled={cancelMutation.isPending}
-                            className="min-h-11 px-3.5 py-2 rounded-2xl border border-line bg-paper hover:bg-paper-2 text-ink-2 hover:text-danger text-xs font-bold transition-colors disabled:opacity-50"
+                            className="btn-secondary min-h-11 px-3.5 py-2 text-xs hover:text-danger disabled:opacity-50"
                           >
                             ยกเลิกคำขอ
                           </button>
@@ -399,7 +399,7 @@ export default function Approvals() {
                   </div>
 
                   {/* Signatures and Progress */}
-                  <div className="rounded-2xl bg-paper p-4 border border-line/50">
+                  <div className="rounded-2xl bg-paper-2 p-4 border-[1.5px] border-[var(--ink)]">
                     <SignatureProgress
                       signatures={req.signatures}
                       approval={req.approval}
@@ -408,7 +408,7 @@ export default function Approvals() {
 
                   {/* Notice if cancelled */}
                   {req.status === "cancelled" && (
-                    <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-xs font-semibold text-danger">
+                    <div className="rounded-xl border-2 border-danger bg-danger/10 p-3.5 text-xs font-extrabold text-danger">
                       ยกเลิกคำขอเมื่อ {fmtDate(req.cancelledAt)}:{" "}
                       {req.cancelReason || "ไม่ระบุเหตุผล"}
                     </div>
@@ -416,7 +416,7 @@ export default function Approvals() {
 
                   {/* Notice if disbursed */}
                   {req.status === "disbursed" && (
-                    <div className="rounded-2xl border border-line bg-paper p-3.5 text-xs font-semibold text-ink-2">
+                    <div className="rounded-xl border-[1.5px] border-[var(--ink)] bg-tile-mint p-3.5 text-xs font-extrabold text-tile-mint-ink">
                       จ่ายเงินแล้วเมื่อ {fmtDate(req.disbursedAt)}{" "}
                       (ยอดเข้ารอบนับเงินเรียบร้อยแล้ว)
                     </div>
@@ -430,23 +430,23 @@ export default function Approvals() {
         {/* Reject Reason Modal */}
         {showRejectModal && selectedReq && (
           <div className="fixed inset-0 z-50 bg-ink/40 flex items-center justify-center p-4">
-            <div className="bg-surface rounded-3xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b border-line pb-3">
-                <h3 className="display text-lg font-bold text-ink">
+            <div className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
+                <h3 className="display text-lg font-extrabold text-ink">
                   ระบุเหตุผลที่ไม่อนุมัติ
                 </h3>
                 <button
                   onClick={() => setShowRejectModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-2xl text-xl font-bold text-ink-3 hover:bg-paper hover:text-ink"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
                 >
                   ×
                 </button>
               </div>
 
               <div className="space-y-2 text-xs">
-                <p className="text-ink-2">
+                <p className="font-medium text-ink-2">
                   คำขอนี้จะถูกบันทึกว่าไม่ผ่านการอนุมัติจากคุณ
                   และส่งผลให้คำขอสิ้นสุดลงทันที
                 </p>
@@ -456,7 +456,7 @@ export default function Approvals() {
                   placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้..."
                   value={rejectReason}
                   onChange={e => setRejectReason(e.target.value)}
-                  className="w-full p-3.5 rounded-2xl border border-field bg-paper text-xs text-ink focus:outline-none focus:border-brand"
+                  className="neo-input w-full p-3.5 text-xs"
                 />
               </div>
 
@@ -464,14 +464,14 @@ export default function Approvals() {
                 <button
                   onClick={() => setShowRejectModal(false)}
                   disabled={signMutation.isPending}
-                  className="px-4 py-2.5 rounded-2xl border border-line bg-paper text-xs font-bold text-ink-2"
+                  className="btn-secondary min-h-10 px-4 py-2.5 text-xs"
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={handleRejectSubmit}
                   disabled={signMutation.isPending}
-                  className="px-5 py-2.5 rounded-2xl bg-danger text-white text-xs font-bold hover:opacity-95 disabled:opacity-50"
+                  className="min-h-10 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50"
                 >
                   {signMutation.isPending
                     ? "กำลังบันทึก..."
@@ -485,23 +485,23 @@ export default function Approvals() {
         {/* Cancel Reason Modal */}
         {showCancelModal && selectedReq && (
           <div className="fixed inset-0 z-50 bg-ink/40 flex items-center justify-center p-4">
-            <div className="bg-surface rounded-3xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b border-line pb-3">
-                <h3 className="display text-lg font-bold text-ink">
+            <div className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
+                <h3 className="display text-lg font-extrabold text-ink">
                   ระบุเหตุผลในการยกเลิกคำขอ
                 </h3>
                 <button
                   onClick={() => setShowCancelModal(false)}
                   type="button"
                   aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-2xl text-xl font-bold text-ink-3 hover:bg-paper hover:text-ink"
+                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
                 >
                   ×
                 </button>
               </div>
 
               <div className="space-y-2 text-xs">
-                <p className="text-ink-2">
+                <p className="font-medium text-ink-2">
                   เมื่อยกเลิกแล้ว คำขอนี้จะไม่สามารถนำไปเบิกจ่ายได้อีก
                   (ระบุเหตุผลอย่างน้อย 3 ตัวอักษร)
                 </p>
@@ -511,7 +511,7 @@ export default function Approvals() {
                   placeholder="เช่น ยกเลิกโครงการ, ปรับเปลี่ยนรายการจัดซื้อ..."
                   value={cancelReason}
                   onChange={e => setCancelReason(e.target.value)}
-                  className="w-full p-3.5 rounded-2xl border border-field bg-paper text-xs text-ink focus:outline-none focus:border-brand"
+                  className="neo-input w-full p-3.5 text-xs"
                 />
               </div>
 
@@ -519,14 +519,14 @@ export default function Approvals() {
                 <button
                   onClick={() => setShowCancelModal(false)}
                   disabled={cancelMutation.isPending}
-                  className="px-4 py-2.5 rounded-2xl border border-line bg-paper text-xs font-bold text-ink-2"
+                  className="btn-secondary min-h-10 px-4 py-2.5 text-xs"
                 >
                   กลับ
                 </button>
                 <button
                   onClick={handleCancelSubmit}
                   disabled={cancelMutation.isPending}
-                  className="px-5 py-2.5 rounded-2xl bg-danger text-white text-xs font-bold hover:opacity-95 disabled:opacity-50"
+                  className="min-h-10 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50"
                 >
                   {cancelMutation.isPending
                     ? "กำลังยกเลิก..."

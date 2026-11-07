@@ -61,21 +61,26 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4 print:p-0 print:bg-white print:static print:overflow-visible">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink/70 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-surface print:static print:overflow-visible">
       {/* Container */}
-      <div className="bg-surface w-full max-w-3xl rounded-2xl shadow-2xl border border-line overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
+      <div className="neo-modal w-full max-w-3xl overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Modal Action Bar (Hidden in print) */}
-        <div className="flex items-center justify-between px-6 py-4 bg-paper border-b border-line print:hidden">
-          <div className="flex items-center gap-2 text-ink-2">
-            <Building2 className="w-5 h-5 text-brand" />
-            <span className="font-bold text-sm">
-              เอกสารทางการคริสตจักร (A4 Printable)
+        <div className="flex items-center justify-between px-6 py-4 bg-ground border-b-2 border-[var(--ink)] print:hidden">
+          <div className="flex items-center gap-2.5 text-ink">
+            <span className="flex size-9 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
+              <Building2 className="w-4 h-4" />
             </span>
+            <div>
+              <span className="eyebrow-quiet block">OFFICIAL VOUCHER</span>
+              <span className="font-bold text-sm text-ink">
+                เอกสารทางการคริสตจักร (A4 Printable)
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black font-medium text-xs shadow-xs transition-colors"
+              className="btn-primary inline-flex min-h-11 items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition-all"
             >
               <Printer className="w-4 h-4" />
               <span>พิมพ์เอกสาร (Print / PDF)</span>
@@ -83,7 +88,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             <button
               onClick={onClose}
               aria-label="ปิดใบสำคัญ"
-              className="min-h-11 min-w-11 inline-flex items-center justify-center p-2 text-ink-3 hover:text-ink hover:bg-black/5 rounded-xl transition-colors cursor-pointer"
+              className="min-h-11 min-w-11 inline-flex items-center justify-center p-2 text-ink-2 hover:text-ink hover:bg-paper-2 rounded-xl border border-transparent hover:border-[var(--ink)] transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -91,14 +96,14 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
         </div>
 
         {/* Scrollable Document Content */}
-        <div className="p-6 md:p-10 overflow-y-auto print:p-0 print:overflow-visible">
+        <div className="p-6 md:p-10 overflow-y-auto bg-paper-2/50 print:p-0 print:overflow-visible">
           {/* Printable Voucher Card */}
           <div
             ref={printAreaRef}
-            className="voucher-print-area max-w-2xl mx-auto bg-white border border-slate-300 print:border-none p-8 sm:p-10 rounded-2xl text-ink font-sans [--color-ink:#0f172a] [--color-ink-2:#334155] [--color-ink-3:#64748b] [--color-paper:#eef3f9] [--color-line:#e2e8f0] [--color-field:#cbd5e1]"
+            className="voucher-print-area max-w-2xl mx-auto bg-surface border-2 border-[var(--ink)] shadow-[4px_4px_0_var(--ink)] print:shadow-none print:border-none p-8 sm:p-10 rounded-2xl text-ink font-sans [--color-ink:#0f172a] [--color-ink-2:#334155] [--color-ink-3:#64748b] [--color-paper:#eef3f9] [--color-line:#e2e8f0] [--color-field:#cbd5e1]"
           >
             {/* Header / Church Info */}
-            <div className="border-b-2 border-stone-800 pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="border-b-2 border-[var(--ink)] pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-ink tracking-tight">
                   {church?.name || "คริสตจักร"}
@@ -184,7 +189,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-200">
+                <tbody className="divide-y divide-line">
                   <tr>
                     <td className="py-4 px-4 text-center font-mono text-ink-3">
                       1
@@ -226,9 +231,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
 
             {/* Attached Receipt Notice if available */}
             {data.receiptUrl && (
-              <div className="mb-6 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800 print:hidden">
+              <div className="mb-6 p-3 bg-brand/10 border border-brand/25 rounded-xl flex items-center justify-between text-xs text-brand print:hidden">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-brand shrink-0" />
                   <span>
                     รายการนี้มีหลักฐานสลิป/ใบเสร็จแนบในระบบ Supabase Storage
                   </span>
@@ -237,7 +242,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                   href={data.receiptUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold underline hover:text-emerald-600"
+                  className="font-bold underline hover:text-brand"
                 >
                   เปิดดูหลักฐานแนบ →
                 </a>
@@ -252,7 +257,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     <p className="text-ink-2 font-medium">
                       ผู้ขอเบิก / ผู้รับเงิน
                     </p>
-                    <div className="border-b border-stone-400 mx-2"></div>
+                    <div className="border-b border-ink-3 mx-2"></div>
                     <p className="text-ink-3">
                       (
                       {data.payeeOrDonor ||
@@ -267,7 +272,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     <p className="text-ink-2 font-medium">
                       เหรัญญิก / ผู้จ่ายเงิน
                     </p>
-                    <div className="border-b border-stone-400 mx-2"></div>
+                    <div className="border-b border-ink-3 mx-2"></div>
                     <p className="text-ink-3">
                       (
                       {church?.treasurerName ||
@@ -282,7 +287,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     <p className="text-ink-2 font-medium">
                       ศิษยาภิบาล / ผู้อนุมัติ
                     </p>
-                    <div className="border-b border-stone-400 mx-2"></div>
+                    <div className="border-b border-ink-3 mx-2"></div>
                     <p className="text-ink-3">
                       (
                       {church?.pastorName ||
@@ -300,7 +305,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     <p className="text-ink-2 font-medium">
                       ผู้รับเงินถวาย / ผู้บันทึก
                     </p>
-                    <div className="border-b border-stone-400 mx-4"></div>
+                    <div className="border-b border-ink-3 mx-4"></div>
                     <p className="text-ink-3">
                       (........................................)
                     </p>
@@ -310,7 +315,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                   </div>
                   <div className="space-y-12">
                     <p className="text-ink-2 font-medium">เหรัญญิกคริสตจักร</p>
-                    <div className="border-b border-stone-400 mx-4"></div>
+                    <div className="border-b border-ink-3 mx-4"></div>
                     <p className="text-ink-3">
                       (
                       {church?.treasurerName ||

@@ -13,9 +13,8 @@ import { toast } from "sonner";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink } from "@/components/common/CommonUI";
 import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
+import { friendlyErrorMessage } from "@/lib/errors";
 
-// withdrawals.create caps details at 1000 chars, and an urgent request spends
-// part of that budget on the prefix below, so the field stops short of both.
 const URGENT_PREFIX = "[เร่งด่วน] ";
 const DETAILS_MAX_LENGTH = 1000 - URGENT_PREFIX.length;
 
@@ -24,9 +23,6 @@ export default function NewWithdrawal() {
   const { user } = useAuth();
   const utils = trpc.useUtils();
 
-  // Anyone signed in may file a request, but /approvals is finance-only, so
-  // send requesters who cannot open it back to the dashboard instead of into
-  // the Restricted Access wall.
   const canOpenApprovals = canAccessRoute("/approvals", user);
   const returnPath = canOpenApprovals ? "/approvals" : "/";
   const returnLabel = canOpenApprovals ? "หน้าการอนุมัติ" : "หน้าหลัก";
@@ -60,7 +56,7 @@ export default function NewWithdrawal() {
     },
     onError: error => {
       setIsSubmitting(false);
-      toast.error("ยื่นคำขอเบิกเงินไม่สำเร็จ", { description: error.message });
+      toast.error("ยื่นคำขอเบิกเงินไม่สำเร็จ", { description: friendlyErrorMessage(error) });
     },
   });
 
@@ -87,8 +83,6 @@ export default function NewWithdrawal() {
     }
 
     setIsSubmitting(true);
-    // The withdrawal_requests table has no urgency column, so carry the flag
-    // in the note the approver reads rather than dropping the selection.
     const composedDetails =
       urgency === "urgent"
         ? `${URGENT_PREFIX}${details.trim()}`.trim()
@@ -110,9 +104,9 @@ export default function NewWithdrawal() {
         <BackLink label={`กลับ${returnLabel}`} onClick={goBack} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-surface rounded-2xl border border-line p-6 md:p-8 space-y-5">
+          <div className="bento-card-static p-6 md:p-8 space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-ink">
+              <label className="text-sm font-extrabold text-ink">
                 วัตถุประสงค์การเบิก <span className="text-danger">*</span>
               </label>
               <input
@@ -121,17 +115,17 @@ export default function NewWithdrawal() {
                 value={purpose}
                 onChange={e => setPurpose(e.target.value)}
                 placeholder="เช่น ค่าจัดค่ายอนุชน, ค่าซ่อมแซมห้องน้ำ"
-                className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field font-medium"
+                className="neo-input font-medium"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-ink">
+                <label className="text-sm font-extrabold text-ink">
                   จำนวนเงิน (บาท) <span className="text-danger">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-ink-3">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-extrabold text-ink-3">
                     ฿
                   </span>
                   <input
@@ -140,13 +134,13 @@ export default function NewWithdrawal() {
                     placeholder="0.00"
                     value={amount}
                     onChange={e => setAmount(e.target.value)}
-                    className="money w-full min-h-14 pl-10 pr-4 rounded-2xl border border-field bg-surface text-2xl font-semibold text-ink focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="money w-full min-h-14 pl-10 pr-4 rounded-xl border-2 border-[var(--ink)] bg-surface shadow-[2px_2px_0_var(--ink)] text-2xl font-extrabold text-ink focus:outline-none focus:border-brand focus:shadow-[2px_2px_0_var(--brand)]"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-ink">
+                <label className="text-sm font-extrabold text-ink">
                   ความเร่งด่วน
                 </label>
                 <NativeSelect
@@ -154,7 +148,7 @@ export default function NewWithdrawal() {
                   onChange={e =>
                     setUrgency(e.target.value as "normal" | "urgent")
                   }
-                  className="bg-ground font-medium"
+                  className="font-medium"
                 >
                   <option value="normal">ปกติ (ตามรอบ)</option>
                   <option value="urgent">เร่งด่วน</option>
@@ -163,14 +157,14 @@ export default function NewWithdrawal() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-ink">
+              <label className="text-sm font-extrabold text-ink">
                 เบิกจากกองทุน <span className="text-danger">*</span>
               </label>
               <NativeSelect
                 required
                 value={fundId ?? ""}
                 onChange={e => setFundId(Number(e.target.value))}
-                className="bg-ground font-medium"
+                className="font-medium"
               >
                 <option value="" disabled>
                   — เลือกกองทุน —
@@ -189,7 +183,7 @@ export default function NewWithdrawal() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-ink">
+              <label className="text-sm font-extrabold text-ink">
                 หมายเหตุเพิ่มเติม
               </label>
               <textarea
@@ -198,7 +192,7 @@ export default function NewWithdrawal() {
                 placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับผู้อนุมัติ..."
                 value={details}
                 onChange={e => setDetails(e.target.value)}
-                className="w-full min-h-11 px-4 py-2.5 rounded-2xl border bg-surface text-base md:text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 border-field"
+                className="neo-input"
               />
             </div>
           </div>
@@ -207,14 +201,14 @@ export default function NewWithdrawal() {
             <button
               type="button"
               onClick={goBack}
-              className="px-6 py-3 rounded-2xl border border-line bg-surface text-ink-2 hover:bg-ground font-medium text-sm transition-colors"
+              className="btn-secondary min-h-12 px-6 text-sm"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={isSubmitting || funds.length === 0}
-              className="px-8 py-3 rounded-xl bg-brand hover:bg-brand-ink text-black font-semibold text-sm transition-all flex items-center gap-2 disabled:opacity-50"
+              className="btn-primary min-h-12 px-8 text-sm disabled:opacity-50"
             >
               <Banknote className="w-4 h-4" />
               <span>
@@ -225,16 +219,16 @@ export default function NewWithdrawal() {
         </form>
 
         {showSuccessModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-surface rounded-2xl border border-line max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6 shadow-2xl">
-              <div className="w-16 h-16 rounded-full border border-line bg-surface flex items-center justify-center text-ink-2 mx-auto">
-                <CheckCircle2 className="w-8 h-8 text-ink-2" />
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+            <div className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6">
+              <div className="w-16 h-16 rounded-2xl border-2 border-[var(--ink)] bg-accent shadow-[3px_3px_0_var(--ink)] flex items-center justify-center text-accent-foreground mx-auto">
+                <CheckCircle2 className="w-8 h-8" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-ink">
+                <h3 className="display text-2xl text-ink">
                   ส่งคำขอเบิกเงินสำเร็จ!
                 </h3>
-                <p className="text-sm text-ink-3">
+                <p className="text-sm font-medium text-ink-3">
                   คำขอของคุณถูกส่งให้ผู้มีสิทธิ์อนุมัติพิจารณาแล้ว
                 </p>
               </div>
@@ -248,7 +242,7 @@ export default function NewWithdrawal() {
                     setDetails("");
                     setUrgency("normal");
                   }}
-                  className="w-full min-h-12 rounded-2xl bg-brand text-black font-semibold text-base hover:bg-brand-ink"
+                  className="btn-primary w-full min-h-12 text-base"
                 >
                   ส่งคำขออีกรายการ
                 </button>
@@ -257,7 +251,7 @@ export default function NewWithdrawal() {
                     setShowSuccessModal(false);
                     setLocation(returnPath);
                   }}
-                  className="w-full min-h-12 rounded-2xl border border-field bg-surface text-ink font-semibold text-base hover:bg-ground"
+                  className="btn-secondary w-full min-h-12 text-base"
                 >
                   กลับสู่{returnLabel}
                 </button>

@@ -38,7 +38,7 @@ export function budgetUsage(planned: number, actual: number) {
 // Red is reserved for spending past the plan, matching the money polarity rule.
 const TONE_STYLES = {
   ok: { bar: "bg-income", text: "text-income", label: "อยู่ในงบ" },
-  warn: { bar: "bg-brand", text: "text-brand-ink", label: "ใกล้เต็มงบ" },
+  warn: { bar: "bg-accent", text: "text-brand", label: "ใกล้เต็มงบ" },
   over: { bar: "bg-danger", text: "text-danger", label: "เกินงบ" },
 } as const;
 
@@ -52,12 +52,12 @@ export const BudgetProgress: React.FC<{
   const { percent, tone } = budgetUsage(planned, actual);
   const style =
     quiet && tone === "ok"
-      ? { bar: "bg-ink-3", text: "text-ink-3", label: TONE_STYLES.ok.label }
+      ? { bar: "bg-brand", text: "text-ink-2", label: TONE_STYLES.ok.label }
       : TONE_STYLES[tone];
   return (
     <div className={className}>
       <div
-        className={`w-full overflow-hidden rounded-full bg-line ${quiet ? "h-1.5" : "h-2.5"}`}
+        className={`w-full overflow-hidden rounded-full border border-[var(--ink)] bg-paper-2 ${quiet ? "h-2" : "h-3"}`}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -70,8 +70,8 @@ export const BudgetProgress: React.FC<{
         />
       </div>
       <div className="mt-1.5 flex items-center justify-between text-xs tabular-nums">
-        <span className={`font-semibold ${style.text}`}>{style.label}</span>
-        <span className="text-ink-3">ใช้ไป {percent.toFixed(0)}%</span>
+        <span className={`font-bold ${style.text}`}>{style.label}</span>
+        <span className="font-semibold text-ink-3">ใช้ไป {percent.toFixed(0)}%</span>
       </div>
     </div>
   );
@@ -123,7 +123,7 @@ export function parseBudgetForm(values: BudgetFormValues):
 }
 
 const inputClass =
-  "mt-1 min-h-11 w-full rounded-xl border border-line bg-surface p-3 text-base font-normal text-ink md:text-sm";
+  "neo-input mt-1 text-base font-medium md:text-sm";
 
 export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;
@@ -141,7 +141,7 @@ export const BudgetFormFields: React.FC<{
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <label className="text-sm font-semibold text-ink-2">
+      <label className="text-sm font-bold text-ink">
         ช่วงเวลา
         <select
           value={values.month}
@@ -156,7 +156,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-ink-2">
+      <label className="text-sm font-bold text-ink">
         หมวดรายจ่าย
         <select
           value={values.category}
@@ -171,7 +171,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-ink-2">
+      <label className="text-sm font-bold text-ink">
         กองทุน
         <select
           value={values.fundId}
@@ -186,7 +186,7 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-semibold text-ink-2">
+      <label className="text-sm font-bold text-ink">
         วงเงินงบประมาณ (บาท) *
         <input
           required
@@ -194,10 +194,10 @@ export const BudgetFormFields: React.FC<{
           value={values.plannedAmount}
           onChange={set("plannedAmount")}
           placeholder="เช่น 120000"
-          className={`${inputClass} tabular-nums`}
+          className={`${inputClass} tabular-nums font-bold`}
         />
       </label>
-      <label className="text-sm font-semibold text-ink-2 md:col-span-2">
+      <label className="text-sm font-bold text-ink md:col-span-2">
         หมายเหตุ
         <textarea
           value={values.notes}

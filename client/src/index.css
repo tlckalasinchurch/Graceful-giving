@@ -1,62 +1,64 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Modern geometric FinTech sans-serif: Plus Jakarta Sans & Manrope for Latin/digits,
-     IBM Plex Sans Thai for crisp, modern Thai typography. */
-  --font-sans:
-    "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  /* Grace Giving — Gen Z / Gen Alpha × Bold Fintech × Playful Editorial
+     Display: Plus Jakarta Sans (bold, geometric) for oversized headings.
+     Body: Manrope (clean, legible). Thai: IBM Plex Sans Thai. */
+  --font-sans: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-display:
     "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-serif:
-    "Plus Jakarta Sans", "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-script: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-serif: "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-script: "Manrope", system-ui, sans-serif;
 
-  /* Standard balanced radii */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
-  --radius-xl: 0.875rem;
-  --radius-2xl: 1rem;
-  --radius-3xl: 1.25rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
 
-  /* Grace Giving — Contemporary Editorial FinTech (WW/STUDIO × Finexy Inspired)
-     Warm Paper Canvas (#F6F4F1), Stone Line (#E4DED2), Crisp White Surface (#FFFFFF),
-     Signature Coral CTA & Accent (#F95C4B), Jet Black Navigation & Typography (#000000).
-     Black text on Coral achieves 6.66:1 contrast (WCAG AA compliant). */
-  --color-ground: #f6f4f1;
-  --color-paper: #faf8f5;
-  --color-paper-2: #ede8e1;
-  --color-surface: #ffffff;
-  --color-ink: #080808;
-  --color-ink-2: #5c5850;
-  --color-ink-3: #5c5850;
-  --color-line: #e4ded2;
-  --color-field: #6c675f;
-  --color-income: #047857;
-  /* Danger sits one shade deeper than red-600 (#DC2626) so small text and
-     white-on-danger buttons clear 4.5:1 on every light surface in the system,
-     including the warm stone canvas #F6F4F1 (guarded by theme.contrast.test). */
-  --color-danger: #b91c1c;
-  --color-brand: #f95c4b;
-  --color-brand-ink: #e54937;
+  /* Grace Giving semantic tokens — replaces the old GraceBox gradient set.
+     Primary Emerald, Accent Acid Lime, Coral highlight, Deep Ink foreground. */
+  --color-income: var(--income);
+  --color-danger: var(--danger);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-accent-lime: var(--accent-lime);
+  --color-accent-lime-ink: var(--accent-lime-ink);
+  --color-coral: var(--coral);
+  --color-coral-ink: var(--coral-ink);
 
-  /* Category tiles — crisp light tints with deep matching hue ink */
-  --color-tile-sky: #f0f7ff;
-  --color-tile-sky-ink: #0369a1;
-  --color-tile-mint: #ecfdf5;
-  --color-tile-mint-ink: #047857;
-  --color-tile-peach: #fff7ed;
-  --color-tile-peach-ink: #c2410c;
-  --color-tile-lilac: #f1f5f9;
-  --color-tile-lilac-ink: #334155;
-  --color-tile-sand: #fefce8;
-  --color-tile-sand-ink: #a16207;
-  --color-tile-rose: #fff1f2;
-  --color-tile-rose-ink: #be123c;
+  /* LINE corporate green — only ever on a LINE sign-in button. */
+  --color-line-brand: var(--line-brand);
+
+  /* Surface + ink tokens (semantic, referenced by components) */
+  --color-ground: var(--ground);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-field: var(--field);
+
+  /* Category tiles — dark tints with light matching hue ink */
+  --color-tile-sky: var(--tile-sky);
+  --color-tile-sky-ink: var(--tile-sky-ink);
+  --color-tile-mint: var(--tile-mint);
+  --color-tile-mint-ink: var(--tile-mint-ink);
+  --color-tile-peach: var(--tile-peach);
+  --color-tile-peach-ink: var(--tile-peach-ink);
+  --color-tile-lilac: var(--tile-lilac);
+  --color-tile-lilac-ink: var(--tile-lilac-ink);
+  --color-tile-sand: var(--tile-sand);
+  --color-tile-sand-ink: var(--tile-sand-ink);
+  --color-tile-rose: var(--tile-rose);
+  --color-tile-rose-ink: var(--tile-rose-ink);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -78,18 +80,106 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Custom Grace-giving Brand Colors (Semantic Tokens) */
+  /* Custom GraceBox Brand Colors (Semantic Tokens) */
   --color-brand-bg: var(--background);
-  --color-brand-cream: #fefce8;
-  --color-brand-sage: #047857;
-  --color-brand-lightsage: #ecfdf5;
-  --color-brand-peach: #fff7ed;
-  --color-brand-orange: #f95c4b;
-  --color-brand-sky: #f0f7ff;
-  --color-brand-brown: #080808;
+  --color-brand-cream: var(--ink);
+  --color-brand-sage: var(--income);
+  --color-brand-lightsage: var(--paper-2);
+  --color-brand-peach: var(--paper-2);
+  --color-brand-orange: var(--brand);
+  --color-brand-sky: var(--paper-2);
+  --color-brand-brown: var(--ink);
   --color-brand-dark: var(--foreground);
-  --color-brand-muted: #5c5850;
-  --color-brand-border: #e4ded2;
+  --color-brand-muted: var(--ink-3);
+  --color-brand-border: var(--line);
+
+  /* ── Legacy hue normalisation ────────────────────────────────────────────
+     Feature screens were written against Tailwind's default palette. Those
+     names are re-pointed at the Grace Giving ramp so a stray `emerald-500`
+     or `slate-200` never drags a second colour world into the product. */
+  --color-emerald-50: #eaf6f1;
+  --color-emerald-100: #d3eee3;
+  --color-emerald-200: #b4e3d3;
+  --color-emerald-300: #86d2bb;
+  --color-emerald-400: #4fb999;
+  --color-emerald-500: #1b9c77;
+  --color-emerald-600: #087f5b;
+  --color-emerald-700: #066b48;
+  --color-emerald-800: #05553a;
+  --color-emerald-900: #04432f;
+  --color-emerald-950: #02301f;
+
+  --color-amber-50: #fdf8e7;
+  --color-amber-100: #faf0c9;
+  --color-amber-200: #f4e29b;
+  --color-amber-300: #ebcb5f;
+  --color-amber-400: #dfaf32;
+  --color-amber-500: #c7901f;
+  --color-amber-600: #a67218;
+  --color-amber-700: #855815;
+  --color-amber-800: #6b4614;
+  --color-amber-900: #593b15;
+  --color-amber-950: #35230c;
+
+  --color-rose-50: #fff1f3;
+  --color-rose-100: #ffe0e4;
+  --color-rose-200: #ffc2c9;
+  --color-rose-300: #ff9aa6;
+  --color-rose-400: #ff6b7d;
+  --color-rose-500: #f03b54;
+  --color-rose-600: #d01f3e;
+  --color-rose-700: #ae1636;
+  --color-rose-800: #8f1634;
+  --color-rose-900: #7a1732;
+  --color-rose-950: #4a0d1e;
+
+  --color-slate-50: #f8f9f4;
+  --color-slate-100: #eff1eb;
+  --color-slate-200: #e7e8e0;
+  --color-slate-300: #d3d6cc;
+  --color-slate-400: #9aa096;
+  --color-slate-500: #6b7069;
+  --color-slate-600: #4e534d;
+  --color-slate-700: #3a3f39;
+  --color-slate-800: #262a26;
+  --color-slate-900: #171a18;
+  --color-slate-950: #0d0f0e;
+
+  --color-gray-50: #f8f9f4;
+  --color-gray-100: #eff1eb;
+  --color-gray-200: #e7e8e0;
+  --color-gray-300: #d3d6cc;
+  --color-gray-400: #9aa096;
+  --color-gray-500: #6b7069;
+  --color-gray-600: #4e534d;
+  --color-gray-700: #3a3f39;
+  --color-gray-800: #262a26;
+  --color-gray-900: #171a18;
+  --color-gray-950: #0d0f0e;
+
+  --color-zinc-50: #f8f9f4;
+  --color-zinc-100: #eff1eb;
+  --color-zinc-200: #e7e8e0;
+  --color-zinc-300: #d3d6cc;
+  --color-zinc-400: #9aa096;
+  --color-zinc-500: #6b7069;
+  --color-zinc-600: #4e534d;
+  --color-zinc-700: #3a3f39;
+  --color-zinc-800: #262a26;
+  --color-zinc-900: #171a18;
+  --color-zinc-950: #0d0f0e;
+
+  --color-neutral-50: #f8f9f4;
+  --color-neutral-100: #eff1eb;
+  --color-neutral-200: #e7e8e0;
+  --color-neutral-300: #d3d6cc;
+  --color-neutral-400: #9aa096;
+  --color-neutral-500: #6b7069;
+  --color-neutral-600: #4e534d;
+  --color-neutral-700: #3a3f39;
+  --color-neutral-800: #262a26;
+  --color-neutral-900: #171a18;
+  --color-neutral-950: #0d0f0e;
 
   /* Legacy aliases maintained for backward safety */
   --color-clay-bg: var(--color-brand-bg);
@@ -105,54 +195,132 @@
   --color-clay-border: var(--color-brand-border);
 }
 
+/* ── Direction D — one theme, two modes ────────────────────────────────────
+   Every surface reads from these vars, so a page cannot drift from the system
+   by hard-coding a hex. The light world is the default; .dark keeps the same
+   hierarchy in deep violet ink for evening use. */
 :root {
   --mobile-nav-clearance: 7rem;
   --content-max: 88rem;
 
-  --primary: #f95c4b;
-  --primary-foreground: #080808;
-  --background: #f6f4f1;
-  --foreground: #080808;
-  --card: #ffffff;
-  --card-foreground: #080808;
-  --popover: #ffffff;
-  --popover-foreground: #080808;
-  --secondary: #faf8f5;
-  --secondary-foreground: #080808;
-  --muted: #faf8f5;
-  --muted-foreground: #5c5850;
-  --accent: #ede8e1;
-  --accent-foreground: #080808;
-  --destructive: #b91c1c;
-  --destructive-foreground: #ffffff;
-  --border: #e4ded2;
-  --input: #6c675f;
-  --ring: #f95c4b;
-  --radius: 0.75rem;
+  /* Surfaces — Warm White ground, Warm Stone secondary, White surface */
+  --ground: #F8F9F4;
+  --paper: #FFFFFF;
+  --paper-2: #F1F3EC;
+  --surface: #FFFFFF;
+  --line: #E2E5DC;
+
+  /* Ink — Deep Ink foreground */
+  --ink: #171A18;
+  --ink-2: #3A3F39;
+  --ink-3: #6B7069;
+  --field: #171A18;
+
+  /* Meaning — Emerald brand, Acid Lime accent, Coral secondary highlight */
+  --income: #087F5B;
+  --danger: #B3261E;
+  --brand: #087F5B;
+  --brand-ink: #FFFFFF;
+  --line-brand: #06C755;
+
+  /* Accent / highlight */
+  --accent-lime: #B8F34A;
+  --accent-lime-ink: #3F4A0B;
+  --coral: #FF6B7D;
+  --coral-ink: #FFFFFF;
+
+  /* Category tiles — pastel ground, matching deep ink */
+  --tile-sky: #e6f0ff;
+  --tile-sky-ink: #174a82;
+  --tile-mint: #e3f7ea;
+  --tile-mint-ink: #0f6b45;
+  --tile-peach: #ffece0;
+  --tile-peach-ink: #8a4514;
+  --tile-lilac: #efe6ff;
+  --tile-lilac-ink: #4a2a8f;
+  --tile-sand: #fff3d1;
+  --tile-sand-ink: #7a5a10;
+  --tile-rose: #ffe4ef;
+  --tile-rose-ink: #9c1d52;
+
+  /* Component tokens */
+  --background: var(--ground);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-ink);
+  --secondary: var(--paper-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-2);
+  --muted-foreground: var(--ink-3);
+  --accent: var(--accent-lime);
+  --accent-foreground: var(--accent-lime-ink);
+  --destructive: var(--danger);
+  --destructive-foreground: #FFFFFF;
+  --border: var(--line);
+  --input: var(--ink);
+  --ring: var(--brand);
+  --radius: 0.875rem;
 }
 
-/* Dark mode tokens (Editorial Obsidian & Vibrant Emerald) */
+/* Dark variant — deep ink surfaces, same hierarchy. */
 .dark,
 [data-theme="dark"] {
-  --primary: #22c55e;
-  --primary-foreground: #080808;
-  --background: #080808;
-  --foreground: #f8fafc;
-  --card: #121214;
-  --card-foreground: #f8fafc;
-  --popover: #121214;
-  --popover-foreground: #f8fafc;
-  --secondary: #1c1d21;
-  --secondary-foreground: #f8fafc;
-  --muted: #1c1d21;
-  --muted-foreground: #94a3b8;
-  --accent: #26272d;
-  --accent-foreground: #f8fafc;
-  --destructive: #fb7185;
-  --destructive-foreground: #ffffff;
-  --border: #26272d;
-  --input: #64748b;
-  --ring: #22c55e;
+  color-scheme: dark;
+  --ground: #121615;
+  --paper: #1A1E1D;
+  --paper-2: #222826;
+  --surface: #1A1E1D;
+  --line: #2E3432;
+
+  --ink: #F5F8F6;
+  --ink-2: #C9D2CD;
+  --ink-3: #8F9992;
+  --field: #F5F8F6;
+
+  --income: #4ADE80;
+  --danger: #FF6B6B;
+  --brand: #087F5B;
+  --brand-ink: #FFFFFF;
+
+  --accent-lime: #B8F34A;
+  --accent-lime-ink: #3F4A0B;
+  --coral: #FF6B7D;
+  --coral-ink: #FFFFFF;
+
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--paper-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-2);
+  --muted-foreground: var(--ink-3);
+  --accent: var(--accent-lime);
+  --accent-foreground: var(--accent-lime-ink);
+  --destructive-foreground: #FFFFFF;
+}
+
+.alpha-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.alpha-press {
+  transition: transform 90ms ease, box-shadow 90ms ease;
+}
+.alpha-press:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .alpha-press,
+  .alpha-press:active {
+    transition: none;
+    transform: none;
+  }
 }
 
 * {
@@ -169,8 +337,7 @@ body {
   margin: 0;
   background-color: var(--background);
   color: var(--foreground);
-  font-family:
-    "Plus Jakarta Sans", "Manrope", "IBM Plex Sans Thai", system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -194,29 +361,115 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* Modern FinTech building blocks ------------------------------------------- */
+/* Grace Giving — design-system utilities ----------------------------------- */
 
+/* Eyebrow label — small, tracked section label on a lime tab. */
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   line-height: 1;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--color-ink-2);
-  background-color: var(--color-paper-2);
-  padding: 0.35rem 0.7rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-line);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-lime-ink);
+  background-color: var(--accent-lime);
+  padding: 0.4rem 0.7rem 0.35rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
 }
 
+/* Section label used above a page title inside the shared shell. */
+.eyebrow-quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.6875rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* Bold brand-coloured rule that anchors an editorial page header. */
+.title-rule {
+  display: block;
+  width: 2.75rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--brand);
+}
+
+/* Brand actions always carry white type — never inherit a dark text colour. */
+.bg-brand,
+.bg-primary {
+  color: var(--brand-ink);
+}
+
+/* Lime surfaces always carry their dark ink. */
+.bg-accent {
+  color: var(--accent-foreground);
+}
+
+/* ── Give page atmosphere ─────────────────────────────────────────────────── */
+.give-aurora {
+  background:
+    radial-gradient(
+      42rem 30rem at 18% -10%,
+      color-mix(in srgb, var(--accent-lime) 46%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      34rem 26rem at 92% 8%,
+      color-mix(in srgb, var(--brand) 16%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      30rem 24rem at 50% 108%,
+      color-mix(in srgb, var(--coral) 12%, transparent),
+      transparent 70%
+    );
+}
+
+.give-ledger {
+  background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--ink) 5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--ink) 5%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 3rem 3rem;
+  mask-image: radial-gradient(70% 60% at 50% 40%, #000 20%, transparent 100%);
+  -webkit-mask-image: radial-gradient(
+    70% 60% at 50% 40%,
+    #000 20%,
+    transparent 100%
+  );
+}
+
+/* Soft paper texture for empty states and hero panels. */
+.dot-grid {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--ink) 10%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 1.1rem 1.1rem;
+}
+
+/* Oversized display headings. */
 .display {
   font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -0.025em;
-  line-height: 1.15;
-  font-variant-numeric: lining-nums;
+  line-height: 1.1;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .rule {
@@ -234,73 +487,186 @@ select:focus-visible {
   }
 }
 
-/* Surfaces are flat: a 1px ring is the only edge, and a tone step (ground
-   #050506, card #0e0e10, raised #161618) does the elevating. Nothing at rest
-   has a blurred shadow or a glow. The old class names stay so pages that still
-   use them take the flat look without a rewrite. */
+/* Offset (neo-brutalist) shadows — intentional, not everywhere. */
 .card-elevation-sm,
-.clay-card-shadow,
-.inset-bevel-subtle,
-.clay-inset-bevel,
-.fintech-card {
-  box-shadow:
-    0 1px 3px 0 rgba(0, 0, 0, 0.04),
-    0 1px 2px -1px rgba(0, 0, 0, 0.04);
+.clay-card-shadow {
+  box-shadow: 4px 4px 0 var(--ink);
 }
-
-.fintech-card {
-  container-type: inline-size;
+.card-elevation-focus,
+.clay-balance-glow {
+  box-shadow: 6px 6px 0 var(--ink);
 }
-
 .button-elevation,
 .clay-button-shadow {
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+/* Primary action button — solid Emerald with offset shadow. */
+.btn-primary {
+  background: var(--brand);
+  color: var(--brand-ink);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-primary:hover {
+  background: #066B48;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-primary:active {
+  transform: translate(3px, 3px);
   box-shadow: none;
 }
 
-.card-elevation-focus,
-.clay-balance-glow {
-  box-shadow: 0 0 0 2px var(--color-brand);
+/* Accent action button — solid Acid Lime with dark ink text. */
+.btn-accent {
+  background: var(--accent-lime);
+  color: var(--accent-lime-ink);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-accent:hover {
+  background: #A7E33E;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-accent:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
 }
 
-.fintech-card-hover {
-  transition:
-    background-color 0.2s ease,
-    box-shadow 0.2s ease;
+/* Coral reserved highlight — subtle, used sparingly. */
+.btn-coral {
+  background: var(--coral);
+  color: var(--coral-ink);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-coral:hover {
+  background: #FF4E60;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-coral:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
 }
 
-.fintech-card-hover:hover {
-  background-color: var(--color-paper);
-  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.06);
+/* Destructive — semantic red, accessible on surface and ground. */
+.btn-destructive {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-destructive:hover {
+  opacity: 0.92;
+}
+.btn-destructive:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
 }
 
-/* Opaque, not glass: floating bars sit on a solid fill. */
-.fintech-glass {
-  background: var(--color-surface);
+/* Glass surface — subtle, for floating panels. */
+.glass-dark {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-line);
 }
 
-.fintech-glass-dark {
-  background: var(--color-ground);
-  border: 1px solid var(--color-line);
+.glow-lime {
+  box-shadow: 0 0 24px rgba(184, 243, 74, 0.45);
+}
+
+.text-glow-lime {
+  text-shadow: 0 0 24px rgba(184, 243, 74, 0.5);
+}
+
+/* Secondary action button — crisp surface with ink border and lime hover. */
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.btn-secondary:hover {
+  background: var(--accent-lime);
+  color: var(--accent-lime-ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* Neo-brutalist modal & dialog frame. */
+.neo-modal {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-2xl);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+/* Unified form input styling. */
+.neo-input {
+  min-height: 2.75rem;
+  border-radius: var(--radius-xl);
+  border: 1.5px solid var(--color-line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.neo-input:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--ink) 45%, transparent);
+}
+.neo-input:focus {
+  border-color: var(--brand);
+  box-shadow: 2px 2px 0 var(--brand);
+  outline: none;
+}
+
+/* Bento card — offset shadow, hover lift. */
+.bento-card {
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-2xl);
+  background: var(--card);
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.bento-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+/* Static bento card — for form containers and tables that shouldn't jump on hover. */
+.bento-card-static {
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-2xl);
+  background: var(--card);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+/* Keep motion gated. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
 }
 
 @keyframes fade-slide-up {
   from {
     opacity: 0;
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
-
 .animate-fade-up {
-  animation: fade-slide-up 0.2s ease-out both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-fade-up {
-    animation: none;
-  }
+  animation: fade-slide-up 0.4s ease-out both;
 }
 
 @layer base {
@@ -344,11 +710,11 @@ select:focus-visible {
   background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: color-mix(in srgb, var(--ink) 22%, transparent);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--brand);
 }
 
 /* ============================================

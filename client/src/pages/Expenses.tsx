@@ -23,7 +23,6 @@ import {
   HeartHandshake,
   Paperclip,
   Printer,
-  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { EXPENSE_CATEGORIES, expenseCategoryLabel } from "@shared/categories";
@@ -151,25 +150,24 @@ export default function Expenses() {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "utilities":
-        return { icon: Zap, color: "bg-amber-500/15 text-amber-300" };
+        return { icon: Zap, color: "bg-tile-sand text-tile-sand-ink" };
       case "ministry":
-        return { icon: Users, color: "bg-paper-2 text-danger" };
+        return { icon: Users, color: "bg-tile-peach text-tile-peach-ink" };
       case "pastoral":
-        return { icon: Cross, color: "bg-emerald-500/15 text-emerald-300" };
+        return { icon: Cross, color: "bg-tile-mint text-tile-mint-ink" };
       case "admin":
-        return { icon: Receipt, color: "bg-paper text-ink-2" };
+        return { icon: Receipt, color: "bg-paper-2 text-ink" };
       case "building":
-        return { icon: Building, color: "bg-amber-500/15 text-amber-300" };
+        return { icon: Building, color: "bg-tile-sand text-tile-sand-ink" };
       case "worship":
-        return { icon: GraduationCap, color: "bg-paper-2 text-brand-ink" };
+        return { icon: GraduationCap, color: "bg-tile-sky text-tile-sky-ink" };
       case "welfare":
-        return { icon: HeartHandshake, color: "bg-rose-500/15 text-rose-300" };
+        return { icon: HeartHandshake, color: "bg-tile-lilac text-tile-lilac-ink" };
       default:
-        return { icon: Receipt, color: "bg-paper text-ink-2" };
+        return { icon: Receipt, color: "bg-paper-2 text-ink" };
     }
   };
 
-  // Both metrics come from the loaded rows. Nothing here is a fixed figure.
   const topCategory = useMemo(() => {
     const totals = new Map<string, number>();
     for (const e of expenses)
@@ -194,10 +192,10 @@ export default function Expenses() {
       title="รายจ่าย"
       subtitle="บันทึกและตรวจสอบค่าใช้จ่ายของคริสตจักร พร้อมหลักฐานการจ่าย"
       action={
-        <>
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={exportCSV}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-medium text-ink-2 hover:bg-paper-2"
+            className="btn-secondary min-h-11 px-4 text-sm"
           >
             <Download className="size-4" />
             ส่งออก CSV
@@ -205,24 +203,25 @@ export default function Expenses() {
           {canCreate && (
             <button
               onClick={() => setLocation("/expenses/new")}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-black hover:bg-brand-ink"
+              className="btn-primary min-h-11 px-4 text-sm"
             >
               <Plus className="size-4" />
               บันทึกรายจ่าย
             </button>
           )}
-        </>
+        </div>
       }
     >
       <div className="space-y-6">
         {/* Metric Cards */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <MetricCard
             label="รวมรายจ่ายตามตัวกรอง"
             icon={TrendingDown}
             note={`${filteredExpenses.length} รายการที่แสดง`}
+            tone="expense"
           >
-            <MoneyDisplay amount={totalAmount} size="lg" />
+            <MoneyDisplay amount={totalAmount} type="expense" size="lg" />
           </MetricCard>
           <MetricCard
             label="หมวดที่ใช้จ่ายมากที่สุด"
@@ -233,7 +232,7 @@ export default function Expenses() {
                 : "ยังไม่มีข้อมูล"
             }
           >
-            <p className="text-xl font-bold text-ink">
+            <p className="text-xl font-extrabold text-ink">
               {topCategory?.label ?? "—"}
             </p>
           </MetricCard>
@@ -241,29 +240,32 @@ export default function Expenses() {
             label="มีหลักฐานการจ่าย"
             icon={Paperclip}
             note="มีเลขที่ใบเสร็จหรือไฟล์แนบ"
+            tone="accent"
           >
-            <p className="text-xl font-bold tabular-nums text-ink">
+            <p className="text-xl font-extrabold tabular-nums text-ink">
               {withReceipt} / {expenses.length}{" "}
-              <span className="text-sm font-medium text-ink-3">รายการ</span>
+              <span className="text-sm font-semibold text-ink-3">รายการ</span>
             </p>
           </MetricCard>
         </div>
 
-        <FilterBar
-          searchPlaceholder="ค้นหารายการ, ผู้รับเงิน, เลขที่ใบเสร็จ..."
-          searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
-          activeFilter={categoryFilter}
-          onFilterChange={setCategoryFilter}
-          filters={[
-            { label: "ทุกหมวดหมู่", id: "all", count: expenses.length },
-            ...EXPENSE_CATEGORIES.map(c => ({
-              label: c.label,
-              id: c.id,
-              count: expenses.filter(e => e.category === c.id).length,
-            })),
-          ]}
-        />
+        <div className="bento-card-static p-4 md:p-5">
+          <FilterBar
+            searchPlaceholder="ค้นหารายการ, ผู้รับเงิน, เลขที่ใบเสร็จ..."
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            activeFilter={categoryFilter}
+            onFilterChange={setCategoryFilter}
+            filters={[
+              { label: "ทุกหมวดหมู่", id: "all", count: expenses.length },
+              ...EXPENSE_CATEGORIES.map(c => ({
+                label: c.label,
+                id: c.id,
+                count: expenses.filter(e => e.category === c.id).length,
+              })),
+            ]}
+          />
+        </div>
 
         {/* Table & List */}
         {isLoading ? (
@@ -285,36 +287,36 @@ export default function Expenses() {
             }
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+          <div className="bento-card-static overflow-hidden">
             {/* Desktop Table View */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-sm text-ink">
                 <caption className="sr-only">
                   รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
                 </caption>
-                <thead className="border-b border-line bg-paper text-xs font-medium text-ink-3">
+                <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-ink">
                   <tr>
-                    <th scope="col" className="py-3 px-5 font-medium">
+                    <th scope="col" className="py-3.5 px-5">
                       วันที่
                     </th>
-                    <th scope="col" className="py-3 px-5 font-medium">
+                    <th scope="col" className="py-3.5 px-5">
                       รายการ
                     </th>
-                    <th scope="col" className="py-3 px-5 font-medium">
+                    <th scope="col" className="py-3.5 px-5">
                       หมวดหมู่
                     </th>
                     <th
                       scope="col"
-                      className="py-3 px-5 text-right font-medium"
+                      className="py-3.5 px-5 text-right"
                     >
                       จำนวนเงิน
                     </th>
-                    <th scope="col" className="py-3 px-5 font-medium">
+                    <th scope="col" className="py-3.5 px-5">
                       สถานะ
                     </th>
                     <th
                       scope="col"
-                      className="py-3 px-5 text-right font-medium"
+                      className="py-3.5 px-5 text-right"
                     >
                       <span className="sr-only">เอกสาร</span>
                     </th>
@@ -327,9 +329,9 @@ export default function Expenses() {
                     return (
                       <tr
                         key={e.id}
-                        className="transition-colors hover:bg-paper"
+                        className="transition-colors hover:bg-paper-2"
                       >
-                        <td className="whitespace-nowrap py-3.5 px-5 text-ink-2">
+                        <td className="whitespace-nowrap py-3.5 px-5 font-medium text-ink-2">
                           {formatThaiDate(e.date)}
                         </td>
                         <th
@@ -338,11 +340,11 @@ export default function Expenses() {
                         >
                           <Link
                             href={`/transactions/expense-${e.id}`}
-                            className="block truncate rounded-md font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                            className="block truncate rounded-md font-bold text-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                           >
                             {e.description}
                           </Link>
-                          <p className="truncate text-xs text-ink-3">
+                          <p className="truncate text-xs font-medium text-ink-3">
                             {e.payee} · {fundName(e.fundId)}
                             {e.receiptRef !== "-" && (
                               <span className="font-mono">
@@ -354,7 +356,7 @@ export default function Expenses() {
                         </th>
                         <td className="whitespace-nowrap py-3.5 px-5">
                           <span
-                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cat.color}`}
+                            className={`inline-flex items-center gap-1.5 rounded-full border border-[var(--ink)] px-2.5 py-0.5 text-xs font-bold ${cat.color}`}
                           >
                             <CatIcon className="size-3.5" />
                             {expenseCategoryLabel(e.category)}
@@ -374,7 +376,7 @@ export default function Expenses() {
                           className="whitespace-nowrap py-2 px-5 text-right"
                           onClick={ev => ev.stopPropagation()}
                         >
-                          <div className="inline-flex gap-1">
+                          <div className="inline-flex gap-1.5">
                             {e.receiptUrl && (
                               <button
                                 onClick={() =>
@@ -384,7 +386,7 @@ export default function Expenses() {
                                     title: e.description,
                                   })
                                 }
-                                className="inline-flex size-10 items-center justify-center rounded-lg text-income hover:bg-emerald-50"
+                                className="inline-flex size-10 items-center justify-center rounded-xl border-1.5 border-[var(--ink)] bg-tile-mint text-tile-mint-ink hover:bg-accent hover:text-accent-foreground"
                                 title="ดูสลิป/ใบเสร็จ"
                                 aria-label={`ดูสลิปของ ${e.description}`}
                               >
@@ -393,7 +395,7 @@ export default function Expenses() {
                             )}
                             <button
                               onClick={() => setSelectedVoucher(toVoucher(e))}
-                              className="inline-flex size-10 items-center justify-center rounded-lg text-ink-2 hover:bg-paper-2"
+                              className="inline-flex size-10 items-center justify-center rounded-xl border-1.5 border-[var(--ink)] bg-surface text-ink hover:bg-paper-2"
                               title="พิมพ์ใบสำคัญจ่าย"
                               aria-label={`พิมพ์ใบสำคัญจ่ายของ ${e.description}`}
                             >
@@ -409,20 +411,20 @@ export default function Expenses() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-line/40">
+            <div className="md:hidden divide-y divide-line">
               {filteredExpenses.map(e => {
                 const cat = getCategoryIcon(e.category);
                 const CatIcon = cat.icon;
                 return (
                   <div
                     key={e.id}
-                    className="p-4 space-y-2.5 active:bg-paper-2/40"
+                    className="p-4 space-y-2.5 active:bg-paper-2"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1 min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium ${cat.color}`}
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-[var(--ink)] text-[11px] font-bold ${cat.color}`}
                           >
                             <CatIcon className="w-3 h-3" />
                             {expenseCategoryLabel(e.category)}
@@ -433,11 +435,11 @@ export default function Expenses() {
                         </div>
                         <Link
                           href={`/transactions/expense-${e.id}`}
-                          className="block rounded-md font-medium text-foreground text-sm truncate underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                          className="block rounded-md font-bold text-ink text-sm truncate underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                         >
                           {e.description}
                         </Link>
-                        <p className="text-xs text-ink-3">
+                        <p className="text-xs font-medium text-ink-3">
                           {e.payee} •{" "}
                           {new Date(e.date).toLocaleDateString(THAI_LOCALE)}
                         </p>
@@ -456,7 +458,7 @@ export default function Expenses() {
 
                     {/* Mobile Action Bar */}
                     <div
-                      className="flex items-center justify-end gap-2 pt-1 border-t border-line/30"
+                      className="flex items-center justify-end gap-2 pt-2 border-t border-line"
                       onClick={ev => ev.stopPropagation()}
                     >
                       {e.receiptUrl && (
@@ -468,7 +470,7 @@ export default function Expenses() {
                               title: e.description,
                             })
                           }
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-medium"
+                          className="inline-flex min-h-9 items-center gap-1 px-2.5 py-1 rounded-xl bg-tile-mint text-tile-mint-ink border-1.5 border-[var(--ink)] text-xs font-bold"
                         >
                           <Paperclip className="w-3 h-3" />
                           <span>ดูสลิป</span>
@@ -476,9 +478,9 @@ export default function Expenses() {
                       )}
                       <button
                         onClick={() => setSelectedVoucher(toVoucher(e))}
-                        className="min-h-11 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-paper text-ink-2 border border-line text-xs font-medium"
+                        className="min-h-9 inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-surface text-ink border-1.5 border-[var(--ink)] text-xs font-bold"
                       >
-                        <Printer className="w-3 h-3 text-primary" />
+                        <Printer className="w-3 h-3 text-brand" />
                         <span>พิมพ์ใบสำคัญ</span>
                       </button>
                     </div>
@@ -514,21 +516,33 @@ function MetricCard({
   label,
   icon: Icon,
   note,
+  tone = "default",
   children,
 }: {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   note: string;
+  tone?: "default" | "expense" | "accent";
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-surface p-5">
-      <div className="mb-2 flex items-center justify-between text-ink-3">
-        <span className="text-sm font-medium">{label}</span>
-        <Icon className="size-4" />
+    <div className="bento-card p-5">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-xs font-extrabold uppercase tracking-wider text-ink-3">{label}</span>
+        <span
+          className={`grid size-8 place-items-center rounded-lg border-1.5 border-[var(--ink)] ${
+            tone === "expense"
+              ? "bg-tile-peach text-tile-peach-ink"
+              : tone === "accent"
+                ? "bg-accent text-accent-foreground"
+                : "bg-paper-2 text-ink"
+          }`}
+        >
+          <Icon className="size-4" />
+        </span>
       </div>
       {children}
-      <p className="mt-1 text-xs text-ink-3">{note}</p>
+      <p className="mt-1 text-xs font-medium text-ink-3">{note}</p>
     </div>
   );
 }

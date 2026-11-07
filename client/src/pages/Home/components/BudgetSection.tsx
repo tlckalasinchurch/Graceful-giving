@@ -34,13 +34,13 @@ export function BudgetSection({
     <section
       aria-label="แผนการใช้จ่ายงบประมาณ"
       aria-busy={isLoading}
-      className="h-full bg-surface rounded-3xl border border-line p-5 sm:p-6 space-y-4 w-full shadow-xs"
+      className="bento-card h-full w-full space-y-4 p-5 sm:p-6"
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-bold text-ink">แผนการใช้จ่าย</h2>
+        <h2 className="display text-lg text-ink">แผนการใช้จ่าย</h2>
         <button
           onClick={onOpenBudgets}
-          className="min-h-11 px-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="inline-flex min-h-9 items-center rounded-lg px-2.5 text-sm font-bold text-brand transition-colors hover:bg-brand/10 focus-visible:ring-2 focus-visible:ring-brand"
         >
           ดูงบประมาณ
         </button>
@@ -50,8 +50,8 @@ export function BudgetSection({
         <div className="space-y-4" aria-hidden="true">
           {[0, 1].map(i => (
             <div key={i} className="space-y-2 animate-pulse">
-              <div className="h-4 w-1/2 rounded-lg bg-paper" />
-              <div className="h-2.5 w-full rounded-full bg-paper" />
+              <div className="h-4 w-1/2 rounded-lg bg-ground" />
+              <div className="h-2.5 w-full rounded-full bg-ground" />
             </div>
           ))}
         </div>
@@ -64,7 +64,7 @@ export function BudgetSection({
       )}
 
       {!isLoading && !isError && visible.length === 0 && (
-        <p className="py-6 text-sm text-ink-2">
+        <p className="rounded-xl border border-dashed border-line bg-ground px-4 py-6 text-sm text-ink-2">
           ยังไม่มีแผนงบประมาณสำหรับเดือนนี้
         </p>
       )}

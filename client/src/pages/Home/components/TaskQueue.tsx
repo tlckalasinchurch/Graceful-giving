@@ -22,7 +22,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
     return (
       <div
         role="status"
-        className="flex items-center justify-between gap-3 rounded-2xl border border-line/80 bg-surface px-4 py-3 sm:px-5 shadow-xs"
+        className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3 shadow-[2px_2px_0_var(--ink)] sm:px-5"
       >
         <div className="flex items-center gap-2.5">
           <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-income/10 text-income">
@@ -42,13 +42,13 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
   return (
     <section
       aria-label="รายการที่ต้องดำเนินการ"
-      className="rounded-3xl border border-line bg-surface p-4 sm:p-5 shadow-xs"
+      className="bento-card p-4 sm:p-5"
     >
       <div className="flex items-center justify-between px-2 pb-3 pt-1 border-b border-line/60">
-        <h2 className="text-sm sm:text-base font-bold text-ink">
+        <h2 className="display text-base text-ink sm:text-lg">
           งานที่ต้องดำเนินการ
         </h2>
-        <span className="money text-xs sm:text-sm font-semibold text-brand-ink">
+        <span className="money text-xs sm:text-sm font-semibold text-brand">
           รวม {total} รายการ
         </span>
       </div>
@@ -60,7 +60,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
                 type="button"
                 onClick={() => onOpen(item.href)}
                 aria-label={`${item.title} ${item.count} รายการ`}
-                className="w-full min-h-12 flex items-center gap-3.5 rounded-xl px-2.5 py-2.5 text-left hover:bg-paper transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+                className="flex min-h-12 w-full items-center gap-3.5 rounded-lg px-2.5 py-2.5 text-left transition-colors hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-bold text-ink">
@@ -72,7 +72,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
                 </span>
                 <span
                   aria-hidden="true"
-                  className="money flex size-7 shrink-0 items-center justify-center rounded-full bg-brand/10 text-xs font-bold text-brand-ink"
+                  className="money flex size-7 shrink-0 items-center justify-center rounded-lg border border-brand/20 bg-brand/10 text-xs font-bold text-brand"
                 >
                   {item.count}
                 </span>

@@ -241,7 +241,7 @@ export default function ComponentsShowcase() {
   };
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="min-h-dvh bg-ground text-ink py-8">
       <main className="container max-w-6xl mx-auto">
         <div className="space-y-2 justify-between flex">
           <h2 className="text-3xl font-bold tracking-tight mb-6">
@@ -1424,7 +1424,7 @@ export default function ComponentsShowcase() {
                   </div>
                   <div className="rounded-2xl border bg-card p-6 text-center">
                     <FlipText
-                      className="text-3xl font-bold text-clay-brown"
+                      className="text-3xl font-bold text-brand"
                       loop={false}
                     >
                       Graceful Giving
@@ -1446,7 +1446,7 @@ export default function ComponentsShowcase() {
             <Card>
               <CardContent className="pt-6 space-y-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                  <div className="rounded-3xl bg-[--color-ground] p-6 space-y-5 text-white">
+                  <div className="rounded-3xl bg-ground border-2 border-[var(--ink)] shadow-[4px_4px_0_var(--ink)] p-6 space-y-5 text-white">
                     <div className="text-center">
                       <StationCubeLogo />
                     </div>
@@ -1463,7 +1463,7 @@ export default function ComponentsShowcase() {
                     />
                   </div>
 
-                  <div className="rounded-3xl bg-[--color-ground] p-6 space-y-4 text-white">
+                  <div className="rounded-3xl bg-ground border-2 border-[var(--ink)] shadow-[4px_4px_0_var(--ink)] p-6 space-y-4 text-white">
                     <StationCountdownCard initialSeconds={297} />
                     <StationStepStatusCard updatedAtText="อัปเดตล่าสุด วันนี้" />
                     <StationOfferingPackageCard

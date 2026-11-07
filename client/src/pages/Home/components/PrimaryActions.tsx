@@ -22,10 +22,10 @@ export function PrimaryActions({
       {canRecordOffering && (
         <button
           onClick={onNewOffering}
-          className="group flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl bg-brand px-5 text-sm sm:text-base font-bold text-black hover:bg-brand-ink transition-all shadow-xs active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          className="btn-primary group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-bold transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base"
           aria-label="บันทึกการถวาย"
         >
-          <span className="flex size-7 items-center justify-center rounded-xl bg-black/15 text-black">
+          <span className="flex size-7 items-center justify-center rounded-lg bg-surface/20 text-white">
             <HandCoins className="size-4.5" aria-hidden="true" />
           </span>
           <span>บันทึกการถวาย</span>
@@ -35,10 +35,10 @@ export function PrimaryActions({
       {canRecordExpense && (
         <button
           onClick={onNewExpense}
-          className="group flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl border border-line bg-surface px-5 text-sm sm:text-base font-bold text-ink hover:bg-paper-2 transition-all shadow-xs active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand"
+          className="group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl border-2 border-[var(--ink)] bg-surface px-5 text-sm font-bold text-ink shadow-[4px_4px_0_var(--ink)] transition-all hover:bg-ground active:translate-x-[3px] active:translate-y-[3px] active:shadow-none focus-visible:ring-2 focus-visible:ring-brand sm:text-base"
           aria-label="บันทึกรายจ่าย"
         >
-          <span className="flex size-7 items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60">
+          <span className="flex size-7 items-center justify-center rounded-lg bg-danger/10 text-danger">
             <ReceiptText className="size-4.5" aria-hidden="true" />
           </span>
           <span>บันทึกรายจ่าย</span>

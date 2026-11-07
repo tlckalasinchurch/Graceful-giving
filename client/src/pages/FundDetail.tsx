@@ -148,21 +148,21 @@ export default function FundDetail() {
             label="กลับหน้ารายการกองทุน"
             onClick={() => setLocation("/funds")}
           />
-          <span className="font-mono text-xs text-ink-3 bg-paper-2 px-3 py-1 rounded-full border border-line">
+          <span className="font-mono text-xs font-extrabold text-accent-foreground bg-accent px-3 py-1 rounded-full border-2 border-[var(--ink)] shadow-[2px_2px_0_var(--ink)]">
             FD-{String(fund.id).padStart(3, "0")}
           </span>
         </div>
-        <section className="bg-paper-2 border border-line rounded-2xl p-6 md:p-8 space-y-6">
+        <section className="bento-card p-6 md:p-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-2">
               <StatusBadge
                 status={fund.isActive ? "active" : "inactive"}
                 label={fund.isActive ? "กำลังใช้งาน" : "ปิดใช้งาน"}
               />
-              <h1 className="text-2xl md:text-3xl font-bold text-ink">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-ink">
                 {fund.name}
               </h1>
-              <p className="text-sm text-ink-3 max-w-xl">
+              <p className="text-sm font-medium text-ink-3 max-w-xl">
                 {fund.description || "ยังไม่มีคำอธิบายกองทุนในระบบ"}
               </p>
             </div>
@@ -173,47 +173,51 @@ export default function FundDetail() {
                     "ฟังก์ชันโอนเงินจะเปิดใช้เมื่อมี workflow จากระบบรองรับ"
                   )
                 }
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface border border-line text-ink-2 text-sm font-medium"
+                className="btn-secondary min-h-11 inline-flex items-center gap-2 px-4 py-2.5 text-sm"
               >
                 <ArrowRightLeft className="w-4 h-4 text-brand" />
                 โอนเงินระหว่างกองทุน
               </button>
               <button
                 onClick={handleExportStatement}
-                className="min-h-11 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand text-black text-sm font-medium"
+                className="btn-primary min-h-11 inline-flex items-center gap-2 px-4 py-2.5 text-sm"
               >
                 <Download className="w-4 h-4" />
                 ดาวน์โหลด Statement
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-line rounded-2xl border border-line bg-surface">
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[var(--ink)] rounded-2xl border-2 border-[var(--ink)] bg-surface overflow-hidden">
             <div className="p-4 flex items-baseline justify-between sm:block">
-              <p className="text-xs text-ink-3 font-medium">ยอดคงเหลือสุทธิ</p>
+              <p className="text-xs text-ink-3 font-extrabold uppercase tracking-wider">
+                ยอดคงเหลือสุทธิ
+              </p>
               <div className="text-right sm:text-left sm:mt-1">
                 <MoneyDisplay amount={balance} size="xl" />
-                <p className="text-[11px] text-ink-3 mt-1">
+                <p className="text-[11px] font-medium text-ink-3 mt-1">
                   ยอดจริงจากบัญชีกองทุน
                 </p>
               </div>
             </div>
             <div className="p-4 flex items-baseline justify-between sm:block">
-              <p className="text-xs text-ink-3 font-medium">ประเภทกองทุน</p>
+              <p className="text-xs text-ink-3 font-extrabold uppercase tracking-wider">
+                ประเภทกองทุน
+              </p>
               <div className="text-right sm:text-left sm:mt-1">
-                <p className="text-2xl font-bold text-ink">
+                <p className="text-2xl font-extrabold text-ink">
                   {FUND_TYPE_LABELS[fund.type] || fund.type}
                 </p>
-                <p className="text-[11px] text-ink-3 mt-1">
+                <p className="text-[11px] font-medium text-ink-3 mt-1">
                   รายการเคลื่อนไหวในระบบ {fundTransactions.length} รายการ
                 </p>
               </div>
             </div>
           </div>
         </section>
-        <section className="bg-surface rounded-2xl border border-line p-6">
-          <div className="flex items-center gap-2 mb-4">
+        <section className="bento-card-static p-6">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-[var(--ink)]">
             <Wallet className="w-5 h-5 text-brand" />
-            <h2 className="text-base font-bold text-ink">
+            <h2 className="text-base font-extrabold text-ink">
               กิจกรรมล่าสุด ({fundTransactions.length})
             </h2>
           </div>
@@ -223,18 +227,18 @@ export default function FundDetail() {
               description="ยังไม่มีรายการถวายหรือรายจ่ายที่ผูกกับกองทุนนี้"
             />
           ) : (
-            <div className="divide-y divide-line/60">
+            <div className="divide-y divide-line">
               {fundTransactions.map(tx => (
                 <div
                   key={tx.id}
                   onClick={() => setLocation(`/transactions/${tx.id}`)}
-                  className="py-3.5 px-2 flex items-center justify-between gap-4 hover:bg-paper/60 rounded-xl cursor-pointer transition-colors"
+                  className="py-3.5 px-3 flex items-center justify-between gap-4 hover:bg-paper-2 rounded-xl cursor-pointer transition-colors"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-ink truncate">
+                    <p className="text-sm font-extrabold text-ink truncate">
                       {tx.title}
                     </p>
-                    <p className="text-xs text-ink-3">
+                    <p className="text-xs font-medium text-ink-3">
                       {formatThaiDate(tx.date)} · {tx.categoryLabel}
                     </p>
                   </div>

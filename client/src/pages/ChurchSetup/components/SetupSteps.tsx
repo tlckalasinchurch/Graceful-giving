@@ -15,7 +15,7 @@ export function FieldLabel({
   required?: boolean;
 }) {
   return (
-    <label className="mb-1.5 block text-xs font-bold text-ink-2">
+    <label className="mb-1.5 block text-xs font-extrabold text-ink">
       {children} {required && <span className="text-danger">*</span>}
     </label>
   );
@@ -47,7 +47,7 @@ export function TextField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-ink-3 focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/20 disabled:opacity-60"
+        className="neo-input w-full px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-3 disabled:opacity-60"
       />
     </div>
   );
@@ -76,7 +76,7 @@ export function Step1({
           onChange={e => set({ address: e.target.value })}
           placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
           rows={3}
-          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-ink-3 focus:border-brand-ink focus:outline-none resize-none"
+          className="neo-input w-full px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-3 resize-none"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -141,12 +141,12 @@ export function Step2({
           onChange={e => set({ motto: e.target.value })}
           placeholder="เช่น 2 โครินธ์ 9:7 · ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก"
           rows={2}
-          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 placeholder:text-ink-3 focus:border-brand-ink focus:outline-none resize-none"
+          className="neo-input w-full px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-3 resize-none"
         />
       </div>
-      <div className="rounded-2xl border border-line bg-paper p-4">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
-          <Info className="size-3.5 text-brand-ink" aria-hidden="true" />
+      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
+          <Info className="size-3.5 text-brand" aria-hidden="true" />
           เกี่ยวกับบทบาทผู้ใช้
         </p>
         <p className="mt-1 text-xs text-ink-2">
@@ -182,7 +182,7 @@ export function Step3({
         <NativeSelect
           value={data.bankName}
           onChange={e => set({ bankName: e.target.value })}
-          className="border-line text-ink-2 focus:border-brand-ink"
+          className="border-line text-ink focus:border-brand"
         >
           <option value="">— เลือกธนาคาร —</option>
           {BANKS.map(b => (
@@ -212,8 +212,8 @@ export function Step3({
         onChange={v => set({ promptPayId: v })}
         placeholder="08X-XXX-XXXX หรือเลขประจำตัว 13 หลัก (ไม่บังคับ)"
       />
-      <div className="rounded-2xl border border-line bg-paper p-4">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
           <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
           ความปลอดภัย
         </p>
@@ -245,7 +245,7 @@ export function Step4({
       <p className="text-sm text-ink-2">
         เลือกหมวดหมู่การถวายที่คริสตจักรของคุณใช้งาน:
       </p>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2.5">
         {DEFAULT_OFFERING_CATEGORIES.map(cat => {
           const selected = data.offeringCategories.includes(cat);
           return (
@@ -253,21 +253,21 @@ export function Step4({
               key={cat}
               type="button"
               onClick={() => toggleCat(cat)}
-              className={`flex min-h-[48px] items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${
+              className={`flex min-h-[48px] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition ${
                 selected
-                  ? "border-brand-ink bg-paper-2 text-brand-ink"
-                  : "border-line bg-surface text-ink-2 hover:bg-paper"
+                  ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]"
+                  : "border-[1.5px] border-[var(--ink)]/30 bg-surface text-ink-2 hover:bg-paper-2"
               }`}
             >
               <span
-                className={`grid size-5 shrink-0 place-items-center rounded-md ${
-                  selected ? "bg-brand-ink text-black" : "bg-line"
+                className={`grid size-5 shrink-0 place-items-center rounded-md border border-[var(--ink)]/30 ${
+                  selected ? "bg-brand text-white" : "bg-paper-2"
                 }`}
               >
                 {selected ? (
                   <Check className="size-3" />
                 ) : (
-                  <HandCoins className="size-3 text-brand-ink" />
+                  <HandCoins className="size-3 text-brand" />
                 )}
               </span>
               {cat}
@@ -276,7 +276,7 @@ export function Step4({
         })}
       </div>
       {data.offeringCategories.length === 0 && (
-        <p className="flex items-center gap-1.5 text-xs text-danger">
+        <p className="flex items-center gap-1.5 text-xs font-bold text-danger">
           <AlertTriangle className="size-3.5 shrink-0" aria-hidden="true" />
           กรุณาเลือกอย่างน้อย 1 หมวดหมู่
         </p>
@@ -294,21 +294,21 @@ export function Step5({ data }: { data: SetupData }) {
       {data.funds.map((fund, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5"
+          className="flex items-center gap-3 rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface p-3.5 shadow-[2px_2px_0_var(--ink)]"
         >
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-paper-2 text-brand-ink">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-[var(--ink)] bg-paper-2 text-brand">
             <WalletCards className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-ink-2">{fund.name}</p>
+            <p className="text-sm font-extrabold text-ink">{fund.name}</p>
             <p className="text-xs text-ink-2">{fund.description}</p>
           </div>
           <Check className="size-4 shrink-0 text-income" />
         </div>
       ))}
-      <div className="rounded-2xl border border-line bg-paper p-4">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
-          <Info className="size-3.5 text-brand-ink" aria-hidden="true" />
+      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
+          <Info className="size-3.5 text-brand" aria-hidden="true" />
           สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
         <p className="mt-1 text-xs text-ink-2">จากหน้าการเงิน → จัดการกองทุน</p>
@@ -331,7 +331,7 @@ export function Step6({
         <NativeSelect
           value={data.fiscalYearStartMonth}
           onChange={e => set({ fiscalYearStartMonth: Number(e.target.value) })}
-          className="border-line text-ink-2 focus:border-brand-ink"
+          className="border-line text-ink focus:border-brand"
         >
           {THAI_MONTHS.map((m, i) => (
             <option key={i + 1} value={i + 1}>
@@ -352,12 +352,12 @@ export function Step6({
           onChange={e => set({ budgetYear: Number(e.target.value) })}
           min={2000}
           max={2100}
-          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink-2 focus:border-brand-ink focus:outline-none"
+          className="neo-input w-full px-3.5 py-2.5 text-sm text-ink"
         />
       </div>
-      <div className="rounded-2xl border border-line bg-paper p-4 space-y-2">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
-          <Calendar className="size-3.5 text-brand-ink" aria-hidden="true" />
+      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4 space-y-2">
+        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
+          <Calendar className="size-3.5 text-brand" aria-hidden="true" />
           ตัวอย่างรอบปีงบประมาณ
         </p>
         <p className="text-xs text-ink-2">
@@ -377,25 +377,25 @@ export function Step7() {
       role: "SUPER_ADMIN",
       label: "ผู้ดูแลระบบสูงสุด",
       desc: "เข้าถึงได้ทุกอย่าง รวมถึงข้อมูลผู้ถวายและการตั้งค่า",
-      color: "bg-rose-50 text-rose-800 border border-rose-200",
+      color: "bg-danger/10 text-danger border border-danger/25",
     },
     {
       role: "PASTOR",
       label: "ศิษยาภิบาล / ผู้นำ",
       desc: "ดูรายงานการเงิน อนุมัติคำขอ แต่ไม่เห็นชื่อผู้ถวาย",
-      color: "bg-sky-50 text-sky-800 border border-sky-200",
+      color: "bg-tile-sky text-tile-sky-ink border border-tile-sky-ink/20",
     },
     {
       role: "TREASURER",
       label: "เหรัญญิก / ผู้ดูแลการเงิน",
       desc: "บันทึกและดูรายการทั้งหมด รวมถึงชื่อผู้ถวาย",
-      color: "bg-emerald-50 text-emerald-800 border border-emerald-200",
+      color: "bg-brand/10 text-brand border border-brand/25",
     },
     {
       role: "MEMBER",
       label: "สมาชิกทั่วไป",
       desc: "ดูยอดรวมและสร้างคำขอเบิก แต่ไม่เห็นรายละเอียดผู้ถวาย",
-      color: "bg-paper-2 text-brand-ink",
+      color: "bg-paper-2 text-brand border border-[var(--ink)]/20",
     },
   ];
   return (
@@ -406,21 +406,21 @@ export function Step7() {
       {roles.map(({ role, label, desc, color }) => (
         <div
           key={role}
-          className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-3.5"
+          className="flex items-start gap-3 rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface p-3.5 shadow-[2px_2px_0_var(--ink)]"
         >
           <span
-            className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-bold ${color}`}
+            className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-extrabold ${color}`}
           >
             {role}
           </span>
           <div>
-            <p className="text-sm font-bold text-ink-2">{label}</p>
+            <p className="text-sm font-extrabold text-ink">{label}</p>
             <p className="text-xs text-ink-2">{desc}</p>
           </div>
         </div>
       ))}
-      <div className="rounded-2xl border border-line bg-paper p-4">
-        <p className="flex items-center gap-1.5 text-xs font-bold text-ink">
+      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
           <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
           การกำหนดสิทธิ์
         </p>
@@ -451,7 +451,7 @@ export function Step8({ data }: { data: SetupData }) {
   ];
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-line bg-surface overflow-hidden">
+      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface overflow-hidden">
         {summaryItems.map(({ label, value }, i) => (
           <div
             key={label}
@@ -460,21 +460,21 @@ export function Step8({ data }: { data: SetupData }) {
             }`}
           >
             <span className="text-ink-2">{label}</span>
-            <span className="font-bold text-ink-2 text-right max-w-[55%] truncate">
+            <span className="font-extrabold text-ink text-right max-w-[55%] truncate">
               {value}
             </span>
           </div>
         ))}
       </div>
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center">
+      <div className="rounded-2xl border-2 border-[var(--ink)] bg-accent p-4 text-center shadow-[3px_3px_0_var(--ink)]">
         <Heart
-          className="mx-auto mb-2 size-8 text-emerald-600"
-          fill="#10b981"
+          className="mx-auto mb-2 size-8 text-brand"
+          fill="currentColor"
         />
-        <p className="text-sm font-bold text-emerald-900">
+        <p className="text-sm font-extrabold text-accent-foreground">
           พร้อมเริ่มต้นใช้งาน!
         </p>
-        <p className="mt-1 text-xs text-emerald-700">
+        <p className="mt-1 text-xs font-medium text-accent-foreground/80">
           ระบบจะบันทึกข้อมูลและนำคุณไปยังหน้าแดชบอร์ด
         </p>
       </div>

@@ -50,7 +50,7 @@ export const STEPS: StepConfig[] = [
     title: "ข้อมูลพื้นฐาน",
     subtitle: "ชื่อและที่ตั้งคริสตจักร",
     icon: Church,
-    color: "text-brand-ink",
+    color: "text-brand",
     bgColor: "bg-paper-2",
   },
   {
@@ -74,7 +74,7 @@ export const STEPS: StepConfig[] = [
     title: "หมวดหมู่การถวาย",
     subtitle: "ประเภทการถวายที่ใช้",
     icon: HandCoins,
-    color: "text-brand-ink",
+    color: "text-brand",
     bgColor: "bg-paper-2",
   },
   {

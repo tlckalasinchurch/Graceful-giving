@@ -122,7 +122,7 @@ export async function getDb() {
   if (!_db && dbUrl) {
     try {
       // Supabase / Neon transaction pooler requires prepared statements off.
-      const client = postgres(dbUrl, { prepare: false });
+      const client = postgres(dbUrl, { prepare: false, max: 1 });
       // Eager health-check: `postgres` connects lazily, so verify now to preserve
       // the getDb()-returns-null (never throws) contract on unreachable URLs.
       await client`SELECT 1`;

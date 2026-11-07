@@ -3,14 +3,53 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-// Guards the dark theme against contrast regressions that type checks and
-// logic tests cannot see. Tokens are read from index.css, not copied here.
+// Guards the theme against contrast regressions that type checks and logic
+// tests cannot see. Tokens are read from index.css, not copied here, and var()
+// chains are resolved so a page cannot drift by re-declaring a colour.
 const css = readFileSync(resolve(import.meta.dirname, "index.css"), "utf8");
 
-function token(name: string): string {
-  const match = css.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})\\s*;`));
-  if (!match) throw new Error(`Token --${name} not found in index.css`);
-  return match[1];
+type Vars = Record<string, string>;
+
+/** Split the stylesheet into { selector: declarations }. */
+function blocks(source: string): Array<{ selector: string; vars: Vars }> {
+  const out: Array<{ selector: string; vars: Vars }> = [];
+  const pattern = /([^{}]+)\{([^{}]*)\}/g;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(source))) {
+    const vars: Vars = {};
+    for (const decl of match[2].matchAll(/--([\w-]+):\s*([^;]+);/g)) {
+      vars[decl[1]] = decl[2].trim();
+    }
+    if (Object.keys(vars).length) out.push({ selector: match[1].trim(), vars });
+  }
+  return out;
+}
+
+const all = blocks(css);
+
+function pick(predicate: (selector: string) => boolean): Vars {
+  return all
+    .filter(block => predicate(block.selector))
+    .reduce<Vars>((acc, block) => ({ ...acc, ...block.vars }), {});
+}
+
+const base: Vars = {
+  ...pick(selector => selector.includes(":root")),
+  ...pick(selector => selector.includes("@theme")),
+};
+const dark: Vars = { ...base, ...pick(selector => selector.includes(".dark")) };
+
+/** Follow var(--a) -> var(--b) -> #hex until a literal shows up. */
+function resolveVar(vars: Vars, name: string, depth = 0): string {
+  const raw = vars[name];
+  if (raw === undefined) throw new Error(`Token --${name} not found`);
+  if (depth > 8) throw new Error(`Token --${name} is circular`);
+  const ref = raw.match(/^var\(--([\w-]+)\)$/);
+  return ref ? resolveVar(vars, ref[1], depth + 1) : raw;
+}
+
+function token(name: string, mode: "light" | "dark" = "light"): string {
+  return resolveVar(mode === "dark" ? dark : base, name);
 }
 
 function luminance(hex: string): number {
@@ -26,43 +65,35 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-describe("dark theme contrast", () => {
-  it("keeps text on the orange brand at WCAG AA (4.5:1)", () => {
+describe.each(["light", "dark"] as const)("%s theme contrast", mode => {
+  it("keeps the primary action legible (WCAG AA 4.5:1)", () => {
     expect(
-      contrast(token("primary-foreground"), token("primary"))
-    ).toBeGreaterThanOrEqual(4.5);
-    expect(contrast("#000000", token("color-brand"))).toBeGreaterThanOrEqual(
-      4.5
-    );
-    expect(
-      contrast("#000000", token("color-brand-ink"))
+      contrast(token("primary-foreground", mode), token("primary", mode))
     ).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("keeps body and muted text readable on the card surface", () => {
+  it("keeps body and muted text readable on a card", () => {
+    expect(contrast(token("ink", mode), token("surface", mode))).toBeGreaterThanOrEqual(7);
     expect(
-      contrast(token("color-ink"), token("color-surface"))
-    ).toBeGreaterThanOrEqual(7);
+      contrast(token("ink-3", mode), token("surface", mode))
+    ).toBeGreaterThanOrEqual(4.5);
     expect(
-      contrast(token("color-ink-3"), token("color-surface"))
+      contrast(token("ink-3", mode), token("ground", mode))
     ).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("keeps form control borders visible (WCAG 1.4.11, 3:1)", () => {
+  it("keeps control borders visible (WCAG 1.4.11, 3:1)", () => {
     expect(
-      contrast(token("input"), token("color-surface"))
-    ).toBeGreaterThanOrEqual(3);
-    expect(
-      contrast(token("color-field"), token("color-surface"))
+      contrast(token("field", mode), token("surface", mode))
     ).toBeGreaterThanOrEqual(3);
   });
 
-  it("keeps danger text readable on every light surface, canvas included (4.5:1)", () => {
+  it("keeps danger readable on canvas and card", () => {
     expect(
-      contrast(token("color-danger"), token("color-surface"))
+      contrast(token("danger", mode), token("surface", mode))
     ).toBeGreaterThanOrEqual(4.5);
     expect(
-      contrast(token("color-danger"), token("color-ground"))
+      contrast(token("danger", mode), token("ground", mode))
     ).toBeGreaterThanOrEqual(4.5);
   });
 });

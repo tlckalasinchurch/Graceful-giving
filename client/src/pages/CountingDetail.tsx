@@ -32,6 +32,7 @@ import { DeductionsTab } from "./CountingDetail/components/DeductionsTab";
 import { ReconciliationSummaryTab } from "./CountingDetail/components/ReconciliationSummaryTab";
 import { CarryForwardLedger } from "./CountingDetail/components/CarryForwardLedger";
 import { THAI_LOCALE } from "@/lib/format";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 type TabId = "envelopes" | "cash" | "bank" | "deductions" | "summary";
 
@@ -76,7 +77,7 @@ export default function CountingDetail() {
   };
 
   const onError = (verb: string) => (error: { message: string }) =>
-    toast.error(`${verb}ไม่สำเร็จ`, { description: error.message });
+    toast.error(`${verb}ไม่สำเร็จ`, { description: friendlyErrorMessage(error) });
 
   const addEnvelope = trpc.counting.addEnvelope.useMutation({
     onSuccess: () => void refreshAll(),
@@ -179,8 +180,6 @@ export default function CountingDetail() {
   const [varianceNote, setVarianceNote] = useState("");
   const [draftCounts, setDraftCounts] = useState<Record<string, string>>({});
 
-  // The route keeps this component mounted across /counting/:id values, so
-  // in-session drafts must reset when moving to another counting session.
   useEffect(() => {
     setDraftCounts({});
     setVarianceNote("");
@@ -214,7 +213,6 @@ export default function CountingDetail() {
       cashCounts: cashRows,
       deductions: detail.deductions,
       bankRecords: detail.bankRecords,
-      // Opening balances are resolved on the server from the previous round.
       carry: {
         openingCash: detail.reconciliation.openingCash,
         openingBank: detail.reconciliation.openingBank,
@@ -250,7 +248,7 @@ export default function CountingDetail() {
       <AppLayout title="รอบนับเงินถวาย">
         <ErrorState
           title="โหลดรอบนับเงินถวายไม่สำเร็จ"
-          description={detailQuery.error.message}
+          description={friendlyErrorMessage(detailQuery.error)}
           onRetry={() => detailQuery.refetch()}
         />
       </AppLayout>
@@ -331,9 +329,9 @@ export default function CountingDetail() {
                 title="ล้างข้อมูลเพื่อนับใหม่"
                 onClick={handleResetThisSession}
                 disabled={resetSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-line bg-paper-2 px-3.5 py-2 text-xs font-bold text-brand-ink hover:bg-paper-2 transition-colors disabled:opacity-50"
+                className="btn-secondary min-h-11 px-3.5 py-2 text-xs disabled:opacity-50"
               >
-                <RotateCcw className="h-4 w-4 text-brand-ink" />
+                <RotateCcw className="h-4 w-4 text-brand" />
                 <span className="hidden sm:inline">นับใหม่</span>
               </button>
               <button
@@ -341,7 +339,7 @@ export default function CountingDetail() {
                 title="ลบรอบนับเงินนี้"
                 onClick={handleDeleteThisSession}
                 disabled={deleteSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-danger hover:bg-rose-500/15 transition-colors disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border-2 border-[var(--ink)] bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink shadow-[2px_2px_0_var(--ink)] hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="hidden sm:inline">ลบรอบนี้</span>
@@ -355,24 +353,24 @@ export default function CountingDetail() {
       <div className="space-y-6">
         {/* Running totals stay visible on every tab. */}
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="rounded-2xl border border-line bg-surface p-4">
-            <p className="text-sm text-ink-2">ยอดถวายตามซอง</p>
-            <MoneyDisplay amount={r.offeringTotal} type="income" size="lg" />
+          <div className="bento-card p-4">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">ยอดถวายตามซอง</p>
+            <MoneyDisplay amount={r.offeringTotal} type="income" size="lg" className="mt-1 block" />
           </div>
-          <div className="rounded-2xl border border-line bg-surface p-4">
-            <p className="text-sm text-ink-2">นับเงินสดได้</p>
-            <MoneyDisplay amount={r.countedCashTotal} size="lg" />
+          <div className="bento-card p-4">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">นับเงินสดได้</p>
+            <MoneyDisplay amount={r.countedCashTotal} size="lg" className="mt-1 block" />
             <div className="mt-1 text-sm">
               <Variance amount={r.cashVariance} />
             </div>
           </div>
-          <div className="rounded-2xl border border-line bg-surface p-4">
-            <p className="text-sm text-ink-2">หักเบิก</p>
-            <MoneyDisplay amount={r.deductionTotal} type="expense" size="lg" />
+          <div className="bento-card p-4">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">หักเบิก</p>
+            <MoneyDisplay amount={r.deductionTotal} type="expense" size="lg" className="mt-1 block" />
           </div>
-          <div className="rounded-2xl border border-line bg-surface p-4">
-            <p className="text-sm text-ink-2">นำฝาก</p>
-            <MoneyDisplay amount={r.actualCashDeposit} size="lg" />
+          <div className="bento-card p-4">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">นำฝาก</p>
+            <MoneyDisplay amount={r.actualCashDeposit} size="lg" className="mt-1 block" />
           </div>
         </section>
 
@@ -383,10 +381,10 @@ export default function CountingDetail() {
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
+              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border-2 border-[var(--ink)] px-4 py-2 text-sm font-extrabold transition-all ${
                 tab === id
-                  ? "border border-line bg-paper-2 text-ink"
-                  : "border border-line bg-surface text-ink-2 hover:bg-paper"
+                  ? "bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]"
+                  : "bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -396,7 +394,7 @@ export default function CountingDetail() {
         </div>
 
         {!editable && tab !== "summary" && tab !== "bank" && (
-          <p className="rounded-2xl border border-line bg-paper-2 p-4 text-sm text-ink-2">
+          <p className="rounded-xl border-2 border-[var(--ink)] bg-tile-sand p-4 text-sm font-bold text-tile-sand-ink">
             รอบนี้ส่งนับแล้ว จึงแก้ไขซองและผลนับไม่ได้ ถ้าต้องแก้ ให้เหรัญญิกกด
             “ส่งกลับไปนับใหม่” ในแท็บสรุป
           </p>

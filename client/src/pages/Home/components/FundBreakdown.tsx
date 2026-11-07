@@ -1,14 +1,14 @@
 import { formatAmount } from "@/lib/format";
 import type { FundShare } from "../fundShares";
 
-// Distinct jewel tones for each church fund share
+// One brand family, six values — the bar reads as a split of the same money.
 const TONES = [
-  "bg-emerald-400",
-  "bg-amber-400",
-  "bg-sky-400",
-  "bg-rose-400",
-  "bg-violet-400",
-  "bg-teal-400",
+  "bg-brand",
+  "bg-accent",
+  "bg-coral",
+  "bg-brand/55",
+  "bg-accent/70",
+  "bg-coral/55",
 ];
 export const fundTone = (i: number) => TONES[i % TONES.length];
 
@@ -34,7 +34,7 @@ export function FundBreakdown({
         aria-label={`สัดส่วนเงินตามกองทุน ${rows
           .map(r => `${r.name} ${r.share}%`)
           .join(" ")}`}
-        className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full bg-black/20"
+        className="flex h-3 w-full gap-0.5 overflow-hidden rounded-full border border-line bg-ground"
       >
         {rows.map((r, i) => (
           <span
@@ -53,15 +53,15 @@ export function FundBreakdown({
             >
               <span
                 aria-hidden="true"
-                className={`size-2.5 shrink-0 rounded-full ${fundTone(i)} shadow-xs`}
+                className={`size-2.5 shrink-0 rounded-full border border-ink/10 ${fundTone(i)}`}
               />
-              <span className="min-w-0 flex-1 truncate text-white/90 font-medium">
+              <span className="min-w-0 flex-1 truncate font-medium text-ink-2">
                 {r.name}
               </span>
-              <span className="money shrink-0 text-white font-semibold">
+              <span className="money shrink-0 font-bold text-ink">
                 {hidden ? "••••" : `฿ ${formatAmount(r.balance, 0)}`}
               </span>
-              <span className="money w-10 shrink-0 text-right text-emerald-200/70 font-medium">
+              <span className="money w-10 shrink-0 text-right font-medium text-ink-3">
                 {r.share}%
               </span>
             </li>

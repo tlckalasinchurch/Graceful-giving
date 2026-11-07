@@ -20,25 +20,25 @@ export default function Privacy() {
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-2 text-xs font-bold text-ink hover:bg-paper-2 transition-colors"
+              className="btn-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold"
             >
               <ArrowLeft className="size-4" />
               ย้อนกลับ
             </button>
             <Link
               href="/give"
-              className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-line bg-surface px-3.5 py-2 text-xs font-medium text-ink hover:bg-paper-2 transition-colors"
+              className="btn-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold"
             >
               หน้าถวายทรัพย์
             </Link>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink">
-            <ShieldCheck className="size-3.5" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[var(--ink)] bg-accent px-3.5 py-1 text-xs font-extrabold text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
+            <ShieldCheck className="size-3.5 text-brand" />
             PDPA Compliance
           </span>
         </div>
 
-        <header className="space-y-3 border-b border-line pb-6">
+        <header className="space-y-3 border-b-2 border-[var(--ink)] pb-6">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink">
             นโยบายความเป็นส่วนตัวและการคุ้มครองข้อมูลส่วนบุคคล (PDPA)
           </h1>
@@ -48,9 +48,9 @@ export default function Privacy() {
           </p>
         </header>
 
-        <section className="space-y-4 rounded-2xl border border-line bg-surface p-6">
-          <h2 className="text-base font-bold text-ink flex items-center gap-2">
-            <Lock className="size-4 text-ink-2" />
+        <section className="bento-card space-y-4 p-6">
+          <h2 className="text-base font-extrabold text-ink flex items-center gap-2">
+            <Lock className="size-4 text-brand" />
             1. ข้อมูลที่เราเก็บรวบรวม
           </h2>
           <ul className="list-disc pl-5 space-y-2 text-sm text-ink-2 leading-relaxed">
@@ -67,8 +67,8 @@ export default function Privacy() {
           </ul>
         </section>
 
-        <section className="space-y-4 rounded-2xl border border-line bg-surface p-6">
-          <h2 className="text-base font-bold text-ink">
+        <section className="bento-card-static space-y-4 p-6">
+          <h2 className="text-base font-extrabold text-ink">
             2. วัตถุประสงค์และการจำกัดสิทธิ์การเข้าถึง
           </h2>
           <ul className="list-disc pl-5 space-y-2 text-sm text-ink-2 leading-relaxed">
@@ -87,8 +87,8 @@ export default function Privacy() {
           </ul>
         </section>
 
-        <section className="space-y-4 rounded-2xl border border-line bg-surface p-6">
-          <h2 className="text-base font-bold text-ink">
+        <section className="bento-card-static space-y-4 p-6">
+          <h2 className="text-base font-extrabold text-ink">
             3. สิทธิของเจ้าของข้อมูลส่วนบุคคล
           </h2>
           <p className="text-sm text-ink-2 leading-relaxed">

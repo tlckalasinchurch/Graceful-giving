@@ -27,6 +27,7 @@ import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 type Plan = {
   id: number;
@@ -90,7 +91,8 @@ export default function BudgetDetail() {
       await utils.budgets.getById.invalidate({ id });
       toast.success("บันทึกการแก้ไขงบประมาณแล้ว");
     },
-    onError: error => toast.error(error.message || "บันทึกงบประมาณไม่สำเร็จ"),
+    onError: error =>
+      toast.error(friendlyErrorMessage(error, "บันทึกงบประมาณไม่สำเร็จ")),
   });
 
   const remove = trpc.budgets.delete.useMutation({
@@ -99,7 +101,8 @@ export default function BudgetDetail() {
       toast.success("ลบงบประมาณแล้ว");
       setLocation("/budgets");
     },
-    onError: error => toast.error(error.message || "ลบงบประมาณไม่สำเร็จ"),
+    onError: error =>
+      toast.error(friendlyErrorMessage(error, "ลบงบประมาณไม่สำเร็จ")),
   });
 
   const submit = (event: React.FormEvent) => {
@@ -162,33 +165,37 @@ export default function BudgetDetail() {
           />
         ) : (
           <>
-            <section className="rounded-2xl border border-line bg-surface p-6 md:p-8">
-              <h1 className="text-2xl font-bold text-ink">
+            <section className="bento-card p-6 md:p-8">
+              <h1 className="text-2xl font-extrabold tracking-tight text-ink">
                 {budgetCategoryLabel(query.data.category)}
               </h1>
-              <p className="mt-1 text-sm text-ink-3">
+              <p className="mt-1 text-sm font-medium text-ink-3">
                 {budgetPeriodLabel(query.data.year, query.data.month)}
                 {" · "}
                 {fundName(query.data.fundId) ?? "ทุกกองทุน"}
               </p>
-              <dl className="mt-5 grid grid-cols-3 gap-3">
+              <dl className="mt-5 grid grid-cols-3 gap-3 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
                 <div>
-                  <dt className="text-xs text-ink-3">งบประมาณ</dt>
-                  <dd>
+                  <dt className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+                    งบประมาณ
+                  </dt>
+                  <dd className="mt-1">
                     <MoneyDisplay amount={query.data.plannedAmount} size="sm" />
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-ink-3">ใช้จริง</dt>
-                  <dd>
+                  <dt className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+                    ใช้จริง
+                  </dt>
+                  <dd className="mt-1">
                     <MoneyDisplay amount={query.data.actualAmount} size="sm" />
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-ink-3">
+                  <dt className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
                     {query.data.remainingAmount < 0 ? "เกินงบ" : "คงเหลือ"}
                   </dt>
-                  <dd>
+                  <dd className="mt-1">
                     <MoneyDisplay
                       amount={Math.abs(query.data.remainingAmount)}
                       size="sm"
@@ -206,17 +213,14 @@ export default function BudgetDetail() {
               />
             </section>
 
-            <form
-              onSubmit={submit}
-              className="rounded-2xl border border-line bg-surface p-6 md:p-8"
-            >
-              <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="font-bold text-ink">แก้ไขงบประมาณ</h2>
+            <form onSubmit={submit} className="bento-card-static p-6 md:p-8">
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-[var(--ink)]">
+                <h2 className="font-extrabold text-ink">แก้ไขงบประมาณ</h2>
                 <button
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="min-h-11 inline-flex items-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-bold text-rose-300 disabled:opacity-50"
+                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger shadow-[2px_2px_0_var(--ink)] transition-colors disabled:opacity-50"
                 >
                   <Trash2 className="h-4 w-4" />
                   ลบงบประมาณ
@@ -229,19 +233,19 @@ export default function BudgetDetail() {
               />
               <button
                 disabled={update.isPending || !isDirty}
-                className="mt-6 min-h-11 inline-flex items-center gap-2 rounded-xl bg-brand hover:bg-brand-ink px-5 py-2 text-sm font-bold text-black disabled:opacity-50"
+                className="btn-primary mt-6 min-h-11 inline-flex items-center gap-2 px-5 py-2 text-sm disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
               </button>
             </form>
 
-            <section className="rounded-2xl border border-line bg-surface p-6 md:p-8">
-              <h2 className="font-bold text-ink">
+            <section className="bento-card-static p-6 md:p-8">
+              <h2 className="font-extrabold text-ink pb-3 border-b-2 border-[var(--ink)]">
                 รายจ่ายที่นับในงบนี้ ({query.data.expenseCount} รายการ)
               </h2>
               {query.data.expenses.length === 0 ? (
-                <p className="mt-3 text-sm text-ink-3">
+                <p className="mt-4 text-sm font-medium text-ink-3">
                   ยังไม่มีรายจ่ายที่ตรงกับช่วงเวลา หมวด และกองทุนของงบนี้
                 </p>
               ) : (
@@ -250,19 +254,19 @@ export default function BudgetDetail() {
                     <li key={expense.id}>
                       <Link
                         href={`/transactions/expense-${expense.id}`}
-                        className="flex items-start justify-between gap-3 py-3 hover:bg-paper/60 rounded-xl px-2 -mx-2 transition-colors"
+                        className="flex items-start justify-between gap-3 py-3 hover:bg-paper-2 rounded-xl px-2 -mx-2 transition-colors"
                       >
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-ink hover:underline">
+                          <p className="truncate text-sm font-extrabold text-ink hover:underline">
                             {expense.description}
                           </p>
-                          <p className="text-xs text-ink-3">
+                          <p className="text-xs font-medium text-ink-3">
                             {formatThaiDate(expense.expenseDate)} ·{" "}
                             {expenseCategoryLabel(expense.category)}
                             {expense.payee ? ` · ${expense.payee}` : ""}
                           </p>
                         </div>
-                        <span className="shrink-0 text-sm font-bold tabular-nums text-ink">
+                        <span className="shrink-0 text-sm font-extrabold tabular-nums text-danger">
                           {formatBaht(expense.amount)}
                         </span>
                       </Link>
@@ -271,7 +275,7 @@ export default function BudgetDetail() {
                 </ul>
               )}
               {query.data.expenseCount > query.data.expenses.length && (
-                <p className="mt-3 text-xs text-ink-3">
+                <p className="mt-3 text-xs font-medium text-ink-3">
                   แสดง {query.data.expenses.length} รายการล่าสุด
                 </p>
               )}

@@ -22,7 +22,6 @@ interface CarryForwardLedgerProps {
 
 type Line = { sign: "+" | "−" | ""; label: string; amount: number };
 
-/** One wallet written the way the paper sheet is: signed lines, a rule, the total. */
 function WalletLedger({
   title,
   lines,
@@ -43,7 +42,7 @@ function WalletLedger({
     <section aria-labelledby={headingId} className="p-5">
       <h3
         id={headingId}
-        className="font-display text-lg font-semibold text-foreground"
+        className="display text-lg text-ink"
       >
         {title}
       </h3>
@@ -53,23 +52,23 @@ function WalletLedger({
             key={line.label}
             className="grid grid-cols-[1.25rem_1fr_auto] items-baseline gap-2 border-b border-line py-2"
           >
-            <span aria-hidden className="font-mono text-ink-2">
+            <span aria-hidden className="font-mono font-bold text-ink-2">
               {line.sign}
             </span>
-            <dt className="text-ink-2">{line.label}</dt>
-            <dd className="tabular-nums text-foreground">
+            <dt className="font-medium text-ink-2">{line.label}</dt>
+            <dd className="font-semibold tabular-nums text-ink">
               {fmtBaht(line.amount)}
             </dd>
           </div>
         ))}
-        <div className="grid grid-cols-[1.25rem_1fr_auto] items-baseline gap-2 border-b-[3px] border-double border-ink-2 py-2.5">
-          <span aria-hidden className="font-mono text-ink-2">
+        <div className="grid grid-cols-[1.25rem_1fr_auto] items-baseline gap-2 border-b-2 border-[var(--ink)] bg-paper-2 px-2 py-2.5 rounded-b-lg">
+          <span aria-hidden className="font-mono font-extrabold text-ink">
             =
           </span>
-          <dt className="font-bold text-foreground">{totalLabel}</dt>
+          <dt className="font-extrabold text-ink">{totalLabel}</dt>
           <dd
             data-testid={totalTestId}
-            className="text-base font-bold tabular-nums text-foreground"
+            className="text-base font-extrabold tabular-nums text-ink"
           >
             {fmtBaht(total)}
           </dd>
@@ -100,7 +99,7 @@ function AmountField({
   const id = useId();
   return (
     <div className="min-w-0 flex-1">
-      <label htmlFor={id} className="text-xs font-semibold text-ink-2">
+      <label htmlFor={id} className="text-xs font-extrabold text-ink-2">
         {label}
       </label>
       <input
@@ -111,14 +110,14 @@ function AmountField({
         value={value}
         disabled={disabled}
         onChange={e => onChange(e.target.value)}
-        className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 text-base font-bold tabular-nums text-foreground disabled:opacity-50"
+        className="neo-input mt-1 font-extrabold tabular-nums disabled:opacity-50"
       />
     </div>
   );
 }
 
 const saveButton =
-  "min-h-11 shrink-0 rounded-lg border border-ink-2 px-4 text-sm font-bold text-foreground hover:bg-paper-2 disabled:opacity-40";
+  "btn-secondary min-h-11 shrink-0 px-4 text-sm disabled:opacity-40";
 
 export function CarryForwardLedger({
   r,
@@ -140,14 +139,14 @@ export function CarryForwardLedger({
   if (!r.hasCarryForward || r.closingCashExpected === null) {
     if (locked) {
       return (
-        <p className="rounded-2xl border border-line bg-paper-2 p-4 text-sm text-ink-2">
+        <p className="rounded-xl border-2 border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
           รอบนี้ลงบัญชีก่อนระบบมีการยกยอด จึงไม่มียอดยกมาและยกไป
         </p>
       );
     }
     if (!canEdit) {
       return (
-        <p className="rounded-2xl border border-line bg-paper-2 p-4 text-sm text-ink-2">
+        <p className="rounded-xl border-2 border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
           รอฝ่ายการเงินกรอกยอดยกมาของรอบแรก
         </p>
       );
@@ -155,11 +154,11 @@ export function CarryForwardLedger({
     const cash = parseAmount(openingCash);
     const bank = parseAmount(openingBank);
     return (
-      <section className="rounded-2xl border border-line bg-surface p-5">
-        <h3 className="font-display text-lg font-semibold text-foreground">
+      <section className="bento-card-static p-5">
+        <h3 className="display text-lg text-ink">
           ยอดยกมา (รอบแรก)
         </h3>
-        <p className="mt-1 text-sm text-ink-2">
+        <p className="mt-1 text-sm font-medium text-ink-2">
           ยังไม่มีรอบก่อนหน้าให้ยกยอดมา กรอกเงินสดที่มีอยู่ในกล่องตอนนี้
           และยอดล่าสุดในสมุดบัญชี กรอกได้ครั้งเดียว รอบต่อไประบบจะยกยอดให้เอง
         </p>
@@ -212,10 +211,10 @@ export function CarryForwardLedger({
   const passbookValue = parseAmount(passbook);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface">
-      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4">
-        <h2 className="font-bold text-foreground">ยอดยกมาและยกไป</h2>
-        <p className="text-xs text-ink-2">
+    <div className="bento-card-static overflow-hidden">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b-2 border-[var(--ink)] bg-paper-2 px-5 py-4">
+        <h2 className="font-extrabold text-ink">ยอดยกมาและยกไป</h2>
+        <p className="text-xs font-bold text-ink-2">
           {openingSource === "previous"
             ? "ยกมาจากรอบที่ลงบัญชีก่อนหน้า"
             : "ยกมาตามที่บันทึกไว้"}
@@ -232,7 +231,7 @@ export function CarryForwardLedger({
           <div className="mt-4 space-y-3">
             {r.cashOnHandActual !== null && r.cashOnHandVariance !== null && (
               <p className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                <span className="text-ink-2">
+                <span className="font-medium text-ink-2">
                   นับในกล่องได้ {fmtBaht(r.cashOnHandActual)}
                 </span>
                 <Variance amount={r.cashOnHandVariance} />
@@ -263,7 +262,7 @@ export function CarryForwardLedger({
               </div>
             )}
             {r.cashOnHandActual === null && (
-              <p className="text-xs text-brand-ink">
+              <p className="text-xs font-bold text-brand">
                 ต้องนับเงินในกล่องก่อนลงบัญชี
               </p>
             )}
@@ -279,9 +278,9 @@ export function CarryForwardLedger({
         >
           <div className="mt-4 space-y-3">
             {r.passbookBalance !== null && r.passbookVariance !== null && (
-              <p className="flex flex-wrap items-baseline justify-between gap-2 text-sm text-ink-2">
+              <p className="flex flex-wrap items-baseline justify-between gap-2 text-sm font-medium text-ink-2">
                 <span>สมุดบัญชี {fmtBaht(r.passbookBalance)}</span>
-                <span className="tabular-nums">
+                <span className="font-bold tabular-nums">
                   {r.passbookVariance === 0
                     ? "ตรงกับที่ควรเป็น"
                     : `ต่าง ${fmtBaht(r.passbookVariance)}`}
@@ -289,7 +288,7 @@ export function CarryForwardLedger({
               </p>
             )}
             {unmatchedPassbookCount > 0 && (
-              <p className="text-xs text-brand-ink">
+              <p className="text-xs font-bold text-brand">
                 ยังไม่ได้ติ๊กกับสมุดบัญชี {unmatchedPassbookCount} รายการ
               </p>
             )}
@@ -304,7 +303,7 @@ export function CarryForwardLedger({
                 <div className="min-w-0 flex-1">
                   <label
                     htmlFor={passbookDateId}
-                    className="text-xs font-semibold text-ink-2"
+                    className="text-xs font-extrabold text-ink-2"
                   >
                     วันที่ในสมุด
                   </label>
@@ -314,7 +313,7 @@ export function CarryForwardLedger({
                     value={passbookDate}
                     disabled={pending}
                     onChange={e => setPassbookDate(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-foreground disabled:opacity-50"
+                    className="neo-input mt-1 disabled:opacity-50"
                   />
                 </div>
                 <button
@@ -336,7 +335,7 @@ export function CarryForwardLedger({
                 </button>
               </div>
             )}
-            <p className="text-xs text-ink-2">
+            <p className="text-xs font-medium text-ink-2">
               สมุดอาจอัปเดตไม่ตรงรอบ ส่วนต่างจึงแสดงไว้ดูเท่านั้น
               ไม่บล็อกการลงบัญชี
             </p>

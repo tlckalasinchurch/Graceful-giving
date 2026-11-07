@@ -15,7 +15,6 @@ const BANK_RECORD_LABELS: Record<BankRecordType, string> = {
   other_out: "เงินออกอื่นๆ (ค่าธรรมเนียม โอนจ่ายบิล)",
 };
 
-/** Fees, interest and bills need a written reason; the amount alone says nothing. */
 const needsNote = (type: BankRecordType) =>
   type === "other_in" || type === "other_out";
 
@@ -146,11 +145,11 @@ export function BankRecordsTab({
               }
             );
           }}
-          className="rounded-2xl border border-line bg-surface p-5 md:p-6"
+          className="bento-card-static p-5 md:p-6"
         >
-          <h2 className="mb-4 font-bold text-foreground">บันทึกรายการธนาคาร</h2>
+          <h2 className="mb-4 display text-base text-ink">บันทึกรายการธนาคาร</h2>
           <div className="grid gap-4 md:grid-cols-4">
-            <label className="text-sm font-semibold text-ink-2">
+            <label className="text-sm font-extrabold text-ink">
               ประเภท
               <NativeSelect
                 value={bType}
@@ -169,7 +168,7 @@ export function BankRecordsTab({
                 ))}
               </NativeSelect>
             </label>
-            <label className="text-sm font-semibold text-ink-2">
+            <label className="text-sm font-extrabold text-ink">
               จำนวนเงิน *
               <input
                 type="number"
@@ -178,29 +177,29 @@ export function BankRecordsTab({
                 step="0.25"
                 value={bAmount}
                 onChange={e => setBAmount(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-line p-3 text-base font-bold tabular-nums text-foreground"
+                className="neo-input mt-1 font-bold tabular-nums"
               />
             </label>
-            <label className="text-sm font-semibold text-ink-2">
+            <label className="text-sm font-extrabold text-ink">
               ผู้โอน
               <input
                 value={bName}
                 onChange={e => setBName(e.target.value)}
                 placeholder="เว้นว่างได้ถ้าเป็นการนำฝาก"
-                className="mt-1 w-full rounded-xl border border-line p-3 text-sm font-normal text-foreground"
+                className="neo-input mt-1 font-normal"
               />
             </label>
-            <label className="text-sm font-semibold text-ink-2">
+            <label className="text-sm font-extrabold text-ink">
               เลขอ้างอิง
               <input
                 value={bRef}
                 onChange={e => setBRef(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-line p-3 font-mono text-sm font-normal text-foreground"
+                className="neo-input mt-1 font-mono font-normal"
               />
             </label>
           </div>
           {needsNote(bType) && (
-            <label className="mt-4 block text-sm font-semibold text-ink-2">
+            <label className="mt-4 block text-sm font-extrabold text-ink">
               รายละเอียด *
               <input
                 value={bNotes}
@@ -208,14 +207,14 @@ export function BankRecordsTab({
                 maxLength={500}
                 onChange={e => setBNotes(e.target.value)}
                 placeholder="เช่น ค่าธรรมเนียมรายปี, ค่าไฟเดือนตุลาคม"
-                className="mt-1 w-full rounded-xl border border-line p-3 text-sm font-normal text-foreground"
+                className="neo-input mt-1 font-normal"
               />
             </label>
           )}
           <button
             type="submit"
             disabled={addBankRecord.isPending}
-            className="mt-4 min-h-11 rounded-xl bg-income px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            className="btn-primary mt-4 min-h-11 px-5 py-2.5 text-sm disabled:opacity-50"
           >
             {addBankRecord.isPending ? "กำลังบันทึก…" : "เพิ่มรายการ"}
           </button>
@@ -223,28 +222,28 @@ export function BankRecordsTab({
       )}
 
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-line bg-surface p-4">
-          <p className="text-sm text-ink-2">เงินโอนเข้าบัญชีจริง</p>
-          <MoneyDisplay amount={actualTransferIn} type="income" size="lg" />
-          <p className="mt-1 text-sm text-ink-2">
+        <div className="bento-card p-4">
+          <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">เงินโอนเข้าบัญชีจริง</p>
+          <MoneyDisplay amount={actualTransferIn} type="income" size="lg" className="mt-1 block" />
+          <p className="mt-1 text-sm font-medium text-ink-2">
             เทียบซองโอน {fmtBaht(envelopeTransferTotal)}
           </p>
           <div className="mt-1">
             <Variance amount={transferVariance} />
           </div>
         </div>
-        <div className="rounded-2xl border border-line bg-surface p-4">
-          <p className="text-sm text-ink-2">นำเงินสดเข้าฝากจริง</p>
-          <MoneyDisplay amount={actualCashDeposit} size="lg" />
+        <div className="bento-card p-4">
+          <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">นำเงินสดเข้าฝากจริง</p>
+          <MoneyDisplay amount={actualCashDeposit} size="lg" className="mt-1 block" />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
-        <h2 className="border-b border-line p-4 font-bold text-foreground">
+      <div className="bento-card-static overflow-hidden">
+        <h2 className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 font-extrabold text-ink">
           รายการธนาคาร ({bankRecords.length})
         </h2>
         {bankRecords.length === 0 ? (
-          <p className="p-8 text-center text-sm text-ink-2">
+          <p className="p-8 text-center text-sm font-medium text-ink-2">
             ยังไม่มีรายการธนาคารในรอบนี้
           </p>
         ) : (
@@ -252,14 +251,14 @@ export function BankRecordsTab({
             {bankRecords.map(record => (
               <li
                 key={record.id}
-                className="flex items-center justify-between gap-4 p-4"
+                className="flex items-center justify-between gap-4 p-4 hover:bg-paper-2/40"
               >
                 <div className="min-w-0">
-                  <p className="font-bold text-foreground">
+                  <p className="font-extrabold text-ink">
                     {BANK_RECORD_LABELS[record.type as BankRecordType] ??
                       record.type}
                   </p>
-                  <p className="text-sm text-ink-2">
+                  <p className="text-sm font-medium text-ink-2">
                     {needsNote(record.type as BankRecordType)
                       ? record.notes
                       : record.transferredByName || "ไม่ระบุผู้โอน"}
@@ -271,7 +270,7 @@ export function BankRecordsTab({
                         กระทบสมุดบัญชีแล้ว
                       </span>
                     ) : (
-                      <span className="text-brand-ink">
+                      <span className="font-bold text-brand">
                         ยังไม่กระทบสมุดบัญชี
                       </span>
                     )}
@@ -284,7 +283,7 @@ export function BankRecordsTab({
                       type="button"
                       onClick={() => void handleMatchPassbook(record)}
                       disabled={matchPassbook.isPending}
-                      className="min-h-11 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-income hover:bg-emerald-100 disabled:opacity-50"
+                      className="btn-secondary min-h-10 px-3 py-2 text-xs text-brand disabled:opacity-50"
                     >
                       กระทบสมุด
                     </button>
@@ -298,7 +297,7 @@ export function BankRecordsTab({
                         aria-label="ลบรายการธนาคารนี้"
                         onClick={() => void handleRemoveBankRecord(record)}
                         disabled={removeBankRecord.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl text-danger hover:bg-rose-50 disabled:opacity-50"
+                        className="flex size-10 items-center justify-center rounded-xl border border-[var(--ink)] bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

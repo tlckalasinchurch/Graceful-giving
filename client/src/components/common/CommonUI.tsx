@@ -23,14 +23,14 @@ export const LoadingSkeleton: React.FC<{
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className={`w-full ${height} rounded-xl bg-surface animate-pulse border border-line p-4 flex items-center gap-4`}
+          className={`w-full ${height} flex animate-pulse items-center gap-4 rounded-2xl border-2 border-line bg-surface p-4 shadow-[2px_2px_0_var(--line)]`}
         >
-          <div className="w-12 h-12 rounded-lg bg-paper-2 shrink-0" />
+          <div className="size-12 shrink-0 rounded-xl bg-paper-2 border border-line" />
           <div className="flex-1 space-y-2">
-            <div className="w-1/3 h-4 rounded bg-paper-2" />
-            <div className="w-1/2 h-3 rounded bg-paper" />
+            <div className="h-4 w-1/3 rounded-md bg-paper-2" />
+            <div className="h-3 w-1/2 rounded-md bg-ground" />
           </div>
-          <div className="w-20 h-6 rounded-lg bg-paper-2" />
+          <div className="h-7 w-20 rounded-lg bg-paper-2" />
         </div>
       ))}
     </div>
@@ -58,23 +58,25 @@ export const EmptyState: React.FC<{
 }) => {
   return (
     <div
-      className={`py-10 px-6 rounded-xl bg-surface border border-line flex flex-col items-center justify-center text-center space-y-3 ${className}`}
+      className={`dot-grid flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-dashed border-[var(--ink)]/35 bg-surface px-6 py-12 text-center ${className}`}
     >
-      <Illustration
-        src={illustrationSrc}
-        alt={illustrationAlt}
-        className="size-14 shrink-0 rounded-lg object-cover"
-        width={56}
-        height={56}
-      />
-      <div className="space-y-1 max-w-sm">
-        <h3 className="text-base font-bold text-ink">{title}</h3>
-        <p className="text-sm text-ink-3 leading-relaxed">{description}</p>
+      <div className="flex size-20 items-center justify-center rounded-2xl border-2 border-[var(--ink)] bg-accent shadow-[4px_4px_0_var(--ink)]">
+        <Illustration
+          src={illustrationSrc}
+          alt={illustrationAlt}
+          className="size-12 shrink-0 rounded-xl object-cover"
+          width={48}
+          height={48}
+        />
+      </div>
+      <div className="max-w-sm space-y-1.5">
+        <h3 className="display text-lg text-ink">{title}</h3>
+        <p className="text-sm leading-relaxed text-ink-3">{description}</p>
       </div>
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="min-h-11 mt-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-ink text-black text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brand"
+          className="btn-primary mt-2 min-h-11 rounded-xl px-5 py-2 text-sm font-bold focus-visible:ring-2 focus-visible:ring-brand"
         >
           {actionText}
         </button>
@@ -95,18 +97,18 @@ export const ErrorState: React.FC<{
   className = "",
 }) => (
   <div
-    className={`py-10 px-6 rounded-xl bg-surface border border-danger/40 flex flex-col items-center justify-center text-center space-y-4 ${className}`}
+    className={`flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-danger bg-surface px-6 py-10 text-center shadow-[4px_4px_0_var(--danger)] ${className}`}
     role="alert"
   >
-    <div className="space-y-1 max-w-sm">
-      <h3 className="text-base font-bold text-danger">{title}</h3>
-      <p className="text-sm text-ink-2 leading-relaxed">{description}</p>
+    <div className="max-w-sm space-y-1.5">
+      <h3 className="display text-lg text-danger">{title}</h3>
+      <p className="text-sm leading-relaxed text-ink-2">{description}</p>
     </div>
     {onRetry && (
       <button
         type="button"
         onClick={onRetry}
-        className="min-h-11 rounded-xl bg-danger hover:opacity-90 px-4 py-2 text-sm font-semibold text-white transition-opacity"
+        className="btn-destructive min-h-11 rounded-xl px-4 py-2 text-sm font-bold"
       >
         ลองใหม่
       </button>
@@ -145,17 +147,17 @@ export const StatusBadge: React.FC<{
       case "approved":
       case "completed":
         return {
-          bg: "bg-tile-mint text-tile-mint-ink border-emerald-500/30",
+          bg: "bg-income text-white border-[var(--ink)]",
           defaultLabel: "อนุมัติแล้ว",
         };
       case "active":
         return {
-          bg: "bg-tile-mint text-tile-mint-ink border-emerald-500/30",
+          bg: "bg-income text-white border-[var(--ink)]",
           defaultLabel: "ใช้งานอยู่",
         };
       case "rejected":
         return {
-          bg: "bg-tile-rose text-tile-rose-ink border-rose-500/30",
+          bg: "bg-coral text-white border-[var(--ink)]",
           defaultLabel: "ปฏิเสธ / ยกเลิก",
         };
       case "inactive":
@@ -170,12 +172,12 @@ export const StatusBadge: React.FC<{
         };
       case "submitted":
         return {
-          bg: "bg-tile-sky text-tile-sky-ink border-sky-500/30",
+          bg: "bg-accent-lime text-accent-lime-ink border-[var(--ink)]",
           defaultLabel: "ส่งตรวจสอบแล้ว",
         };
       case "needs_review":
         return {
-          bg: "bg-tile-peach text-tile-peach-ink border-amber-500/30",
+          bg: "bg-coral text-white border-[var(--ink)]",
           defaultLabel: "ต้องตรวจสอบ",
         };
       case "unknown":
@@ -190,22 +192,22 @@ export const StatusBadge: React.FC<{
         };
       case "counting":
         return {
-          bg: "bg-tile-sand text-tile-sand-ink border-amber-500/30",
+          bg: "bg-accent-lime text-accent-lime-ink border-[var(--ink)]",
           defaultLabel: "กำลังนับ",
         };
       case "counted":
         return {
-          bg: "bg-tile-sky text-tile-sky-ink border-sky-500/30",
+          bg: "bg-income text-white border-[var(--ink)]",
           defaultLabel: "รอตรวจสอบ",
         };
       case "verified":
         return {
-          bg: "bg-tile-lilac text-tile-lilac-ink border-line",
+          bg: "bg-income text-white border-[var(--ink)]",
           defaultLabel: "ตรวจสอบแล้ว",
         };
       case "posted":
         return {
-          bg: "bg-brand text-black border-brand",
+          bg: "bg-income text-white border-[var(--ink)]",
           defaultLabel: "ลงบัญชีแล้ว",
         };
       case "closed":
@@ -216,7 +218,7 @@ export const StatusBadge: React.FC<{
       case "pending":
       default:
         return {
-          bg: "bg-tile-sand text-tile-sand-ink border-amber-500/30",
+          bg: "bg-tile-sand text-tile-sand-ink border-[var(--ink)]/30",
           defaultLabel: "รอดำเนินการ",
         };
     }
@@ -226,7 +228,7 @@ export const StatusBadge: React.FC<{
 
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-full text-xs font-bold border ${style.bg} ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold border ${style.bg} ${className}`}
     >
       <span
         className="w-1.5 h-1.5 shrink-0 rounded-full bg-current"
@@ -247,6 +249,7 @@ export const MoneyDisplay: React.FC<{
 }> = ({ amount, type = "neutral", size = "md", className = "" }) => {
   const getColor = () => {
     if (type === "income") return "text-income";
+    if (type === "expense") return "text-danger";
     if (type === "neutral" && amount < 0) return "text-danger";
     return "text-ink";
   };
@@ -291,13 +294,16 @@ export const PageHeader: React.FC<{
   className?: string;
 }> = ({ title, subtitle, action, className = "" }) => {
   return (
-    <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface rounded-2xl border border-line p-5 md:p-6 ${className}`}
-    >
+    <div className={`flex flex-col justify-between gap-4 sm:flex-row sm:items-end ${className}`}>
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold text-ink break-words">{title}</h1>
+        <h1 className="display text-[clamp(1.75rem,3.2vw,2.5rem)] leading-[1.05] text-ink break-words">
+          {title}
+        </h1>
+        <span className="title-rule mt-3" aria-hidden="true" />
         {subtitle && (
-          <p className="text-xs text-ink-3 mt-1 leading-relaxed">{subtitle}</p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-2">
+            {subtitle}
+          </p>
         )}
       </div>
       {action && (
@@ -331,19 +337,19 @@ export const Chip: React.FC<
   <button
     type="button"
     aria-pressed={active}
-    className={`min-h-11 shrink-0 whitespace-nowrap rounded-2xl border px-4 py-2 text-sm transition-all ${
+    className={`min-h-11 shrink-0 whitespace-nowrap rounded-xl border px-4 py-2 text-sm transition-all ${
       active
         ? variant === "quiet"
-          ? "border-white/30 bg-paper-2 font-bold text-ink"
-          : "border-brand bg-brand font-bold text-black"
-        : "border-line bg-surface font-semibold text-ink-2 hover:bg-paper hover:text-ink"
+          ? "border-2 border-[var(--ink)] bg-accent font-bold text-accent-foreground"
+          : "border-2 border-[var(--ink)] bg-brand font-bold text-white shadow-[2px_2px_0_var(--ink)]"
+        : "border-line bg-surface font-semibold text-ink-2 hover:border-[var(--ink)] hover:bg-ground hover:text-ink"
     } ${className}`}
     {...props}
   >
     {children}
     {count !== undefined && (
       <span
-        className={`money ml-1.5 font-medium ${active ? (variant === "quiet" ? "text-ink-2" : "text-black/70") : "text-ink-3"}`}
+        className={`money ml-1.5 font-medium ${active ? (variant === "quiet" ? "text-accent-lime-ink/80" : "text-white/90") : "text-ink-3"}`}
       >
         {count}
       </span>
@@ -384,7 +390,7 @@ export const FilterBar: React.FC<{
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface border border-line text-base md:text-sm text-ink placeholder-ink-3 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/30"
+          className="min-h-11 w-full rounded-xl border-2 border-line bg-surface py-2.5 pl-10 pr-4 text-base text-ink transition-colors placeholder-ink-3 hover:border-[var(--ink)]/40 focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 md:text-sm"
         />
       </div>
 
@@ -432,10 +438,10 @@ export const BackLink: React.FC<{
   <button
     type="button"
     onClick={onClick}
-    className={`min-h-11 inline-flex items-center gap-1.5 text-sm font-semibold transition-all ${
+    className={`min-h-11 inline-flex items-center gap-1.5 text-sm font-bold transition-all ${
       variant === "pill"
-        ? "rounded-2xl border border-line bg-surface px-4 py-2 text-ink hover:bg-paper"
-        : "text-ink-2 hover:text-ink"
+        ? "btn-secondary rounded-xl px-4 py-2"
+        : "text-ink-2 hover:text-brand"
     } ${className}`}
   >
     <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -468,12 +474,10 @@ export const ConfirmDialog: React.FC<{
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm bg-surface border-line rounded-3xl p-6 text-ink shadow-xl">
+      <DialogContent className="max-w-sm rounded-2xl border-2 border-[var(--ink)] bg-surface p-6 text-ink shadow-[6px_6px_0_var(--ink)]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-extrabold text-ink">
-            {title}
-          </DialogTitle>
-          <DialogDescription className="text-sm text-ink-2 leading-relaxed">
+          <DialogTitle className="display text-xl text-ink">{title}</DialogTitle>
+          <DialogDescription className="text-sm leading-relaxed text-ink-2">
             {description}
           </DialogDescription>
         </DialogHeader>
@@ -482,7 +486,7 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="flex-1 py-2.5 rounded-2xl bg-paper text-ink-2 font-bold text-xs border border-line hover:bg-paper-2"
+            className="btn-secondary min-h-11 flex-1 rounded-xl py-2.5 text-xs font-bold"
           >
             {cancelText}
           </button>
@@ -490,10 +494,8 @@ export const ConfirmDialog: React.FC<{
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`flex-1 py-2.5 rounded-2xl font-bold text-xs button-elevation transition-all ${
-              variant === "danger"
-                ? "bg-danger hover:opacity-90 text-white"
-                : "bg-brand hover:bg-brand-ink text-black"
+            className={`min-h-11 flex-1 rounded-xl py-2.5 text-xs font-bold transition-all ${
+              variant === "danger" ? "btn-destructive" : "btn-primary"
             }`}
           >
             {isLoading ? "กำลังดำเนินการ..." : confirmText}

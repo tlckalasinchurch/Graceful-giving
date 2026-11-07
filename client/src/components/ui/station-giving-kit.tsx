@@ -2,15 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarCheck2,
-  CheckCircle2,
   ChevronRight,
   CreditCard,
   HandCoins,
   Play,
-  QrCode,
   RotateCcw,
   Smartphone,
-  UploadCloud,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
@@ -18,7 +15,7 @@ import { cn } from "@/lib/utils";
 // ─── 1. Isometric Station Cube Logo (JamBox-inspired) ─────────────────────────
 
 export function StationCubeLogo({
-  brandTitle = "GraceBox",
+  brandTitle = "Grace Giving",
   subtitle = "AUTOMATED CHURCH GIVING STATION",
   variant = "white",
   className,
@@ -28,23 +25,27 @@ export function StationCubeLogo({
   variant?: "white" | "orange";
   className?: string;
 }) {
+  void variant;
   return (
     <div
       className={cn(
-        "inline-flex flex-col items-center select-none text-center",
+        "inline-flex items-center gap-3 select-none text-left",
         className
       )}
     >
-      <div className="text-center pt-1">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none text-white font-display">
+      <span className="grid size-11 shrink-0 place-items-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
+        <HandCoins className="size-5" aria-hidden="true" />
+      </span>
+      <span className="min-w-0">
+        <h1 className="display block truncate text-2xl leading-none text-ink sm:text-3xl">
           {brandTitle}
         </h1>
         {subtitle && (
-          <p className="mt-2 text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-stone-300 uppercase">
+          <p className="mt-1.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3 sm:text-[11px]">
             {subtitle}
           </p>
         )}
-      </div>
+      </span>
     </div>
   );
 }
@@ -67,30 +68,32 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-[#16181D] border border-white/[0.08] px-5 py-4 flex items-center justify-between gap-4 shadow-lg",
+        "flex items-center justify-between gap-4 rounded-2xl border-2 border-[var(--ink)] bg-surface px-5 py-4 shadow-[4px_4px_0_var(--ink)]",
         className
       )}
     >
-      <div className="flex items-center gap-3.5 min-w-0">
+      <div className="flex min-w-0 items-center gap-3.5">
         {avatarUrl ? (
           <img
             src={avatarUrl}
             alt={userName}
-            className="w-12 h-12 rounded-full object-cover border border-white/20 shrink-0"
+            className="size-12 shrink-0 rounded-xl border-2 border-[var(--ink)] object-cover"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F97316] to-[#B45309] text-white font-extrabold text-lg flex items-center justify-center border border-white/20 shrink-0">
+          <div className="grid size-12 shrink-0 place-items-center rounded-xl border-2 border-[var(--ink)] bg-tile-mint text-lg font-extrabold text-tile-mint-ink">
             {userName.trim().slice(0, 1).toUpperCase() || "G"}
           </div>
         )}
-        <span className="text-lg font-extrabold text-white truncate">
+        <span className="truncate text-lg font-extrabold text-ink">
           {userName}
         </span>
       </div>
 
-      <div className="text-right shrink-0">
-        <div className="text-xs font-medium text-stone-400">{metricLabel}</div>
-        <div className="text-base sm:text-xl font-extrabold text-white tabular-nums">
+      <div className="shrink-0 text-right">
+        <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">
+          {metricLabel}
+        </div>
+        <div className="text-base font-bold tabular-nums text-brand sm:text-lg">
           {metricValue}
         </div>
       </div>
@@ -114,39 +117,37 @@ export function StationStatusCard({
   return (
     <div
       className={cn(
-        "rounded-[28px] bg-[#16181D] border border-white/[0.08] px-5 py-4 space-y-2.5 shadow-lg",
+        "space-y-2.5 rounded-2xl border-2 border-[var(--ink)] bg-surface px-5 py-4 shadow-[3px_3px_0_var(--ink)]",
         className
       )}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="w-4 h-4 rounded-full border-2 border-[hsl(27_40%_24%)] flex items-center justify-center">
-            <span className="w-2 h-2 rounded-full bg-[#FB923C]" />
+          <span className="size-4 rounded-full border-2 border-[var(--ink)] bg-accent p-0.5">
+            <span className="block size-full rounded-full bg-brand" />
           </span>
-          <span className="text-sm font-bold text-[#FDBA74]">{label}</span>
+          <span className="text-sm font-extrabold text-ink">{label}</span>
         </div>
 
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#241E1C] border border-white/12">
+        <div className="inline-flex items-center gap-2 rounded-lg border-1.5 border-[var(--ink)] bg-paper-2 px-3 py-1.5">
           <span
             className={cn(
-              "w-2.5 h-2.5 rounded-full",
-              isAvailable
-                ? "bg-[#22C55E] ring-2 ring-[#22C55E]/30"
-                : "bg-amber-500"
+              "size-2.5 rounded-full border border-[var(--ink)]",
+              isAvailable ? "bg-accent" : "bg-danger"
             )}
           />
-          <span className="text-xs sm:text-sm font-bold text-white">
+          <span className="text-xs font-extrabold text-ink sm:text-sm">
             {statusBadgeText}
           </span>
         </div>
       </div>
 
-      <p className="text-sm font-medium text-stone-400">{statusDetail}</p>
+      <p className="text-sm font-medium text-ink-2">{statusDetail}</p>
     </div>
   );
 }
 
-// ─── 3. Station Hero Orange Gradient CTA (Jam Now -> Give Now) ───────────────
+// ─── 3. Station Hero CTA (Give Now) ──────────────────────────────────────────
 
 export function StationHeroCTA({
   eyebrow = "เริ่มใช้งาน",
@@ -168,8 +169,10 @@ export function StationHeroCTA({
   return (
     <div className={cn("space-y-3 pt-1", className)}>
       <div className="space-y-0.5">
-        <div className="text-sm font-bold text-[#FB923C]">{eyebrow}</div>
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink-3">
+          {eyebrow}
+        </div>
+        <h3 className="display text-2xl tracking-tight text-ink sm:text-3xl">
           {headline}
         </h3>
       </div>
@@ -178,14 +181,13 @@ export function StationHeroCTA({
         type="button"
         onClick={onClick}
         aria-label={`${buttonTitle} - ${buttonSubtitle}`}
-        className="group w-full text-left rounded-[28px] p-5 sm:p-6 bg-gradient-to-br from-[#FBBF24] via-[#F97316] to-[#EA580C] border-2 border-[#FDE68A]/50 shadow-[0_12px_32px_-8px_rgba(249,115,22,0.55)] hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between gap-4"
+        className="group flex w-full items-center justify-between gap-4 rounded-2xl border-2 border-[var(--ink)] bg-brand p-5 text-left text-white shadow-[5px_5px_0_var(--ink)] transition-all hover:bg-[#066B48] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none sm:p-6"
       >
-        <div className="flex items-center gap-4 min-w-0">
-          {/* Dark rounded-2xl icon box with vertical wave bars */}
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-[#2B180A] flex items-center justify-center shrink-0 shadow-inner">
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="grid size-14 shrink-0 place-items-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground sm:size-16">
             <svg
               viewBox="0 0 40 40"
-              className="w-8 h-8 text-[#FB923C]"
+              className="size-8"
               aria-hidden="true"
             >
               <line
@@ -237,22 +239,22 @@ export function StationHeroCTA({
           </div>
 
           <div className="min-w-0">
-            <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+            <div className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl">
               {buttonTitle}
             </div>
-            <div className="text-sm font-bold text-white/90 mt-0.5">
+            <div className="mt-0.5 text-sm font-bold text-white/85">
               {buttonSubtitle}
             </div>
           </div>
         </div>
 
-        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 border-white/60 bg-white/10 flex items-center justify-center text-white shrink-0 group-hover:translate-x-1 transition-transform">
-          <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+        <div className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-white/60 bg-white/10 text-white transition-transform group-hover:translate-x-1 sm:size-12">
+          <ArrowRight className="size-5 stroke-[2.5]" />
         </div>
       </button>
 
       {helperText && (
-        <p className="text-xs sm:text-sm text-stone-400 text-center pt-1 font-medium leading-relaxed">
+        <p className="pt-1 text-center text-xs font-medium leading-relaxed text-ink-3 sm:text-sm">
           {helperText}
         </p>
       )}
@@ -287,8 +289,6 @@ export function StationCountdownCard({
 }) {
   const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
   const [extensionsUsed, setExtensionsUsed] = useState(0);
-  // The deadline is a timestamp, so a throttled background tab cannot make the
-  // clock run slow.
   const deadlineRef = useRef(Date.now() + initialSeconds * 1000);
   const expiredRef = useRef(false);
   const onExpireRef = useRef(onExpire);
@@ -329,19 +329,19 @@ export function StationCountdownCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-surface border border-line px-6 py-5 flex items-center justify-between gap-4",
+        "rounded-2xl border-2 border-[var(--ink)] bg-surface px-6 py-5 shadow-[3px_3px_0_var(--ink)] flex items-center justify-between gap-4",
         className
       )}
     >
       <div className="space-y-1">
-        <div className="text-xs sm:text-sm font-medium text-ink-2">{label}</div>
-        {/* role="timer" is not announced every second. The status below
-            changes only twice, at one minute left and at zero. */}
+        <div className="text-xs font-bold uppercase tracking-wider text-ink-2 sm:text-sm">
+          {label}
+        </div>
         <div
           role="timer"
           aria-label={label}
           className={cn(
-            "text-4xl sm:text-5xl font-bold tabular-nums tracking-tight",
+            "text-4xl sm:text-5xl font-black tabular-nums tracking-tight",
             warning ? "text-danger" : "text-ink"
           )}
         >
@@ -360,7 +360,7 @@ export function StationCountdownCard({
         <button
           type="button"
           onClick={extend}
-          className="px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-2 border border-line text-xs font-semibold text-ink inline-flex items-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand active:scale-95 transition-all"
+          className="btn-secondary min-h-10 px-3 py-1.5 text-xs"
         >
           <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
           <span>ต่อเวลา</span>
@@ -384,14 +384,18 @@ export function StationStepStatusCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-paper border border-line px-6 py-5 space-y-1.5 shadow-2xs",
+        "rounded-2xl border-2 border-[var(--ink)] bg-paper-2 px-6 py-5 space-y-1.5 shadow-[3px_3px_0_var(--ink)]",
         className
       )}
     >
-      <div className="text-xs sm:text-sm font-medium text-ink-2">{eyebrow}</div>
-      <div className="text-lg sm:text-xl font-bold text-ink">{title}</div>
+      <div className="text-xs font-bold uppercase tracking-wider text-ink-2 sm:text-sm">
+        {eyebrow}
+      </div>
+      <div className="text-lg sm:text-xl font-extrabold text-ink">{title}</div>
       {updatedAtText && (
-        <div className="text-xs sm:text-sm text-ink-3">{updatedAtText}</div>
+        <div className="text-xs font-medium sm:text-sm text-ink-3">
+          {updatedAtText}
+        </div>
       )}
     </div>
   );
@@ -423,10 +427,10 @@ export function StationOfferingPackageCard({
       role="group"
       aria-label={title}
       className={cn(
-        "rounded-2xl bg-surface border border-line p-5 sm:p-6 space-y-4 transition-all shadow-2xs",
+        "rounded-2xl border-2 border-[var(--ink)] bg-surface p-5 sm:p-6 space-y-4 transition-all",
         selected
-          ? "border-brand ring-2 ring-brand/20 bg-paper"
-          : "border-line hover:border-line/80",
+          ? "bg-tile-mint shadow-[5px_5px_0_var(--ink)]"
+          : "shadow-[3px_3px_0_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)]",
         className
       )}
     >
@@ -448,10 +452,10 @@ export function StationOfferingPackageCard({
               onClick={() => onSelectAmount(preset)}
               aria-pressed={amountThb === preset}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
+                "px-3 py-1.5 rounded-xl text-xs font-extrabold border-2 border-[var(--ink)] transition-all cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
                 amountThb === preset
-                  ? "bg-paper-2 border-ink/20 text-ink"
-                  : "bg-surface border-line text-ink-2 hover:bg-paper hover:text-ink"
+                  ? "bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]"
+                  : "bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
               )}
             >
               {preset.toLocaleString()} THB
@@ -468,7 +472,7 @@ export function StationOfferingPackageCard({
         type="button"
         onClick={onSelect}
         aria-label={`${ctaLabel}: ${title}`}
-        className="w-full py-3.5 px-6 rounded-xl focus-visible:ring-2 focus-visible:ring-brand bg-brand hover:bg-brand-ink text-black font-bold text-lg sm:text-xl transition-colors cursor-pointer"
+        className="btn-primary w-full py-3.5 px-6 text-lg sm:text-xl cursor-pointer"
       >
         {ctaLabel}
       </button>
@@ -500,12 +504,12 @@ export function StationUnlockConfirmCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-surface border border-line p-6 sm:p-8 text-center space-y-5",
+        "rounded-2xl border-2 border-[var(--ink)] bg-surface p-6 sm:p-8 text-center space-y-5 shadow-[4px_4px_0_var(--ink)]",
         className
       )}
     >
       <div className="space-y-2.5">
-        <h3 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+        <h3 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
           {title}
         </h3>
         <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-md mx-auto">
@@ -520,7 +524,7 @@ export function StationUnlockConfirmCard({
         onClick={onConfirm}
         disabled={disabled || loading}
         aria-busy={loading}
-        className="w-full py-4 sm:py-5 px-6 rounded-xl focus-visible:ring-2 focus-visible:ring-brand bg-brand hover:bg-brand-ink disabled:opacity-50 text-black font-bold text-lg sm:text-xl transition-colors cursor-pointer"
+        className="btn-primary w-full py-4 sm:py-5 px-6 text-lg sm:text-xl cursor-pointer disabled:opacity-50"
       >
         {loading ? "กำลังส่งข้อมูลการถวาย..." : buttonLabel}
       </button>
@@ -581,16 +585,16 @@ export function StationQrPoster({
   const renderStepIcon = (icon: StationPosterStep["icon"]) => {
     switch (icon) {
       case "scan":
-        return <Smartphone className="w-6 h-6 text-[#080808] stroke-[2.2]" />;
+        return <Smartphone className="w-6 h-6 text-white stroke-[2.2]" />;
       case "select":
         return (
-          <CalendarCheck2 className="w-6 h-6 text-[#080808] stroke-[2.2]" />
+          <CalendarCheck2 className="w-6 h-6 text-white stroke-[2.2]" />
         );
       case "pay":
-        return <CreditCard className="w-6 h-6 text-[#080808] stroke-[2.2]" />;
+        return <CreditCard className="w-6 h-6 text-white stroke-[2.2]" />;
       case "done":
         return (
-          <Play className="w-6 h-6 text-[#080808] fill-[#080808] ml-0.5" />
+          <Play className="w-6 h-6 text-white fill-white ml-0.5" />
         );
     }
   };
@@ -598,14 +602,12 @@ export function StationQrPoster({
   return (
     <div
       className={cn(
-        // print-color-adjust keeps the dark board and white text when printed;
-        // browsers drop background colors by default.
-        "p-4 sm:p-7 rounded-2xl bg-[#22C55E] inline-block w-full max-w-md mx-auto [print-color-adjust:exact] [-webkit-print-color-adjust:exact] print:shadow-none",
+        "inline-block w-full max-w-md mx-auto rounded-2xl border-2 border-[var(--ink)] bg-accent p-4 shadow-[6px_6px_0_var(--ink)] [print-color-adjust:exact] [-webkit-print-color-adjust:exact] sm:p-7 print:shadow-none",
         className
       )}
     >
       {/* Inner Sanctuary-Navy Poster Board */}
-      <div className="bg-[#080808] rounded-xl px-6 py-8 sm:px-8 sm:py-10 text-center space-y-6 border border-[rgba(255,255,255,0.1)] relative overflow-hidden">
+      <div className="relative space-y-6 overflow-hidden rounded-xl border-2 border-[var(--ink)] bg-surface px-6 py-8 text-center sm:px-8 sm:py-10">
         {/* Top Isometric Logo + Brand */}
         <div className="flex flex-col items-center">
           <svg
@@ -617,39 +619,39 @@ export function StationQrPoster({
             <polygon
               points="60,10 18,32 18,78 60,100"
               fill="none"
-              stroke="#FFFFFF"
+              stroke="#171A18"
               strokeWidth="4.5"
               strokeLinejoin="round"
             />
-            {/* Right half of hexagon (harvest gold door frame) */}
+            {/* Right half of hexagon (emerald door frame) */}
             <polygon
               points="60,10 102,32 102,78 60,100"
               fill="none"
-              stroke="#22C55E"
+              stroke="#087F5B"
               strokeWidth="4.5"
               strokeLinejoin="round"
             />
-            {/* Open Harvest Gold Door Panel */}
-            <polygon points="62,22 86,14 86,90 62,82" fill="#22C55E" />
+            {/* Open Emerald Door Panel */}
+            <polygon points="62,22 86,14 86,90 62,82" fill="#087F5B" />
             {/* Door Handle */}
             <line
               x1="67"
               y1="49"
               x2="67"
               y2="57"
-              stroke="#080808"
+              stroke="#171A18"
               strokeWidth="3"
               strokeLinecap="round"
             />
             {/* Interior Offering Heart & Cross silhouette */}
-            <circle cx="43" cy="48" r="8" fill="#FFFFFF" />
-            <path d="M31 74 C31 63 55 63 55 74 Z" fill="#FFFFFF" />
+            <circle cx="43" cy="48" r="8" fill="#171A18" />
+            <path d="M31 74 C31 63 55 63 55 74 Z" fill="#171A18" />
             <line
               x1="30"
               y1="32"
               x2="30"
               y2="54"
-              stroke="#FFFFFF"
+              stroke="#171A18"
               strokeWidth="3.5"
               strokeLinecap="round"
             />
@@ -658,7 +660,7 @@ export function StationQrPoster({
               y1="39"
               x2="36"
               y2="39"
-              stroke="#FFFFFF"
+              stroke="#171A18"
               strokeWidth="3.5"
               strokeLinecap="round"
             />
@@ -668,7 +670,7 @@ export function StationQrPoster({
               y1="42"
               x2="110"
               y2="68"
-              stroke="#22C55E"
+              stroke="#087F5B"
               strokeWidth="4"
               strokeLinecap="round"
             />
@@ -677,7 +679,7 @@ export function StationQrPoster({
               y1="35"
               x2="117"
               y2="75"
-              stroke="#22C55E"
+              stroke="#087F5B"
               strokeWidth="4"
               strokeLinecap="round"
             />
@@ -686,28 +688,28 @@ export function StationQrPoster({
               y1="46"
               x2="124"
               y2="64"
-              stroke="#22C55E"
+              stroke="#087F5B"
               strokeWidth="4"
               strokeLinecap="round"
             />
           </svg>
 
           <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-none mt-1">
-            <span className="text-white">{brandPrefix}</span>
-            <span className="text-[#22C55E]">{brandHighlight}</span>
+            <span className="text-ink">{brandPrefix}</span>
+            <span className="text-brand">{brandHighlight}</span>
           </div>
 
           <div className="flex items-center justify-center gap-2.5 w-full mt-2">
-            <span className="h-[1.5px] w-10 bg-[#22C55E]/70" />
-            <span className="text-xs sm:text-sm font-bold tracking-[0.25em] text-white uppercase">
+            <span className="h-[1.5px] w-10 bg-brand/40" />
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-ink-3 sm:text-sm">
               {stationSubheader}
             </span>
-            <span className="h-[1.5px] w-10 bg-[#22C55E]/70" />
+            <span className="h-[1.5px] w-10 bg-brand/40" />
           </div>
 
           <div className="mt-2 text-xl sm:text-2xl font-bold tracking-tight">
-            <span className="text-white">{headlineWhite}</span>
-            <span className="text-[#22C55E]">{headlineOrange}</span>
+            <span className="text-ink">{headlineWhite}</span>
+            <span className="text-brand">{headlineOrange}</span>
           </div>
 
           {churchName && (
@@ -719,11 +721,11 @@ export function StationQrPoster({
 
         {/* Scan Prompt + White QR Card */}
         <div className="space-y-2.5">
-          <div className="text-sm sm:text-base font-bold text-white">
+          <div className="text-sm font-bold text-ink sm:text-base">
             {scanPrompt}
           </div>
 
-          <div className="bg-white rounded-xl p-3.5 w-52 sm:w-56 mx-auto space-y-1.5">
+          <div className="mx-auto w-52 space-y-1.5 rounded-xl border-2 border-[var(--ink)] bg-surface p-3.5 sm:w-56">
             {customQrImageUrl ? (
               <img
                 src={customQrImageUrl}
@@ -738,7 +740,7 @@ export function StationQrPoster({
                     level="H"
                     marginSize={4}
                     bgColor="#FFFFFF"
-                    fgColor="#111111"
+                    fgColor="#171A18"
                     title="QR Code สำหรับถวายทรัพย์"
                     className="w-full h-full"
                   />
@@ -746,21 +748,21 @@ export function StationQrPoster({
                   <div
                     role="img"
                     aria-label="ยังไม่ได้ตั้งค่า QR Code"
-                    className="w-full h-full flex items-center justify-center rounded-lg border-2 border-dashed border-stone-400 p-3 text-center text-xs font-bold text-ink-3"
+                    className="w-full h-full flex items-center justify-center rounded-lg border-2 border-dashed border-line p-3 text-center text-xs font-bold text-ink-3"
                   >
                     ยังไม่ได้ตั้งค่าลิงก์ QR Code
                   </div>
                 )}
                 {/* Subtle framing corners */}
-                <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-500/30 pointer-events-none" />
-                <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-500/30 pointer-events-none" />
-                <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-500/30 pointer-events-none" />
-                <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-amber-500/30 pointer-events-none" />
+                <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-ink/30 pointer-events-none" />
+                <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-ink/30 pointer-events-none" />
+                <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-ink/30 pointer-events-none" />
+                <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-ink/30 pointer-events-none" />
 
                 {/* Center Badge */}
                 {qrCenterBadge && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="px-1.5 py-0.5 bg-white font-black text-[11px] tracking-tight text-black border border-black rounded-xs">
+                    <span className="rounded-sm border border-[var(--ink)] bg-accent px-1.5 py-0.5 text-[11px] font-black tracking-tight text-ink">
                       {qrCenterBadge}
                     </span>
                   </div>
@@ -769,7 +771,7 @@ export function StationQrPoster({
             )}
 
             {qrCaption && (
-              <div className="text-[11px] font-bold tracking-wider text-black uppercase">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-ink-3">
                 {qrCaption}
               </div>
             )}
@@ -782,21 +784,21 @@ export function StationQrPoster({
             {steps.map((step, idx) => (
               <React.Fragment key={step.number}>
                 <div className="flex flex-col items-center space-y-2 flex-1 min-w-0">
-                  <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#22C55E] flex items-center justify-center">
+                  <div className="grid size-10 place-items-center rounded-xl border-1.5 border-[var(--ink)] bg-brand sm:size-13">
                     {renderStepIcon(step.icon)}
                   </div>
                   <div className="flex flex-col items-center gap-1 sm:flex-row">
-                    <span className="w-4 h-4 rounded-full bg-[#22C55E] text-[#080808] font-extrabold text-[10px] flex items-center justify-center shrink-0">
+                    <span className="grid size-4 shrink-0 place-items-center rounded-full border border-[var(--ink)] bg-accent text-[10px] font-extrabold text-accent-foreground">
                       {step.number}
                     </span>
-                    <span className="text-center text-[11px] leading-tight sm:text-xs font-bold text-white break-words">
+                    <span className="break-words text-center text-[11px] font-bold leading-tight text-ink sm:text-xs">
                       {step.label}
                     </span>
                   </div>
                 </div>
 
                 {idx < steps.length - 1 && (
-                  <div className="pt-4 text-[#22C55E] shrink-0">
+                  <div className="shrink-0 pt-4 text-ink-3">
                     <ChevronRight className="w-4 h-4 stroke-[3]" />
                   </div>
                 )}
@@ -808,10 +810,10 @@ export function StationQrPoster({
         {/* Bottom Callout */}
         <div className="pt-2 space-y-1">
           <div className="text-xl sm:text-2xl font-bold tracking-tight">
-            <span className="text-white">{footerLeadWhite} </span>
-            <span className="text-[#22C55E]">{footerLeadOrange}</span>
+            <span className="text-ink">{footerLeadWhite} </span>
+            <span className="text-brand">{footerLeadOrange}</span>
           </div>
-          <p className="text-xs sm:text-sm font-medium text-ink-2">
+          <p className="text-xs font-medium text-ink-2 sm:text-sm">
             {footerSubtext}
           </p>
         </div>

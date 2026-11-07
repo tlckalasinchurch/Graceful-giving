@@ -101,20 +101,20 @@ export function downloadICS(event: {
 
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line bg-paper-2 px-6 py-12 text-center">
-      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-paper-2 text-brand">
+    <div className="rounded-2xl border-2 border-dashed border-[var(--ink)]/30 bg-paper-2 px-6 py-12 text-center">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl border-2 border-[var(--ink)] bg-surface text-brand shadow-[3px_3px_0_var(--ink)]">
         {type === "news" ? (
-          <Megaphone className="size-7" strokeWidth={1.5} />
+          <Megaphone className="size-7" strokeWidth={1.75} />
         ) : (
-          <CalendarDays className="size-7" strokeWidth={1.5} />
+          <CalendarDays className="size-7" strokeWidth={1.75} />
         )}
       </div>
-      <p className="mt-4 text-base font-bold text-ink-2">
+      <p className="mt-4 text-base font-extrabold text-ink">
         {type === "news"
           ? "ยังไม่มีข่าวสารเผยแพร่"
           : "ยังไม่มีกิจกรรมที่กำลังจะมาถึง"}
       </p>
-      <p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-ink-2">
+      <p className="mx-auto mt-1 max-w-sm text-sm font-medium leading-6 text-ink-2">
         {type === "news"
           ? "เมื่อมีประกาศใหม่ สมาชิกจะเห็นได้ที่หน้านี้ทันที"
           : "กิจกรรมของคริสตจักรจะแสดงที่นี่เพื่อให้สมาชิกวางแผนได้ง่ายขึ้น"}
@@ -126,10 +126,10 @@ export function EmptyPanel({ type }: { type: "news" | "events" }) {
 export function StatusPill({ status }: { status: string }) {
   const styles =
     status === "published"
-      ? "border border-line bg-surface text-ink"
+      ? "border border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
       : status === "cancelled" || status === "archived"
-        ? "border border-line bg-paper text-ink-3"
-        : "border border-line bg-paper-2 text-ink-2";
+        ? "border border-[var(--ink)]/20 bg-paper-2 text-ink-3"
+        : "border border-[var(--ink)]/30 bg-tile-sand text-tile-sand-ink";
   const label =
     status === "published"
       ? "เผยแพร่แล้ว"
@@ -140,7 +140,7 @@ export function StatusPill({ status }: { status: string }) {
           : "ฉบับร่าง";
   return (
     <span
-      className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles}`}
+      className={`rounded-full px-2.5 py-1 text-xs font-extrabold ${styles}`}
     >
       {label}
     </span>
@@ -155,7 +155,7 @@ export function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block text-xs font-bold text-ink-2">
+    <label className="block text-xs font-extrabold text-ink-2">
       {label}
       <span className="mt-1.5 block">{children}</span>
     </label>
@@ -176,14 +176,14 @@ export function SubmitButtons({
       <button
         type="button"
         onClick={onCancel}
-        className="min-h-[44px] rounded-xl border border-line py-3 text-sm font-bold text-ink-2 hover:bg-paper-2"
+        className="btn-secondary min-h-11 py-3 text-sm"
       >
         ยกเลิก
       </button>
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand py-3 text-sm font-bold text-black hover:bg-brand-ink disabled:opacity-60"
+        className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 py-3 text-sm disabled:opacity-60"
       >
         {pending ? (
           <Clock3 className="size-4 animate-spin" />
