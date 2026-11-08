@@ -6,6 +6,7 @@ const dbMock = vi.hoisted(() => ({
   createLineUser: vi.fn(),
   touchLineUser: vi.fn(),
   setUserStatus: vi.fn(),
+  updateUserChurchRole: vi.fn(),
 }));
 vi.mock("./db", () => dbMock);
 
@@ -222,6 +223,23 @@ describe("resolveLineUser", () => {
     expect(dbMock.createLineUser).toHaveBeenCalledWith(
       expect.objectContaining({ status: "active", isOwner: true })
     );
+  });
+
+  it("promotes an existing pending user to active SUPER_ADMIN when OWNER_OPEN_ID matches", async () => {
+    ENV.ownerOpenId = "line:U1";
+    dbMock.getUserByOpenId.mockResolvedValue({
+      id: 5,
+      openId: "line:U1",
+      status: "pending",
+      churchRole: "MEMBER",
+    });
+    const user = await resolveLineUser(profile);
+    expect(dbMock.updateUserChurchRole).toHaveBeenCalledWith(5, "SUPER_ADMIN", [
+      "SUPER_ADMIN",
+    ]);
+    expect(dbMock.setUserStatus).toHaveBeenCalledWith(5, "active");
+    expect(user.status).toBe("active");
+    expect(user.churchRole).toBe("SUPER_ADMIN");
   });
 });
 

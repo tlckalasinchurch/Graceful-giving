@@ -100,12 +100,12 @@ export default function Home() {
 
   const { data: offeringsData } = trpc.offerings.list.useQuery(
     { limit: 30 },
-    { enabled: canSeeFinance, retry: false }
+    { enabled: canSeeFinance, retry: false, staleTime: 30_000 }
   );
 
   const { data: expensesData } = trpc.expenses.list.useQuery(
     { limit: 30 },
-    { enabled: canSeeFinance, retry: false }
+    { enabled: canSeeFinance, retry: false, staleTime: 30_000 }
   );
 
   const { data: inboxStats, isLoading: inboxLoading } =

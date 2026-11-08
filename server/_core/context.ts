@@ -8,6 +8,7 @@ export type TrpcContext = {
   user: User | null;
   /** Set when the person is signed in but not approved (or disabled). */
   account?: {
+    openId: string;
     status: "pending" | "disabled";
     name: string | null;
     avatarUrl: string | null;
@@ -27,6 +28,7 @@ export async function createContext(
     user = null;
     if (error instanceof AccountNotActiveError) {
       account = {
+        openId: error.user.openId,
         status: error.status,
         name: error.user.name,
         avatarUrl: error.user.avatarUrl,
