@@ -4175,9 +4175,19 @@ async function resolveLineUser(profile, opts = {}) {
       name: profile.name,
       avatarUrl: profile.picture
     });
-    if (ENV.ownerOpenId !== "" && openId === ENV.ownerOpenId && existing.status !== "active") {
+    const isOwner2 = ENV.ownerOpenId !== "" && openId === ENV.ownerOpenId;
+    if (isOwner2 && (existing.status !== "active" || existing.churchRole !== "SUPER_ADMIN")) {
+      await updateUserChurchRole(existing.id, "SUPER_ADMIN", [
+        "SUPER_ADMIN"
+      ]);
       await setUserStatus(existing.id, "active");
-      return { ...existing, status: "active" };
+      return {
+        ...existing,
+        status: "active",
+        role: "admin",
+        churchRole: "SUPER_ADMIN",
+        churchRoles: "SUPER_ADMIN"
+      };
     }
     if (opts.giver && existing.status === "pending") {
       const isStaffRole = existing.churchRole && existing.churchRole !== "MEMBER";
