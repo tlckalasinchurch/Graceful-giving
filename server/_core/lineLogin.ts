@@ -168,22 +168,15 @@ export async function resolveLineUser(
       name: profile.name,
       avatarUrl: profile.picture,
     });
-    const isOwner = ENV.ownerOpenId !== "" && openId === ENV.ownerOpenId;
+    // The owner must never stay locked out. An owner account that exists but
+    // is pending or disabled becomes active again.
     if (
-      isOwner &&
-      (existing.status !== "active" || existing.churchRole !== "SUPER_ADMIN")
+      ENV.ownerOpenId !== "" &&
+      openId === ENV.ownerOpenId &&
+      existing.status !== "active"
     ) {
-      await db.updateUserChurchRole(existing.id, "SUPER_ADMIN", [
-        "SUPER_ADMIN",
-      ]);
       await db.setUserStatus(existing.id, "active");
-      return {
-        ...existing,
-        status: "active",
-        role: "admin",
-        churchRole: "SUPER_ADMIN",
-        churchRoles: "SUPER_ADMIN",
-      };
+      return { ...existing, status: "active" };
     }
     if (opts.giver && existing.status === "pending") {
       // Only activate ordinary givers/members. Pending staff accounts (e.g.

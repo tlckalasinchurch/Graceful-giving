@@ -128,24 +128,19 @@
 ## 8. ผลการทดสอบอัตโนมัติ (Automated Verification Results)
 
 1. **การตรวจสอบ Type (TypeScript Typecheck):**
-
    ```bash
    pnpm check  # tsc --noEmit
    ```
 
    - **ผลลัพธ์:** **ผ่าน 100% (0 errors, 0 warnings)**
-
 2. **การทดสอบความถูกต้องและ Regression (Vitest Test Suites):**
-
    ```bash
    pnpm test   # vitest run
    ```
 
    - **ผลลัพธ์:** **74 test files ผ่านทั้งหมด (0 failed, 4 skipped)**
    - **จำนวนแบบทดสอบเดี่ยว:** **850 tests ผ่านทั้งหมด 100%**
-
 3. **การทดสอบการ Build ระบบสำหรับการใช้งานจริง (Production Build):**
-
    ```bash
    pnpm build  # vite build + esbuild server + esbuild api/index.js
    ```
