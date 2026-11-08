@@ -7,6 +7,8 @@ const dbMock = vi.hoisted(() => ({
   touchLineUser: vi.fn(),
   setUserStatus: vi.fn(),
   updateUserChurchRole: vi.fn(),
+  createAuditLog: vi.fn(),
+  DEFAULT_CHURCH_ID: "demo-church",
 }));
 vi.mock("./db", () => dbMock);
 
@@ -238,8 +240,59 @@ describe("resolveLineUser", () => {
       "SUPER_ADMIN",
     ]);
     expect(dbMock.setUserStatus).toHaveBeenCalledWith(5, "active");
+    expect(dbMock.createAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 5,
+        action: "owner_auto_promote",
+        entity: "user",
+        entityId: 5,
+        metadata: expect.objectContaining({ reason: "role_restore" }),
+      })
+    );
     expect(user.status).toBe("active");
     expect(user.churchRole).toBe("SUPER_ADMIN");
+  });
+
+  it("promotes an active, demoted owner without reactivating the account", async () => {
+    ENV.ownerOpenId = "line:U1";
+    dbMock.getUserByOpenId.mockResolvedValue({
+      id: 5,
+      openId: "line:U1",
+      status: "active",
+      churchRole: "TREASURER",
+      churchRoles: "TREASURER",
+    });
+    const user = await resolveLineUser(profile);
+    expect(dbMock.updateUserChurchRole).toHaveBeenCalledWith(5, "SUPER_ADMIN", [
+      "SUPER_ADMIN",
+    ]);
+    expect(dbMock.setUserStatus).not.toHaveBeenCalled();
+    expect(user.status).toBe("active");
+    expect(user.role).toBe("admin");
+    expect(user.churchRole).toBe("SUPER_ADMIN");
+    expect(user.churchRoles).toBe("SUPER_ADMIN");
+  });
+
+  it("restores an inactive SUPER_ADMIN owner without rewriting its secondary roles", async () => {
+    ENV.ownerOpenId = "line:U1";
+    dbMock.getUserByOpenId.mockResolvedValue({
+      id: 5,
+      openId: "line:U1",
+      status: "disabled",
+      churchRole: "SUPER_ADMIN",
+      churchRoles: "SUPER_ADMIN,TREASURER",
+    });
+    const user = await resolveLineUser(profile);
+    expect(dbMock.updateUserChurchRole).not.toHaveBeenCalled();
+    expect(dbMock.setUserStatus).toHaveBeenCalledWith(5, "active");
+    expect(user.status).toBe("active");
+    expect(user.churchRole).toBe("SUPER_ADMIN");
+    expect(user.churchRoles).toBe("SUPER_ADMIN,TREASURER");
+    expect(dbMock.createAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({ reason: "reactivate" }),
+      })
+    );
   });
 });
 

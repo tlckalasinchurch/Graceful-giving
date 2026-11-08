@@ -169,23 +169,44 @@ export async function resolveLineUser(
       avatarUrl: profile.picture,
     });
     // The owner must never stay locked out. An owner account that exists but
-    // is pending, disabled, or lacks SUPER_ADMIN role becomes active SUPER_ADMIN.
+    // is pending, disabled, or lacks SUPER_ADMIN role becomes active
+    // SUPER_ADMIN. An owner that already holds SUPER_ADMIN keeps its secondary
+    // roles, so only a demoted account has its roles rewritten.
     const isOwner = ENV.ownerOpenId !== "" && openId === ENV.ownerOpenId;
     if (
       isOwner &&
       (existing.status !== "active" || existing.churchRole !== "SUPER_ADMIN")
     ) {
-      await db.updateUserChurchRole(existing.id, "SUPER_ADMIN", [
-        "SUPER_ADMIN",
-      ]);
-      await db.setUserStatus(existing.id, "active");
-      return {
-        ...existing,
-        status: "active",
-        role: "admin",
-        churchRole: "SUPER_ADMIN",
-        churchRoles: "SUPER_ADMIN",
-      };
+      const wasDemoted = existing.churchRole !== "SUPER_ADMIN";
+      const wasInactive = existing.status !== "active";
+      if (wasDemoted) {
+        await db.updateUserChurchRole(existing.id, "SUPER_ADMIN", [
+          "SUPER_ADMIN",
+        ]);
+      }
+      if (wasInactive) {
+        await db.setUserStatus(existing.id, "active");
+      }
+      await db.createAuditLog({
+        churchId: db.DEFAULT_CHURCH_ID,
+        userId: existing.id,
+        action: "owner_auto_promote",
+        entity: "user",
+        entityId: existing.id,
+        metadata: {
+          reason: wasDemoted ? "role_restore" : "reactivate",
+          previousStatus: existing.status,
+          previousChurchRole: existing.churchRole ?? null,
+          previousChurchRoles: existing.churchRoles ?? null,
+        },
+      });
+      const restored: User = { ...existing, status: "active" };
+      if (wasDemoted) {
+        restored.role = "admin";
+        restored.churchRole = "SUPER_ADMIN";
+        restored.churchRoles = "SUPER_ADMIN";
+      }
+      return restored;
     }
     if (opts.giver && existing.status === "pending") {
       // Only activate ordinary givers/members. Pending staff accounts (e.g.
