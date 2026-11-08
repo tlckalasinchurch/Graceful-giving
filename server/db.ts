@@ -125,26 +125,44 @@ if (ENV.isProduction && DEFAULT_CHURCH_ID.startsWith("test-")) {
   );
 }
 
+let _dbPromise: Promise<ReturnType<typeof drizzle> | null> | null = null;
+
+async function connectDb(dbUrl: string) {
+  try {
+    // Supabase / Neon transaction pooler requires prepared statements off.
+    // max: 1 serialised all parallel tRPC queries on one connection, so one
+    // slow query blocked every request until the function timed out.
+    const client = postgres(dbUrl, {
+      prepare: false,
+      max: 10,
+      connect_timeout: 10,
+      idle_timeout: 20,
+    });
+    // Eager health-check: `postgres` connects lazily, so verify now to preserve
+    // the getDb()-returns-null (never throws) contract on unreachable URLs.
+    await client`SELECT 1`;
+    _db = drizzle(client);
+  } catch (error) {
+    console.warn("[Database] Failed to connect:", error);
+    _db = null;
+  }
+  return _db;
+}
+
 export async function getDb() {
   const dbUrl =
     process.env.DATABASE_URL ||
     process.env.POSTGRES_URL ||
     process.env.POSTGRES_PRISMA_URL;
-  if (!_db && dbUrl) {
-    try {
-      // Supabase / Neon transaction pooler requires prepared statements off.
-      const client = postgres(dbUrl, { prepare: false, max: 1 });
-      // Eager health-check: `postgres` connects lazily, so verify now to preserve
-      // the getDb()-returns-null (never throws) contract on unreachable URLs.
-      await client`SELECT 1`;
-
-      _db = drizzle(client);
-    } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
-      _db = null;
-    }
+  if (_db || !dbUrl) return _db;
+  // Share one connection attempt between parallel requests. Without this,
+  // each request opened its own client and exhausted the pooler.
+  if (!_dbPromise) {
+    _dbPromise = connectDb(dbUrl).finally(() => {
+      _dbPromise = null;
+    });
   }
-  return _db;
+  return _dbPromise;
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────

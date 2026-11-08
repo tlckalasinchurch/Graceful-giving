@@ -168,6 +168,16 @@ export async function resolveLineUser(
       name: profile.name,
       avatarUrl: profile.picture,
     });
+    // The owner must never stay locked out. An owner account that exists but
+    // is pending or disabled becomes active again.
+    if (
+      ENV.ownerOpenId !== "" &&
+      openId === ENV.ownerOpenId &&
+      existing.status !== "active"
+    ) {
+      await db.setUserStatus(existing.id, "active");
+      return { ...existing, status: "active" };
+    }
     if (opts.giver && existing.status === "pending") {
       // Only activate ordinary givers/members. Pending staff accounts (e.g.
       // TREASURER, PASTOR, DEACON, COUNTER) must be approved by an administrator
