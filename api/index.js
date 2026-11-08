@@ -4177,17 +4177,36 @@ async function resolveLineUser(profile, opts = {}) {
     });
     const isOwner2 = ENV.ownerOpenId !== "" && openId === ENV.ownerOpenId;
     if (isOwner2 && (existing.status !== "active" || existing.churchRole !== "SUPER_ADMIN")) {
-      await updateUserChurchRole(existing.id, "SUPER_ADMIN", [
-        "SUPER_ADMIN"
-      ]);
-      await setUserStatus(existing.id, "active");
-      return {
-        ...existing,
-        status: "active",
-        role: "admin",
-        churchRole: "SUPER_ADMIN",
-        churchRoles: "SUPER_ADMIN"
-      };
+      const wasDemoted = existing.churchRole !== "SUPER_ADMIN";
+      const wasInactive = existing.status !== "active";
+      if (wasDemoted) {
+        await updateUserChurchRole(existing.id, "SUPER_ADMIN", [
+          "SUPER_ADMIN"
+        ]);
+      }
+      if (wasInactive) {
+        await setUserStatus(existing.id, "active");
+      }
+      await createAuditLog({
+        churchId: DEFAULT_CHURCH_ID,
+        userId: existing.id,
+        action: "owner_auto_promote",
+        entity: "user",
+        entityId: existing.id,
+        metadata: {
+          reason: wasDemoted ? "role_restore" : "reactivate",
+          previousStatus: existing.status,
+          previousChurchRole: existing.churchRole ?? null,
+          previousChurchRoles: existing.churchRoles ?? null
+        }
+      });
+      const restored = { ...existing, status: "active" };
+      if (wasDemoted) {
+        restored.role = "admin";
+        restored.churchRole = "SUPER_ADMIN";
+        restored.churchRoles = "SUPER_ADMIN";
+      }
+      return restored;
     }
     if (opts.giver && existing.status === "pending") {
       const isStaffRole = existing.churchRole && existing.churchRole !== "MEMBER";
