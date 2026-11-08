@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { MoneyDisplay } from "@/components/common/CommonUI";
@@ -7,7 +7,7 @@ import {
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
-import { fmtBaht } from "./countingUtils";
+import { fmtBaht, getNextEnvelopeNo } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Swal } from "@/lib/sweetalert";
 
@@ -49,7 +49,9 @@ export function EnvelopesTab({
   addEnvelope,
   removeEnvelope,
 }: EnvelopesTabProps) {
-  const [envelopeNo, setEnvelopeNo] = useState("");
+  const [envelopeNo, setEnvelopeNo] = useState(() =>
+    getNextEnvelopeNo(envelopes)
+  );
   const [memberId, setMemberId] = useState("");
   const [donorName, setDonorName] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -59,22 +61,45 @@ export function EnvelopesTab({
   const [amount, setAmount] = useState("");
   const amountRef = useRef<HTMLInputElement>(null);
 
+  // If the session changes while mounted, re-initialize envelope number
+  const lastSessionIdRef = useRef(sessionId);
+  useEffect(() => {
+    if (lastSessionIdRef.current !== sessionId) {
+      lastSessionIdRef.current = sessionId;
+      setEnvelopeNo(getNextEnvelopeNo(envelopes));
+      setMemberId("");
+      setDonorName("");
+      setIsAnonymous(false);
+      setAmount("");
+    }
+  }, [sessionId, envelopes]);
+
   const handleEnvelopeNoChange = (value: string) => {
     setEnvelopeNo(value);
     const trimmed = value.trim().toLowerCase();
-    if (!trimmed || isAnonymous) return;
+    if (!trimmed || isAnonymous) {
+      setMemberId("");
+      setDonorName("");
+      return;
+    }
     const matched = members.find(
       m => (m.envelopeNo ?? "").trim().toLowerCase() === trimmed
     );
     if (matched) {
       setMemberId(String(matched.id));
       setDonorName(matched.name);
+    } else {
+      setMemberId("");
+      setDonorName("");
     }
   };
 
   const handleMemberChange = (value: string) => {
     setMemberId(value);
-    if (!value) return;
+    if (!value) {
+      setDonorName("");
+      return;
+    }
     const matched = members.find(m => String(m.id) === value);
     if (matched) {
       if (matched.envelopeNo) {
@@ -95,10 +120,11 @@ export function EnvelopesTab({
       toast.error("กรุณาเลือกกองทุน");
       return;
     }
+    const submittedNo = envelopeNo.trim();
     addEnvelope.mutate(
       {
         sessionId,
-        envelopeNo: envelopeNo.trim() || undefined,
+        envelopeNo: submittedNo || undefined,
         memberId: memberId ? Number(memberId) : undefined,
         donorName: donorName.trim() || undefined,
         isAnonymous,
@@ -109,7 +135,8 @@ export function EnvelopesTab({
       },
       {
         onSuccess: () => {
-          setEnvelopeNo("");
+          const nextNo = getNextEnvelopeNo(envelopes, submittedNo || undefined);
+          setEnvelopeNo(nextNo);
           setMemberId("");
           setDonorName("");
           setIsAnonymous(false);
@@ -150,11 +177,26 @@ export function EnvelopesTab({
           <h2 className="mb-4 display text-base text-ink">บันทึกซองถวาย</h2>
           <div className="grid gap-4 md:grid-cols-3">
             <label className="text-sm font-extrabold text-ink">
-              เลขซอง
+              <span className="flex items-center justify-between">
+                <span>เลขซอง</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = getNextEnvelopeNo(envelopes);
+                    setEnvelopeNo(next);
+                    setMemberId("");
+                    setDonorName("");
+                  }}
+                  className="text-xs font-semibold text-brand hover:underline"
+                  title="คลิกเพื่อใช้เลขซองถัดไปอัตโนมัติ"
+                >
+                  รันอัตโนมัติ ({getNextEnvelopeNo(envelopes)})
+                </button>
+              </span>
               <input
                 value={envelopeNo}
                 onChange={e => handleEnvelopeNoChange(e.target.value)}
-                placeholder="เช่น 012 (พิมพ์เพื่อจับคู่สมาชิก)"
+                placeholder="เช่น 1, 012 (พิมพ์เพื่อจับคู่สมาชิก)"
                 className="neo-input mt-1 font-normal"
               />
             </label>

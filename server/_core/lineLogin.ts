@@ -173,7 +173,9 @@ export async function resolveLineUser(
       isOwner &&
       (existing.status !== "active" || existing.churchRole !== "SUPER_ADMIN")
     ) {
-      await db.updateUserChurchRole(existing.id, "SUPER_ADMIN", ["SUPER_ADMIN"]);
+      await db.updateUserChurchRole(existing.id, "SUPER_ADMIN", [
+        "SUPER_ADMIN",
+      ]);
       await db.setUserStatus(existing.id, "active");
       return {
         ...existing,

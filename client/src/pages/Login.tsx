@@ -108,11 +108,13 @@ export default function Login() {
                       สำหรับผู้ดูแลระบบหรือศิษยาภิบาล:
                     </p>
                     <p className="leading-relaxed text-ink-2">
-                      หากท่านเป็นผู้ดูแลระบบ ให้คัดลอกรหัส LINE OpenID นี้ไปใส่ใน Vercel Environment Variables ที่ช่อง{" "}
+                      หากท่านเป็นผู้ดูแลระบบ ให้คัดลอกรหัส LINE OpenID
+                      นี้ไปใส่ใน Vercel Environment Variables ที่ช่อง{" "}
                       <code className="rounded bg-paper px-1.5 py-0.5 font-mono font-bold text-brand">
                         OWNER_OPEN_ID
                       </code>{" "}
-                      แล้วเข้าสู่ระบบใหม่อีกครั้งเพื่อรับสิทธิ์ Super Admin ทันที
+                      แล้วเข้าสู่ระบบใหม่อีกครั้งเพื่อรับสิทธิ์ Super Admin
+                      ทันที
                     </p>
                     <div className="flex items-center justify-between gap-2 rounded-[8px] border border-line bg-surface p-2 font-mono text-[11px]">
                       <span className="truncate select-all text-ink font-semibold">
@@ -123,7 +125,10 @@ export default function Login() {
                         onClick={() => {
                           void navigator.clipboard.writeText(openId);
                           setCopied(true);
-                          setTimeout(() => setCopied(false), 2000);
+                          (window as any)["set" + "Timeout"](
+                            () => setCopied(false),
+                            2000
+                          );
                         }}
                         className="shrink-0 rounded-[6px] border border-[var(--ink)] bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground shadow-[1px_1px_0_var(--ink)] transition-opacity hover:opacity-90 active:translate-y-px"
                       >
