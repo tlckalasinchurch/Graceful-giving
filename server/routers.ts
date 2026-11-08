@@ -633,6 +633,7 @@ export const appRouter = router({
           state: ctx.account.status,
           name: ctx.account.name,
           avatarUrl: ctx.account.avatarUrl,
+          openId: ctx.account.openId,
         };
       }
       return { state: "signed_out" as const };

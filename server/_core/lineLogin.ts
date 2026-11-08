@@ -168,6 +168,21 @@ export async function resolveLineUser(
       name: profile.name,
       avatarUrl: profile.picture,
     });
+    const isOwner = ENV.ownerOpenId !== "" && openId === ENV.ownerOpenId;
+    if (
+      isOwner &&
+      (existing.status !== "active" || existing.churchRole !== "SUPER_ADMIN")
+    ) {
+      await db.updateUserChurchRole(existing.id, "SUPER_ADMIN", ["SUPER_ADMIN"]);
+      await db.setUserStatus(existing.id, "active");
+      return {
+        ...existing,
+        status: "active",
+        role: "admin",
+        churchRole: "SUPER_ADMIN",
+        churchRoles: "SUPER_ADMIN",
+      };
+    }
     if (opts.giver && existing.status === "pending") {
       // Only activate ordinary givers/members. Pending staff accounts (e.g.
       // TREASURER, PASTOR, DEACON, COUNTER) must be approved by an administrator
