@@ -9,6 +9,7 @@ import {
   type SplitProblem,
 } from "@shared/givingSplit";
 import { describeLines } from "@/lib/splitDraft";
+import { formatAmount } from "@/lib/format";
 import {
   MAX_AUTO_REJECTS,
   TRANSFER_DATE_MESSAGE,
@@ -69,7 +70,7 @@ export interface StationOutcome {
   slipAmount: number | null;
 }
 
-const baht = (n: number) => `${n.toLocaleString()} THB`;
+const baht = (n: number) => `${formatAmount(n)} บาท`;
 
 /** What the last screen says. It only says "thanks" when the slip was not turned away. */
 export function describeOutcome(s: StationSubmission): StationOutcome {
@@ -175,7 +176,7 @@ export function buildSendChecklist(input: {
       detail:
         amount === null
           ? "ระบุจำนวนเงินให้ถูกต้อง (มากกว่า 0)"
-          : `${amount.toLocaleString()} THB`,
+          : `${formatAmount(amount)} บาท`,
       required: true,
     },
     {

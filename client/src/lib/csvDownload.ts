@@ -18,3 +18,18 @@ export function toCsvBlob(csv: string): Blob {
     type: "text/csv;charset=utf-8;",
   });
 }
+
+/**
+ * Save CSV text as a file in the browser. One place for the link, the byte
+ * order mark and the clean-up, so every export page behaves the same.
+ */
+export function saveCsvFile(csv: string, filename: string): void {
+  const url = URL.createObjectURL(toCsvBlob(csv));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}

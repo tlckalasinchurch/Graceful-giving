@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { friendlyErrorMessage } from "@/lib/errors";
 import { trpc } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
 import { toast } from "sonner";
@@ -32,7 +33,9 @@ export function BankSignersSection() {
       void utils.auth.me.invalidate();
     },
     onError: err => {
-      toast.error(err.message || "ไม่สามารถเพิ่มผู้มีอำนาจลงนามได้");
+      toast.error(
+        friendlyErrorMessage(err, "ไม่สามารถเพิ่มผู้มีอำนาจลงนามได้")
+      );
     },
   });
 
@@ -43,7 +46,9 @@ export function BankSignersSection() {
       void utils.auth.me.invalidate();
     },
     onError: err => {
-      toast.error(err.message || "ไม่สามารถนำผู้มีอำนาจลงนามออกได้");
+      toast.error(
+        friendlyErrorMessage(err, "ไม่สามารถนำผู้มีอำนาจลงนามออกได้")
+      );
     },
   });
 
@@ -53,7 +58,7 @@ export function BankSignersSection() {
       void utils.bankSigners.list.invalidate();
     },
     onError: err => {
-      toast.error(err.message || "ไม่สามารถตั้งผู้ลงนามได้");
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถตั้งผู้ลงนามได้"));
     },
   });
 

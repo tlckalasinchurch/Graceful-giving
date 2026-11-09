@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { csvBytes, toCsvBlob } from "./csvDownload";
 import { csvExportErrorMessage, CSV_EXPORT_TOO_LARGE_MESSAGE } from "./errors";
 
@@ -83,15 +83,43 @@ describe("CSV download call sites", () => {
   const pages = ["Transactions", "Offerings", "Expenses", "Reports"];
 
   it.each(pages)(
-    "%s builds its file with toCsvBlob and adds no BOM of its own",
+    "%s saves its file with saveCsvFile and adds no BOM or Blob of its own",
     page => {
       const source = readFileSync(
         path.resolve(__dirname, "../pages", `${page}.tsx`),
         "utf8"
       );
-      expect(source).toContain("toCsvBlob(");
+      expect(source).toContain("saveCsvFile(");
+      expect(source).not.toContain("toCsvBlob(");
       expect(source).not.toMatch(/\\uFEFF/i);
       expect(source).not.toContain("new Blob(");
     }
   );
+
+  it("saveCsvFile builds the file with toCsvBlob, so the BOM is added once", () => {
+    const source = readFileSync(
+      path.resolve(__dirname, "csvDownload.ts"),
+      "utf8"
+    );
+    const body = source.slice(source.indexOf("export function saveCsvFile"));
+    expect(body).toContain("toCsvBlob(");
+  });
+});
+
+describe("saveCsvFile", () => {
+  it("downloads one file under the given name and cleans up", async () => {
+    const { saveCsvFile } = await import("./csvDownload");
+    const create = vi.fn(() => "blob:x");
+    const revoke = vi.fn();
+    Object.assign(URL, { createObjectURL: create, revokeObjectURL: revoke });
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => {});
+    saveCsvFile("a,b\n1,2", "report.csv");
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(revoke).toHaveBeenCalledWith("blob:x");
+    expect(document.querySelector("a[download]")).toBeNull();
+    click.mockRestore();
+  });
 });

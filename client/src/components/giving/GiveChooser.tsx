@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { formatAmount } from "@/lib/format";
 import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
 import type { OfferingCategory } from "@shared/categories";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
@@ -141,7 +142,7 @@ export function GiveChooser({
             total === null ? "text-ink-3" : "text-income"
           }`}
         >
-          {total === null ? "—" : `${total.toLocaleString()} THB`}
+          {total === null ? "—" : `${formatAmount(total)} บาท`}
         </span>
       </div>
     </section>

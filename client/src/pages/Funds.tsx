@@ -1,10 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useSubmitLock } from "@/hooks/useSubmitLock";
 import { formatBaht } from "@/lib/format";
 import { useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { FundBreakdown, fundTone } from "./Home/components/FundBreakdown";
 import { fundShares } from "./Home/fundShares";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -40,7 +48,9 @@ export default function Funds() {
     { retry: false }
   );
 
+  const { lock, unlock } = useSubmitLock();
   const createAccountMutation = trpc.finance.createAccount.useMutation({
+    onSettled: unlock,
     onSuccess: () => {
       toast.success("สร้างกองทุนใหม่สำเร็จ");
       setShowNewFundModal(false);
@@ -102,21 +112,14 @@ export default function Funds() {
     [fundsList]
   );
 
-  useEffect(() => {
-    if (!showNewFundModal) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowNewFundModal(false);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showNewFundModal]);
-
   const handleCreateFund = (e: React.FormEvent) => {
     e.preventDefault();
+    if (createAccountMutation.isPending) return;
     if (!newFundName.trim()) {
       toast.error("กรุณาระบุชื่อกองทุน");
       return;
     }
+    if (!lock()) return;
     createAccountMutation.mutate({
       name: newFundName.trim(),
       type: newFundType,
@@ -264,101 +267,99 @@ export default function Funds() {
         </section>
 
         {/* Create Fund Modal */}
-        {showNewFundModal && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="create-fund-title"
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
-          >
-            <div className="neo-modal max-h-[calc(100dvh-2rem)] w-full max-w-md space-y-5 overflow-y-auto overscroll-contain p-6 md:p-8 animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
-                <h3
-                  id="create-fund-title"
-                  className="text-lg font-extrabold text-ink"
+        <Dialog open={showNewFundModal} onOpenChange={setShowNewFundModal}>
+          <DialogContent className="max-w-md space-y-5 p-6 md:p-8">
+            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 pr-10">
+              <DialogTitle className="text-lg font-extrabold text-ink">
+                สร้างกองทุนใหม่
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                กรอกชื่อ ประเภท และวัตถุประสงค์ของกองทุน
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleCreateFund} className="space-y-4">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="new-fund-name"
+                  className="text-xs font-extrabold text-ink-2"
                 >
-                  สร้างกองทุนใหม่
-                </h3>
-                <button
-                  onClick={() => setShowNewFundModal(false)}
-                  type="button"
-                  aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
-                >
-                  ×
-                </button>
+                  ชื่อกองทุน <span className="text-danger">*</span>
+                </label>
+                <input
+                  id="new-fund-name"
+                  type="text"
+                  required
+                  placeholder="เช่น กองทุนทุนการศึกษาบุตรศิษยาภิบาล"
+                  value={newFundName}
+                  onChange={e => setNewFundName(e.target.value)}
+                  className="neo-input w-full px-4 py-2.5 text-sm"
+                />
               </div>
 
-              <form onSubmit={handleCreateFund} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-extrabold text-ink-2">
-                    ชื่อกองทุน <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="เช่น กองทุนทุนการศึกษาบุตรศิษยาภิบาล"
-                    value={newFundName}
-                    onChange={e => setNewFundName(e.target.value)}
-                    className="neo-input w-full px-4 py-2.5 text-sm"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="new-fund-type"
+                  className="text-xs font-extrabold text-ink-2"
+                >
+                  ประเภทกองทุน
+                </label>
+                <NativeSelect
+                  id="new-fund-type"
+                  value={newFundType}
+                  onChange={e =>
+                    setNewFundType(e.target.value as typeof newFundType)
+                  }
+                >
+                  <option value="mission">พันธกิจและประกาศ (Mission)</option>
+                  <option value="tithe">ทศางค์ (Tithe)</option>
+                  <option value="building">อาคารและบูรณะ (Building)</option>
+                  <option value="welfare">
+                    สงเคราะห์และสวัสดิการ (Welfare)
+                  </option>
+                  <option value="special">กองทุนโครงการพิเศษ (Special)</option>
+                  <option value="general">ดำเนินงานทั่วไป (General)</option>
+                </NativeSelect>
+              </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-extrabold text-ink-2">
-                    ประเภทกองทุน
-                  </label>
-                  <NativeSelect
-                    value={newFundType}
-                    onChange={e =>
-                      setNewFundType(e.target.value as typeof newFundType)
-                    }
-                  >
-                    <option value="mission">พันธกิจและประกาศ (Mission)</option>
-                    <option value="tithe">ทศางค์ (Tithe)</option>
-                    <option value="building">อาคารและบูรณะ (Building)</option>
-                    <option value="welfare">
-                      สงเคราะห์และสวัสดิการ (Welfare)
-                    </option>
-                    <option value="special">
-                      กองทุนโครงการพิเศษ (Special)
-                    </option>
-                    <option value="general">ดำเนินงานทั่วไป (General)</option>
-                  </NativeSelect>
-                </div>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="new-fund-desc"
+                  className="text-xs font-extrabold text-ink-2"
+                >
+                  คำอธิบายและวัตถุประสงค์
+                </label>
+                <textarea
+                  id="new-fund-desc"
+                  rows={3}
+                  placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้..."
+                  value={newFundDesc}
+                  onChange={e => setNewFundDesc(e.target.value)}
+                  className="neo-input w-full px-4 py-2.5 text-sm"
+                />
+              </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-extrabold text-ink-2">
-                    คำอธิบายและวัตถุประสงค์
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้..."
-                    value={newFundDesc}
-                    onChange={e => setNewFundDesc(e.target.value)}
-                    className="neo-input w-full px-4 py-2.5 text-sm"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowNewFundModal(false)}
-                    className="btn-secondary min-h-11 px-4 py-2.5 text-xs"
-                  >
-                    ยกเลิก
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-primary min-h-11 px-6 py-2.5 text-xs"
-                  >
-                    สร้างกองทุน
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+              <div className="flex items-center justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowNewFundModal(false)}
+                  className="btn-secondary min-h-11 px-4 py-2.5 text-xs"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={createAccountMutation.isPending}
+                  className="btn-primary min-h-11 px-6 py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {createAccountMutation.isPending
+                    ? "กำลังสร้าง…"
+                    : "สร้างกองทุน"}
+                </button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );

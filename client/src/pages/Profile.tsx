@@ -1,4 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -20,7 +27,6 @@ import {
   Bell,
   LogOut,
   Edit3,
-  QrCode,
   Calendar,
   Receipt,
   HeartHandshake,
@@ -28,17 +34,16 @@ import {
   UserCheck,
   Building,
   Check,
-  X,
   FileText,
   DollarSign,
   Users,
   Coins,
   Phone,
   Mail,
-  Printer,
   ChevronRight,
   ShieldCheck,
   Award,
+  UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
@@ -180,11 +185,13 @@ const ROSTER_TEMPLATES: Omit<ChurchOfficialRoster, "appointee">[] = [
   },
 ];
 
+// Local files in client/public/avatars. A stock photo from a third party would
+// send every viewer's address to that party and fail when offline.
 const PRESET_AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&h=256&q=80",
+  "/avatars/avatar-1.svg",
+  "/avatars/avatar-2.svg",
+  "/avatars/avatar-3.svg",
+  "/avatars/avatar-4.svg",
 ];
 
 export default function Profile() {
@@ -304,18 +311,6 @@ export default function Profile() {
   const unreadCount =
     notificationsQuery.data?.filter(n => !n.readAt).length || 0;
 
-  // Keyboard accessibility: Close modals on Escape
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (showIdCardModal) setShowIdCardModal(false);
-        if (showEditProfileModal) setShowEditProfileModal(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showIdCardModal, showEditProfileModal]);
-
   const effectiveAvatar =
     (user as any)?.avatarUrl ||
     ((user as any)?.openId?.includes("http") ? (user as any)?.openId : null);
@@ -401,10 +396,8 @@ export default function Profile() {
               onClick={() => setShowIdCardModal(true)}
               className="btn-secondary w-full min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
             >
-              <QrCode className="w-4 h-4 text-brand shrink-0" />
-              <span className="truncate">
-                ดูโปรไฟล์ / บัตรประจำตัวคริสตจักร
-              </span>
+              <UserRound className="w-4 h-4 text-brand shrink-0" />
+              <span className="truncate">ดูข้อมูลโปรไฟล์</span>
             </button>
             <button
               onClick={() => setShowEditProfileModal(true)}
@@ -577,256 +570,225 @@ export default function Profile() {
       </div>
 
       {/* ── MODAL 1: ดูโปรไฟล์ / บัตรประจำตัวคริสตจักร (Digital ID Card) ──────── */}
-      {showIdCardModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="id-card-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-        >
-          <div className="neo-modal max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 relative max-h-[92vh] overflow-y-auto overscroll-contain">
-            <button
-              onClick={() => setShowIdCardModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface hover:bg-paper-2 text-ink transition-colors min-h-11 min-w-10 flex items-center justify-center cursor-pointer"
-              aria-label="ปิดหน้าต่าง"
-            >
-              <X className="w-5 h-5" />
-            </button>
+      <Dialog open={showIdCardModal} onOpenChange={setShowIdCardModal}>
+        <DialogContent className="max-w-sm space-y-4 p-4 sm:max-w-md sm:space-y-6 sm:p-6 md:p-8">
+          <div className="text-center space-y-1 pt-1 sm:pt-2">
+            <DialogTitle className="pt-1 text-center text-lg font-extrabold text-ink sm:text-xl">
+              ข้อมูลโปรไฟล์
+            </DialogTitle>
+            <DialogDescription className="text-center text-xs text-ink-2">
+              {churchName}
+            </DialogDescription>
+          </div>
 
-            <div className="text-center space-y-1 pt-1 sm:pt-2">
-              <span className="px-3 py-0.5 sm:py-1 rounded-full text-xs font-extrabold bg-accent border-[1.5px] border-[var(--ink)] text-accent-foreground">
-                Digital Church Member Card
-              </span>
-              <h3
-                id="id-card-title"
-                className="text-lg sm:text-xl font-extrabold text-ink pt-1"
-              >
-                บัตรประจำตัวคริสตจักร
-              </h3>
-              <p className="text-xs text-ink-2">{churchName}</p>
+          {/* Profile summary. Not a membership credential: it carries no code or number. */}
+          <div className="p-4 sm:p-6 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 shadow-[3px_3px_0_var(--ink)] text-center space-y-3 sm:space-y-4">
+            {effectiveAvatar ? (
+              <img
+                src={effectiveAvatar}
+                alt={user?.name || "รูปโปรไฟล์"}
+                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border-2 border-[var(--ink)]"
+              />
+            ) : (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-surface border-2 border-[var(--ink)] flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-ink">
+                {user?.name ? user.name.slice(0, 1) : "ศ"}
+              </div>
+            )}
+            <div className="space-y-0.5 sm:space-y-1">
+              <h4 className="text-base sm:text-lg font-extrabold text-ink break-words">
+                {user?.name || "สมาชิกคริสตจักร"}
+              </h4>
+              <div className="inline-block">
+                <span
+                  className={`px-3 py-0.5 rounded-full text-xs font-bold border ${userRoleInfo.badgeColor}`}
+                >
+                  {userRoleInfo.badgeLabel}
+                </span>
+              </div>
             </div>
 
-            {/* ID Card Box */}
-            <div className="p-4 sm:p-6 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 shadow-[3px_3px_0_var(--ink)] text-center space-y-3 sm:space-y-4">
-              {effectiveAvatar ? (
-                <img
-                  src={effectiveAvatar}
-                  alt={user?.name || "Member Avatar"}
-                  className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border-2 border-[var(--ink)]"
-                />
-              ) : (
-                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-surface border-2 border-[var(--ink)] flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-ink">
-                  {user?.name ? user.name.slice(0, 1) : "ศ"}
-                </div>
-              )}
-              <div className="space-y-0.5 sm:space-y-1">
-                <h4 className="text-base sm:text-lg font-extrabold text-ink break-words">
-                  {user?.name || "สมาชิกคริสตจักร"}
-                </h4>
-                <div className="inline-block">
-                  <span
-                    className={`px-3 py-0.5 rounded-full text-xs font-bold border ${userRoleInfo.badgeColor}`}
-                  >
-                    {userRoleInfo.badgeLabel}
-                  </span>
-                </div>
+            <div className="grid grid-cols-2 gap-2 text-left pt-2 border-t border-line text-xs">
+              <div>
+                <span className="text-xs text-ink-3">สังกัดคริสตจักร:</span>
+                <p className="font-bold text-ink truncate">{churchName}</p>
               </div>
-
-              {/* QR Code */}
-              <div className="p-3 sm:p-4 bg-surface rounded-2xl border-2 border-[var(--ink)] inline-block shadow-[2px_2px_0_var(--ink)]">
-                <QrCode className="w-24 h-24 sm:w-28 sm:h-28 text-ink mx-auto" />
-                <p className="text-xs text-ink-3 font-mono mt-1 font-bold">
-                  ID: GL-
-                  {user?.id ? user.id.toString().padStart(5, "0") : "00001"}
+              <div>
+                <span className="text-xs text-ink-3">อีเมล:</span>
+                <p className="font-bold text-ink truncate">
+                  {user?.email || "ไม่ระบุ"}
                 </p>
               </div>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-2 text-left pt-2 border-t border-line text-xs">
-                <div>
-                  <span className="text-xs text-ink-3">สังกัดคริสตจักร:</span>
-                  <p className="font-bold text-ink truncate">{churchName}</p>
-                </div>
-                <div>
-                  <span className="text-xs text-ink-3">สถานะสมาชิก:</span>
-                  <p className="font-bold text-brand">ยืนยันแล้ว (Active)</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowIdCardModal(false)}
+              className="btn-primary w-full min-h-11 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm cursor-pointer"
+            >
+              ปิดหน้าต่าง
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── MODAL 2: แก้ไขโปรไฟล์ (Edit Profile Dialog) ───────────────────── */}
+      <Dialog
+        open={showEditProfileModal}
+        onOpenChange={setShowEditProfileModal}
+      >
+        <DialogContent className="max-w-sm space-y-4 p-4 sm:max-w-md sm:space-y-5 sm:p-6 md:p-8">
+          <DialogHeader className="space-y-1 pr-10 text-left">
+            <DialogTitle className="text-lg font-extrabold text-ink sm:text-xl">
+              แก้ไขโปรไฟล์ผู้ใช้งาน
+            </DialogTitle>
+            <DialogDescription className="text-xs text-ink-3">
+              ปรับปรุงชื่อ รูปภาพโปรไฟล์ เบอร์โทรศัพท์ และข้อมูลส่วนตัว
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSaveProfile} className="space-y-3 sm:space-y-4">
+            <div className="space-y-1.5">
+              <label
+                htmlFor="profile-f0"
+                className="text-xs font-bold text-ink"
+              >
+                ชื่อ-นามสกุลทางการ <span className="text-danger">*</span>
+              </label>
+              <input
+                id="profile-f0"
+                type="text"
+                required
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                className="neo-input w-full px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-ink"
+                placeholder="เช่น ชื่อ-นามสกุลจริงของคุณ"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="profile-f1"
+                className="text-xs font-bold text-ink"
+              >
+                ลิงก์รูปภาพโปรไฟล์ (Avatar URL)
+              </label>
+              <input
+                id="profile-f1"
+                type="url"
+                value={editAvatarUrl}
+                onChange={e => setEditAvatarUrl(e.target.value)}
+                className="neo-input w-full px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-ink"
+                placeholder="https://..."
+              />
+              <div className="space-y-1.5 pt-1">
+                <span className="text-xs text-ink-3 block font-bold">
+                  หรือเลือกรูปสำเร็จรูป:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {PRESET_AVATARS.map((p, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      aria-label={`เลือกรูปโปรไฟล์แบบที่ ${i + 1}`}
+                      onClick={() => setEditAvatarUrl(p)}
+                      className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border-2 transition-all cursor-pointer p-0.5 ${
+                        editAvatarUrl === p
+                          ? "border-brand scale-110 shadow-[2px_2px_0_var(--ink)]"
+                          : "border-[var(--ink)]/30 hover:border-[var(--ink)]"
+                      }`}
+                    >
+                      <img
+                        src={p}
+                        alt=""
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => window.print()}
-                className="btn-secondary flex-1 min-h-11 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Printer className="w-4 h-4" />
-                <span>พิมพ์บัตร</span>
-              </button>
-              <button
-                onClick={() => setShowIdCardModal(false)}
-                className="btn-primary flex-1 min-h-11 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm cursor-pointer"
-              >
-                ปิดหน้าต่าง
-              </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="profile-f2"
+                  className="text-xs font-bold text-ink"
+                >
+                  เบอร์โทรศัพท์
+                </label>
+                <input
+                  id="profile-f2"
+                  type="tel"
+                  value={editPhone}
+                  onChange={e => setEditPhone(e.target.value)}
+                  className="neo-input w-full px-3.5 py-2.5 text-xs font-semibold text-ink"
+                  placeholder="08X-XXX-XXXX"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="profile-f3"
+                  className="text-xs font-bold text-ink"
+                >
+                  ฝ่าย / พันธกิจ
+                </label>
+                <input
+                  id="profile-f3"
+                  type="text"
+                  value={editDepartment}
+                  onChange={e => setEditDepartment(e.target.value)}
+                  className="neo-input w-full px-3.5 py-2.5 text-xs font-semibold text-ink"
+                  placeholder="เช่น ฝ่ายการเงิน, ฝ่ายดนตรี"
+                />
+              </div>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* ── MODAL 2: แก้ไขโปรไฟล์ (Edit Profile Dialog) ───────────────────── */}
-      {showEditProfileModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="edit-profile-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-        >
-          <div className="neo-modal max-w-sm sm:max-w-md w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 relative max-h-[92vh] overflow-y-auto overscroll-contain">
-            <button
-              onClick={() => setShowEditProfileModal(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface hover:bg-paper-2 text-ink transition-colors min-h-11 min-w-10 flex items-center justify-center cursor-pointer"
-              aria-label="ปิดหน้าต่าง"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="space-y-1">
-              <h3
-                id="edit-profile-title"
-                className="text-lg sm:text-xl font-extrabold text-ink"
+            <div className="space-y-1.5">
+              <label
+                htmlFor="profile-f4"
+                className="text-xs font-bold text-ink"
               >
-                แก้ไขโปรไฟล์ผู้ใช้งาน
-              </h3>
-              <p className="text-xs text-ink-3">
-                ปรับปรุงชื่อ รูปภาพโปรไฟล์ เบอร์โทรศัพท์ และข้อมูลส่วนตัว
+                คติพจน์ / ข้อพระคัมภีร์ประจำใจ
+              </label>
+              <textarea
+                id="profile-f4"
+                rows={2}
+                value={editBio}
+                onChange={e => setEditBio(e.target.value)}
+                className="neo-input w-full px-3.5 py-2.5 text-xs font-semibold text-ink resize-none"
+                placeholder="เช่น ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก (2 โครินธ์ 9:7)"
+              />
+            </div>
+
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-paper-2 border-[1.5px] border-[var(--ink)]/20 text-xs text-ink-3 space-y-1">
+              <span className="font-bold text-ink">หมายเหตุเรื่องบทบาท:</span>
+              <p className="leading-relaxed">
+                บทบาทและสิทธิ์การใช้งานของท่าน ({userRoleInfo.label})
+                ถูกกำหนดโดยมติคริสตจักรและผู้ดูแลระบบสูงสุด
+                หากต้องการเปลี่ยนแปลงสิทธิ์ กรุณาติดต่อผู้ดูแลระบบของคริสตจักร
               </p>
             </div>
 
-            <form
-              onSubmit={handleSaveProfile}
-              className="space-y-3 sm:space-y-4"
-            >
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-ink">
-                  ชื่อ-นามสกุลทางการ <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  className="neo-input w-full px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-ink"
-                  placeholder="เช่น ชื่อ-นามสกุลจริงของคุณ"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-ink">
-                  ลิงก์รูปภาพโปรไฟล์ (Avatar URL)
-                </label>
-                <input
-                  type="url"
-                  value={editAvatarUrl}
-                  onChange={e => setEditAvatarUrl(e.target.value)}
-                  className="neo-input w-full px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-ink"
-                  placeholder="https://..."
-                />
-                <div className="space-y-1.5 pt-1">
-                  <span className="text-xs text-ink-3 block font-bold">
-                    หรือเลือกรูปสำเร็จรูป:
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {PRESET_AVATARS.map((p, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        aria-label={`เลือกรูปโปรไฟล์แบบที่ ${i + 1}`}
-                        onClick={() => setEditAvatarUrl(p)}
-                        className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border-2 transition-all cursor-pointer p-0.5 ${
-                          editAvatarUrl === p
-                            ? "border-brand scale-110 shadow-[2px_2px_0_var(--ink)]"
-                            : "border-[var(--ink)]/30 hover:border-[var(--ink)]"
-                        }`}
-                      >
-                        <img
-                          src={p}
-                          alt={`Avatar ${i}`}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-ink">
-                    เบอร์โทรศัพท์
-                  </label>
-                  <input
-                    type="tel"
-                    value={editPhone}
-                    onChange={e => setEditPhone(e.target.value)}
-                    className="neo-input w-full px-3.5 py-2.5 text-xs font-semibold text-ink"
-                    placeholder="08X-XXX-XXXX"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-ink">
-                    ฝ่าย / พันธกิจ
-                  </label>
-                  <input
-                    type="text"
-                    value={editDepartment}
-                    onChange={e => setEditDepartment(e.target.value)}
-                    className="neo-input w-full px-3.5 py-2.5 text-xs font-semibold text-ink"
-                    placeholder="เช่น ฝ่ายการเงิน, ฝ่ายดนตรี"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-ink">
-                  คติพจน์ / ข้อพระคัมภีร์ประจำใจ
-                </label>
-                <textarea
-                  rows={2}
-                  value={editBio}
-                  onChange={e => setEditBio(e.target.value)}
-                  className="neo-input w-full px-3.5 py-2.5 text-xs font-semibold text-ink resize-none"
-                  placeholder="เช่น ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก (2 โครินธ์ 9:7)"
-                />
-              </div>
-
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-paper-2 border-[1.5px] border-[var(--ink)]/20 text-xs text-ink-3 space-y-1">
-                <span className="font-bold text-ink">หมายเหตุเรื่องบทบาท:</span>
-                <p className="leading-relaxed">
-                  บทบาทและสิทธิ์การใช้งานของท่าน ({userRoleInfo.label})
-                  ถูกกำหนดโดยมติคริสตจักรและผู้ดูแลระบบสูงสุด
-                  หากต้องการเปลี่ยนแปลงสิทธิ์ กรุณาติดต่อผู้ดูแลระบบของคริสตจักร
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowEditProfileModal(false)}
-                  className="btn-secondary flex-1 min-h-11 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="btn-primary flex-1 min-h-11 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-extrabold disabled:opacity-50"
-                >
-                  {isSaving ? "กำลังบันทึก..." : "บันทึกโปรไฟล์"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <div className="flex items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2">
+              <button
+                type="button"
+                onClick={() => setShowEditProfileModal(false)}
+                className="btn-secondary flex-1 min-h-11 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="btn-primary flex-1 min-h-11 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-extrabold disabled:opacity-50"
+              >
+                {isSaving ? "กำลังบันทึก..." : "บันทึกโปรไฟล์"}
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

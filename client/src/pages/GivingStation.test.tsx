@@ -220,7 +220,7 @@ describe("GivingStation for an ordinary member", () => {
     // The total to pay is the sum.
     expect(
       screen.getByRole("status", { name: "ยอดรวมที่ต้องโอน" }).textContent
-    ).toContain("1,000 THB");
+    ).toContain("1,000.00 บาท");
     fireEvent.click(screen.getByRole("button", { name: "ดูสรุปการถวาย" }));
 
     fireEvent.click(
@@ -289,7 +289,7 @@ describe("GivingStation for an ordinary member", () => {
     ).toBe("3000");
     expect(
       screen.getByRole("status", { name: "ยอดรวมที่ต้องโอน" }).textContent
-    ).toContain("3,000 THB");
+    ).toContain("3,000.00 บาท");
   });
 
   it("removes a category when it is tapped again, and cannot continue with none", async () => {
@@ -343,7 +343,7 @@ describe("GivingStation for an ordinary member", () => {
     // The chosen amount (1,000) is replaced by the one on the slip.
     expect(
       screen.getByRole("region", { name: "ตรวจรายการก่อนส่ง" }).textContent
-    ).toContain("170 THB");
+    ).toContain("170.00 บาท");
     expect(readSlip).toHaveBeenCalledWith({
       base64Data: expect.stringContaining("data:image/"),
     });
@@ -478,13 +478,13 @@ describe("GivingStation for an ordinary member", () => {
     expect(screen.queryByText("ขอบคุณพระเจ้า")).toBeNull();
 
     fireEvent.click(
-      screen.getByRole("button", { name: /ใช้ยอด 1,500 THB ตามสลิป/ })
+      screen.getByRole("button", { name: /ใช้ยอด 1,500.00 บาท ตามสลิป/ })
     );
     // Back on step 3, the check list shows the slip amount.
     await waitFor(() =>
       expect(
         screen.getByRole("region", { name: "ตรวจรายการก่อนส่ง" }).textContent
-      ).toContain("1,500 THB")
+      ).toContain("1,500.00 บาท")
     );
     // The slip is still attached, so it can be sent again at once.
     expect(screen.getByAltText("สลิปที่แนบ")).toBeTruthy();
@@ -505,8 +505,8 @@ describe("GivingStation PromptPay QR", () => {
     expect(
       await screen.findByRole("region", { name: "QR พร้อมเพย์สำหรับถวาย" })
     ).toBeTruthy();
-    // The tithe preset is 1,000 THB.
-    expect(screen.getByTitle("QR พร้อมเพย์ 1,000 บาท")).toBeTruthy();
+    // The tithe preset is 1,000.00 บาท.
+    expect(screen.getByTitle("QR พร้อมเพย์ 1,000.00 บาท")).toBeTruthy();
     expect(screen.getByText(/ไม่ต้องพิมพ์ยอดเอง/)).toBeTruthy();
   });
 
@@ -585,7 +585,7 @@ describe("GivingStation check before every send", () => {
     const list = await screen.findByRole("region", {
       name: "ตรวจรายการก่อนส่ง",
     });
-    expect(list.textContent).toContain("1,000 THB");
+    expect(list.textContent).toContain("1,000.00 บาท");
     expect(list.textContent).toContain("ไม่ได้แนบสลิป");
     expect(list.textContent).toContain("รอเหรัญญิกตรวจ");
     const send = screen.getByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" });

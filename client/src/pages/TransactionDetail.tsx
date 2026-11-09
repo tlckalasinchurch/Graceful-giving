@@ -40,7 +40,7 @@ import {
   type OfferingCategory,
   type PaymentMethod,
 } from "@shared/categories";
-import { THAI_LOCALE, toLocalISODate } from "@/lib/format";
+import { formatAmount, THAI_LOCALE, toLocalISODate } from "@/lib/format";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
@@ -311,7 +311,7 @@ export default function TransactionDetail() {
     }
     if (amount > MAX_GIVING_AMOUNT) {
       toast.error(
-        `จำนวนเงินต้องไม่เกิน ${MAX_GIVING_AMOUNT.toLocaleString("en-US")} บาท`
+        `จำนวนเงินต้องไม่เกิน ${formatAmount(MAX_GIVING_AMOUNT, 0)} บาท`
       );
       return;
     }

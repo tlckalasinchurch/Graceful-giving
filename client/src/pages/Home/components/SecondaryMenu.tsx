@@ -2,7 +2,6 @@ import {
   Banknote,
   ChevronRight,
   CalendarDays,
-  FileBarChart,
   MoreHorizontal,
   UsersRound,
 } from "lucide-react";
@@ -11,9 +10,7 @@ import { forwardRef } from "react";
 import { AppMenu } from "@/components/layout/AppNavigation";
 
 interface SecondaryMenuProps {
-  canOpenReports: boolean;
   canOpenMembers: boolean;
-  onOpenReports: () => void;
   onOpenMembers: () => void;
   onOpenNews: () => void;
   onOpenWithdrawals: () => void;
@@ -65,9 +62,7 @@ const ShortcutTile = forwardRef<HTMLButtonElement, ShortcutProps>(
 ShortcutTile.displayName = "ShortcutTile";
 
 export function SecondaryMenu({
-  canOpenReports,
   canOpenMembers,
-  onOpenReports,
   onOpenMembers,
   onOpenNews,
   onOpenWithdrawals,
@@ -78,14 +73,6 @@ export function SecondaryMenu({
       aria-label="เมนูลัดอื่น ๆ"
       className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1"
     >
-      {canOpenReports && (
-        <ShortcutTile
-          label="รายงาน"
-          icon={FileBarChart}
-          iconClassName="bg-tile-sky text-tile-sky-ink border-tile-sky-ink/15"
-          onClick={onOpenReports}
-        />
-      )}
       {canOpenMembers && (
         <ShortcutTile
           label="สมาชิก"
