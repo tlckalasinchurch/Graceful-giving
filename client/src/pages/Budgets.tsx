@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useSubmitLock } from "@/hooks/useSubmitLock";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
@@ -54,7 +55,9 @@ export default function Budgets() {
   const fundName = (id: number | null) =>
     id ? (funds.find(f => f.id === id)?.name ?? `กองทุน #${id}`) : null;
 
+  const { lock, unlock } = useSubmitLock();
   const createPlan = trpc.budgets.create.useMutation({
+    onSettled: unlock,
     onSuccess: async () => {
       await utils.budgets.list.invalidate();
       setForm(EMPTY_BUDGET_FORM);
@@ -72,6 +75,7 @@ export default function Budgets() {
       toast.error(parsed.error);
       return;
     }
+    if (!lock()) return;
     createPlan.mutate({
       year,
       ...parsed.data,
@@ -224,14 +228,14 @@ export default function Budgets() {
                       <span
                         className={`block text-sm font-extrabold tabular-nums ${plan.remainingAmount < 0 ? "text-danger" : "text-ink"}`}
                       >
-                        {formatBaht(Math.abs(plan.remainingAmount), 0)}
+                        {formatBaht(Math.abs(plan.remainingAmount))}
                       </span>
                     </span>
                   </div>
                   <p className="mt-3 text-sm font-bold tabular-nums text-ink-2">
-                    {formatBaht(plan.actualAmount, 0)}{" "}
+                    {formatBaht(plan.actualAmount)}{" "}
                     <span className="font-medium text-ink-3">
-                      จาก {formatBaht(plan.plannedAmount, 0)}
+                      จาก {formatBaht(plan.plannedAmount)}
                     </span>
                   </p>
                   <BudgetProgress

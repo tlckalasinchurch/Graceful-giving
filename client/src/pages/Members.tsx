@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useSubmitLock } from "@/hooks/useSubmitLock";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
@@ -62,7 +63,9 @@ export default function Members() {
       return matchSearch && matchStatus;
     });
   }, [membersList, searchTerm, statusFilter]);
+  const { lock, unlock } = useSubmitLock();
   const createMember = trpc.members.create.useMutation({
+    onSettled: unlock,
     onSuccess: async () => {
       await utils.members.list.invalidate();
       setName("");
@@ -83,6 +86,7 @@ export default function Members() {
       toast.error("กรุณาระบุชื่อสมาชิก");
       return;
     }
+    if (!lock()) return;
     createMember.mutate({
       name: name.trim(),
       envelopeNo: envelopeNo.trim() || undefined,
@@ -215,7 +219,7 @@ export default function Members() {
         ) : membersQuery.isError ? (
           <ErrorState
             title="โหลดข้อมูลสมาชิกไม่สำเร็จ"
-            description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่"
+            description={friendlyErrorMessage(membersQuery.error)}
             onRetry={() => membersQuery.refetch()}
           />
         ) : !membersList.length ? (

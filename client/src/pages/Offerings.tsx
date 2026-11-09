@@ -1,18 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useLocation } from "wouter";
-import { trpc } from "@/lib/trpc";
+import { trpc, type RouterInputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
+  ErrorState,
   FilterBar,
+  LedgerPagination,
   LoadingSkeleton,
   MoneyDisplay,
 } from "@/components/common/CommonUI";
 import { Illustration } from "@/components/Illustration";
 import {
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   Download,
   HandCoins,
   Loader2,
@@ -28,8 +28,9 @@ import {
 } from "@/components/finance/VoucherModal";
 import { paymentMethodLabel } from "@shared/categories";
 import { formatThaiDateTime } from "@/lib/format";
-import { toCsvBlob } from "@/lib/csvDownload";
-import { csvExportErrorMessage } from "@/lib/errors";
+import { saveCsvFile } from "@/lib/csvDownload";
+import { useCursorPagination } from "@/hooks/useCursorPagination";
+import { csvExportErrorMessage, friendlyErrorMessage } from "@/lib/errors";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 import {
@@ -37,6 +38,10 @@ import {
   LEDGER_PERIOD_OPTIONS,
   type LedgerPeriod,
 } from "@/lib/datePeriod";
+
+type OfferingCursor = NonNullable<
+  Exclude<RouterInputs["offerings"]["paged"], void>["cursor"]
+>;
 
 export default function Offerings() {
   const [, setLocation] = useLocation();
@@ -51,33 +56,25 @@ export default function Offerings() {
   );
   const [isExporting, setIsExporting] = useState(false);
 
-  // Pagination state (cursor-based for DB stability)
-  const [cursor, setCursor] = useState<{
-    date: Date | string;
-    id: number;
-  } | null>(null);
-  const [cursorHistory, setCursorHistory] = useState<
-    ({ date: Date | string; id: number } | null)[]
-  >([]);
-  const [pageIndex, setPageIndex] = useState(0);
-
   const periodRange = useMemo(
     () => getPeriodDateRange(periodFilter),
     [periodFilter]
   );
 
-  // Reset pagination on filter change
-  useEffect(() => {
-    setCursor(null);
-    setCursorHistory([]);
-    setPageIndex(0);
-  }, [searchTerm, categoryFilter, periodFilter]);
+  // Cursor paging. A change of filter returns to page 1 (see the hook).
+  const { cursor, pageIndex, hasPrev, next, prev } =
+    useCursorPagination<OfferingCursor>([
+      searchTerm,
+      categoryFilter,
+      periodFilter,
+    ]);
 
   // 1. Server-side Summary Aggregates (Entire filtered dataset via PostgreSQL)
   const {
     data: summaryData,
     isLoading: loadingSummary,
     isError: isSummaryError,
+    error: summaryError,
   } = trpc.offerings.summary.useQuery(
     {
       fromDate: periodRange.fromDate,
@@ -93,6 +90,7 @@ export default function Offerings() {
     data: pagedData,
     isLoading: loadingPaged,
     isError: isPagedError,
+    error: pagedError,
     refetch,
   } = trpc.offerings.paged.useQuery(
     {
@@ -136,23 +134,6 @@ export default function Offerings() {
     }));
   }, [rawOfferings, accountsData]);
 
-  const handleNextPage = () => {
-    if (pagedData?.nextCursor) {
-      setCursorHistory(prev => [...prev, cursor]);
-      setCursor(pagedData.nextCursor);
-      setPageIndex(prev => prev + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (cursorHistory.length > 0) {
-      const prevCursor = cursorHistory[cursorHistory.length - 1];
-      setCursorHistory(prev => prev.slice(0, -1));
-      setCursor(prevCursor);
-      setPageIndex(prev => Math.max(0, prev - 1));
-    }
-  };
-
   const isFiltered =
     searchTerm.trim() !== "" ||
     categoryFilter !== "all" ||
@@ -174,18 +155,14 @@ export default function Offerings() {
         search: searchTerm.trim() || undefined,
       });
 
-      const blob = toCsvBlob(res.csv);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
+      if (res.rowCount === 0) {
+        toast.info("ไม่มีรายการที่ตรงกับเงื่อนไข จึงไม่มีข้อมูลให้ส่งออก");
+        return;
+      }
+      saveCsvFile(
+        res.csv,
         `grace-giving-offerings-${new Date().toISOString().slice(0, 10)}.csv`
       );
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
       toast.success(
         `ส่งออกข้อมูลถวายสำเร็จ (${res.rowCount.toLocaleString()} รายการ)`
       );
@@ -324,11 +301,10 @@ export default function Offerings() {
       {isLoading ? (
         <LoadingSkeleton count={3} />
       ) : isError ? (
-        <EmptyState
+        <ErrorState
           title="โหลดรายการถวายไม่สำเร็จ"
-          description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
-          actionText="ลองใหม่"
-          onAction={() => refetch()}
+          description={friendlyErrorMessage(pagedError ?? summaryError)}
+          onRetry={() => void refetch()}
         />
       ) : offerings.length === 0 ? (
         <EmptyState
@@ -415,35 +391,16 @@ export default function Offerings() {
             ))}
           </div>
 
-          {/* Pagination Controls */}
-          {totalCount > 0 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs font-bold text-ink-2">
-              <div>
-                แสดงหน้า {pageIndex + 1} (จากทั้งหมด{" "}
-                {totalCount.toLocaleString()} รายการ)
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={pageIndex === 0 || loadingPaged}
-                  onClick={handlePrevPage}
-                  className="btn-secondary min-h-10 px-3 py-1.5 text-xs disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1"
-                >
-                  <ChevronLeft className="size-4" />
-                  <span>ก่อนหน้า</span>
-                </button>
-                <button
-                  type="button"
-                  disabled={!hasMore || loadingPaged}
-                  onClick={handleNextPage}
-                  className="btn-secondary min-h-10 px-3 py-1.5 text-xs disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1"
-                >
-                  <span>ถัดไป</span>
-                  <ChevronRight className="size-4" />
-                </button>
-              </div>
-            </div>
-          )}
+          <LedgerPagination
+            pageIndex={pageIndex}
+            totalCount={totalCount}
+            hasPrev={hasPrev}
+            hasNext={hasMore}
+            loading={loadingPaged}
+            onPrev={prev}
+            onNext={() => next(pagedData?.nextCursor)}
+            className="pt-2"
+          />
         </div>
       )}
 

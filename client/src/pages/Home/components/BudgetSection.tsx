@@ -84,10 +84,10 @@ export function BudgetSection({
                 </div>
                 <p className="money shrink-0 text-xs sm:text-sm text-ink-2">
                   <span className="font-bold text-ink">
-                    {formatBaht(plan.actualAmount, 0)}
+                    {formatBaht(plan.actualAmount)}
                   </span>
                   {" / "}
-                  {formatBaht(plan.plannedAmount, 0)}
+                  {formatBaht(plan.plannedAmount)}
                 </p>
               </div>
               <BudgetProgress

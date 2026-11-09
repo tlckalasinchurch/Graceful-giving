@@ -108,12 +108,12 @@ describe("StationOfferingPackageCard", () => {
     expect(screen.getByRole("group", { name: "สิบลด" })).toBeTruthy();
     expect(
       screen
-        .getByRole("button", { name: "500 THB" })
+        .getByRole("button", { name: "500 บาท" })
         .getAttribute("aria-pressed")
     ).toBe("true");
     expect(
       screen
-        .getByRole("button", { name: "1,000 THB" })
+        .getByRole("button", { name: "1,000 บาท" })
         .getAttribute("aria-pressed")
     ).toBe("false");
     expect(

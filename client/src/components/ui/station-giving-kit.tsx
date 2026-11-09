@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
+import { formatAmount } from "@/lib/format";
 
 // ─── 1. Isometric Station Cube Logo (JamBox-inspired) ─────────────────────────
 
@@ -454,14 +455,14 @@ export function StationOfferingPackageCard({
                   : "bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
               )}
             >
-              {preset.toLocaleString()} THB
+              {formatAmount(preset, 0)} บาท
             </button>
           ))}
         </div>
       )}
 
       <div className="text-3xl sm:text-4xl font-extrabold text-ink tabular-nums">
-        {amountThb.toLocaleString()} THB
+        {formatAmount(amountThb)} บาท
       </div>
 
       <button

@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from "react";
+import { useSubmitLock } from "@/hooks/useSubmitLock";
+import { isOpenSession } from "./countingStatus";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -68,7 +70,9 @@ export default function Counting() {
     setNotes("");
   };
 
+  const { lock, unlock } = useSubmitLock();
   const createSession = trpc.counting.create.useMutation({
+    onSettled: unlock,
     onSuccess: async ({ id }) => {
       await utils.counting.list.invalidate();
       setShowCreate(false);
@@ -148,29 +152,15 @@ export default function Counting() {
   const sessions = sessionsQuery.data ?? [];
 
   const openCount = useMemo(
-    () =>
-      sessions.filter(
-        s =>
-          s.status === "counting" ||
-          s.status === "counted" ||
-          s.status === "verified"
-      ).length,
+    () => sessions.filter(s => isOpenSession(s.status)).length,
     [sessions]
   );
 
-  const completedCount = useMemo(
-    () =>
-      sessions.filter(s => s.status === "posted" || s.status === "closed")
-        .length,
-    [sessions]
-  );
+  const completedCount = sessions.length - openCount;
 
   const filteredSessions = useMemo(() => {
     return sessions.filter(session => {
-      const isPending =
-        session.status === "counting" ||
-        session.status === "counted" ||
-        session.status === "verified";
+      const isPending = isOpenSession(session.status);
       if (activeTab === "pending" && !isPending) return false;
       if (activeTab === "completed" && isPending) return false;
 
@@ -216,6 +206,7 @@ export default function Counting() {
           <form
             onSubmit={event => {
               event.preventDefault();
+              if (!lock()) return;
               createSession.mutate({
                 serviceDate: new Date(`${serviceDate}T12:00:00`),
                 serviceRound: 1,
@@ -330,15 +321,17 @@ export default function Counting() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="ค้นหาวันที่, บันทึก..."
+              aria-label="ค้นหารอบนับเงิน"
               className="neo-input pl-9 pr-8 py-2"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink"
+                aria-label="ล้างคำค้นหา"
+                className="absolute right-0.5 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center text-ink-3 hover:text-ink"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             )}
           </div>
@@ -388,10 +381,7 @@ export default function Counting() {
         ) : (
           <div className="bento-card-static divide-y divide-line overflow-hidden">
             {filteredSessions.map(session => {
-              const isUnposted =
-                session.status === "counting" ||
-                session.status === "counted" ||
-                session.status === "verified";
+              const isUnposted = isOpenSession(session.status);
 
               return (
                 <div
