@@ -268,13 +268,13 @@ export default function Funds() {
 
         {/* Create Fund Modal */}
         <Dialog open={showNewFundModal} onOpenChange={setShowNewFundModal}>
-          <DialogContent className="max-w-md space-y-5 p-6 md:p-8">
-            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 pr-10">
+          <DialogContent className="neo-modal max-h-[calc(100dvh-2rem)] w-full max-w-md space-y-5 overflow-y-auto overscroll-contain p-6 md:p-8">
+            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 text-left">
               <DialogTitle className="text-lg font-extrabold text-ink">
                 สร้างกองทุนใหม่
               </DialogTitle>
               <DialogDescription className="sr-only">
-                กรอกชื่อ ประเภท และวัตถุประสงค์ของกองทุน
+                กรอกข้อมูลชื่อ ประเภท และวัตถุประสงค์เพื่อสร้างกองทุนใหม่
               </DialogDescription>
             </DialogHeader>
 
@@ -317,7 +317,9 @@ export default function Funds() {
                   <option value="welfare">
                     สงเคราะห์และสวัสดิการ (Welfare)
                   </option>
-                  <option value="special">กองทุนโครงการพิเศษ (Special)</option>
+                  <option value="special">
+                    กองทุนโครงการพิเศษ (Special)
+                  </option>
                   <option value="general">ดำเนินงานทั่วไป (General)</option>
                 </NativeSelect>
               </div>

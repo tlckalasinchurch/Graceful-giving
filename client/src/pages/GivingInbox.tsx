@@ -29,6 +29,7 @@ import {
   Loader2,
   ZoomIn,
   ZoomOut,
+  ArrowLeft,
 } from "lucide-react";
 import {
   Dialog,
@@ -342,6 +343,15 @@ export default function GivingInbox() {
     setEditMemberId(slip.matchedMemberId || null);
     setMemberSearch("");
     setEditReviewNote(slip.reviewNote || "");
+
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setTimeout(() => {
+        document.getElementById("slip-detail-panel")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
   };
 
   const handleApprove = async () => {
@@ -886,7 +896,7 @@ export default function GivingInbox() {
           </div>
 
           {/* Right Column: Slip Detail & Review Form (7 cols on lg) */}
-          <div className="lg:col-span-7">
+          <div id="slip-detail-panel" className="lg:col-span-7 scroll-mt-20">
             {!selectedSlipId || !currentSlip ? (
               <div className="p-12 text-center bg-surface rounded-2xl border-2 border-dashed border-[var(--ink)]/30 text-ink-3 space-y-3 min-h-[420px] flex flex-col items-center justify-center">
                 <Inbox className="w-10 h-10 text-ink-3" />
@@ -900,6 +910,18 @@ export default function GivingInbox() {
               </div>
             ) : (
               <div className="bento-card-static p-5 sm:p-6 space-y-6 animate-in fade-in duration-150">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedSlipId(null);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-[var(--ink)] bg-paper-2 text-xs font-bold text-ink cursor-pointer hover:bg-ground"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>กลับไปรายการสลิป</span>
+                </button>
+
                 {/* Header of Detail */}
                 <div className="flex items-start justify-between gap-4 pb-4 border-b-2 border-[var(--ink)]">
                   <div>
@@ -1572,8 +1594,17 @@ export default function GivingInbox() {
 
             {/* Dropzone Area */}
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={uploadPreview ? "คลิกเพื่อเปลี่ยนรูปภาพสลิป" : "คลิกเพื่อเลือกไฟล์รูปสลิป"}
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
+              onKeyDown={e => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
                 uploadPreview
                   ? "border-brand bg-paper-2"
                   : "border-[var(--ink)]/40 hover:border-brand bg-paper-2"
@@ -1583,8 +1614,11 @@ export default function GivingInbox() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                aria-label="เลือกไฟล์รูปสลิป"
+                tabIndex={-1}
+                onClick={e => e.stopPropagation()}
                 onChange={e => void handleFileChange(e)}
-                className="hidden"
+                className="sr-only"
               />
 
               {uploadPreview ? (

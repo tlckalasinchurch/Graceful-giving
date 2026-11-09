@@ -1459,6 +1459,9 @@ export default function Settings() {
                     </option>
                   </optgroup>
                   <optgroup label="ผู้ใช้งานและความปลอดภัย">
+                    <option value="owner_auto_promote">
+                      กู้คืนสิทธิ์เจ้าของระบบ (owner_auto_promote)
+                    </option>
                     <option value="update_user_role">
                       เปลี่ยนบทบาท (update_user_role)
                     </option>
@@ -1494,7 +1497,33 @@ export default function Settings() {
               </div>
             ) : (
               (() => {
+                const AUDIT_ACTION_THAI: Record<string, string> = {
+                  owner_auto_promote: "กู้คืนสิทธิ์เจ้าของระบบ",
+                  update_user_role: "เปลี่ยนบทบาท",
+                  AUTH_SET_CHURCH_ROLE: "เปลี่ยนบทบาท",
+                  approve_user: "อนุมัติบัญชี",
+                  disable_user: "ปิดการใช้งาน",
+                  delete_user: "ลบบัญชีผู้ใช้",
+                  CREATE: "บันทึกใหม่",
+                  UPDATE: "แก้ไขข้อมูล",
+                  VOID: "ยกเลิกรายการ",
+                  DELETE: "ลบข้อมูล",
+                  APPROVE: "อนุมัติ",
+                  APPROVE_LINE_SLIP: "อนุมัติสลิป",
+                  REJECT_LINE_SLIP: "ปฏิเสธสลิป",
+                  LINK_LINE_MEMBER: "เชื่อมโยงสมาชิก",
+                  SIGN: "ลงนาม",
+                  DISBURSE: "จ่ายเงินแล้ว",
+                  POST: "โพสต์ลงบัญชี",
+                  SUBMIT: "ส่งตรวจนับ",
+                  VERIFY: "ตรวจนับแล้ว",
+                  update_church_profile: "ตั้งค่าคริสตจักร",
+                  update_profile: "แก้ไขโปรไฟล์ส่วนตัว",
+                  save_station_poster: "บันทึกโปสเตอร์จุดถวาย",
+                };
+
                 const logs = (auditQuery.data || []).filter(log => {
+                  const actionThai = AUDIT_ACTION_THAI[log.action] || "";
                   const matchesSearch =
                     !auditSearch ||
                     (log.userName &&
@@ -1507,7 +1536,14 @@ export default function Settings() {
                         .includes(auditSearch.toLowerCase())) ||
                     log.action
                       .toLowerCase()
-                      .includes(auditSearch.toLowerCase());
+                      .includes(auditSearch.toLowerCase()) ||
+                    actionThai
+                      .toLowerCase()
+                      .includes(auditSearch.toLowerCase()) ||
+                    (log.entity &&
+                      log.entity
+                        .toLowerCase()
+                        .includes(auditSearch.toLowerCase()));
                   const matchesFilter =
                     auditActionFilter === "ALL" ||
                     log.action === auditActionFilter;
@@ -1586,6 +1622,12 @@ export default function Settings() {
                       return (
                         <span className="px-2.5 py-0.5 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-[11px] border border-[var(--ink)]/30">
                           {action === "SUBMIT" ? "ส่งตรวจนับ" : "ตรวจนับแล้ว"}
+                        </span>
+                      );
+                    case "owner_auto_promote":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-accent text-accent-foreground font-extrabold text-[11px] border border-[var(--ink)]">
+                          กู้คืนสิทธิ์เจ้าของระบบ
                         </span>
                       );
                     case "update_user_role":

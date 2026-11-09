@@ -162,7 +162,7 @@ export default function Give() {
           <>
             <a
               href={GIVE_LOGIN_URL}
-              className="alpha-press flex min-h-14 w-full items-center justify-center rounded-2xl border-2 border-[var(--ink)] bg-line-brand px-6 text-base font-extrabold text-[var(--ink)] shadow-[4px_4px_0_var(--ink)]"
+              className="alpha-press flex min-h-14 w-full items-center justify-center rounded-2xl border-2 border-[var(--ink)] bg-line-brand px-6 text-base font-extrabold text-[var(--line-brand-ink)] shadow-[4px_4px_0_var(--ink)]"
             >
               เข้าสู่ระบบด้วย LINE
             </a>

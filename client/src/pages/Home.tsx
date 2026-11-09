@@ -291,8 +291,12 @@ export default function Home() {
             <PrimaryActions
               canRecordOffering={canRecordOffering}
               canRecordExpense={canRecordExpense}
+              canOpenCounting={canOpenCounting}
+              canOpenGivingStation={true}
               onNewOffering={() => setLocation("/offerings/new")}
               onNewExpense={() => setLocation("/expenses/new")}
+              onOpenCounting={() => setLocation("/counting")}
+              onOpenGivingStation={() => setLocation("/giving-station")}
             />
             <SecondaryMenu
               canOpenMembers={canOpenMembers}

@@ -440,30 +440,26 @@ export default function Approvals() {
 
         {/* Reject Reason Modal */}
         <Dialog
-          open={showRejectModal && !!selectedReq}
+          open={showRejectModal && Boolean(selectedReq)}
           onOpenChange={open => {
             if (!open) setShowRejectModal(false);
           }}
         >
-          <DialogContent className="max-w-md space-y-4 p-6">
-            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 pr-10">
+          <DialogContent className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4">
+            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 text-left">
               <DialogTitle className="display text-lg font-extrabold text-ink">
                 ระบุเหตุผลที่ไม่อนุมัติ
               </DialogTitle>
-              <DialogDescription className="sr-only">
-                ระบุเหตุผลที่ไม่อนุมัติ
+              <DialogDescription className="text-xs font-medium text-ink-2">
+                คำขอนี้จะถูกบันทึกว่าไม่ผ่านการอนุมัติจากคุณ และส่งผลให้คำขอสิ้นสุดลงทันที
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-2 text-xs">
-              <p className="font-medium text-ink-2">
-                คำขอนี้จะถูกบันทึกว่าไม่ผ่านการอนุมัติจากคุณ
-                และส่งผลให้คำขอสิ้นสุดลงทันที
-              </p>
               <textarea
-                aria-label="เหตุผลที่ไม่อนุมัติ"
                 rows={3}
                 required
+                aria-label="เหตุผลที่ไม่อนุมัติ"
                 placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้..."
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
@@ -473,6 +469,7 @@ export default function Approvals() {
 
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
+                type="button"
                 onClick={() => setShowRejectModal(false)}
                 disabled={signMutation.isPending}
                 className="btn-secondary min-h-11 px-4 py-2.5 text-xs cursor-pointer"
@@ -480,11 +477,14 @@ export default function Approvals() {
                 ยกเลิก
               </button>
               <button
+                type="button"
                 onClick={handleRejectSubmit}
                 disabled={signMutation.isPending}
                 className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50 cursor-pointer"
               >
-                {signMutation.isPending ? "กำลังบันทึก..." : "ยืนยันไม่อนุมัติ"}
+                {signMutation.isPending
+                  ? "กำลังบันทึก..."
+                  : "ยืนยันไม่อนุมัติ"}
               </button>
             </div>
           </DialogContent>
@@ -492,30 +492,26 @@ export default function Approvals() {
 
         {/* Cancel Reason Modal */}
         <Dialog
-          open={showCancelModal && !!selectedReq}
+          open={showCancelModal && Boolean(selectedReq)}
           onOpenChange={open => {
             if (!open) setShowCancelModal(false);
           }}
         >
-          <DialogContent className="max-w-md space-y-4 p-6">
-            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 pr-10">
+          <DialogContent className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4">
+            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 text-left">
               <DialogTitle className="display text-lg font-extrabold text-ink">
                 ระบุเหตุผลในการยกเลิกคำขอ
               </DialogTitle>
-              <DialogDescription className="sr-only">
-                ระบุเหตุผลในการยกเลิกคำขอ
+              <DialogDescription className="text-xs font-medium text-ink-2">
+                เมื่อยกเลิกแล้ว คำขอนี้จะไม่สามารถนำไปเบิกจ่ายได้อีก (ระบุเหตุผลอย่างน้อย 3 ตัวอักษร)
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-2 text-xs">
-              <p className="font-medium text-ink-2">
-                เมื่อยกเลิกแล้ว คำขอนี้จะไม่สามารถนำไปเบิกจ่ายได้อีก
-                (ระบุเหตุผลอย่างน้อย 3 ตัวอักษร)
-              </p>
               <textarea
-                aria-label="เหตุผลในการยกเลิกคำขอ"
                 rows={3}
                 required
+                aria-label="เหตุผลในการยกเลิก"
                 placeholder="เช่น ยกเลิกโครงการ, ปรับเปลี่ยนรายการจัดซื้อ..."
                 value={cancelReason}
                 onChange={e => setCancelReason(e.target.value)}
@@ -525,6 +521,7 @@ export default function Approvals() {
 
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
+                type="button"
                 onClick={() => setShowCancelModal(false)}
                 disabled={cancelMutation.isPending}
                 className="btn-secondary min-h-11 px-4 py-2.5 text-xs cursor-pointer"
@@ -532,6 +529,7 @@ export default function Approvals() {
                 กลับ
               </button>
               <button
+                type="button"
                 onClick={handleCancelSubmit}
                 disabled={cancelMutation.isPending}
                 className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50 cursor-pointer"

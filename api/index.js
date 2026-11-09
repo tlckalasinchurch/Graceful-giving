@@ -2659,7 +2659,7 @@ async function createAuditLog(input) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(auditLogs).values({
-    churchId: input.churchId,
+    churchId: input.churchId ?? DEFAULT_CHURCH_ID,
     userId: input.userId,
     action: input.action,
     entity: input.entity,
@@ -2667,7 +2667,7 @@ async function createAuditLog(input) {
     metadata: input.metadata
   });
 }
-async function listAuditLogs(limit = 100) {
+async function listAuditLogs(churchId = DEFAULT_CHURCH_ID, limit = 100) {
   const db = await getDb();
   if (!db) return [];
   return await db.select({
@@ -2681,7 +2681,7 @@ async function listAuditLogs(limit = 100) {
     entityId: auditLogs.entityId,
     metadata: auditLogs.metadata,
     createdAt: auditLogs.createdAt
-  }).from(auditLogs).leftJoin(users, eq(auditLogs.userId, users.id)).orderBy(desc(auditLogs.createdAt)).limit(limit);
+  }).from(auditLogs).leftJoin(users, eq(auditLogs.userId, users.id)).where(eq(auditLogs.churchId, churchId)).orderBy(desc(auditLogs.createdAt)).limit(limit);
 }
 async function getFinancialReportData(churchId = DEFAULT_CHURCH_ID, fromDate, toDate) {
   const db = await getDb();
@@ -9024,7 +9024,7 @@ var appRouter = router({
         limit: z3.number().min(1).max(200).default(50)
       }).optional()
     ).query(async ({ input }) => {
-      return await listAuditLogs(input?.limit ?? 50);
+      return await listAuditLogs(DEFAULT_CHURCH_ID, input?.limit ?? 50);
     })
   })
 });
