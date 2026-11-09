@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
+import { useSubmitLock } from "@/hooks/useSubmitLock";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -14,7 +15,12 @@ import {
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip, EmptyState } from "@/components/common/CommonUI";
 import { formatBaht, toLocalISODate } from "@/lib/format";
@@ -138,7 +144,9 @@ export default function NewOffering() {
     }
   };
 
+  const { lock, unlock } = useSubmitLock();
   const createMutation = trpc.offerings.create.useMutation({
+    onSettled: unlock,
     onSuccess: () => {
       setLastSaved({
         category,
@@ -182,6 +190,7 @@ export default function NewOffering() {
       return;
     }
 
+    if (!lock()) return;
     createMutation.mutate({
       category,
       amount: Number(amount),
@@ -249,10 +258,10 @@ export default function NewOffering() {
             className="bento-card-static p-6 sm:p-8 space-y-6"
           >
             {/* 1. ประเภทถวาย */}
-            <div className="space-y-2.5">
-              <label className="text-sm font-extrabold text-ink block">
+            <fieldset className="space-y-2.5 min-w-0 border-0 p-0 m-0">
+              <legend className="text-sm font-extrabold text-ink mb-2.5 p-0">
                 1. เลือกประเภทการถวาย
-              </label>
+              </legend>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {categories.map(cat => (
                   <button
@@ -270,7 +279,7 @@ export default function NewOffering() {
                   </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
 
             {/* 2. จำนวนเงิน + Shortcuts */}
             <div className="space-y-2.5">
@@ -349,10 +358,10 @@ export default function NewOffering() {
             </div>
 
             {/* 4. วิธีรับเงิน */}
-            <div className="space-y-2.5">
-              <label className="text-sm font-extrabold text-ink block">
+            <fieldset className="space-y-2.5 min-w-0 border-0 p-0 m-0">
+              <legend className="text-sm font-extrabold text-ink mb-2.5 p-0">
                 4. วิธีการรับเงิน
-              </label>
+              </legend>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {paymentMethods.map(m => (
                   <button
@@ -370,7 +379,7 @@ export default function NewOffering() {
                   </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
 
             {/* 5. วันที่, รหัสซองถวาย & ชื่อผู้ถวาย */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -535,9 +544,9 @@ export default function NewOffering() {
             <DialogTitle className="display text-xl text-ink">
               บันทึกการถวายเรียบร้อยแล้ว
             </DialogTitle>
-            <p className="text-xs font-medium text-ink-3 mt-1">
+            <DialogDescription className="text-xs font-medium text-ink-3 mt-1">
               "ขอพระเจ้าทรงอวยพระพรและตอบแทนทุกน้ำใจที่ท่านได้มอบให้เพื่อพันธกิจของพระองค์"
-            </p>
+            </DialogDescription>
           </div>
 
           <div className="p-4 rounded-xl bg-paper-2 border-2 border-[var(--ink)] text-xs text-left space-y-1.5">

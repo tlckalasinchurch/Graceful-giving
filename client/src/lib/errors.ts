@@ -54,9 +54,17 @@ export function friendlyErrorMessage(
 
   const err = error as ErrorLike;
   const code = codeOf(err);
-  if (code && CODE_MESSAGES[code]) return CODE_MESSAGES[code];
-
   const message = typeof err.message === "string" ? err.message.trim() : "";
+
+  // The server writes some rejections in Thai for the reader, such as "this
+  // request needs two signatures". That reason is more useful than the
+  // generic text for the error code, so it wins. A session that has ended is
+  // the exception: it always gets the sign-in text.
+  if (message && code !== "UNAUTHORIZED" && /[\u0E00-\u0E7F]/.test(message)) {
+    return message;
+  }
+
+  if (code && CODE_MESSAGES[code]) return CODE_MESSAGES[code];
   if (!message) return fallback;
 
   for (const [pattern, thai] of ENGLISH_HINTS) {

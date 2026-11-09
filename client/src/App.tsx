@@ -282,13 +282,9 @@ function Router() {
           <GivingInbox />
         </RoleGuard>
       </Route>
+      {/* Old address of the slip inbox; kept so saved links still open it. */}
       <Route path="/giving-inbox">
-        <RoleGuard
-          canAccess={u => canAccessRoute("/giving/inbox", u)}
-          message="ส่วนกล่องข้อความสลิปสงวนไว้สำหรับเหรัญญิกหรือผู้มีสิทธิ์จัดการการเงินเท่านั้น"
-        >
-          <GivingInbox />
-        </RoleGuard>
+        {() => <Redirect to="/giving/inbox" />}
       </Route>
 
       {/* Expenses */}

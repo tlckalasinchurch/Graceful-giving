@@ -1,10 +1,19 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { friendlyErrorMessage } from "@/lib/errors";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
+  ErrorState,
   LoadingSkeleton,
   MoneyDisplay,
   StatusBadge,
@@ -22,13 +31,6 @@ import { Swal } from "@/lib/sweetalert";
 import { formatBaht, THAI_LOCALE } from "@/lib/format";
 import { canManageFinance } from "@shared/roles";
 import { SignatureProgress } from "./Approvals/SignatureProgress";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 type WithdrawalItem = RouterOutputs["withdrawals"]["list"][number];
 
@@ -60,6 +62,7 @@ export default function Approvals() {
     data: withdrawalsData,
     isLoading,
     isError,
+    error,
     refetch,
   } = trpc.withdrawals.list.useQuery(undefined, { retry: false });
 
@@ -99,7 +102,7 @@ export default function Approvals() {
       setSelectedReq(null);
       void utils.withdrawals.list.invalidate();
     },
-    onError: err => toast.error(err.message || "ไม่สามารถลงนามได้"),
+    onError: err => toast.error(friendlyErrorMessage(err, "ไม่สามารถลงนามได้")),
   });
 
   const disburseMutation = trpc.withdrawals.disburse.useMutation({
@@ -111,7 +114,8 @@ export default function Approvals() {
       void utils.counting.list.invalidate();
       void utils.counting.get.invalidate();
     },
-    onError: err => toast.error(err.message || "ไม่สามารถบันทึกการจ่ายเงินได้"),
+    onError: err =>
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถบันทึกการจ่ายเงินได้")),
   });
 
   const cancelMutation = trpc.withdrawals.cancel.useMutation({
@@ -122,13 +126,14 @@ export default function Approvals() {
       setSelectedReq(null);
       void utils.withdrawals.list.invalidate();
     },
-    onError: err => toast.error(err.message || "ไม่สามารถยกเลิกคำขอได้"),
+    onError: err =>
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถยกเลิกคำขอได้")),
   });
 
   const handleApprove = async (req: WithdrawalItem) => {
     const ok = await Swal.confirm(
       "ยืนยันการลงนามอนุมัติ",
-      `ต้องการลงนามอนุมัติคำขอเบิกเงิน "${req.purpose}" จำนวน ${formatBaht(req.amount)} บาท หรือไม่?`,
+      `ต้องการลงนามอนุมัติคำขอเบิกเงิน "${req.purpose}" จำนวน ${formatBaht(req.amount)} หรือไม่?`,
       "ลงนามอนุมัติ"
     );
     if (ok) {
@@ -152,7 +157,7 @@ export default function Approvals() {
   const handleDisburse = async (req: WithdrawalItem) => {
     const ok = await Swal.confirm(
       "ยืนยันการจ่ายเงิน",
-      `ยืนยันการจ่ายเงินจำนวน ${formatBaht(req.amount)} บาท ยอดนี้จะถูกนำเข้ารอบนับเงินถัดไปโดยอัตโนมัติ`,
+      `ยืนยันการจ่ายเงินจำนวน ${formatBaht(req.amount)} ยอดนี้จะถูกนำเข้ารอบนับเงินถัดไปโดยอัตโนมัติ`,
       "ยืนยันจ่ายเงิน"
     );
     if (ok) {
@@ -259,11 +264,10 @@ export default function Approvals() {
         {isLoading ? (
           <LoadingSkeleton count={3} />
         ) : isError ? (
-          <EmptyState
+          <ErrorState
             title="โหลดคำขอเบิกจ่ายไม่สำเร็จ"
-            description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
-            actionText="ลองใหม่"
-            onAction={() => refetch()}
+            description={friendlyErrorMessage(error)}
+            onRetry={() => void refetch()}
           />
         ) : filteredRequests.length === 0 ? (
           <EmptyState

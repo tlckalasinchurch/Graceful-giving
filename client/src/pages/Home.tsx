@@ -299,9 +299,7 @@ export default function Home() {
               onOpenGivingStation={() => setLocation("/giving-station")}
             />
             <SecondaryMenu
-              canOpenReports={canOpenReports}
               canOpenMembers={canOpenMembers}
-              onOpenReports={() => setLocation("/reports")}
               onOpenMembers={() => setLocation("/members")}
               onOpenNews={() => setNewsOpen(true)}
               onOpenWithdrawals={() => setLocation("/withdrawals/new")}

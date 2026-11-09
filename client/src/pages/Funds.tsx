@@ -1,13 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useSubmitLock } from "@/hooks/useSubmitLock";
 import { formatBaht } from "@/lib/format";
 import { useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { FundBreakdown, fundTone } from "./Home/components/FundBreakdown";
-import { fundShares } from "./Home/fundShares";
-import { NativeSelect } from "@/components/ui/native-select";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +13,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FundBreakdown, fundTone } from "./Home/components/FundBreakdown";
+import { fundShares } from "./Home/fundShares";
+import { NativeSelect } from "@/components/ui/native-select";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 import { friendlyErrorMessage } from "@/lib/errors";
@@ -47,7 +48,9 @@ export default function Funds() {
     { retry: false }
   );
 
+  const { lock, unlock } = useSubmitLock();
   const createAccountMutation = trpc.finance.createAccount.useMutation({
+    onSettled: unlock,
     onSuccess: () => {
       toast.success("สร้างกองทุนใหม่สำเร็จ");
       setShowNewFundModal(false);
@@ -109,21 +112,14 @@ export default function Funds() {
     [fundsList]
   );
 
-  useEffect(() => {
-    if (!showNewFundModal) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowNewFundModal(false);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showNewFundModal]);
-
   const handleCreateFund = (e: React.FormEvent) => {
     e.preventDefault();
+    if (createAccountMutation.isPending) return;
     if (!newFundName.trim()) {
       toast.error("กรุณาระบุชื่อกองทุน");
       return;
     }
+    if (!lock()) return;
     createAccountMutation.mutate({
       name: newFundName.trim(),
       type: newFundType,
@@ -284,10 +280,14 @@ export default function Funds() {
 
             <form onSubmit={handleCreateFund} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-extrabold text-ink-2">
+                <label
+                  htmlFor="new-fund-name"
+                  className="text-xs font-extrabold text-ink-2"
+                >
                   ชื่อกองทุน <span className="text-danger">*</span>
                 </label>
                 <input
+                  id="new-fund-name"
                   type="text"
                   required
                   placeholder="เช่น กองทุนทุนการศึกษาบุตรศิษยาภิบาล"
@@ -298,10 +298,14 @@ export default function Funds() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-extrabold text-ink-2">
+                <label
+                  htmlFor="new-fund-type"
+                  className="text-xs font-extrabold text-ink-2"
+                >
                   ประเภทกองทุน
                 </label>
                 <NativeSelect
+                  id="new-fund-type"
                   value={newFundType}
                   onChange={e =>
                     setNewFundType(e.target.value as typeof newFundType)
@@ -321,10 +325,14 @@ export default function Funds() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-extrabold text-ink-2">
+                <label
+                  htmlFor="new-fund-desc"
+                  className="text-xs font-extrabold text-ink-2"
+                >
                   คำอธิบายและวัตถุประสงค์
                 </label>
                 <textarea
+                  id="new-fund-desc"
                   rows={3}
                   placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้..."
                   value={newFundDesc}
@@ -343,9 +351,12 @@ export default function Funds() {
                 </button>
                 <button
                   type="submit"
-                  className="btn-primary min-h-11 px-6 py-2.5 text-xs"
+                  disabled={createAccountMutation.isPending}
+                  className="btn-primary min-h-11 px-6 py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  สร้างกองทุน
+                  {createAccountMutation.isPending
+                    ? "กำลังสร้าง…"
+                    : "สร้างกองทุน"}
                 </button>
               </div>
             </form>

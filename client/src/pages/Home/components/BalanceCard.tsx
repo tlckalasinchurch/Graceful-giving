@@ -169,7 +169,7 @@ export function BalanceCard({
             onClick={onOpenReports}
             className="alpha-press inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-surface px-4 py-2 text-xs sm:text-sm font-bold shadow-[2px_2px_0_var(--ink)]"
           >
-            ดูรายละเอียด
+            ดูรายงาน
             <ChevronRight className="size-4" aria-hidden="true" />
           </button>
         )}

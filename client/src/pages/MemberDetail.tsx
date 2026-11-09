@@ -4,6 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import {
   BackLink,
   EmptyState,
+  ErrorState,
   LoadingSkeleton,
   MoneyDisplay,
 } from "@/components/common/CommonUI";
@@ -130,11 +131,10 @@ export default function MemberDetail() {
         {query.isLoading ? (
           <LoadingSkeleton count={3} />
         ) : query.isError ? (
-          <EmptyState
+          <ErrorState
             title="โหลดข้อมูลสมาชิกไม่สำเร็จ"
-            description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่"
-            actionText="ลองใหม่"
-            onAction={() => query.refetch()}
+            description={friendlyErrorMessage(query.error)}
+            onRetry={() => void query.refetch()}
           />
         ) : !query.data ? (
           <EmptyState
