@@ -3603,7 +3603,7 @@ export const appRouter = router({
           .optional()
       )
       .query(async ({ input }) => {
-        return await listAuditLogs(input?.limit ?? 50);
+        return await listAuditLogs(DEFAULT_CHURCH_ID, input?.limit ?? 50);
       }),
   }),
 });

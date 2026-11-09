@@ -14,7 +14,7 @@ import {
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip, EmptyState } from "@/components/common/CommonUI";
 import { formatBaht, toLocalISODate } from "@/lib/format";
@@ -49,6 +49,29 @@ export default function NewOffering() {
     amount: number;
     method: string;
   } | null>(null);
+
+  React.useEffect(() => {
+    if (!fundId && funds.length > 0) {
+      const defaultFund = funds.find(f => f.type === "general") || funds[0];
+      if (defaultFund) {
+        setFundId(String(defaultFund.id));
+      }
+    }
+  }, [funds, fundId]);
+
+  const handleRecordNext = () => {
+    setIsSuccessOpen(false);
+    setAmount("");
+    setNotes("");
+    setEnvelopeNo("");
+    setDonorName("");
+    setSelectedMemberId(null);
+    setIsAnonymous(false);
+    setFormError(null);
+    setTimeout(() => {
+      amountRef.current?.focus();
+    }, 100);
+  };
 
   const matchedMember = useMemo(
     () =>
@@ -509,9 +532,9 @@ export default function NewOffering() {
             />
           </div>
           <div>
-            <h3 className="display text-xl text-ink">
+            <DialogTitle className="display text-xl text-ink">
               บันทึกการถวายเรียบร้อยแล้ว
-            </h3>
+            </DialogTitle>
             <p className="text-xs font-medium text-ink-3 mt-1">
               "ขอพระเจ้าทรงอวยพระพรและตอบแทนทุกน้ำใจที่ท่านได้มอบให้เพื่อพันธกิจของพระองค์"
             </p>
@@ -538,15 +561,25 @@ export default function NewOffering() {
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              setIsSuccessOpen(false);
-              setLocation("/offerings");
-            }}
-            className="btn-primary w-full min-h-12 text-base"
-          >
-            ดูรายการถวายทั้งหมด
-          </button>
+          <div className="space-y-2 pt-2">
+            <button
+              type="button"
+              onClick={handleRecordNext}
+              className="btn-primary w-full min-h-12 text-base cursor-pointer"
+            >
+              บันทึกซองถัดไป
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsSuccessOpen(false);
+                setLocation("/offerings");
+              }}
+              className="btn-secondary w-full min-h-11 text-sm cursor-pointer"
+            >
+              เสร็จสิ้น / ดูรายการทั้งหมด
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </AppLayout>

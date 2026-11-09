@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/categories";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
 import { formatBaht, THAI_LOCALE, toLocalISODate } from "@/lib/format";
@@ -584,7 +584,7 @@ export default function NewExpense() {
                 )}
               </div>
             ) : (
-              <label className="border-2 border-dashed border-[var(--ink)] hover:border-brand rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-paper-2 hover:bg-ground transition-colors">
+              <label className="border-2 border-dashed border-[var(--ink)] hover:border-brand rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-paper-2 hover:bg-ground transition-colors focus-within:ring-2 focus-within:ring-brand focus-within:ring-offset-2">
                 <div className="w-12 h-12 rounded-xl border-2 border-[var(--ink)] bg-surface shadow-[2px_2px_0_var(--ink)] flex items-center justify-center text-brand mb-3">
                   <ImageIcon className="w-6 h-6" />
                 </div>
@@ -599,7 +599,8 @@ export default function NewExpense() {
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
                   onChange={handleUpload}
-                  className="hidden"
+                  aria-label="อัปโหลดหลักฐานหรือใบเสร็จ"
+                  className="sr-only"
                 />
               </label>
             )}
@@ -640,9 +641,9 @@ export default function NewExpense() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="display text-2xl text-ink">
+                <DialogTitle className="display text-2xl text-ink">
                   บันทึกรายจ่ายสำเร็จ!
-                </h3>
+                </DialogTitle>
                 <p className="text-sm font-medium text-ink-3">
                   รายการรายจ่ายถูกบันทึกลงสมุดบัญชีคริสตจักรเรียบร้อยแล้ว
                 </p>

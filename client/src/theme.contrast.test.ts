@@ -90,6 +90,12 @@ describe.each(["light", "dark"] as const)("%s theme contrast", mode => {
     ).toBeGreaterThanOrEqual(3);
   });
 
+  it("keeps the LINE sign-in button legible (WCAG AA 4.5:1)", () => {
+    expect(
+      contrast(token("line-brand-ink", mode), token("line-brand", mode))
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("keeps danger readable on canvas and card", () => {
     expect(
       contrast(token("danger", mode), token("surface", mode))

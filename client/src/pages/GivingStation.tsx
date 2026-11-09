@@ -647,8 +647,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   };
 
   const handleCountdownExpire = () => {
-    if (isSubmitting) return;
-    toast.info("หมดเวลาทำรายการ กรุณาเริ่มใหม่อีกครั้ง");
+    if (isSubmitting || slipPreview !== null) return;
+    if (giveLines.length > 0) {
+      toast.warning("หมดเวลาทำรายการสำหรับเครื่องสาธารณะ หากต้องการทำรายการต่อโปรดแตะหน้าจอ");
+      return;
+    }
+    toast.info("หมดเวลาทำรายการ กำลังรีเซ็ตหน้าจอเพื่อความปลอดภัย");
     resetFlow();
   };
 
@@ -777,7 +781,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               </div>
             </div>
 
-            {shownStep === 2 && (
+            {stationOnly && shownStep === 2 && (
               <StationCountdownCard
                 initialSeconds={300}
                 label="เวลาทำรายการคงเหลือ"
@@ -1243,7 +1247,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipInputRef.current?.click()}
-                        className="w-full rounded-xl border-2 border-dashed border-[var(--ink)] hover:border-brand bg-paper-2 hover:bg-ground p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5"
+                        className="w-full rounded-xl border-2 border-dashed border-[var(--ink)] hover:border-brand bg-paper-2 hover:bg-ground p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                       >
                         <UploadCloud className="w-5 h-5 text-brand shrink-0" />
                         <span className="text-xs font-extrabold text-ink">
@@ -1266,7 +1270,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipCameraRef.current?.click()}
-                        className="mt-2 w-full rounded-xl border-2 border-[var(--ink)] bg-surface hover:bg-paper-2 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden"
+                        className="mt-2 w-full rounded-xl border-2 border-[var(--ink)] bg-surface hover:bg-paper-2 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                       >
                         <Camera
                           className="w-5 h-5 text-brand shrink-0"
@@ -1598,7 +1602,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     type="button"
                     onClick={() => qrUploadRef.current?.click()}
                     aria-describedby="poster-qr-image-label"
-                    className="flex-1 py-2.5 px-3 rounded-xl border-2 border-dashed border-[var(--ink)] bg-paper-2 hover:bg-ground text-brand font-extrabold flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-1 py-2.5 px-3 rounded-xl border-2 border-dashed border-[var(--ink)] bg-paper-2 hover:bg-ground text-brand font-extrabold flex items-center justify-center gap-1.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                   >
                     <ImageIcon className="w-4 h-4" />
                     <span>
