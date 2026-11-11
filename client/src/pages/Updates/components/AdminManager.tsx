@@ -11,6 +11,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ErrorState } from "@/components/common/CommonUI";
+import { friendlyErrorMessage } from "@/lib/errors";
 import {
   Dialog,
   DialogContent,
@@ -27,12 +29,21 @@ import {
 import { AdminNewsDialog } from "./AdminNewsDialog";
 import { AdminEventDialog } from "./AdminEventDialog";
 
+function toastMutationError(title: string) {
+  return (error: unknown) =>
+    toast.error(title, { description: friendlyErrorMessage(error) });
+}
+
 export function AdminManager() {
   const utils = trpc.useUtils();
-  const { data, isLoading } = trpc.updates.adminList.useQuery(undefined, {
-    retry: false,
-  });
+  const { data, isLoading, error, refetch } = trpc.updates.adminList.useQuery(
+    undefined,
+    {
+      retry: false,
+    }
+  );
   const createNews = trpc.updates.createNews.useMutation({
+    onError: toastMutationError("สร้างข่าวสารไม่สำเร็จ"),
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
@@ -41,6 +52,7 @@ export function AdminManager() {
     },
   });
   const createEvent = trpc.updates.createEvent.useMutation({
+    onError: toastMutationError("สร้างกิจกรรมไม่สำเร็จ"),
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
@@ -49,6 +61,7 @@ export function AdminManager() {
     },
   });
   const updateNews = trpc.updates.updateNews.useMutation({
+    onError: toastMutationError("อัปเดตข่าวสารไม่สำเร็จ"),
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
@@ -58,6 +71,7 @@ export function AdminManager() {
     },
   });
   const updateEvent = trpc.updates.updateEvent.useMutation({
+    onError: toastMutationError("อัปเดตกิจกรรมไม่สำเร็จ"),
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
@@ -67,6 +81,7 @@ export function AdminManager() {
     },
   });
   const setNewsStatus = trpc.updates.setNewsStatus.useMutation({
+    onError: toastMutationError("เปลี่ยนสถานะข่าวสารไม่สำเร็จ"),
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
@@ -74,6 +89,7 @@ export function AdminManager() {
     },
   });
   const setEventStatus = trpc.updates.setEventStatus.useMutation({
+    onError: toastMutationError("เปลี่ยนสถานะกิจกรรมไม่สำเร็จ"),
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
@@ -81,6 +97,7 @@ export function AdminManager() {
     },
   });
   const deleteNews = trpc.updates.deleteNews.useMutation({
+    onError: toastMutationError("ลบข่าวสารไม่สำเร็จ"),
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
@@ -89,6 +106,7 @@ export function AdminManager() {
     },
   });
   const deleteEvent = trpc.updates.deleteEvent.useMutation({
+    onError: toastMutationError("ลบกิจกรรมไม่สำเร็จ"),
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
@@ -286,6 +304,15 @@ export function AdminManager() {
 
       {isLoading ? (
         <div className="mt-5 h-20 animate-pulse rounded-2xl border-2 border-[var(--ink)] bg-paper-2" />
+      ) : error ? (
+        <ErrorState
+          className="mt-5"
+          description={friendlyErrorMessage(
+            error,
+            "ไม่สามารถโหลดรายการข่าวสารและกิจกรรมได้"
+          )}
+          onRetry={() => void refetch()}
+        />
       ) : (
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           {/* Admin News List */}

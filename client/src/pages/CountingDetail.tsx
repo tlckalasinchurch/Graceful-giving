@@ -14,6 +14,8 @@ import { THB_DENOMINATIONS, reconcile } from "@shared/counting";
 import { canManageChurchSettings, canManageFinance } from "@shared/roles";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
+  ArrowLeft,
+  ArrowRight,
   Banknote,
   BookCheck,
   Calculator,
@@ -36,12 +38,12 @@ import { friendlyErrorMessage } from "@/lib/errors";
 
 type TabId = "envelopes" | "cash" | "bank" | "deductions" | "summary";
 
-const TABS: Array<{ id: TabId; label: string; icon: typeof Banknote }> = [
-  { id: "envelopes", label: "ซองถวาย", icon: Banknote },
-  { id: "cash", label: "นับเงินสด", icon: Calculator },
-  { id: "bank", label: "เงินโอน / นำฝาก", icon: Landmark },
-  { id: "deductions", label: "หักเบิก", icon: Scissors },
-  { id: "summary", label: "สรุป & ปิดรอบ", icon: BookCheck },
+const TABS: Array<{ id: TabId; step: number; label: string; icon: typeof Banknote }> = [
+  { id: "envelopes", step: 1, label: "ซองถวาย", icon: Banknote },
+  { id: "cash", step: 2, label: "นับเงินสด", icon: Calculator },
+  { id: "bank", step: 3, label: "เงินโอน / นำฝาก", icon: Landmark },
+  { id: "deductions", step: 4, label: "หักเบิก", icon: Scissors },
+  { id: "summary", step: 5, label: "สรุป & ปิดรอบ", icon: BookCheck },
 ];
 
 export default function CountingDetail() {
@@ -404,17 +406,26 @@ export default function CountingDetail() {
 
         {/* Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {TABS.map(({ id, label, icon: Icon }) => (
+          {TABS.map(({ id, step: stepNum, label, icon: Icon }) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border-2 border-[var(--ink)] px-4 py-2 text-sm font-extrabold transition-all ${
+              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border-2 border-[var(--ink)] px-3.5 py-2 text-sm font-extrabold transition-all cursor-pointer ${
                 tab === id
                   ? "bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]"
                   : "bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
+              <span
+                className={`inline-flex size-5 items-center justify-center rounded-full text-xs font-black ${
+                  tab === id
+                    ? "bg-[var(--ink)] text-accent-foreground"
+                    : "bg-paper-2 text-ink-3 border border-[var(--ink)]/30"
+                }`}
+              >
+                {stepNum}
+              </span>
               <Icon className="h-4 w-4" />
               {label}
             </button>
@@ -429,61 +440,154 @@ export default function CountingDetail() {
         )}
 
         {tab === "envelopes" && (
-          <EnvelopesTab
-            sessionId={sessionId}
-            editable={editable}
-            envelopes={detail.envelopes}
-            funds={funds}
-            members={members}
-            offeringTotal={r.offeringTotal}
-            addEnvelope={addEnvelope}
-            removeEnvelope={removeEnvelope}
-          />
+          <>
+            <EnvelopesTab
+              sessionId={sessionId}
+              editable={editable}
+              envelopes={detail.envelopes}
+              funds={funds}
+              members={members}
+              offeringTotal={r.offeringTotal}
+              addEnvelope={addEnvelope}
+              removeEnvelope={removeEnvelope}
+            />
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("cash");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="btn-primary min-h-11 px-5 text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer"
+              >
+                <span>ไปขั้นตอนที่ 2: นับเงินสด</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </>
         )}
 
         {tab === "cash" && (
-          <CashCountTab
-            sessionId={sessionId}
-            editable={editable}
-            cashCounts={detail.cashCounts}
-            draftCounts={draftCounts}
-            setDraftCounts={setDraftCounts}
-            envelopeCashTotal={r.envelopeCashTotal}
-            countedCashTotal={r.countedCashTotal}
-            cashVariance={r.cashVariance}
-            setCashCount={setCashCount}
-          />
+          <>
+            <CashCountTab
+              sessionId={sessionId}
+              editable={editable}
+              cashCounts={detail.cashCounts}
+              draftCounts={draftCounts}
+              setDraftCounts={setDraftCounts}
+              envelopeCashTotal={r.envelopeCashTotal}
+              countedCashTotal={r.countedCashTotal}
+              cashVariance={r.cashVariance}
+              setCashCount={setCashCount}
+            />
+            <div className="flex justify-between items-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("envelopes");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="btn-secondary min-h-11 px-4 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>ขั้นตอนที่ 1: ซองถวาย</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("bank");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="btn-primary min-h-11 px-5 text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer"
+              >
+                <span>ไปขั้นตอนที่ 3: เงินโอน / นำฝาก</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </>
         )}
 
         {tab === "bank" && (
-          <BankRecordsTab
-            sessionId={sessionId}
-            canEdit={canManageFinance(user) && isUnposted}
-            canMatchPassbook={canManageFinance(user)}
-            bankRecords={detail.bankRecords}
-            actualTransferIn={r.actualTransferIn}
-            envelopeTransferTotal={r.envelopeTransferTotal}
-            transferVariance={r.transferVariance}
-            actualCashDeposit={r.actualCashDeposit}
-            addBankRecord={addBankRecord}
-            removeBankRecord={removeBankRecord}
-            matchPassbook={matchPassbook}
-          />
+          <>
+            <BankRecordsTab
+              sessionId={sessionId}
+              canEdit={canManageFinance(user) && isUnposted}
+              canMatchPassbook={canManageFinance(user)}
+              bankRecords={detail.bankRecords}
+              actualTransferIn={r.actualTransferIn}
+              envelopeTransferTotal={r.envelopeTransferTotal}
+              transferVariance={r.transferVariance}
+              actualCashDeposit={r.actualCashDeposit}
+              addBankRecord={addBankRecord}
+              removeBankRecord={removeBankRecord}
+              matchPassbook={matchPassbook}
+            />
+            <div className="flex justify-between items-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("cash");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="btn-secondary min-h-11 px-4 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>ขั้นตอนที่ 2: นับเงินสด</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("deductions");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="btn-primary min-h-11 px-5 text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer"
+              >
+                <span>ไปขั้นตอนที่ 4: หักเบิก</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </>
         )}
 
         {tab === "deductions" && (
-          <DeductionsTab
-            sessionId={sessionId}
-            editable={editable}
-            canApprove={canManageFinance(user) || canManageChurchSettings(user)}
-            currentUserId={user?.id}
-            deductions={detail.deductions}
-            funds={funds}
-            deductionTotal={r.deductionTotal}
-            addDeduction={addDeduction}
-            removeDeduction={removeDeduction}
-            approveDeduction={approveDeduction}
-          />
+          <>
+            <DeductionsTab
+              sessionId={sessionId}
+              editable={editable}
+              canApprove={canManageFinance(user) || canManageChurchSettings(user)}
+              currentUserId={user?.id}
+              deductions={detail.deductions}
+              funds={funds}
+              deductionTotal={r.deductionTotal}
+              addDeduction={addDeduction}
+              removeDeduction={removeDeduction}
+              approveDeduction={approveDeduction}
+            />
+            <div className="flex justify-between items-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("bank");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="btn-secondary min-h-11 px-4 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>ขั้นตอนที่ 3: เงินโอน</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTab("summary");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="btn-primary min-h-11 px-5 text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer"
+              >
+                <span>ไปขั้นตอนที่ 5: สรุปและปิดรอบ</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </>
         )}
 
         {tab === "summary" && (

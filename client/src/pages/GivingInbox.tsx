@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { formatBaht, THAI_LOCALE } from "@/lib/format";
+import { friendlyErrorMessage } from "@/lib/errors";
+import { formatAmount, formatBaht, THAI_LOCALE } from "@/lib/format";
 import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -28,6 +29,7 @@ import {
   Loader2,
   ZoomIn,
   ZoomOut,
+  ArrowLeft,
 } from "lucide-react";
 import {
   Dialog,
@@ -249,7 +251,7 @@ export default function GivingInbox() {
       utils.members.invalidate();
     },
     onError: err => {
-      toast.error(err.message);
+      toast.error(friendlyErrorMessage(err));
     },
   });
 
@@ -259,7 +261,7 @@ export default function GivingInbox() {
       utils.givingInbox.invalidate();
     },
     onError: err => {
-      toast.error(err.message || "ไม่สามารถสแกนสลิปได้");
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถสแกนสลิปได้"));
     },
   });
 
@@ -341,6 +343,15 @@ export default function GivingInbox() {
     setEditMemberId(slip.matchedMemberId || null);
     setMemberSearch("");
     setEditReviewNote(slip.reviewNote || "");
+
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setTimeout(() => {
+        document.getElementById("slip-detail-panel")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
   };
 
   const handleApprove = async () => {
@@ -376,7 +387,7 @@ export default function GivingInbox() {
 
     const confirmed = await Swal.confirm(
       "ยืนยันการอนุมัติการถวาย",
-      `คุณกำลังจะอนุมัติเงินถวายจำนวน ${amountNum.toLocaleString()} บาท จาก ${
+      `คุณกำลังจะอนุมัติเงินถวายจำนวน ${formatBaht(amountNum)} จาก ${
         editDonorName.trim() || "ผู้ถวาย"
       } เข้ากองทุนที่เลือก`,
       "อนุมัติและบันทึก"
@@ -427,7 +438,7 @@ export default function GivingInbox() {
 
     const confirmed = await Swal.confirm(
       "อนุมัติด่วน?",
-      `อนุมัติเงินถวาย ฿${amountNum.toLocaleString()} จาก ${
+      `อนุมัติเงินถวาย ${formatBaht(amountNum)} จาก ${
         slip.matchedMemberName || slip.extractedSenderName
       } เข้า ${targetFundName}`,
       "อนุมัติทันที"
@@ -728,6 +739,7 @@ export default function GivingInbox() {
               <input
                 type="text"
                 placeholder="ค้นหาชื่อผู้โอน, สมาชิก, ยอดเงิน..."
+                aria-label="ค้นหาสลิปจากชื่อผู้โอน สมาชิก หรือยอดเงิน"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="min-h-11 w-full text-base font-medium bg-transparent border-0 focus:outline-none text-ink"
@@ -884,7 +896,7 @@ export default function GivingInbox() {
           </div>
 
           {/* Right Column: Slip Detail & Review Form (7 cols on lg) */}
-          <div className="lg:col-span-7">
+          <div id="slip-detail-panel" className="lg:col-span-7 scroll-mt-20">
             {!selectedSlipId || !currentSlip ? (
               <div className="p-12 text-center bg-surface rounded-2xl border-2 border-dashed border-[var(--ink)]/30 text-ink-3 space-y-3 min-h-[420px] flex flex-col items-center justify-center">
                 <Inbox className="w-10 h-10 text-ink-3" />
@@ -898,6 +910,18 @@ export default function GivingInbox() {
               </div>
             ) : (
               <div className="bento-card-static p-5 sm:p-6 space-y-6 animate-in fade-in duration-150">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedSlipId(null);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-[var(--ink)] bg-paper-2 text-xs font-bold text-ink cursor-pointer hover:bg-ground"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>กลับไปรายการสลิป</span>
+                </button>
+
                 {/* Header of Detail */}
                 <div className="flex items-start justify-between gap-4 pb-4 border-b-2 border-[var(--ink)]">
                   <div>
@@ -1085,7 +1109,7 @@ export default function GivingInbox() {
                           )
                             .map(
                               d =>
-                                `${offeringCategoryLabel(d.category)} ${Number(d.amount).toLocaleString()}`
+                                `${offeringCategoryLabel(d.category)} ${formatAmount(Number(d.amount))}`
                             )
                             .join(" + ")}`
                         : currentSlip.declaredCategory &&
@@ -1214,8 +1238,8 @@ export default function GivingInbox() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Member Selector */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-extrabold text-ink-2 flex items-center justify-between">
-                        <span>สมาชิกผู้ถวาย</span>
+                      <div className="text-xs font-extrabold text-ink-2 flex items-center justify-between">
+                        <span id="inbox-member-label">สมาชิกผู้ถวาย</span>
                         {currentSlip.lineUserId &&
                           editMemberId &&
                           !currentSlip.lineUserId.startsWith("manual-") && (
@@ -1228,7 +1252,7 @@ export default function GivingInbox() {
                               <Link2 className="w-3 h-3" /> เชื่อมโยง LINE ID
                             </button>
                           )}
-                      </label>
+                      </div>
                       {currentSlip.status !== "approved" &&
                         (membersQuery.data ?? []).length > 0 && (
                           <input
@@ -1241,6 +1265,7 @@ export default function GivingInbox() {
                           />
                         )}
                       <NativeSelect
+                        aria-labelledby="inbox-member-label"
                         value={editMemberId ?? ""}
                         onChange={e => {
                           const nextId = e.target.value
@@ -1321,10 +1346,14 @@ export default function GivingInbox() {
 
                     {/* Fund Account */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-extrabold text-ink-2">
+                      <label
+                        htmlFor="givinginbo-f0"
+                        className="text-xs font-extrabold text-ink-2"
+                      >
                         เข้ากองทุน <span className="text-danger">*</span>
                       </label>
                       <NativeSelect
+                        id="givinginbo-f0"
                         value={editFundId ?? ""}
                         onChange={e => setEditFundId(Number(e.target.value))}
                         disabled={currentSlip.status === "approved"}
@@ -1340,10 +1369,14 @@ export default function GivingInbox() {
 
                     {/* Amount */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-extrabold text-ink-2">
+                      <label
+                        htmlFor="givinginbo-f1"
+                        className="text-xs font-extrabold text-ink-2"
+                      >
                         ยอดเงิน (บาท) <span className="text-danger">*</span>
                       </label>
                       <input
+                        id="givinginbo-f1"
                         type="number"
                         step="0.01"
                         value={editAmount}
@@ -1356,11 +1389,14 @@ export default function GivingInbox() {
                     {/* Category, or one transfer split over several categories */}
                     <div className="space-y-1.5 sm:col-span-2">
                       <div className="flex items-center justify-between gap-2">
-                        <label className="text-xs font-extrabold text-ink-2">
+                        <span
+                          id="inbox-category-label"
+                          className="text-xs font-extrabold text-ink-2"
+                        >
                           {editSplit
                             ? "แบ่งยอดตามประเภทการถวาย"
                             : "ประเภทการถวาย"}
-                        </label>
+                        </span>
                         {!editSplit && currentSlip.status !== "approved" && (
                           <button
                             type="button"
@@ -1379,21 +1415,27 @@ export default function GivingInbox() {
                         )}
                       </div>
                       {editSplit ? (
-                        <SplitEditor
-                          idPrefix="inbox-split"
-                          lines={editSplit}
-                          total={parseFloat(editAmount) || null}
-                          onChange={setEditSplit}
-                          onCancel={() => {
-                            setEditCategory(
-                              editSplit[0]?.category ?? editCategory
-                            );
-                            setEditSplit(null);
-                          }}
-                          disabled={currentSlip.status === "approved"}
-                        />
+                        <div
+                          role="group"
+                          aria-labelledby="inbox-category-label"
+                        >
+                          <SplitEditor
+                            idPrefix="inbox-split"
+                            lines={editSplit}
+                            total={parseFloat(editAmount) || null}
+                            onChange={setEditSplit}
+                            onCancel={() => {
+                              setEditCategory(
+                                editSplit[0]?.category ?? editCategory
+                              );
+                              setEditSplit(null);
+                            }}
+                            disabled={currentSlip.status === "approved"}
+                          />
+                        </div>
                       ) : (
                         <NativeSelect
+                          aria-labelledby="inbox-category-label"
                           value={editCategory}
                           onChange={e =>
                             setEditCategory(e.target.value as OfferingCategory)
@@ -1413,10 +1455,14 @@ export default function GivingInbox() {
 
                   {/* Notes */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-extrabold text-ink-2">
+                    <label
+                      htmlFor="givinginbo-f2"
+                      className="text-xs font-extrabold text-ink-2"
+                    >
                       หมายเหตุการตรวจสอบ
                     </label>
                     <input
+                      id="givinginbo-f2"
                       type="text"
                       placeholder="บันทึกเพิ่มเติมของเจ้าหน้าที่ (ถ้ามี)"
                       value={editReviewNote}
@@ -1548,8 +1594,17 @@ export default function GivingInbox() {
 
             {/* Dropzone Area */}
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={uploadPreview ? "คลิกเพื่อเปลี่ยนรูปภาพสลิป" : "คลิกเพื่อเลือกไฟล์รูปสลิป"}
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
+              onKeyDown={e => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
                 uploadPreview
                   ? "border-brand bg-paper-2"
                   : "border-[var(--ink)]/40 hover:border-brand bg-paper-2"
@@ -1559,8 +1614,11 @@ export default function GivingInbox() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                aria-label="เลือกไฟล์รูปสลิป"
+                tabIndex={-1}
+                onClick={e => e.stopPropagation()}
                 onChange={e => void handleFileChange(e)}
-                className="hidden"
+                className="sr-only"
               />
 
               {uploadPreview ? (
@@ -1589,10 +1647,14 @@ export default function GivingInbox() {
 
             {/* Optional donor name */}
             <div className="space-y-1.5">
-              <label className="text-xs font-extrabold text-ink-2">
+              <label
+                htmlFor="givinginbo-f3"
+                className="text-xs font-extrabold text-ink-2"
+              >
                 ชื่อผู้ถวาย (ระบุเพิ่มเติมหรือไม่ก็ได้)
               </label>
               <input
+                id="givinginbo-f3"
                 type="text"
                 placeholder="เช่น นายสมชาย สุขใจ"
                 value={uploadDonorName}

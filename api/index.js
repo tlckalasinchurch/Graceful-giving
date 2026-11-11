@@ -2628,6 +2628,18 @@ async function listNotifications(userId, churchId = DEFAULT_CHURCH_ID, limit = 5
     )
   ).orderBy(desc(notifications.createdAt)).limit(limit);
 }
+async function countUnreadNotifications(userId, churchId = DEFAULT_CHURCH_ID) {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db.select({ n: count() }).from(notifications).where(
+    and(
+      eq(notifications.userId, userId),
+      eq(notifications.churchId, churchId),
+      isNull(notifications.readAt)
+    )
+  );
+  return row?.n ?? 0;
+}
 async function createNotification(input, churchId = DEFAULT_CHURCH_ID) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -2659,7 +2671,7 @@ async function createAuditLog(input) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(auditLogs).values({
-    churchId: input.churchId,
+    churchId: input.churchId ?? DEFAULT_CHURCH_ID,
     userId: input.userId,
     action: input.action,
     entity: input.entity,
@@ -2667,7 +2679,7 @@ async function createAuditLog(input) {
     metadata: input.metadata
   });
 }
-async function listAuditLogs(limit = 100) {
+async function listAuditLogs(churchId = DEFAULT_CHURCH_ID, limit = 100) {
   const db = await getDb();
   if (!db) return [];
   return await db.select({
@@ -2681,7 +2693,7 @@ async function listAuditLogs(limit = 100) {
     entityId: auditLogs.entityId,
     metadata: auditLogs.metadata,
     createdAt: auditLogs.createdAt
-  }).from(auditLogs).leftJoin(users, eq(auditLogs.userId, users.id)).orderBy(desc(auditLogs.createdAt)).limit(limit);
+  }).from(auditLogs).leftJoin(users, eq(auditLogs.userId, users.id)).where(eq(auditLogs.churchId, churchId)).orderBy(desc(auditLogs.createdAt)).limit(limit);
 }
 async function getFinancialReportData(churchId = DEFAULT_CHURCH_ID, fromDate, toDate) {
   const db = await getDb();
@@ -4013,7 +4025,12 @@ function getSessionCookieOptions(req) {
 }
 
 // server/_core/rateLimit.ts
-function createRateLimiter({ windowMs, max, message }) {
+function createRateLimiter({
+  windowMs,
+  max,
+  message,
+  onLimited
+}) {
   const hits = /* @__PURE__ */ new Map();
   return function rateLimit(req, res, next) {
     const now = Date.now();
@@ -4035,6 +4052,10 @@ function createRateLimiter({ windowMs, max, message }) {
         "Retry-After",
         String(Math.ceil((entry.resetAt - now) / 1e3))
       );
+      if (onLimited) {
+        onLimited(req, res);
+        return;
+      }
       res.status(429).json({ error: message ?? "Too many requests" });
       return;
     }
@@ -4240,7 +4261,10 @@ var GIVE_PATH = "/give";
 var loginLimiter = createRateLimiter({
   windowMs: 6e4,
   max: 10,
-  message: "Too many sign-in attempts. Try again in a minute."
+  message: "Too many sign-in attempts. Try again in a minute.",
+  onLimited: (_req, res) => {
+    res.redirect(302, "/login?error=failed");
+  }
 });
 function clip(value, max = 160) {
   return typeof value === "string" ? value.slice(0, max) : "";
@@ -7616,6 +7640,9 @@ var appRouter = router({
     list: protectedProcedure.query(
       async ({ ctx }) => listNotifications(ctx.user.id, DEFAULT_CHURCH_ID)
     ),
+    unreadCount: protectedProcedure.query(
+      async ({ ctx }) => countUnreadNotifications(ctx.user.id, DEFAULT_CHURCH_ID)
+    ),
     markAsRead: protectedProcedure.input(z3.object({ id: z3.number().int().positive() })).mutation(async ({ ctx, input }) => {
       await markNotificationRead(input.id, ctx.user.id, DEFAULT_CHURCH_ID);
       return { id: input.id };
@@ -9024,7 +9051,7 @@ var appRouter = router({
         limit: z3.number().min(1).max(200).default(50)
       }).optional()
     ).query(async ({ input }) => {
-      return await listAuditLogs(input?.limit ?? 50);
+      return await listAuditLogs(DEFAULT_CHURCH_ID, input?.limit ?? 50);
     })
   })
 });

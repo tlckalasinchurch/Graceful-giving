@@ -59,7 +59,7 @@ export function FundBreakdown({
                 {r.name}
               </span>
               <span className="money shrink-0 font-bold text-ink">
-                {hidden ? "••••" : `฿ ${formatAmount(r.balance, 0)}`}
+                {hidden ? "••••" : `฿ ${formatAmount(r.balance)}`}
               </span>
               <span className="money w-10 shrink-0 text-right font-medium text-ink-3">
                 {r.share}%

@@ -2594,28 +2594,18 @@ export async function markAllNotificationsRead(
     );
 }
 
-export async function createAuditLog(
-  input: Omit<
-    InsertNotification,
-    | "userId"
-    | "type"
-    | "title"
-    | "description"
-    | "link"
-    | "readAt"
-    | "createdAt"
-  > & {
-    userId: number;
-    action: string;
-    entity: string;
-    entityId?: number | null;
-    metadata?: unknown;
-  }
-) {
+export async function createAuditLog(input: {
+  churchId?: string;
+  userId: number;
+  action: string;
+  entity: string;
+  entityId?: number | null;
+  metadata?: unknown;
+}) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.insert(auditLogs).values({
-    churchId: input.churchId,
+    churchId: input.churchId ?? DEFAULT_CHURCH_ID,
     userId: input.userId,
     action: input.action,
     entity: input.entity,
@@ -2624,7 +2614,10 @@ export async function createAuditLog(
   });
 }
 
-export async function listAuditLogs(limit: number = 100) {
+export async function listAuditLogs(
+  churchId: string = DEFAULT_CHURCH_ID,
+  limit: number = 100
+) {
   const db = await getDb();
   if (!db) return [];
   return await db
@@ -2642,6 +2635,7 @@ export async function listAuditLogs(limit: number = 100) {
     })
     .from(auditLogs)
     .leftJoin(users, eq(auditLogs.userId, users.id))
+    .where(eq(auditLogs.churchId, churchId))
     .orderBy(desc(auditLogs.createdAt))
     .limit(limit);
 }

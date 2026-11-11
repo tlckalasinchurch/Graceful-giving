@@ -19,12 +19,17 @@ import { NativeSelect } from "@/components/ui/native-select";
 export function FieldLabel({
   children,
   required,
+  htmlFor,
 }: {
   children: React.ReactNode;
   required?: boolean;
+  htmlFor?: string;
 }) {
   return (
-    <label className="mb-1.5 block text-xs font-extrabold text-ink">
+    <label
+      htmlFor={htmlFor}
+      className="mb-1.5 block text-xs font-extrabold text-ink"
+    >
       {children} {required && <span className="text-danger">*</span>}
     </label>
   );
@@ -47,10 +52,14 @@ export function TextField({
   type?: string;
   disabled?: boolean;
 }) {
+  const id = React.useId();
   return (
     <div>
-      <FieldLabel required={required}>{label}</FieldLabel>
+      <FieldLabel required={required} htmlFor={id}>
+        {label}
+      </FieldLabel>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -79,8 +88,9 @@ export function Step1({
         placeholder="เช่น คริสตจักรบ้านแห่งพระคุณ (Grace House Church)"
       />
       <div>
-        <FieldLabel>ที่อยู่</FieldLabel>
+        <FieldLabel htmlFor="setup-address">ที่อยู่</FieldLabel>
         <textarea
+          id="setup-address"
           value={data.address}
           onChange={e => set({ address: e.target.value })}
           placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
@@ -144,8 +154,11 @@ export function Step2({
         placeholder="ชื่อ นามสกุล"
       />
       <div>
-        <FieldLabel>ข้อพระคัมภีร์หรือคติพจน์ของคริสตจักร</FieldLabel>
+        <FieldLabel htmlFor="setup-motto">
+          ข้อพระคัมภีร์หรือคติพจน์ของคริสตจักร
+        </FieldLabel>
         <textarea
+          id="setup-motto"
           value={data.motto}
           onChange={e => set({ motto: e.target.value })}
           placeholder="เช่น 2 โครินธ์ 9:7 · ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก"
@@ -336,8 +349,11 @@ export function Step6({
   return (
     <div className="space-y-4">
       <div>
-        <FieldLabel required>เดือนเริ่มต้นปีงบประมาณ</FieldLabel>
+        <FieldLabel required htmlFor="setup-fy-month">
+          เดือนเริ่มต้นปีงบประมาณ
+        </FieldLabel>
         <NativeSelect
+          id="setup-fy-month"
           value={data.fiscalYearStartMonth}
           onChange={e => set({ fiscalYearStartMonth: Number(e.target.value) })}
           className="border-line text-ink focus:border-brand"
@@ -354,8 +370,11 @@ export function Step6({
         </p>
       </div>
       <div>
-        <FieldLabel required>ปีงบประมาณปัจจุบัน (ค.ศ.)</FieldLabel>
+        <FieldLabel required htmlFor="setup-fy-year">
+          ปีงบประมาณปัจจุบัน (ค.ศ.)
+        </FieldLabel>
         <input
+          id="setup-fy-year"
           type="number"
           value={data.budgetYear}
           onChange={e => set({ budgetYear: Number(e.target.value) })}

@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Sprout } from "lucide-react";
+import { toast } from "sonner";
 
 const ERRORS: Record<string, string> = {
   cancelled: "ยกเลิกการเข้าสู่ระบบ — กรุณากดปุ่ม LINE เพื่อลองใหม่",
@@ -95,24 +96,27 @@ export default function Login() {
             </header>
 
             {state === "pending" || state === "disabled" ? (
-              <div className="space-y-4 rounded-[16px] border-2 border-[var(--ink)] bg-surface p-5 shadow-[4px_4px_0_var(--ink)]">
+              <div className="space-y-4 rounded-[16px] border-2 border-[var(--ink)] bg-surface p-5 sm:p-6 shadow-[4px_4px_0_var(--ink)]">
                 <p className="alpha-display text-xl leading-snug text-ink">
                   {state === "pending"
-                    ? "รอผู้ดูแลระบบอนุมัติ"
+                    ? "รอการมอบหมายสิทธิ์ใช้งาน"
                     : "บัญชีนี้ถูกปิดการใช้งาน"}
                 </p>
-                <p className="text-base leading-relaxed text-ink-2">
+                <p className="text-sm sm:text-base leading-relaxed text-ink-2">
                   {state === "pending"
                     ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน ผู้ดูแลระบบของคริสตจักรสามารถอนุมัติบัญชีของคุณได้จากหน้าการตั้งค่า แล้วกลับมาเปิดหน้านี้อีกครั้ง`
-                    : "โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
+                    : "บัญชีนี้ไม่สามารถเข้าใช้งานได้ โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
                 </p>
 
                 {state === "pending" && openId && (
-                  <details className="group rounded-[12px] border border-dashed border-[var(--ink)]/30 bg-paper-2 p-3.5 text-xs text-left">
-                    <summary className="cursor-pointer font-bold text-ink">
-                      สำหรับผู้ดูแลระบบ (การตั้งค่าครั้งแรก)
+                  <details className="group rounded-[12px] border border-line bg-paper-2 p-3 text-xs text-left">
+                    <summary className="cursor-pointer font-bold text-ink-3 hover:text-ink select-none flex items-center justify-between">
+                      <span>สำหรับผู้ดูแลระบบ (การตั้งค่าครั้งแรก)</span>
+                      <span className="text-[10px] text-ink-3 group-open:rotate-180 transition-transform">
+                        ▼
+                      </span>
                     </summary>
-                    <div className="mt-3 space-y-2">
+                    <div className="space-y-2 pt-3 border-t border-line/60 mt-2">
                       <p className="leading-relaxed text-ink-2">
                         วิธีปกติคือผู้ดูแลระบบอนุมัติบัญชีนี้ได้จากหน้าการตั้งค่า
                         ไม่ต้องทำตามขั้นตอนนี้ ขั้นตอนด้านล่างใช้เฉพาะการ
@@ -138,7 +142,7 @@ export default function Login() {
                               2000
                             );
                           }}
-                          className="shrink-0 rounded-[6px] border border-[var(--ink)] bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground shadow-[1px_1px_0_var(--ink)] transition-opacity hover:opacity-90 active:translate-y-px"
+                          className="shrink-0 rounded-[6px] border border-[var(--ink)] bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground shadow-[1px_1px_0_var(--ink)] transition-opacity hover:opacity-90 active:translate-y-px cursor-pointer"
                         >
                           {copied ? "คัดลอกแล้ว ✓" : "คัดลอกรหัส"}
                         </button>
@@ -147,19 +151,47 @@ export default function Login() {
                   </details>
                 )}
 
-                <button
-                  type="button"
-                  onClick={() => void logout()}
-                  className="btn-secondary min-h-12 w-full rounded-[12px] px-4 py-3 text-base font-bold"
-                >
-                  ออกจากระบบ
-                </button>
+                <div className="flex flex-col gap-2.5 pt-2">
+                  {state === "pending" && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        toast.info("กำลังตรวจสอบสถานะการอนุมัติ...");
+                        const res = await statusQuery.refetch();
+                        if (res.data?.state === "active") {
+                          toast.success(
+                            "อนุมัติเรียบร้อยแล้ว กำลังเข้าสู่ระบบ"
+                          );
+                          setLocation("/");
+                        } else {
+                          toast.info(
+                            "ยังอยู่ระหว่างรอการอนุมัติจากผู้ดูแลระบบ"
+                          );
+                        }
+                      }}
+                      disabled={statusQuery.isFetching}
+                      className="btn-primary min-h-12 w-full rounded-[12px] px-4 py-3 text-base font-bold cursor-pointer"
+                    >
+                      {statusQuery.isFetching
+                        ? "กำลังตรวจสอบ..."
+                        : "ตรวจสอบสถานะอีกครั้ง"}
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => void logout()}
+                    className="btn-secondary min-h-12 w-full rounded-[12px] px-4 py-3 text-base font-bold cursor-pointer"
+                  >
+                    ออกจากระบบ
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-5">
                 <a
                   href="/api/auth/line/login"
-                  className="alpha-press flex min-h-14 w-full items-center justify-center rounded-[14px] border-2 border-[var(--ink)] bg-[var(--line-brand)] px-5 text-base font-extrabold text-[var(--ink)] shadow-[4px_4px_0_var(--ink)]"
+                  className="alpha-press flex min-h-14 w-full items-center justify-center rounded-[14px] border-2 border-[var(--ink)] bg-[var(--line-brand)] px-5 text-base font-extrabold text-[var(--line-brand-ink)] shadow-[4px_4px_0_var(--ink)]"
                 >
                   เข้าสู่ระบบด้วย LINE
                 </a>

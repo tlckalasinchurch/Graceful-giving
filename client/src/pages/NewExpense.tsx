@@ -1,4 +1,6 @@
 import React, { useRef, useState } from "react";
+import { useSubmitLock } from "@/hooks/useSubmitLock";
+import { friendlyErrorMessage } from "@/lib/errors";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -22,7 +24,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/categories";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
 import { formatBaht, THAI_LOCALE, toLocalISODate } from "@/lib/format";
@@ -80,11 +87,27 @@ export default function NewExpense() {
     },
     onError: err => {
       setIsUploading(false);
-      toast.error(err.message || "อัปโหลดไฟล์ไม่สำเร็จ กรุณาลองใหม่");
+      toast.error(
+        friendlyErrorMessage(err, "อัปโหลดไฟล์ไม่สำเร็จ กรุณาลองใหม่")
+      );
     },
   });
 
+  const resetForm = () => {
+    setAmount("");
+    setDescription("");
+    setPayee("");
+    setReceiptRef("");
+    setDetails("");
+    setReceiptFile(null);
+    setReceiptFileName("");
+    setReceiptContentType("");
+    setReceiptUrl(null);
+  };
+
+  const { lock, unlock } = useSubmitLock();
   const createExpenseMutation = trpc.expenses.create.useMutation({
+    onSettled: unlock,
     onSuccess: data => {
       setIsSubmitting(false);
       setCreatedExpenseId(data.id);
@@ -103,7 +126,10 @@ export default function NewExpense() {
       setIsSubmitting(false);
       setShowSuccessModal(false);
       toast.error(
-        err.message || "บันทึกรายการรายจ่ายไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+        friendlyErrorMessage(
+          err,
+          "บันทึกรายการรายจ่ายไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+        )
       );
     },
   });
@@ -136,6 +162,7 @@ export default function NewExpense() {
       return;
     }
 
+    if (!lock()) return;
     setIsSubmitting(true);
     createExpenseMutation.mutate({
       amount: numAmount,
@@ -304,10 +331,10 @@ export default function NewExpense() {
             </div>
 
             {/* Category Grid */}
-            <div className="space-y-2 pt-2">
-              <label className="text-sm font-extrabold text-ink">
+            <fieldset className="space-y-2 pt-2 min-w-0 border-0 p-0 m-0">
+              <legend className="text-sm font-extrabold text-ink mb-2.5 p-0">
                 หมวดหมู่รายจ่าย <span className="text-danger">*</span>
-              </label>
+              </legend>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {categories.map(cat => {
                   const Icon = cat.icon;
@@ -350,7 +377,7 @@ export default function NewExpense() {
                   );
                 })}
               </div>
-            </div>
+            </fieldset>
           </div>
 
           {/* Section 2: Expense Details & Fund Allocation */}
@@ -404,10 +431,14 @@ export default function NewExpense() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-extrabold text-ink">
+                <label
+                  htmlFor="newexpense-f0"
+                  className="text-sm font-extrabold text-ink"
+                >
                   ผู้รับเงิน / ร้านค้า / องค์กร
                 </label>
                 <input
+                  id="newexpense-f0"
                   type="text"
                   placeholder="เช่น การไฟฟ้านครหลวง, บจก. ซาวด์..."
                   value={payee}
@@ -472,10 +503,14 @@ export default function NewExpense() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-extrabold text-ink">
+                <label
+                  htmlFor="newexpense-f1"
+                  className="text-sm font-extrabold text-ink"
+                >
                   วันที่ทำรายการ
                 </label>
                 <input
+                  id="newexpense-f1"
                   type="date"
                   value={expenseDate}
                   onChange={e => setExpenseDate(e.target.value)}
@@ -484,10 +519,14 @@ export default function NewExpense() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-extrabold text-ink">
+                <label
+                  htmlFor="newexpense-f2"
+                  className="text-sm font-extrabold text-ink"
+                >
                   เลขที่ใบเสร็จ / ใบแจ้งหนี้ (ถ้ามี)
                 </label>
                 <input
+                  id="newexpense-f2"
                   type="text"
                   placeholder="เช่น INV-2026-0911, RCP-4412"
                   value={receiptRef}
@@ -497,10 +536,14 @@ export default function NewExpense() {
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <label className="text-sm font-extrabold text-ink">
+                <label
+                  htmlFor="newexpense-f3"
+                  className="text-sm font-extrabold text-ink"
+                >
                   หมายเหตุเพิ่มเติม / วัตถุประสงค์
                 </label>
                 <textarea
+                  id="newexpense-f3"
                   rows={2}
                   placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับการตรวจสอบบัญชี..."
                   value={details}
@@ -584,7 +627,7 @@ export default function NewExpense() {
                 )}
               </div>
             ) : (
-              <label className="border-2 border-dashed border-[var(--ink)] hover:border-brand rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-paper-2 hover:bg-ground transition-colors">
+              <label className="border-2 border-dashed border-[var(--ink)] hover:border-brand rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-paper-2 hover:bg-ground transition-colors focus-within:ring-2 focus-within:ring-brand focus-within:ring-offset-2">
                 <div className="w-12 h-12 rounded-xl border-2 border-[var(--ink)] bg-surface shadow-[2px_2px_0_var(--ink)] flex items-center justify-center text-brand mb-3">
                   <ImageIcon className="w-6 h-6" />
                 </div>
@@ -599,7 +642,8 @@ export default function NewExpense() {
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
                   onChange={handleUpload}
-                  className="hidden"
+                  aria-label="อัปโหลดหลักฐานหรือใบเสร็จ"
+                  className="sr-only"
                 />
               </label>
             )}
@@ -633,19 +677,29 @@ export default function NewExpense() {
 
         {/* Success Modal */}
         {showSuccessModal && (
-          <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+          <Dialog
+            open={showSuccessModal}
+            onOpenChange={open => {
+              // Closing the dialog any way (Escape, outside tap) means the
+              // expense was saved: clear the form so it cannot be saved twice.
+              if (!open) {
+                setShowSuccessModal(false);
+                resetForm();
+              }
+            }}
+          >
             <DialogContent className="max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6">
               <div className="w-16 h-16 rounded-2xl border-2 border-[var(--ink)] bg-accent shadow-[3px_3px_0_var(--ink)] flex items-center justify-center text-accent-foreground mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
               <div className="space-y-2">
-                <h3 className="display text-2xl text-ink">
+                <DialogTitle className="display text-2xl text-ink">
                   บันทึกรายจ่ายสำเร็จ!
-                </h3>
-                <p className="text-sm font-medium text-ink-3">
+                </DialogTitle>
+                <DialogDescription className="text-sm font-medium text-ink-3">
                   รายการรายจ่ายถูกบันทึกลงสมุดบัญชีคริสตจักรเรียบร้อยแล้ว
-                </p>
+                </DialogDescription>
               </div>
 
               <div className="p-4 rounded-xl bg-paper-2 border-2 border-[var(--ink)] text-left space-y-2 text-xs text-ink-2">
@@ -677,15 +731,7 @@ export default function NewExpense() {
                 <button
                   onClick={() => {
                     setShowSuccessModal(false);
-                    setAmount("");
-                    setDescription("");
-                    setPayee("");
-                    setReceiptRef("");
-                    setDetails("");
-                    setReceiptFile(null);
-                    setReceiptFileName("");
-                    setReceiptContentType("");
-                    setReceiptUrl(null);
+                    resetForm();
                   }}
                   className="btn-primary w-full min-h-12 text-base"
                 >
@@ -694,6 +740,7 @@ export default function NewExpense() {
                 <button
                   onClick={() => {
                     setShowSuccessModal(false);
+                    resetForm();
                     setLocation("/expenses");
                   }}
                   className="btn-secondary w-full min-h-12 text-base"

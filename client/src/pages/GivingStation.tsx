@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { friendlyErrorMessage } from "@/lib/errors";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -18,7 +19,7 @@ import {
   type StationPoster,
 } from "@shared/stationPoster";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
-import { formatThaiDateTime } from "@/lib/format";
+import { formatAmount, formatThaiDateTime } from "@/lib/format";
 import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
 import type { DonorSlipState, DonorSlipStatus } from "@shared/donorSlip";
 import {
@@ -234,7 +235,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       toast.success("บันทึกข้อความป้ายแล้ว");
       void utils.church.stationPoster.invalidate();
     },
-    onError: err => toast.error(err.message || "บันทึกข้อความป้ายไม่สำเร็จ"),
+    onError: err =>
+      toast.error(friendlyErrorMessage(err, "บันทึกข้อความป้ายไม่สำเร็จ")),
   });
   const canSavePoster = canManageChurchSettings(user);
   const savePoster = () => {
@@ -373,19 +375,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
   const submitNoSlipMutation = trpc.givingInbox.submitWithoutSlip.useMutation({
     onError: err => {
-      toast.error(err.message || "ส่งรายการไม่สำเร็จ");
+      toast.error(friendlyErrorMessage(err, "ส่งรายการไม่สำเร็จ"));
     },
   });
 
   const submitSlipMutation = trpc.givingInbox.submitSlip.useMutation({
     onError: err => {
-      toast.error(err.message || "ส่งสลิปไม่สำเร็จ");
+      toast.error(friendlyErrorMessage(err, "ส่งสลิปไม่สำเร็จ"));
     },
   });
 
   const createOfferingMutation = trpc.offerings.create.useMutation({
     onError: err => {
-      toast.error(err.message || "บันทึกการถวายไม่สำเร็จ");
+      toast.error(friendlyErrorMessage(err, "บันทึกการถวายไม่สำเร็จ"));
     },
   });
 
@@ -437,7 +439,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const handleGoToSummary = () => {
     if (effectiveAmount === null) {
       toast.error(
-        `เลือกประเภทและใส่ยอดให้ถูกต้อง (ไม่เกิน ${MAX_GIVING_AMOUNT.toLocaleString()} บาท)`
+        `เลือกประเภทและใส่ยอดให้ถูกต้อง (ไม่เกิน ${formatAmount(MAX_GIVING_AMOUNT, 0)} บาท)`
       );
       return;
     }
@@ -633,7 +635,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       setGiveLines(prev => [{ ...prev[0], amount: String(amount) }]);
     } else {
       toast.info(
-        `ปรับยอดแต่ละประเภทให้รวมเป็น ${amount.toLocaleString()} บาท ตามสลิป`
+        `ปรับยอดแต่ละประเภทให้รวมเป็น ${formatAmount(amount)} บาท ตามสลิป`
       );
     }
     setSubmission(null);
@@ -647,8 +649,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   };
 
   const handleCountdownExpire = () => {
-    if (isSubmitting) return;
-    toast.info("หมดเวลาทำรายการ กรุณาเริ่มใหม่อีกครั้ง");
+    if (isSubmitting || slipPreview !== null) return;
+    if (giveLines.length > 0) {
+      toast.warning("หมดเวลาทำรายการสำหรับเครื่องสาธารณะ หากต้องการทำรายการต่อโปรดแตะหน้าจอ");
+      return;
+    }
+    toast.info("หมดเวลาทำรายการ กำลังรีเซ็ตหน้าจอเพื่อความปลอดภัย");
     resetFlow();
   };
 
@@ -777,7 +783,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               </div>
             </div>
 
-            {shownStep === 2 && (
+            {stationOnly && shownStep === 2 && (
               <StationCountdownCard
                 initialSeconds={300}
                 label="เวลาทำรายการคงเหลือ"
@@ -957,7 +963,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                               {offeringCategoryLabel(l.category)}{" "}
                               {Number.isNaN(l.amount)
                                 ? "—"
-                                : l.amount.toLocaleString()}{" "}
+                                : formatAmount(l.amount)}{" "}
                               บาท
                             </li>
                           ))}
@@ -972,7 +978,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     <div className="text-3xl sm:text-4xl font-black text-income tabular-nums">
                       {effectiveAmount === null
                         ? "—"
-                        : `${effectiveAmount.toLocaleString()} THB`}
+                        : `${formatAmount(effectiveAmount)} บาท`}
                     </div>
                   </div>
                 </div>
@@ -1243,7 +1249,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipInputRef.current?.click()}
-                        className="w-full rounded-xl border-2 border-dashed border-[var(--ink)] hover:border-brand bg-paper-2 hover:bg-ground p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5"
+                        className="w-full rounded-xl border-2 border-dashed border-[var(--ink)] hover:border-brand bg-paper-2 hover:bg-ground p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                       >
                         <UploadCloud className="w-5 h-5 text-brand shrink-0" />
                         <span className="text-xs font-extrabold text-ink">
@@ -1266,7 +1272,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipCameraRef.current?.click()}
-                        className="mt-2 w-full rounded-xl border-2 border-[var(--ink)] bg-surface hover:bg-paper-2 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden"
+                        className="mt-2 w-full rounded-xl border-2 border-[var(--ink)] bg-surface hover:bg-paper-2 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                       >
                         <Camera
                           className="w-5 h-5 text-brand shrink-0"
@@ -1308,8 +1314,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                               </div>
                               {slipReading.data.amount !== null && (
                                 <div>
-                                  ยอดโอน{" "}
-                                  {slipReading.data.amount.toLocaleString()} บาท
+                                  ยอดโอน {formatAmount(slipReading.data.amount)}{" "}
+                                  บาท
                                   {amountFromSlip ? " (ใส่ยอดถวายให้แล้ว)" : ""}
                                 </div>
                               )}
@@ -1319,7 +1325,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                                 slipReading.data.amount !== effectiveAmount && (
                                   <div className="font-extrabold text-tile-sand-ink">
                                     ยอดบนสลิปไม่ตรงกับยอดรวม{" "}
-                                    {effectiveAmount.toLocaleString()} บาท
+                                    {formatAmount(effectiveAmount)} บาท
                                     ปรับยอดแต่ละประเภทให้รวมเป็นยอดบนสลิป
                                   </div>
                                 )}
@@ -1411,7 +1417,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                               onClick={() => retryWithSlipAmount(slipAmount)}
                               className="btn-primary w-full py-4 text-base cursor-pointer"
                             >
-                              ใช้ยอด {slipAmount.toLocaleString()} THB
+                              ใช้ยอด {formatAmount(slipAmount)} บาท
                               ตามสลิปแล้วส่งใหม่
                             </button>
                           )}
@@ -1421,7 +1427,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                             className="btn-secondary w-full py-3 text-xs cursor-pointer"
                           >
                             เปลี่ยนรูปสลิป (ยอดเดิม{" "}
-                            {submission.amount.toLocaleString()} THB)
+                            {formatAmount(submission.amount)} บาท)
                           </button>
                           <button
                             type="button"
@@ -1598,7 +1604,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     type="button"
                     onClick={() => qrUploadRef.current?.click()}
                     aria-describedby="poster-qr-image-label"
-                    className="flex-1 py-2.5 px-3 rounded-xl border-2 border-dashed border-[var(--ink)] bg-paper-2 hover:bg-ground text-brand font-extrabold flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-1 py-2.5 px-3 rounded-xl border-2 border-dashed border-[var(--ink)] bg-paper-2 hover:bg-ground text-brand font-extrabold flex items-center justify-center gap-1.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                   >
                     <ImageIcon className="w-4 h-4" />
                     <span>
@@ -2053,7 +2059,7 @@ function MySlipHistory({
                     ? offeringCategoryLabel(item.declaredCategory)
                     : "ถวาย"}
                   {item.declaredAmount !== null &&
-                    ` · ${item.declaredAmount.toLocaleString()} THB`}
+                    ` · ${formatAmount(item.declaredAmount)} บาท`}
                 </div>
                 <div className="font-medium text-ink-3">
                   {formatThaiDateTime(new Date(item.createdAt))}

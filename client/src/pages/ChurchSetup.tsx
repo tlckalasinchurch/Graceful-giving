@@ -232,21 +232,26 @@ export default function ChurchSetup() {
           </div>
 
           {/* Step dots */}
-          <div className="mt-4 flex justify-center gap-1.5">
+          <div className="mt-4 flex justify-center gap-1">
             {STEPS.map(s => (
               <button
                 key={s.id}
+                type="button"
                 onClick={() => step > s.id && setStep(s.id)}
-                aria-label={`ขั้นตอน ${s.id}`}
+                aria-label={`ไปยังขั้นตอนที่ ${s.id}`}
                 aria-current={s.id === step ? "step" : undefined}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  s.id === step
-                    ? "w-6 bg-brand border border-[var(--ink)]"
-                    : s.id < step
-                      ? "w-3 bg-brand/60"
-                      : "w-3 bg-line"
-                }`}
-              />
+                className="inline-flex size-8 items-center justify-center cursor-pointer rounded-full focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+              >
+                <span
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    s.id === step
+                      ? "w-7 bg-brand border border-[var(--ink)]"
+                      : s.id < step
+                        ? "w-3 bg-brand/60"
+                        : "w-3 bg-line"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         </div>

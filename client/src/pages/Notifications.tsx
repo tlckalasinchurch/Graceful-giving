@@ -1,7 +1,11 @@
 import React from "react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { EmptyState, LoadingSkeleton } from "@/components/common/CommonUI";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingSkeleton,
+} from "@/components/common/CommonUI";
 import { trpc } from "@/lib/trpc";
 import { CheckCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -50,11 +54,10 @@ export default function Notifications() {
         {query.isLoading ? (
           <LoadingSkeleton count={4} />
         ) : query.isError ? (
-          <EmptyState
+          <ErrorState
             title="โหลดการแจ้งเตือนไม่สำเร็จ"
-            description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่"
-            actionText="ลองใหม่"
-            onAction={() => query.refetch()}
+            description={friendlyErrorMessage(query.error)}
+            onRetry={() => void query.refetch()}
           />
         ) : !query.data?.length ? (
           <EmptyState

@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Link, useLocation } from "wouter";
-import { trpc, type RouterOutputs } from "@/lib/trpc";
+import { trpc, type RouterInputs, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   ErrorState,
   EmptyState,
   FilterBar,
+  LedgerPagination,
   LoadingSkeleton,
   MoneyDisplay,
   StatusBadge,
@@ -18,14 +19,13 @@ import {
   CreditCard,
   Wallet,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatThaiDate } from "@/lib/format";
-import { toCsvBlob } from "@/lib/csvDownload";
-import { csvExportErrorMessage } from "@/lib/errors";
+import { saveCsvFile } from "@/lib/csvDownload";
+import { useCursorPagination } from "@/hooks/useCursorPagination";
+import { csvExportErrorMessage, friendlyErrorMessage } from "@/lib/errors";
 import {
   expenseCategoryLabel,
   offeringCategoryLabel,
@@ -40,6 +40,10 @@ import {
 
 type TransactionItem = RouterOutputs["transactions"]["paged"]["items"][number];
 
+type TransactionCursor = NonNullable<
+  Exclude<RouterInputs["transactions"]["paged"], void>["cursor"]
+>;
+
 export default function Transactions() {
   const utils = trpc.useUtils();
   const [, setLocation] = useLocation();
@@ -49,14 +53,6 @@ export default function Transactions() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [fundFilter, setFundFilter] = useState("all");
   const [periodFilter, setPeriodFilter] = useState<LedgerPeriod>("all");
-  const [cursor, setCursor] = useState<{
-    date: Date;
-    id: number;
-    type: "income" | "expense";
-  } | null>(null);
-  const [cursorHistory, setCursorHistory] = useState<
-    Array<{ date: Date; id: number; type: "income" | "expense" } | null>
-  >([]);
   const [isExporting, setIsExporting] = useState(false);
 
   const periodRange = useMemo(
@@ -69,37 +65,26 @@ export default function Transactions() {
       ? Number(fundFilter)
       : undefined;
 
-  const handlePeriodChange = (p: LedgerPeriod) => {
-    setPeriodFilter(p);
-    setCursor(null);
-    setCursorHistory([]);
-  };
-
-  const handleTypeChange = (t: string) => {
-    setTypeFilter(t);
-    setCursor(null);
-    setCursorHistory([]);
-  };
-
-  const handleFundChange = (f: string) => {
-    setFundFilter(f);
-    setCursor(null);
-    setCursorHistory([]);
-  };
-
   // Debounced so the input stays responsive but the server sees one request.
   const search = useDebouncedValue(searchTerm, 300).trim();
 
-  // Reset pagination during render when the effective search changes, so a
-  // stale cursor is never sent together with the new search.
-  const [pagedSearch, setPagedSearch] = useState(search);
-  if (pagedSearch !== search) {
-    setPagedSearch(search);
-    setCursor(null);
-    setCursorHistory([]);
-  }
-  // The render that detects a search change still holds the old cursor.
-  const activeCursor = pagedSearch === search ? cursor : null;
+  // Each change returns the list to page 1 (see useCursorPagination).
+  const {
+    cursor: activeCursor,
+    pageIndex,
+    hasPrev,
+    next,
+    prev,
+  } = useCursorPagination<TransactionCursor>([
+    search,
+    typeFilter,
+    fundFilter,
+    periodFilter,
+  ]);
+
+  const handlePeriodChange = (p: LedgerPeriod) => setPeriodFilter(p);
+  const handleTypeChange = (t: string) => setTypeFilter(t);
+  const handleFundChange = (f: string) => setFundFilter(f);
 
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
@@ -111,6 +96,7 @@ export default function Transactions() {
     data: summaryData,
     isLoading: loadingSummary,
     isError: isSummaryError,
+    error: summaryError,
   } = trpc.transactions.summary.useQuery(
     {
       fromDate: periodRange.fromDate,
@@ -127,6 +113,7 @@ export default function Transactions() {
     data: pagedData,
     isLoading: loadingPaged,
     isError: isPagedError,
+    error: pagedError,
     refetch,
   } = trpc.transactions.paged.useQuery(
     {
@@ -150,28 +137,6 @@ export default function Transactions() {
 
   const transactions = pagedData?.items ?? [];
   const hasMore = pagedData?.hasMore ?? false;
-  const nextCursor = pagedData?.nextCursor ?? null;
-
-  const currentPage = cursorHistory.length + 1;
-  const totalPages = Math.max(1, Math.ceil(totalCount / 50));
-
-  const handleNextPage = () => {
-    if (nextCursor) {
-      setCursorHistory(prev => [...prev, cursor]);
-      setCursor(nextCursor);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (cursorHistory.length > 0) {
-      setCursorHistory(prev => {
-        const nextHist = [...prev];
-        const prevCursor = nextHist.pop() ?? null;
-        setCursor(prevCursor);
-        return nextHist;
-      });
-    }
-  };
 
   // 3. Complete Server-Side CSV Export
   const handleExport = async () => {
@@ -188,18 +153,10 @@ export default function Transactions() {
         toast.info("ไม่มีรายการที่ตรงกับเงื่อนไข จึงไม่มีข้อมูลให้ส่งออก");
         return;
       }
-      const blob = toCsvBlob(res.csv);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
+      saveCsvFile(
+        res.csv,
         `transactions-${periodFilter}-${new Date().toISOString().slice(0, 10)}.csv`
       );
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
       toast.success(`ส่งออกข้อมูลครบถ้วนแล้ว (${res.rowCount} รายการ)`);
     } catch (err) {
       toast.error("ส่งออกข้อมูลไม่สำเร็จ", {
@@ -413,7 +370,7 @@ export default function Transactions() {
       ) : isError ? (
         <ErrorState
           title="โหลดรายการธุรกรรมไม่สำเร็จ"
-          description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+          description={friendlyErrorMessage(pagedError ?? summaryError)}
           onRetry={() => {
             void refetch();
           }}
@@ -428,7 +385,7 @@ export default function Transactions() {
       ) : (
         <div className="bento-card-static overflow-hidden">
           {/* DESKTOP TABLE VIEW (Hidden on Mobile) */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden md:block relative overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
@@ -546,42 +503,15 @@ export default function Transactions() {
             ))}
           </div>
 
-          {/* PAGINATION BAR */}
-          {totalCount > 0 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t-2 border-[var(--ink)] bg-paper-2">
-              <p className="text-xs text-ink-2 font-medium">
-                แสดงหน้า{" "}
-                <span className="font-extrabold text-ink">{currentPage}</span>{" "}
-                จาก{" "}
-                <span className="font-extrabold text-ink">{totalPages}</span>{" "}
-                หน้า (ข้อมูลทั้งหมด{" "}
-                <span className="font-extrabold text-ink">
-                  {totalCount.toLocaleString()}
-                </span>{" "}
-                รายการ)
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handlePrevPage}
-                  disabled={cursorHistory.length === 0}
-                  className="btn-secondary min-h-11 px-4 py-2 text-xs font-bold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
-                >
-                  <ChevronLeft className="size-4" aria-hidden="true" />
-                  <span>ก่อนหน้า</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNextPage}
-                  disabled={!hasMore}
-                  className="btn-secondary min-h-11 px-4 py-2 text-xs font-bold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
-                >
-                  <span>ถัดไป</span>
-                  <ChevronRight className="size-4" aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          )}
+          <LedgerPagination
+            pageIndex={pageIndex}
+            totalCount={totalCount}
+            hasPrev={hasPrev}
+            hasNext={hasMore}
+            onPrev={prev}
+            onNext={() => next(pagedData?.nextCursor)}
+            className="border-t-2 border-[var(--ink)] bg-paper-2 p-4"
+          />
         </div>
       )}
     </AppLayout>

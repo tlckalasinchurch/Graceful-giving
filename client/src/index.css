@@ -54,6 +54,7 @@
 
   /* LINE corporate green — only ever on a LINE sign-in button. */
   --color-line-brand: var(--line-brand);
+  --color-line-brand-ink: var(--line-brand-ink);
 
   /* Surface + ink tokens (semantic, referenced by components) */
   --color-ground: var(--ground);
@@ -242,6 +243,7 @@
   --brand: #087f5b;
   --brand-ink: #ffffff;
   --line-brand: #06c755;
+  --line-brand-ink: #0a0a0a;
 
   /* Accent / highlight */
   --accent-lime: #b8f34a;
@@ -305,6 +307,8 @@
   --danger: #ff6b6b;
   --brand: #087f5b;
   --brand-ink: #ffffff;
+  --line-brand: #06c755;
+  --line-brand-ink: #0a0a0a;
 
   --accent-lime: #b8f34a;
   --accent-lime-ink: #3f4a0b;

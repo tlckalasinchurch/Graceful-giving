@@ -89,7 +89,7 @@ export default function Settings() {
       void auditQuery.refetch();
     },
     onError: err => {
-      toast.error(err.message || "ไม่สามารถอัปเดตบทบาทได้");
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถอัปเดตบทบาทได้"));
     },
     onSettled: () => {
       setUpdatingUserId(null);
@@ -103,7 +103,8 @@ export default function Settings() {
       );
       void usersQuery.refetch();
     },
-    onError: err => toast.error(err.message || "ไม่สามารถเปลี่ยนสถานะได้"),
+    onError: err =>
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถเปลี่ยนสถานะได้")),
   });
 
   const deleteUserMutation = trpc.auth.deleteUser.useMutation({
@@ -111,7 +112,8 @@ export default function Settings() {
       toast.success("ลบบัญชีแล้ว");
       void usersQuery.refetch();
     },
-    onError: err => toast.error(err.message || "ไม่สามารถลบบัญชีได้"),
+    onError: err =>
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถลบบัญชีได้")),
   });
 
   const handleRoleChange = async (userId: number, newRole: string) => {
@@ -485,10 +487,11 @@ export default function Settings() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="font-bold text-ink">
+                  <label htmlFor="settings-f0" className="font-bold text-ink">
                     ชื่อคริสตจักร <span className="text-danger">*</span>
                   </label>
                   <input
+                    id="settings-f0"
                     type="text"
                     required
                     value={name}
@@ -498,10 +501,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="font-bold text-ink">
+                  <label htmlFor="settings-f1" className="font-bold text-ink">
                     คำขวัญ / นิมิตคริสตจักร
                   </label>
                   <input
+                    id="settings-f1"
                     type="text"
                     value={motto}
                     onChange={e => setMotto(e.target.value)}
@@ -510,8 +514,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="font-bold text-ink">ที่อยู่คริสตจักร</label>
+                  <label htmlFor="settings-f2" className="font-bold text-ink">
+                    ที่อยู่คริสตจักร
+                  </label>
                   <textarea
+                    id="settings-f2"
                     rows={2}
                     value={address}
                     onChange={e => setAddress(e.target.value)}
@@ -520,8 +527,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink">เบอร์โทรศัพท์</label>
+                  <label htmlFor="settings-f3" className="font-bold text-ink">
+                    เบอร์โทรศัพท์
+                  </label>
                   <input
+                    id="settings-f3"
                     type="text"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
@@ -530,8 +540,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink">อีเมลทางการ</label>
+                  <label htmlFor="settings-f4" className="font-bold text-ink">
+                    อีเมลทางการ
+                  </label>
                   <input
+                    id="settings-f4"
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
@@ -540,10 +553,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink">
+                  <label htmlFor="settings-f5" className="font-bold text-ink">
                     เว็บไซต์ / เพจคริสตจักร
                   </label>
                   <input
+                    id="settings-f5"
                     type="url"
                     placeholder="https://..."
                     value={website}
@@ -553,8 +567,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink">ศิษยาภิบาลอาวุโส</label>
+                  <label htmlFor="settings-f6" className="font-bold text-ink">
+                    ศิษยาภิบาลอาวุโส
+                  </label>
                   <input
+                    id="settings-f6"
                     type="text"
                     value={pastorName}
                     onChange={e => setPastorName(e.target.value)}
@@ -563,10 +580,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink">
+                  <label htmlFor="settings-f7" className="font-bold text-ink">
                     ผู้ช่วยศิษยาภิบาล / ผู้ประกาศ
                   </label>
                   <input
+                    id="settings-f7"
                     type="text"
                     value={assistantPastorName}
                     onChange={e => setAssistantPastorName(e.target.value)}
@@ -575,10 +593,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink">
+                  <label htmlFor="settings-f8" className="font-bold text-ink">
                     เหรัญญิกคริสตจักร
                   </label>
                   <input
+                    id="settings-f8"
                     type="text"
                     value={treasurerName}
                     onChange={e => setTreasurerName(e.target.value)}
@@ -587,10 +606,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-bold text-ink">
+                  <label htmlFor="settings-f9" className="font-bold text-ink">
                     เดือนเริ่มต้นปีงบประมาณ
                   </label>
                   <NativeSelect
+                    id="settings-f9"
                     value={fiscalYearStartMonth}
                     onChange={e => setFiscalYearStartMonth(e.target.value)}
                     className="w-full font-semibold"
@@ -699,6 +719,7 @@ export default function Settings() {
                   <input
                     type="text"
                     placeholder="ค้นหาชื่อผู้ใช้งาน หรือ อีเมล..."
+                    aria-label="ค้นหาผู้ใช้งานจากชื่อหรืออีเมล"
                     value={roleSearch}
                     onChange={e => setRoleSearch(e.target.value)}
                     className="neo-input w-full pl-9 pr-4 py-2 text-xs font-semibold text-ink"
@@ -814,15 +835,16 @@ export default function Settings() {
                               </div>
 
                               <div className="space-y-1.5 pt-1 border-t border-[var(--ink)]/10">
-                                <label className="text-xs font-bold text-ink-2">
+                                <span className="block text-xs font-bold text-ink-2">
                                   บทบาทในระบบ:
-                                </label>
+                                </span>
                                 {canEdit ? (
                                   <div className="flex items-center gap-2">
                                     {isUpdating && (
                                       <Loader2 className="w-4 h-4 animate-spin text-brand shrink-0" />
                                     )}
                                     <NativeSelect
+                                      aria-label={`บทบาทในระบบของ ${u.name || "ผู้ใช้"}`}
                                       value={u.churchRole || "MEMBER"}
                                       disabled={isUpdating || isMe}
                                       onChange={e =>
@@ -929,7 +951,7 @@ export default function Settings() {
                       </div>
 
                       {/* Desktop Table (hidden md:block) */}
-                      <div className="hidden md:block overflow-x-auto">
+                      <div className="hidden md:block relative overflow-x-auto">
                         <table className="w-full text-left text-sm">
                           <thead>
                             <tr className="border-b-2 border-[var(--ink)] text-xs font-extrabold text-ink">
@@ -1395,6 +1417,7 @@ export default function Settings() {
                 <input
                   type="text"
                   placeholder="ค้นหาชื่อผู้ดำเนินการ, อีเมล หรือกิจกรรม..."
+                  aria-label="ค้นหาประวัติการใช้งานจากชื่อผู้ดำเนินการ อีเมล หรือกิจกรรม"
                   value={auditSearch}
                   onChange={e => setAuditSearch(e.target.value)}
                   className="neo-input w-full pl-9 pr-4 py-2 text-xs font-semibold text-ink"
@@ -1436,6 +1459,9 @@ export default function Settings() {
                     </option>
                   </optgroup>
                   <optgroup label="ผู้ใช้งานและความปลอดภัย">
+                    <option value="owner_auto_promote">
+                      กู้คืนสิทธิ์เจ้าของระบบ (owner_auto_promote)
+                    </option>
                     <option value="update_user_role">
                       เปลี่ยนบทบาท (update_user_role)
                     </option>
@@ -1471,7 +1497,33 @@ export default function Settings() {
               </div>
             ) : (
               (() => {
+                const AUDIT_ACTION_THAI: Record<string, string> = {
+                  owner_auto_promote: "กู้คืนสิทธิ์เจ้าของระบบ",
+                  update_user_role: "เปลี่ยนบทบาท",
+                  AUTH_SET_CHURCH_ROLE: "เปลี่ยนบทบาท",
+                  approve_user: "อนุมัติบัญชี",
+                  disable_user: "ปิดการใช้งาน",
+                  delete_user: "ลบบัญชีผู้ใช้",
+                  CREATE: "บันทึกใหม่",
+                  UPDATE: "แก้ไขข้อมูล",
+                  VOID: "ยกเลิกรายการ",
+                  DELETE: "ลบข้อมูล",
+                  APPROVE: "อนุมัติ",
+                  APPROVE_LINE_SLIP: "อนุมัติสลิป",
+                  REJECT_LINE_SLIP: "ปฏิเสธสลิป",
+                  LINK_LINE_MEMBER: "เชื่อมโยงสมาชิก",
+                  SIGN: "ลงนาม",
+                  DISBURSE: "จ่ายเงินแล้ว",
+                  POST: "โพสต์ลงบัญชี",
+                  SUBMIT: "ส่งตรวจนับ",
+                  VERIFY: "ตรวจนับแล้ว",
+                  update_church_profile: "ตั้งค่าคริสตจักร",
+                  update_profile: "แก้ไขโปรไฟล์ส่วนตัว",
+                  save_station_poster: "บันทึกโปสเตอร์จุดถวาย",
+                };
+
                 const logs = (auditQuery.data || []).filter(log => {
+                  const actionThai = AUDIT_ACTION_THAI[log.action] || "";
                   const matchesSearch =
                     !auditSearch ||
                     (log.userName &&
@@ -1484,7 +1536,14 @@ export default function Settings() {
                         .includes(auditSearch.toLowerCase())) ||
                     log.action
                       .toLowerCase()
-                      .includes(auditSearch.toLowerCase());
+                      .includes(auditSearch.toLowerCase()) ||
+                    actionThai
+                      .toLowerCase()
+                      .includes(auditSearch.toLowerCase()) ||
+                    (log.entity &&
+                      log.entity
+                        .toLowerCase()
+                        .includes(auditSearch.toLowerCase()));
                   const matchesFilter =
                     auditActionFilter === "ALL" ||
                     log.action === auditActionFilter;
@@ -1563,6 +1622,12 @@ export default function Settings() {
                       return (
                         <span className="px-2.5 py-0.5 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-[11px] border border-[var(--ink)]/30">
                           {action === "SUBMIT" ? "ส่งตรวจนับ" : "ตรวจนับแล้ว"}
+                        </span>
+                      );
+                    case "owner_auto_promote":
+                      return (
+                        <span className="px-2.5 py-0.5 rounded-full bg-accent text-accent-foreground font-extrabold text-[11px] border border-[var(--ink)]">
+                          กู้คืนสิทธิ์เจ้าของระบบ
                         </span>
                       );
                     case "update_user_role":
@@ -1645,7 +1710,7 @@ export default function Settings() {
                     </div>
 
                     {/* Desktop Table (hidden md:block) */}
-                    <div className="hidden md:block overflow-x-auto">
+                    <div className="hidden md:block relative overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead>
                           <tr className="border-b-2 border-[var(--ink)] font-extrabold text-ink">

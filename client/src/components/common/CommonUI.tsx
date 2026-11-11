@@ -1,6 +1,6 @@
 import React from "react";
 import { Illustration } from "@/components/Illustration";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { formatAmount } from "@/lib/format";
 import {
   Dialog,
@@ -513,5 +513,72 @@ export const ConfirmDialog: React.FC<{
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+};
+
+// ─── Ledger pagination ───────────────────────────────────────────────────────
+
+export const LedgerPagination: React.FC<{
+  /** Zero for the first page. */
+  pageIndex: number;
+  totalCount: number;
+  pageSize?: number;
+  hasPrev: boolean;
+  hasNext: boolean;
+  loading?: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+  className?: string;
+}> = ({
+  pageIndex,
+  totalCount,
+  pageSize = 50,
+  hasPrev,
+  hasNext,
+  loading = false,
+  onPrev,
+  onNext,
+  className = "",
+}) => {
+  if (totalCount <= 0) return null;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const buttonClass =
+    "btn-secondary inline-flex min-h-11 items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40";
+  return (
+    <nav
+      aria-label="เปลี่ยนหน้ารายการ"
+      className={`flex flex-col items-center justify-between gap-3 text-xs font-medium text-ink-2 sm:flex-row ${className}`}
+    >
+      <p aria-live="polite">
+        แสดงหน้า{" "}
+        <span className="font-extrabold text-ink">{pageIndex + 1}</span> จาก{" "}
+        <span className="font-extrabold text-ink">{totalPages}</span> หน้า
+        (ข้อมูลทั้งหมด{" "}
+        <span className="font-extrabold text-ink">
+          {totalCount.toLocaleString()}
+        </span>{" "}
+        รายการ)
+      </p>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onPrev}
+          disabled={!hasPrev || loading}
+          className={buttonClass}
+        >
+          <ChevronLeft className="size-4" aria-hidden="true" />
+          <span>ก่อนหน้า</span>
+        </button>
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={!hasNext || loading}
+          className={buttonClass}
+        >
+          <span>ถัดไป</span>
+          <ChevronRight className="size-4" aria-hidden="true" />
+        </button>
+      </div>
+    </nav>
   );
 };

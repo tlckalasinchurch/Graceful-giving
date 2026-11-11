@@ -3,6 +3,7 @@ import { Download } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { downloadSvgAsPng } from "@/lib/downloadQr";
+import { formatAmount } from "@/lib/format";
 
 /**
  * A PromptPay QR with the amount already filled in, for the donor to scan with
@@ -42,7 +43,7 @@ export function PromptPayQrCard({
       <p className="text-xs text-ink-2">
         ยอด{" "}
         <span className="font-extrabold text-brand tabular-nums">
-          {amount.toLocaleString()} THB
+          {formatAmount(amount)} บาท
         </span>{" "}
         ใส่ให้แล้ว ไม่ต้องพิมพ์ยอดเอง
       </p>
@@ -57,7 +58,7 @@ export function PromptPayQrCard({
           marginSize={2}
           bgColor="#FFFFFF"
           fgColor="#171A18"
-          title={`QR พร้อมเพย์ ${amount.toLocaleString()} บาท`}
+          title={`QR พร้อมเพย์ ${formatAmount(amount)} บาท`}
           className="h-auto w-full"
         />
       </div>

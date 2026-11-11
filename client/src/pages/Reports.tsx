@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { formatBaht, THAI_LOCALE } from "@/lib/format";
 import { NativeSelect } from "@/components/ui/native-select";
 import { csvExportErrorMessage, friendlyErrorMessage } from "@/lib/errors";
-import { toCsvBlob } from "@/lib/csvDownload";
+import { saveCsvFile } from "@/lib/csvDownload";
 
 type ReportTab = "cashflow" | "funds";
 
@@ -99,15 +99,10 @@ export default function Reports() {
         toast.info("ไม่มีรายการในช่วงเวลาที่เลือก จึงไม่มีข้อมูลให้ส่งออก");
         return;
       }
-      const blob = toCsvBlob(result.csv);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `grace-giving-report-${range.fromDate.toISOString().slice(0, 10)}-${range.toDate.toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      saveCsvFile(
+        result.csv,
+        `grace-giving-report-${range.fromDate.toISOString().slice(0, 10)}-${range.toDate.toISOString().slice(0, 10)}.csv`
+      );
       toast.success(`ส่งออก ${result.rowCount} รายการเรียบร้อยแล้ว`);
     } catch (error) {
       toast.error("ส่งออกรายงานไม่สำเร็จ", {
@@ -299,7 +294,7 @@ export default function Reports() {
                   (เลื่อนซ้าย-ขวาเพื่อดูตาราง)
                 </span>
               </div>
-              <div className="overflow-x-auto">
+              <div className="relative overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">
                     <tr>

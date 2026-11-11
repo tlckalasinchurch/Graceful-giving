@@ -1,10 +1,19 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { friendlyErrorMessage } from "@/lib/errors";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
+  ErrorState,
   LoadingSkeleton,
   MoneyDisplay,
   StatusBadge,
@@ -44,18 +53,6 @@ export default function Approvals() {
   const [cancelReason, setCancelReason] = useState("");
   const [showCancelModal, setShowCancelModal] = useState(false);
 
-  useEffect(() => {
-    if (!showRejectModal && !showCancelModal) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setShowRejectModal(false);
-        setShowCancelModal(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showRejectModal, showCancelModal]);
-
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
     staleTime: 60_000,
@@ -65,6 +62,7 @@ export default function Approvals() {
     data: withdrawalsData,
     isLoading,
     isError,
+    error,
     refetch,
   } = trpc.withdrawals.list.useQuery(undefined, { retry: false });
 
@@ -104,7 +102,7 @@ export default function Approvals() {
       setSelectedReq(null);
       void utils.withdrawals.list.invalidate();
     },
-    onError: err => toast.error(err.message || "ไม่สามารถลงนามได้"),
+    onError: err => toast.error(friendlyErrorMessage(err, "ไม่สามารถลงนามได้")),
   });
 
   const disburseMutation = trpc.withdrawals.disburse.useMutation({
@@ -116,7 +114,8 @@ export default function Approvals() {
       void utils.counting.list.invalidate();
       void utils.counting.get.invalidate();
     },
-    onError: err => toast.error(err.message || "ไม่สามารถบันทึกการจ่ายเงินได้"),
+    onError: err =>
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถบันทึกการจ่ายเงินได้")),
   });
 
   const cancelMutation = trpc.withdrawals.cancel.useMutation({
@@ -127,13 +126,14 @@ export default function Approvals() {
       setSelectedReq(null);
       void utils.withdrawals.list.invalidate();
     },
-    onError: err => toast.error(err.message || "ไม่สามารถยกเลิกคำขอได้"),
+    onError: err =>
+      toast.error(friendlyErrorMessage(err, "ไม่สามารถยกเลิกคำขอได้")),
   });
 
   const handleApprove = async (req: WithdrawalItem) => {
     const ok = await Swal.confirm(
       "ยืนยันการลงนามอนุมัติ",
-      `ต้องการลงนามอนุมัติคำขอเบิกเงิน "${req.purpose}" จำนวน ${formatBaht(req.amount)} บาท หรือไม่?`,
+      `ต้องการลงนามอนุมัติคำขอเบิกเงิน "${req.purpose}" จำนวน ${formatBaht(req.amount)} หรือไม่?`,
       "ลงนามอนุมัติ"
     );
     if (ok) {
@@ -157,7 +157,7 @@ export default function Approvals() {
   const handleDisburse = async (req: WithdrawalItem) => {
     const ok = await Swal.confirm(
       "ยืนยันการจ่ายเงิน",
-      `ยืนยันการจ่ายเงินจำนวน ${formatBaht(req.amount)} บาท ยอดนี้จะถูกนำเข้ารอบนับเงินถัดไปโดยอัตโนมัติ`,
+      `ยืนยันการจ่ายเงินจำนวน ${formatBaht(req.amount)} ยอดนี้จะถูกนำเข้ารอบนับเงินถัดไปโดยอัตโนมัติ`,
       "ยืนยันจ่ายเงิน"
     );
     if (ok) {
@@ -264,11 +264,10 @@ export default function Approvals() {
         {isLoading ? (
           <LoadingSkeleton count={3} />
         ) : isError ? (
-          <EmptyState
+          <ErrorState
             title="โหลดคำขอเบิกจ่ายไม่สำเร็จ"
-            description="เชื่อมต่อฐานข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
-            actionText="ลองใหม่"
-            onAction={() => refetch()}
+            description={friendlyErrorMessage(error)}
+            onRetry={() => void refetch()}
           />
         ) : filteredRequests.length === 0 ? (
           <EmptyState
@@ -440,130 +439,108 @@ export default function Approvals() {
         )}
 
         {/* Reject Reason Modal */}
-        {showRejectModal && selectedReq && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="reject-modal-title"
-            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4"
-          >
-            <div className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
-                <h3
-                  id="reject-modal-title"
-                  className="display text-lg font-extrabold text-ink"
-                >
-                  ระบุเหตุผลที่ไม่อนุมัติ
-                </h3>
-                <button
-                  onClick={() => setShowRejectModal(false)}
-                  type="button"
-                  aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink cursor-pointer"
-                >
-                  ×
-                </button>
-              </div>
+        <Dialog
+          open={showRejectModal && Boolean(selectedReq)}
+          onOpenChange={open => {
+            if (!open) setShowRejectModal(false);
+          }}
+        >
+          <DialogContent className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4">
+            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 text-left">
+              <DialogTitle className="display text-lg font-extrabold text-ink">
+                ระบุเหตุผลที่ไม่อนุมัติ
+              </DialogTitle>
+              <DialogDescription className="text-xs font-medium text-ink-2">
+                คำขอนี้จะถูกบันทึกว่าไม่ผ่านการอนุมัติจากคุณ และส่งผลให้คำขอสิ้นสุดลงทันที
+              </DialogDescription>
+            </DialogHeader>
 
-              <div className="space-y-2 text-xs">
-                <p className="font-medium text-ink-2">
-                  คำขอนี้จะถูกบันทึกว่าไม่ผ่านการอนุมัติจากคุณ
-                  และส่งผลให้คำขอสิ้นสุดลงทันที
-                </p>
-                <textarea
-                  rows={3}
-                  required
-                  placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้..."
-                  value={rejectReason}
-                  onChange={e => setRejectReason(e.target.value)}
-                  className="neo-input w-full p-3.5 text-xs"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  onClick={() => setShowRejectModal(false)}
-                  disabled={signMutation.isPending}
-                  className="btn-secondary min-h-11 px-4 py-2.5 text-xs cursor-pointer"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={handleRejectSubmit}
-                  disabled={signMutation.isPending}
-                  className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50 cursor-pointer"
-                >
-                  {signMutation.isPending
-                    ? "กำลังบันทึก..."
-                    : "ยืนยันไม่อนุมัติ"}
-                </button>
-              </div>
+            <div className="space-y-2 text-xs">
+              <textarea
+                rows={3}
+                required
+                aria-label="เหตุผลที่ไม่อนุมัติ"
+                placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้..."
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+                className="neo-input w-full p-3.5 text-xs"
+              />
             </div>
-          </div>
-        )}
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowRejectModal(false)}
+                disabled={signMutation.isPending}
+                className="btn-secondary min-h-11 px-4 py-2.5 text-xs cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                onClick={handleRejectSubmit}
+                disabled={signMutation.isPending}
+                className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50 cursor-pointer"
+              >
+                {signMutation.isPending
+                  ? "กำลังบันทึก..."
+                  : "ยืนยันไม่อนุมัติ"}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Cancel Reason Modal */}
-        {showCancelModal && selectedReq && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cancel-modal-title"
-            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4"
-          >
-            <div className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-3">
-                <h3
-                  id="cancel-modal-title"
-                  className="display text-lg font-extrabold text-ink"
-                >
-                  ระบุเหตุผลในการยกเลิกคำขอ
-                </h3>
-                <button
-                  onClick={() => setShowCancelModal(false)}
-                  type="button"
-                  aria-label="ปิด"
-                  className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink-3 hover:bg-paper-2 hover:text-ink cursor-pointer"
-                >
-                  ×
-                </button>
-              </div>
+        <Dialog
+          open={showCancelModal && Boolean(selectedReq)}
+          onOpenChange={open => {
+            if (!open) setShowCancelModal(false);
+          }}
+        >
+          <DialogContent className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4">
+            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 text-left">
+              <DialogTitle className="display text-lg font-extrabold text-ink">
+                ระบุเหตุผลในการยกเลิกคำขอ
+              </DialogTitle>
+              <DialogDescription className="text-xs font-medium text-ink-2">
+                เมื่อยกเลิกแล้ว คำขอนี้จะไม่สามารถนำไปเบิกจ่ายได้อีก (ระบุเหตุผลอย่างน้อย 3 ตัวอักษร)
+              </DialogDescription>
+            </DialogHeader>
 
-              <div className="space-y-2 text-xs">
-                <p className="font-medium text-ink-2">
-                  เมื่อยกเลิกแล้ว คำขอนี้จะไม่สามารถนำไปเบิกจ่ายได้อีก
-                  (ระบุเหตุผลอย่างน้อย 3 ตัวอักษร)
-                </p>
-                <textarea
-                  rows={3}
-                  required
-                  placeholder="เช่น ยกเลิกโครงการ, ปรับเปลี่ยนรายการจัดซื้อ..."
-                  value={cancelReason}
-                  onChange={e => setCancelReason(e.target.value)}
-                  className="neo-input w-full p-3.5 text-xs"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  onClick={() => setShowCancelModal(false)}
-                  disabled={cancelMutation.isPending}
-                  className="btn-secondary min-h-11 px-4 py-2.5 text-xs cursor-pointer"
-                >
-                  กลับ
-                </button>
-                <button
-                  onClick={handleCancelSubmit}
-                  disabled={cancelMutation.isPending}
-                  className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50 cursor-pointer"
-                >
-                  {cancelMutation.isPending
-                    ? "กำลังบันทึก..."
-                    : "ยืนยันการยกเลิก"}
-                </button>
-              </div>
+            <div className="space-y-2 text-xs">
+              <textarea
+                rows={3}
+                required
+                aria-label="เหตุผลในการยกเลิก"
+                placeholder="เช่น ยกเลิกโครงการ, ปรับเปลี่ยนรายการจัดซื้อ..."
+                value={cancelReason}
+                onChange={e => setCancelReason(e.target.value)}
+                className="neo-input w-full p-3.5 text-xs"
+              />
             </div>
-          </div>
-        )}
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelMutation.isPending}
+                className="btn-secondary min-h-11 px-4 py-2.5 text-xs cursor-pointer"
+              >
+                กลับ
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelSubmit}
+                disabled={cancelMutation.isPending}
+                className="min-h-11 px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger text-white text-xs font-extrabold shadow-[2px_2px_0_var(--ink)] hover:opacity-95 disabled:opacity-50 cursor-pointer"
+              >
+                {cancelMutation.isPending
+                  ? "กำลังบันทึก..."
+                  : "ยืนยันการยกเลิก"}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );
