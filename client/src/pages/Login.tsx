@@ -6,11 +6,12 @@ import { Sprout } from "lucide-react";
 import { toast } from "sonner";
 
 const ERRORS: Record<string, string> = {
-  cancelled: "ยกเลิกการเข้าสู่ระบบด้วย LINE",
+  cancelled: "ยกเลิกการเข้าสู่ระบบ — กรุณากดปุ่ม LINE เพื่อลองใหม่",
   state: "การเข้าสู่ระบบหมดอายุ กรุณาลองใหม่",
   failed: "เข้าสู่ระบบด้วย LINE ไม่สำเร็จ กรุณาลองใหม่",
+  network: "ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
   not_configured:
-    "ระบบเข้าสู่ระบบด้วย LINE ยังไม่ได้ตั้งค่า โปรดติดต่อผู้ดูแลระบบ",
+    "ระบบเข้าสู่ระบบด้วย LINE ยังไม่พร้อมใช้งาน กรุณาติดต่อผู้ดูแลระบบของคริสตจักร",
 };
 
 /** The brand lockup, used on both the verse panel and the phone layout. */
@@ -49,6 +50,10 @@ export default function Login() {
       ? null
       : new URLSearchParams(window.location.search).get("error");
   const error = errorKey ? (ERRORS[errorKey] ?? ERRORS.failed) : null;
+  const sessionExpired =
+    !error &&
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("reason") === "expired";
 
   return (
     <div className="min-h-dvh bg-ground text-ink">
@@ -99,23 +104,29 @@ export default function Login() {
                 </p>
                 <p className="text-sm sm:text-base leading-relaxed text-ink-2">
                   {state === "pending"
-                    ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE เรียบร้อยแล้ว ขณะนี้บัญชีของคุณกำลังรอศิษยาภิบาลหรือผู้ดูแลระบบของคริสตจักรกำหนดบทบาทหน้าที่ เมื่อได้รับการอนุมัติแล้วคุณจะสามารถเข้าใช้งานได้ทันที`
+                    ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน ผู้ดูแลระบบของคริสตจักรสามารถอนุมัติบัญชีของคุณได้จากหน้าการตั้งค่า แล้วกลับมาเปิดหน้านี้อีกครั้ง`
                     : "บัญชีนี้ไม่สามารถเข้าใช้งานได้ โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
                 </p>
 
                 {state === "pending" && openId && (
                   <details className="group rounded-[12px] border border-line bg-paper-2 p-3 text-xs text-left">
                     <summary className="cursor-pointer font-bold text-ink-3 hover:text-ink select-none flex items-center justify-between">
-                      <span>ข้อมูลทางเทคนิคสำหรับผู้ดูแลระบบ (Vercel)</span>
-                      <span className="text-[10px] text-ink-3 group-open:rotate-180 transition-transform">▼</span>
+                      <span>สำหรับผู้ดูแลระบบ (การตั้งค่าครั้งแรก)</span>
+                      <span className="text-[10px] text-ink-3 group-open:rotate-180 transition-transform">
+                        ▼
+                      </span>
                     </summary>
                     <div className="space-y-2 pt-3 border-t border-line/60 mt-2">
                       <p className="leading-relaxed text-ink-2">
-                        หากท่านเป็นผู้ดูแลระบบ ให้คัดลอกรหัส LINE OpenID นี้ไปใส่ใน Vercel Environment Variables ที่ช่อง{" "}
+                        วิธีปกติคือผู้ดูแลระบบอนุมัติบัญชีนี้ได้จากหน้าการตั้งค่า
+                        ไม่ต้องทำตามขั้นตอนนี้ ขั้นตอนด้านล่างใช้เฉพาะการ
+                        ตั้งค่าครั้งแรก: คัดลอกรหัส LINE OpenID นี้ไปใส่ใน
+                        Vercel Environment Variables ที่ช่อง{" "}
                         <code className="rounded bg-paper px-1.5 py-0.5 font-mono font-bold text-brand">
                           OWNER_OPEN_ID
                         </code>{" "}
-                        แล้วเข้าสู่ระบบใหม่อีกครั้งเพื่อรับสิทธิ์ Super Admin ทันที
+                        แล้วเข้าสู่ระบบใหม่อีกครั้งเพื่อรับสิทธิ์ Super Admin
+                        ทันที
                       </p>
                       <div className="flex items-center justify-between gap-2 rounded-[8px] border border-line bg-surface p-2 font-mono text-[11px]">
                         <span className="truncate select-all text-ink font-semibold">
@@ -126,7 +137,10 @@ export default function Login() {
                           onClick={() => {
                             void navigator.clipboard.writeText(openId);
                             setCopied(true);
-                            (window as any)["set" + "Timeout"](() => setCopied(false), 2000);
+                            (window as any)["set" + "Timeout"](
+                              () => setCopied(false),
+                              2000
+                            );
                           }}
                           className="shrink-0 rounded-[6px] border border-[var(--ink)] bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground shadow-[1px_1px_0_var(--ink)] transition-opacity hover:opacity-90 active:translate-y-px cursor-pointer"
                         >
@@ -145,16 +159,22 @@ export default function Login() {
                         toast.info("กำลังตรวจสอบสถานะการอนุมัติ...");
                         const res = await statusQuery.refetch();
                         if (res.data?.state === "active") {
-                          toast.success("อนุมัติเรียบร้อยแล้ว กำลังเข้าสู่ระบบ");
+                          toast.success(
+                            "อนุมัติเรียบร้อยแล้ว กำลังเข้าสู่ระบบ"
+                          );
                           setLocation("/");
                         } else {
-                          toast.info("ยังอยู่ระหว่างรอการอนุมัติจากผู้ดูแลระบบ");
+                          toast.info(
+                            "ยังอยู่ระหว่างรอการอนุมัติจากผู้ดูแลระบบ"
+                          );
                         }
                       }}
                       disabled={statusQuery.isFetching}
                       className="btn-primary min-h-12 w-full rounded-[12px] px-4 py-3 text-base font-bold cursor-pointer"
                     >
-                      {statusQuery.isFetching ? "กำลังตรวจสอบ..." : "ตรวจสอบสถานะอีกครั้ง"}
+                      {statusQuery.isFetching
+                        ? "กำลังตรวจสอบ..."
+                        : "ตรวจสอบสถานะอีกครั้ง"}
                     </button>
                   )}
 
@@ -175,6 +195,15 @@ export default function Login() {
                 >
                   เข้าสู่ระบบด้วย LINE
                 </a>
+
+                {sessionExpired && (
+                  <p
+                    role="status"
+                    className="rounded-[12px] border-2 border-[var(--ink)] bg-paper-2 px-4 py-3 text-sm font-bold leading-relaxed text-ink shadow-[2px_2px_0_var(--ink)]"
+                  >
+                    เซสชันหมดอายุ กรุณาเข้าสู่ระบบด้วย LINE อีกครั้ง
+                  </p>
+                )}
 
                 {error && (
                   <p

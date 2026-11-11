@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Link, useLocation } from "wouter";
 import { trpc, type RouterInputs, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -64,19 +65,26 @@ export default function Transactions() {
       ? Number(fundFilter)
       : undefined;
 
+  // Debounced so the input stays responsive but the server sees one request.
+  const search = useDebouncedValue(searchTerm, 300).trim();
+
   // Each change returns the list to page 1 (see useCursorPagination).
-  const { cursor, pageIndex, hasPrev, next, prev } =
-    useCursorPagination<TransactionCursor>([
-      searchTerm,
-      typeFilter,
-      fundFilter,
-      periodFilter,
-    ]);
+  const {
+    cursor: activeCursor,
+    pageIndex,
+    hasPrev,
+    next,
+    prev,
+  } = useCursorPagination<TransactionCursor>([
+    search,
+    typeFilter,
+    fundFilter,
+    periodFilter,
+  ]);
 
   const handlePeriodChange = (p: LedgerPeriod) => setPeriodFilter(p);
   const handleTypeChange = (t: string) => setTypeFilter(t);
   const handleFundChange = (f: string) => setFundFilter(f);
-  const handleSearchChange = (q: string) => setSearchTerm(q);
 
   const { data: accountsData } = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
@@ -95,7 +103,7 @@ export default function Transactions() {
       toDate: periodRange.toDate,
       fundId: selectedFundId,
       type: typeFilter as any,
-      search: searchTerm.trim() || undefined,
+      search: search || undefined,
     },
     { retry: false }
   );
@@ -110,12 +118,12 @@ export default function Transactions() {
   } = trpc.transactions.paged.useQuery(
     {
       limit: 50,
-      cursor: cursor ?? undefined,
+      cursor: activeCursor ?? undefined,
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       fundId: selectedFundId,
       type: typeFilter as any,
-      search: searchTerm.trim() || undefined,
+      search: search || undefined,
     },
     { retry: false }
   );
@@ -139,7 +147,7 @@ export default function Transactions() {
         toDate: periodRange.toDate,
         fundId: selectedFundId,
         type: typeFilter as any,
-        search: searchTerm.trim() || undefined,
+        search: search || undefined,
       });
       if (res.rowCount === 0) {
         toast.info("ไม่มีรายการที่ตรงกับเงื่อนไข จึงไม่มีข้อมูลให้ส่งออก");
@@ -182,7 +190,7 @@ export default function Transactions() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleExport}
-            disabled={isExporting}
+            disabled={isExporting || searchTerm.trim() !== search}
             aria-label="ส่งออก CSV"
             className="btn-secondary min-h-11 px-3.5 text-sm disabled:opacity-50 inline-flex items-center gap-1.5"
           >
@@ -337,7 +345,7 @@ export default function Transactions() {
         <FilterBar
           searchPlaceholder="ค้นหารายการ, ชื่อผู้ถวาย, ผู้รับเงิน, กองทุน หรือเลขอ้างอิง..."
           searchValue={searchTerm}
-          onSearchChange={handleSearchChange}
+          onSearchChange={setSearchTerm}
           filters={[
             { id: "all", label: "ทั้งหมด", count: totalCount },
             {

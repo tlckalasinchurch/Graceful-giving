@@ -10,6 +10,7 @@ import {
   CalendarDays,
   CheckCircle2,
   CircleUserRound,
+  ClipboardList,
   Coins,
   CreditCard,
   FileBarChart,
@@ -39,24 +40,29 @@ import {
 export const navItems = [
   { label: "หน้าหลัก", path: "/", icon: Home },
   {
-    label: "รายการ",
-    path: "/transactions",
-    icon: ReceiptText,
+    label: "ขั้นตอนการถวาย",
+    path: "/giving-guide",
+    icon: ClipboardList,
   },
   {
-    label: "นับเงินถวาย",
+    label: "ตรวจสลิป LINE",
+    path: "/giving/inbox",
+    icon: Inbox,
+  },
+  {
+    label: "นับซองหน้างาน",
     path: "/counting",
     icon: Coins,
   },
   {
-    label: "ถวายทรัพย์",
+    label: "สมุดบัญชีถวาย",
     path: "/offerings",
     icon: HandCoins,
   },
   {
-    label: "กล่องสลิป LINE",
-    path: "/giving/inbox",
-    icon: Inbox,
+    label: "รายการ",
+    path: "/transactions",
+    icon: ReceiptText,
   },
   {
     label: "รายจ่าย",
@@ -113,15 +119,10 @@ export const navItems = [
 const NAV_GROUPS = [
   { label: "ภาพรวม", paths: ["/"] },
   {
-    label: "การเงิน",
-    paths: [
-      "/transactions",
-      "/counting",
-      "/offerings",
-      "/giving/inbox",
-      "/expenses",
-    ],
+    label: "ถวายและนับเงิน",
+    paths: ["/giving-guide", "/giving/inbox", "/counting", "/offerings"],
   },
+  { label: "การเงิน", paths: ["/transactions", "/expenses"] },
   { label: "วางแผนและควบคุม", paths: ["/funds", "/budgets", "/approvals"] },
   { label: "คริสตจักร", paths: ["/ministries", "/members", "/updates"] },
   { label: "วิเคราะห์", paths: ["/reports"] },
@@ -160,6 +161,27 @@ export function getAuthorizedNavItems(user?: RoleUser | null) {
 export function isActiveRoute(currentPath: string, path: string) {
   return (
     currentPath === path || (path !== "/" && currentPath.startsWith(`${path}/`))
+  );
+}
+
+export function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  if (!toggleTheme) return null;
+  const dark = theme === "dark";
+  return (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      aria-label={dark ? "เปลี่ยนเป็นโหมดสว่าง" : "เปลี่ยนเป็นโหมดมืด"}
+      className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-sm font-bold text-ink-2 hover:border-[var(--ink)] hover:text-ink cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
+    >
+      {dark ? (
+        <Sun className="size-4 shrink-0" aria-hidden="true" />
+      ) : (
+        <Moon className="size-4 shrink-0" aria-hidden="true" />
+      )}
+      <span>{dark ? "โหมดสว่าง (Light)" : "โหมดมืด (Dark)"}</span>
+    </button>
   );
 }
 

@@ -52,14 +52,17 @@ describe("home shortcuts", () => {
     render(
       <SecondaryMenu
         canOpenMembers
+        canOpenGivingGuide
         onOpenMembers={vi.fn()}
         onOpenNews={vi.fn()}
         onOpenWithdrawals={vi.fn()}
+        onOpenGivingGuide={vi.fn()}
       />
     );
     expect(screen.queryByRole("button", { name: "รายงาน" })).toBeNull();
     expect(screen.getByRole("button", { name: "สมาชิก" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "ขอเบิกเงิน" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "ขั้นตอนการถวาย" })).toBeTruthy();
   });
 
   it("the balance card button says it opens the report, and calls the handler", () => {

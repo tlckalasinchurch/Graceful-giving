@@ -83,7 +83,7 @@ describe("money display", () => {
       ...files(join(SRC, "pages")),
       ...files(join(SRC, "components")),
     ]) {
-      const rel = relative(SRC, f);
+      const rel = relative(SRC, f).replace(/\\/g, "/");
       if (allowed.includes(rel)) continue;
       const src = readFileSync(f, "utf8");
       const call = /(formatBaht|formatAmount)\(([^)]*)\)/g;

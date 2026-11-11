@@ -2,6 +2,7 @@ import {
   Banknote,
   ChevronRight,
   CalendarDays,
+  ClipboardList,
   MoreHorizontal,
   UsersRound,
 } from "lucide-react";
@@ -11,9 +12,11 @@ import { AppMenu } from "@/components/layout/AppNavigation";
 
 interface SecondaryMenuProps {
   canOpenMembers: boolean;
+  canOpenGivingGuide: boolean;
   onOpenMembers: () => void;
   onOpenNews: () => void;
   onOpenWithdrawals: () => void;
+  onOpenGivingGuide: () => void;
 }
 
 type ShortcutProps = {
@@ -63,9 +66,11 @@ ShortcutTile.displayName = "ShortcutTile";
 
 export function SecondaryMenu({
   canOpenMembers,
+  canOpenGivingGuide,
   onOpenMembers,
   onOpenNews,
   onOpenWithdrawals,
+  onOpenGivingGuide,
 }: SecondaryMenuProps) {
   return (
     <div
@@ -93,6 +98,14 @@ export function SecondaryMenu({
         iconClassName="bg-tile-rose text-tile-rose-ink border-tile-rose-ink/15"
         onClick={onOpenWithdrawals}
       />
+      {canOpenGivingGuide && (
+        <ShortcutTile
+          label="ขั้นตอนการถวาย"
+          icon={ClipboardList}
+          iconClassName="bg-tile-peach text-tile-peach-ink border-tile-peach-ink/15"
+          onClick={onOpenGivingGuide}
+        />
+      )}
       <div className="col-span-2 sm:col-span-1">
         <AppMenu>
           <ShortcutTile

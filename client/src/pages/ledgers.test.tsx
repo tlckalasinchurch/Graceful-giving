@@ -202,14 +202,20 @@ describe.each(pages)("$name ledger", ({ Page, item, exportButton }) => {
   });
 
   it("returns to page 1 when the search text changes", () => {
-    render(<Page />);
-    fireEvent.click(screen.getByRole("button", { name: /ถัดไป/ }));
-    expect(h.inputs.at(-1).cursor).toBeDefined();
-    fireEvent.change(screen.getByRole("searchbox"), {
-      target: { value: "สม" },
-    });
-    expect(h.inputs.at(-1).cursor).toBeUndefined();
-    expect(h.inputs.at(-1).search).toBe("สม");
+    vi.useFakeTimers();
+    try {
+      render(<Page />);
+      fireEvent.click(screen.getByRole("button", { name: /ถัดไป/ }));
+      expect(h.inputs.at(-1).cursor).toBeDefined();
+      fireEvent.change(screen.getByRole("searchbox"), {
+        target: { value: "สม" },
+      });
+      act(() => vi.advanceTimersByTime(300));
+      expect(h.inputs.at(-1).cursor).toBeUndefined();
+      expect(h.inputs.at(-1).search).toBe("สม");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("downloads nothing and says so when the export has no rows", async () => {

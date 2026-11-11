@@ -45,6 +45,14 @@ export function StationOnlyFrame({
       </header>
       <main className="mx-auto w-full max-w-lg px-[max(0.875rem,env(safe-area-inset-left))] pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-[max(1rem,env(safe-area-inset-left))]">
         {children}
+        <footer className="mt-8 text-center">
+          <a
+            href="/privacy"
+            className="text-xs font-bold text-ink-3 underline underline-offset-2 hover:text-ink"
+          >
+            นโยบายความเป็นส่วนตัว
+          </a>
+        </footer>
       </main>
     </div>
   );

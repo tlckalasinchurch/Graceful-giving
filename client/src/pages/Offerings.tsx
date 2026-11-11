@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useLocation } from "wouter";
 import { trpc, type RouterInputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -61,13 +62,21 @@ export default function Offerings() {
     [periodFilter]
   );
 
+  // Debounced so the input stays responsive but the server sees one request.
+  const search = useDebouncedValue(searchTerm, 300).trim();
+
   // Cursor paging. A change of filter returns to page 1 (see the hook).
-  const { cursor, pageIndex, hasPrev, next, prev } =
-    useCursorPagination<OfferingCursor>([
-      searchTerm,
-      categoryFilter,
-      periodFilter,
-    ]);
+  const {
+    cursor: activeCursor,
+    pageIndex,
+    hasPrev,
+    next,
+    prev,
+  } = useCursorPagination<OfferingCursor>([
+    search,
+    categoryFilter,
+    periodFilter,
+  ]);
 
   // 1. Server-side Summary Aggregates (Entire filtered dataset via PostgreSQL)
   const {
@@ -80,7 +89,7 @@ export default function Offerings() {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-      search: searchTerm.trim() || undefined,
+      search: search || undefined,
     },
     { retry: false }
   );
@@ -95,11 +104,11 @@ export default function Offerings() {
   } = trpc.offerings.paged.useQuery(
     {
       limit: 50,
-      cursor: cursor ?? undefined,
+      cursor: activeCursor ?? undefined,
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-      search: searchTerm.trim() || undefined,
+      search: search || undefined,
     },
     { retry: false }
   );
@@ -135,9 +144,7 @@ export default function Offerings() {
   }, [rawOfferings, accountsData]);
 
   const isFiltered =
-    searchTerm.trim() !== "" ||
-    categoryFilter !== "all" ||
-    periodFilter !== "all";
+    search !== "" || categoryFilter !== "all" || periodFilter !== "all";
 
   const bannerAmount = totalAmount;
   const bannerLabel = isFiltered
@@ -152,7 +159,7 @@ export default function Offerings() {
         toDate: periodRange.toDate,
         category:
           categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-        search: searchTerm.trim() || undefined,
+        search: search || undefined,
       });
 
       if (res.rowCount === 0) {
@@ -181,13 +188,13 @@ export default function Offerings() {
   return (
     <AppLayout
       activeRoute="/offerings"
-      title="ถวายทรัพย์"
+      title="สมุดบัญชีถวาย"
       subtitle="บันทึกและตรวจสอบรายการเงินถวายทุกประเภทของคริสตจักร"
       action={
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={exportCSV}
-            disabled={isExporting}
+            disabled={isExporting || searchTerm.trim() !== search}
             className="btn-secondary min-h-11 px-3.5 text-xs inline-flex items-center gap-1.5 disabled:opacity-50"
           >
             {isExporting ? (

@@ -5,6 +5,11 @@ type Options = {
   max: number;
   /** Rejection body. */
   message?: string;
+  /**
+   * Custom rejection handler, e.g. a redirect for browser navigations.
+   * When set it replaces the JSON 429 body entirely.
+   */
+  onLimited?: (req: Request, res: Response) => void;
 };
 
 /**
@@ -12,7 +17,12 @@ type Options = {
  * counts on its own, so this stops a burst against one instance. It is not a
  * global quota.
  */
-export function createRateLimiter({ windowMs, max, message }: Options) {
+export function createRateLimiter({
+  windowMs,
+  max,
+  message,
+  onLimited,
+}: Options) {
   const hits = new Map<string, { count: number; resetAt: number }>();
 
   return function rateLimit(req: Request, res: Response, next: NextFunction) {
@@ -36,6 +46,10 @@ export function createRateLimiter({ windowMs, max, message }: Options) {
         "Retry-After",
         String(Math.ceil((entry.resetAt - now) / 1000))
       );
+      if (onLimited) {
+        onLimited(req, res);
+        return;
+      }
       res.status(429).json({ error: message ?? "Too many requests" });
       return;
     }

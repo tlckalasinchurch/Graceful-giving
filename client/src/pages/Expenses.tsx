@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Link, useLocation } from "wouter";
 import { trpc, type RouterInputs, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -74,13 +75,21 @@ export default function Expenses() {
     [periodFilter]
   );
 
+  // Debounced so the input stays responsive but the server sees one request.
+  const search = useDebouncedValue(searchTerm, 300).trim();
+
   // Cursor paging. A change of filter returns to page 1 (see the hook).
-  const { cursor, pageIndex, hasPrev, next, prev } =
-    useCursorPagination<ExpenseCursor>([
-      searchTerm,
-      categoryFilter,
-      periodFilter,
-    ]);
+  const {
+    cursor: activeCursor,
+    pageIndex,
+    hasPrev,
+    next,
+    prev,
+  } = useCursorPagination<ExpenseCursor>([
+    search,
+    categoryFilter,
+    periodFilter,
+  ]);
 
   const fundsQuery = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
@@ -100,7 +109,7 @@ export default function Expenses() {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-      search: searchTerm.trim() || undefined,
+      search: search || undefined,
     },
     { retry: false }
   );
@@ -115,11 +124,11 @@ export default function Expenses() {
   } = trpc.expenses.paged.useQuery(
     {
       limit: 50,
-      cursor: cursor ?? undefined,
+      cursor: activeCursor ?? undefined,
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-      search: searchTerm.trim() || undefined,
+      search: search || undefined,
     },
     { retry: false }
   );
@@ -154,7 +163,7 @@ export default function Expenses() {
         toDate: periodRange.toDate,
         category:
           categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-        search: searchTerm.trim() || undefined,
+        search: search || undefined,
       });
 
       if (res.rowCount === 0) {
@@ -245,7 +254,7 @@ export default function Expenses() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={exportCSV}
-            disabled={isExporting}
+            disabled={isExporting || searchTerm.trim() !== search}
             className="btn-secondary min-h-11 px-4 text-sm inline-flex items-center gap-1.5 disabled:opacity-50"
           >
             {isExporting ? (

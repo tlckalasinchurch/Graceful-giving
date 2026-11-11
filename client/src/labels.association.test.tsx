@@ -48,7 +48,7 @@ describe("form labels", () => {
     const found: Record<string, number> = {};
     for (const file of sourceFiles(ROOT)) {
       const n = unlinkedLabels(file);
-      if (n) found[relative(ROOT, file)] = n;
+      if (n) found[relative(ROOT, file).replace(/\\/g, "/")] = n;
     }
     expect(found).toEqual(GROUP_LABELS);
   });

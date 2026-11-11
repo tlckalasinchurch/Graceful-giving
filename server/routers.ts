@@ -65,6 +65,7 @@ import {
   listMembers,
   listMinistries,
   listNotifications,
+  countUnreadNotifications,
   listPublishedChurchEvents,
   listPublishedChurchNews,
   listWithdrawalRequests,
@@ -1961,6 +1962,9 @@ export const appRouter = router({
   notifications: router({
     list: protectedProcedure.query(async ({ ctx }) =>
       listNotifications(ctx.user.id, DEFAULT_CHURCH_ID)
+    ),
+    unreadCount: protectedProcedure.query(async ({ ctx }) =>
+      countUnreadNotifications(ctx.user.id, DEFAULT_CHURCH_ID)
     ),
     markAsRead: protectedProcedure
       .input(z.object({ id: z.number().int().positive() }))
