@@ -55,7 +55,7 @@ export const CHURCH_ROLES: Record<ChurchRole, ChurchRoleInfo> = {
     badgeColor: "bg-tile-lilac text-tile-lilac-ink border-tile-lilac-ink/30",
     icon: "🤝",
     description:
-      "รับผิดชอบงานและงบประมาณของฝ่าย เสนอคำของบประมาณและรายการเบิกจ่าย",
+      "ดูแลสมาชิกและพันธกิจของฝ่าย พร้อมยื่นคำขอเบิกจ่ายเงินสำหรับกิจกรรม",
   },
   COUNTER: {
     role: "COUNTER",
