@@ -7,6 +7,7 @@ import { useGuardedNavigate } from "@/hooks/useUnsavedChanges";
 import { GuardedLink } from "./GuardedLink";
 import {
   AppMenu,
+  ThemeToggle,
   getNavGroup,
   isActiveRoute,
   getAuthorizedNavItems,
@@ -97,6 +98,18 @@ function MobileTab({
 }
 
 /** One row in the desktop sidebar: icon and a visible label. */
+function UnreadBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      className="min-w-5 shrink-0 rounded-full bg-destructive px-1.5 text-center text-[11px] font-bold leading-5 text-white"
+      aria-hidden="true"
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 function SidebarLink({
   href,
   label,
@@ -154,6 +167,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const navigate = useGuardedNavigate();
   const { user } = useAuth();
   const currentPath = activeRoute || location;
+
+  const { data: unreadCount = 0 } = trpc.notifications.unreadCount.useQuery(
+    undefined,
+    { retry: false, staleTime: 60_000 }
+  );
+  const unreadLabel = unreadCount > 0 ? ` (ยังไม่ได้อ่าน ${unreadCount})` : "";
 
   const { data: churchProfile } = trpc.church.getProfile.useQuery(undefined, {
     retry: false,
@@ -250,11 +269,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </nav>
 
           <div className="space-y-1.5 border-t border-line/80 pt-3">
+            <ThemeToggle />
             <SidebarLink
               href="/notifications"
               label="การแจ้งเตือน"
               icon={Bell}
               active={isActiveRoute(currentPath, "/notifications")}
+              badge={<UnreadBadge count={unreadCount} />}
             />
             <GuardedLink
               href="/profile"
@@ -287,10 +308,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               <AppMenu />
               <GuardedLink
                 href="/notifications"
-                className="flex size-11 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-surface text-ink-2 shadow-[2px_2px_0_var(--ink)] hover:bg-ground"
-                aria-label="การแจ้งเตือน"
+                className="relative flex size-11 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-surface text-ink-2 shadow-[2px_2px_0_var(--ink)] hover:bg-ground"
+                aria-label={`การแจ้งเตือน${unreadLabel}`}
               >
                 <Bell className="size-5" aria-hidden="true" />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-2 -top-2">
+                    <UnreadBadge count={unreadCount} />
+                  </span>
+                )}
               </GuardedLink>
             </div>
             {title && (

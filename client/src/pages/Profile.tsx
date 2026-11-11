@@ -193,9 +193,6 @@ export default function Profile() {
   const utils = trpc.useUtils();
 
   // Queries for live financial data
-  const notificationsQuery = trpc.notifications.list.useQuery(undefined, {
-    staleTime: 30_000,
-  });
   const churchProfileQuery = trpc.church.getProfile.useQuery(undefined, {
     staleTime: 60_000,
   });
@@ -301,8 +298,10 @@ export default function Profile() {
     }));
   }, [churchProfile, usersQuery.data]);
 
-  const unreadCount =
-    notificationsQuery.data?.filter(n => !n.readAt).length || 0;
+  const { data: unreadCount = 0 } = trpc.notifications.unreadCount.useQuery(
+    undefined,
+    { retry: false }
+  );
 
   // Keyboard accessibility: Close modals on Escape
   useEffect(() => {

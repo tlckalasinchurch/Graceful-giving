@@ -13,7 +13,7 @@ export default function Notifications() {
   const utils = trpc.useUtils();
   const query = trpc.notifications.list.useQuery(undefined, { retry: false });
   const markRead = trpc.notifications.markAsRead.useMutation({
-    onSuccess: () => void utils.notifications.list.invalidate(),
+    onSuccess: () => void utils.notifications.invalidate(),
     onError: error =>
       toast.error(
         friendlyErrorMessage(error, "อัปเดตสถานะการแจ้งเตือนไม่สำเร็จ")
@@ -21,7 +21,7 @@ export default function Notifications() {
   });
   const markAllRead = trpc.notifications.markAllAsRead.useMutation({
     onSuccess: async () => {
-      await utils.notifications.list.invalidate();
+      await utils.notifications.invalidate();
       toast.success("ทำเครื่องหมายว่าอ่านแล้วทั้งหมด");
     },
     onError: error =>

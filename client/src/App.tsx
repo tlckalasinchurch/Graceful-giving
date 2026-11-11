@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Redirect, Route, Switch, useLocation } from "wouter";
@@ -42,6 +42,7 @@ const Updates = lazy(() => import("./pages/Updates"));
 const GivingInbox = lazy(() => import("./pages/GivingInbox"));
 const GivingStation = lazy(() => import("./pages/GivingStation"));
 const Give = lazy(() => import("./pages/Give"));
+const GivingGuide = lazy(() => import("./pages/GivingGuide"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
 
@@ -68,9 +69,15 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, loading } = useAuth();
   const isPublic = PUBLIC_PATHS.includes(normalizePath(location));
 
+  // A person who was signed in and now is not lost their session (cookie
+  // expiry caught by the focus refetch); a first visit never sets this.
+  const wasAuthenticated = useRef(false);
+  if (isAuthenticated) wasAuthenticated.current = true;
+
   useEffect(() => {
     if (loading || isPublic || isAuthenticated) return;
-    setLocation("/login");
+    if (wasAuthenticated.current) setLocation("/login?reason=expired");
+    else setLocation("/login");
   }, [loading, isPublic, isAuthenticated, setLocation]);
 
   if (isPublic) return <>{children}</>;
@@ -274,6 +281,14 @@ function Router() {
       <Route path="/giving/station" component={GivingStation} />
 
       {/* LINE Giving Inbox */}
+      <Route path="/giving-guide">
+        <RoleGuard
+          canAccess={u => canAccessRoute("/giving-guide", u)}
+          message="คู่มือขั้นตอนการถวายสงวนไว้สำหรับทีมงานที่ดูแลการเงินและการนับเงินเท่านั้น"
+        >
+          <GivingGuide />
+        </RoleGuard>
+      </Route>
       <Route path="/giving/inbox">
         <RoleGuard
           canAccess={u => canAccessRoute("/giving/inbox", u)}

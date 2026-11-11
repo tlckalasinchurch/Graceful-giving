@@ -56,6 +56,7 @@ export default function Home() {
   const canRecordExpense = canAccessRoute("/expenses", user);
   const canAccessInbox = canAccessRoute("/giving/inbox", user);
   const canOpenCounting = canAccessRoute("/counting", user);
+  const canOpenGivingGuide = canAccessRoute("/giving-guide", user);
   const canViewBudgets = canAccessRoute("/budgets", user);
   // withdrawals.list returns every request to finance roles and bank signers;
   // signers see pending signatures while finance roles see approved requests
@@ -297,10 +298,12 @@ export default function Home() {
             <SecondaryMenu
               canOpenReports={canOpenReports}
               canOpenMembers={canOpenMembers}
+              canOpenGivingGuide={canOpenGivingGuide}
               onOpenReports={() => setLocation("/reports")}
               onOpenMembers={() => setLocation("/members")}
               onOpenNews={() => setNewsOpen(true)}
               onOpenWithdrawals={() => setLocation("/withdrawals/new")}
+              onOpenGivingGuide={() => setLocation("/giving-guide")}
             />
           </section>
 

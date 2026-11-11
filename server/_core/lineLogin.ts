@@ -249,10 +249,17 @@ const GIVER_MARK = "give";
 export const GIVE_PATH = "/give";
 
 // Ten sign-in attempts a minute from one address is plenty for a person.
+// These routes are only reached by browser navigation (the LINE button and
+// its callback), so a limited request goes back to the login page instead of
+// showing a raw JSON error. The LIFF endpoint keeps the JSON 429: it is an
+// API call from the page.
 const loginLimiter = createRateLimiter({
   windowMs: 60_000,
   max: 10,
   message: "Too many sign-in attempts. Try again in a minute.",
+  onLimited: (_req, res) => {
+    res.redirect(302, "/login?error=failed");
+  },
 });
 
 /** The first part of a text, so a log line stays short. */

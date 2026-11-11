@@ -17,7 +17,7 @@ function TrpcProvider({ children }: { children: React.ReactNode }) {
       if (typeof window === "undefined") return;
       if (error.message === UNAUTHED_ERR_MSG) {
         if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
+          window.location.href = "/login?reason=expired";
         }
       }
     };

@@ -530,7 +530,7 @@ export default function GivingInbox() {
   return (
     <AppLayout
       activeRoute="/giving/inbox"
-      title="กล่องสลิปการถวาย"
+      title="ตรวจสลิป LINE"
       subtitle="ตรวจสอบและอนุมัติสลิปการถวายจาก LINE Official Account ด้วย AI"
       action={
         <div className="flex flex-wrap items-center gap-2">

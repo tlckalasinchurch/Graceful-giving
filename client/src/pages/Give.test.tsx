@@ -45,11 +45,13 @@ describe("Give (the public giving link)", () => {
     window.history.pushState({}, "", "/give");
   });
 
-  it("shows a LINE sign-in that returns to the giving link, and no other link", () => {
+  it("shows a LINE sign-in that returns to the giving link, plus the privacy link", () => {
     render(<Give />);
     const link = screen.getByRole("link", { name: /LINE/ });
     expect(link.getAttribute("href")).toBe("/api/auth/line/login?next=give");
-    expect(screen.getAllByRole("link")).toHaveLength(1);
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(2);
+    expect(links.some(l => l.getAttribute("href") === "/privacy")).toBe(true);
   });
 
   it("shows the giving page to an ordinary member", () => {
@@ -67,7 +69,7 @@ describe("Give (the public giving link)", () => {
   it("offers no sign-in to a disabled account", () => {
     status = { state: "disabled" };
     render(<Give />);
-    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.queryByRole("link", { name: /LINE/ })).toBeNull();
     expect(screen.getByRole("alert").textContent).toContain("ปิดการใช้งาน");
   });
 
@@ -116,7 +118,7 @@ describe("Give (the public giving link)", () => {
       liffResult = "redirecting";
       render(<Give />);
       expect(await screen.findByRole("status")).toBeTruthy();
-      expect(screen.queryByRole("link")).toBeNull();
+      expect(screen.queryByRole("link", { name: /LINE/ })).toBeNull();
     });
   });
 });

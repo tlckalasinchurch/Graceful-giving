@@ -24,7 +24,7 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(() => {
     if (switchable) {
       const stored = localStorage.getItem("theme");
-      return (stored as Theme) || defaultTheme;
+      return stored === "dark" || stored === "light" ? stored : defaultTheme;
     }
     return defaultTheme;
   });
@@ -35,6 +35,14 @@ export function ThemeProvider({
       root.classList.add("dark");
     } else {
       root.classList.remove("dark");
+    }
+
+    // Browser chrome follows the --ground token, so it tracks the active theme.
+    const ground = getComputedStyle(root).getPropertyValue("--ground").trim();
+    if (ground) {
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", ground);
     }
 
     if (switchable) {

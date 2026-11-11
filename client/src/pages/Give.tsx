@@ -9,11 +9,12 @@ import { PlainGivingStation } from "./GivingStation";
 export const GIVE_LOGIN_URL = "/api/auth/line/login?next=give";
 
 const ERRORS: Record<string, string> = {
-  cancelled: "ยกเลิกการเข้าสู่ระบบด้วย LINE",
+  cancelled: "ยกเลิกการเข้าสู่ระบบ — กรุณากดปุ่ม LINE เพื่อลองใหม่",
   state: "การเข้าสู่ระบบหมดอายุ กรุณาลองใหม่",
   failed: "เข้าสู่ระบบด้วย LINE ไม่สำเร็จ กรุณาลองใหม่",
+  network: "ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
   not_configured:
-    "ระบบเข้าสู่ระบบด้วย LINE ยังไม่ได้ตั้งค่า โปรดติดต่อเจ้าหน้าที่",
+    "ระบบเข้าสู่ระบบด้วย LINE ยังไม่พร้อมใช้งาน กรุณาติดต่อผู้ดูแลระบบของคริสตจักร",
 };
 
 /** What happens after the sign-in, in the order the donor meets it. */
@@ -199,7 +200,13 @@ export default function Give() {
       </ol>
 
       <p className="text-center text-xs sm:text-sm leading-relaxed text-ink-3">
-        หากเข้าสู่ระบบไม่ได้ โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
+        <a
+          href="/privacy"
+          className="font-bold text-ink underline underline-offset-2"
+        >
+          นโยบายความเป็นส่วนตัว
+        </a>
+        {" · "}หากเข้าสู่ระบบไม่ได้ โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
       </p>
     </GiveShell>
   );

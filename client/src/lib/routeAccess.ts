@@ -29,6 +29,12 @@ type AuthUser = (RoleUser & { isBankSigner?: boolean }) | null | undefined;
  */
 export const ROUTE_ACCESS: Record<string, (user: AuthUser) => boolean> = {
   "/settings": isSuperAdmin,
+  // The giving-flow guide is for whoever runs any step of it: counters,
+  // finance roles and church leadership. Ordinary members never reach it —
+  // stationOnlyRedirect sends them to the giving station first. The path
+  // avoids the "/giving" prefix so it never shares active state with
+  // "/giving/inbox" in the nav.
+  "/giving-guide": u => canCountOfferings(u) || canViewFinanceRecords(u),
   "/counting": canCountOfferings,
   "/transactions": canViewFinanceRecords,
   "/offerings": canViewFinanceRecords,

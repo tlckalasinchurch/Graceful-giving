@@ -190,7 +190,7 @@ export default function Counting() {
   return (
     <AppLayout
       activeRoute="/counting"
-      title="นับเงินถวาย"
+      title="นับซองหน้างาน"
       subtitle="บันทึกและกระทบยอดเงินถวายของแต่ละวันอาทิตย์"
       action={
         <button

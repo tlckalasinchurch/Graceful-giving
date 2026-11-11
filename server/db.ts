@@ -2526,6 +2526,25 @@ export async function listNotifications(
     .limit(limit);
 }
 
+export async function countUnreadNotifications(
+  userId: number,
+  churchId = DEFAULT_CHURCH_ID
+) {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ n: count() })
+    .from(notifications)
+    .where(
+      and(
+        eq(notifications.userId, userId),
+        eq(notifications.churchId, churchId),
+        isNull(notifications.readAt)
+      )
+    );
+  return row?.n ?? 0;
+}
+
 export async function createNotification(
   input: Omit<InsertNotification, "churchId" | "createdAt" | "readAt">,
   churchId = DEFAULT_CHURCH_ID

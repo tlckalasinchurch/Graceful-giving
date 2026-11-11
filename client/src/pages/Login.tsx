@@ -5,11 +5,12 @@ import { useLocation } from "wouter";
 import { Sprout } from "lucide-react";
 
 const ERRORS: Record<string, string> = {
-  cancelled: "ยกเลิกการเข้าสู่ระบบด้วย LINE",
+  cancelled: "ยกเลิกการเข้าสู่ระบบ — กรุณากดปุ่ม LINE เพื่อลองใหม่",
   state: "การเข้าสู่ระบบหมดอายุ กรุณาลองใหม่",
   failed: "เข้าสู่ระบบด้วย LINE ไม่สำเร็จ กรุณาลองใหม่",
+  network: "ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
   not_configured:
-    "ระบบเข้าสู่ระบบด้วย LINE ยังไม่ได้ตั้งค่า โปรดติดต่อผู้ดูแลระบบ",
+    "ระบบเข้าสู่ระบบด้วย LINE ยังไม่พร้อมใช้งาน กรุณาติดต่อผู้ดูแลระบบของคริสตจักร",
 };
 
 /** The brand lockup, used on both the verse panel and the phone layout. */
@@ -48,6 +49,10 @@ export default function Login() {
       ? null
       : new URLSearchParams(window.location.search).get("error");
   const error = errorKey ? (ERRORS[errorKey] ?? ERRORS.failed) : null;
+  const sessionExpired =
+    !error &&
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("reason") === "expired";
 
   return (
     <div className="min-h-dvh bg-ground text-ink">
@@ -98,44 +103,48 @@ export default function Login() {
                 </p>
                 <p className="text-base leading-relaxed text-ink-2">
                   {state === "pending"
-                    ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน โปรดแจ้งผู้ดูแลระบบของคริสตจักรให้อนุมัติบัญชีของคุณ แล้วกลับมาเปิดหน้านี้อีกครั้ง`
+                    ? `${name ? `คุณ${name} ` : ""}เข้าสู่ระบบด้วย LINE แล้ว แต่ยังไม่ได้รับสิทธิ์ใช้งาน ผู้ดูแลระบบของคริสตจักรสามารถอนุมัติบัญชีของคุณได้จากหน้าการตั้งค่า แล้วกลับมาเปิดหน้านี้อีกครั้ง`
                     : "โปรดติดต่อผู้ดูแลระบบของคริสตจักร"}
                 </p>
 
                 {state === "pending" && openId && (
-                  <div className="space-y-2 rounded-[12px] border border-dashed border-[var(--ink)]/30 bg-paper-2 p-3.5 text-xs text-left">
-                    <p className="font-bold text-ink">
-                      สำหรับผู้ดูแลระบบหรือศิษยาภิบาล:
-                    </p>
-                    <p className="leading-relaxed text-ink-2">
-                      หากท่านเป็นผู้ดูแลระบบ ให้คัดลอกรหัส LINE OpenID
-                      นี้ไปใส่ใน Vercel Environment Variables ที่ช่อง{" "}
-                      <code className="rounded bg-paper px-1.5 py-0.5 font-mono font-bold text-brand">
-                        OWNER_OPEN_ID
-                      </code>{" "}
-                      แล้วเข้าสู่ระบบใหม่อีกครั้งเพื่อรับสิทธิ์ Super Admin
-                      ทันที
-                    </p>
-                    <div className="flex items-center justify-between gap-2 rounded-[8px] border border-line bg-surface p-2 font-mono text-[11px]">
-                      <span className="truncate select-all text-ink font-semibold">
-                        {openId}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void navigator.clipboard.writeText(openId);
-                          setCopied(true);
-                          (window as any)["set" + "Timeout"](
-                            () => setCopied(false),
-                            2000
-                          );
-                        }}
-                        className="shrink-0 rounded-[6px] border border-[var(--ink)] bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground shadow-[1px_1px_0_var(--ink)] transition-opacity hover:opacity-90 active:translate-y-px"
-                      >
-                        {copied ? "คัดลอกแล้ว ✓" : "คัดลอกรหัส"}
-                      </button>
+                  <details className="group rounded-[12px] border border-dashed border-[var(--ink)]/30 bg-paper-2 p-3.5 text-xs text-left">
+                    <summary className="cursor-pointer font-bold text-ink">
+                      สำหรับผู้ดูแลระบบ (การตั้งค่าครั้งแรก)
+                    </summary>
+                    <div className="mt-3 space-y-2">
+                      <p className="leading-relaxed text-ink-2">
+                        วิธีปกติคือผู้ดูแลระบบอนุมัติบัญชีนี้ได้จากหน้าการตั้งค่า
+                        ไม่ต้องทำตามขั้นตอนนี้ ขั้นตอนด้านล่างใช้เฉพาะการ
+                        ตั้งค่าครั้งแรก: คัดลอกรหัส LINE OpenID นี้ไปใส่ใน
+                        Vercel Environment Variables ที่ช่อง{" "}
+                        <code className="rounded bg-paper px-1.5 py-0.5 font-mono font-bold text-brand">
+                          OWNER_OPEN_ID
+                        </code>{" "}
+                        แล้วเข้าสู่ระบบใหม่อีกครั้งเพื่อรับสิทธิ์ Super Admin
+                        ทันที
+                      </p>
+                      <div className="flex items-center justify-between gap-2 rounded-[8px] border border-line bg-surface p-2 font-mono text-[11px]">
+                        <span className="truncate select-all text-ink font-semibold">
+                          {openId}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void navigator.clipboard.writeText(openId);
+                            setCopied(true);
+                            (window as any)["set" + "Timeout"](
+                              () => setCopied(false),
+                              2000
+                            );
+                          }}
+                          className="shrink-0 rounded-[6px] border border-[var(--ink)] bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground shadow-[1px_1px_0_var(--ink)] transition-opacity hover:opacity-90 active:translate-y-px"
+                        >
+                          {copied ? "คัดลอกแล้ว ✓" : "คัดลอกรหัส"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </details>
                 )}
 
                 <button
@@ -154,6 +163,15 @@ export default function Login() {
                 >
                   เข้าสู่ระบบด้วย LINE
                 </a>
+
+                {sessionExpired && (
+                  <p
+                    role="status"
+                    className="rounded-[12px] border-2 border-[var(--ink)] bg-paper-2 px-4 py-3 text-sm font-bold leading-relaxed text-ink shadow-[2px_2px_0_var(--ink)]"
+                  >
+                    เซสชันหมดอายุ กรุณาเข้าสู่ระบบด้วย LINE อีกครั้ง
+                  </p>
+                )}
 
                 {error && (
                   <p

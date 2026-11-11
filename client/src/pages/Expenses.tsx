@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Link, useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -80,12 +81,21 @@ export default function Expenses() {
     [periodFilter]
   );
 
-  // Reset pagination on filter change
-  useEffect(() => {
+  // Debounced so the input stays responsive but the server sees one request.
+  const search = useDebouncedValue(searchTerm, 300).trim();
+
+  // Reset pagination during render (not in an effect) so a stale cursor is
+  // never sent together with a new filter.
+  const filterKey = `${search}|${categoryFilter}|${periodFilter}`;
+  const [pagedFilterKey, setPagedFilterKey] = useState(filterKey);
+  if (pagedFilterKey !== filterKey) {
+    setPagedFilterKey(filterKey);
     setCursor(null);
     setCursorHistory([]);
     setPageIndex(0);
-  }, [searchTerm, categoryFilter, periodFilter]);
+  }
+  // The render that detects a filter change still holds the old cursor.
+  const activeCursor = pagedFilterKey === filterKey ? cursor : null;
 
   const fundsQuery = trpc.finance.accounts.useQuery(undefined, {
     retry: false,
@@ -104,7 +114,7 @@ export default function Expenses() {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-      search: searchTerm.trim() || undefined,
+      search: search || undefined,
     },
     { retry: false }
   );
@@ -118,11 +128,11 @@ export default function Expenses() {
   } = trpc.expenses.paged.useQuery(
     {
       limit: 50,
-      cursor: cursor ?? undefined,
+      cursor: activeCursor ?? undefined,
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-      search: searchTerm.trim() || undefined,
+      search: search || undefined,
     },
     { retry: false }
   );
@@ -174,7 +184,7 @@ export default function Expenses() {
         toDate: periodRange.toDate,
         category:
           categoryFilter !== "all" ? (categoryFilter as any) : undefined,
-        search: searchTerm.trim() || undefined,
+        search: search || undefined,
       });
 
       const blob = toCsvBlob(res.csv);
@@ -269,7 +279,7 @@ export default function Expenses() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={exportCSV}
-            disabled={isExporting}
+            disabled={isExporting || searchTerm.trim() !== search}
             className="btn-secondary min-h-11 px-4 text-sm inline-flex items-center gap-1.5 disabled:opacity-50"
           >
             {isExporting ? (
