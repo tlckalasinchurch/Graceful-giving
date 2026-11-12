@@ -76,7 +76,7 @@ export default function Notifications() {
                   if (!item.readAt) markRead.mutate({ id: item.id });
                   if (item.link) setLocation(item.link);
                 }}
-                className={`relative w-full rounded-2xl border-[1.5px] border-[var(--ink)] p-4 pl-9 text-left transition-colors ${
+                className={`relative w-full rounded-2xl border border-line p-4 pl-9 text-left transition-colors ${
                   item.readAt
                     ? "bg-surface hover:bg-paper-2"
                     : "bg-paper-2 hover:-translate-x-0.5 hover:-translate-y-0.5"
@@ -84,7 +84,7 @@ export default function Notifications() {
               >
                 {!item.readAt && (
                   <span
-                    className="absolute left-3.5 top-5.5 size-2.5 rounded-full border border-[var(--ink)] bg-brand"
+                    className="absolute left-3.5 top-5.5 size-2.5 rounded-full border border-brand bg-brand"
                     aria-hidden="true"
                   />
                 )}

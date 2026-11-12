@@ -164,7 +164,7 @@ export default function NewWithdrawal() {
                     placeholder="0.00"
                     value={amount}
                     onChange={e => setAmount(e.target.value)}
-                    className="money w-full min-h-14 pl-10 pr-4 rounded-xl border border-[var(--ink)] bg-surface text-2xl font-extrabold text-ink focus:outline-none focus:border-brand focus:"
+                    className="money w-full min-h-14 pl-10 pr-4 rounded-xl border border-line bg-surface text-2xl font-extrabold text-ink focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25"
                   />
                 </div>
               </div>
@@ -275,7 +275,7 @@ export default function NewWithdrawal() {
             showCloseButton={false}
             className="max-w-md space-y-6 p-6 text-center md:p-8"
           >
-            <div className="w-16 h-16 rounded-2xl border border-[var(--ink)] bg-accent flex items-center justify-center text-accent-foreground mx-auto">
+            <div className="w-16 h-16 rounded-2xl border border-brand/40 bg-accent flex items-center justify-center text-accent-foreground mx-auto">
               <CheckCircle2 className="w-8 h-8" aria-hidden="true" />
             </div>
             <DialogHeader className="space-y-2 text-center">

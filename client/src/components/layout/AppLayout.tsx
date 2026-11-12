@@ -102,7 +102,7 @@ function UnreadBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
     <span
-      className="min-w-5 shrink-0 rounded-full bg-destructive px-1.5 text-center text-[11px] font-semibold leading-5 text-white"
+      className="min-w-5 shrink-0 rounded-full bg-destructive px-1.5 text-center text-xs font-semibold leading-5 text-white"
       aria-hidden="true"
     >
       {count > 99 ? "99+" : count}
@@ -207,9 +207,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
   return (
     <div className="min-h-dvh bg-ground text-ink flex flex-col font-sans selection:bg-brand/30 overflow-x-clip">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-xl focus:bg-surface focus:px-4 focus:py-2.5 focus:text-sm focus:font-bold focus:text-ink focus:ring-2 focus:ring-brand focus:outline-none border border-line"
+      >
+        ข้ามไปยังเนื้อหาหลัก
+      </a>
       <div className="flex-1 flex flex-row w-full min-w-0">
         {/* DESKTOP SIDEBAR (lg: >= 1024px) — Open plane on page ground */}
-        <aside className="hidden lg:flex print:hidden! w-64 xl:w-68 shrink-0 sticky top-0 h-screen flex-col gap-4 bg-ground border-r border-line px-4 py-5 z-30">
+        <aside className="hidden lg:flex print:hidden! w-64 xl:w-68 shrink-0 sticky top-0 h-dvh flex-col gap-4 bg-ground border-r border-line px-4 py-5 z-30">
           <GuardedLink
             href="/"
             aria-label="Grace Giving หน้าหลัก"
@@ -298,7 +304,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </aside>
 
         {/* Main Content Column */}
-        <main className="flex-1 w-full max-w-[var(--content-max)] mx-auto px-[max(1rem,env(safe-area-inset-left))] sm:px-6 lg:px-8 pt-[max(1rem,env(safe-area-inset-top))] sm:pt-6 lg:pt-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] sm:pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-12 min-w-0">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 w-full max-w-[var(--content-max)] mx-auto px-[max(1rem,env(safe-area-inset-left))] sm:px-6 lg:px-8 pt-[max(1rem,env(safe-area-inset-top))] sm:pt-6 lg:pt-8 flex flex-col pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] sm:pb-[calc(var(--mobile-nav-clearance)+env(safe-area-inset-bottom))] lg:pb-12 min-w-0 focus:outline-none"
+        >
           <header
             className={`mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-7 ${
               title ? "border-b border-line pb-5" : ""

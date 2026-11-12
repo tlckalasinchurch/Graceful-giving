@@ -189,13 +189,13 @@ export default function ChurchSetup() {
 
   return (
     <div className="min-h-dvh bg-ground">
-      <div className="mx-auto min-h-dvh max-w-[560px] overflow-x-hidden bg-ground pb-32 lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border lg:border-[var(--ink)]">
+      <div className="mx-auto min-h-dvh max-w-[560px] overflow-x-hidden bg-ground pb-32 lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border lg:border-line">
         {/* Header */}
-        <div className="relative overflow-hidden bg-surface px-5 pb-6 pt-5 sm:px-8 border-b-2 border-[var(--ink)]">
+        <div className="relative overflow-hidden bg-surface px-5 pb-6 pt-5 sm:px-8 border-b border-line">
           <button
             onClick={skipSetup}
             aria-label="กลับหน้าหลัก"
-            className="absolute right-5 top-5 grid size-11 place-items-center rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 text-ink hover:bg-accent transition"
+            className="absolute right-5 top-5 grid size-11 place-items-center rounded-xl border border-brand/40 bg-paper-2 text-ink hover:bg-accent transition"
           >
             <X className="size-4" />
           </button>
@@ -222,7 +222,7 @@ export default function ChurchSetup() {
               aria-valuemax={100}
               aria-valuenow={Math.round(progressPct)}
               aria-label="ความคืบหน้าการตั้งค่า"
-              className="h-3 overflow-hidden rounded-full border-[1.5px] border-[var(--ink)] bg-paper-2"
+              className="h-3 overflow-hidden rounded-full border border-line bg-paper-2"
             >
               <div
                 className="h-full rounded-full bg-accent transition-colors duration-500"
@@ -245,7 +245,7 @@ export default function ChurchSetup() {
                 <span
                   className={`h-2.5 rounded-full transition-colors duration-300 ${
                     s.id === step
-                      ? "w-7 bg-brand border border-[var(--ink)]"
+                      ? "w-7 bg-brand border border-line"
                       : s.id < step
                         ? "w-3 bg-brand/60"
                         : "w-3 bg-line"
@@ -262,7 +262,7 @@ export default function ChurchSetup() {
             {/* Step Header */}
             <div className="mb-5 flex items-center gap-3">
               <span
-                className={`grid size-12 place-items-center rounded-2xl border-[1.5px] border-[var(--ink)]  ${currentStepConfig.bgColor}`}
+                className={`grid size-12 place-items-center rounded-2xl border border-line  ${currentStepConfig.bgColor}`}
               >
                 <StepIcon className={`size-6 ${currentStepConfig.color}`} />
               </span>
@@ -319,7 +319,7 @@ export default function ChurchSetup() {
                         done
                           ? "bg-brand text-white"
                           : active
-                            ? "bg-accent text-accent-foreground border-[var(--ink)]"
+                            ? "bg-accent text-accent-foreground border-brand/40"
                             : "bg-paper-2 text-ink-3"
                       }`}
                     >
@@ -346,7 +346,7 @@ export default function ChurchSetup() {
 
       {/* Fixed Bottom Navigation */}
       <div className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-[560px]">
-        <div className="border-t-2 border-[var(--ink)] bg-surface/95 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 sm:px-6">
+        <div className="border-t border-line bg-surface/95 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 sm:px-6">
           <div className="flex gap-3">
             {step > 1 && (
               <button

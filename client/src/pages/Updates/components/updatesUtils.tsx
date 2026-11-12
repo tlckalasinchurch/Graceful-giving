@@ -102,7 +102,7 @@ export function downloadICS(event: {
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
     <div className="rounded-2xl border border-dashed border-line bg-paper-2 px-6 py-12 text-center">
-      <div className="mx-auto grid size-14 place-items-center rounded-2xl border border-[var(--ink)] bg-surface text-brand">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl border border-line bg-surface text-brand">
         {type === "news" ? (
           <Megaphone className="size-7" strokeWidth={1.75} />
         ) : (

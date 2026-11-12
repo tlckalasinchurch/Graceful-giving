@@ -168,7 +168,7 @@ export default function FundDetail() {
             label="กลับหน้ารายการกองทุน"
             onClick={() => setLocation("/funds")}
           />
-          <span className="font-mono text-xs font-extrabold text-accent-foreground bg-accent px-3 py-1 rounded-full border border-[var(--ink)]">
+          <span className="font-mono text-xs font-extrabold text-accent-foreground bg-accent px-3 py-1 rounded-full border border-line">
             FD-{String(fund.id).padStart(3, "0")}
           </span>
         </div>
@@ -217,7 +217,7 @@ export default function FundDetail() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[var(--ink)] rounded-2xl border border-[var(--ink)] bg-surface overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[var(--ink)] rounded-2xl border border-line bg-surface overflow-hidden">
             <div className="p-4 flex items-baseline justify-between sm:block">
               <p className="text-xs text-ink-3 font-extrabold">
                 ยอดคงเหลือสุทธิ
@@ -254,7 +254,7 @@ export default function FundDetail() {
           </div>
         </section>
         <section className="bento-card-static p-6 space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b-2 border-[var(--ink)]">
+          <div className="flex items-center gap-2 pb-3 border-b border-line">
             <Wallet className="w-5 h-5 text-brand" />
             <h2 className="text-base font-extrabold text-ink">
               รายการเดินบัญชีกองทุน ({totalCount.toLocaleString()})

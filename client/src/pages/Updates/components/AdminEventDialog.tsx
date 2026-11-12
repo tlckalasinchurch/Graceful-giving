@@ -55,7 +55,7 @@ export function AdminEventDialog({
         <form onSubmit={onSubmit}>
           <DialogHeader className="text-left">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-xl border border-[var(--ink)] bg-accent text-accent-foreground">
+              <span className="grid size-11 place-items-center rounded-xl border border-brand/40 bg-accent text-accent-foreground">
                 <CalendarDays className="size-5" />
               </span>
               <div>

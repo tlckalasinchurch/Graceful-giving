@@ -20,7 +20,9 @@ describe("Phase 3 Visual Hierarchy & Mobile UX Regressions", () => {
         />
       );
 
-      const countingBtn = screen.getByRole("button", { name: "ไปที่รอบนับเงินถวาย" });
+      const countingBtn = screen.getByRole("button", {
+        name: "ไปที่รอบนับเงินถวาย",
+      });
       expect(countingBtn).toBeInTheDocument();
       fireEvent.click(countingBtn);
       expect(handleCounting).toHaveBeenCalledTimes(1);
@@ -41,7 +43,9 @@ describe("Phase 3 Visual Hierarchy & Mobile UX Regressions", () => {
         />
       );
 
-      const givingBtn = screen.getByRole("button", { name: "ถวายทรัพย์ (Giving Station)" });
+      const givingBtn = screen.getByRole("button", {
+        name: "ถวายทรัพย์ (Giving Station)",
+      });
       expect(givingBtn).toBeInTheDocument();
       fireEvent.click(givingBtn);
       expect(handleGiving).toHaveBeenCalledTimes(1);

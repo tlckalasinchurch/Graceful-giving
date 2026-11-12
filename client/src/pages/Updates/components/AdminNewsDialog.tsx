@@ -49,7 +49,7 @@ export function AdminNewsDialog({
         <form onSubmit={onSubmit}>
           <DialogHeader className="text-left">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-xl border border-[var(--ink)] bg-tile-mint text-tile-mint-ink">
+              <span className="grid size-11 place-items-center rounded-xl border border-line bg-tile-mint text-tile-mint-ink">
                 <Megaphone className="size-5" />
               </span>
               <div>

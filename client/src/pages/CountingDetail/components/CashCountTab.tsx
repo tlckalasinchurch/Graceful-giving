@@ -100,7 +100,7 @@ export function CashCountTab({
   return (
     <section className="space-y-4">
       <div className="bento-card-static overflow-hidden">
-        <div className="border-b-2 border-[var(--ink)] bg-paper-2 p-4">
+        <div className="border-b border-line bg-paper-2 p-4">
           <h2 className="font-extrabold text-ink">ใบนับธนบัตรและเหรียญ</h2>
           <p className="mt-1 text-sm font-medium text-ink-2">
             กรอกจำนวนใบหรือเหรียญ ระบบคูณและรวมยอดให้ทันที
@@ -141,7 +141,7 @@ export function CashCountTab({
                     disabled={!editable || currentQty <= 0}
                     onClick={() => stepBy(-1)}
                     aria-label={`ลดจำนวน ${denomination.label}`}
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-paper-2 text-lg font-black text-ink active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-line bg-paper-2 text-lg font-black text-ink active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                   >
                     −
                   </button>
@@ -166,14 +166,14 @@ export function CashCountTab({
                     }}
                     placeholder="0"
                     aria-label={`จำนวน ${denomination.label}`}
-                    className="w-20 sm:w-24 rounded-xl border border-[var(--ink)] bg-surface p-2.5 text-right text-base font-extrabold tabular-nums text-ink focus:border-brand focus:outline-none disabled:opacity-60"
+                    className="w-20 sm:w-24 rounded-xl border border-line bg-surface p-2.5 text-right text-base font-extrabold tabular-nums text-ink focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/25 disabled:opacity-60"
                   />
                   <button
                     type="button"
                     disabled={!editable}
                     onClick={() => stepBy(1)}
                     aria-label={`เพิ่มจำนวน ${denomination.label}`}
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-paper-2 text-lg font-black text-ink active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-line bg-paper-2 text-lg font-black text-ink active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                   >
                     +
                   </button>
@@ -185,7 +185,7 @@ export function CashCountTab({
             );
           })}
         </ul>
-        <div className="flex items-center justify-between border-t-2 border-[var(--ink)] bg-paper-2 p-4">
+        <div className="flex items-center justify-between border-t border-line bg-paper-2 p-4">
           <div>
             <p className="font-extrabold text-ink">รวมนับได้</p>
             <p className="text-sm font-medium text-ink-2">

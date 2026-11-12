@@ -699,7 +699,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const body = (
     <div className="space-y-6">
       {/* ── Mode Switcher Bar (Hidden when printing poster) ── */}
-      <div className="rounded-2xl p-1.5 border border-[var(--ink)] bg-surface flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden">
+      <div className="rounded-2xl p-1.5 border border-line bg-surface flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 print:hidden">
         {!stationOnly && (
           <div className="grid grid-cols-2 gap-1.5 flex-1">
             <button
@@ -707,7 +707,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               onClick={() => setActiveTab("flow")}
               className={`min-h-11 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                 activeTab === "flow"
-                  ? "border border-[var(--ink)] bg-accent text-accent-foreground "
+                  ? "border border-brand/40 bg-accent text-accent-foreground "
                   : "text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
@@ -720,7 +720,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               onClick={() => setActiveTab("poster")}
               className={`min-h-11 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                 activeTab === "poster"
-                  ? "border border-[var(--ink)] bg-accent text-accent-foreground "
+                  ? "border border-brand/40 bg-accent text-accent-foreground "
                   : "text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
@@ -744,8 +744,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 aria-current={shownStep === n ? "step" : undefined}
                 className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${
                   shownStep === n
-                    ? "border border-[var(--ink)] bg-brand text-white "
-                    : "border border-[var(--ink)] bg-paper-2 text-ink-2"
+                    ? "border border-brand bg-brand text-white "
+                    : "border border-line bg-paper-2 text-ink-2"
                 }`}
               >
                 ขั้นที่ {n}
@@ -761,7 +761,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       {activeTab === "flow" && (
         <div className="max-w-md sm:max-w-lg mx-auto">
           {/* Neo-Brutalist Station Shell */}
-          <div className="rounded-2xl sm:rounded-3xl bg-paper-2 p-3.5 sm:p-7 text-ink border border-[var(--ink)] space-y-5 sm:space-y-6 relative overflow-hidden">
+          <div className="rounded-2xl sm:rounded-3xl bg-paper-2 p-3.5 sm:p-7 text-ink border border-line space-y-5 sm:space-y-6 relative overflow-hidden">
             {/* Top Bar: TH Language Pill & Step Back Button */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
@@ -770,7 +770,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   onClick={() =>
                     setStep(prev => (prev > 1 ? ((prev - 1) as FlowStep) : 1))
                   }
-                  className="grid size-11 place-items-center rounded-xl border border-[var(--ink)] bg-surface text-ink transition-colors hover:bg-accent active:scale-95 cursor-pointer"
+                  className="grid size-11 place-items-center rounded-xl border border-brand/40 bg-surface text-ink transition-colors hover:bg-accent active:scale-95 cursor-pointer"
                   title="ย้อนกลับ"
                   aria-label="ย้อนกลับ"
                 >
@@ -780,7 +780,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 <div className="w-11 h-11" />
               )}
 
-              <div className="grid size-11 place-items-center rounded-xl border border-[var(--ink)] bg-surface text-xs font-extrabold tracking-wider text-ink">
+              <div className="grid size-11 place-items-center rounded-xl border border-line bg-surface text-xs font-extrabold tracking-wider text-ink">
                 TH
               </div>
             </div>
@@ -870,7 +870,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 />
 
                 {/* Fund Selector */}
-                <div className="space-y-1.5 rounded-2xl border border-[var(--ink)] bg-surface p-5 lg:col-span-2">
+                <div className="space-y-1.5 rounded-2xl border border-line bg-surface p-5 lg:col-span-2">
                   <label
                     htmlFor="station-fund"
                     className="text-xs font-extrabold text-ink-2 block"
@@ -920,7 +920,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             {shownStep === 3 && (
               <div className="space-y-5 animate-in fade-in duration-200">
                 {restoredFromDraft && (
-                  <div className="rounded-xl border border-[var(--ink)] bg-tile-mint p-3.5 text-xs font-extrabold text-tile-mint-ink flex items-center justify-between gap-2">
+                  <div className="rounded-xl border border-line bg-tile-mint p-3.5 text-xs font-extrabold text-tile-mint-ink flex items-center justify-between gap-2">
                     <span>
                       ดึงรายการที่คุณเลือกไว้กลับมาให้แล้ว
                       แนบสลิปหรือกดยืนยันต่อได้เลย
@@ -936,7 +936,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 )}
 
                 {/* Summary Pill */}
-                <div className="rounded-2xl bg-surface border border-[var(--ink)] p-5 space-y-3">
+                <div className="rounded-2xl bg-surface border border-line p-5 space-y-3">
                   <div className="flex items-center justify-between text-xs font-extrabold text-ink-2">
                     <span>สรุปรายการถวายทรัพย์</span>
                     <button
@@ -988,7 +988,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 {/* Has the donor paid yet? */}
                 <section
                   aria-label="สถานะการโอนเงิน"
-                  className="rounded-2xl bg-surface border border-[var(--ink)] p-4 space-y-3"
+                  className="rounded-2xl bg-surface border border-line p-4 space-y-3"
                 >
                   <h3 className="text-xs font-extrabold text-ink-2">
                     โอนเงินแล้วหรือยัง?
@@ -1005,7 +1005,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                         type="button"
                         aria-pressed={transferState === value}
                         onClick={() => setTransferState(value)}
-                        className={`min-h-11 rounded-xl border border-[var(--ink)] text-sm font-extrabold cursor-pointer focus-visible:ring-2 focus-visible:ring-brand transition-colors ${
+                        className={`min-h-11 rounded-xl border border-line text-sm font-extrabold cursor-pointer focus-visible:ring-2 focus-visible:ring-brand transition-colors ${
                           transferState === value
                             ? "bg-accent text-accent-foreground "
                             : "bg-surface text-ink-2 hover:bg-paper-2"
@@ -1023,19 +1023,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   {transferState === "not_yet" && (
                     <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs font-bold text-ink">
                       <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
-                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-black text-white">
+                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
                           1
                         </span>
                         <span>คัดลอกเลขบัญชี หรือบันทึกรูป QR</span>
                       </li>
                       <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
-                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-black text-white">
+                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
                           2
                         </span>
                         <span>เปิดแอปธนาคารเพื่อโอนเงิน</span>
                       </li>
                       <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
-                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-black text-white">
+                        <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
                           3
                         </span>
                         <span>กลับมาหน้านี้เพื่อแนบรูปสลิป</span>
@@ -1049,7 +1049,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     {payee ? (
                       <section
                         aria-label="บัญชีรับถวาย"
-                        className="rounded-2xl bg-surface border border-[var(--ink)] p-4 flex items-center justify-between gap-3 text-xs"
+                        className="rounded-2xl bg-surface border border-line p-4 flex items-center justify-between gap-3 text-xs"
                       >
                         <div className="space-y-0.5 min-w-0">
                           <div className="font-semibold text-ink-3">
@@ -1078,7 +1078,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     ) : (
                       !paymentQr &&
                       !payeeQuery.isLoading && (
-                        <p className="rounded-2xl bg-surface border border-[var(--ink)] p-4 text-xs font-medium text-ink-3 leading-relaxed">
+                        <p className="rounded-2xl bg-surface border border-line p-4 text-xs font-medium text-ink-3 leading-relaxed">
                           คริสตจักรยังไม่ได้ตั้งค่าบัญชีรับถวายในระบบ
                           กรุณาสอบถามเจ้าหน้าที่ แล้วกลับมาแนบสลิป
                         </p>
@@ -1098,7 +1098,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 {attemptsNote && (
                   <p
                     role="status"
-                    className="rounded-xl border border-[var(--ink)] bg-tile-sand p-3 text-xs font-bold text-tile-sand-ink leading-relaxed"
+                    className="rounded-xl border border-line bg-tile-sand p-3 text-xs font-bold text-tile-sand-ink leading-relaxed"
                   >
                     {attemptsNote}
                   </p>
@@ -1172,7 +1172,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                                 setSlipPreview(null);
                                 setSubmissionError(null);
                               }}
-                              className="rounded-xl border border-[var(--ink)] bg-paper-2 px-3 py-2 text-xs font-bold text-ink hover:bg-surface cursor-pointer"
+                              className="rounded-xl border border-line bg-paper-2 px-3 py-2 text-xs font-bold text-ink hover:bg-surface cursor-pointer"
                             >
                               ส่งแบบไม่แนบสลิปแทน
                             </button>
@@ -1182,7 +1182,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     )}
 
                     {isCompressing && (
-                      <div className="flex items-center justify-center gap-2 rounded-xl bg-paper-2 border border-[var(--ink)] p-3 text-xs font-bold text-ink">
+                      <div className="flex items-center justify-center gap-2 rounded-xl bg-paper-2 border border-line p-3 text-xs font-bold text-ink">
                         <Loader2 className="size-4 animate-spin text-brand" />
                         กำลังปรับขนาดรูปสลิปและบีบอัดให้เหมาะสม...
                       </div>
@@ -1251,7 +1251,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipInputRef.current?.click()}
-                        className="w-full rounded-xl border border-dashed border-[var(--ink)] hover:border-brand bg-paper-2 hover:bg-ground p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                        className="w-full rounded-xl border border-dashed border-line hover:border-brand bg-paper-2 hover:bg-ground p-3.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                       >
                         <UploadCloud className="w-5 h-5 text-brand shrink-0" />
                         <span className="text-xs font-extrabold text-ink">
@@ -1274,7 +1274,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <button
                         type="button"
                         onClick={() => slipCameraRef.current?.click()}
-                        className="mt-2 w-full rounded-xl border border-[var(--ink)] bg-surface hover:bg-paper-2 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                        className="mt-2 w-full rounded-xl border border-line bg-surface hover:bg-paper-2 p-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-2.5 lg:hidden focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                       >
                         <Camera
                           className="w-5 h-5 text-brand shrink-0"
@@ -1303,7 +1303,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       {slipPreview && slipReading.state === "done" && (
                         <div
                           role="status"
-                          className={`mt-2 rounded-xl border border-[var(--ink)] p-3 text-xs font-medium leading-relaxed ${
+                          className={`mt-2 rounded-xl border border-line p-3 text-xs font-medium leading-relaxed ${
                             slipReading.data.status === "read"
                               ? "bg-tile-mint text-tile-mint-ink"
                               : "bg-tile-sand text-tile-sand-ink"
@@ -1355,7 +1355,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           <img
                             src={slipPreview}
                             alt="สลิปที่แนบ"
-                            className="max-h-32 rounded-xl border border-[var(--ink)] object-contain"
+                            className="max-h-32 rounded-xl border border-line object-contain"
                           />
                         </div>
                       )}
@@ -1384,7 +1384,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 return (
                   <div
                     role={outcome.tone === "error" ? "alert" : "status"}
-                    className="rounded-2xl bg-surface border border-[var(--ink)] p-6 text-center space-y-4"
+                    className="rounded-2xl bg-surface border border-line p-6 text-center space-y-4"
                   >
                     <Icon
                       className={`w-8 h-8 mx-auto ${toneColor}`}
@@ -1404,7 +1404,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       submission.check &&
                       (submission.check.state === "in_review" ||
                         submission.check.state === "verified") && (
-                        <div className="rounded-xl border border-[var(--ink)] bg-tile-mint p-3 text-xs font-bold text-tile-mint-ink leading-relaxed">
+                        <div className="rounded-xl border border-line bg-tile-mint p-3 text-xs font-bold text-tile-mint-ink leading-relaxed">
                           ระบบได้รับสลิปของคุณเรียบร้อยแล้ว ไม่ต้องกดส่งซ้ำ
                           เหรัญญิกจะตรวจสอบและแจ้งผลให้ทราบ
                         </div>
@@ -1472,7 +1472,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Poster Customizer (Hidden when printing) */}
           <div className="lg:col-span-5 bento-card-static p-6 space-y-5 print:hidden">
-            <div className="flex items-center justify-between border-b-2 border-[var(--ink)] pb-4">
+            <div className="flex items-center justify-between border-b border-line pb-4">
               <div>
                 <h3 className="display text-base text-ink flex items-center gap-2">
                   <QrCode className="w-4 h-4 text-brand" />
@@ -1606,7 +1606,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     type="button"
                     onClick={() => qrUploadRef.current?.click()}
                     aria-describedby="poster-qr-image-label"
-                    className="flex-1 py-2.5 px-3 rounded-xl border border-dashed border-[var(--ink)] bg-paper-2 hover:bg-ground text-brand font-extrabold flex items-center justify-center gap-1.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                    className="flex-1 py-2.5 px-3 rounded-xl border border-dashed border-line bg-paper-2 hover:bg-ground text-brand font-extrabold flex items-center justify-center gap-1.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                   >
                     <ImageIcon className="w-4 h-4" />
                     <span>
@@ -1619,7 +1619,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     <button
                       type="button"
                       onClick={() => setCustomQrImage(null)}
-                      className="px-3 py-2.5 rounded-xl border border-[var(--ink)] text-danger font-extrabold hover:bg-danger/10 cursor-pointer"
+                      className="px-3 py-2.5 rounded-xl border border-danger/30 text-danger font-extrabold hover:bg-danger/10 cursor-pointer"
                     >
                       ใช้ QR อัตโนมัติ
                     </button>
@@ -1711,7 +1711,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             </div>
 
             {canSavePoster && (
-              <div className="pt-3 border-t-2 border-[var(--ink)] flex flex-col sm:flex-row gap-2.5">
+              <div className="pt-3 border-t border-line flex flex-col sm:flex-row gap-2.5">
                 <button
                   type="button"
                   onClick={savePoster}
@@ -1736,7 +1736,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               </div>
             )}
 
-            <div className="pt-3 border-t-2 border-[var(--ink)] space-y-2.5">
+            <div className="pt-3 border-t border-line space-y-2.5">
               <p className="font-extrabold text-ink-2 text-xs flex items-center gap-1.5">
                 <Share2 className="w-3.5 h-3.5 text-brand" />
                 <span>แชร์ลิงก์ถวาย (LINE, Facebook และอื่นๆ)</span>
@@ -1786,7 +1786,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(lineShareLink)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center py-2 px-3 rounded-xl border border-[var(--ink)] bg-line-brand text-black font-extrabold text-xs"
+                  className="inline-flex items-center justify-center py-2 px-3 rounded-xl border border-line bg-line-brand text-black font-extrabold text-xs"
                 >
                   ส่งทาง LINE
                 </a>
@@ -1794,7 +1794,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(givingLink)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center py-2 px-3 rounded-xl border border-[var(--ink)] bg-[#1877F2] text-white font-extrabold text-xs"
+                  className="inline-flex items-center justify-center py-2 px-3 rounded-xl border border-line bg-[#1877F2] text-white font-extrabold text-xs"
                 >
                   แชร์ Facebook
                 </a>
@@ -1811,7 +1811,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               </div>
             </div>
 
-            <div className="pt-3 border-t-2 border-[var(--ink)] space-y-2.5">
+            <div className="pt-3 border-t border-line space-y-2.5">
               <p className="text-xs font-extrabold text-ink-2">
                 บันทึกหรือพิมพ์โปสเตอร์
               </p>
@@ -1864,7 +1864,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 </button>
               </div>
               {posterFile && (
-                <div className="rounded-xl border border-[var(--ink)] bg-paper-2 p-3 space-y-2.5">
+                <div className="rounded-xl border border-line bg-paper-2 p-3 space-y-2.5">
                   <img
                     src={posterFile.dataUrl}
                     alt="ตัวอย่างโปสเตอร์ที่บันทึก"
@@ -1998,27 +1998,27 @@ const SLIP_STATE_STYLE: Record<DonorSlipState, { label: string; cls: string }> =
   {
     checking: {
       label: "กำลังตรวจสอบ",
-      cls: "border border-[var(--ink)] bg-paper-2 text-ink",
+      cls: "border border-line bg-paper-2 text-ink",
     },
     verified: {
       label: "ยอดตรง รอเหรัญญิก",
-      cls: "border border-[var(--ink)] bg-tile-mint text-tile-mint-ink",
+      cls: "border border-line bg-tile-mint text-tile-mint-ink",
     },
     in_review: {
       label: "รอเหรัญญิก",
-      cls: "border border-[var(--ink)] bg-tile-sand text-tile-sand-ink",
+      cls: "border border-line bg-tile-sand text-tile-sand-ink",
     },
     rejected: {
       label: "ไม่ผ่าน",
-      cls: "border border-[var(--ink)] bg-tile-peach text-tile-peach-ink",
+      cls: "border border-line bg-tile-peach text-tile-peach-ink",
     },
     duplicate: {
       label: "สลิปซ้ำ",
-      cls: "border border-[var(--ink)] bg-tile-sand text-tile-sand-ink",
+      cls: "border border-line bg-tile-sand text-tile-sand-ink",
     },
     approved: {
       label: "บันทึกแล้ว",
-      cls: "border border-[var(--ink)] bg-tile-mint text-tile-mint-ink",
+      cls: "border border-line bg-tile-mint text-tile-mint-ink",
     },
   };
 
@@ -2042,7 +2042,7 @@ function MySlipHistory({
   return (
     <section
       aria-label="รายการถวายล่าสุดของฉัน"
-      className="rounded-2xl bg-surface border border-[var(--ink)] p-4 space-y-2.5"
+      className="rounded-2xl bg-surface border border-line p-4 space-y-2.5"
     >
       <h3 className="text-xs font-extrabold text-ink-2">
         รายการที่ส่งสลิปล่าสุดของฉัน
@@ -2085,7 +2085,7 @@ function SendChecklist({ items }: { items: ChecklistItem[] }) {
   return (
     <section
       aria-label="ตรวจรายการก่อนส่ง"
-      className="rounded-xl bg-paper-2 border border-[var(--ink)] p-3 space-y-2"
+      className="rounded-xl bg-paper-2 border border-line p-3 space-y-2"
     >
       <h4 className="text-xs font-extrabold text-ink-2">ตรวจรายการก่อนส่ง</h4>
       <ul className="space-y-1.5">

@@ -271,7 +271,7 @@ export default function NewOffering() {
                     type="button"
                     onClick={() => setCategory(cat.id)}
                     aria-pressed={category === cat.id}
-                    className={`min-h-11 px-3 py-2.5 rounded-xl border border-[var(--ink)] text-sm text-center transition-colors ${
+                    className={`min-h-11 px-3 py-2.5 rounded-xl border border-line text-sm text-center transition-colors ${
                       category === cat.id
                         ? "bg-accent text-accent-foreground font-extrabold "
                         : "bg-surface text-ink font-semibold hover:bg-paper-2"
@@ -306,7 +306,7 @@ export default function NewOffering() {
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border border-[var(--ink)] text-2xl font-extrabold text-income focus:outline-none focus:border-brand focus:"
+                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border border-line text-2xl font-extrabold text-income focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25"
                 />
               </div>
               {formError && (
@@ -371,7 +371,7 @@ export default function NewOffering() {
                     type="button"
                     onClick={() => setMethod(m)}
                     aria-pressed={method === m}
-                    className={`min-h-11 py-2.5 px-3 rounded-xl border border-[var(--ink)] text-sm transition-colors ${
+                    className={`min-h-11 py-2.5 px-3 rounded-xl border border-line text-sm transition-colors ${
                       method === m
                         ? "bg-accent text-accent-foreground font-extrabold "
                         : "bg-surface text-ink font-semibold hover:bg-paper-2"
@@ -453,7 +453,7 @@ export default function NewOffering() {
             </div>
 
             {!isAnonymous && matchedMember && (
-              <div className="flex items-center justify-between gap-2 rounded-xl border border-[var(--ink)] bg-tile-mint/60 px-3.5 py-2.5 text-xs font-extrabold text-tile-mint-ink">
+              <div className="flex items-center justify-between gap-2 rounded-xl border border-line bg-tile-mint/60 px-3.5 py-2.5 text-xs font-extrabold text-tile-mint-ink">
                 <span className="flex items-center gap-1.5">
                   <UserCheck className="size-4 shrink-0 text-brand" />
                   <span>
@@ -486,7 +486,7 @@ export default function NewOffering() {
                     setSelectedMemberId(null);
                   }
                 }}
-                className="rounded border border-[var(--ink)] text-brand focus:ring-brand w-4 h-4"
+                className="rounded border border-line text-brand focus:ring-brand w-4 h-4"
               />
               <label
                 htmlFor="anon"
@@ -533,7 +533,7 @@ export default function NewOffering() {
       {/* Success Celebration Dialog */}
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
         <DialogContent className="max-w-sm bg-surface rounded-2xl p-6 text-center text-ink space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-[var(--ink)] p-1 bg-paper-2">
+          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-line p-1 bg-paper-2">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
               alt="ถวายสำเร็จ"
@@ -551,7 +551,7 @@ export default function NewOffering() {
             </DialogDescription>
           </div>
 
-          <div className="p-4 rounded-xl bg-paper-2 border border-[var(--ink)] text-xs text-left space-y-1.5">
+          <div className="p-4 rounded-xl bg-paper-2 border border-line text-xs text-left space-y-1.5">
             <p className="flex justify-between">
               <span className="font-semibold text-ink-3">ประเภท:</span>
               <span className="font-extrabold text-ink">

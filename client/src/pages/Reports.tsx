@@ -133,7 +133,7 @@ export default function Reports() {
       <div className="space-y-6">
         <p className="bento-card-static flex items-start gap-2.5 px-4 py-3 text-sm font-medium text-ink-2">
           <span
-            className="mt-1.5 size-2 shrink-0 rounded-full bg-brand border border-[var(--ink)]"
+            className="mt-1.5 size-2 shrink-0 rounded-full bg-brand border border-line"
             aria-hidden="true"
           />
           <span>
@@ -159,7 +159,7 @@ export default function Reports() {
                 onClick={() => setTab(id)}
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm transition-colors ${
                   tab === id
-                    ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
+                    ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
                     : "btn-secondary"
                 }`}
               >
@@ -199,7 +199,7 @@ export default function Reports() {
           />
         ) : tab === "funds" ? (
           <section className="bento-card-static overflow-hidden p-0">
-            <h2 className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 font-extrabold text-ink">
+            <h2 className="border-b border-line bg-paper-2 p-4 font-extrabold text-ink">
               ยอดคงเหลือแต่ละกองทุน
             </h2>
             {!summary || summary.funds.length === 0 ? (
@@ -226,7 +226,7 @@ export default function Reports() {
                     </li>
                   ))}
                 </ul>
-                <div className="flex items-center justify-between border-t-2 border-[var(--ink)] bg-paper-2 p-4">
+                <div className="flex items-center justify-between border-t border-line bg-paper-2 p-4">
                   <span className="font-extrabold text-ink">รวมทุกกองทุน</span>
                   <MoneyDisplay
                     amount={summary.funds.reduce((t, f) => t + f.balance, 0)}
@@ -272,7 +272,7 @@ export default function Reports() {
                 <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.net}
-                    type={summary!.net >= 0 ? "income" : "expense"}
+                    type={summary!.net >= 0 ? "income" : "neutral"}
                     size="lg"
                   />
                   <p className="mt-1 text-xs font-bold text-ink-3">
@@ -284,19 +284,28 @@ export default function Reports() {
 
             {/* Statement by category */}
             <section className="bento-card-static overflow-hidden p-0">
-              <div className="flex items-center justify-between border-b-2 border-[var(--ink)] bg-paper-2 p-4">
+              <div className="flex items-center justify-between border-b border-line bg-paper-2 p-4">
                 <h2 className="font-extrabold text-ink">สรุปตามหมวดหมู่</h2>
-                <span className="text-[11px] font-semibold text-ink-3 md:hidden">
+                <span className="text-xs font-semibold text-ink-3 md:hidden">
                   (เลื่อนซ้าย-ขวาเพื่อดูตาราง)
                 </span>
               </div>
               <div className="relative overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold text-ink-2">
+                  <caption className="sr-only">
+                    สรุปรายรับและรายจ่ายตามหมวดหมู่
+                  </caption>
+                  <thead className="border-b border-line bg-paper-2 text-xs font-extrabold text-ink-2">
                     <tr>
-                      <th className="p-4">รายการ</th>
-                      <th className="p-4 text-right">จำนวนรายการ</th>
-                      <th className="p-4 text-right">ยอดเงิน</th>
+                      <th scope="col" className="p-4">
+                        รายการ
+                      </th>
+                      <th scope="col" className="p-4 text-right">
+                        จำนวนรายการ
+                      </th>
+                      <th scope="col" className="p-4 text-right">
+                        ยอดเงิน
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
@@ -354,7 +363,7 @@ export default function Reports() {
                       ))
                     )}
 
-                    <tr className="border-t-2 border-[var(--ink)] bg-paper-2">
+                    <tr className="border-t border-line bg-paper-2">
                       <td className="p-4 font-extrabold text-ink">
                         คงเหลือสุทธิ
                       </td>
@@ -370,17 +379,17 @@ export default function Reports() {
 
             {/* Six month trend */}
             <section className="bento-card-static p-6">
-              <div className="mb-4 flex flex-col gap-2 border-b-2 border-[var(--ink)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mb-4 flex flex-col gap-2 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="font-extrabold text-ink">
                   เปรียบเทียบ 6 เดือนล่าสุด
                 </h2>
                 <div className="flex items-center gap-4 text-sm font-extrabold text-ink">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3.5 w-3.5 rounded-sm border border-[var(--ink)] bg-income" />
+                    <span className="h-3.5 w-3.5 rounded-sm border border-line bg-income" />
                     รายรับ
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-3.5 w-3.5 rounded-sm border border-[var(--ink)] bg-danger" />
+                    <span className="h-3.5 w-3.5 rounded-sm border border-danger/30 bg-danger" />
                     รายจ่าย
                   </span>
                 </div>
@@ -403,14 +412,14 @@ export default function Reports() {
                           style={{
                             height: `${(month.income / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-md border-[1.5px] border-b-0 border-[var(--ink)] bg-income sm:w-8"
+                          className="w-4 rounded-t-md border-[1.5px] border-b-0 border-line bg-income sm:w-8"
                           title={`รายรับ ${fmtBaht(month.income)}`}
                         />
                         <div
                           style={{
                             height: `${(month.expense / chartMax) * 100}%`,
                           }}
-                          className="w-4 rounded-t-md border-[1.5px] border-b-0 border-[var(--ink)] bg-danger sm:w-8"
+                          className="w-4 rounded-t-md border-[1.5px] border-b-0 border-line bg-danger sm:w-8"
                           title={`รายจ่าย ${fmtBaht(month.expense)}`}
                         />
                       </div>

@@ -52,8 +52,8 @@ export function MemberFeed() {
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="h-44 rounded-2xl border border-[var(--ink)] bg-paper-2" />
-        <div className="h-44 rounded-2xl border border-[var(--ink)] bg-paper-2" />
+        <div className="h-44 rounded-2xl border border-line bg-paper-2" />
+        <div className="h-44 rounded-2xl border border-line bg-paper-2" />
       </div>
     );
   }
@@ -69,7 +69,7 @@ export function MemberFeed() {
         </p>
         <button
           onClick={() => refetch()}
-          className="mt-4 min-h-11 rounded-xl border border-[var(--ink)] bg-danger px-4 py-2 text-xs font-extrabold text-white hover:opacity-90"
+          className="mt-4 min-h-11 rounded-xl border border-danger/30 bg-danger px-4 py-2 text-xs font-extrabold text-white hover:opacity-90"
         >
           ลองใหม่อีกครั้ง
         </button>
@@ -91,7 +91,7 @@ export function MemberFeed() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full border-[1.5px] border-[var(--ink)] bg-paper-2 px-3 py-1 text-xs font-extrabold text-brand">
+            <span className="rounded-full border border-line bg-paper-2 px-3 py-1 text-xs font-extrabold text-brand">
               {filteredNews.length} รายการ
             </span>
           </div>
@@ -113,8 +113,8 @@ export function MemberFeed() {
               onClick={() => setNewsCategoryFilter(cat)}
               className={`min-h-11 rounded-full px-3.5 py-2 text-xs transition-colors ${
                 newsCategoryFilter === cat
-                  ? "border border-[var(--ink)] bg-accent font-extrabold text-accent-foreground "
-                  : "border-[1.5px] border-[var(--ink)] bg-surface font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
+                  ? "border border-brand/40 bg-accent font-extrabold text-accent-foreground "
+                  : "border border-line bg-surface font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
               {cat === "all" ? "ทั้งหมด" : categoryLabels[cat]}
@@ -139,7 +139,7 @@ export function MemberFeed() {
                     setSelectedNews(item);
                   }
                 }}
-                className="bento-card group cursor-pointer p-5 transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand"
+                className="bento-card group cursor-pointer p-5 transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-tile-mint px-2.5 py-1 text-xs font-extrabold text-tile-mint-ink">
@@ -177,7 +177,7 @@ export function MemberFeed() {
               วางแผนร่วมรับใช้และสามัคคีธรรมด้วยกัน
             </p>
           </div>
-          <span className="rounded-full border-[1.5px] border-[var(--ink)] bg-surface px-3 py-1 text-xs font-extrabold text-ink">
+          <span className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-extrabold text-ink">
             {events.length} กิจกรรม
           </span>
         </div>
@@ -198,9 +198,9 @@ export function MemberFeed() {
                     setSelectedEvent(event);
                   }
                 }}
-                className="bento-card group flex cursor-pointer gap-4 p-4 transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand"
+                className="bento-card group flex cursor-pointer gap-4 p-4 transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
-                <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl border border-[var(--ink)] bg-accent text-accent-foreground">
+                <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl border border-brand/40 bg-accent text-accent-foreground">
                   <CalendarDays className="size-5" />
                   <span className="mt-0.5 text-xs font-extrabold">
                     {new Date(event.startsAt).getDate()}
@@ -258,12 +258,12 @@ export function MemberFeed() {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="mt-2 rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium leading-6 text-ink-2">
+              <div className="mt-2 rounded-2xl border border-line bg-paper-2 p-4 text-sm font-medium leading-6 text-ink-2">
                 <p className="mb-1 font-extrabold text-brand">สรุปสาระสำคัญ:</p>
                 {selectedNews.summary}
               </div>
 
-              <div className="mt-4 border-t-2 border-[var(--ink)] pt-4">
+              <div className="mt-4 border-t border-line pt-4">
                 <p className="mb-2 text-sm font-extrabold text-ink-2">
                   เนื้อหาฉบับเต็ม:
                 </p>
@@ -295,7 +295,7 @@ export function MemberFeed() {
             <>
               <DialogHeader className="space-y-2 text-left">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-11 place-items-center rounded-xl border border-[var(--ink)] bg-accent text-accent-foreground">
+                  <span className="grid size-11 place-items-center rounded-xl border border-brand/40 bg-accent text-accent-foreground">
                     <CalendarDays className="size-6" />
                   </span>
                   <div>
@@ -312,7 +312,7 @@ export function MemberFeed() {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="mt-3 space-y-2.5 rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4 text-xs font-medium text-ink-2">
+              <div className="mt-3 space-y-2.5 rounded-2xl border border-line bg-paper-2 p-4 text-xs font-medium text-ink-2">
                 <div className="flex items-center gap-2">
                   <Clock3 className="size-4 text-brand" />
                   <span className="font-extrabold">เริ่ม:</span>{" "}
@@ -344,7 +344,7 @@ export function MemberFeed() {
               </div>
 
               {selectedEvent.description && (
-                <div className="mt-4 border-t-2 border-[var(--ink)] pt-4">
+                <div className="mt-4 border-t border-line pt-4">
                   <p className="mb-2 text-sm font-extrabold text-ink-2">
                     รายละเอียดเพิ่มเติม:
                   </p>

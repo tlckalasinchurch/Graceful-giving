@@ -378,7 +378,7 @@ export default function TransactionDetail() {
                   return;
                 setIsEditing(value => !value);
               }}
-              className="flex min-h-11 items-center gap-1.5 rounded-xl border border-[var(--ink)] bg-tile-mint px-3.5 py-2 text-xs font-extrabold text-tile-mint-ink transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.985]"
+              className="flex min-h-11 items-center gap-1.5 rounded-xl border border-brand/40 bg-tile-mint px-3.5 py-2 text-xs font-extrabold text-tile-mint-ink transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.985]"
             >
               <Pencil className="w-4 h-4" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
@@ -401,7 +401,7 @@ export default function TransactionDetail() {
                 if (isExpense) deleteExpense.mutate({ id: recordId });
               }}
               disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-[var(--ink)] bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink transition-colors hover:bg-danger hover:text-white disabled:opacity-50"
+              className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink transition-colors hover:bg-danger hover:text-white disabled:opacity-50"
             >
               <Ban className="w-4 h-4" />
               <span>ยกเลิกรายการ</span>
@@ -431,7 +431,7 @@ export default function TransactionDetail() {
           {isEditing && (
             <form
               onSubmit={submitEdit}
-              className="space-y-4 rounded-2xl border border-[var(--ink)] bg-paper-2 p-5"
+              className="space-y-4 rounded-2xl border border-line bg-paper-2 p-5"
             >
               <p className="text-sm font-extrabold text-ink">
                 แก้ไขข้อมูลรายการ
@@ -603,7 +603,7 @@ export default function TransactionDetail() {
               </button>
             </form>
           )}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b-2 border-[var(--ink)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-line">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
@@ -662,7 +662,7 @@ export default function TransactionDetail() {
             />
           </div>
           {transaction.notes && (
-            <div className="rounded-2xl bg-paper-2 border border-[var(--ink)] p-4">
+            <div className="rounded-2xl bg-paper-2 border border-line p-4">
               <p className="text-xs font-bold text-ink-3">
                 {transaction.type === "income"
                   ? "หมายเหตุ"
@@ -676,13 +676,14 @@ export default function TransactionDetail() {
 
           {/* Receipt Attachment from Supabase Storage */}
           {transaction.receiptUrl && (
-            <div className="rounded-2xl bg-paper-2 border border-[var(--ink)] p-5 space-y-3">
+            <div className="rounded-2xl bg-paper-2 border border-line p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-extrabold text-ink flex items-center gap-1.5">
                   <Paperclip className="w-4 h-4 text-brand" />
                   หลักฐานสลิป / ใบเสร็จแนบ (Supabase Storage)
                 </span>
                 <button
+                  type="button"
                   onClick={() => setShowReceiptModal(true)}
                   className="btn-secondary min-h-11 px-3.5 py-2 text-xs"
                 >
@@ -691,9 +692,11 @@ export default function TransactionDetail() {
                 </button>
               </div>
 
-              <div
+              <button
+                type="button"
                 onClick={() => setShowReceiptModal(true)}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-[var(--ink)] bg-surface flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity group relative"
+                aria-label="เปิดดูภาพหลักฐานใบเสร็จขนาดเต็ม"
+                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-line bg-surface flex items-center justify-center cursor-pointer hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 transition-opacity group relative"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">
@@ -709,15 +712,15 @@ export default function TransactionDetail() {
                   <>
                     <img
                       src={transaction.receiptUrl}
-                      alt="Receipt thumbnail"
+                      alt="ตัวอย่างหลักฐานใบเสร็จ"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-bold">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-bold">
                       คลิกเพื่อขยาย
                     </div>
                   </>
                 )}
-              </div>
+              </button>
             </div>
           )}
         </div>
@@ -770,7 +773,7 @@ function Detail({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="bg-paper-2 p-4 rounded-xl border border-[var(--ink)] space-y-1">
+    <div className="bg-paper-2 p-4 rounded-xl border border-line space-y-1">
       <span className="text-xs font-bold text-ink-3 block">{label}</span>
       <span className="text-sm font-extrabold text-ink flex items-center gap-1.5">
         {icon}

@@ -166,7 +166,7 @@ export function Step2({
           className="neo-input w-full px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-3 resize-none"
         />
       </div>
-      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+      <div className="rounded-2xl border border-line bg-paper-2 p-4">
         <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
           <Info className="size-3.5 text-brand" aria-hidden="true" />
           เกี่ยวกับบทบาทผู้ใช้
@@ -234,7 +234,7 @@ export function Step3({
         onChange={v => set({ promptPayId: v })}
         placeholder="08X-XXX-XXXX หรือเลขประจำตัว 13 หลัก (ไม่บังคับ)"
       />
-      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+      <div className="rounded-2xl border border-line bg-paper-2 p-4">
         <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
           <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
           ความปลอดภัย
@@ -277,7 +277,7 @@ export function Step4({
               onClick={() => toggleCat(cat)}
               className={`flex min-h-[48px] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition ${
                 selected
-                  ? "border border-[var(--ink)] bg-accent text-accent-foreground "
+                  ? "border border-brand/40 bg-accent text-accent-foreground "
                   : "border border-line bg-surface text-ink-2 hover:bg-paper-2"
               }`}
             >
@@ -313,12 +313,12 @@ export function Step5({ data }: { data: SetupData }) {
       <p className="text-sm text-ink-2">
         กองทุนเริ่มต้นที่แนะนำสำหรับคริสตจักร:
       </p>
-      {data.funds.map((fund, i) => (
+      {data.funds.map(fund => (
         <div
-          key={i}
-          className="flex items-center gap-3 rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface p-3.5"
+          key={fund.name}
+          className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5"
         >
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-[var(--ink)] bg-paper-2 text-brand">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-line bg-paper-2 text-brand">
             <WalletCards className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -328,7 +328,7 @@ export function Step5({ data }: { data: SetupData }) {
           <Check className="size-4 shrink-0 text-income" />
         </div>
       ))}
-      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+      <div className="rounded-2xl border border-line bg-paper-2 p-4">
         <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
           <Info className="size-3.5 text-brand" aria-hidden="true" />
           สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
@@ -383,7 +383,7 @@ export function Step6({
           className="neo-input w-full px-3.5 py-2.5 text-sm text-ink"
         />
       </div>
-      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4 space-y-2">
+      <div className="rounded-2xl border border-line bg-paper-2 p-4 space-y-2">
         <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
           <Calendar className="size-3.5 text-brand" aria-hidden="true" />
           ตัวอย่างรอบปีงบประมาณ
@@ -434,7 +434,7 @@ export function Step7() {
       {roles.map(({ role, label, desc, color }) => (
         <div
           key={role}
-          className="flex items-start gap-3 rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface p-3.5"
+          className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-3.5"
         >
           <span
             className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-extrabold ${color}`}
@@ -447,7 +447,7 @@ export function Step7() {
           </div>
         </div>
       ))}
-      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+      <div className="rounded-2xl border border-line bg-paper-2 p-4">
         <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
           <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
           การกำหนดสิทธิ์
@@ -479,7 +479,7 @@ export function Step8({ data }: { data: SetupData }) {
   ];
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface overflow-hidden">
+      <div className="rounded-2xl border border-line bg-surface overflow-hidden">
         {summaryItems.map(({ label, value }, i) => (
           <div
             key={label}
@@ -494,7 +494,7 @@ export function Step8({ data }: { data: SetupData }) {
           </div>
         ))}
       </div>
-      <div className="rounded-2xl border border-[var(--ink)] bg-accent p-4 text-center">
+      <div className="rounded-2xl border border-brand/40 bg-accent p-4 text-center">
         <Heart className="mx-auto mb-2 size-8 text-brand" fill="currentColor" />
         <p className="text-sm font-extrabold text-accent-foreground">
           พร้อมเริ่มต้นใช้งาน!

@@ -226,7 +226,7 @@ export function ReconciliationSummaryTab({
     <section className="space-y-4">
       {/* ── 1. Pre-Post Checklist Card (GAP-09) ── */}
       <div className="bento-card-static overflow-hidden">
-        <div className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 flex items-center justify-between">
+        <div className="border-b border-line bg-paper-2 p-4 flex items-center justify-between">
           <div>
             <h2 className="font-extrabold text-ink text-base">
               รายการตรวจสอบความพร้อมก่อนลงบัญชี (Pre-Post Checklist)
@@ -236,7 +236,7 @@ export function ReconciliationSummaryTab({
             </p>
           </div>
           <span
-            className={`px-3 py-1 rounded-xl text-xs font-extrabold border border-[var(--ink)]  ${
+            className={`px-3 py-1 rounded-xl text-xs font-extrabold border border-line  ${
               pendingChecklist.length === 0
                 ? "bg-tile-mint text-tile-mint-ink"
                 : "bg-tile-peach text-tile-peach-ink"
@@ -301,7 +301,7 @@ export function ReconciliationSummaryTab({
 
         {/* Explain why posting is blocked if incomplete */}
         {pendingChecklist.length > 0 && status === "verified" && (
-          <div className="border-t-2 border-[var(--ink)] bg-tile-peach/80 p-3.5 text-xs font-bold text-tile-peach-ink flex items-center gap-2">
+          <div className="border-t border-line bg-tile-peach/80 p-3.5 text-xs font-bold text-tile-peach-ink flex items-center gap-2">
             <AlertTriangle className="size-4 shrink-0" />
             <span>
               ปุ่มลงบัญชีถูกระงับชั่วคราวเนื่องจากยังมีขั้นตอนที่ต้องทำอีก{" "}
@@ -313,7 +313,7 @@ export function ReconciliationSummaryTab({
 
       {/* ── 2. Reconciliation Table (Expected vs. Counted) ── */}
       <div className="bento-card-static overflow-hidden">
-        <h2 className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 font-extrabold text-ink">
+        <h2 className="border-b border-line bg-paper-2 p-4 font-extrabold text-ink">
           ตารางกระทบยอดเงินถวายและผลต่าง (Reconciliation Table)
         </h2>
         <dl className="divide-y divide-line">
@@ -424,7 +424,7 @@ export function ReconciliationSummaryTab({
       )}
 
       {unapprovedDeductions.length > 0 && (
-        <p className="rounded-xl border border-[var(--ink)] bg-tile-peach p-4 text-sm font-extrabold text-tile-peach-ink">
+        <p className="rounded-xl border border-line bg-tile-peach p-4 text-sm font-extrabold text-tile-peach-ink">
           มีรายการหักเบิกที่ยังไม่ได้รับอนุมัติ {unapprovedDeductions.length}{" "}
           รายการ — ต้องอนุมัติก่อนลงบัญชี
         </p>
@@ -494,7 +494,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleClose}
               disabled={close.isPending}
-              className="min-h-11 rounded-xl border border-[var(--ink)] bg-ink px-5 py-2.5 text-sm font-extrabold text-white disabled:opacity-50 cursor-pointer"
+              className="min-h-11 rounded-xl border border-line bg-ink px-5 py-2.5 text-sm font-extrabold text-white disabled:opacity-50 cursor-pointer"
             >
               {close.isPending ? "กำลังปิดรอบ..." : "ปิดรอบถาวร"}
             </button>
@@ -540,7 +540,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleDeleteThisSession}
               disabled={deleteSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[var(--ink)] bg-tile-peach px-4 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-4 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Trash2 className="h-4 w-4" />
               <span>ลบรอบนี้ (Delete Session)</span>

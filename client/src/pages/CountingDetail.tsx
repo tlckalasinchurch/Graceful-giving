@@ -348,7 +348,7 @@ export default function CountingDetail() {
                 title="ลบรอบนับเงินนี้"
                 onClick={handleDeleteThisSession}
                 disabled={deleteSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[var(--ink)] bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="hidden sm:inline">ลบรอบนี้</span>
@@ -408,16 +408,16 @@ export default function CountingDetail() {
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[var(--ink)] px-3.5 py-2 text-sm font-extrabold transition-colors cursor-pointer ${
+              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-extrabold transition-colors cursor-pointer ${
                 tab === id
-                  ? "bg-accent text-accent-foreground "
-                  : "bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
+                  ? "border-brand/40 bg-accent text-accent-foreground"
+                  : "border-line bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
               <span
                 className={`inline-flex size-5 items-center justify-center rounded-full text-xs font-black ${
                   tab === id
-                    ? "bg-[var(--ink)] text-accent-foreground"
+                    ? "bg-brand text-primary-foreground"
                     : "bg-paper-2 text-ink-3 border border-line"
                 }`}
               >
@@ -430,7 +430,7 @@ export default function CountingDetail() {
         </div>
 
         {!editable && tab !== "summary" && tab !== "bank" && (
-          <p className="rounded-xl border border-[var(--ink)] bg-tile-sand p-4 text-sm font-bold text-tile-sand-ink">
+          <p className="rounded-xl border border-line bg-tile-sand p-4 text-sm font-bold text-tile-sand-ink">
             รอบนี้ส่งนับแล้ว จึงแก้ไขซองและผลนับไม่ได้ ถ้าต้องแก้ ให้เหรัญญิกกด
             “ส่งกลับไปนับใหม่” ในแท็บสรุป
           </p>

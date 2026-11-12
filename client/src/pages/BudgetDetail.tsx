@@ -174,7 +174,7 @@ export default function BudgetDetail() {
                 {" · "}
                 {fundName(query.data.fundId) ?? "ทุกกองทุน"}
               </p>
-              <dl className="mt-5 grid grid-cols-3 gap-3 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
+              <dl className="mt-5 grid grid-cols-3 gap-3 rounded-xl border border-line bg-paper-2 p-4">
                 <div>
                   <dt className="text-xs font-extrabold text-ink-3">
                     งบประมาณ
@@ -212,13 +212,13 @@ export default function BudgetDetail() {
             </section>
 
             <form onSubmit={submit} className="bento-card-static p-6 md:p-8">
-              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-[var(--ink)]">
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-line">
                 <h2 className="font-extrabold text-ink">แก้ไขงบประมาณ</h2>
                 <button
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger transition-colors disabled:opacity-50"
+                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger transition-colors disabled:opacity-50"
                 >
                   <Trash2 className="h-4 w-4" />
                   ลบงบประมาณ
@@ -239,7 +239,7 @@ export default function BudgetDetail() {
             </form>
 
             <section className="bento-card-static p-6 md:p-8">
-              <h2 className="font-extrabold text-ink pb-3 border-b-2 border-[var(--ink)]">
+              <h2 className="font-extrabold text-ink pb-3 border-b border-line">
                 รายจ่ายที่นับในงบนี้ ({query.data.expenseCount} รายการ)
               </h2>
               {query.data.expenses.length === 0 ? (

@@ -297,7 +297,7 @@ export function EnvelopesTab({
                       setDonorName("");
                     }
                   }}
-                  className="size-4 rounded border border-[var(--ink)]"
+                  className="size-4 rounded border border-line"
                 />
                 ไม่ระบุนาม
               </label>
@@ -321,7 +321,7 @@ export function EnvelopesTab({
       )}
 
       <div className="bento-card-static overflow-hidden">
-        <div className="flex items-center justify-between border-b-2 border-[var(--ink)] bg-paper-2 p-4">
+        <div className="flex items-center justify-between border-b border-line bg-paper-2 p-4">
           <h2 className="font-extrabold text-ink">
             ซองในรอบนี้ ({envelopes.length})
           </h2>
@@ -373,7 +373,7 @@ export function EnvelopesTab({
                         aria-label="ลบซองนี้"
                         onClick={() => void handleRemoveEnvelope(envelope)}
                         disabled={removeEnvelope.isPending}
-                        className="flex size-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
+                        className="flex size-11 items-center justify-center rounded-xl border border-danger/30 bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

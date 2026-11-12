@@ -107,12 +107,12 @@ export const Swal = {
             <div class="mt-6 flex flex-col-reverse sm:flex-row items-center justify-center gap-2.5">
               ${
                 options.showCancelButton
-                  ? `<button id="swal-cancel-btn" type="button" style="${customCancelColor ? `background:${customCancelColor};` : ""}" class="w-full sm:w-auto min-h-11 px-5 py-2.5 rounded-xl ${customCancelColor ? "border-2 border-[var(--ink)] hover:opacity-90 text-white" : "btn-secondary"} font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand active:scale-[0.98] cursor-pointer">
+                  ? `<button id="swal-cancel-btn" type="button" style="${customCancelColor ? `background:${customCancelColor};` : ""}" class="w-full sm:w-auto min-h-11 px-5 py-2.5 rounded-xl ${customCancelColor ? "border border-transparent hover:opacity-90 text-white" : "btn-secondary"} font-bold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.98] cursor-pointer">
                       ${cancelText}
                     </button>`
                   : ""
               }
-              <button id="swal-confirm-btn" type="button" style="${customConfirmColor ? `background:${customConfirmColor};` : ""}" class="w-full sm:w-auto min-h-11 px-6 py-2.5 rounded-xl ${customConfirmColor ? "border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] hover:opacity-90 text-white" : "btn-primary"} font-extrabold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand active:scale-[0.98] cursor-pointer">
+              <button id="swal-confirm-btn" type="button" style="${customConfirmColor ? `background:${customConfirmColor};` : ""}" class="w-full sm:w-auto min-h-11 px-6 py-2.5 rounded-xl ${customConfirmColor ? "border border-transparent hover:opacity-90 text-white" : "btn-primary"} font-extrabold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.98] cursor-pointer">
                 ${confirmText}
               </button>
             </div>

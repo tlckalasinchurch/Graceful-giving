@@ -76,7 +76,7 @@ export function BankSignersSection() {
     <div className="bento-card-static p-6 md:p-8 space-y-6">
       <div className="space-y-1.5">
         <h3 className="display text-base font-extrabold text-ink flex items-center gap-2.5">
-          <span className="size-9 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 text-brand flex items-center justify-center">
+          <span className="size-9 rounded-xl border border-line bg-paper-2 text-brand flex items-center justify-center">
             <UserCheck className="w-5 h-5" />
           </span>
           ผู้มีอำนาจลงนามบัญชีธนาคาร
@@ -117,14 +117,14 @@ export function BankSignersSection() {
             ยังไม่มีรายชื่อผู้มีอำนาจลงนาม
           </p>
         ) : (
-          <div className="divide-y divide-line border-[1.5px] border-[var(--ink)] rounded-2xl overflow-hidden bg-paper-2">
+          <div className="divide-y divide-line border border-line rounded-2xl overflow-hidden bg-paper-2">
             {signers.map(s => (
               <div
                 key={s.userId}
                 className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface flex items-center justify-center font-extrabold text-xs text-ink">
+                  <div className="w-10 h-10 rounded-xl border border-line bg-surface flex items-center justify-center font-extrabold text-xs text-ink">
                     {s.name?.slice(0, 1) || "U"}
                   </div>
                   <div>
@@ -133,7 +133,7 @@ export function BankSignersSection() {
                         {s.name || `ผู้ใช้ #${s.userId}`}
                       </span>
                       {s.isRequired && (
-                        <span className="rounded-full border border-[var(--ink)] bg-accent px-2.5 py-0.5 text-xs font-extrabold text-accent-foreground">
+                        <span className="rounded-full border border-brand/40 bg-accent px-2.5 py-0.5 text-xs font-extrabold text-accent-foreground">
                           ต้องลงนามทุกครั้ง
                         </span>
                       )}
@@ -178,7 +178,7 @@ export function BankSignersSection() {
                         }
                       }}
                       disabled={removeSignerMutation.isPending}
-                      className="px-3.5 py-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-danger/10 hover:bg-danger/15 text-danger text-xs font-bold transition-colors disabled:opacity-50"
+                      className="px-3.5 py-2 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 text-danger text-xs font-bold transition-colors disabled:opacity-50"
                     >
                       นำออก
                     </button>

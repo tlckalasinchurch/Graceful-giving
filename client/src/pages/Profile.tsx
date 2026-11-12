@@ -330,14 +330,14 @@ export default function Profile() {
                 <img
                   src={effectiveAvatar}
                   alt={user?.name || "Profile"}
-                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border border-[var(--ink)]"
+                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border border-line"
                 />
               ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-accent border border-[var(--ink)] flex items-center justify-center text-accent-foreground font-extrabold text-2xl sm:text-3xl md:text-4xl select-none">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-accent border border-line flex items-center justify-center text-accent-foreground font-extrabold text-2xl sm:text-3xl md:text-4xl select-none">
                   {user?.name ? user.name.slice(0, 1) : "ศ"}
                 </div>
               )}
-              <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-brand border border-[var(--ink)] flex items-center justify-center">
+              <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-brand border border-line flex items-center justify-center">
                 <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white stroke-[3]" />
               </div>
             </div>
@@ -412,7 +412,7 @@ export default function Profile() {
         {canCountOfferings(user) && (
           <section className="bento-card-static p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-xl bg-paper-2 border-[1.5px] border-[var(--ink)] text-brand flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-paper-2 border border-line text-brand flex items-center justify-center shrink-0">
                 <Coins className="w-6 h-6" />
               </div>
               <div>
@@ -438,7 +438,7 @@ export default function Profile() {
         {isSuperAdmin(user) && (
           <section className="bento-card-static p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-xl bg-paper-2 border-[1.5px] border-[var(--ink)] text-ink flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-paper-2 border border-line text-ink flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
@@ -464,7 +464,7 @@ export default function Profile() {
         {/* ── SECTION: โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ ── */}
         <section className="bento-card-static p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
           <div className="border-b border-line pb-3 sm:pb-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-extrabold bg-accent text-accent-foreground border-[1.5px] border-[var(--ink)] mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-extrabold bg-accent text-accent-foreground border-[1.5px] border-brand/40 mb-2">
               <Award className="w-3.5 h-3.5 text-brand" />
               มติคริสตจักรอย่างเป็นทางการ
             </span>
@@ -481,7 +481,7 @@ export default function Profile() {
             {churchRoster.map(roster => (
               <div
                 key={roster.role}
-                className="rounded-2xl border-[1.5px] border-[var(--ink)] bg-paper-2 hover:bg-surface p-4 sm:p-5 space-y-3 transition-colors flex flex-col justify-between"
+                className="rounded-2xl border border-line bg-paper-2 hover:bg-surface p-4 sm:p-5 space-y-3 transition-colors flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
@@ -559,7 +559,7 @@ export default function Profile() {
                   await logout();
                 }
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-danger/10 px-5 py-2.5 text-sm font-bold text-danger transition-colors hover:bg-danger/15 active:scale-[0.97]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-5 py-2.5 text-sm font-bold text-danger transition-colors hover:bg-danger/15 active:scale-[0.97]"
             >
               <LogOut className="h-4 w-4" />
               ออกจากระบบ
@@ -581,15 +581,15 @@ export default function Profile() {
           </div>
 
           {/* Profile summary. Not a membership credential: it carries no code or number. */}
-          <div className="p-4 sm:p-6 rounded-2xl border border-[var(--ink)] bg-paper-2 text-center space-y-3 sm:space-y-4">
+          <div className="p-4 sm:p-6 rounded-2xl border border-line bg-paper-2 text-center space-y-3 sm:space-y-4">
             {effectiveAvatar ? (
               <img
                 src={effectiveAvatar}
                 alt={user?.name || "รูปโปรไฟล์"}
-                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border border-[var(--ink)]"
+                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border border-line"
               />
             ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-surface border border-[var(--ink)] flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-ink">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-surface border border-line flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-ink">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </div>
             )}
@@ -687,14 +687,14 @@ export default function Profile() {
                 <div className="flex flex-wrap gap-2">
                   {PRESET_AVATARS.map((p, i) => (
                     <button
-                      key={i}
+                      key={p}
                       type="button"
                       aria-label={`เลือกรูปโปรไฟล์แบบที่ ${i + 1}`}
                       onClick={() => setEditAvatarUrl(p)}
                       className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border transition-colors cursor-pointer p-0.5 ${
                         editAvatarUrl === p
                           ? "border-brand scale-110 "
-                          : "border-line hover:border-[var(--ink)]"
+                          : "border-line hover:border-line"
                       }`}
                     >
                       <img

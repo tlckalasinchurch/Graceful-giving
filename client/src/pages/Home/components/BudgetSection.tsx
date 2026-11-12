@@ -48,8 +48,8 @@ export function BudgetSection({
 
       {isLoading && (
         <div className="space-y-4" aria-hidden="true">
-          {[0, 1].map(i => (
-            <div key={i} className="space-y-2">
+          {["budget-sk-1", "budget-sk-2"].map(slot => (
+            <div key={slot} className="space-y-2">
               <div className="h-4 w-1/2 rounded-lg bg-paper-2" />
               <div className="h-2.5 w-full rounded-full bg-paper-2" />
             </div>
