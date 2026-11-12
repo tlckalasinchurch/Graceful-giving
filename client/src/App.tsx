@@ -148,13 +148,13 @@ function RouteLoading() {
       role="status"
       aria-live="polite"
     >
-      <div className="w-full max-w-md rounded-2xl border-2 border-[var(--ink)] bg-surface p-6 shadow-[4px_4px_0_var(--ink)] space-y-4">
+      <div className="w-full max-w-md rounded-[20px] border border-line bg-surface p-6 space-y-4">
         <div className="flex items-center gap-3">
-          <div className="h-6 w-24 rounded-lg bg-accent animate-pulse border border-[var(--ink)]" />
-          <div className="h-4 w-32 rounded-md bg-paper-2 animate-pulse" />
+          <div className="h-5 w-24 rounded-lg bg-paper-2" />
+          <div className="h-4 w-32 rounded-md bg-ground" />
         </div>
-        <div className="h-20 w-full rounded-xl bg-paper-2 animate-pulse border border-line" />
-        <p className="text-center text-xs font-bold uppercase tracking-wider text-ink-3">
+        <div className="h-20 w-full rounded-xl bg-paper-2" />
+        <p className="text-center text-xs font-medium text-ink-3">
           กำลังโหลดหน้า…
         </p>
       </div>
@@ -178,15 +178,15 @@ function RoleGuard({
   if (!user || !canAccess(user)) {
     return (
       <div className="min-h-screen bg-ground flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-surface rounded-2xl p-8 border-2 border-[var(--ink)] text-center space-y-5 shadow-[6px_6px_0_var(--ink)]">
-          <div className="w-16 h-16 rounded-2xl bg-coral/20 border-2 border-[var(--ink)] mx-auto flex items-center justify-center text-danger shadow-[3px_3px_0_var(--ink)]">
+        <div className="max-w-md w-full bg-surface rounded-[20px] p-8 border border-line text-center space-y-5">
+          <div className="w-14 h-14 rounded-2xl bg-tile-rose mx-auto flex items-center justify-center text-tile-rose-ink">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="w-8 h-8"
+              className="w-7 h-7"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.2"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -195,7 +195,9 @@ function RoleGuard({
             </svg>
           </div>
           <div className="space-y-2">
-            <span className="eyebrow">จำกัดสิทธิ์การเข้าถึง</span>
+            <span className="inline-flex items-center rounded-full bg-tile-rose px-3 py-1 text-xs font-semibold text-tile-rose-ink">
+              จำกัดสิทธิ์การเข้าถึง
+            </span>
             <h2 className="display text-2xl text-ink pt-1">{title}</h2>
             <p className="text-sm text-ink-2 leading-relaxed">{message}</p>
           </div>

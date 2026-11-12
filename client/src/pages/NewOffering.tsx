@@ -223,17 +223,19 @@ export default function NewOffering() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Hero Card with offering_box.jpg */}
         <div className="bento-card p-6 flex items-center gap-5">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-paper-2 p-1 border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] shrink-0">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-paper-2 shrink-0">
             <Illustration
               src="/illustrations/offering_box.jpg"
               alt="กล่องถวาย"
-              className="w-full h-full object-cover rounded-xl"
+              className="w-full h-full object-cover"
               width={96}
               height={96}
             />
           </div>
-          <div className="space-y-1">
-            <span className="eyebrow">การถวายทรัพย์</span>
+          <div className="space-y-1.5">
+            <span className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
+              การถวายทรัพย์
+            </span>
             <h2 className="display text-lg sm:text-xl text-ink">
               การถวายด้วยความยินดี
             </h2>
@@ -269,9 +271,9 @@ export default function NewOffering() {
                     type="button"
                     onClick={() => setCategory(cat.id)}
                     aria-pressed={category === cat.id}
-                    className={`min-h-11 px-3 py-2.5 rounded-xl border-2 border-[var(--ink)] text-sm text-center transition-all ${
+                    className={`min-h-11 px-3 py-2.5 rounded-xl border border-[var(--ink)] text-sm text-center transition-colors ${
                       category === cat.id
-                        ? "bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                        ? "bg-accent text-accent-foreground font-extrabold "
                         : "bg-surface text-ink font-semibold hover:bg-paper-2"
                     }`}
                   >
@@ -304,7 +306,7 @@ export default function NewOffering() {
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] text-2xl font-extrabold text-income focus:outline-none focus:border-brand focus:shadow-[3px_3px_0_var(--brand)]"
+                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border border-[var(--ink)] text-2xl font-extrabold text-income focus:outline-none focus:border-brand focus:"
                 />
               </div>
               {formError && (
@@ -369,9 +371,9 @@ export default function NewOffering() {
                     type="button"
                     onClick={() => setMethod(m)}
                     aria-pressed={method === m}
-                    className={`min-h-11 py-2.5 px-3 rounded-xl border-2 border-[var(--ink)] text-sm transition-all ${
+                    className={`min-h-11 py-2.5 px-3 rounded-xl border border-[var(--ink)] text-sm transition-colors ${
                       method === m
-                        ? "bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                        ? "bg-accent text-accent-foreground font-extrabold "
                         : "bg-surface text-ink font-semibold hover:bg-paper-2"
                     }`}
                   >
@@ -484,7 +486,7 @@ export default function NewOffering() {
                     setSelectedMemberId(null);
                   }
                 }}
-                className="rounded border-2 border-[var(--ink)] text-brand focus:ring-brand w-4 h-4"
+                className="rounded border border-[var(--ink)] text-brand focus:ring-brand w-4 h-4"
               />
               <label
                 htmlFor="anon"
@@ -531,7 +533,7 @@ export default function NewOffering() {
       {/* Success Celebration Dialog */}
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
         <DialogContent className="max-w-sm bg-surface rounded-2xl p-6 text-center text-ink space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] p-1 bg-paper-2">
+          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-[var(--ink)] p-1 bg-paper-2">
             <Illustration
               src="/illustrations/income_hand_heart.jpg"
               alt="ถวายสำเร็จ"
@@ -549,7 +551,7 @@ export default function NewOffering() {
             </DialogDescription>
           </div>
 
-          <div className="p-4 rounded-xl bg-paper-2 border-2 border-[var(--ink)] text-xs text-left space-y-1.5">
+          <div className="p-4 rounded-xl bg-paper-2 border border-[var(--ink)] text-xs text-left space-y-1.5">
             <p className="flex justify-between">
               <span className="font-semibold text-ink-3">ประเภท:</span>
               <span className="font-extrabold text-ink">

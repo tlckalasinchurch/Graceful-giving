@@ -6,16 +6,13 @@ export default function NotFound() {
 
   return (
     <div className="min-h-dvh w-full flex items-center justify-center bg-ground p-4 text-ink">
-      <div className="bento-card w-full max-w-md p-8 sm:p-10 text-center">
-        <div className="mx-auto mb-6 grid size-20 place-items-center rounded-2xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
-          <Compass
-            className="size-10 text-brand animate-pulse"
-            strokeWidth={2}
-          />
+      <div className="bento-card-static w-full max-w-md p-8 sm:p-10 text-center">
+        <div className="mx-auto mb-6 grid size-16 place-items-center rounded-2xl bg-tile-mint text-tile-mint-ink">
+          <Compass className="size-8" strokeWidth={2} />
         </div>
 
-        <p className="font-display text-4xl font-extrabold text-brand">404</p>
-        <h1 className="mt-2 font-display text-2xl font-extrabold text-ink">
+        <p className="font-display text-4xl font-bold text-brand">404</p>
+        <h1 className="mt-2 font-display text-2xl font-bold text-ink">
           ไม่พบหน้าที่คุณต้องการ
         </h1>
 
@@ -26,14 +23,14 @@ export default function NotFound() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
             onClick={() => setLocation("/")}
-            className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold"
+            className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold"
           >
             <Home className="size-4" />
             กลับหน้าหลัก
           </button>
           <Link
             href="/updates"
-            className="btn-secondary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-bold"
+            className="btn-secondary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold"
           >
             <BookOpen className="size-4 text-brand" />
             ข่าวสาร & กิจกรรม

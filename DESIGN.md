@@ -1,40 +1,40 @@
 ---
 name: GraceBox — Grace-giving
-description: Thai church finance ledger — light-default warm white and deep ink with an emerald brand, lime accent, hard offset shadows and a dark alternative.
+description: Thai church finance ledger — Pastel Consumer Fintech light-default (#f5f7f6 ground, #ffffff surfaces, #141715 ink, #087f5b emerald brand, pale category tiles, 1px hairline borders, 20px cards) with a true-neutral dark mode.
 colors:
-  ground: "#f8f9f4"
+  ground: "#f5f7f6"
   paper: "#ffffff"
-  paper-2: "#f1f3ec"
+  paper-2: "#eef2ef"
   surface: "#ffffff"
-  line: "#e2e5dc"
-  ink: "#171a18"
-  ink-2: "#3a3f39"
-  ink-3: "#6b7069"
-  field: "#171a18"
+  line: "#e4e8e5"
+  ink: "#141715"
+  ink-2: "#3d423f"
+  ink-3: "#636965"
+  field: "#767d78"
   brand: "#087f5b"
   brand-ink: "#ffffff"
   income: "#087f5b"
-  danger: "#b3261e"
-  accent-lime: "#b8f34a"
-  accent-lime-ink: "#3f4a0b"
+  danger: "#c41c29"
+  accent-lime: "#ccf572"
+  accent-lime-ink: "#253606"
   coral: "#ff6b7d"
   line-brand: "#06c755"
-  dark-ground: "#121615"
-  dark-paper: "#1a1e1d"
-  dark-paper-2: "#222826"
-  dark-surface: "#1a1e1d"
-  dark-line: "#2e3432"
-  dark-ink: "#f5f8f6"
-  dark-ink-2: "#c9d2cd"
-  dark-ink-3: "#8f9992"
-  dark-income: "#4ade80"
-  dark-danger: "#ff6b6b"
+  dark-ground: "#0c0f0e"
+  dark-paper: "#151918"
+  dark-paper-2: "#1e2321"
+  dark-surface: "#151918"
+  dark-line: "#272d2b"
+  dark-ink: "#f4f7f5"
+  dark-ink-2: "#c4cdc8"
+  dark-ink-3: "#8c9590"
+  dark-income: "#3dd68c"
+  dark-danger: "#f06565"
 typography:
   display:
     fontFamily: "Plus Jakarta Sans, Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
-    fontWeight: 800
-    lineHeight: 1.15
-    letterSpacing: "-0.025em"
+    fontWeight: 700
+    lineHeight: 1.18
+    letterSpacing: "-0.02em"
   body:
     fontFamily: "Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
     fontSize: "1rem"
@@ -43,8 +43,8 @@ typography:
   eyebrow:
     fontFamily: "Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
     fontSize: "0.8125rem"
-    fontWeight: 700
-    letterSpacing: "0.08em"
+    fontWeight: 600
+    letterSpacing: "0em"
 rounded:
   sm: "0.375rem"
   md: "0.5rem"
@@ -63,41 +63,42 @@ components:
     class: ".btn-primary (Button default variant)"
     backgroundColor: "{colors.brand}"
     textColor: "{colors.brand-ink}"
-    border: "2px solid {colors.ink}"
-    shadow: "4px 4px 0 {colors.ink}"
+    border: "1px solid transparent"
+    shadow: "none"
     minHeight: "min-h-11"
   button-secondary:
     class: ".btn-secondary"
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
-    border: "2px solid {colors.ink}"
-    shadow: "3px 3px 0 {colors.ink}"
+    border: "1px solid {colors.line}"
+    shadow: "none"
+    minHeight: "min-h-11"
   button-destructive:
     class: ".btn-destructive (Button destructive variant)"
     backgroundColor: "{colors.danger}"
-    border: "2px solid {colors.ink}"
-    shadow: "4px 4px 0 {colors.ink}"
+    border: "1px solid transparent"
+    shadow: "none"
   card:
     class: ".bento-card"
     backgroundColor: "{colors.surface}"
-    border: "1.5px solid {colors.ink}"
-    shadow: "3px 3px 0 {colors.ink}"
+    border: "1px solid {colors.line}"
+    shadow: "none"
     rounded: "{rounded.2xl}"
   input:
     class: ".neo-input"
     backgroundColor: "{colors.surface}"
-    border: "1.5px solid {colors.line}"
-    rounded: "{rounded.xl}"
+    border: "1px solid {colors.line}"
+    rounded: "{rounded.lg}"
   linemark-button:
     backgroundColor: "{colors.line-brand}"
-    rounded: "{rounded.xl}"
+    rounded: "{rounded.2xl}"
 ---
 
 # GraceBox — Design System
 
 ## Overview
 
-A Thai-language church finance app (Operate mode): offerings, counting, expenses, budgets, approvals. One coherent world in two modes, built from the same tokens. **Light is the default**: warm white ground (`#f8f9f4`), white surfaces, deep ink (`#171a18`), hairline borders (`#e2e5dc`), an emerald brand (`#087f5b`) for primary actions and money-in, a lime accent (`#b8f34a`), and hard offset shadows (`4px 4px 0 var(--ink)`) in place of blur or glow. **Dark is the alternative**, opted into with the toggle (`.dark` on `<html>`): the same hierarchy on deep green-black ink (ground `#121615`, surfaces `#1a1e1d`, text `#f5f8f6`). The choice persists in `localStorage` key `theme`; only `light` and `dark` are accepted and anything else falls back to light. It is applied before first paint by `client/public/theme-init.js` (an external file, because the CSP forbids inline scripts), and `<meta name="theme-color">` follows `--ground`. The desktop toggle is in the sidebar and the mobile toggle is in the menu sheet; the station-only kiosk and signed-out `/give` have no toggle. Token values are guarded by `client/src/theme.contrast.test.ts`.
+A Thai-language church finance app (Pastel Consumer Fintech direction): offerings, counting, expenses, budgets, approvals. One coherent world in two modes, built from the same tokens. **Light is the default**: airy cool-warm ground (`#f5f7f6`), crisp white surfaces (`#ffffff`), deep charcoal ink (`#141715`), `1px` hairline borders (`#e4e8e5`), an emerald brand (`#087f5b`) for primary actions and money-in, pale pastel category tiles with matching dark hue ink, `20px` outer card radius stepping down cleanly inside, and flat resting surfaces with no hard drop-shadows or blur. **Dark is the alternative**, opted into with the toggle (`.dark` on `<html>`): true neutral dark surfaces (ground `#0c0f0e`, surfaces `#151918`, text `#f4f7f5`) with dark-tuned pastel tiles. The choice persists in `localStorage` key `theme`; only `light` and `dark` are accepted and anything else falls back to light. It is applied before first paint by `client/public/theme-init.js` (an external file, because the CSP forbids inline scripts), and `<meta name="theme-color">` follows `--ground`. The desktop toggle is in the sidebar and the mobile toggle is in the menu sheet; the station-only kiosk and signed-out `/give` have no toggle. Token values are guarded by `client/src/theme.contrast.test.ts`.
 
 All tokens live in `client/src/index.css` (`@theme inline` + `:root` / `.dark`). **`index.css` is the single source of truth — never copy a hex into a component** outside the exceptions listed under Colors.
 
@@ -107,25 +108,25 @@ Source of truth: `client/src/index.css` (`:root` for Light, `.dark` for Dark). T
 
 | Role                | Token (CSS var)                        | Light                 | Dark                                 |
 | ------------------- | -------------------------------------- | --------------------- | ------------------------------------ |
-| Page ground         | `--ground` (`--background`)            | `#f8f9f4`             | `#121615`                            |
-| Cards, popovers     | `--surface` (`--card`, `--popover`)    | `#ffffff`             | `#1a1e1d`                            |
-| Paper               | `--paper`                              | `#ffffff`             | `#1a1e1d`                            |
-| Secondary surface   | `--paper-2` (`--secondary`, `--muted`) | `#f1f3ec`             | `#222826`                            |
-| Hairlines / borders | `--line` (`--border`)                  | `#e2e5dc`             | `#2e3432`                            |
-| Body text           | `--ink` (`--foreground`)               | `#171a18`             | `#f5f8f6`                            |
-| Secondary text      | `--ink-2`                              | `#3a3f39`             | `#c9d2cd`                            |
-| Muted text          | `--ink-3` (`--muted-foreground`)       | `#6b7069`             | `#8f9992`                            |
-| Control border      | `--field`                              | `#171a18`             | `#f5f8f6`                            |
+| Page ground         | `--ground` (`--background`)            | `#f5f7f6`             | `#0c0f0e`                            |
+| Cards, popovers     | `--surface` (`--card`, `--popover`)    | `#ffffff`             | `#151918`                            |
+| Paper               | `--paper`                              | `#ffffff`             | `#151918`                            |
+| Secondary surface   | `--paper-2` (`--secondary`, `--muted`) | `#eef2ef`             | `#1e2321`                            |
+| Hairlines / borders | `--line` (`--border`)                  | `#e4e8e5`             | `#272d2b`                            |
+| Body text           | `--ink` (`--foreground`)               | `#141715`             | `#f4f7f5`                            |
+| Secondary text      | `--ink-2`                              | `#3d423f`             | `#c4cdc8`                            |
+| Muted text          | `--ink-3` (`--muted-foreground`)       | `#636965`             | `#8c9590`                            |
+| Control border      | `--field`                              | `#767d78`             | `#7a837e`                            |
 | Brand actions       | `--brand` (`--primary`)                | `#087f5b`             | `#087f5b`                            |
 | Text on brand       | `--brand-ink`                          | `#ffffff`             | `#ffffff`                            |
-| Money-in            | `--income`                             | `#087f5b`             | `#4ade80`                            |
-| Danger              | `--danger` (`--destructive`)           | `#b3261e`             | `#ff6b6b`                            |
-| Lime accent         | `--accent-lime` (`--accent`)           | `#b8f34a`             | `#b8f34a`                            |
-| Text on lime        | `--accent-lime-ink`                    | `#3f4a0b`             | `#3f4a0b`                            |
+| Money-in            | `--income`                             | `#087f5b`             | `#3dd68c`                            |
+| Danger              | `--danger` (`--destructive`)           | `#c41c29`             | `#f06565`                            |
+| Lime accent         | `--accent-lime` (`--accent`)           | `#ccf572`             | `#b8f34a`                            |
+| Text on lime        | `--accent-lime-ink`                    | `#253606`             | `#253606`                            |
 | Coral highlight     | `--coral` / `--coral-ink`              | `#ff6b7d` / `#ffffff` | `#ff6b7d` / `#ffffff`                |
 | LINE green          | `--line-brand`                         | `#06c755`             | `#06c755` (not redefined in `.dark`) |
 
-`--field` equals `--ink` in both themes; `--ink` is also the offset-shadow and border colour (see Elevation). The `--tile-*` pastel category tiles are defined for Light only and are not redefined in `.dark`. `.btn-primary:hover` uses a literal `#066b48`.
+`--field` meets WCAG 1.4.11 (`>= 3:1` against `--surface`) in both themes. The `--tile-*` pastel category tiles are defined for both Light and Dark modes. `.btn-primary:hover` uses `#066b48`.
 
 **Allowed hard-coded colors:** LINE corporate green `#06C755` ONLY on LINE sign-in buttons, and the print poster kit (`station-giving-kit.tsx`) colors, which must render opaque on paper. Everything else uses tokens.
 

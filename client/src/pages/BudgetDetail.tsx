@@ -176,7 +176,7 @@ export default function BudgetDetail() {
               </p>
               <dl className="mt-5 grid grid-cols-3 gap-3 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-4">
                 <div>
-                  <dt className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+                  <dt className="text-xs font-extrabold text-ink-3">
                     งบประมาณ
                   </dt>
                   <dd className="mt-1">
@@ -184,15 +184,13 @@ export default function BudgetDetail() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
-                    ใช้จริง
-                  </dt>
+                  <dt className="text-xs font-extrabold text-ink-3">ใช้จริง</dt>
                   <dd className="mt-1">
                     <MoneyDisplay amount={query.data.actualAmount} size="sm" />
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+                  <dt className="text-xs font-extrabold text-ink-3">
                     {query.data.remainingAmount < 0 ? "เกินงบ" : "คงเหลือ"}
                   </dt>
                   <dd className="mt-1">
@@ -220,7 +218,7 @@ export default function BudgetDetail() {
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger shadow-[2px_2px_0_var(--ink)] transition-colors disabled:opacity-50"
+                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger transition-colors disabled:opacity-50"
                 >
                   <Trash2 className="h-4 w-4" />
                   ลบงบประมาณ

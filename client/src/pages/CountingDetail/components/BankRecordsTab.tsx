@@ -225,7 +225,7 @@ export function BankRecordsTab({
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="bento-card p-4">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+          <p className="text-xs font-extrabold text-ink-3">
             เงินโอนเข้าบัญชีจริง
           </p>
           <MoneyDisplay
@@ -242,7 +242,7 @@ export function BankRecordsTab({
           </div>
         </div>
         <div className="bento-card p-4">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+          <p className="text-xs font-extrabold text-ink-3">
             นำเงินสดเข้าฝากจริง
           </p>
           <MoneyDisplay

@@ -150,7 +150,9 @@ export default function Funds() {
           className="bento-card space-y-4 p-5 sm:p-6"
         >
           <div>
-            <p className="eyebrow">ยอดเงินรวมทุกกองทุน</p>
+            <p className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
+              ยอดเงินรวมทุกกองทุน
+            </p>
             <p
               className={`display money mt-2 text-[clamp(2rem,4vw,2.75rem)] leading-none ${totalFundsBalance < 0 ? "text-danger" : "text-ink"}`}
             >
@@ -165,22 +167,22 @@ export default function Funds() {
 
         {/* Subtotal Split: General (Unrestricted) vs. Restricted */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          <div className="rounded-2xl border-2 border-[var(--ink)] bg-tile-mint p-4 sm:p-5 shadow-[2px_2px_0_var(--ink)] space-y-1">
-            <span className="eyebrow text-tile-mint-ink font-extrabold text-xs">
+          <div className="rounded-[20px] bg-tile-mint p-4 sm:p-5 space-y-1">
+            <span className="text-tile-mint-ink font-semibold text-xs">
               กองทุนทั่วไป (คล่องตัว ไม่ผูกพัน)
             </span>
-            <p className="money text-xl sm:text-2xl font-extrabold text-tile-mint-ink">
+            <p className="money text-xl sm:text-2xl font-bold text-tile-mint-ink">
               {formatBaht(generalFundBalance)}
             </p>
             <p className="text-xs text-tile-mint-ink/80 font-medium">
               ใช้จ่ายในพันธกิจและดำเนินงานทั่วไปของคริสตจักรได้
             </p>
           </div>
-          <div className="rounded-2xl border-2 border-[var(--ink)] bg-tile-sand p-4 sm:p-5 shadow-[2px_2px_0_var(--ink)] space-y-1">
-            <span className="eyebrow text-tile-sand-ink font-extrabold text-xs">
+          <div className="rounded-[20px] bg-tile-sand p-4 sm:p-5 space-y-1">
+            <span className="text-tile-sand-ink font-semibold text-xs">
               กองทุนเฉพาะพันธกิจ (เงินผูกพัน)
             </span>
-            <p className="money text-xl sm:text-2xl font-extrabold text-tile-sand-ink">
+            <p className="money text-xl sm:text-2xl font-bold text-tile-sand-ink">
               {formatBaht(restrictedFundBalance)}
             </p>
             <p className="text-xs text-tile-sand-ink/80 font-medium">
@@ -196,7 +198,7 @@ export default function Funds() {
           className="bento-card-static overflow-hidden p-0"
         >
           {fundsList.length === 0 ? (
-            <div className="m-5 rounded-2xl border-2 border-dashed border-[var(--ink)]/30 bg-paper-2 p-6 text-center space-y-3">
+            <div className="m-5 rounded-2xl border border-dashed border-line bg-paper-2 p-6 text-center space-y-3">
               <p className="text-sm font-extrabold text-ink">
                 ยังไม่มีข้อมูลกองทุนในระบบ
               </p>
@@ -317,9 +319,7 @@ export default function Funds() {
                   <option value="welfare">
                     สงเคราะห์และสวัสดิการ (Welfare)
                   </option>
-                  <option value="special">
-                    กองทุนโครงการพิเศษ (Special)
-                  </option>
+                  <option value="special">กองทุนโครงการพิเศษ (Special)</option>
                   <option value="general">ดำเนินงานทั่วไป (General)</option>
                 </NativeSelect>
               </div>

@@ -297,7 +297,7 @@ export function EnvelopesTab({
                       setDonorName("");
                     }
                   }}
-                  className="size-4 rounded border-2 border-[var(--ink)]"
+                  className="size-4 rounded border border-[var(--ink)]"
                 />
                 ไม่ระบุนาม
               </label>

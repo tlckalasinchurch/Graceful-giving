@@ -141,7 +141,7 @@ export function CashCountTab({
                     disabled={!editable || currentQty <= 0}
                     onClick={() => stepBy(-1)}
                     aria-label={`ลดจำนวน ${denomination.label}`}
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-paper-2 text-lg font-black text-ink shadow-[2px_2px_0_var(--ink)] active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-paper-2 text-lg font-black text-ink active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                   >
                     −
                   </button>
@@ -166,14 +166,14 @@ export function CashCountTab({
                     }}
                     placeholder="0"
                     aria-label={`จำนวน ${denomination.label}`}
-                    className="w-20 sm:w-24 rounded-xl border-2 border-[var(--ink)] bg-surface p-2.5 text-right text-base font-extrabold tabular-nums text-ink shadow-[2px_2px_0_var(--ink)] focus:border-brand focus:outline-none disabled:opacity-60"
+                    className="w-20 sm:w-24 rounded-xl border border-[var(--ink)] bg-surface p-2.5 text-right text-base font-extrabold tabular-nums text-ink focus:border-brand focus:outline-none disabled:opacity-60"
                   />
                   <button
                     type="button"
                     disabled={!editable}
                     onClick={() => stepBy(1)}
                     aria-label={`เพิ่มจำนวน ${denomination.label}`}
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-paper-2 text-lg font-black text-ink shadow-[2px_2px_0_var(--ink)] active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-paper-2 text-lg font-black text-ink active:translate-y-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                   >
                     +
                   </button>

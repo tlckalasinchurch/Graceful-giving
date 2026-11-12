@@ -19,19 +19,19 @@ const TONES: Record<
   { icon: string; label: string; value: string; note: string }
 > = {
   income: {
-    icon: "bg-income text-white",
+    icon: "bg-tile-mint text-tile-mint-ink",
     label: "text-ink-2",
-    value: "text-ink",
+    value: "text-income",
     note: "text-ink-3",
   },
   expense: {
-    icon: "bg-danger text-white",
+    icon: "bg-paper-2 text-ink-2",
     label: "text-ink-2",
     value: "text-ink",
     note: "text-ink-3",
   },
   net: {
-    icon: "bg-accent text-accent-foreground",
+    icon: "bg-tile-sky text-tile-sky-ink",
     label: "text-ink-2",
     value: "text-ink",
     note: "text-ink-3",
@@ -98,15 +98,13 @@ export function FinancialSummaryRow({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p
-                    className={`text-xs sm:text-sm font-bold uppercase tracking-[0.08em] ${tone.label}`}
-                  >
+                  <p className={`text-sm font-medium ${tone.label}`}>
                     {card.label}
                   </p>
                   <p className={`mt-1 text-xs ${tone.note}`}>{card.note}</p>
                 </div>
                 <span
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--ink)] ${tone.icon}`}
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${tone.icon}`}
                 >
                   {card.icon}
                 </span>
@@ -114,10 +112,10 @@ export function FinancialSummaryRow({
 
               <div className="mt-5">
                 {isBalanceLoading ? (
-                  <div className="h-9 w-32 animate-pulse rounded-lg bg-ground" />
+                  <div className="h-9 w-32 rounded-lg bg-paper-2" />
                 ) : (
                   <p
-                    className={`display money break-words text-[clamp(1.7rem,5vw,2.15rem)] leading-tight tracking-tight ${tone.value}`}
+                    className={`display money break-words text-[clamp(1.65rem,4.5vw,2rem)] leading-tight tracking-tight ${tone.value}`}
                   >
                     {showBalance && card.amount !== undefined
                       ? `${card.prefix}฿ ${formatAmount(Math.abs(card.amount), 0)}`

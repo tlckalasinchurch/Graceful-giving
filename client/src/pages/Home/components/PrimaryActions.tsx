@@ -1,4 +1,9 @@
-import { Calculator, HandCoins, HeartHandshake, ReceiptText } from "lucide-react";
+import {
+  Calculator,
+  HandCoins,
+  HeartHandshake,
+  ReceiptText,
+} from "lucide-react";
 
 interface PrimaryActionsProps {
   canRecordOffering: boolean;
@@ -21,10 +26,23 @@ export function PrimaryActions({
   onOpenCounting,
   onOpenGivingStation,
 }: PrimaryActionsProps) {
-  const showCountingCTA = Boolean(canOpenCounting && !canRecordOffering && !canRecordExpense);
-  const showGivingCTA = Boolean(canOpenGivingStation && !canRecordOffering && !canRecordExpense && !canOpenCounting);
+  const showCountingCTA = Boolean(
+    canOpenCounting && !canRecordOffering && !canRecordExpense
+  );
+  const showGivingCTA = Boolean(
+    canOpenGivingStation &&
+      !canRecordOffering &&
+      !canRecordExpense &&
+      !canOpenCounting
+  );
 
-  if (!canRecordOffering && !canRecordExpense && !showCountingCTA && !showGivingCTA) return null;
+  if (
+    !canRecordOffering &&
+    !canRecordExpense &&
+    !showCountingCTA &&
+    !showGivingCTA
+  )
+    return null;
 
   return (
     <div
@@ -46,10 +64,10 @@ export function PrimaryActions({
       {canRecordExpense && (
         <button
           onClick={onNewExpense}
-          className="group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl border-2 border-[var(--ink)] bg-surface px-5 text-sm font-bold text-ink shadow-[4px_4px_0_var(--ink)] transition-all hover:bg-ground active:translate-x-[3px] active:translate-y-[3px] active:shadow-none focus-visible:ring-2 focus-visible:ring-brand sm:text-base cursor-pointer"
+          className="btn-secondary group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-semibold transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand sm:text-base cursor-pointer"
           aria-label="บันทึกรายจ่าย"
         >
-          <span className="flex size-7 items-center justify-center rounded-lg bg-danger/10 text-danger">
+          <span className="flex size-7 items-center justify-center rounded-lg bg-paper-2 text-ink">
             <ReceiptText className="size-4.5" aria-hidden="true" />
           </span>
           <span>บันทึกรายจ่าย</span>

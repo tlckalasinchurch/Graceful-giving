@@ -74,31 +74,31 @@ const STATUS_LABELS: Record<
     text: "รอดึงข้อมูล",
     bg: "bg-paper-2",
     textCol: "text-ink-2",
-    border: "border-[var(--ink)]/20",
+    border: "border-line",
   },
   processing: {
     text: "กำลังอ่านสลิป",
     bg: "bg-tile-sand",
     textCol: "text-tile-sand-ink",
-    border: "border-[var(--ink)]/20",
+    border: "border-line",
   },
   extracted: {
     text: "อ่านข้อมูลแล้ว",
     bg: "bg-paper-2",
     textCol: "text-ink",
-    border: "border-[var(--ink)]/20",
+    border: "border-line",
   },
   needs_review: {
     text: "ต้องตรวจสอบ",
     bg: "bg-tile-sand",
     textCol: "text-tile-sand-ink",
-    border: "border-[var(--ink)]/30",
+    border: "border-line",
   },
   matched: {
     text: "พร้อมอนุมัติ",
     bg: "bg-tile-mint",
     textCol: "text-tile-mint-ink",
-    border: "border-[var(--ink)]/30",
+    border: "border-line",
   },
   duplicate: {
     text: "สลิปซ้ำ",
@@ -110,7 +110,7 @@ const STATUS_LABELS: Record<
     text: "อนุมัติแล้ว",
     bg: "bg-tile-mint",
     textCol: "text-tile-mint-ink",
-    border: "border-[var(--ink)]/30",
+    border: "border-line",
   },
   rejected: {
     text: "ปฏิเสธ",
@@ -774,7 +774,7 @@ export default function GivingInbox() {
                     text: slip.status,
                     bg: "bg-paper-2",
                     textCol: "text-ink-2",
-                    border: "border-[var(--ink)]/20",
+                    border: "border-line",
                   };
                   const isSelected = slip.id === selectedSlipId;
 
@@ -782,10 +782,10 @@ export default function GivingInbox() {
                     <div
                       key={slip.id}
                       onClick={() => handleSelectSlip(slip)}
-                      className={`p-4 rounded-2xl cursor-pointer transition-all ${
+                      className={`p-4 rounded-2xl cursor-pointer transition-colors ${
                         isSelected
-                          ? "border-2 border-[var(--ink)] bg-paper-2 shadow-[4px_4px_0_var(--ink)]"
-                          : "border-[1.5px] border-[var(--ink)] bg-surface shadow-[2px_2px_0_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--ink)]"
+                          ? "border border-[var(--ink)] bg-paper-2 "
+                          : "border-[1.5px] border-[var(--ink)] bg-surface hover:-translate-x-0.5 hover:-translate-y-0.5"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -812,12 +812,12 @@ export default function GivingInbox() {
                             <div className="text-xs font-medium text-ink-3 flex items-center gap-1.5 mt-0.5 truncate">
                               {Array.isArray(slip.declaredItems) &&
                                 slip.declaredItems.length >= 2 && (
-                                  <span className="px-1.5 py-0.5 rounded-md bg-tile-sky border border-[var(--ink)]/20 text-tile-sky-ink text-xs font-extrabold shrink-0">
+                                  <span className="px-1.5 py-0.5 rounded-md bg-tile-sky border border-line text-tile-sky-ink text-xs font-extrabold shrink-0">
                                     แบ่ง {slip.declaredItems.length} ประเภท
                                   </span>
                                 )}
                               {slip.source === "no_slip" && (
-                                <span className="px-1.5 py-0.5 rounded-md bg-tile-sand border border-[var(--ink)]/25 text-tile-sand-ink text-xs font-extrabold shrink-0">
+                                <span className="px-1.5 py-0.5 rounded-md bg-tile-sand border border-line text-tile-sand-ink text-xs font-extrabold shrink-0">
                                   ไม่มีสลิป
                                 </span>
                               )}
@@ -875,7 +875,7 @@ export default function GivingInbox() {
                           <button
                             type="button"
                             onClick={e => handleQuickApprove(e, slip)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold text-xs shadow-[1px_1px_0_var(--ink)] transition-all"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold text-xs transition-colors"
                             title="อนุมัติด่วนด้วยข้อมูลที่จับคู่ได้"
                           >
                             <Check className="w-3 h-3" /> อนุมัติด่วน
@@ -898,7 +898,7 @@ export default function GivingInbox() {
           {/* Right Column: Slip Detail & Review Form (7 cols on lg) */}
           <div id="slip-detail-panel" className="lg:col-span-7 scroll-mt-20">
             {!selectedSlipId || !currentSlip ? (
-              <div className="p-12 text-center bg-surface rounded-2xl border-2 border-dashed border-[var(--ink)]/30 text-ink-3 space-y-3 min-h-[420px] flex flex-col items-center justify-center">
+              <div className="p-12 text-center bg-surface rounded-2xl border border-dashed border-line text-ink-3 space-y-3 min-h-[420px] flex flex-col items-center justify-center">
                 <Inbox className="w-10 h-10 text-ink-3" />
                 <div className="font-extrabold text-base text-ink">
                   เลือกสลิปจากรายการด้านซ้าย
@@ -916,7 +916,7 @@ export default function GivingInbox() {
                     setSelectedSlipId(null);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-[var(--ink)] bg-paper-2 text-xs font-bold text-ink cursor-pointer hover:bg-ground"
+                  className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--ink)] bg-paper-2 text-xs font-bold text-ink cursor-pointer hover:bg-ground"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>กลับไปรายการสลิป</span>
@@ -973,7 +973,7 @@ export default function GivingInbox() {
 
                 {/* Duplicate Warning */}
                 {currentSlip.status === "duplicate" && (
-                  <div className="p-4 rounded-xl bg-danger/10 border-2 border-danger text-danger space-y-1">
+                  <div className="p-4 rounded-xl bg-danger/10 border border-danger/40 text-danger space-y-1">
                     <div className="flex items-center gap-2 font-extrabold text-sm">
                       <ShieldAlert className="w-5 h-5 text-danger" />
                       ตรวจพบสลิปซ้ำในระบบ
@@ -1061,7 +1061,7 @@ export default function GivingInbox() {
                     </div>
                   </div>
                   <div
-                    className={`rounded-xl border-2 border-[var(--ink)] overflow-auto bg-paper-2 flex items-center justify-center p-2 transition-all ${isZoomed ? "max-h-[580px]" : "max-h-[340px]"}`}
+                    className={`rounded-xl border border-[var(--ink)] overflow-auto bg-paper-2 flex items-center justify-center p-2 transition-colors ${isZoomed ? "max-h-[580px]" : "max-h-[340px]"}`}
                   >
                     {currentSlip.signedImageUrl ? (
                       <img
@@ -1069,7 +1069,7 @@ export default function GivingInbox() {
                         alt="สลิปการโอนเงิน (คลิกเพื่อซูม)"
                         onClick={() => setIsZoomed(z => !z)}
                         title="คลิกเพื่อซูมเข้า/ออก"
-                        className={`w-auto object-contain rounded-lg transition-all cursor-pointer ${isZoomed ? "max-h-[560px] scale-105" : "max-h-[320px] hover:opacity-90"}`}
+                        className={`w-auto object-contain rounded-lg transition-colors cursor-pointer ${isZoomed ? "max-h-[560px] scale-105" : "max-h-[320px] hover:opacity-90"}`}
                       />
                     ) : (
                       <div className="py-16 text-xs font-bold text-ink-3">
@@ -1082,19 +1082,19 @@ export default function GivingInbox() {
                 </div>
 
                 {/* ── 2. ข้อมูลที่ AI อ่านได้ (AI Extraction) ── */}
-                <div className="space-y-3 bg-surface border-[1.5px] border-[var(--ink)] p-4 rounded-xl text-xs shadow-[2px_2px_0_var(--ink)]">
+                <div className="space-y-3 bg-surface border-[1.5px] border-[var(--ink)] p-4 rounded-xl text-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-line">
                     <div className="font-extrabold text-sm text-ink flex items-center gap-1.5">
                       <Search className="w-4 h-4 text-brand" />
                       <span>2. ข้อมูลที่อ่านได้จากสลิป</span>
                     </div>
-                    <span className="text-xs font-bold text-tile-sand-ink bg-tile-sand px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
+                    <span className="text-xs font-bold text-tile-sand-ink bg-tile-sand px-2 py-0.5 rounded-md border border-line">
                       ข้อมูลจากการตรวจสอบอัตโนมัติ กรุณาตรวจสอบก่อนบันทึก
                     </span>
                   </div>
 
                   {currentSlip.declaredAmount && (
-                    <div className="p-3 rounded-xl bg-tile-sky border-[1.5px] border-[var(--ink)]/25 text-tile-sky-ink text-xs font-bold">
+                    <div className="p-3 rounded-xl bg-tile-sky border border-line text-tile-sky-ink text-xs font-bold">
                       ผู้ถวายแจ้งผ่านจุดถวาย:{" "}
                       <span className="font-extrabold tabular-nums">
                         {formatBaht(Number(currentSlip.declaredAmount))}
@@ -1138,7 +1138,7 @@ export default function GivingInbox() {
                   )}
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-                    <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
+                    <div className="p-2.5 rounded-lg bg-paper-2 border border-line">
                       <span className="text-ink-3 font-bold block text-xs">
                         ยอดเงินที่ตรวจพบ
                       </span>
@@ -1158,7 +1158,7 @@ export default function GivingInbox() {
                       )}
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
+                    <div className="p-2.5 rounded-lg bg-paper-2 border border-line">
                       <span className="text-ink-3 font-bold block text-xs">
                         ชื่อผู้โอนในสลิป
                       </span>
@@ -1167,7 +1167,7 @@ export default function GivingInbox() {
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
+                    <div className="p-2.5 rounded-lg bg-paper-2 border border-line">
                       <span className="text-ink-3 font-bold block text-xs">
                         ธนาคาร
                       </span>
@@ -1176,7 +1176,7 @@ export default function GivingInbox() {
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-paper-2 border border-[var(--ink)]/20">
+                    <div className="p-2.5 rounded-lg bg-paper-2 border border-line">
                       <span className="text-ink-3 font-bold block text-xs">
                         วันที่โอน
                       </span>
@@ -1200,7 +1200,7 @@ export default function GivingInbox() {
                   )}
 
                   {!currentSlip.extractedAmount && (
-                    <div className="p-3 rounded-xl bg-tile-sand border border-[var(--ink)]/25 text-tile-sand-ink text-xs flex items-center gap-2 font-bold">
+                    <div className="p-3 rounded-xl bg-tile-sand border border-line text-tile-sand-ink text-xs flex items-center gap-2 font-bold">
                       <AlertTriangle className="w-4 h-4 text-tile-sand-ink shrink-0" />
                       <span>
                         AI ไม่สามารถระบุยอดเงินจากสลิปนี้ได้ชัดเจน
@@ -1211,7 +1211,7 @@ export default function GivingInbox() {
 
                   {currentSlip.extractedAmountConfidence &&
                     Number(currentSlip.extractedAmountConfidence) < 0.85 && (
-                      <div className="p-2.5 rounded-xl bg-tile-sand border border-[var(--ink)]/25 text-tile-sand-ink text-xs flex items-center gap-2 font-bold">
+                      <div className="p-2.5 rounded-xl bg-tile-sand border border-line text-tile-sand-ink text-xs flex items-center gap-2 font-bold">
                         <AlertTriangle className="w-3.5 h-3.5 text-tile-sand-ink shrink-0" />
                         <span>
                           ความมั่นใจของ AI ต่ำกว่าเกณฑ์ (
@@ -1478,7 +1478,7 @@ export default function GivingInbox() {
                 currentSlip.status !== "rejected" ? (
                   <div className="space-y-3 pt-4 border-t-2 border-[var(--ink)]">
                     {currentSlip.status === "duplicate" && (
-                      <div className="p-3 rounded-xl bg-danger/10 border-2 border-danger text-danger text-xs font-bold flex items-center gap-2">
+                      <div className="p-3 rounded-xl bg-danger/10 border border-danger/40 text-danger text-xs font-bold flex items-center gap-2">
                         <ShieldAlert className="w-4 h-4 text-danger shrink-0" />
                         <span>
                           สลิปนี้ได้รับการระบุว่าเป็นสลิปซ้ำ (Duplicate)
@@ -1507,7 +1507,7 @@ export default function GivingInbox() {
                         disabled={
                           approveMutation.isPending || rejectMutation.isPending
                         }
-                        className="min-h-11 w-full sm:w-auto px-5 py-2.5 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 text-danger font-extrabold text-sm shadow-[2px_2px_0_var(--ink)] transition-colors cursor-pointer disabled:opacity-50"
+                        className="min-h-11 w-full sm:w-auto px-5 py-2.5 rounded-xl border border-[var(--ink)] bg-danger/10 hover:bg-danger/15 text-danger font-extrabold text-sm transition-colors cursor-pointer disabled:opacity-50"
                       >
                         ปฏิเสธสลิป
                       </button>
@@ -1565,7 +1565,7 @@ export default function GivingInbox() {
 
       {/* ── Modal: Manual / Test Slip Upload ── */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
           <div className="neo-modal p-6 max-w-lg w-full space-y-5 relative">
             <button
               onClick={() => {
@@ -1578,7 +1578,7 @@ export default function GivingInbox() {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl border border-[var(--ink)] bg-accent text-accent-foreground flex items-center justify-center">
                 <UploadCloud className="w-5 h-5" />
               </div>
               <div>
@@ -1596,7 +1596,11 @@ export default function GivingInbox() {
             <div
               role="button"
               tabIndex={0}
-              aria-label={uploadPreview ? "คลิกเพื่อเปลี่ยนรูปภาพสลิป" : "คลิกเพื่อเลือกไฟล์รูปสลิป"}
+              aria-label={
+                uploadPreview
+                  ? "คลิกเพื่อเปลี่ยนรูปภาพสลิป"
+                  : "คลิกเพื่อเลือกไฟล์รูปสลิป"
+              }
               onClick={() => fileInputRef.current?.click()}
               onKeyDown={e => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -1604,10 +1608,10 @@ export default function GivingInbox() {
                   fileInputRef.current?.click();
                 }
               }}
-              className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
+              className={`border border-dashed rounded-2xl p-6 text-center cursor-pointer transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
                 uploadPreview
                   ? "border-brand bg-paper-2"
-                  : "border-[var(--ink)]/40 hover:border-brand bg-paper-2"
+                  : "border-line hover:border-brand bg-paper-2"
               }`}
             >
               <input
@@ -1692,7 +1696,7 @@ export default function GivingInbox() {
 
       {/* ── Modal: LINE Bot Setup & Info ── */}
       {showLineInfoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
           <div className="neo-modal p-6 max-w-lg w-full space-y-5 relative">
             <button
               onClick={() => setShowLineInfoModal(false)}
@@ -1702,7 +1706,7 @@ export default function GivingInbox() {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl border-2 border-[var(--ink)] bg-tile-mint text-tile-mint-ink shadow-[2px_2px_0_var(--ink)] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl border border-[var(--ink)] bg-tile-mint text-tile-mint-ink flex items-center justify-center">
                 <QrCode className="w-5 h-5" />
               </div>
               <div>
@@ -1811,10 +1815,10 @@ export default function GivingInbox() {
                   key={preset}
                   type="button"
                   onClick={() => setRejectReason(preset)}
-                  className={`px-2.5 py-1 text-xs rounded-lg border-[1.5px] transition-all ${
+                  className={`px-2.5 py-1 text-xs rounded-lg border-[1.5px] transition-colors ${
                     rejectReason === preset
                       ? "bg-danger/15 border-danger text-danger font-extrabold"
-                      : "bg-paper-2 border-[var(--ink)]/30 text-ink-2 font-bold hover:bg-surface"
+                      : "bg-paper-2 border-line text-ink-2 font-bold hover:bg-surface"
                   }`}
                 >
                   {preset}
@@ -1854,7 +1858,7 @@ export default function GivingInbox() {
               type="button"
               onClick={handleConfirmReject}
               disabled={rejectMutation.isPending || !rejectReason.trim()}
-              className="min-h-10 px-4 py-2 text-xs font-extrabold rounded-xl border-2 border-[var(--ink)] bg-danger hover:bg-danger/90 text-white shadow-[2px_2px_0_var(--ink)] transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              className="min-h-10 px-4 py-2 text-xs font-extrabold rounded-xl border border-[var(--ink)] bg-danger hover:bg-danger/90 text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
               {rejectMutation.isPending ? (
                 <>
@@ -1877,7 +1881,7 @@ type ReceiverKind = "match" | "mismatch" | "suspect" | "unknown";
 const RECEIVER_NOTE: Record<ReceiverKind, { text: string; cls: string }> = {
   match: {
     text: "ตรงกับบัญชีของคริสตจักร",
-    cls: "bg-tile-mint border-[var(--ink)]/30 text-tile-mint-ink",
+    cls: "bg-tile-mint border-line text-tile-mint-ink",
   },
   mismatch: {
     text: "ไม่ตรงกับบัญชีของคริสตจักร ตรวจภาพสลิปก่อนอนุมัติ",
@@ -1885,11 +1889,11 @@ const RECEIVER_NOTE: Record<ReceiverKind, { text: string; cls: string }> = {
   },
   suspect: {
     text: "ต่างจากบัญชีคริสตจักร 1 หลัก อาจอ่านผิด ตรวจภาพสลิปก่อนอนุมัติ",
-    cls: "bg-tile-sand border-[var(--ink)]/30 text-tile-sand-ink",
+    cls: "bg-tile-sand border-line text-tile-sand-ink",
   },
   unknown: {
     text: "ตรวจเทียบอัตโนมัติไม่ได้ (พร้อมเพย์ ปิดเลขมาก หรือยังไม่ได้ตั้งเลขบัญชีคริสตจักร) ให้ดูภาพสลิป",
-    cls: "bg-paper-2 border-[var(--ink)]/20 text-ink-2",
+    cls: "bg-paper-2 border-line text-ink-2",
   },
 };
 
@@ -1928,7 +1932,7 @@ export function EscalationNote({ aiData }: { aiData: unknown }) {
   return (
     <div
       role="note"
-      className="p-3 rounded-xl border-[1.5px] border-[var(--ink)]/30 bg-tile-sand text-tile-sand-ink text-xs font-bold"
+      className="p-3 rounded-xl border border-line bg-tile-sand text-tile-sand-ink text-xs font-bold"
     >
       <span className="font-extrabold">
         ผู้ถวายส่งไม่ผ่านการตรวจอัตโนมัติหลายครั้งใน 24 ชั่วโมง

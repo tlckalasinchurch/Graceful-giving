@@ -276,12 +276,11 @@ export default function Home() {
 
           <section
             aria-labelledby="dashboard-actions"
-            style={{ animationDelay: "160ms" }}
-            className={`animate-fade-up bento-card space-y-4 p-5 sm:p-6 ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"}`}
+            className={`bento-card space-y-4 p-5 sm:p-6 ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"}`}
           >
             <h2
               id="dashboard-actions"
-              className="flex items-center gap-2 px-1 text-xs font-bold uppercase tracking-[0.14em] text-ink-3"
+              className="flex items-center gap-2 px-1 text-sm font-semibold text-ink-2"
             >
               <span
                 className="size-1.5 rounded-full bg-brand"

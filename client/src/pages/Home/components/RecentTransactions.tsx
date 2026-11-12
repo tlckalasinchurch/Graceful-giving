@@ -39,7 +39,7 @@ export function RecentTransactions({
           </div>
           <button
             onClick={onViewAll}
-            className="inline-flex min-h-10 shrink-0 items-center rounded-xl border-2 border-[var(--ink)] bg-surface px-3.5 py-1.5 text-xs sm:text-sm font-extrabold text-ink shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-paper-2 focus-visible:ring-2 focus-visible:ring-brand active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+            className="btn-secondary inline-flex min-h-10 shrink-0 items-center rounded-xl px-3.5 py-1.5 text-xs sm:text-sm font-semibold"
           >
             ดูทั้งหมด
           </button>
@@ -57,11 +57,11 @@ export function RecentTransactions({
                 <li key={tx.id}>
                   <Link
                     href={`/transactions/${tx.id}`}
-                    className="flex min-h-16 items-center justify-between gap-3.5 rounded-xl px-2.5 py-3 transition-colors hover:bg-paper-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                    className="flex min-h-16 items-center justify-between gap-3.5 rounded-xl px-2.5 py-3 transition-colors hover:bg-ground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <div
-                        className={`flex size-11 shrink-0 items-center justify-center rounded-xl border-1.5 border-[var(--ink)] ${
+                        className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${
                           isIncome
                             ? "bg-tile-mint text-tile-mint-ink"
                             : "bg-tile-peach text-tile-peach-ink"
@@ -69,18 +69,18 @@ export function RecentTransactions({
                       >
                         {isIncome ? (
                           <ArrowDownLeft
-                            className="size-5 stroke-[2.2]"
+                            className="size-4.5 stroke-[2.2]"
                             aria-hidden="true"
                           />
                         ) : (
                           <ArrowUpRight
-                            className="size-5 stroke-[2.2]"
+                            className="size-4.5 stroke-[2.2]"
                             aria-hidden="true"
                           />
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-base font-extrabold text-ink">
+                        <p className="truncate text-sm sm:text-base font-semibold text-ink">
                           {tx.title}
                         </p>
                         <p className="truncate text-xs sm:text-sm font-medium text-ink-3 pt-0.5">

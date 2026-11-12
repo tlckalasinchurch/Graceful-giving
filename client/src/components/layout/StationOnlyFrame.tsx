@@ -20,11 +20,11 @@ export function StationOnlyFrame({
     <div className="min-h-dvh bg-ground text-ink">
       <header className="mx-auto flex max-w-lg items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] pt-[max(1rem,env(safe-area-inset-top))]">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-brand text-white shadow-[2px_2px_0_var(--ink)]">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
             <Sprout className="size-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <p className="truncate text-base font-extrabold text-ink">
+            <p className="truncate text-base font-bold text-ink">
               {churchName || "จุดถวายทรัพย์"}
             </p>
             {userName && (

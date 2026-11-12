@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { Sprout } from "lucide-react";
+import { Sprout, Check, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 const ERRORS: Record<string, string> = {
@@ -18,10 +18,10 @@ const ERRORS: Record<string, string> = {
 function BrandMark() {
   return (
     <div className="flex items-center gap-3">
-      <span className="grid size-11 place-items-center rounded-[12px] border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
-        <Sprout className="size-5 text-brand" aria-hidden="true" />
+      <span className="grid size-10 place-items-center rounded-xl bg-brand text-white">
+        <Sprout className="size-5" aria-hidden="true" />
       </span>
-      <span className="alpha-display text-lg font-extrabold">เกรซกิฟวิง</span>
+      <span className="alpha-display text-lg font-bold">เกรซกิฟวิง</span>
     </div>
   );
 }
@@ -59,23 +59,23 @@ export default function Login() {
     <div className="min-h-dvh bg-ground text-ink">
       <div className="mx-auto grid min-h-dvh w-full max-w-[1180px] lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
         {/* The verse the ministry stands on. Desktop only. */}
-        <aside className="hidden flex-col justify-between gap-12 border-r-2 border-[var(--ink)] bg-paper-2 p-12 lg:flex xl:p-16">
+        <aside className="hidden flex-col justify-between gap-12 border-r border-line bg-ground p-12 lg:flex xl:p-16">
           <BrandMark />
 
           <figure className="space-y-6">
-            <span className="inline-flex items-center rounded-full border-2 border-[var(--ink)] bg-accent px-3.5 py-1 text-xs font-extrabold text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
+            <span className="inline-flex items-center rounded-full bg-tile-mint px-3.5 py-1 text-xs font-semibold text-tile-mint-ink">
               2 โครินธ์ 9:7
             </span>
-            <blockquote className="alpha-display max-w-[13ch] text-[clamp(2.25rem,3.6vw,3.5rem)] leading-[1.15] text-ink">
+            <blockquote className="alpha-display max-w-[13ch] text-[clamp(2.1rem,3.4vw,3.1rem)] leading-[1.18] text-ink">
               “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
             </blockquote>
-            <figcaption className="text-base font-semibold text-ink-2">
+            <figcaption className="text-base font-medium text-ink-2">
               ความโปร่งใส ความสัตย์ซื่อ
               และความชื่นชมยินดีในการถวายเพื่อพระราชกิจ
             </figcaption>
           </figure>
 
-          <p className="text-sm font-bold text-ink-3">
+          <p className="text-sm font-medium text-ink-3">
             ระบบบัญชีการเงินคริสตจักร · เพื่อพันธกิจของพระเจ้า
           </p>
         </aside>
@@ -86,8 +86,8 @@ export default function Login() {
               <BrandMark />
             </div>
 
-            <header className="space-y-3">
-              <h1 className="alpha-display text-[clamp(2.25rem,8vw,2.75rem)] leading-[1.1] text-ink">
+            <header className="space-y-2">
+              <h1 className="alpha-display text-2xl sm:text-[1.75rem] leading-[1.2] text-ink">
                 เข้าสู่ระบบ
               </h1>
               <p className="text-base leading-relaxed text-ink-2">
@@ -96,7 +96,7 @@ export default function Login() {
             </header>
 
             {state === "pending" || state === "disabled" ? (
-              <div className="space-y-4 rounded-[16px] border-2 border-[var(--ink)] bg-surface p-5 sm:p-6 shadow-[4px_4px_0_var(--ink)]">
+              <div className="space-y-4 rounded-[20px] border border-line bg-surface p-5 sm:p-6">
                 <p className="alpha-display text-xl leading-snug text-ink">
                   {state === "pending"
                     ? "รอการมอบหมายสิทธิ์ใช้งาน"
@@ -109,27 +109,28 @@ export default function Login() {
                 </p>
 
                 {state === "pending" && openId && (
-                  <details className="group rounded-[12px] border border-line bg-paper-2 p-3 text-xs text-left">
-                    <summary className="cursor-pointer font-bold text-ink-3 hover:text-ink select-none flex items-center justify-between">
+                  <details className="group rounded-xl border border-line bg-ground p-3.5 text-xs text-left">
+                    <summary className="cursor-pointer font-semibold text-ink-2 hover:text-ink select-none flex items-center justify-between">
                       <span>สำหรับผู้ดูแลระบบ (การตั้งค่าครั้งแรก)</span>
-                      <span className="text-[10px] text-ink-3 group-open:rotate-180 transition-transform">
-                        ▼
-                      </span>
+                      <ChevronDown
+                        className="size-4 text-ink-3 group-open:rotate-180 transition-transform"
+                        aria-hidden="true"
+                      />
                     </summary>
-                    <div className="space-y-2 pt-3 border-t border-line/60 mt-2">
+                    <div className="space-y-2 pt-3 border-t border-line mt-2.5">
                       <p className="leading-relaxed text-ink-2">
                         วิธีปกติคือผู้ดูแลระบบอนุมัติบัญชีนี้ได้จากหน้าการตั้งค่า
                         ไม่ต้องทำตามขั้นตอนนี้ ขั้นตอนด้านล่างใช้เฉพาะการ
                         ตั้งค่าครั้งแรก: คัดลอกรหัส LINE OpenID นี้ไปใส่ใน
                         Vercel Environment Variables ที่ช่อง{" "}
-                        <code className="rounded bg-paper px-1.5 py-0.5 font-mono font-bold text-brand">
+                        <code className="rounded bg-surface px-1.5 py-0.5 font-mono font-semibold text-brand">
                           OWNER_OPEN_ID
                         </code>{" "}
                         แล้วเข้าสู่ระบบใหม่อีกครั้งเพื่อรับสิทธิ์ Super Admin
                         ทันที
                       </p>
-                      <div className="flex items-center justify-between gap-2 rounded-[8px] border border-line bg-surface p-2 font-mono text-[11px]">
-                        <span className="truncate select-all text-ink font-semibold">
+                      <div className="flex items-center justify-between gap-2 rounded-xl border border-line bg-surface p-2 font-mono text-xs">
+                        <span className="truncate select-all text-ink font-medium">
                           {openId}
                         </span>
                         <button
@@ -142,9 +143,15 @@ export default function Login() {
                               2000
                             );
                           }}
-                          className="shrink-0 rounded-[6px] border border-[var(--ink)] bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground shadow-[1px_1px_0_var(--ink)] transition-opacity hover:opacity-90 active:translate-y-px cursor-pointer"
+                          className="btn-secondary inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold cursor-pointer"
                         >
-                          {copied ? "คัดลอกแล้ว ✓" : "คัดลอกรหัส"}
+                          {copied && (
+                            <Check
+                              className="size-3.5 text-income"
+                              aria-hidden="true"
+                            />
+                          )}
+                          <span>{copied ? "คัดลอกแล้ว" : "คัดลอกรหัส"}</span>
                         </button>
                       </div>
                     </div>
@@ -170,7 +177,7 @@ export default function Login() {
                         }
                       }}
                       disabled={statusQuery.isFetching}
-                      className="btn-primary min-h-12 w-full rounded-[12px] px-4 py-3 text-base font-bold cursor-pointer"
+                      className="btn-primary min-h-12 w-full rounded-xl px-4 py-3 text-base font-semibold cursor-pointer"
                     >
                       {statusQuery.isFetching
                         ? "กำลังตรวจสอบ..."
@@ -181,7 +188,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => void logout()}
-                    className="btn-secondary min-h-12 w-full rounded-[12px] px-4 py-3 text-base font-bold cursor-pointer"
+                    className="btn-secondary min-h-12 w-full rounded-xl px-4 py-3 text-base font-semibold cursor-pointer"
                   >
                     ออกจากระบบ
                   </button>
@@ -191,7 +198,7 @@ export default function Login() {
               <div className="space-y-5">
                 <a
                   href="/api/auth/line/login"
-                  className="alpha-press flex min-h-14 w-full items-center justify-center rounded-[14px] border-2 border-[var(--ink)] bg-[var(--line-brand)] px-5 text-base font-extrabold text-[var(--line-brand-ink)] shadow-[4px_4px_0_var(--ink)]"
+                  className="alpha-press flex min-h-13 w-full items-center justify-center rounded-2xl bg-[var(--line-brand)] px-5 text-base font-bold text-[var(--line-brand-ink)]"
                 >
                   เข้าสู่ระบบด้วย LINE
                 </a>
@@ -199,7 +206,7 @@ export default function Login() {
                 {sessionExpired && (
                   <p
                     role="status"
-                    className="rounded-[12px] border-2 border-[var(--ink)] bg-paper-2 px-4 py-3 text-sm font-bold leading-relaxed text-ink shadow-[2px_2px_0_var(--ink)]"
+                    className="rounded-xl border border-line bg-paper-2 px-4 py-3 text-sm font-medium leading-relaxed text-ink"
                   >
                     เซสชันหมดอายุ กรุณาเข้าสู่ระบบด้วย LINE อีกครั้ง
                   </p>
@@ -208,16 +215,19 @@ export default function Login() {
                 {error && (
                   <p
                     role="alert"
-                    className="rounded-[12px] border-2 border-[var(--ink)] bg-danger/10 px-4 py-3 text-sm font-bold leading-relaxed text-danger shadow-[2px_2px_0_var(--ink)]"
+                    className="rounded-xl bg-tile-rose px-4 py-3 text-sm font-medium leading-relaxed text-tile-rose-ink"
                   >
                     {error}
                   </p>
                 )}
 
-                <p className="border-t-2 border-[var(--ink)]/20 pt-5 text-xs sm:text-sm leading-relaxed text-ink-3">
+                <p className="border-t border-line pt-5 text-xs sm:text-sm leading-relaxed text-ink-3">
                   ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
                   โปรดติดต่อผู้ดูแลระบบของคริสตจักร ·{" "}
-                  <a href="/privacy" className="font-bold text-ink underline">
+                  <a
+                    href="/privacy"
+                    className="font-semibold text-ink underline"
+                  >
                     นโยบายความเป็นส่วนตัว (PDPA)
                   </a>
                 </p>

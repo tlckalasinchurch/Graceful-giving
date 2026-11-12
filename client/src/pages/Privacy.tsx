@@ -32,15 +32,15 @@ export default function Privacy() {
               หน้าถวายทรัพย์
             </Link>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[var(--ink)] bg-accent px-3.5 py-1 text-xs font-extrabold text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
-            <ShieldCheck className="size-3.5 text-brand" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-tile-mint px-3.5 py-1 text-xs font-semibold text-tile-mint-ink">
+            <ShieldCheck className="size-3.5" />
             PDPA Compliance
           </span>
         </div>
 
-        <header className="space-y-3 border-b-2 border-[var(--ink)] pb-6">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink">
-            นโยบายความเป็นส่วนตัวและการคุ้มครองข้อมูลส่วนบุคคล (PDPA)
+        <header className="space-y-3 border-b border-line pb-6">
+          <h1 className="display text-2xl sm:text-[1.75rem] font-bold text-ink">
+            นโยบายความเป็นส่วนตัว (PDPA)
           </h1>
           <p className="text-sm text-ink-2 leading-relaxed">
             ระบบบัญชีการเงินและการถวายทรัพย์ของคริสตจักร (Grace Ledger)

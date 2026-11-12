@@ -229,7 +229,7 @@ export default function Offerings() {
       {/* 1. Header Banner with 3D Offering Box Illustration */}
       <div className="bento-card p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-2.5 text-center sm:text-left">
-          <div className="eyebrow">
+          <div className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
             <span>{bannerLabel}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-income">
@@ -240,7 +240,7 @@ export default function Offerings() {
           </p>
         </div>
 
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-paper-2 p-1.5 border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] shrink-0">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-paper-2 p-1.5 border border-[var(--ink)] shrink-0">
           <Illustration
             src="/illustrations/offering_box.jpg"
             alt="กล่องถวาย"
@@ -348,7 +348,7 @@ export default function Offerings() {
                 className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-paper-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-12 h-12 rounded-xl bg-tile-mint border-2 border-[var(--ink)] text-tile-mint-ink shadow-[2px_2px_0_var(--ink)] flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-tile-mint border border-[var(--ink)] text-tile-mint-ink flex items-center justify-center shrink-0">
                     <HandCoins className="w-6 h-6 stroke-[2.2]" />
                   </div>
                   <div className="min-w-0">
@@ -387,7 +387,7 @@ export default function Offerings() {
                         notes: o.notes || undefined,
                       });
                     }}
-                    className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-paper-2 border-2 border-[var(--ink)] text-ink shadow-[2px_2px_0_var(--ink)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                    className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-paper-2 border border-[var(--ink)] text-ink transition-colors active:scale-[0.985]"
                     title="พิมพ์ใบเสร็จเงินถวาย"
                     aria-label={`พิมพ์ใบเสร็จเงินถวายของ ${o.donorName}`}
                   >

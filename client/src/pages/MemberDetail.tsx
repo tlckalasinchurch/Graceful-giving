@@ -209,7 +209,7 @@ export default function MemberDetail() {
                         deactivate.mutate({ id });
                       }
                     }}
-                    className="min-h-11 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-xs font-extrabold text-danger shadow-[2px_2px_0_var(--ink)] transition-colors disabled:opacity-50 cursor-pointer"
+                    className="min-h-11 rounded-xl border border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-xs font-extrabold text-danger transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     ปิดใช้งาน
                   </button>
@@ -292,7 +292,7 @@ export default function MemberDetail() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="block text-xs font-bold uppercase tracking-wider text-ink-3">
+                    <span className="block text-xs font-bold text-ink-3">
                       ยอดถวายสะสม
                     </span>
                     <MoneyDisplay

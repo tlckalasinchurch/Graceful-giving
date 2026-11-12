@@ -76,10 +76,10 @@ export default function Notifications() {
                   if (!item.readAt) markRead.mutate({ id: item.id });
                   if (item.link) setLocation(item.link);
                 }}
-                className={`relative w-full rounded-2xl border-[1.5px] border-[var(--ink)] p-4 pl-9 text-left transition-all ${
+                className={`relative w-full rounded-2xl border-[1.5px] border-[var(--ink)] p-4 pl-9 text-left transition-colors ${
                   item.readAt
-                    ? "bg-surface shadow-[2px_2px_0_var(--ink)] hover:bg-paper-2"
-                    : "bg-paper-2 shadow-[4px_4px_0_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    ? "bg-surface hover:bg-paper-2"
+                    : "bg-paper-2 hover:-translate-x-0.5 hover:-translate-y-0.5"
                 }`}
               >
                 {!item.readAt && (

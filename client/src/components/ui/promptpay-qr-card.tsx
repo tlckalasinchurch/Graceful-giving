@@ -38,11 +38,13 @@ export function PromptPayQrCard({
       aria-label="QR พร้อมเพย์สำหรับถวาย"
       className="bento-card-static p-5 space-y-3 text-center"
     >
-      <span className="eyebrow">PROMPTPAY QR</span>
+      <span className="inline-flex items-center rounded-full bg-tile-sky px-3 py-1 text-xs font-semibold text-tile-sky-ink">
+        พร้อมเพย์ QR
+      </span>
       <h3 className="display text-base text-ink pt-1">สแกนจ่ายด้วยแอปธนาคาร</h3>
       <p className="text-xs text-ink-2">
         ยอด{" "}
-        <span className="font-extrabold text-brand tabular-nums">
+        <span className="font-semibold text-brand tabular-nums">
           {formatAmount(amount)} บาท
         </span>{" "}
         ใส่ให้แล้ว ไม่ต้องพิมพ์ยอดเอง
@@ -50,7 +52,7 @@ export function PromptPayQrCard({
 
       <div
         ref={box}
-        className="mx-auto w-56 max-w-full rounded-xl border-2 border-[var(--ink)] bg-surface p-3 shadow-[3px_3px_0_var(--ink)]"
+        className="mx-auto w-56 max-w-full rounded-2xl border border-line bg-white p-3"
       >
         <QRCodeSVG
           value={payload}

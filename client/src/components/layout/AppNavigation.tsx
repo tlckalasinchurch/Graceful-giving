@@ -173,12 +173,12 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={dark ? "เปลี่ยนเป็นโหมดสว่าง" : "เปลี่ยนเป็นโหมดมืด"}
-      className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-sm font-bold text-ink-2 hover:border-[var(--ink)] hover:text-ink cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
+      className="flex min-h-10 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink-2 transition-colors hover:border-[var(--field)] hover:text-ink cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
     >
       {dark ? (
-        <Sun className="size-4 shrink-0" aria-hidden="true" />
+        <Sun className="size-4 shrink-0 text-ink-3" aria-hidden="true" />
       ) : (
-        <Moon className="size-4 shrink-0" aria-hidden="true" />
+        <Moon className="size-4 shrink-0 text-ink-3" aria-hidden="true" />
       )}
       <span>{dark ? "โหมดสว่าง (Light)" : "โหมดมืด (Dark)"}</span>
     </button>
@@ -198,7 +198,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
         {children || (
           <button
             type="button"
-            className="btn-secondary flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-brand"
+            className="btn-secondary flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-brand"
           >
             <Menu className="size-5" aria-hidden="true" />
             <span>เมนูทั้งหมด</span>
@@ -207,23 +207,23 @@ export function AppMenu({ children }: { children?: ReactNode }) {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-[calc(100%-2rem)] max-w-sm gap-0 bg-surface text-ink border-r-2 border-[var(--ink)] shadow-[6px_0_0_var(--ink)] flex flex-col"
+        className="w-[calc(100%-2rem)] max-w-sm gap-0 bg-surface text-ink border-r border-line shadow-xl flex flex-col"
       >
-        <SheetHeader className="border-b-2 border-[var(--ink)] bg-ground p-6 pt-[max(1.25rem,env(safe-area-inset-top))] pr-16">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-brand text-sm font-bold text-white shadow-[3px_3px_0_var(--ink)]">
-              <Sprout className="size-5" aria-hidden="true" />
+        <SheetHeader className="border-b border-line bg-ground p-5 pt-[max(1.25rem,env(safe-area-inset-top))] pr-16">
+          <div className="mb-2 flex items-center gap-3">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-brand text-sm font-bold text-white">
+              <Sprout className="size-4.5" aria-hidden="true" />
             </div>
             <div>
-              <span className="font-display text-lg font-extrabold tracking-tight text-ink block leading-none">
+              <span className="font-display text-base font-bold tracking-tight text-ink block leading-none">
                 Grace <span className="text-brand">Giving</span>
               </span>
-              <span className="text-xs font-bold text-ink-3 mt-1 block">
-                FINTECH FOR MINISTRY
+              <span className="text-xs font-medium text-ink-3 mt-1 block">
+                การเงินคริสตจักรที่โปร่งใส
               </span>
             </div>
           </div>
-          <SheetTitle className="text-xs font-bold uppercase tracking-[0.14em] text-ink-3">
+          <SheetTitle className="text-xs font-medium text-ink-3">
             เมนูทั้งหมด
           </SheetTitle>
           <SheetDescription className="text-sm text-ink-2 mt-0.5 max-w-xs">
@@ -232,7 +232,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
         </SheetHeader>
         <nav
           aria-label="เมนูทุกหมวด"
-          className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain p-4"
+          className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain p-4"
         >
           {authorizedNavItems.reduce<ReactNode[]>((content, item, index) => {
             const previous = authorizedNavItems[index - 1];
@@ -246,7 +246,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
               content.push(
                 <p
                   key={`group-${group}`}
-                  className="px-3 pb-1.5 pt-5 text-xs font-extrabold text-ink-3 uppercase tracking-[0.12em] first:pt-0"
+                  className="px-3 pb-1 pt-5 text-xs font-medium text-ink-3 first:pt-0"
                 >
                   {group}
                 </p>
@@ -260,14 +260,14 @@ export function AppMenu({ children }: { children?: ReactNode }) {
                   onFocus={e =>
                     e.currentTarget.scrollIntoView({ block: "nearest" })
                   }
-                  className={`flex min-h-12 items-center gap-3 rounded-xl border-2 px-3.5 text-base transition-all ${
+                  className={`flex min-h-11 items-center gap-3 rounded-xl border px-3 text-base transition-colors ${
                     active
-                      ? "border-[var(--ink)] bg-brand font-bold text-white shadow-[2px_2px_0_var(--ink)]"
-                      : "border-transparent font-semibold text-ink-2 hover:bg-accent hover:text-accent-foreground hover:border-[var(--ink)]"
+                      ? "border-line bg-paper-2 font-semibold text-ink"
+                      : "border-transparent font-medium text-ink-2 hover:bg-paper-2 hover:text-ink"
                   }`}
                 >
                   <Icon
-                    className={`size-5 shrink-0 ${active ? "text-white" : "text-ink-3"}`}
+                    className={`size-5 shrink-0 ${active ? "text-brand" : "text-ink-3"}`}
                     aria-hidden="true"
                   />
                   <span>{item.label}</span>
@@ -277,7 +277,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
             return content;
           }, [])}
         </nav>
-        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t-2 border-line bg-ground space-y-2">
+        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-line bg-ground space-y-2">
           {toggleTheme && (
             <button
               type="button"
@@ -285,12 +285,12 @@ export function AppMenu({ children }: { children?: ReactNode }) {
               aria-label={
                 theme === "dark" ? "เปลี่ยนเป็นโหมดสว่าง" : "เปลี่ยนเป็นโหมดมืด"
               }
-              className="flex min-h-11 w-full items-center justify-between rounded-xl border border-line bg-surface px-3.5 text-sm font-bold text-ink-2 hover:border-[var(--ink)] hover:text-ink cursor-pointer"
+              className="flex min-h-11 w-full items-center justify-between rounded-xl border border-line bg-surface px-3.5 text-sm font-medium text-ink-2 transition-colors hover:border-[var(--field)] hover:text-ink cursor-pointer"
             >
               <div className="flex items-center gap-3">
                 {theme === "dark" ? (
                   <Sun
-                    className="size-4 text-accent-lime-ink shrink-0"
+                    className="size-4 text-ink-2 shrink-0"
                     aria-hidden="true"
                   />
                 ) : (
@@ -303,7 +303,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
                   {theme === "dark" ? "โหมดสว่าง (Light)" : "โหมดมืด (Dark)"}
                 </span>
               </div>
-              <span className="text-xs text-ink-3 font-semibold">
+              <span className="text-xs text-ink-3 font-medium">
                 {theme === "dark" ? "เปิดอยู่" : "ปิดอยู่"}
               </span>
             </button>
@@ -311,7 +311,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
           <SheetClose asChild>
             <GuardedLink
               href="/notifications"
-              className="flex min-h-11 items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-sm font-bold text-ink-2 hover:border-[var(--ink)] hover:text-ink"
+              className="flex min-h-11 items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-sm font-medium text-ink-2 transition-colors hover:border-[var(--field)] hover:text-ink"
             >
               <Bell className="size-4 text-brand shrink-0" aria-hidden="true" />
               <span>การแจ้งเตือน</span>
@@ -320,16 +320,16 @@ export function AppMenu({ children }: { children?: ReactNode }) {
           <SheetClose asChild>
             <GuardedLink
               href="/profile"
-              className="flex items-center gap-3 rounded-xl border-2 border-[var(--ink)] bg-surface px-3 py-2.5 shadow-[2px_2px_0_var(--ink)]"
+              className="flex items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2.5 transition-colors hover:border-[var(--field)]"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-tile-mint text-sm font-semibold text-tile-mint-ink">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-bold text-ink">
+                <span className="block truncate text-sm font-semibold text-ink">
                   {user?.name || "ผู้ใช้"}
                 </span>
-                <span className="block truncate text-xs font-medium text-ink-3">
+                <span className="block truncate text-xs font-normal text-ink-3">
                   {roleLabel}
                 </span>
               </span>

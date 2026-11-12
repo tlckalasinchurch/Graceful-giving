@@ -167,7 +167,7 @@ export default function Members() {
                   type="email"
                   value={email}
                   onChange={event => setEmail(event.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="somchai@church.or.th"
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
@@ -241,7 +241,7 @@ export default function Members() {
                 key={member.id}
                 type="button"
                 onClick={() => setLocation(`/members/${member.id}`)}
-                className="bento-card p-5 text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)]"
+                className="bento-card p-5 text-left transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -249,7 +249,7 @@ export default function Members() {
                       {member.name}
                     </h2>
                     {member.envelopeNo && (
-                      <span className="mt-1 inline-flex items-center gap-1 rounded-lg border border-[var(--ink)]/30 bg-accent/60 px-2 py-0.5 text-xs font-extrabold text-ink">
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-lg border border-line bg-accent/60 px-2 py-0.5 text-xs font-extrabold text-ink">
                         <Tag className="size-3 text-brand" />
                         ซอง #{member.envelopeNo}
                       </span>
@@ -258,10 +258,10 @@ export default function Members() {
                   <span
                     className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${
                       member.status === "active"
-                        ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
+                        ? "border-line bg-tile-mint text-tile-mint-ink"
                         : member.status === "pending"
-                          ? "border-[var(--ink)]/30 bg-tile-sand text-tile-sand-ink"
-                          : "border-[var(--ink)]/20 bg-paper-2 text-ink-3"
+                          ? "border-line bg-tile-sand text-tile-sand-ink"
+                          : "border-line bg-paper-2 text-ink-3"
                     }`}
                   >
                     {MEMBER_STATUS_LABEL[member.status] ?? member.status}

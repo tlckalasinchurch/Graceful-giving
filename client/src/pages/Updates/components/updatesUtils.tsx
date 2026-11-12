@@ -101,8 +101,8 @@ export function downloadICS(event: {
 
 export function EmptyPanel({ type }: { type: "news" | "events" }) {
   return (
-    <div className="rounded-2xl border-2 border-dashed border-[var(--ink)]/30 bg-paper-2 px-6 py-12 text-center">
-      <div className="mx-auto grid size-14 place-items-center rounded-2xl border-2 border-[var(--ink)] bg-surface text-brand shadow-[3px_3px_0_var(--ink)]">
+    <div className="rounded-2xl border border-dashed border-line bg-paper-2 px-6 py-12 text-center">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl border border-[var(--ink)] bg-surface text-brand">
         {type === "news" ? (
           <Megaphone className="size-7" strokeWidth={1.75} />
         ) : (
@@ -126,10 +126,10 @@ export function EmptyPanel({ type }: { type: "news" | "events" }) {
 export function StatusPill({ status }: { status: string }) {
   const styles =
     status === "published"
-      ? "border border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
+      ? "border border-line bg-tile-mint text-tile-mint-ink"
       : status === "cancelled" || status === "archived"
-        ? "border border-[var(--ink)]/20 bg-paper-2 text-ink-3"
-        : "border border-[var(--ink)]/30 bg-tile-sand text-tile-sand-ink";
+        ? "border border-line bg-paper-2 text-ink-3"
+        : "border border-line bg-tile-sand text-tile-sand-ink";
   const label =
     status === "published"
       ? "เผยแพร่แล้ว"
@@ -142,11 +142,11 @@ export function StatusPill({ status }: { status: string }) {
     <span
       className={`rounded-full px-2.5 py-1 text-xs font-extrabold ${styles}`}
     >
-      {label}
+      {" "}
+      {label}{" "}
     </span>
   );
 }
-
 export function Field({
   label,
   children,

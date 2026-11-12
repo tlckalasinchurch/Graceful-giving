@@ -24,11 +24,11 @@ export const NativeSelect = React.forwardRef<
       ref={ref}
       aria-invalid={invalid || undefined}
       className={cn(
-        "min-h-12 w-full appearance-none rounded-xl border-2 border-[var(--ink)]",
-        "bg-surface py-2.5 pl-4 pr-10 text-base font-medium text-ink shadow-[2px_2px_0_var(--ink)] transition-all",
-        "focus:border-brand focus:shadow-[2px_2px_0_var(--brand)] focus:outline-none",
+        "min-h-11 w-full appearance-none rounded-xl border border-line",
+        "bg-surface py-2 pl-3.5 pr-10 text-base font-medium text-ink transition-colors hover:border-[var(--field)]",
+        "focus:border-brand focus:ring-2 focus:ring-brand/20 focus:outline-none",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        invalid && "border-danger shadow-[2px_2px_0_var(--danger)]",
+        invalid && "border-danger",
         className
       )}
       {...props}

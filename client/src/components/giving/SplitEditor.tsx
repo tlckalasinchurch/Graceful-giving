@@ -41,10 +41,10 @@ export function SplitEditor({
     <div
       role="group"
       aria-label="แบ่งยอดถวายหลายประเภท"
-      className="space-y-3 rounded-2xl border-2 border-[var(--ink)] bg-surface p-4 shadow-[3px_3px_0_var(--ink)]"
+      className="space-y-3 rounded-[20px] border border-line bg-surface p-4"
     >
       <div>
-        <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">
+        <p className="mb-2 text-xs font-semibold text-ink-2">
           ถวายอะไรบ้าง? แตะเลือกได้หลายอัน
         </p>
         <div className="flex flex-wrap gap-2">
@@ -59,10 +59,10 @@ export function SplitEditor({
                 onClick={() =>
                   total !== null && onChange(toggleCategory(lines, c.id, total))
                 }
-                className={`inline-flex items-center gap-1 min-h-11 rounded-xl px-3 text-xs font-bold transition-all disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                className={`inline-flex items-center gap-1 min-h-10 rounded-full px-3.5 text-xs font-semibold transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                   on
-                    ? "border-2 border-[var(--ink)] bg-brand text-white shadow-[2px_2px_0_var(--ink)]"
-                    : "border border-line bg-paper-2 text-ink-2 hover:border-[var(--ink)] hover:text-ink"
+                    ? "border border-transparent bg-brand text-white"
+                    : "border border-line bg-ground text-ink-2 hover:border-[var(--field)] hover:text-ink"
                 }`}
               >
                 {on && (

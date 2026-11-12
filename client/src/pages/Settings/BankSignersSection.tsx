@@ -76,7 +76,7 @@ export function BankSignersSection() {
     <div className="bento-card-static p-6 md:p-8 space-y-6">
       <div className="space-y-1.5">
         <h3 className="display text-base font-extrabold text-ink flex items-center gap-2.5">
-          <span className="size-9 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 text-brand flex items-center justify-center shadow-[2px_2px_0_var(--ink)]">
+          <span className="size-9 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 text-brand flex items-center justify-center">
             <UserCheck className="w-5 h-5" />
           </span>
           ผู้มีอำนาจลงนามบัญชีธนาคาร
@@ -90,7 +90,7 @@ export function BankSignersSection() {
 
       {/* Warning when signers condition is incomplete */}
       {showWarning && (
-        <div className="rounded-2xl border-[1.5px] border-[var(--ink)]/30 bg-tile-sand p-4 text-xs text-tile-sand-ink flex items-start gap-3">
+        <div className="rounded-2xl border border-line bg-tile-sand p-4 text-xs text-tile-sand-ink flex items-start gap-3">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div>
             <p className="font-extrabold">เงื่อนไขการลงนามยังไม่สมบูรณ์</p>

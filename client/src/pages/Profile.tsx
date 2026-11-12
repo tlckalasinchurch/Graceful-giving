@@ -330,14 +330,14 @@ export default function Profile() {
                 <img
                   src={effectiveAvatar}
                   alt={user?.name || "Profile"}
-                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)]"
+                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border border-[var(--ink)]"
                 />
               ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-accent border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] flex items-center justify-center text-accent-foreground font-extrabold text-2xl sm:text-3xl md:text-4xl select-none">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-accent border border-[var(--ink)] flex items-center justify-center text-accent-foreground font-extrabold text-2xl sm:text-3xl md:text-4xl select-none">
                   {user?.name ? user.name.slice(0, 1) : "ศ"}
                 </div>
               )}
-              <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-brand border-2 border-[var(--ink)] flex items-center justify-center">
+              <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-brand border border-[var(--ink)] flex items-center justify-center">
                 <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white stroke-[3]" />
               </div>
             </div>
@@ -412,7 +412,7 @@ export default function Profile() {
         {canCountOfferings(user) && (
           <section className="bento-card-static p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-xl bg-paper-2 border-[1.5px] border-[var(--ink)] text-brand flex items-center justify-center shrink-0 shadow-[2px_2px_0_var(--ink)]">
+              <div className="w-12 h-12 rounded-xl bg-paper-2 border-[1.5px] border-[var(--ink)] text-brand flex items-center justify-center shrink-0">
                 <Coins className="w-6 h-6" />
               </div>
               <div>
@@ -438,7 +438,7 @@ export default function Profile() {
         {isSuperAdmin(user) && (
           <section className="bento-card-static p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-xl bg-paper-2 border-[1.5px] border-[var(--ink)] text-ink flex items-center justify-center shrink-0 shadow-[2px_2px_0_var(--ink)]">
+              <div className="w-12 h-12 rounded-xl bg-paper-2 border-[1.5px] border-[var(--ink)] text-ink flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
@@ -559,7 +559,7 @@ export default function Profile() {
                   await logout();
                 }
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-[var(--ink)] bg-danger/10 px-5 py-2.5 text-sm font-bold text-danger shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-danger/15 active:scale-[0.97]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-danger/10 px-5 py-2.5 text-sm font-bold text-danger transition-colors hover:bg-danger/15 active:scale-[0.97]"
             >
               <LogOut className="h-4 w-4" />
               ออกจากระบบ
@@ -581,15 +581,15 @@ export default function Profile() {
           </div>
 
           {/* Profile summary. Not a membership credential: it carries no code or number. */}
-          <div className="p-4 sm:p-6 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 shadow-[3px_3px_0_var(--ink)] text-center space-y-3 sm:space-y-4">
+          <div className="p-4 sm:p-6 rounded-2xl border border-[var(--ink)] bg-paper-2 text-center space-y-3 sm:space-y-4">
             {effectiveAvatar ? (
               <img
                 src={effectiveAvatar}
                 alt={user?.name || "รูปโปรไฟล์"}
-                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border-2 border-[var(--ink)]"
+                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border border-[var(--ink)]"
               />
             ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-surface border-2 border-[var(--ink)] flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-ink">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-surface border border-[var(--ink)] flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-ink">
                 {user?.name ? user.name.slice(0, 1) : "ศ"}
               </div>
             )}
@@ -691,10 +691,10 @@ export default function Profile() {
                       type="button"
                       aria-label={`เลือกรูปโปรไฟล์แบบที่ ${i + 1}`}
                       onClick={() => setEditAvatarUrl(p)}
-                      className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border-2 transition-all cursor-pointer p-0.5 ${
+                      className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border transition-colors cursor-pointer p-0.5 ${
                         editAvatarUrl === p
-                          ? "border-brand scale-110 shadow-[2px_2px_0_var(--ink)]"
-                          : "border-[var(--ink)]/30 hover:border-[var(--ink)]"
+                          ? "border-brand scale-110 "
+                          : "border-line hover:border-[var(--ink)]"
                       }`}
                     >
                       <img
@@ -760,7 +760,7 @@ export default function Profile() {
               />
             </div>
 
-            <div className="p-3 sm:p-3.5 rounded-2xl bg-paper-2 border-[1.5px] border-[var(--ink)]/20 text-xs text-ink-3 space-y-1">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-paper-2 border border-line text-xs text-ink-3 space-y-1">
               <span className="font-bold text-ink">หมายเหตุเรื่องบทบาท:</span>
               <p className="leading-relaxed">
                 บทบาทและสิทธิ์การใช้งานของท่าน ({userRoleInfo.label})
