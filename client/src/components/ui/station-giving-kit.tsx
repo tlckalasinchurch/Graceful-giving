@@ -66,6 +66,12 @@ export function StationProfileCard({
   metricValue?: string;
   className?: string;
 }) {
+  const [imgFailed, setImgFailed] = React.useState(false);
+
+  React.useEffect(() => {
+    setImgFailed(false);
+  }, [avatarUrl]);
+
   return (
     <div
       className={cn(
@@ -74,10 +80,12 @@ export function StationProfileCard({
       )}
     >
       <div className="flex min-w-0 items-center gap-3.5">
-        {avatarUrl ? (
+        {avatarUrl && !imgFailed ? (
           <img
             src={avatarUrl}
             alt={userName}
+            referrerPolicy="no-referrer"
+            onError={() => setImgFailed(true)}
             className="size-11 shrink-0 rounded-full object-cover"
           />
         ) : (

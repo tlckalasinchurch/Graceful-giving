@@ -194,6 +194,44 @@ const PRESET_AVATARS = [
   "/avatars/avatar-4.svg",
 ];
 
+function ProfileAvatar({
+  src,
+  name,
+  fallbackText,
+  className,
+  fallbackClassName,
+}: {
+  src: string | null | undefined;
+  name: string;
+  fallbackText: string;
+  className: string;
+  fallbackClassName: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (src && !failed) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        referrerPolicy="no-referrer"
+        onError={() => setFailed(true)}
+        className={className}
+      />
+    );
+  }
+
+  return (
+    <div aria-hidden="true" className={fallbackClassName}>
+      {fallbackText}
+    </div>
+  );
+}
+
 export default function Profile() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
@@ -223,14 +261,14 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && showEditProfileModal) {
       setEditName(user.name || "");
       setEditAvatarUrl((user as any).avatarUrl || "");
       setEditPhone((user as any).phone || "");
       setEditDepartment((user as any).department || "");
       setEditBio((user as any).bio || "");
     }
-  }, [user]);
+  }, [showEditProfileModal, user?.id]);
 
   // Mutation to update user profile
   const updateProfileMutation = trpc.auth.updateProfile.useMutation({
@@ -326,17 +364,15 @@ export default function Profile() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left relative z-10">
             {/* Large Circular Avatar */}
             <div className="relative shrink-0">
-              {effectiveAvatar ? (
-                <img
-                  src={effectiveAvatar}
-                  alt={user?.name || "Profile"}
-                  className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border border-line"
-                />
-              ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-accent border border-line flex items-center justify-center text-accent-foreground font-extrabold text-2xl sm:text-3xl md:text-4xl select-none">
-                  {user?.name ? user.name.slice(0, 1) : "ศ"}
-                </div>
-              )}
+              <ProfileAvatar
+                src={effectiveAvatar}
+                name={user?.name || "Profile"}
+                fallbackText={
+                  user?.name?.trim() ? user.name.trim().slice(0, 1) : "ศ"
+                }
+                className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border border-line"
+                fallbackClassName="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-accent border border-line flex items-center justify-center text-accent-foreground font-extrabold text-2xl sm:text-3xl md:text-4xl select-none"
+              />
               <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-brand border border-line flex items-center justify-center">
                 <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white stroke-[3]" />
               </div>
@@ -464,7 +500,7 @@ export default function Profile() {
         {/* ── SECTION: โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ ── */}
         <section className="bento-card-static p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
           <div className="border-b border-line pb-3 sm:pb-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-extrabold bg-accent text-accent-foreground border-[1.5px] border-brand/40 mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-extrabold bg-accent text-accent-foreground border border-brand/40 mb-2">
               <Award className="w-3.5 h-3.5 text-brand" />
               มติคริสตจักรอย่างเป็นทางการ
             </span>
@@ -511,9 +547,9 @@ export default function Profile() {
                       ขอบเขตหน้าที่ในระบบ:
                     </span>
                     <ul className="space-y-1">
-                      {roster.responsibilities.map((resp, rIdx) => (
+                      {roster.responsibilities.map(resp => (
                         <li
-                          key={rIdx}
+                          key={resp}
                           className="text-xs text-ink flex items-start gap-1.5"
                         >
                           <span className="text-brand font-bold mt-0.5">•</span>
@@ -582,17 +618,15 @@ export default function Profile() {
 
           {/* Profile summary. Not a membership credential: it carries no code or number. */}
           <div className="p-4 sm:p-6 rounded-2xl border border-line bg-paper-2 text-center space-y-3 sm:space-y-4">
-            {effectiveAvatar ? (
-              <img
-                src={effectiveAvatar}
-                alt={user?.name || "รูปโปรไฟล์"}
-                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border border-line"
-              />
-            ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-surface border border-line flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-ink">
-                {user?.name ? user.name.slice(0, 1) : "ศ"}
-              </div>
-            )}
+            <ProfileAvatar
+              src={effectiveAvatar}
+              name={user?.name || "รูปโปรไฟล์"}
+              fallbackText={
+                user?.name?.trim() ? user.name.trim().slice(0, 1) : "ศ"
+              }
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover border border-line"
+              fallbackClassName="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-accent border border-line flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-accent-foreground select-none"
+            />
             <div className="space-y-0.5 sm:space-y-1">
               <h4 className="text-base sm:text-lg font-extrabold text-ink break-words">
                 {user?.name || "สมาชิกคริสตจักร"}
@@ -606,14 +640,14 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-left pt-2 border-t border-line text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left pt-3 border-t border-line text-xs">
               <div>
                 <span className="text-xs text-ink-3">สังกัดคริสตจักร:</span>
-                <p className="font-bold text-ink truncate">{churchName}</p>
+                <p className="font-bold text-ink break-words">{churchName}</p>
               </div>
               <div>
                 <span className="text-xs text-ink-3">อีเมล:</span>
-                <p className="font-bold text-ink truncate">
+                <p className="font-bold text-ink break-all">
                   {user?.email || "ไม่ระบุ"}
                 </p>
               </div>
@@ -674,11 +708,12 @@ export default function Profile() {
               </label>
               <input
                 id="profile-f1"
-                type="url"
+                type="text"
+                inputMode="url"
                 value={editAvatarUrl}
                 onChange={e => setEditAvatarUrl(e.target.value)}
                 className="neo-input w-full px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-ink"
-                placeholder="https://..."
+                placeholder="https://... หรือเลือกจากด้านล่าง"
               />
               <div className="space-y-1.5 pt-1">
                 <span className="text-xs text-ink-3 block font-bold">
@@ -691,10 +726,10 @@ export default function Profile() {
                       type="button"
                       aria-label={`เลือกรูปโปรไฟล์แบบที่ ${i + 1}`}
                       onClick={() => setEditAvatarUrl(p)}
-                      className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border transition-colors cursor-pointer p-0.5 ${
+                      className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border transition-all cursor-pointer p-0.5 ${
                         editAvatarUrl === p
-                          ? "border-brand scale-110 "
-                          : "border-line hover:border-line"
+                          ? "border-brand ring-2 ring-brand/40 scale-105"
+                          : "border-line hover:border-brand/50"
                       }`}
                     >
                       <img
