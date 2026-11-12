@@ -37,7 +37,7 @@ export function GiveChooser({
   return (
     <section
       aria-label="เลือกประเภทและยอดถวาย"
-      className="lg:col-span-2 rounded-[20px] bg-surface border border-line p-5 space-y-4"
+      className="lg:col-span-2 rounded-2xl bg-surface border border-line p-5 space-y-4"
     >
       <div>
         <h3 className="mb-2.5 text-sm font-semibold text-ink-2">

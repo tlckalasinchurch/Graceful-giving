@@ -75,32 +75,35 @@ export function StationProfileCard({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 rounded-[20px] border border-line bg-surface px-5 py-4",
+        "flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface px-5 py-3.5",
         className
       )}
     >
-      <div className="flex min-w-0 items-center gap-3.5">
+      <div className="flex min-w-0 items-center gap-3">
         {avatarUrl && !imgFailed ? (
           <img
             src={avatarUrl}
             alt={userName}
             referrerPolicy="no-referrer"
             onError={() => setImgFailed(true)}
-            className="size-11 shrink-0 rounded-full object-cover"
+            className="size-10 shrink-0 rounded-full object-cover border border-line"
           />
         ) : (
-          <div className="grid size-11 shrink-0 place-items-center rounded-full bg-tile-mint text-base font-bold text-tile-mint-ink">
+          <div className="grid size-10 shrink-0 place-items-center rounded-full bg-tile-mint text-sm font-bold text-tile-mint-ink">
             {userName.trim().slice(0, 1).toUpperCase() || "G"}
           </div>
         )}
-        <span className="truncate text-base sm:text-lg font-semibold text-ink">
-          {userName}
-        </span>
+        <div className="min-w-0">
+          <span className="block truncate text-sm sm:text-base font-semibold text-ink">
+            {userName}
+          </span>
+          <span className="text-xs text-ink-3">ผู้ถวาย</span>
+        </div>
       </div>
 
       <div className="shrink-0 text-right">
         <div className="text-xs font-medium text-ink-3">{metricLabel}</div>
-        <div className="text-sm sm:text-base font-semibold tabular-nums text-brand">
+        <div className="text-xs sm:text-sm font-semibold tabular-nums text-brand">
           {metricValue}
         </div>
       </div>
@@ -124,30 +127,33 @@ export function StationStatusCard({
   return (
     <div
       className={cn(
-        "space-y-2.5 rounded-[20px] border border-line bg-surface px-5 py-4",
+        "rounded-2xl border border-line bg-surface px-5 py-3.5 space-y-1.5",
         className
       )}
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <span className="size-2.5 rounded-full bg-brand" aria-hidden="true" />
-          <span className="text-sm font-semibold text-ink">{label}</span>
-        </div>
-
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-tile-mint px-3 py-1">
+        <div className="flex items-center gap-2">
           <span
             className={cn(
               "size-2 rounded-full",
               isAvailable ? "bg-income" : "bg-danger"
             )}
+            aria-hidden="true"
           />
-          <span className="text-xs font-semibold text-tile-mint-ink">
-            {statusBadgeText}
-          </span>
+          <span className="text-xs font-semibold text-ink">{label}</span>
         </div>
+
+        <span
+          className={cn(
+            "text-xs font-semibold",
+            isAvailable ? "text-income" : "text-danger"
+          )}
+        >
+          {statusBadgeText}
+        </span>
       </div>
 
-      <p className="text-sm text-ink-2">{statusDetail}</p>
+      <p className="text-xs text-ink-3 leading-relaxed">{statusDetail}</p>
     </div>
   );
 }
@@ -184,71 +190,25 @@ export function StationHeroCTA({
         type="button"
         onClick={onClick}
         aria-label={`${buttonTitle} - ${buttonSubtitle}`}
-        className="group flex w-full items-center justify-between gap-4 rounded-[20px] bg-brand p-5 text-left text-white transition-colors hover:bg-[var(--brand-hover)] active:scale-[0.985] sm:p-6"
+        className="group flex w-full items-center justify-between gap-4 rounded-2xl bg-brand p-5 text-left text-white transition-colors hover:bg-[var(--brand-hover)] active:scale-[0.99] sm:p-6 cursor-pointer"
       >
         <div className="flex min-w-0 items-center gap-4">
-          <div className="grid size-13 shrink-0 place-items-center rounded-2xl bg-white/15 text-white sm:size-14">
-            <svg viewBox="0 0 40 40" className="size-8" aria-hidden="true">
-              <line
-                x1="10"
-                y1="17"
-                x2="10"
-                y2="23"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-              <line
-                x1="15"
-                y1="13"
-                x2="15"
-                y2="27"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-              <line
-                x1="20"
-                y1="9"
-                x2="20"
-                y2="31"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-              <line
-                x1="25"
-                y1="13"
-                x2="25"
-                y2="27"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-              <line
-                x1="30"
-                y1="17"
-                x2="30"
-                y2="23"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-              />
-            </svg>
+          <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-white/15 text-white sm:size-14">
+            <HandCoins className="size-6 sm:size-7" aria-hidden="true" />
           </div>
 
           <div className="min-w-0">
-            <div className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl">
+            <div className="text-xl font-extrabold leading-tight tracking-tight text-white sm:text-2xl">
               {buttonTitle}
             </div>
-            <div className="mt-0.5 text-sm font-bold text-white/85">
+            <div className="mt-0.5 text-xs sm:text-sm font-semibold text-white/90">
               {buttonSubtitle}
             </div>
           </div>
         </div>
 
-        <div className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-white/60 bg-white/10 text-white transition-transform group-hover:translate-x-1 sm:size-12">
-          <ArrowRight className="size-5 stroke-[2.5]" />
+        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-white/15 text-white transition-transform group-hover:translate-x-1 sm:size-11">
+          <ArrowRight className="size-5 stroke-[2.2]" />
         </div>
       </button>
 
@@ -328,17 +288,17 @@ export function StationCountdownCard({
   return (
     <div
       className={cn(
-        "rounded-[20px] border border-line bg-surface px-6 py-5 flex items-center justify-between gap-4",
+        "rounded-2xl border border-line bg-surface px-5 py-4 flex items-center justify-between gap-4",
         className
       )}
     >
-      <div className="space-y-1">
-        <div className="text-xs font-medium text-ink-3 sm:text-sm">{label}</div>
+      <div className="space-y-0.5">
+        <div className="text-xs font-medium text-ink-3">{label}</div>
         <div
           role="timer"
           aria-label={label}
           className={cn(
-            "text-4xl sm:text-5xl font-black tabular-nums tracking-tight",
+            "text-3xl sm:text-4xl font-extrabold tabular-nums tracking-tight",
             warning ? "text-danger" : "text-ink"
           )}
         >
@@ -381,14 +341,14 @@ export function StationStepStatusCard({
   return (
     <div
       className={cn(
-        "rounded-[20px] border border-line bg-paper-2 px-6 py-5 space-y-1.5",
+        "rounded-2xl border border-line bg-paper-2 px-5 py-4 space-y-1",
         className
       )}
     >
-      <div className="text-xs font-medium text-ink-3 sm:text-sm">{eyebrow}</div>
-      <div className="text-lg sm:text-xl font-extrabold text-ink">{title}</div>
+      <div className="text-xs font-medium text-ink-3">{eyebrow}</div>
+      <div className="text-base sm:text-lg font-bold text-ink">{title}</div>
       {updatedAtText && (
-        <div className="text-xs font-medium sm:text-sm text-ink-3">
+        <div className="text-xs text-ink-3">
           {updatedAtText}
         </div>
       )}
@@ -422,18 +382,18 @@ export function StationOfferingPackageCard({
       role="group"
       aria-label={title}
       className={cn(
-        "rounded-[20px] border bg-surface p-5 sm:p-6 space-y-4 transition-colors",
+        "rounded-2xl border bg-surface p-5 space-y-3.5 transition-colors",
         selected
-          ? "border-brand bg-tile-mint/40"
+          ? "border-brand bg-tile-mint/30"
           : "border-line hover:border-[var(--field)]",
         className
       )}
     >
-      <div className="space-y-1">
-        <h4 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+      <div className="space-y-0.5">
+        <h4 className="text-xl sm:text-2xl font-bold text-ink tracking-tight">
           {title}
         </h4>
-        <p className="text-sm sm:text-base font-medium text-ink-2">
+        <p className="text-xs sm:text-sm text-ink-2">
           {subtitle}
         </p>
       </div>
@@ -447,7 +407,7 @@ export function StationOfferingPackageCard({
               onClick={() => onSelectAmount(preset)}
               aria-pressed={amountThb === preset}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
+                "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
                 amountThb === preset
                   ? "border-brand bg-tile-mint text-tile-mint-ink"
                   : "border-line bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
@@ -459,7 +419,7 @@ export function StationOfferingPackageCard({
         </div>
       )}
 
-      <div className="text-3xl sm:text-4xl font-extrabold text-ink tabular-nums">
+      <div className="text-2xl sm:text-3xl font-extrabold text-ink tabular-nums">
         {formatAmount(amountThb)} บาท
       </div>
 
@@ -467,7 +427,7 @@ export function StationOfferingPackageCard({
         type="button"
         onClick={onSelect}
         aria-label={`${ctaLabel}: ${title}`}
-        className="btn-primary w-full py-3.5 px-6 text-lg sm:text-xl cursor-pointer"
+        className="btn-primary w-full py-3 px-5 text-sm sm:text-base cursor-pointer"
       >
         {ctaLabel}
       </button>
@@ -475,7 +435,7 @@ export function StationOfferingPackageCard({
   );
 }
 
-// ─── 5. Unlock / Confirm Giving Action Card (Screen 3 — Image 1) ─────────────
+// ─── 5. Confirm Giving Action Card (Screen 3) ────────────────────────────────
 
 export function StationUnlockConfirmCard({
   title = "พร้อมยืนยันการถวายแล้วหรือยัง?",
@@ -499,15 +459,15 @@ export function StationUnlockConfirmCard({
   return (
     <div
       className={cn(
-        "rounded-[20px] border border-line bg-surface p-4 sm:p-7 text-center space-y-4 sm:space-y-5",
+        "rounded-2xl border border-line bg-surface p-4 sm:p-6 text-center space-y-4",
         className
       )}
     >
-      <div className="space-y-2.5">
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+      <div className="space-y-1.5">
+        <h3 className="text-lg sm:text-xl font-bold text-ink tracking-tight">
           {title}
         </h3>
-        <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-md mx-auto">
+        <p className="text-xs sm:text-sm text-ink-2 leading-relaxed max-w-md mx-auto">
           {description}
         </p>
       </div>
@@ -519,7 +479,7 @@ export function StationUnlockConfirmCard({
         onClick={onConfirm}
         disabled={disabled || loading}
         aria-busy={loading}
-        className="btn-primary w-full py-4 sm:py-5 px-6 text-lg sm:text-xl cursor-pointer disabled:opacity-50"
+        className="btn-primary w-full py-3.5 px-5 text-sm sm:text-base cursor-pointer disabled:opacity-50"
       >
         {loading ? "กำลังส่งข้อมูลการถวาย..." : buttonLabel}
       </button>
@@ -607,12 +567,12 @@ export function StationQrPoster({
       data-footer-subtext={footerSubtext}
       data-church-name={churchName ?? ""}
       className={cn(
-        "inline-block w-full max-w-md mx-auto rounded-2xl border-2 border-[var(--ink)] bg-accent p-4 shadow-[6px_6px_0_var(--ink)] [print-color-adjust:exact] [-webkit-print-color-adjust:exact] sm:p-7 print:shadow-none",
+        "inline-block w-full max-w-md mx-auto rounded-2xl border border-line bg-accent p-4 [print-color-adjust:exact] [-webkit-print-color-adjust:exact] sm:p-6 print:border-none",
         className
       )}
     >
-      {/* Inner Sanctuary-Navy Poster Board */}
-      <div className="relative space-y-6 overflow-hidden rounded-xl border-2 border-[var(--ink)] bg-surface px-6 py-8 text-center sm:px-8 sm:py-10">
+      {/* Inner Sanctuary Poster Board */}
+      <div className="relative space-y-6 overflow-hidden rounded-xl border border-line bg-surface px-6 py-8 text-center sm:px-8 sm:py-10">
         {/* Top Isometric Logo + Brand */}
         <div className="flex flex-col items-center">
           <svg
@@ -732,7 +692,7 @@ export function StationQrPoster({
 
           <div
             data-qr-box="true"
-            className="mx-auto w-52 space-y-1.5 rounded-xl border-2 border-[var(--ink)] bg-surface p-3.5 sm:w-56"
+            className="mx-auto w-52 space-y-1.5 rounded-xl border border-line bg-surface p-3.5 sm:w-56"
           >
             {customQrImageUrl ? (
               <img
@@ -792,11 +752,11 @@ export function StationQrPoster({
             {steps.map((step, idx) => (
               <React.Fragment key={step.number}>
                 <div className="flex flex-col items-center space-y-2 flex-1 min-w-0">
-                  <div className="grid size-10 place-items-center rounded-xl border-1.5 border-[var(--ink)] bg-brand sm:size-13">
+                  <div className="grid size-10 place-items-center rounded-xl bg-brand text-white sm:size-13 shadow-xs">
                     {renderStepIcon(step.icon)}
                   </div>
                   <div className="flex flex-col items-center gap-1 sm:flex-row">
-                    <span className="grid size-4 shrink-0 place-items-center rounded-full border border-[var(--ink)] bg-accent text-xs font-extrabold text-accent-foreground">
+                    <span className="grid size-4 shrink-0 place-items-center rounded-full border border-line bg-accent text-[10px] font-extrabold text-accent-foreground">
                       {step.number}
                     </span>
                     <span className="break-words text-center text-xs font-bold leading-tight text-ink sm:text-xs">
