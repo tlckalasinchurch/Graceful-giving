@@ -399,7 +399,7 @@ export function ReconciliationSummaryTab({
             <AlertTriangle className="size-5 shrink-0 text-brand mt-0.5" />
             <div className="flex-1">
               <h3 className="font-extrabold text-brand">
-                ยอดยังไม่ตรงกัน — จำเป็นต้องบันทึกคำอธิบายผลต่าง
+                ยอดยังไม่ตรงกัน (จำเป็นต้องบันทึกคำอธิบายผลต่าง)
               </h3>
               <p className="mt-1 text-xs sm:text-sm font-medium text-ink-2 leading-relaxed">
                 ระบบไม่อนุญาตให้ปรับตัวเลขการเงินโดยอัตโนมัติ
@@ -426,7 +426,7 @@ export function ReconciliationSummaryTab({
       {unapprovedDeductions.length > 0 && (
         <p className="rounded-xl border border-line bg-tile-peach p-4 text-sm font-extrabold text-tile-peach-ink">
           มีรายการหักเบิกที่ยังไม่ได้รับอนุมัติ {unapprovedDeductions.length}{" "}
-          รายการ — ต้องอนุมัติก่อนลงบัญชี
+          รายการ (ต้องอนุมัติก่อนลงบัญชี)
         </p>
       )}
 

@@ -240,15 +240,19 @@
   --income: #087f5b;
   --danger: #c41c29;
   --brand: #087f5b;
+  --brand-hover: #066b48;
   --brand-ink: #ffffff;
   --line-brand: #06c755;
   --line-brand-ink: #0a0a0a;
+  --social-facebook: #1877f2;
 
   /* Accent / highlight */
   --accent-lime: #ccf572;
   --accent-lime-ink: #253606;
   --coral: #ff6b7d;
-  --coral-ink: #ffffff;
+  --coral-hover: #f25569;
+  --coral-ink: #141715;
+  --modal-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.18);
 
   /* Category tiles — pale pastel ground, matching deep ink */
   --tile-sky: #e3f0ff;
@@ -305,14 +309,18 @@
   --income: #3dd68c;
   --danger: #f06565;
   --brand: #087f5b;
+  --brand-hover: #066b48;
   --brand-ink: #ffffff;
   --line-brand: #06c755;
   --line-brand-ink: #0a0a0a;
+  --social-facebook: #1877f2;
 
   --accent-lime: #b8f34a;
   --accent-lime-ink: #253606;
   --coral: #ff6b7d;
-  --coral-ink: #ffffff;
+  --coral-hover: #f25569;
+  --coral-ink: #141715;
+  --modal-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.45);
 
   --tile-sky: #162638;
   --tile-sky-ink: #93c5fd;
@@ -394,6 +402,10 @@ html {
   }
 }
 
+html {
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   background-color: var(--background);
@@ -401,12 +413,18 @@ body {
   font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.65;
+  caret-color: var(--brand);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
   text-rendering: optimizeLegibility;
   min-height: 100dvh;
   overflow-x: clip;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand) 22%, transparent);
+  color: var(--ink);
 }
 
 /* Amounts line up down a column and do not jitter while counting up. */
@@ -491,7 +509,7 @@ select:focus-visible {
 }
 
 .font-script {
-  font-family: "Manrope", "IBM Plex Sans Thai", sans-serif;
+  font-family: var(--font-script);
 }
 
 @utility no-scrollbar {
@@ -518,7 +536,7 @@ select:focus-visible {
   border: 1px solid transparent;
 }
 .btn-primary:hover {
-  background: #066b48;
+  background: var(--brand-hover);
 }
 .btn-primary:active {
   transform: scale(0.985);
@@ -544,7 +562,7 @@ select:focus-visible {
   border: 1px solid transparent;
 }
 .btn-coral:hover {
-  background: #f25569;
+  background: var(--coral-hover);
 }
 .btn-coral:active {
   transform: scale(0.985);
@@ -589,7 +607,17 @@ select:focus-visible {
   border-radius: var(--radius-2xl);
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--modal-shadow);
+}
+
+/* Printable voucher document high-contrast monochrome tokens */
+.voucher-print-area {
+  --color-ink: #0f172a;
+  --color-ink-2: #334155;
+  --color-ink-3: #64748b;
+  --color-paper: #eef3f9;
+  --color-line: #e2e8f0;
+  --color-field: #cbd5e1;
 }
 
 /* Unified form input styling — >= 16px prevents iOS Safari auto-zoom on focus. */
@@ -689,6 +717,12 @@ select:focus-visible {
   a[href] {
     cursor: pointer;
   }
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  [type="button"]:disabled,
+  [type="submit"]:disabled {
+    cursor: not-allowed;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -700,9 +734,6 @@ select:focus-visible {
       color 180ms ease,
       box-shadow 180ms ease,
       border-color 180ms ease;
-  }
-  button:active:not(:disabled) {
-    opacity: 0.92;
   }
 }
 

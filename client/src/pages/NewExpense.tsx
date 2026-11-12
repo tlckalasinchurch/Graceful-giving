@@ -471,7 +471,7 @@ export default function NewExpense() {
                   className="font-medium"
                 >
                   <option value="" disabled>
-                    — เลือกกองทุน —
+                    เลือกกองทุน
                   </option>
                   {funds.map(f => (
                     <option key={f.id} value={f.id}>
@@ -565,10 +565,10 @@ export default function NewExpense() {
 
             {isUploading ? (
               <div className="p-6 rounded-xl bg-paper-2 border border-line flex items-center gap-4">
-                <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin motion-reduce:animate-none flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-ink">
-                    กำลังอัปโหลดไฟล์...
+                    กำลังอัปโหลดไฟล์…
                   </p>
                   <p className="text-xs font-medium text-ink-3">
                     {receiptFileName}
@@ -622,7 +622,7 @@ export default function NewExpense() {
                     className="text-xs font-bold text-brand hover:underline flex items-center gap-1"
                   >
                     <ImageIcon className="w-3 h-3" />
-                    ดูใบเสร็จต้นฉบับ →
+                    ดูใบเสร็จต้นฉบับ
                   </a>
                 )}
               </div>

@@ -236,7 +236,7 @@ export default function Offerings() {
             <MoneyDisplay amount={bannerAmount} type="income" size="xl" />
           </h2>
           <p className="text-xs font-medium text-ink-3">
-            "ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก" — 2 โครินธ์ 9:7
+            “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก” (2 โครินธ์ 9:7)
           </p>
         </div>
 

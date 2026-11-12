@@ -126,7 +126,7 @@ export default function GivingGuide() {
                 <code className="rounded bg-paper-2 px-1.5 py-0.5 font-mono text-xs font-semibold text-brand">
                   /give
                 </code>{" "}
-                — ไม่ต้องเข้าสู่หน้านี้
+                โดยไม่ต้องเข้าสู่หน้านี้
                 หน้านี้สำหรับทีมงานที่ตรวจสอบและบันทึกบัญชี
               </p>
             </div>
@@ -181,9 +181,9 @@ export default function GivingGuide() {
 
         {isSuperAdmin(user) && (
           <p className="px-1 text-xs leading-relaxed text-ink-3">
-            สิทธิ์ที่เกี่ยวข้อง: กรรมการนับเงิน (COUNTER) ใช้ขั้นตอนที่ 01–02 ·
-            เหรัญญิก (TREASURER) ใช้ทุกขั้นตอน · ศิษยาภิบาล (PASTOR) ดูสมุดบัญชี
-            และรายงาน
+            สิทธิ์ที่เกี่ยวข้อง: กรรมการนับเงิน (COUNTER) ใช้ขั้นตอนที่ 01-02,
+            เหรัญญิก (TREASURER) ใช้ทุกขั้นตอน, ศิษยาภิบาล (PASTOR)
+            ดูสมุดบัญชีและรายงาน
           </p>
         )}
       </div>

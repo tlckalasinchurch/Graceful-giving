@@ -240,7 +240,7 @@ export default function NewOffering() {
               การถวายด้วยความยินดี
             </h2>
             <p className="text-xs font-medium text-ink-2 leading-relaxed">
-              "พระเจ้าทรงรักผู้ที่ให้ด้วยใจยินดี" —
+              “พระเจ้าทรงรักผู้ที่ให้ด้วยใจยินดี”:
               ทุกยอดการถวายจะถูกบันทึกอย่างถูกต้องและโปร่งใสเพื่อการงานของพระเจ้า
             </p>
           </div>
@@ -344,7 +344,7 @@ export default function NewOffering() {
                 onChange={e => setFundId(e.target.value)}
               >
                 <option value="" disabled>
-                  — เลือกกองทุน —
+                  เลือกกองทุน
                 </option>
                 {funds.map(f => (
                   <option key={f.id} value={f.id}>

@@ -113,7 +113,7 @@ export default function Login() {
                     <summary className="cursor-pointer font-semibold text-ink-2 hover:text-ink select-none flex items-center justify-between">
                       <span>สำหรับผู้ดูแลระบบ (การตั้งค่าครั้งแรก)</span>
                       <ChevronDown
-                        className="size-4 text-ink-3 group-open:rotate-180 transition-transform"
+                        className="size-4 text-ink-3 group-open:rotate-180 transition-transform motion-reduce:transition-none"
                         aria-hidden="true"
                       />
                     </summary>

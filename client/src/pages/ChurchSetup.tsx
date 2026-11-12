@@ -353,7 +353,7 @@ export default function ChurchSetup() {
                 onClick={back}
                 className="btn-secondary min-h-[48px] flex-1 rounded-xl text-sm font-bold"
               >
-                ← ย้อนกลับ
+                ย้อนกลับ
               </button>
             )}
             {step < totalSteps ? (
@@ -361,7 +361,7 @@ export default function ChurchSetup() {
                 onClick={next}
                 className="btn-primary min-h-[48px] flex-[2] rounded-xl text-sm font-extrabold"
               >
-                ถัดไป →
+                ถัดไป
               </button>
             ) : (
               <button
@@ -369,15 +369,15 @@ export default function ChurchSetup() {
                 disabled={saving}
                 className="btn-primary min-h-[48px] flex-[2] rounded-xl text-sm font-extrabold disabled:opacity-60"
               >
-                {saving ? "กำลังบันทึก..." : "ยืนยันและเริ่มใช้งาน"}
+                {saving ? "กำลังบันทึก…" : "ยืนยันและเริ่มใช้งาน"}
               </button>
             )}
           </div>
           <button
             onClick={skipSetup}
-            className="mt-2 w-full py-2 text-center text-xs font-bold text-ink-2 transition hover:text-ink"
+            className="mt-2 w-full py-2 text-center text-xs font-bold text-ink-2 transition-colors hover:text-ink"
           >
-            ไว้ทีหลัง →
+            ไว้ทีหลัง
           </button>
         </div>
       </div>

@@ -206,7 +206,7 @@ export function Step3({
           onChange={e => set({ bankName: e.target.value })}
           className="border-line text-ink focus:border-brand"
         >
-          <option value="">— เลือกธนาคาร —</option>
+          <option value="">เลือกธนาคาร</option>
           {BANKS.map(b => (
             <option key={b} value={b}>
               {b}
@@ -240,7 +240,7 @@ export function Step3({
           ความปลอดภัย
         </p>
         <p className="mt-1 text-xs text-ink-2">
-          ข้อมูลบัญชีธนาคารจะถูกเก็บเป็นความลับ — เข้าถึงได้เฉพาะ TREASURER และ
+          ข้อมูลบัญชีธนาคารจะถูกเก็บเป็นความลับ โดยเข้าถึงได้เฉพาะ TREASURER และ
           SUPER_ADMIN เท่านั้น
         </p>
       </div>

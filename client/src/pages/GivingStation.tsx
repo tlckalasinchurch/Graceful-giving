@@ -780,7 +780,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 <div className="w-11 h-11" />
               )}
 
-              <div className="grid size-11 place-items-center rounded-xl border border-line bg-surface text-xs font-extrabold tracking-wider text-ink">
+              <div className="grid size-11 place-items-center rounded-xl border border-line bg-surface text-xs font-extrabold text-ink">
                 TH
               </div>
             </div>
@@ -1183,8 +1183,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
                     {isCompressing && (
                       <div className="flex items-center justify-center gap-2 rounded-xl bg-paper-2 border border-line p-3 text-xs font-bold text-ink">
-                        <Loader2 className="size-4 animate-spin text-brand" />
-                        กำลังปรับขนาดรูปสลิปและบีบอัดให้เหมาะสม...
+                        <Loader2 className="size-4 animate-spin motion-reduce:animate-none text-brand" />
+                        กำลังปรับขนาดรูปสลิปและบีบอัดให้เหมาะสม…
                       </div>
                     )}
 
@@ -1794,7 +1794,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(givingLink)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center py-2 px-3 rounded-xl border border-line bg-[#1877F2] text-white font-extrabold text-xs"
+                  className="inline-flex items-center justify-center py-2 px-3 rounded-xl border border-line bg-[var(--social-facebook)] text-white font-extrabold text-xs"
                 >
                   แชร์ Facebook
                 </a>

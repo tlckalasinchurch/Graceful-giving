@@ -726,7 +726,7 @@ export default function Profile() {
                       type="button"
                       aria-label={`เลือกรูปโปรไฟล์แบบที่ ${i + 1}`}
                       onClick={() => setEditAvatarUrl(p)}
-                      className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border transition-all cursor-pointer p-0.5 ${
+                      className={`size-11 min-w-11 min-h-11 rounded-full overflow-hidden border transition-[transform,border-color,box-shadow] cursor-pointer p-0.5 ${
                         editAvatarUrl === p
                           ? "border-brand ring-2 ring-brand/40 scale-105"
                           : "border-line hover:border-brand/50"

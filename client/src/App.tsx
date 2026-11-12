@@ -181,6 +181,7 @@ function RoleGuard({
         <div className="max-w-md w-full bg-surface rounded-[20px] p-8 border border-line text-center space-y-5">
           <div className="w-14 h-14 rounded-2xl bg-tile-rose mx-auto flex items-center justify-center text-tile-rose-ink">
             <svg
+              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               className="w-7 h-7"
               viewBox="0 0 24 24"
@@ -204,7 +205,7 @@ function RoleGuard({
           <div className="pt-2">
             <a
               href="/"
-              className="btn-primary inline-flex min-h-11 items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
+              className="btn-primary inline-flex min-h-11 items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-colors"
             >
               กลับสู่หน้าหลัก
             </a>
