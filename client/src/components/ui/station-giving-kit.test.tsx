@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   StationCountdownCard,
   StationOfferingPackageCard,
+  StationProfileCard,
   StationQrPoster,
 } from "./station-giving-kit";
 
@@ -119,5 +120,20 @@ describe("StationOfferingPackageCard", () => {
     expect(
       screen.getByRole("button", { name: "ดูสรุปการถวาย: สิบลด" })
     ).toBeTruthy();
+  });
+});
+
+describe("StationProfileCard", () => {
+  it("falls back to initial letter when avatarUrl fails to load", () => {
+    render(
+      <StationProfileCard
+        userName="Suriyong"
+        avatarUrl="https://profile.line-scdn.net/expired-hash"
+      />
+    );
+    const img = screen.getByRole("img", { name: "Suriyong" });
+    fireEvent.error(img);
+    expect(screen.queryByRole("img", { name: "Suriyong" })).toBeNull();
+    expect(screen.getByText("S")).toBeTruthy();
   });
 });
