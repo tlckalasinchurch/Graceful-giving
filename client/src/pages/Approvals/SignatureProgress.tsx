@@ -43,7 +43,7 @@ export function SignatureProgress({
       </h4>
 
       {signatures.length > 0 && (
-        <ul className="divide-y divide-line rounded-xl border-[1.5px] border-[var(--ink)] bg-surface">
+        <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
           {signatures.map(sig => (
             <li
               key={sig.userId}
@@ -80,7 +80,7 @@ export function SignatureProgress({
       )}
 
       {approval.outcome === "approved" && (
-        <p className="inline-flex items-center rounded-full border border-[var(--ink)] bg-tile-mint px-3 py-1 text-xs font-extrabold text-tile-mint-ink">
+        <p className="inline-flex items-center rounded-full border border-line bg-tile-mint px-3 py-1 text-xs font-extrabold text-tile-mint-ink">
           ครบตามเงื่อนไขธนาคาร
         </p>
       )}
@@ -92,12 +92,12 @@ export function SignatureProgress({
       {approval.outcome === "pending" && (
         <p className="flex flex-wrap items-center gap-2 text-xs">
           {!approval.requiredSignerApproved && (
-            <span className="inline-flex items-center rounded-full border-[1.5px] border-[var(--ink)] bg-surface px-3 py-1 font-extrabold text-brand">
+            <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-extrabold text-brand">
               รอศิษยาภิบาลลงนาม
             </span>
           )}
           {approval.approvedCount < MIN_APPROVALS && (
-            <span className="inline-flex items-center rounded-full border-[1.5px] border-[var(--ink)] bg-surface px-3 py-1 font-extrabold text-ink-2">
+            <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-extrabold text-ink-2">
               รออีก {MIN_APPROVALS - approval.approvedCount} คน
             </span>
           )}

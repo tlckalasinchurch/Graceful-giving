@@ -10,11 +10,16 @@ describe("Final UX Verification Suite", () => {
         { id: 20, name: "ดำเนินงานทั่วไป", type: "general" },
       ];
 
-      function FundDefaultHarness({ funds }: { funds: Array<{ id: number; name: string; type: string }> }) {
+      function FundDefaultHarness({
+        funds,
+      }: {
+        funds: Array<{ id: number; name: string; type: string }>;
+      }) {
         const [fundId, setFundId] = useState("");
         React.useEffect(() => {
           if (!fundId && funds.length > 0) {
-            const defaultFund = funds.find(f => f.type === "general") || funds[0];
+            const defaultFund =
+              funds.find(f => f.type === "general") || funds[0];
             if (defaultFund) setFundId(String(defaultFund.id));
           }
         }, [funds, fundId]);
@@ -22,7 +27,9 @@ describe("Final UX Verification Suite", () => {
         return <div data-testid="selected-fund">{fundId}</div>;
       }
 
-      const { unmount } = render(<FundDefaultHarness funds={fundsWithGeneral} />);
+      const { unmount } = render(
+        <FundDefaultHarness funds={fundsWithGeneral} />
+      );
       expect(screen.getByTestId("selected-fund")).toHaveTextContent("20");
       unmount();
 
@@ -119,7 +126,11 @@ describe("Final UX Verification Suite", () => {
       expect(toastWarning).not.toHaveBeenCalled();
 
       // 2. Slip attached: no reset
-      testExpire({ isSubmitting: false, slipPreview: "blob:http://...", giveLinesCount: 1 });
+      testExpire({
+        isSubmitting: false,
+        slipPreview: "blob:http://...",
+        giveLinesCount: 1,
+      });
       expect(resetFlow).not.toHaveBeenCalled();
       expect(toastWarning).not.toHaveBeenCalled();
 

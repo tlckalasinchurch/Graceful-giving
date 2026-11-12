@@ -238,7 +238,7 @@ export default function Transactions() {
           <div
             role="group"
             aria-label="กรองตามช่วงเวลา"
-            className="inline-flex flex-wrap items-center gap-1 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface p-1"
+            className="inline-flex flex-wrap items-center gap-1 rounded-xl border border-line bg-surface p-1"
           >
             <Calendar
               className="ml-2 size-3.5 text-brand shrink-0"
@@ -252,7 +252,7 @@ export default function Transactions() {
                 aria-pressed={periodFilter === opt.id}
                 className={`min-h-9 rounded-lg px-3 py-1 text-xs font-extrabold transition-colors ${
                   periodFilter === opt.id
-                    ? "bg-accent text-accent-foreground border border-[var(--ink)]"
+                    ? "bg-accent text-accent-foreground border border-brand/40"
                     : "text-ink-2 hover:bg-paper-2"
                 }`}
               >
@@ -313,7 +313,7 @@ export default function Transactions() {
                 </p>
               </div>
               <div
-                className={`size-9 shrink-0 rounded-lg border border-[var(--ink)] flex items-center justify-center ${
+                className={`size-9 shrink-0 rounded-lg border border-line flex items-center justify-center ${
                   c.tone === "income"
                     ? "bg-tile-mint text-tile-mint-ink"
                     : c.tone === "expense"
@@ -390,7 +390,7 @@ export default function Transactions() {
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold text-ink">
+              <thead className="border-b border-line bg-paper-2 text-xs font-extrabold text-ink">
                 <tr>
                   <th scope="col" className="p-4">
                     วันที่
@@ -510,7 +510,7 @@ export default function Transactions() {
             hasNext={hasMore}
             onPrev={prev}
             onNext={() => next(pagedData?.nextCursor)}
-            className="border-t-2 border-[var(--ink)] bg-paper-2 p-4"
+            className="border-t border-line bg-paper-2 p-4"
           />
         </div>
       )}

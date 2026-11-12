@@ -326,7 +326,7 @@ export default function Expenses() {
             <div
               role="group"
               aria-label="กรองตามช่วงเวลา"
-              className="inline-flex flex-wrap items-center gap-1 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-1"
+              className="inline-flex flex-wrap items-center gap-1 rounded-xl border border-line bg-paper-2 p-1"
             >
               <Calendar
                 className="ml-2 size-3.5 text-brand shrink-0"
@@ -340,7 +340,7 @@ export default function Expenses() {
                   aria-pressed={periodFilter === opt.id}
                   className={`min-h-9 rounded-lg px-3 py-1 text-xs font-extrabold transition-colors ${
                     periodFilter === opt.id
-                      ? "bg-accent text-accent-foreground border border-[var(--ink)]"
+                      ? "bg-accent text-accent-foreground border border-brand/40"
                       : "text-ink-2 hover:bg-surface"
                   }`}
                 >
@@ -397,7 +397,7 @@ export default function Expenses() {
                   <caption className="sr-only">
                     รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
                   </caption>
-                  <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold text-ink">
+                  <thead className="border-b border-line bg-paper-2 text-xs font-extrabold text-ink">
                     <tr>
                       <th scope="col" className="py-3.5 px-5">
                         วันที่
@@ -453,7 +453,7 @@ export default function Expenses() {
                           </th>
                           <td className="whitespace-nowrap py-3.5 px-5">
                             <span
-                              className={`inline-flex items-center gap-1.5 rounded-full border border-[var(--ink)] px-2.5 py-0.5 text-xs font-bold ${cat.color}`}
+                              className={`inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-0.5 text-xs font-bold ${cat.color}`}
                             >
                               <CatIcon className="size-3.5" />
                               {expenseCategoryLabel(e.category)}
@@ -483,7 +483,7 @@ export default function Expenses() {
                                       title: e.description,
                                     })
                                   }
-                                  className="inline-flex size-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-tile-mint text-tile-mint-ink hover:bg-accent hover:text-accent-foreground"
+                                  className="inline-flex size-11 items-center justify-center rounded-xl border border-brand/40 bg-tile-mint text-tile-mint-ink hover:bg-accent hover:text-accent-foreground"
                                   title="ดูสลิป/ใบเสร็จ"
                                   aria-label={`ดูสลิปของ ${e.description}`}
                                 >
@@ -492,7 +492,7 @@ export default function Expenses() {
                               )}
                               <button
                                 onClick={() => setSelectedVoucher(toVoucher(e))}
-                                className="inline-flex size-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-surface text-ink hover:bg-paper-2"
+                                className="inline-flex size-11 items-center justify-center rounded-xl border border-line bg-surface text-ink hover:bg-paper-2"
                                 title="พิมพ์ใบสำคัญจ่าย"
                                 aria-label={`พิมพ์ใบสำคัญจ่ายของ ${e.description}`}
                               >
@@ -521,7 +521,7 @@ export default function Expenses() {
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-[var(--ink)] text-xs font-bold ${cat.color}`}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-line text-xs font-bold ${cat.color}`}
                             >
                               <CatIcon className="w-3 h-3" />
                               {expenseCategoryLabel(e.category)}
@@ -567,7 +567,7 @@ export default function Expenses() {
                                 title: e.description,
                               })
                             }
-                            className="inline-flex min-h-11 items-center gap-1.5 px-3.5 py-2 rounded-xl bg-tile-mint text-tile-mint-ink border border-[var(--ink)] text-xs font-bold"
+                            className="inline-flex min-h-11 items-center gap-1.5 px-3.5 py-2 rounded-xl bg-tile-mint text-tile-mint-ink border border-line text-xs font-bold"
                           >
                             <Paperclip className="w-3.5 h-3.5" />
                             <span>ดูสลิป</span>
@@ -575,7 +575,7 @@ export default function Expenses() {
                         )}
                         <button
                           onClick={() => setSelectedVoucher(toVoucher(e))}
-                          className="min-h-11 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface text-ink border border-[var(--ink)] text-xs font-bold"
+                          className="min-h-11 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface text-ink border border-line text-xs font-bold"
                         >
                           <Printer className="w-3.5 h-3.5 text-brand" />
                           <span>พิมพ์ใบสำคัญ</span>
@@ -639,7 +639,7 @@ function MetricCard({
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs font-extrabold text-ink-3">{label}</span>
         <span
-          className={`grid size-8 place-items-center rounded-lg border border-[var(--ink)] ${
+          className={`grid size-8 place-items-center rounded-lg border border-line ${
             tone === "expense"
               ? "bg-tile-peach text-tile-peach-ink"
               : tone === "accent"

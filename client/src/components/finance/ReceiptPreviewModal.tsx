@@ -1,5 +1,11 @@
 import React from "react";
 import { X, ExternalLink, Download, FileText } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ReceiptPreviewModalProps {
   isOpen: boolean;
@@ -16,20 +22,31 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
   title,
   refCode,
 }) => {
-  if (!isOpen || !receiptUrl) return null;
+  if (!receiptUrl) return null;
 
   const isPdf = receiptUrl.toLowerCase().includes(".pdf");
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 flex items-center justify-center p-4">
-      <div className="neo-modal w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <Dialog
+      open={isOpen}
+      onOpenChange={open => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        showCloseButton={false}
+        className="w-[calc(100%-1.5rem)] max-w-2xl p-0 gap-0 overflow-hidden flex flex-col max-h-[90dvh]"
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-ground border-b border-line">
           <div>
             <p className="text-xs font-medium text-ink-3">เอกสารแนบ</p>
-            <h3 className="display text-base text-ink">
+            <DialogTitle className="display text-base text-ink">
               หลักฐานสลิป / ใบเสร็จแนบ
-            </h3>
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              ตัวอย่างหลักฐานสลิปหรือใบเสร็จแนบพร้อมลิงก์เปิดดูเต็มจอ
+            </DialogDescription>
             {refCode && (
               <p className="text-xs text-ink-3 font-mono mt-0.5">
                 {refCode} {title && `• ${title}`}
@@ -41,12 +58,13 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
               href={receiptUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary inline-flex min-h-10 items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors"
+              className="btn-secondary inline-flex min-h-11 items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>เปิดลิงก์เต็ม</span>
             </a>
             <button
+              type="button"
               onClick={onClose}
               aria-label="ปิดตัวอย่างใบเสร็จ"
               className="min-h-11 min-w-11 inline-flex items-center justify-center p-1.5 text-ink-2 hover:text-ink hover:bg-paper-2 rounded-xl transition-colors cursor-pointer"
@@ -78,16 +96,20 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
               </a>
             </div>
           ) : (
-            <div className="max-w-full max-h-[70vh] flex items-center justify-center overflow-hidden rounded-[20px] border border-line bg-surface p-2">
+            <div className="max-w-full max-h-[70dvh] flex items-center justify-center overflow-hidden rounded-[20px] border border-line bg-surface p-2">
               <img
                 src={receiptUrl}
-                alt="Receipt Full Preview"
-                className="max-h-[65vh] w-auto object-contain rounded-xl"
+                alt={
+                  title
+                    ? `ภาพตัวอย่างหลักฐาน: ${title}`
+                    : "ภาพตัวอย่างหลักฐานสลิปหรือใบเสร็จ"
+                }
+                className="max-h-[65dvh] w-auto object-contain rounded-xl"
               />
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

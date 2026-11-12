@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "./components/ui/dialog";
+import { ReceiptPreviewModal } from "./components/finance/ReceiptPreviewModal";
 
 describe("Phase 1 Accessibility Regressions", () => {
   describe("Radix Dialog Focus Trap & Accessible Name", () => {
@@ -29,7 +30,9 @@ describe("Phase 1 Accessibility Regressions", () => {
 
       const dialog = screen.getByRole("dialog");
       expect(dialog).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "ระบุเหตุผลที่ไม่อนุมัติ" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "ระบุเหตุผลที่ไม่อนุมัติ" })
+      ).toBeInTheDocument();
       expect(screen.getByLabelText("เหตุผลที่ไม่อนุมัติ")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "ปิด" })).toBeInTheDocument();
     });
@@ -63,7 +66,9 @@ describe("Phase 1 Accessibility Regressions", () => {
         </div>
       );
 
-      const button = screen.getByRole("button", { name: "คลิกเพื่อเลือกไฟล์รูปสลิป" });
+      const button = screen.getByRole("button", {
+        name: "คลิกเพื่อเลือกไฟล์รูปสลิป",
+      });
       expect(button).toBeInTheDocument();
       expect(button).toHaveAttribute("tabindex", "0");
 
@@ -83,6 +88,32 @@ describe("Phase 1 Accessibility Regressions", () => {
       // Clicking input directly stops propagation so it doesn't trigger parent div's click
       fireEvent.click(input);
       expect(handleClick).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("ReceiptPreviewModal Dialog Semantics", () => {
+    it("renders as an accessible dialog and invokes onClose on Escape", () => {
+      const onClose = vi.fn();
+      render(
+        <ReceiptPreviewModal
+          isOpen={true}
+          onClose={onClose}
+          receiptUrl="https://example.com/slip.jpg"
+          title="ถวายทรัพย์"
+          refCode="INC-2026-0001"
+        />
+      );
+
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "หลักฐานสลิป / ใบเสร็จแนบ" })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "ปิดตัวอย่างใบเสร็จ" })
+      ).toBeInTheDocument();
+
+      fireEvent.keyDown(document, { key: "Escape" });
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
 });

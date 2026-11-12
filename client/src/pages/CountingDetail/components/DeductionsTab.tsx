@@ -79,7 +79,7 @@ export function DeductionsTab({
 
   return (
     <section className="space-y-4">
-      <p className="rounded-xl border border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
+      <p className="rounded-xl border border-line bg-paper-2 p-4 text-sm font-medium text-ink-2">
         เงินที่เบิกจากถุงถวายก่อนนำฝาก ยอดถวายจะไม่หายจากระบบ — ระบบตรวจว่า
         นับเงินสดได้ − หักเบิก = ยอดนำฝาก
       </p>
@@ -213,7 +213,7 @@ export function DeductionsTab({
       )}
 
       <div className="bento-card-static overflow-hidden">
-        <div className="flex items-center justify-between border-b-2 border-[var(--ink)] bg-paper-2 p-4">
+        <div className="flex items-center justify-between border-b border-line bg-paper-2 p-4">
           <h2 className="font-extrabold text-ink">
             รายการหักเบิก ({deductions.length})
           </h2>
@@ -252,7 +252,7 @@ export function DeductionsTab({
                         aria-label="ลบรายการเบิกนี้"
                         onClick={() => void handleRemoveDeduction(deduction)}
                         disabled={removeDeduction.isPending}
-                        className="flex size-10 items-center justify-center rounded-xl border border-[var(--ink)] bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
+                        className="flex size-10 items-center justify-center rounded-xl border border-danger/30 bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

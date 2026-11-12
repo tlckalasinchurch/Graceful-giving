@@ -3,6 +3,12 @@ import { trpc } from "@/lib/trpc";
 import { bahtText } from "@/lib/bahtText";
 import { Printer, X, Building2, CheckCircle2 } from "lucide-react";
 import { THAI_LOCALE } from "@/lib/format";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export interface VoucherData {
   id: number | string;
@@ -39,7 +45,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   });
   const church = churchQuery.data;
 
-  if (!isOpen || !data) return null;
+  if (!data) return null;
 
   const isExpense = type === "expense";
   const docTitle = isExpense
@@ -61,9 +67,16 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 flex items-center justify-center p-4 print:p-0 print:bg-surface print:static print:overflow-visible">
-      {/* Container */}
-      <div className="neo-modal w-full max-w-3xl overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
+    <Dialog
+      open={isOpen}
+      onOpenChange={open => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        showCloseButton={false}
+        className="w-[calc(100%-1.5rem)] max-w-3xl p-0 gap-0 overflow-hidden flex flex-col max-h-[92dvh] print:static print:top-auto print:left-auto print:translate-x-0 print:translate-y-0 print:max-h-none print:max-w-none print:w-full print:border-none print:shadow-none print:rounded-none print:overflow-visible print:bg-surface"
+      >
         {/* Modal Action Bar (Hidden in print) */}
         <div className="flex items-center justify-between px-6 py-4 bg-ground border-b border-line print:hidden">
           <div className="flex items-center gap-2.5 text-ink">
@@ -74,13 +87,17 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               <span className="text-xs font-medium text-ink-3 block">
                 เอกสารทางการคริสตจักร
               </span>
-              <span className="font-semibold text-sm text-ink">
+              <DialogTitle className="font-semibold text-sm text-ink">
                 ใบสำคัญสำหรับพิมพ์ (A4)
-              </span>
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                {docTitle} เลขที่ {docNumber} สำหรับตรวจสอบและพิมพ์ขนาด A4
+              </DialogDescription>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={handlePrint}
               className="btn-primary inline-flex min-h-11 items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-xs transition-colors"
             >
@@ -88,6 +105,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               <span>พิมพ์เอกสาร (Print / PDF)</span>
             </button>
             <button
+              type="button"
               onClick={onClose}
               aria-label="ปิดใบสำคัญ"
               className="min-h-11 min-w-11 inline-flex items-center justify-center p-2 text-ink-2 hover:text-ink hover:bg-paper-2 rounded-xl transition-colors cursor-pointer"
@@ -340,10 +358,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             )}
           </div>
         </div>
-      </div>
 
-      {/* Print Specific CSS */}
-      <style>{`
+        {/* Print Specific CSS */}
+        <style>{`
         @media print {
           body * {
             visibility: hidden;
@@ -361,6 +378,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           }
         }
       `}</style>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

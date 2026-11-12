@@ -20,9 +20,12 @@ export const LoadingSkeleton: React.FC<{
 }> = ({ count = 3, height = "h-24", className = "" }) => {
   return (
     <div className={`space-y-3 w-full ${className}`}>
-      {Array.from({ length: count }).map((_, idx) => (
+      {Array.from(
+        { length: count },
+        (_, slot) => `loading-skeleton-${slot}`
+      ).map(slotKey => (
         <div
-          key={idx}
+          key={slotKey}
           data-slot="skeleton"
           className={`w-full ${height} flex items-center gap-4 rounded-[20px] border border-line bg-surface p-4`}
         >

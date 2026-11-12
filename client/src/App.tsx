@@ -177,7 +177,7 @@ function RoleGuard({
   if (loading) return <RouteLoading />;
   if (!user || !canAccess(user)) {
     return (
-      <div className="min-h-screen bg-ground flex items-center justify-center p-4">
+      <div className="min-h-dvh bg-ground flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-surface rounded-[20px] p-8 border border-line text-center space-y-5">
           <div className="w-14 h-14 rounded-2xl bg-tile-rose mx-auto flex items-center justify-center text-tile-rose-ink">
             <svg

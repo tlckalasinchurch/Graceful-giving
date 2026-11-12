@@ -240,7 +240,7 @@ export default function Offerings() {
           </p>
         </div>
 
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-paper-2 p-1.5 border border-[var(--ink)] shrink-0">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-paper-2 p-1.5 border border-line shrink-0">
           <Illustration
             src="/illustrations/offering_box.jpg"
             alt="กล่องถวาย"
@@ -260,7 +260,7 @@ export default function Offerings() {
           <div
             role="group"
             aria-label="กรองตามช่วงเวลา"
-            className="inline-flex flex-wrap items-center gap-1 rounded-xl border-[1.5px] border-[var(--ink)] bg-paper-2 p-1"
+            className="inline-flex flex-wrap items-center gap-1 rounded-xl border border-line bg-paper-2 p-1"
           >
             <Calendar
               className="ml-2 size-3.5 text-brand shrink-0"
@@ -274,7 +274,7 @@ export default function Offerings() {
                 aria-pressed={periodFilter === opt.id}
                 className={`min-h-9 rounded-lg px-3 py-1 text-xs font-extrabold transition-colors ${
                   periodFilter === opt.id
-                    ? "bg-accent text-accent-foreground border border-[var(--ink)]"
+                    ? "bg-accent text-accent-foreground border border-brand/40"
                     : "text-ink-2 hover:bg-surface"
                 }`}
               >
@@ -348,7 +348,7 @@ export default function Offerings() {
                 className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-paper-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-12 h-12 rounded-xl bg-tile-mint border border-[var(--ink)] text-tile-mint-ink flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-tile-mint border border-line text-tile-mint-ink flex items-center justify-center shrink-0">
                     <HandCoins className="w-6 h-6 stroke-[2.2]" />
                   </div>
                   <div className="min-w-0">
@@ -387,7 +387,7 @@ export default function Offerings() {
                         notes: o.notes || undefined,
                       });
                     }}
-                    className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-paper-2 border border-[var(--ink)] text-ink transition-colors active:scale-[0.985]"
+                    className="size-11 shrink-0 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-paper-2 border border-line text-ink transition-colors active:scale-[0.985]"
                     title="พิมพ์ใบเสร็จเงินถวาย"
                     aria-label={`พิมพ์ใบเสร็จเงินถวายของ ${o.donorName}`}
                   >

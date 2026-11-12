@@ -58,7 +58,7 @@ function WalletLedger({
             </dd>
           </div>
         ))}
-        <div className="grid grid-cols-[1.25rem_1fr_auto] items-baseline gap-2 border-b-2 border-[var(--ink)] bg-paper-2 px-2 py-2.5 rounded-b-lg">
+        <div className="grid grid-cols-[1.25rem_1fr_auto] items-baseline gap-2 border-b border-line bg-paper-2 px-2 py-2.5 rounded-b-lg">
           <span aria-hidden className="font-mono font-extrabold text-ink">
             =
           </span>
@@ -136,14 +136,14 @@ export function CarryForwardLedger({
   if (!r.hasCarryForward || r.closingCashExpected === null) {
     if (locked) {
       return (
-        <p className="rounded-xl border border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
+        <p className="rounded-xl border border-line bg-paper-2 p-4 text-sm font-medium text-ink-2">
           รอบนี้ลงบัญชีก่อนระบบมีการยกยอด จึงไม่มียอดยกมาและยกไป
         </p>
       );
     }
     if (!canEdit) {
       return (
-        <p className="rounded-xl border border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
+        <p className="rounded-xl border border-line bg-paper-2 p-4 text-sm font-medium text-ink-2">
           รอฝ่ายการเงินกรอกยอดยกมาของรอบแรก
         </p>
       );
@@ -207,7 +207,7 @@ export function CarryForwardLedger({
 
   return (
     <div className="bento-card-static overflow-hidden">
-      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b-2 border-[var(--ink)] bg-paper-2 px-5 py-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line bg-paper-2 px-5 py-4">
         <h2 className="font-extrabold text-ink">ยอดยกมาและยกไป</h2>
         <p className="text-xs font-bold text-ink-2">
           {openingSource === "previous"

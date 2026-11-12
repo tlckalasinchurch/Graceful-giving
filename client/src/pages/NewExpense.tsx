@@ -261,7 +261,7 @@ export default function NewExpense() {
           {/* Section 1: Amount & Presets */}
           <div className="bento-card-static p-6 md:p-8 space-y-5">
             <h2 className="display text-lg text-ink flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-lg border border-[var(--ink)] bg-tile-peach text-tile-peach-ink">
+              <span className="grid size-8 place-items-center rounded-lg border border-line bg-tile-peach text-tile-peach-ink">
                 <Receipt className="w-4 h-4" />
               </span>
               1. จำนวนเงินและหมวดหมู่
@@ -298,7 +298,7 @@ export default function NewExpense() {
                     if (errors.amount)
                       setErrors(current => ({ ...current, amount: undefined }));
                   }}
-                  className={`w-full pl-12 pr-4 py-4 rounded-xl border focus:border-brand focus:outline-none bg-surface  money text-3xl font-extrabold text-ink placeholder:text-ink-3 ${errors.amount ? "border-danger" : "border-[var(--ink)]"}`}
+                  className={`w-full pl-12 pr-4 py-4 rounded-xl border focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/25 bg-surface money text-3xl font-extrabold text-ink placeholder:text-ink-3 ${errors.amount ? "border-danger" : "border-line"}`}
                 />
               </div>
               <p
@@ -345,7 +345,7 @@ export default function NewExpense() {
                       type="button"
                       onClick={() => setCategory(cat.id as any)}
                       aria-pressed={isSelected}
-                      className={`p-3.5 rounded-xl border border-[var(--ink)] text-left flex flex-col justify-between transition-colors ${
+                      className={`p-3.5 rounded-xl border border-line text-left flex flex-col justify-between transition-colors ${
                         isSelected
                           ? "bg-accent text-accent-foreground "
                           : "hover:bg-paper-2 bg-surface"
@@ -353,7 +353,7 @@ export default function NewExpense() {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div
-                          className={`w-8 h-8 rounded-lg border border-[var(--ink)] flex items-center justify-center ${
+                          className={`w-8 h-8 rounded-lg border border-line flex items-center justify-center ${
                             isSelected
                               ? "bg-surface text-brand"
                               : "bg-paper-2 text-ink-2"
@@ -383,7 +383,7 @@ export default function NewExpense() {
           {/* Section 2: Expense Details & Fund Allocation */}
           <div className="bento-card-static p-6 md:p-8 space-y-5">
             <h2 className="display text-lg text-ink flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-lg border border-[var(--ink)] bg-tile-mint text-tile-mint-ink">
+              <span className="grid size-8 place-items-center rounded-lg border border-line bg-tile-mint text-tile-mint-ink">
                 <Building className="w-4 h-4" />
               </span>
               2. ข้อมูลรายการและกองทุนที่จัดสรร
@@ -557,14 +557,14 @@ export default function NewExpense() {
           {/* Section 3: Receipt Attachment */}
           <div className="bento-card-static p-6 md:p-8 space-y-4">
             <h2 className="display text-lg text-ink flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-lg border border-[var(--ink)] bg-accent text-accent-foreground">
+              <span className="grid size-8 place-items-center rounded-lg border border-brand/40 bg-accent text-accent-foreground">
                 <UploadCloud className="w-4 h-4" />
               </span>
               3. แนบหลักฐานใบเสร็จ / สลิปโอนเงิน
             </h2>
 
             {isUploading ? (
-              <div className="p-6 rounded-xl bg-paper-2 border border-[var(--ink)] flex items-center gap-4">
+              <div className="p-6 rounded-xl bg-paper-2 border border-line flex items-center gap-4">
                 <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-ink">
@@ -576,10 +576,10 @@ export default function NewExpense() {
                 </div>
               </div>
             ) : receiptFile ? (
-              <div className="p-4 rounded-xl bg-paper-2 border border-[var(--ink)] space-y-3">
+              <div className="p-4 rounded-xl bg-paper-2 border border-line space-y-3">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-surface border border-[var(--ink)] overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-surface border border-line overflow-hidden flex-shrink-0">
                       {receiptContentType.startsWith("image/") ? (
                         <img
                           src={receiptFile}
@@ -627,8 +627,8 @@ export default function NewExpense() {
                 )}
               </div>
             ) : (
-              <label className="border border-dashed border-[var(--ink)] hover:border-brand rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-paper-2 hover:bg-ground transition-colors focus-within:ring-2 focus-within:ring-brand focus-within:ring-offset-2">
-                <div className="w-12 h-12 rounded-xl border border-[var(--ink)] bg-surface flex items-center justify-center text-brand mb-3">
+              <label className="border border-dashed border-line hover:border-brand rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-paper-2 hover:bg-ground transition-colors focus-within:ring-2 focus-within:ring-brand focus-within:ring-offset-2">
+                <div className="w-12 h-12 rounded-xl border border-line bg-surface flex items-center justify-center text-brand mb-3">
                   <ImageIcon className="w-6 h-6" />
                 </div>
                 <p className="text-sm font-extrabold text-ink">
@@ -689,7 +689,7 @@ export default function NewExpense() {
             }}
           >
             <DialogContent className="max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 md:p-8 text-center space-y-6">
-              <div className="w-16 h-16 rounded-2xl border border-[var(--ink)] bg-accent flex items-center justify-center text-accent-foreground mx-auto">
+              <div className="w-16 h-16 rounded-2xl border border-brand/40 bg-accent flex items-center justify-center text-accent-foreground mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
@@ -702,7 +702,7 @@ export default function NewExpense() {
                 </DialogDescription>
               </div>
 
-              <div className="p-4 rounded-xl bg-paper-2 border border-[var(--ink)] text-left space-y-2 text-xs text-ink-2">
+              <div className="p-4 rounded-xl bg-paper-2 border border-line text-left space-y-2 text-xs text-ink-2">
                 <div className="flex justify-between">
                   <span className="font-semibold text-ink-3">รายการ:</span>
                   <span className="font-extrabold text-ink">{description}</span>

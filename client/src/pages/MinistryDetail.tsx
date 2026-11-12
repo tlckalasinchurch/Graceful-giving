@@ -135,7 +135,7 @@ export default function MinistryDetail() {
           />
         ) : canManage ? (
           <form onSubmit={submit} className="bento-card p-6 md:p-8">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b-2 border-[var(--ink)]">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-line">
               <div>
                 <h1 className="text-2xl font-extrabold tracking-tight text-ink">
                   แก้ไขข้อมูลฝ่ายงาน
@@ -172,7 +172,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-xl border border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger transition-colors disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger transition-colors disabled:opacity-50"
                 >
                   พักงานฝ่าย
                 </button>
@@ -227,7 +227,7 @@ export default function MinistryDetail() {
           </form>
         ) : (
           <section className="bento-card p-6 md:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b-2 border-[var(--ink)]">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-line">
               <h1 className="text-2xl font-extrabold tracking-tight text-ink">
                 {query.data.name}
               </h1>
@@ -258,7 +258,7 @@ export default function MinistryDetail() {
             </dl>
 
             {query.data.description && (
-              <p className="mt-5 whitespace-pre-line border-t-2 border-[var(--ink)] pt-5 text-sm font-medium leading-relaxed text-ink">
+              <p className="mt-5 whitespace-pre-line border-t border-line pt-5 text-sm font-medium leading-relaxed text-ink">
                 {query.data.description}
               </p>
             )}

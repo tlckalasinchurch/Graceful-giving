@@ -57,7 +57,7 @@ export const BudgetProgress: React.FC<{
   return (
     <div className={className}>
       <div
-        className={`w-full overflow-hidden rounded-full border border-[var(--ink)] bg-paper-2 ${quiet ? "h-2" : "h-3"}`}
+        className={`w-full overflow-hidden rounded-full border border-line bg-paper-2 ${quiet ? "h-2" : "h-3"}`}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}

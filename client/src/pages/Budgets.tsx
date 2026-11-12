@@ -145,7 +145,7 @@ export default function Budgets() {
 
         {showCreate && (
           <form onSubmit={submit} className="bento-card p-6">
-            <div className="mb-5 flex items-center justify-between pb-3 border-b-2 border-[var(--ink)]">
+            <div className="mb-5 flex items-center justify-between pb-3 border-b border-line">
               <h2 className="font-extrabold text-ink">
                 ตั้งงบประมาณสำหรับปี {year}
               </h2>

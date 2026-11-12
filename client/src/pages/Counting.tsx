@@ -195,7 +195,7 @@ export default function Counting() {
     >
       <div className="space-y-6">
         {openCount > 0 && (
-          <div className="inline-flex items-center gap-2 rounded-xl border border-[var(--ink)] bg-tile-sand px-3.5 py-2 text-xs font-extrabold text-tile-sand-ink">
+          <div className="inline-flex items-center gap-2 rounded-xl border border-line bg-tile-sand px-3.5 py-2 text-xs font-extrabold text-tile-sand-ink">
             <span className="money">{openCount} รอบ</span>
             <span>ค้างอยู่หรือกำลังนับ</span>
           </div>
@@ -223,7 +223,7 @@ export default function Counting() {
                 type="button"
                 onClick={closeCreate}
                 aria-label="ปิด"
-                className="flex size-10 items-center justify-center rounded-xl border border-[var(--ink)] bg-paper-2 text-ink hover:bg-surface transition-colors"
+                className="flex size-10 items-center justify-center rounded-xl border border-line bg-paper-2 text-ink hover:bg-surface transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -277,7 +277,7 @@ export default function Counting() {
           <div
             role="group"
             aria-label="กรองรอบนับเงิน"
-            className="flex max-w-full flex-none items-center gap-1.5 overflow-x-auto rounded-2xl border border-[var(--ink)] bg-surface p-1.5 no-scrollbar sm:max-w-[calc(100%-14rem)]"
+            className="flex max-w-full flex-none items-center gap-1.5 overflow-x-auto rounded-2xl border border-line bg-surface p-1.5 no-scrollbar sm:max-w-[calc(100%-14rem)]"
           >
             {(
               [
@@ -301,12 +301,12 @@ export default function Counting() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-extrabold transition-colors ${
                   activeTab === tab.id
-                    ? "border border-[var(--ink)] bg-accent text-accent-foreground "
+                    ? "border border-brand/40 bg-accent text-accent-foreground "
                     : "text-ink-2 hover:bg-paper-2 hover:text-ink"
                 }`}
               >
                 <span>{tab.label}</span>
-                <span className="money rounded-full border border-[var(--ink)] bg-surface px-1.5 py-0.5 text-xs font-bold text-ink">
+                <span className="money rounded-full border border-line bg-surface px-1.5 py-0.5 text-xs font-bold text-ink">
                   {tab.count}
                 </span>
               </button>
@@ -458,7 +458,7 @@ export default function Counting() {
                           title="ลบรอบนับเงินค้างนี้อย่างถาวร"
                           onClick={() => handleDeleteSession(session)}
                           disabled={deleteSession.isPending}
-                          className="min-h-11 inline-flex items-center gap-1 rounded-xl border border-[var(--ink)] bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
+                          className="min-h-11 inline-flex items-center gap-1 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           <span>ลบรอบค้าง</span>

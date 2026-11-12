@@ -146,14 +146,14 @@ export default function MemberDetail() {
         ) : (
           <>
             <form onSubmit={submit} className="bento-card p-6 md:p-8">
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b-2 border-[var(--ink)]">
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-line">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-2xl font-extrabold tracking-tight text-ink">
                       แก้ไขข้อมูลสมาชิก
                     </h1>
                     {query.data.envelopeNo && (
-                      <span className="inline-flex items-center gap-1 rounded-lg border border-[var(--ink)] bg-accent px-2.5 py-0.5 text-xs font-extrabold text-accent-foreground">
+                      <span className="inline-flex items-center gap-1 rounded-lg border border-brand/40 bg-accent px-2.5 py-0.5 text-xs font-extrabold text-accent-foreground">
                         <Tag className="size-3.5 text-brand" />
                         ซอง #{query.data.envelopeNo}
                       </span>
@@ -209,7 +209,7 @@ export default function MemberDetail() {
                         deactivate.mutate({ id });
                       }
                     }}
-                    className="min-h-11 rounded-xl border border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-xs font-extrabold text-danger transition-colors disabled:opacity-50 cursor-pointer"
+                    className="min-h-11 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 px-4 py-2 text-xs font-extrabold text-danger transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     ปิดใช้งาน
                   </button>
@@ -276,9 +276,9 @@ export default function MemberDetail() {
                 aria-label="ประวัติการถวายของสมาชิก"
                 className="bento-card-static p-6 md:p-8 space-y-4"
               >
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[var(--ink)] pb-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="grid size-10 place-items-center rounded-xl border-[1.5px] border-[var(--ink)] bg-tile-mint text-tile-mint-ink">
+                    <div className="grid size-10 place-items-center rounded-xl border border-line bg-tile-mint text-tile-mint-ink">
                       <HandCoins className="size-5" />
                     </div>
                     <div>

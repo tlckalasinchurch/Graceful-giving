@@ -39,7 +39,7 @@ export default function Updates() {
             กลับหน้าหลัก
           </Link>
           <div className="bento-card mt-16 p-8 text-center">
-            <div className="mx-auto grid size-16 place-items-center rounded-2xl border border-[var(--ink)] bg-accent text-accent-foreground">
+            <div className="mx-auto grid size-16 place-items-center rounded-2xl border border-brand/40 bg-accent text-accent-foreground">
               <Bell className="size-8" />
             </div>
             <h1 className="mt-5 font-display text-2xl font-extrabold text-ink">
@@ -70,7 +70,7 @@ export default function Updates() {
       <div className="space-y-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
-            <div className="grid size-12 place-items-center rounded-2xl border border-[var(--ink)] bg-accent text-accent-foreground">
+            <div className="grid size-12 place-items-center rounded-2xl border border-brand/40 bg-accent text-accent-foreground">
               <Megaphone className="size-6" />
             </div>
             <div>
@@ -82,7 +82,7 @@ export default function Updates() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface px-3.5 py-1.5 text-xs font-extrabold text-ink-2">
+          <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-3.5 py-1.5 text-xs font-extrabold text-ink-2">
             <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
           </div>
         </header>
@@ -92,7 +92,7 @@ export default function Updates() {
             onClick={() => setActiveTab("feed")}
             className={`min-h-11 rounded-xl px-5 py-2 text-sm transition-colors ${
               activeTab === "feed"
-                ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
+                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
                 : "font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -103,7 +103,7 @@ export default function Updates() {
               onClick={() => setActiveTab("manage")}
               className={`min-h-11 rounded-xl px-5 py-2 text-sm transition-colors ${
                 activeTab === "manage"
-                  ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
+                  ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
                   : "font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
               }`}
             >

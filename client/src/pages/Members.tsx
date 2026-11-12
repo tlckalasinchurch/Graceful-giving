@@ -120,7 +120,7 @@ export default function Members() {
       <div className="space-y-6">
         {showCreate && (
           <form onSubmit={submit} className="bento-card p-6">
-            <div className="mb-5 flex items-center justify-between pb-3 border-b-2 border-[var(--ink)]">
+            <div className="mb-5 flex items-center justify-between pb-3 border-b border-line">
               <h2 className="font-extrabold text-ink">เพิ่มสมาชิกใหม่</h2>
               <button
                 type="button"

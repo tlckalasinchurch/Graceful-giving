@@ -254,7 +254,7 @@ export function BankRecordsTab({
       </div>
 
       <div className="bento-card-static overflow-hidden">
-        <h2 className="border-b-2 border-[var(--ink)] bg-paper-2 p-4 font-extrabold text-ink">
+        <h2 className="border-b border-line bg-paper-2 p-4 font-extrabold text-ink">
           รายการธนาคาร ({bankRecords.length})
         </h2>
         {bankRecords.length === 0 ? (
@@ -312,7 +312,7 @@ export function BankRecordsTab({
                         aria-label="ลบรายการธนาคารนี้"
                         onClick={() => void handleRemoveBankRecord(record)}
                         disabled={removeBankRecord.isPending}
-                        className="flex size-10 items-center justify-center rounded-xl border border-[var(--ink)] bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
+                        className="flex size-10 items-center justify-center rounded-xl border border-danger/30 bg-tile-peach text-tile-peach-ink hover:bg-danger hover:text-white disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

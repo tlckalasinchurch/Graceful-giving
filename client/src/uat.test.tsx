@@ -46,11 +46,21 @@ describe("Final User Acceptance Testing (UAT) Suite", () => {
     it("UAT-MEMBER-01: Station-only redirect routes member to /giving/station from admin routes", () => {
       expect(isStationOnlyUser(memberUser)).toBe(true);
       expect(stationOnlyRedirect(memberUser, "/")).toBe("/giving/station");
-      expect(stationOnlyRedirect(memberUser, "/offerings")).toBe("/giving/station");
-      expect(stationOnlyRedirect(memberUser, "/expenses")).toBe("/giving/station");
-      expect(stationOnlyRedirect(memberUser, "/counting")).toBe("/giving/station");
-      expect(stationOnlyRedirect(memberUser, "/approvals")).toBe("/giving/station");
-      expect(stationOnlyRedirect(memberUser, "/settings")).toBe("/giving/station");
+      expect(stationOnlyRedirect(memberUser, "/offerings")).toBe(
+        "/giving/station"
+      );
+      expect(stationOnlyRedirect(memberUser, "/expenses")).toBe(
+        "/giving/station"
+      );
+      expect(stationOnlyRedirect(memberUser, "/counting")).toBe(
+        "/giving/station"
+      );
+      expect(stationOnlyRedirect(memberUser, "/approvals")).toBe(
+        "/giving/station"
+      );
+      expect(stationOnlyRedirect(memberUser, "/settings")).toBe(
+        "/giving/station"
+      );
       // Allowed paths:
       expect(stationOnlyRedirect(memberUser, "/giving/station")).toBeNull();
       expect(stationOnlyRedirect(memberUser, "/give")).toBeNull();
@@ -223,7 +233,7 @@ describe("Final User Acceptance Testing (UAT) Suite", () => {
               type="file"
               data-testid="file-input"
               tabIndex={-1}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 inputClick();
               }}
@@ -331,15 +341,27 @@ describe("Final User Acceptance Testing (UAT) Suite", () => {
    * ----------------------------------------------------------------------- */
   describe("Group 4: APPROVER Role — Approvals & Radix Dialog Semantics", () => {
     it("UAT-APP-01: Approval route grants access to Pastor, Treasurer, SuperAdmin, and Bank Signers", () => {
-      const pastorUser: RoleUser = { role: "user", churchRole: "PASTOR", roles: ["PASTOR"] };
-      const deaconUser: RoleUser = { role: "user", churchRole: "DEACON", roles: ["DEACON"] };
+      const pastorUser: RoleUser = {
+        role: "user",
+        churchRole: "PASTOR",
+        roles: ["PASTOR"],
+      };
+      const deaconUser: RoleUser = {
+        role: "user",
+        churchRole: "DEACON",
+        roles: ["DEACON"],
+      };
       const bankSignerUser: RoleUser & { isBankSigner: boolean } = {
         role: "user",
         churchRole: "MEMBER",
         roles: ["MEMBER"],
         isBankSigner: true,
       };
-      const regularMember: RoleUser = { role: "user", churchRole: "MEMBER", roles: ["MEMBER"] };
+      const regularMember: RoleUser = {
+        role: "user",
+        churchRole: "MEMBER",
+        roles: ["MEMBER"],
+      };
 
       expect(canAccessRoute("/approvals", pastorUser)).toBe(true);
       expect(canAccessRoute("/approvals", bankSignerUser)).toBe(true);
@@ -347,7 +369,13 @@ describe("Final User Acceptance Testing (UAT) Suite", () => {
     });
 
     it("UAT-APP-02: Approval Modal renders Radix Dialog with Title, Description, and Escape key handling", () => {
-      function ApprovalModalHarness({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+      function ApprovalModalHarness({
+        open,
+        onOpenChange,
+      }: {
+        open: boolean;
+        onOpenChange: (open: boolean) => void;
+      }) {
         return (
           <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
@@ -369,14 +397,19 @@ describe("Final User Acceptance Testing (UAT) Suite", () => {
 
       expect(screen.getByRole("dialog")).toBeInTheDocument();
       expect(
-        screen.getByRole("heading", { name: "ยืนยันการลงนามอนุมัติรายการเบิกจ่าย" })
+        screen.getByRole("heading", {
+          name: "ยืนยันการลงนามอนุมัติรายการเบิกจ่าย",
+        })
       ).toBeInTheDocument();
       expect(
         screen.getByText("กรุณาตรวจสอบยอดเงินและรายละเอียดก่อนกดยืนยันการลงนาม")
       ).toBeInTheDocument();
 
       // Escape triggers close
-      fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape", code: "Escape" });
+      fireEvent.keyDown(screen.getByRole("dialog"), {
+        key: "Escape",
+        code: "Escape",
+      });
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });
   });

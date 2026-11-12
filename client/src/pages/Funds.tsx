@@ -230,7 +230,7 @@ export default function Funds() {
                     >
                       <span
                         aria-hidden="true"
-                        className={`size-3 shrink-0 rounded-md border border-[var(--ink)] ${
+                        className={`size-3 shrink-0 rounded-md border border-line ${
                           toneIndexById.has(f.id)
                             ? fundTone(toneIndexById.get(f.id) ?? 3)
                             : "bg-paper-2"
@@ -271,7 +271,7 @@ export default function Funds() {
         {/* Create Fund Modal */}
         <Dialog open={showNewFundModal} onOpenChange={setShowNewFundModal}>
           <DialogContent className="neo-modal max-h-[calc(100dvh-2rem)] w-full max-w-md space-y-5 overflow-y-auto overscroll-contain p-6 md:p-8">
-            <DialogHeader className="border-b-2 border-[var(--ink)] pb-3 text-left">
+            <DialogHeader className="border-b border-line pb-3 text-left">
               <DialogTitle className="text-lg font-extrabold text-ink">
                 สร้างกองทุนใหม่
               </DialogTitle>
