@@ -104,4 +104,10 @@ describe.each(["light", "dark"] as const)("%s theme contrast", mode => {
       contrast(token("danger", mode), token("ground", mode))
     ).toBeGreaterThanOrEqual(4.5);
   });
+
+  it("keeps coral highlight action text legible (WCAG AA 4.5:1)", () => {
+    expect(
+      contrast(token("coral-ink", mode), token("coral", mode))
+    ).toBeGreaterThanOrEqual(4.5);
+  });
 });

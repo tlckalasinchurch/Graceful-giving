@@ -180,7 +180,7 @@ export function DeductionsTab({
                 className="mt-1"
               >
                 <option value="" disabled>
-                  — เลือกกองทุน —
+                  เลือกกองทุน
                 </option>
                 {funds.map(f => (
                   <option key={f.id} value={f.id}>

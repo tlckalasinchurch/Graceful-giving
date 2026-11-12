@@ -9,7 +9,7 @@ vi.mock("@/_core/hooks/useAuth", () => ({
   useAuth: () => ({
     user: {
       id: 1,
-      name: "Suriyong 🌱",
+      name: "Suriyong",
       email: null,
       avatarUrl: "https://profile.line-scdn.net/expired-hash",
       churchRole: "SUPER_ADMIN",
@@ -89,15 +89,15 @@ describe("Profile avatar and church display", () => {
   it("replaces a broken LINE avatar image with the initial letter in both Hero and modal", () => {
     render(<Profile />);
 
-    const heroImg = screen.getByRole("img", { name: "Suriyong 🌱" });
+    const heroImg = screen.getByRole("img", { name: "Suriyong" });
     fireEvent.error(heroImg);
-    expect(screen.queryByRole("img", { name: "Suriyong 🌱" })).toBeNull();
+    expect(screen.queryByRole("img", { name: "Suriyong" })).toBeNull();
     expect(screen.getAllByText("S").length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("button", { name: "ดูข้อมูลโปรไฟล์" }));
-    const modalImg = screen.getByRole("img", { name: "Suriyong 🌱" });
+    const modalImg = screen.getByRole("img", { name: "Suriyong" });
     fireEvent.error(modalImg);
-    expect(screen.queryByRole("img", { name: "Suriyong 🌱" })).toBeNull();
+    expect(screen.queryByRole("img", { name: "Suriyong" })).toBeNull();
   });
 
   it("shows the full church name without truncation in the profile modal and saves preset avatars", async () => {
@@ -123,7 +123,7 @@ describe("Profile avatar and church display", () => {
     await waitFor(() => {
       expect(mutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({
-          name: "Suriyong 🌱",
+          name: "Suriyong",
           avatarUrl: "/avatars/avatar-1.svg",
         })
       );

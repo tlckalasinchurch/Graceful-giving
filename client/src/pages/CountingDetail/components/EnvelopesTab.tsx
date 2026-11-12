@@ -208,7 +208,7 @@ export function EnvelopesTab({
                 disabled={isAnonymous}
                 className="mt-1"
               >
-                <option value="">— ไม่ระบุสมาชิก —</option>
+                <option value="">ไม่ระบุสมาชิก</option>
                 {members.map(m => (
                   <option key={m.id} value={m.id}>
                     {m.envelopeNo ? `[${m.envelopeNo}] ` : ""}
@@ -250,7 +250,7 @@ export function EnvelopesTab({
                 className="mt-1"
               >
                 <option value="" disabled>
-                  — เลือกกองทุน —
+                  เลือกกองทุน
                 </option>
                 {funds.map(f => (
                   <option key={f.id} value={f.id}>

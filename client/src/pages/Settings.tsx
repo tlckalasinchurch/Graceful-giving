@@ -747,8 +747,8 @@ export default function Settings() {
 
               {usersQuery.isLoading ? (
                 <div className="py-12 flex flex-col items-center justify-center text-sm text-ink-3 gap-3">
-                  <Loader2 className="w-6 h-6 animate-spin text-brand" />
-                  <span>กำลังโหลดรายชื่อผู้ใช้งาน...</span>
+                  <Loader2 className="w-6 h-6 animate-spin motion-reduce:animate-none text-brand" />
+                  <span>กำลังโหลดรายชื่อผู้ใช้งาน…</span>
                 </div>
               ) : !usersQuery.data || usersQuery.data.length === 0 ? (
                 <div className="py-8 text-center text-sm text-ink-3 bg-paper-2 rounded-2xl border border-line">
@@ -1275,8 +1275,7 @@ export default function Settings() {
                     </span>
                   </p>
                   <p className="text-xs text-ink-3">
-                    ช่องทางโอนเงินถวายของคริสตจักร —
-                    ข้อมูลนี้แสดงเมื่อบันทึกแล้ว
+                    ช่องทางโอนเงินถวายของคริสตจักร: ข้อมูลนี้แสดงเมื่อบันทึกแล้ว
                   </p>
                 </div>
               </div>

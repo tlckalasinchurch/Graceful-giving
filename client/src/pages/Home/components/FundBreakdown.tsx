@@ -39,7 +39,7 @@ export function FundBreakdown({
         {rows.map((r, i) => (
           <span
             key={r.key}
-            className={`h-full ${fundTone(i)} transition-[width] duration-300`}
+            className={`h-full ${fundTone(i)} transition-opacity duration-200 motion-reduce:transition-none`}
             style={{ width: `${Math.max(r.share, 2)}%` }}
           />
         ))}

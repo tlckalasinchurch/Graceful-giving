@@ -120,7 +120,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           {/* Printable Voucher Card */}
           <div
             ref={printAreaRef}
-            className="voucher-print-area max-w-2xl mx-auto bg-surface border border-line print:shadow-none print:border-none p-8 sm:p-10 rounded-[20px] text-ink font-sans [--color-ink:#0f172a] [--color-ink-2:#334155] [--color-ink-3:#64748b] [--color-paper:#eef3f9] [--color-line:#e2e8f0] [--color-field:#cbd5e1]"
+            className="voucher-print-area max-w-2xl mx-auto bg-surface border border-line print:shadow-none print:border-none p-8 sm:p-10 rounded-[20px] text-ink font-sans"
           >
             {/* Header / Church Info */}
             <div className="border-b border-line pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -264,7 +264,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                   rel="noopener noreferrer"
                   className="font-bold underline hover:text-brand"
                 >
-                  เปิดดูหลักฐานแนบ →
+                  เปิดดูหลักฐานแนบ
                 </a>
               </div>
             )}

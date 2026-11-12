@@ -22,7 +22,7 @@ export default function Updates() {
   if (loading) {
     return (
       <div className="min-h-dvh bg-paper p-6 text-center text-sm font-bold text-ink-3">
-        กำลังตรวจสอบบัญชีผู้ใช้...
+        กำลังตรวจสอบบัญชีผู้ใช้…
       </div>
     );
   }

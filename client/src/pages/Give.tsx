@@ -143,7 +143,7 @@ export default function Give() {
             className="bento-card-static flex min-h-14 items-center justify-center gap-2.5 text-base font-semibold text-ink-2"
           >
             <Loader2
-              className="size-5 animate-spin text-brand"
+              className="size-5 animate-spin motion-reduce:animate-none text-brand"
               aria-hidden="true"
             />
             กำลังเข้าสู่ระบบด้วย LINE…

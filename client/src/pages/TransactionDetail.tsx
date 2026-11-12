@@ -461,7 +461,7 @@ export default function TransactionDetail() {
                     className="neo-input mt-1 font-medium"
                   >
                     <option value="" disabled>
-                      — เลือกกองทุน —
+                      เลือกกองทุน
                     </option>
                     {(accountsData ?? []).map(a => (
                       <option key={a.id} value={a.id}>
@@ -560,7 +560,7 @@ export default function TransactionDetail() {
                       }}
                       className="neo-input mt-1 font-medium"
                     >
-                      <option value="">— ไม่เชื่อมโยงสมาชิก —</option>
+                      <option value="">ไม่เชื่อมโยงสมาชิก</option>
                       {members.map(m => (
                         <option key={m.id} value={m.id}>
                           {m.envelopeNo ? `[ซอง #${m.envelopeNo}] ` : ""}

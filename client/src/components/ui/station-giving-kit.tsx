@@ -184,7 +184,7 @@ export function StationHeroCTA({
         type="button"
         onClick={onClick}
         aria-label={`${buttonTitle} - ${buttonSubtitle}`}
-        className="group flex w-full items-center justify-between gap-4 rounded-[20px] bg-brand p-5 text-left text-white transition-colors hover:bg-[#066B48] active:scale-[0.985] sm:p-6"
+        className="group flex w-full items-center justify-between gap-4 rounded-[20px] bg-brand p-5 text-left text-white transition-colors hover:bg-[var(--brand-hover)] active:scale-[0.985] sm:p-6"
       >
         <div className="flex min-w-0 items-center gap-4">
           <div className="grid size-13 shrink-0 place-items-center rounded-2xl bg-white/15 text-white sm:size-14">
@@ -706,7 +706,7 @@ export function StationQrPoster({
 
           <div className="flex items-center justify-center gap-2.5 w-full mt-2">
             <span className="h-[1.5px] w-10 bg-brand/40" />
-            <span className="text-xs font-bold uppercase tracking-[0.25em] text-ink-3 sm:text-sm">
+            <span className="text-xs font-bold tracking-wide text-ink-3 sm:text-sm">
               {stationSubheader}
             </span>
             <span className="h-[1.5px] w-10 bg-brand/40" />
