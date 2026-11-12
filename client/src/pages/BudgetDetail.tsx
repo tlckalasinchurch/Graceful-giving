@@ -11,16 +11,19 @@ import {
 import {
   BudgetFormFields,
   BudgetProgress,
+  BudgetToneBadge,
   EMPTY_BUDGET_FORM,
   budgetCategoryLabel,
   budgetPeriodLabel,
+  budgetUsage,
+  formatDualYear,
   parseBudgetForm,
   type BudgetFormValues,
 } from "@/components/finance/budget";
 import { trpc } from "@/lib/trpc";
 import { formatBaht, formatThaiDate } from "@/lib/format";
 import { expenseCategoryLabel } from "@shared/categories";
-import { Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, FileText, Layers, Save, Trash2, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { Swal } from "@/lib/sweetalert";
 import {
@@ -31,6 +34,7 @@ import { friendlyErrorMessage } from "@/lib/errors";
 
 type Plan = {
   id: number;
+  year: number;
   month: number | null;
   category: string | null;
   fundId: number | null;
@@ -136,10 +140,25 @@ export default function BudgetDetail() {
   return (
     <AppLayout
       title="รายละเอียดงบประมาณ"
-      subtitle="เทียบงบที่ตั้งไว้กับรายจ่ายจริง"
+      subtitle="ตรวจสอบยอดใช้จ่ายจริง จัดการวงเงิน และดูประวัติรายจ่ายที่เกี่ยวข้อง"
     >
-      <div className="max-w-3xl space-y-6">
-        <BackLink label="กลับหน้ารวมงบประมาณ" onClick={goBack} />
+      <div className="max-w-4xl space-y-6">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={goBack}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-2 hover:text-ink transition-colors"
+          >
+            <ArrowLeft className="size-4" />
+            <span>กลับหน้ารวมงบประมาณ</span>
+          </button>
+
+          {query.data && (
+            <span className="font-mono text-xs font-semibold text-ink-3">
+              ปีงบประมาณ {formatDualYear(query.data.year)}
+            </span>
+          )}
+        </div>
 
         {!validId ? (
           <EmptyState
@@ -153,128 +172,213 @@ export default function BudgetDetail() {
         ) : query.isError ? (
           <ErrorState
             title="โหลดข้อมูลงบประมาณไม่สำเร็จ"
-            description="เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล กรุณาลองใหม่"
+            description="เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล กรุณาลองใหม่อีกครั้ง"
             onRetry={() => query.refetch()}
           />
         ) : !query.data ? (
           <EmptyState
             title="ไม่พบงบประมาณ"
-            description="ไม่มีงบประมาณตามรหัสที่ระบุในฐานข้อมูล"
+            description="ไม่มีงบประมาณตามรหัสที่ระบุในระบบ"
             actionText="กลับหน้ารวมงบประมาณ"
             onAction={() => setLocation("/budgets")}
           />
         ) : (
           <>
-            <section className="bento-card p-6 md:p-8">
-              <h1 className="text-2xl font-extrabold tracking-tight text-ink">
-                {budgetCategoryLabel(query.data.category)}
-              </h1>
-              <p className="mt-1 text-sm font-medium text-ink-3">
-                {budgetPeriodLabel(query.data.year, query.data.month)}
-                {" · "}
-                {fundName(query.data.fundId) ?? "ทุกกองทุน"}
-              </p>
-              <dl className="mt-5 grid grid-cols-3 gap-3 rounded-xl border border-line bg-paper-2 p-4">
-                <div>
-                  <dt className="text-xs font-extrabold text-ink-3">
-                    งบประมาณ
-                  </dt>
-                  <dd className="mt-1">
-                    <MoneyDisplay amount={query.data.plannedAmount} size="sm" />
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-extrabold text-ink-3">ใช้จริง</dt>
-                  <dd className="mt-1">
-                    <MoneyDisplay amount={query.data.actualAmount} size="sm" />
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-extrabold text-ink-3">
-                    {query.data.remainingAmount < 0 ? "เกินงบ" : "คงเหลือ"}
-                  </dt>
-                  <dd className="mt-1">
-                    <MoneyDisplay
-                      amount={Math.abs(query.data.remainingAmount)}
-                      size="sm"
-                      className={
-                        query.data.remainingAmount < 0 ? "!text-danger" : ""
-                      }
-                    />
-                  </dd>
-                </div>
-              </dl>
-              <BudgetProgress
-                planned={query.data.plannedAmount}
-                actual={query.data.actualAmount}
-                className="mt-4"
-              />
-            </section>
+            {/* Main Inspection Header Card */}
+            {(() => {
+              const { tone } = budgetUsage(
+                query.data.plannedAmount,
+                query.data.actualAmount
+              );
+              const isOver = query.data.remainingAmount < 0;
+              const isMaster =
+                query.data.month === null && query.data.category === null;
 
-            <form onSubmit={submit} className="bento-card-static p-6 md:p-8">
-              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-line">
-                <h2 className="font-extrabold text-ink">แก้ไขงบประมาณ</h2>
+              return (
+                <section className="rounded-2xl border border-line bg-surface p-6 sm:p-7 shadow-sm">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink">
+                          {budgetCategoryLabel(query.data.category)}
+                        </h1>
+                        {isMaster && (
+                          <span className="rounded-md border border-brand/30 bg-brand/10 px-2 py-0.5 text-xs font-bold text-brand">
+                            MASTER
+                          </span>
+                        )}
+                        <BudgetToneBadge tone={tone} />
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center gap-y-1 gap-x-3 text-xs text-ink-3">
+                        <span className="inline-flex items-center gap-1 font-medium">
+                          <Calendar className="size-3.5" />
+                          {budgetPeriodLabel(query.data.year, query.data.month)}
+                        </span>
+                        <span className="opacity-40">·</span>
+                        <span className="inline-flex items-center gap-1 font-medium">
+                          <Wallet className="size-3.5" />
+                          {fundName(query.data.fundId) ?? "ทุกกองทุน"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-line bg-paper/60 px-4 py-3 text-left sm:text-right">
+                      <span className="text-xs font-semibold text-ink-3 block">
+                        {isOver ? "ใช้จ่ายเกินงบไปแล้ว" : "วงเงินงบประมาณคงเหลือ"}
+                      </span>
+                      <span
+                        className={`text-xl sm:text-2xl font-bold font-mono tabular-nums ${
+                          isOver ? "text-rose-600 dark:text-rose-400" : "text-ink"
+                        }`}
+                      >
+                        {isOver ? "-" : ""}
+                        {formatBaht(Math.abs(query.data.remainingAmount))}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 3-Column Financial Ledger Metric Box */}
+                  <div className="mt-6 grid grid-cols-1 gap-3 rounded-xl border border-line bg-paper p-4 sm:grid-cols-3">
+                    <div>
+                      <dt className="text-xs font-semibold text-ink-3">
+                        วงเงินงบประมาณที่อนุมัติ
+                      </dt>
+                      <dd className="mt-1 font-mono text-base font-bold tabular-nums text-ink">
+                        {formatBaht(query.data.plannedAmount)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold text-ink-3">
+                        ยอดเบิกจ่ายจริงสะสม
+                      </dt>
+                      <dd className="mt-1 font-mono text-base font-bold tabular-nums text-ink">
+                        {formatBaht(query.data.actualAmount)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold text-ink-3">
+                        {isOver ? "ส่วนต่างที่เกิน" : "สัดส่วนคงเหลือ"}
+                      </dt>
+                      <dd
+                        className={`mt-1 font-mono text-base font-bold tabular-nums ${
+                          isOver ? "text-rose-600 dark:text-rose-400" : "text-emerald-700 dark:text-emerald-400"
+                        }`}
+                      >
+                        {isOver ? "-" : "+"}
+                        {formatBaht(Math.abs(query.data.remainingAmount))}
+                      </dd>
+                    </div>
+                  </div>
+
+                  <BudgetProgress
+                    planned={query.data.plannedAmount}
+                    actual={query.data.actualAmount}
+                    className="mt-5"
+                  />
+                </section>
+              );
+            })()}
+
+            {/* Edit Budget Form Section */}
+            <form
+              onSubmit={submit}
+              className="rounded-2xl border border-line bg-surface p-6 sm:p-7 shadow-sm"
+            >
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                <div>
+                  <h2 className="text-base font-bold text-ink">แก้ไขแผนงบประมาณ</h2>
+                  <p className="text-xs text-ink-3">
+                    ปรับปรุงวงเงิน หมวดงาน หรือเงื่อนไขของแผนงบประมาณ
+                  </p>
+                </div>
+
                 <button
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="min-h-11 inline-flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger transition-colors disabled:opacity-50"
+                  className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 disabled:opacity-50 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/50"
                 >
-                  <Trash2 className="h-4 w-4" />
-                  ลบงบประมาณ
+                  <Trash2 className="size-3.5" />
+                  ลบงบประมาณนี้
                 </button>
               </div>
+
               <BudgetFormFields
                 values={form}
                 onChange={setForm}
                 funds={funds}
               />
-              <button
-                disabled={update.isPending || !isDirty}
-                className="btn-primary mt-6 min-h-11 inline-flex items-center gap-2 px-5 py-2 text-sm disabled:opacity-50"
-              >
-                <Save className="h-4 w-4" />
-                {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
-              </button>
+
+              <div className="mt-6 flex items-center justify-end gap-3 border-t border-line pt-4">
+                <button
+                  type="submit"
+                  disabled={update.isPending || !isDirty}
+                  className="btn-primary inline-flex min-h-10 items-center gap-2 rounded-xl px-5 py-2 text-xs font-semibold disabled:opacity-50 transition-all"
+                >
+                  <Save className="size-4" />
+                  {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
+                </button>
+              </div>
             </form>
 
-            <section className="bento-card-static p-6 md:p-8">
-              <h2 className="font-extrabold text-ink pb-3 border-b border-line">
-                รายจ่ายที่นับในงบนี้ ({query.data.expenseCount} รายการ)
-              </h2>
+            {/* Expenses Counted in this Budget */}
+            <section className="rounded-2xl border border-line bg-surface p-6 sm:p-7 shadow-sm">
+              <div className="border-b border-line pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-paper text-ink-2">
+                      <FileText className="size-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-ink">
+                        รายจ่ายที่นับรวมในงบนี้ ({query.data.expenseCount} รายการ)
+                      </h2>
+                      <p className="text-xs text-ink-3">
+                        รายการค่าใช้จ่ายจริงที่เกิดขึ้นและตรงตามเงื่อนไขของแผนนี้
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {query.data.expenses.length === 0 ? (
-                <p className="mt-4 text-sm font-medium text-ink-3">
-                  ยังไม่มีรายจ่ายที่ตรงกับช่วงเวลา หมวด และกองทุนของงบนี้
-                </p>
+                <div className="py-8 text-center">
+                  <p className="text-sm font-medium text-ink-3">
+                    ยังไม่มีรายจ่ายที่ตรงกับช่วงเวลา หมวด และกองทุนของแผนงบประมาณนี้
+                  </p>
+                </div>
               ) : (
-                <ul className="mt-3 divide-y divide-line">
+                <div className="mt-3 divide-y divide-line">
                   {query.data.expenses.map(expense => (
-                    <li key={expense.id}>
+                    <div key={expense.id} className="py-3">
                       <Link
                         href={`/transactions/expense-${expense.id}`}
-                        className="flex min-h-11 items-center justify-between gap-3 py-3 hover:bg-paper-2 rounded-xl px-2.5 -mx-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                        className="group flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 py-2 -mx-3 hover:bg-paper-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                       >
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-extrabold text-ink hover:underline">
+                          <p className="truncate text-sm font-semibold text-ink group-hover:text-brand transition-colors">
                             {expense.description}
                           </p>
-                          <p className="text-xs font-medium text-ink-3">
+                          <p className="mt-0.5 text-xs text-ink-3">
                             {formatThaiDate(expense.expenseDate)} ·{" "}
                             {expenseCategoryLabel(expense.category)}
                             {expense.payee ? ` · ${expense.payee}` : ""}
                           </p>
                         </div>
-                        <span className="shrink-0 text-sm font-extrabold tabular-nums text-danger">
-                          {formatBaht(expense.amount)}
+                        <span className="shrink-0 font-mono text-sm font-bold tabular-nums text-rose-600 dark:text-rose-400">
+                          -{formatBaht(expense.amount)}
                         </span>
                       </Link>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
+
               {query.data.expenseCount > query.data.expenses.length && (
-                <p className="mt-3 text-xs font-medium text-ink-3">
-                  แสดง {query.data.expenses.length} รายการล่าสุด
+                <p className="mt-4 border-t border-line pt-3 text-center text-xs font-medium text-ink-3">
+                  แสดง {query.data.expenses.length} รายการล่าสุดจากทั้งหมด{" "}
+                  {query.data.expenseCount} รายการ
                 </p>
               )}
             </section>

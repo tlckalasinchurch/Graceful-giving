@@ -1243,9 +1243,10 @@ async function touchLineUser(userId, patch) {
   const db = await getDb();
   if (!db) return;
   await db.update(users).set({
-    // Keep a name or photo an admin or the user already edited.
+    // Keep a custom name/photo edited by the user or admin, but refresh stale
+    // LINE CDN URLs when LINE rotates a profile picture hash.
     name: sql2`coalesce(nullif(${users.name}, ''), ${patch.name})`,
-    avatarUrl: sql2`coalesce(${users.avatarUrl}, ${patch.avatarUrl})`,
+    avatarUrl: sql2`case when ${users.avatarUrl} is null or ${users.avatarUrl} = '' or ${users.avatarUrl} like 'https://profile.line-scdn.net/%' or ${users.avatarUrl} like 'https://obs.line-scdn.net/%' then coalesce(${patch.avatarUrl}, ${users.avatarUrl}) else ${users.avatarUrl} end`,
     lastSignedIn: /* @__PURE__ */ new Date()
   }).where(eq(users.id, userId));
 }

@@ -17,8 +17,18 @@ export const THAI_MONTHS = [
   "ธันวาคม",
 ];
 
+export function toBuddhistYear(gregorianYear: number): number {
+  return gregorianYear + 543;
+}
+
+export function formatDualYear(gregorianYear: number): string {
+  return `${gregorianYear} / พ.ศ. ${toBuddhistYear(gregorianYear)}`;
+}
+
 export function budgetPeriodLabel(year: number, month: number | null) {
-  return month ? `${THAI_MONTHS[month - 1]} ${year}` : `ทั้งปี ${year}`;
+  return month
+    ? `${THAI_MONTHS[month - 1]} ${year} (พ.ศ. ${toBuddhistYear(year)})`
+    : `ทั้งปี ${year} (พ.ศ. ${toBuddhistYear(year)})`;
 }
 
 export function budgetCategoryLabel(category: string | null) {
@@ -35,12 +45,50 @@ export function budgetUsage(planned: number, actual: number) {
   return { percent, tone } as const;
 }
 
-// Red is reserved for spending past the plan, matching the money polarity rule.
-const TONE_STYLES = {
-  ok: { bar: "bg-income", text: "text-income", label: "อยู่ในงบ" },
-  warn: { bar: "bg-accent", text: "text-brand", label: "ใกล้เต็มงบ" },
-  over: { bar: "bg-danger", text: "text-danger", label: "เกินงบ" },
+// Semantic tone styles adhering to 1px precision and high-contrast tabular finance
+export const TONE_STYLES = {
+  ok: {
+    bar: "bg-emerald-600 dark:bg-emerald-500",
+    text: "text-emerald-700 dark:text-emerald-400",
+    badge: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300",
+    label: "อยู่ในงบ",
+  },
+  warn: {
+    bar: "bg-amber-500 dark:bg-amber-400",
+    text: "text-amber-800 dark:text-amber-400",
+    badge: "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300",
+    label: "ใกล้เต็มงบ",
+  },
+  over: {
+    bar: "bg-rose-600 dark:bg-rose-500",
+    text: "text-rose-700 dark:text-rose-400",
+    badge: "border-rose-200 bg-rose-50 text-rose-900 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300",
+    label: "เกินงบ",
+  },
 } as const;
+
+export const BudgetToneBadge: React.FC<{
+  tone: "ok" | "warn" | "over";
+  className?: string;
+}> = ({ tone, className = "" }) => {
+  const style = TONE_STYLES[tone];
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-semibold tabular-nums ${style.badge} ${className}`}
+    >
+      <span
+        className={`size-1.5 rounded-full ${
+          tone === "ok"
+            ? "bg-emerald-500"
+            : tone === "warn"
+              ? "bg-amber-500"
+              : "bg-rose-500"
+        }`}
+      />
+      {style.label}
+    </span>
+  );
+};
 
 export const BudgetProgress: React.FC<{
   planned: number;
@@ -52,12 +100,13 @@ export const BudgetProgress: React.FC<{
   const { percent, tone } = budgetUsage(planned, actual);
   const style =
     quiet && tone === "ok"
-      ? { bar: "bg-brand", text: "text-ink-2", label: TONE_STYLES.ok.label }
+      ? { bar: "bg-ink-3/40 dark:bg-ink-3/30", text: "text-ink-2", label: TONE_STYLES.ok.label }
       : TONE_STYLES[tone];
+
   return (
     <div className={className}>
       <div
-        className={`w-full overflow-hidden rounded-full border border-line bg-paper-2 ${quiet ? "h-2" : "h-3"}`}
+        className={`w-full overflow-hidden rounded-full border border-line bg-paper-2 ${quiet ? "h-2" : "h-2.5"}`}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -65,14 +114,14 @@ export const BudgetProgress: React.FC<{
         aria-label={`ใช้ไปแล้ว ${percent.toFixed(0)}% ของงบประมาณ`}
       >
         <div
-          className={`h-full rounded-full ${style.bar}`}
+          className={`h-full rounded-full transition-all duration-300 ${style.bar}`}
           style={{ width: `${Math.min(percent, 100)}%` }}
         />
       </div>
       <div className="mt-1.5 flex items-center justify-between text-xs tabular-nums">
-        <span className={`font-bold ${style.text}`}>{style.label}</span>
-        <span className="font-semibold text-ink-3">
-          ใช้ไป {percent.toFixed(0)}%
+        <span className={`font-semibold ${style.text}`}>{style.label}</span>
+        <span className="font-medium text-ink-3">
+          ใช้ไป <span className="font-bold text-ink">{percent.toFixed(1)}%</span>
         </span>
       </div>
     </div>
@@ -124,7 +173,8 @@ export function parseBudgetForm(values: BudgetFormValues):
   };
 }
 
-const inputClass = "neo-input mt-1 text-base font-medium";
+const inputClass =
+  "mt-1.5 w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand";
 
 export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;
@@ -141,30 +191,30 @@ export const BudgetFormFields: React.FC<{
       onChange({ ...values, [key]: event.target.value });
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <label className="text-sm font-bold text-ink">
+    <div className="grid gap-4 sm:grid-cols-2">
+      <label className="text-xs font-semibold text-ink-2">
         ช่วงเวลา
         <select
           value={values.month}
           onChange={set("month")}
           className={inputClass}
         >
-          <option value="">ทั้งปี</option>
+          <option value="">ทั้งปี (Annual Master)</option>
           {THAI_MONTHS.map((label, index) => (
             <option key={label} value={String(index + 1)}>
-              {label}
+              {label} (เดือน {index + 1})
             </option>
           ))}
         </select>
       </label>
-      <label className="text-sm font-bold text-ink">
+      <label className="text-xs font-semibold text-ink-2">
         หมวดรายจ่าย
         <select
           value={values.category}
           onChange={set("category")}
           className={inputClass}
         >
-          <option value="">ทุกหมวดรายจ่าย</option>
+          <option value="">ทุกหมวดรายจ่าย (All Categories)</option>
           {EXPENSE_CATEGORIES.map(c => (
             <option key={c.id} value={c.id}>
               {c.label}
@@ -172,14 +222,14 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-bold text-ink">
+      <label className="text-xs font-semibold text-ink-2">
         กองทุน
         <select
           value={values.fundId}
           onChange={set("fundId")}
           className={inputClass}
         >
-          <option value="">ทุกกองทุน</option>
+          <option value="">ทุกกองทุน (All Funds)</option>
           {funds.map(f => (
             <option key={f.id} value={String(f.id)}>
               {f.name}
@@ -187,24 +237,25 @@ export const BudgetFormFields: React.FC<{
           ))}
         </select>
       </label>
-      <label className="text-sm font-bold text-ink">
-        วงเงินงบประมาณ (บาท) *
+      <label className="text-xs font-semibold text-ink-2">
+        วงเงินงบประมาณ (บาท) <span className="text-danger">*</span>
         <input
           required
           inputMode="decimal"
           value={values.plannedAmount}
           onChange={set("plannedAmount")}
-          placeholder="เช่น 120000"
-          className={`${inputClass} tabular-nums font-bold`}
+          placeholder="เช่น 120,000"
+          className={`${inputClass} font-mono font-bold tabular-nums`}
         />
       </label>
-      <label className="text-sm font-bold text-ink md:col-span-2">
-        หมายเหตุ
+      <label className="text-xs font-semibold text-ink-2 sm:col-span-2">
+        หมายเหตุ / วัตถุประสงค์งบประมาณ
         <textarea
           value={values.notes}
           onChange={set("notes")}
-          rows={2}
+          rows={3}
           maxLength={1000}
+          placeholder="ระบุรายละเอียดเพิ่มเติมของแผนงบประมาณ (ถ้ามี)"
           className={inputClass}
         />
       </label>
