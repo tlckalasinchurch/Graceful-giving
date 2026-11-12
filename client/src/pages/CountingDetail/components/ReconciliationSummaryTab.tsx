@@ -236,7 +236,7 @@ export function ReconciliationSummaryTab({
             </p>
           </div>
           <span
-            className={`px-3 py-1 rounded-xl text-xs font-extrabold border-2 border-[var(--ink)] shadow-[2px_2px_0_var(--ink)] ${
+            className={`px-3 py-1 rounded-xl text-xs font-extrabold border border-[var(--ink)]  ${
               pendingChecklist.length === 0
                 ? "bg-tile-mint text-tile-mint-ink"
                 : "bg-tile-peach text-tile-peach-ink"
@@ -424,7 +424,7 @@ export function ReconciliationSummaryTab({
       )}
 
       {unapprovedDeductions.length > 0 && (
-        <p className="rounded-xl border-2 border-[var(--ink)] bg-tile-peach p-4 text-sm font-extrabold text-tile-peach-ink">
+        <p className="rounded-xl border border-[var(--ink)] bg-tile-peach p-4 text-sm font-extrabold text-tile-peach-ink">
           มีรายการหักเบิกที่ยังไม่ได้รับอนุมัติ {unapprovedDeductions.length}{" "}
           รายการ — ต้องอนุมัติก่อนลงบัญชี
         </p>
@@ -494,7 +494,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleClose}
               disabled={close.isPending}
-              className="min-h-11 rounded-xl border-2 border-[var(--ink)] bg-ink px-5 py-2.5 text-sm font-extrabold text-white shadow-[2px_2px_0_var(--ink)] disabled:opacity-50 cursor-pointer"
+              className="min-h-11 rounded-xl border border-[var(--ink)] bg-ink px-5 py-2.5 text-sm font-extrabold text-white disabled:opacity-50 cursor-pointer"
             >
               {close.isPending ? "กำลังปิดรอบ..." : "ปิดรอบถาวร"}
             </button>
@@ -540,7 +540,7 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleDeleteThisSession}
               disabled={deleteSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border-2 border-[var(--ink)] bg-tile-peach px-4 py-2 text-xs font-extrabold text-tile-peach-ink shadow-[2px_2px_0_var(--ink)] hover:bg-danger hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-[var(--ink)] bg-tile-peach px-4 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Trash2 className="h-4 w-4" />
               <span>ลบรอบนี้ (Delete Session)</span>

@@ -397,7 +397,7 @@ export default function Expenses() {
                   <caption className="sr-only">
                     รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
                   </caption>
-                  <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-[0.1em] text-ink">
+                  <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold text-ink">
                     <tr>
                       <th scope="col" className="py-3.5 px-5">
                         วันที่
@@ -483,7 +483,7 @@ export default function Expenses() {
                                       title: e.description,
                                     })
                                   }
-                                  className="inline-flex size-11 items-center justify-center rounded-xl border-1.5 border-[var(--ink)] bg-tile-mint text-tile-mint-ink hover:bg-accent hover:text-accent-foreground"
+                                  className="inline-flex size-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-tile-mint text-tile-mint-ink hover:bg-accent hover:text-accent-foreground"
                                   title="ดูสลิป/ใบเสร็จ"
                                   aria-label={`ดูสลิปของ ${e.description}`}
                                 >
@@ -492,7 +492,7 @@ export default function Expenses() {
                               )}
                               <button
                                 onClick={() => setSelectedVoucher(toVoucher(e))}
-                                className="inline-flex size-11 items-center justify-center rounded-xl border-1.5 border-[var(--ink)] bg-surface text-ink hover:bg-paper-2"
+                                className="inline-flex size-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-surface text-ink hover:bg-paper-2"
                                 title="พิมพ์ใบสำคัญจ่าย"
                                 aria-label={`พิมพ์ใบสำคัญจ่ายของ ${e.description}`}
                               >
@@ -567,7 +567,7 @@ export default function Expenses() {
                                 title: e.description,
                               })
                             }
-                            className="inline-flex min-h-11 items-center gap-1.5 px-3.5 py-2 rounded-xl bg-tile-mint text-tile-mint-ink border-1.5 border-[var(--ink)] text-xs font-bold"
+                            className="inline-flex min-h-11 items-center gap-1.5 px-3.5 py-2 rounded-xl bg-tile-mint text-tile-mint-ink border border-[var(--ink)] text-xs font-bold"
                           >
                             <Paperclip className="w-3.5 h-3.5" />
                             <span>ดูสลิป</span>
@@ -575,7 +575,7 @@ export default function Expenses() {
                         )}
                         <button
                           onClick={() => setSelectedVoucher(toVoucher(e))}
-                          className="min-h-11 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface text-ink border-1.5 border-[var(--ink)] text-xs font-bold"
+                          className="min-h-11 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface text-ink border border-[var(--ink)] text-xs font-bold"
                         >
                           <Printer className="w-3.5 h-3.5 text-brand" />
                           <span>พิมพ์ใบสำคัญ</span>
@@ -637,11 +637,9 @@ function MetricCard({
   return (
     <div className="bento-card p-5">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
-          {label}
-        </span>
+        <span className="text-xs font-extrabold text-ink-3">{label}</span>
         <span
-          className={`grid size-8 place-items-center rounded-lg border-1.5 border-[var(--ink)] ${
+          className={`grid size-8 place-items-center rounded-lg border border-[var(--ink)] ${
             tone === "expense"
               ? "bg-tile-peach text-tile-peach-ink"
               : tone === "accent"

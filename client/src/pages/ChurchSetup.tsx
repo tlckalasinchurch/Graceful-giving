@@ -189,7 +189,7 @@ export default function ChurchSetup() {
 
   return (
     <div className="min-h-dvh bg-ground">
-      <div className="mx-auto min-h-dvh max-w-[560px] overflow-x-hidden bg-ground pb-32 lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border-2 lg:border-[var(--ink)] lg:shadow-[4px_4px_0_var(--ink)]">
+      <div className="mx-auto min-h-dvh max-w-[560px] overflow-x-hidden bg-ground pb-32 lg:my-6 lg:min-h-0 lg:rounded-2xl lg:border lg:border-[var(--ink)]">
         {/* Header */}
         <div className="relative overflow-hidden bg-surface px-5 pb-6 pt-5 sm:px-8 border-b-2 border-[var(--ink)]">
           <button
@@ -225,7 +225,7 @@ export default function ChurchSetup() {
               className="h-3 overflow-hidden rounded-full border-[1.5px] border-[var(--ink)] bg-paper-2"
             >
               <div
-                className="h-full rounded-full bg-accent transition-all duration-500"
+                className="h-full rounded-full bg-accent transition-colors duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -243,7 +243,7 @@ export default function ChurchSetup() {
                 className="inline-flex size-8 items-center justify-center cursor-pointer rounded-full focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <span
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                  className={`h-2.5 rounded-full transition-colors duration-300 ${
                     s.id === step
                       ? "w-7 bg-brand border border-[var(--ink)]"
                       : s.id < step
@@ -262,7 +262,7 @@ export default function ChurchSetup() {
             {/* Step Header */}
             <div className="mb-5 flex items-center gap-3">
               <span
-                className={`grid size-12 place-items-center rounded-2xl border-[1.5px] border-[var(--ink)] shadow-[2px_2px_0_var(--ink)] ${currentStepConfig.bgColor}`}
+                className={`grid size-12 place-items-center rounded-2xl border-[1.5px] border-[var(--ink)]  ${currentStepConfig.bgColor}`}
               >
                 <StepIcon className={`size-6 ${currentStepConfig.color}`} />
               </span>
@@ -315,7 +315,7 @@ export default function ChurchSetup() {
                     }`}
                   >
                     <span
-                      className={`grid size-7 shrink-0 place-items-center rounded-lg border border-[var(--ink)]/30 text-xs font-extrabold ${
+                      className={`grid size-7 shrink-0 place-items-center rounded-lg border border-line text-xs font-extrabold ${
                         done
                           ? "bg-brand text-white"
                           : active
@@ -346,7 +346,7 @@ export default function ChurchSetup() {
 
       {/* Fixed Bottom Navigation */}
       <div className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-[560px]">
-        <div className="border-t-2 border-[var(--ink)] bg-surface/95 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:px-6">
+        <div className="border-t-2 border-[var(--ink)] bg-surface/95 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 sm:px-6">
           <div className="flex gap-3">
             {step > 1 && (
               <button

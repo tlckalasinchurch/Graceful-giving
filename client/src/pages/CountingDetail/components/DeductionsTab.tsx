@@ -79,7 +79,7 @@ export function DeductionsTab({
 
   return (
     <section className="space-y-4">
-      <p className="rounded-xl border-2 border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
+      <p className="rounded-xl border border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
         เงินที่เบิกจากถุงถวายก่อนนำฝาก ยอดถวายจะไม่หายจากระบบ — ระบบตรวจว่า
         นับเงินสดได้ − หักเบิก = ยอดนำฝาก
       </p>

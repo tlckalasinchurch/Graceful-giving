@@ -52,8 +52,8 @@ export function MemberFeed() {
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="h-44 animate-pulse rounded-2xl border-2 border-[var(--ink)] bg-paper-2" />
-        <div className="h-44 animate-pulse rounded-2xl border-2 border-[var(--ink)] bg-paper-2" />
+        <div className="h-44 rounded-2xl border border-[var(--ink)] bg-paper-2" />
+        <div className="h-44 rounded-2xl border border-[var(--ink)] bg-paper-2" />
       </div>
     );
   }
@@ -69,7 +69,7 @@ export function MemberFeed() {
         </p>
         <button
           onClick={() => refetch()}
-          className="mt-4 min-h-11 rounded-xl border-2 border-[var(--ink)] bg-danger px-4 py-2 text-xs font-extrabold text-white shadow-[2px_2px_0_var(--ink)] hover:opacity-90"
+          className="mt-4 min-h-11 rounded-xl border border-[var(--ink)] bg-danger px-4 py-2 text-xs font-extrabold text-white hover:opacity-90"
         >
           ลองใหม่อีกครั้ง
         </button>
@@ -111,9 +111,9 @@ export function MemberFeed() {
               role="tab"
               aria-selected={newsCategoryFilter === cat}
               onClick={() => setNewsCategoryFilter(cat)}
-              className={`min-h-11 rounded-full px-3.5 py-2 text-xs transition-all ${
+              className={`min-h-11 rounded-full px-3.5 py-2 text-xs transition-colors ${
                 newsCategoryFilter === cat
-                  ? "border-2 border-[var(--ink)] bg-accent font-extrabold text-accent-foreground shadow-[2px_2px_0_var(--ink)]"
+                  ? "border border-[var(--ink)] bg-accent font-extrabold text-accent-foreground "
                   : "border-[1.5px] border-[var(--ink)] bg-surface font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
@@ -139,10 +139,10 @@ export function MemberFeed() {
                     setSelectedNews(item);
                   }
                 }}
-                className="bento-card group cursor-pointer p-5 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)] focus:outline-none focus:ring-2 focus:ring-brand"
+                className="bento-card group cursor-pointer p-5 transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ink)]/30 bg-tile-mint px-2.5 py-1 text-xs font-extrabold text-tile-mint-ink">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-tile-mint px-2.5 py-1 text-xs font-extrabold text-tile-mint-ink">
                     <Tag className="size-3" />
                     {categoryLabels[item.category]}
                   </span>
@@ -198,9 +198,9 @@ export function MemberFeed() {
                     setSelectedEvent(event);
                   }
                 }}
-                className="bento-card group flex cursor-pointer gap-4 p-4 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)] focus:outline-none focus:ring-2 focus:ring-brand"
+                className="bento-card group flex cursor-pointer gap-4 p-4 transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand"
               >
-                <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
+                <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl border border-[var(--ink)] bg-accent text-accent-foreground">
                   <CalendarDays className="size-5" />
                   <span className="mt-0.5 text-xs font-extrabold">
                     {new Date(event.startsAt).getDate()}
@@ -240,7 +240,7 @@ export function MemberFeed() {
             <>
               <DialogHeader className="space-y-2 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ink)]/30 bg-tile-mint px-3 py-1 text-xs font-extrabold text-tile-mint-ink">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-tile-mint px-3 py-1 text-xs font-extrabold text-tile-mint-ink">
                     <Tag className="size-3.5" />
                     {categoryLabels[selectedNews.category]}
                   </span>
@@ -295,7 +295,7 @@ export function MemberFeed() {
             <>
               <DialogHeader className="space-y-2 text-left">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-11 place-items-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
+                  <span className="grid size-11 place-items-center rounded-xl border border-[var(--ink)] bg-accent text-accent-foreground">
                     <CalendarDays className="size-6" />
                   </span>
                   <div>

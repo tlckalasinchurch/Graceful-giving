@@ -13,13 +13,13 @@ describe("CommonUI Components", () => {
   describe("LoadingSkeleton", () => {
     it("renders default 3 skeleton placeholder items", () => {
       const { container } = render(<LoadingSkeleton />);
-      const items = container.querySelectorAll(".animate-pulse");
+      const items = container.querySelectorAll('[data-slot="skeleton"]');
       expect(items.length).toBe(3);
     });
 
     it("renders specified count of skeleton items", () => {
       const { container } = render(<LoadingSkeleton count={5} />);
-      const items = container.querySelectorAll(".animate-pulse");
+      const items = container.querySelectorAll('[data-slot="skeleton"]');
       expect(items.length).toBe(5);
     });
   });

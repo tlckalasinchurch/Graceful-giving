@@ -39,7 +39,7 @@ export default function Updates() {
             กลับหน้าหลัก
           </Link>
           <div className="bento-card mt-16 p-8 text-center">
-            <div className="mx-auto grid size-16 place-items-center rounded-2xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
+            <div className="mx-auto grid size-16 place-items-center rounded-2xl border border-[var(--ink)] bg-accent text-accent-foreground">
               <Bell className="size-8" />
             </div>
             <h1 className="mt-5 font-display text-2xl font-extrabold text-ink">
@@ -70,7 +70,7 @@ export default function Updates() {
       <div className="space-y-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
-            <div className="grid size-12 place-items-center rounded-2xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
+            <div className="grid size-12 place-items-center rounded-2xl border border-[var(--ink)] bg-accent text-accent-foreground">
               <Megaphone className="size-6" />
             </div>
             <div>
@@ -82,7 +82,7 @@ export default function Updates() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface px-3.5 py-1.5 text-xs font-extrabold text-ink-2 shadow-[2px_2px_0_var(--ink)]">
+          <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-[var(--ink)] bg-surface px-3.5 py-1.5 text-xs font-extrabold text-ink-2">
             <span>อัปเดตเพื่อการมีส่วนร่วมในชุมชน</span>
           </div>
         </header>
@@ -90,9 +90,9 @@ export default function Updates() {
         <div className="bento-card-static flex gap-2 p-1.5 sm:w-fit">
           <button
             onClick={() => setActiveTab("feed")}
-            className={`min-h-11 rounded-xl px-5 py-2 text-sm transition-all ${
+            className={`min-h-11 rounded-xl px-5 py-2 text-sm transition-colors ${
               activeTab === "feed"
-                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
                 : "font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -101,9 +101,9 @@ export default function Updates() {
           {canManage && (
             <button
               onClick={() => setActiveTab("manage")}
-              className={`min-h-11 rounded-xl px-5 py-2 text-sm transition-all ${
+              className={`min-h-11 rounded-xl px-5 py-2 text-sm transition-colors ${
                 activeTab === "manage"
-                  ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                  ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
                   : "font-bold text-ink-3 hover:bg-paper-2 hover:text-ink"
               }`}
             >

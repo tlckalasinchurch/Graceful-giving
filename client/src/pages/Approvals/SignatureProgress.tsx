@@ -53,7 +53,7 @@ export function SignatureProgress({
                 {sig.name || `ผู้ใช้ #${sig.userId}`}
               </span>
               {sig.wasRequiredSigner && (
-                <span className="rounded-full border border-[var(--ink)]/30 bg-tile-sand px-2.5 py-0.5 text-xs font-extrabold text-tile-sand-ink">
+                <span className="rounded-full border border-line bg-tile-sand px-2.5 py-0.5 text-xs font-extrabold text-tile-sand-ink">
                   ต้องลงนามทุกครั้ง
                 </span>
               )}
@@ -80,12 +80,12 @@ export function SignatureProgress({
       )}
 
       {approval.outcome === "approved" && (
-        <p className="inline-flex items-center rounded-full border-2 border-[var(--ink)] bg-tile-mint px-3 py-1 text-xs font-extrabold text-tile-mint-ink shadow-[2px_2px_0_var(--ink)]">
+        <p className="inline-flex items-center rounded-full border border-[var(--ink)] bg-tile-mint px-3 py-1 text-xs font-extrabold text-tile-mint-ink">
           ครบตามเงื่อนไขธนาคาร
         </p>
       )}
       {approval.outcome === "rejected" && (
-        <p className="inline-flex items-center rounded-full border-2 border-danger bg-danger/10 px-3 py-1 text-xs font-extrabold text-danger">
+        <p className="inline-flex items-center rounded-full border border-danger/40 bg-danger/10 px-3 py-1 text-xs font-extrabold text-danger">
           ถูกปฏิเสธ คำขอนี้ไปไม่ถึงการจ่ายเงิน
         </p>
       )}

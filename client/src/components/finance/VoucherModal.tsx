@@ -61,26 +61,28 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink/70 backdrop-blur-xs flex items-center justify-center p-4 print:p-0 print:bg-surface print:static print:overflow-visible">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 flex items-center justify-center p-4 print:p-0 print:bg-surface print:static print:overflow-visible">
       {/* Container */}
       <div className="neo-modal w-full max-w-3xl overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:rounded-none">
         {/* Modal Action Bar (Hidden in print) */}
-        <div className="flex items-center justify-between px-6 py-4 bg-ground border-b-2 border-[var(--ink)] print:hidden">
+        <div className="flex items-center justify-between px-6 py-4 bg-ground border-b border-line print:hidden">
           <div className="flex items-center gap-2.5 text-ink">
-            <span className="flex size-9 items-center justify-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-tile-mint text-tile-mint-ink">
               <Building2 className="w-4 h-4" />
             </span>
             <div>
-              <span className="eyebrow-quiet block">OFFICIAL VOUCHER</span>
-              <span className="font-bold text-sm text-ink">
-                เอกสารทางการคริสตจักร (A4 Printable)
+              <span className="text-xs font-medium text-ink-3 block">
+                เอกสารทางการคริสตจักร
+              </span>
+              <span className="font-semibold text-sm text-ink">
+                ใบสำคัญสำหรับพิมพ์ (A4)
               </span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="btn-primary inline-flex min-h-11 items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition-all"
+              className="btn-primary inline-flex min-h-11 items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-xs transition-colors"
             >
               <Printer className="w-4 h-4" />
               <span>พิมพ์เอกสาร (Print / PDF)</span>
@@ -88,7 +90,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             <button
               onClick={onClose}
               aria-label="ปิดใบสำคัญ"
-              className="min-h-11 min-w-11 inline-flex items-center justify-center p-2 text-ink-2 hover:text-ink hover:bg-paper-2 rounded-xl border border-transparent hover:border-[var(--ink)] transition-colors cursor-pointer"
+              className="min-h-11 min-w-11 inline-flex items-center justify-center p-2 text-ink-2 hover:text-ink hover:bg-paper-2 rounded-xl transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -100,10 +102,10 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
           {/* Printable Voucher Card */}
           <div
             ref={printAreaRef}
-            className="voucher-print-area max-w-2xl mx-auto bg-surface border-2 border-[var(--ink)] shadow-[4px_4px_0_var(--ink)] print:shadow-none print:border-none p-8 sm:p-10 rounded-2xl text-ink font-sans [--color-ink:#0f172a] [--color-ink-2:#334155] [--color-ink-3:#64748b] [--color-paper:#eef3f9] [--color-line:#e2e8f0] [--color-field:#cbd5e1]"
+            className="voucher-print-area max-w-2xl mx-auto bg-surface border border-line print:shadow-none print:border-none p-8 sm:p-10 rounded-[20px] text-ink font-sans [--color-ink:#0f172a] [--color-ink-2:#334155] [--color-ink-3:#64748b] [--color-paper:#eef3f9] [--color-line:#e2e8f0] [--color-field:#cbd5e1]"
           >
             {/* Header / Church Info */}
-            <div className="border-b-2 border-[var(--ink)] pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="border-b border-line pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-ink tracking-tight">
                   {church?.name || "คริสตจักร"}
@@ -117,7 +119,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </p>
               </div>
               <div className="text-left sm:text-right bg-paper p-3 rounded-xl border border-line shrink-0">
-                <p className="text-xs font-semibold text-ink-3 uppercase tracking-wider">
+                <p className="text-xs font-medium text-ink-3">
                   {isExpense ? "เลขที่ใบสำคัญจ่าย" : "เลขที่ใบเสร็จ"}
                 </p>
                 <p className="text-sm font-bold text-ink font-mono">

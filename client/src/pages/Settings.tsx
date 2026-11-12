@@ -384,7 +384,7 @@ export default function Settings() {
     return (
       <AppLayout>
         <div className="bento-card max-w-xl mx-auto my-12 p-8 text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-danger/10 border-2 border-[var(--ink)] shadow-[3px_3px_0_var(--ink)] mx-auto flex items-center justify-center text-danger">
+          <div className="w-16 h-16 rounded-2xl bg-danger/10 border border-[var(--ink)] mx-auto flex items-center justify-center text-danger">
             <Lock className="w-8 h-8" />
           </div>
           <h2 className="text-xl font-extrabold text-ink">
@@ -421,9 +421,9 @@ export default function Settings() {
         <div className="bento-card-static flex items-center gap-1.5 p-1.5 overflow-x-auto no-scrollbar touch-pan-x">
           <button
             onClick={() => setActiveTab("church")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "church"
-                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -432,9 +432,9 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("roles")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "roles"
-                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -443,9 +443,9 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("categories")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "categories"
-                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -454,9 +454,9 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("payment")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "payment"
-                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -465,9 +465,9 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("audit")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "audit"
-                ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -673,7 +673,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-[var(--ink)] bg-danger/10 px-5 py-2.5 text-sm font-bold text-danger shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-danger/15"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-danger/10 px-5 py-2.5 text-sm font-bold text-danger transition-colors hover:bg-danger/15"
                 >
                   <LogOut className="h-4 w-4" />
                   ออกจากระบบ
@@ -706,7 +706,7 @@ export default function Settings() {
                     คุณมีสิทธิ์กำหนดบทบาท
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-tile-sand text-tile-sand-ink border-[1.5px] border-[var(--ink)]/30 self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-tile-sand text-tile-sand-ink border border-line self-start sm:self-auto">
                     เฉพาะผู้ดูแลระบบสูงสุดที่สามารถเปลี่ยนสิทธิ์ได้
                   </span>
                 )}
@@ -751,7 +751,7 @@ export default function Settings() {
                   <span>กำลังโหลดรายชื่อผู้ใช้งาน...</span>
                 </div>
               ) : !usersQuery.data || usersQuery.data.length === 0 ? (
-                <div className="py-8 text-center text-sm text-ink-3 bg-paper-2 rounded-2xl border-[1.5px] border-[var(--ink)]/20">
+                <div className="py-8 text-center text-sm text-ink-3 bg-paper-2 rounded-2xl border border-line">
                   ยังไม่พบข้อมูลผู้ใช้งานในระบบ
                 </div>
               ) : (
@@ -775,7 +775,7 @@ export default function Settings() {
 
                   if (filteredUsers.length === 0) {
                     return (
-                      <div className="py-8 text-center text-xs text-ink-3 bg-paper-2/50 rounded-xl border border-[var(--ink)]/20">
+                      <div className="py-8 text-center text-xs text-ink-3 bg-paper-2/50 rounded-xl border border-line">
                         ไม่พบผู้ใช้งานที่ตรงกับเงื่อนไขการค้นหา
                       </div>
                     );
@@ -796,7 +796,7 @@ export default function Settings() {
                           return (
                             <div
                               key={u.id}
-                              className="p-4 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 shadow-[2px_2px_0_var(--ink)] space-y-3"
+                              className="p-4 rounded-2xl border border-[var(--ink)] bg-paper-2 space-y-3"
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="space-y-0.5">
@@ -808,7 +808,7 @@ export default function Settings() {
                                       </span>
                                     )}
                                     {u.status === "pending" && (
-                                      <span className="text-[11px] bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-[var(--ink)]/20">
+                                      <span className="text-[11px] bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-line">
                                         รออนุมัติ
                                       </span>
                                     )}
@@ -834,7 +834,7 @@ export default function Settings() {
                                 </div>
                               </div>
 
-                              <div className="space-y-1.5 pt-1 border-t border-[var(--ink)]/10">
+                              <div className="space-y-1.5 pt-1 border-t border-line">
                                 <span className="block text-xs font-bold text-ink-2">
                                   บทบาทในระบบ:
                                 </span>
@@ -880,7 +880,7 @@ export default function Settings() {
                               </div>
 
                               {!isMe && canEdit && (
-                                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--ink)]/10">
+                                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-line">
                                   {u.status !== "active" && (
                                     <button
                                       type="button"
@@ -917,7 +917,7 @@ export default function Settings() {
                                             status: "disabled",
                                           });
                                       }}
-                                      className="min-h-11 flex-1 py-2 px-3 rounded-xl border-2 border-[var(--ink)] bg-danger/10 text-danger text-xs font-bold hover:bg-danger/15 cursor-pointer"
+                                      className="min-h-11 flex-1 py-2 px-3 rounded-xl border border-[var(--ink)] bg-danger/10 text-danger text-xs font-bold hover:bg-danger/15 cursor-pointer"
                                     >
                                       ปิดใช้งาน
                                     </button>
@@ -939,7 +939,7 @@ export default function Settings() {
                                           userId: u.id,
                                         });
                                     }}
-                                    className="min-h-11 px-4 rounded-xl border-2 border-[var(--ink)] bg-surface text-danger text-xs font-bold hover:bg-danger/10 cursor-pointer"
+                                    className="min-h-11 px-4 rounded-xl border border-[var(--ink)] bg-surface text-danger text-xs font-bold hover:bg-danger/10 cursor-pointer"
                                   >
                                     ลบ
                                   </button>
@@ -982,7 +982,7 @@ export default function Settings() {
                                         </span>
                                       )}
                                       {u.status === "pending" && (
-                                        <span className="text-xs bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-[var(--ink)]/20">
+                                        <span className="text-xs bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-line">
                                           รออนุมัติ
                                         </span>
                                       )}
@@ -1030,7 +1030,7 @@ export default function Settings() {
                                               e.target.value
                                             )
                                           }
-                                          className="font-semibold hover:border-brand focus:ring-2 focus:ring-brand/20 transition-all"
+                                          className="font-semibold hover:border-brand focus:ring-2 focus:ring-brand/20 transition-colors"
                                         >
                                           <option value="SUPER_ADMIN">
                                             ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
@@ -1120,7 +1120,7 @@ export default function Settings() {
                                         )}
                                       </div>
                                     ) : (
-                                      <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-paper-2 text-ink border-[1.5px] border-[var(--ink)]/30">
+                                      <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-paper-2 text-ink border border-line">
                                         {u.churchRole || "MEMBER"}
                                       </span>
                                     )}
@@ -1161,7 +1161,7 @@ export default function Settings() {
                         <span className="font-extrabold text-base text-ink">
                           {r.title}
                         </span>
-                        <span className="ml-2.5 font-mono text-xs text-ink-2 bg-surface px-2.5 py-0.5 rounded-md border border-[var(--ink)]/30">
+                        <span className="ml-2.5 font-mono text-xs text-ink-2 bg-surface px-2.5 py-0.5 rounded-md border border-line">
                           {r.role}
                         </span>
                       </div>
@@ -1256,7 +1256,7 @@ export default function Settings() {
               </h3>
 
               <div className="p-4 rounded-2xl bg-paper-2 border-[1.5px] border-[var(--ink)] flex flex-col sm:flex-row items-center gap-6">
-                <div className="w-14 h-14 bg-surface rounded-2xl border-[1.5px] border-[var(--ink)] shadow-[2px_2px_0_var(--ink)] flex items-center justify-center shrink-0">
+                <div className="w-14 h-14 bg-surface rounded-2xl border-[1.5px] border-[var(--ink)] flex items-center justify-center shrink-0">
                   <CreditCard className="w-7 h-7 text-brand" />
                 </div>
 
@@ -1552,7 +1552,7 @@ export default function Settings() {
 
                 if (logs.length === 0) {
                   return (
-                    <div className="py-10 text-center text-sm text-ink-3 bg-paper-2 rounded-2xl border-[1.5px] border-[var(--ink)]/20">
+                    <div className="py-10 text-center text-sm text-ink-3 bg-paper-2 rounded-2xl border border-line">
                       ยังไม่พบบันทึกประวัติ หรือไม่ตรงกับเงื่อนไขการค้นหา
                     </div>
                   );
@@ -1568,7 +1568,7 @@ export default function Settings() {
                       );
                     case "UPDATE":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sky text-tile-sky-ink font-bold text-[11px] border border-[var(--ink)]/20">
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sky text-tile-sky-ink font-bold text-[11px] border border-line">
                           แก้ไขข้อมูล
                         </span>
                       );
@@ -1620,7 +1620,7 @@ export default function Settings() {
                     case "SUBMIT":
                     case "VERIFY":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-[11px] border border-[var(--ink)]/30">
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-[11px] border border-line">
                           {action === "SUBMIT" ? "ส่งตรวจนับ" : "ตรวจนับแล้ว"}
                         </span>
                       );
@@ -1645,7 +1645,7 @@ export default function Settings() {
                       );
                     default:
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-paper-2 text-ink-2 font-mono text-[11px] border border-[var(--ink)]/20">
+                        <span className="px-2.5 py-0.5 rounded-full bg-paper-2 text-ink-2 font-mono text-[11px] border border-line">
                           {action}
                         </span>
                       );
@@ -1670,7 +1670,7 @@ export default function Settings() {
                         return (
                           <div
                             key={log.id}
-                            className="p-4 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 shadow-[2px_2px_0_var(--ink)] space-y-2.5"
+                            className="p-4 rounded-2xl border border-[var(--ink)] bg-paper-2 space-y-2.5"
                           >
                             <div className="flex items-center justify-between gap-2">
                               {renderBadge(log.action)}
@@ -1693,14 +1693,14 @@ export default function Settings() {
 
                             <div className="text-xs flex items-center gap-2">
                               <span className="text-ink-3">เป้าหมาย:</span>
-                              <span className="font-mono text-xs bg-surface px-2 py-0.5 rounded border border-[var(--ink)]/20 font-bold text-ink">
+                              <span className="font-mono text-xs bg-surface px-2 py-0.5 rounded border border-line font-bold text-ink">
                                 {log.entity}
                                 {log.entityId ? ` #${log.entityId}` : ""}
                               </span>
                             </div>
 
                             {Boolean(log.metadata) && (
-                              <div className="font-mono text-[11px] bg-surface p-2 rounded-lg border border-[var(--ink)]/15 text-ink-2 break-all max-h-24 overflow-y-auto">
+                              <div className="font-mono text-[11px] bg-surface p-2 rounded-lg border border-line text-ink-2 break-all max-h-24 overflow-y-auto">
                                 {JSON.stringify(log.metadata)}
                               </div>
                             )}
@@ -1754,7 +1754,7 @@ export default function Settings() {
                                   {renderBadge(log.action)}
                                 </td>
                                 <td className="py-3.5 px-3 text-ink-2">
-                                  <span className="font-mono text-xs bg-paper-2 px-2 py-0.5 rounded-md border border-[var(--ink)]/20">
+                                  <span className="font-mono text-xs bg-paper-2 px-2 py-0.5 rounded-md border border-line">
                                     {log.entity}
                                     {log.entityId ? ` #${log.entityId}` : ""}
                                   </span>
@@ -1762,7 +1762,7 @@ export default function Settings() {
                                 <td className="py-3.5 px-3 text-ink-2 max-w-sm">
                                   {log.metadata ? (
                                     <div
-                                      className="font-mono text-xs bg-paper-2 p-1.5 rounded-lg border border-[var(--ink)]/20 truncate max-w-[280px]"
+                                      className="font-mono text-xs bg-paper-2 p-1.5 rounded-lg border border-line truncate max-w-[280px]"
                                       title={JSON.stringify(
                                         log.metadata,
                                         null,

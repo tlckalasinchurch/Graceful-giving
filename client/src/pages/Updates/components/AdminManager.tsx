@@ -303,7 +303,7 @@ export function AdminManager() {
       </div>
 
       {isLoading ? (
-        <div className="mt-5 h-20 animate-pulse rounded-2xl border-2 border-[var(--ink)] bg-paper-2" />
+        <div className="mt-5 h-20 rounded-2xl border border-[var(--ink)] bg-paper-2" />
       ) : error ? (
         <ErrorState
           className="mt-5"
@@ -316,7 +316,7 @@ export function AdminManager() {
       ) : (
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           {/* Admin News List */}
-          <div className="rounded-2xl border-2 border-[var(--ink)] bg-surface p-4 shadow-[2px_2px_0_var(--ink)]">
+          <div className="rounded-2xl border border-[var(--ink)] bg-surface p-4">
             <div className="mb-3 flex items-center justify-between pb-2 border-b-2 border-[var(--ink)]">
               <p className="text-sm font-extrabold text-ink">ข่าวสารทั้งหมด</p>
               <span className="text-xs font-extrabold text-ink-3">
@@ -331,7 +331,7 @@ export function AdminManager() {
                     className="flex flex-wrap items-center justify-between gap-2 py-3"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink">
+                      <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-line bg-tile-mint text-tile-mint-ink">
                         <Megaphone className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -397,7 +397,7 @@ export function AdminManager() {
           </div>
 
           {/* Admin Events List */}
-          <div className="rounded-2xl border-2 border-[var(--ink)] bg-surface p-4 shadow-[2px_2px_0_var(--ink)]">
+          <div className="rounded-2xl border border-[var(--ink)] bg-surface p-4">
             <div className="mb-3 flex items-center justify-between pb-2 border-b-2 border-[var(--ink)]">
               <p className="text-sm font-extrabold text-ink">กิจกรรมทั้งหมด</p>
               <span className="text-xs font-extrabold text-ink-3">
@@ -511,7 +511,7 @@ export function AdminManager() {
             <>
               <DialogHeader className="text-left">
                 <div className="flex items-center gap-3 text-danger">
-                  <div className="grid size-11 place-items-center rounded-xl border-2 border-[var(--ink)] bg-danger/10 text-danger shadow-[2px_2px_0_var(--ink)]">
+                  <div className="grid size-11 place-items-center rounded-xl border border-[var(--ink)] bg-danger/10 text-danger">
                     <AlertTriangle className="size-6" />
                   </div>
                   <div>
@@ -539,7 +539,7 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteNews.isPending}
                   onClick={() => deleteNews.mutate({ id: deletingNews.id })}
-                  className="min-h-11 rounded-xl border-2 border-[var(--ink)] bg-danger py-2.5 text-xs font-extrabold text-white shadow-[2px_2px_0_var(--ink)] hover:opacity-90 disabled:opacity-60"
+                  className="min-h-11 rounded-xl border border-[var(--ink)] bg-danger py-2.5 text-xs font-extrabold text-white hover:opacity-90 disabled:opacity-60"
                 >
                   {deleteNews.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
                 </button>
@@ -559,7 +559,7 @@ export function AdminManager() {
             <>
               <DialogHeader className="text-left">
                 <div className="flex items-center gap-3 text-danger">
-                  <div className="grid size-11 place-items-center rounded-xl border-2 border-[var(--ink)] bg-danger/10 text-danger shadow-[2px_2px_0_var(--ink)]">
+                  <div className="grid size-11 place-items-center rounded-xl border border-[var(--ink)] bg-danger/10 text-danger">
                     <AlertTriangle className="size-6" />
                   </div>
                   <div>
@@ -587,7 +587,7 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteEvent.isPending}
                   onClick={() => deleteEvent.mutate({ id: deletingEvent.id })}
-                  className="min-h-11 rounded-xl border-2 border-[var(--ink)] bg-danger py-2.5 text-xs font-extrabold text-white shadow-[2px_2px_0_var(--ink)] hover:opacity-90 disabled:opacity-60"
+                  className="min-h-11 rounded-xl border border-[var(--ink)] bg-danger py-2.5 text-xs font-extrabold text-white hover:opacity-90 disabled:opacity-60"
                 >
                   {deleteEvent.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
                 </button>

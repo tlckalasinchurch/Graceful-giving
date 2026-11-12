@@ -157,9 +157,9 @@ export default function Reports() {
                 key={id}
                 type="button"
                 onClick={() => setTab(id)}
-                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm transition-all ${
+                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm transition-colors ${
                   tab === id
-                    ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground font-extrabold shadow-[2px_2px_0_var(--ink)]"
+                    ? "border border-[var(--ink)] bg-accent text-accent-foreground font-extrabold "
                     : "btn-secondary"
                 }`}
               >
@@ -246,9 +246,7 @@ export default function Reports() {
             {/* Totals */}
             <section className="bento-card p-0 grid grid-cols-1 sm:grid-cols-3 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[var(--ink)] overflow-hidden">
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
-                  รายรับรวม
-                </p>
+                <p className="text-xs font-extrabold text-ink-3">รายรับรวม</p>
                 <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.totalIncome}
@@ -258,9 +256,7 @@ export default function Reports() {
                 </div>
               </div>
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
-                  รายจ่ายรวม
-                </p>
+                <p className="text-xs font-extrabold text-ink-3">รายจ่ายรวม</p>
                 <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.totalExpense}
@@ -270,7 +266,7 @@ export default function Reports() {
                 </div>
               </div>
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
+                <p className="text-xs font-extrabold text-ink-3">
                   คงเหลือสุทธิ
                 </p>
                 <div className="text-right sm:text-left sm:mt-1.5">
@@ -296,7 +292,7 @@ export default function Reports() {
               </div>
               <div className="relative overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">
+                  <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold text-ink-2">
                     <tr>
                       <th className="p-4">รายการ</th>
                       <th className="p-4 text-right">จำนวนรายการ</th>

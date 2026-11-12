@@ -230,7 +230,9 @@ export default function Transactions() {
       {/* Eyebrow + Period & Fund Scope Controls */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <span className="eyebrow">สมุดรายการ · การเงิน</span>
+          <span className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
+            สมุดรายการ · การเงิน
+          </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div
@@ -305,15 +307,13 @@ export default function Transactions() {
           <div key={c.label} className="bento-card p-5 sm:p-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-extrabold text-ink-3 uppercase tracking-wider">
-                  {c.label}
-                </p>
+                <p className="text-xs font-extrabold text-ink-3">{c.label}</p>
                 <p className="text-xs font-medium text-ink-3 mt-0.5">
                   {c.note}
                 </p>
               </div>
               <div
-                className={`size-9 shrink-0 rounded-lg border-2 border-[var(--ink)] flex items-center justify-center ${
+                className={`size-9 shrink-0 rounded-lg border border-[var(--ink)] flex items-center justify-center ${
                   c.tone === "income"
                     ? "bg-tile-mint text-tile-mint-ink"
                     : c.tone === "expense"
@@ -390,7 +390,7 @@ export default function Transactions() {
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold uppercase tracking-[0.1em] text-ink">
+              <thead className="border-b-2 border-[var(--ink)] bg-paper-2 text-xs font-extrabold text-ink">
                 <tr>
                   <th scope="col" className="p-4">
                     วันที่
@@ -463,7 +463,7 @@ export default function Transactions() {
           <div className="md:hidden">
             {feedByDay.map(day => (
               <section key={day.label} aria-label={day.label}>
-                <h3 className="sticky top-0 z-10 border-y border-line bg-paper-2 px-4 py-2 text-xs font-extrabold uppercase tracking-wider text-ink-2">
+                <h3 className="sticky top-0 z-10 border-y border-line bg-paper-2 px-4 py-2 text-xs font-extrabold text-ink-2">
                   {day.label}
                 </h3>
                 <ul className="divide-y divide-line">

@@ -209,7 +209,7 @@ export default function Budgets() {
                   key={plan.id}
                   type="button"
                   onClick={() => setLocation(`/budgets/${plan.id}`)}
-                  className="bento-card p-5 text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)]"
+                  className="bento-card p-5 text-left transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -264,9 +264,7 @@ function SummaryCard({
 }) {
   return (
     <div className="flex items-baseline justify-between p-4 sm:block">
-      <p className="text-xs font-extrabold uppercase tracking-wider text-ink-3">
-        {label}
-      </p>
+      <p className="text-xs font-extrabold text-ink-3">{label}</p>
       <p
         className={`sm:mt-1 text-xl font-extrabold tabular-nums md:text-2xl ${className}`}
       >

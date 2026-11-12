@@ -172,7 +172,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-xl border-2 border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger shadow-[2px_2px_0_var(--ink)] transition-colors disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-[var(--ink)] bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger transition-colors disabled:opacity-50"
                 >
                   พักงานฝ่าย
                 </button>
@@ -234,8 +234,8 @@ export default function MinistryDetail() {
               <span
                 className={`rounded-full border px-2.5 py-1 text-xs font-extrabold ${
                   query.data.status === "active"
-                    ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
-                    : "border-[var(--ink)]/20 bg-paper-2 text-ink-2"
+                    ? "border-line bg-tile-mint text-tile-mint-ink"
+                    : "border-line bg-paper-2 text-ink-2"
                 }`}
               >
                 {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}

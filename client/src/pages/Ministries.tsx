@@ -184,15 +184,15 @@ export default function Ministries() {
                 key={ministry.id}
                 type="button"
                 onClick={() => setLocation(`/ministries/${ministry.id}`)}
-                className="bento-card p-5 text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--ink)]"
+                className="bento-card p-5 text-left transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-extrabold text-ink">{ministry.name}</h2>
                   <span
                     className={`rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${
                       ministry.status === "active"
-                        ? "border-[var(--ink)]/30 bg-tile-mint text-tile-mint-ink"
-                        : "border-[var(--ink)]/20 bg-paper-2 text-ink-2"
+                        ? "border-line bg-tile-mint text-tile-mint-ink"
+                        : "border-line bg-paper-2 text-ink-2"
                     }`}
                   >
                     {ministry.status === "active" ? "ดำเนินการ" : "พักงาน"}

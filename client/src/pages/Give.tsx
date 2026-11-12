@@ -119,18 +119,14 @@ export default function Give() {
     <GiveShell>
       <header className="space-y-5">
         <div className="flex items-center gap-2.5">
-          <span className="grid size-11 place-items-center rounded-xl border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[3px_3px_0_var(--ink)]">
-            <HandHeart
-              className="size-5 text-brand"
-              strokeWidth={2.2}
-              aria-hidden="true"
-            />
+          <span className="grid size-10 place-items-center rounded-xl bg-brand text-white">
+            <HandHeart className="size-5" strokeWidth={2} aria-hidden="true" />
           </span>
-          <span className="text-base font-extrabold text-ink">เกรซกิฟวิง</span>
+          <span className="text-base font-bold text-ink">เกรซกิฟวิง</span>
         </div>
 
-        <div className="space-y-3">
-          <h1 className="display text-[clamp(2.4rem,10vw,3.25rem)] font-extrabold text-ink">
+        <div className="space-y-2.5">
+          <h1 className="display text-2xl sm:text-[1.75rem] font-bold leading-[1.2] text-ink">
             ถวายทรัพย์
           </h1>
           <p className="max-w-[32ch] text-base leading-relaxed text-ink-2">
@@ -144,7 +140,7 @@ export default function Give() {
         {liffTrying ? (
           <div
             role="status"
-            className="bento-card-static flex min-h-14 items-center justify-center gap-2.5 text-base font-bold text-ink-2"
+            className="bento-card-static flex min-h-14 items-center justify-center gap-2.5 text-base font-semibold text-ink-2"
           >
             <Loader2
               className="size-5 animate-spin text-brand"
@@ -155,7 +151,7 @@ export default function Give() {
         ) : disabled ? (
           <p
             role="alert"
-            className="rounded-2xl border-2 border-[var(--ink)] bg-danger/10 p-4 text-center text-sm font-bold leading-relaxed text-danger shadow-[3px_3px_0_var(--ink)]"
+            className="rounded-2xl bg-tile-rose p-4 text-center text-sm font-medium leading-relaxed text-tile-rose-ink"
           >
             บัญชีนี้ถูกปิดการใช้งาน โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
           </p>
@@ -163,7 +159,7 @@ export default function Give() {
           <>
             <a
               href={GIVE_LOGIN_URL}
-              className="alpha-press flex min-h-14 w-full items-center justify-center rounded-2xl border-2 border-[var(--ink)] bg-line-brand px-6 text-base font-extrabold text-[var(--line-brand-ink)] shadow-[4px_4px_0_var(--ink)]"
+              className="alpha-press flex min-h-13 w-full items-center justify-center rounded-2xl bg-line-brand px-6 text-base font-bold text-[var(--line-brand-ink)]"
             >
               เข้าสู่ระบบด้วย LINE
             </a>
@@ -176,7 +172,7 @@ export default function Give() {
         {error && (
           <p
             role="alert"
-            className="rounded-xl border-2 border-[var(--ink)] bg-danger/10 px-4 py-3 text-center text-sm font-bold leading-relaxed text-danger shadow-[2px_2px_0_var(--ink)]"
+            className="rounded-xl bg-tile-rose px-4 py-3 text-center text-sm font-medium leading-relaxed text-tile-rose-ink"
           >
             {error}
           </p>
@@ -185,12 +181,12 @@ export default function Give() {
 
       <ol className="bento-card-static divide-y divide-line px-4">
         {NOTES.map(({ title, detail }, index) => (
-          <li key={title} className="flex gap-4 py-4">
-            <span className="money mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-[var(--ink)] bg-accent text-xs font-extrabold text-accent-foreground">
-              {String(index + 1).padStart(2, "0")}
+          <li key={title} className="flex gap-3.5 py-4">
+            <span className="money mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-tile-mint text-xs font-semibold text-tile-mint-ink">
+              {index + 1}
             </span>
             <div className="min-w-0">
-              <p className="text-base font-extrabold text-ink">{title}</p>
+              <p className="text-base font-semibold text-ink">{title}</p>
               <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
                 {detail}
               </p>
@@ -202,11 +198,11 @@ export default function Give() {
       <p className="text-center text-xs sm:text-sm leading-relaxed text-ink-3">
         <a
           href="/privacy"
-          className="font-bold text-ink underline underline-offset-2"
+          className="font-semibold text-ink underline underline-offset-2"
         >
           นโยบายความเป็นส่วนตัว
         </a>
-        {" · "}หากเข้าสู่ระบบไม่ได้ โปรดติดต่อเจ้าหน้าที่ของคริสตจักร
+        {" · "}ติดต่อเจ้าหน้าที่คริสตจักร
       </p>
     </GiveShell>
   );

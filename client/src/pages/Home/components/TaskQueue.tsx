@@ -13,7 +13,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
       <div
         aria-busy="true"
         aria-label="กำลังโหลดงานที่ต้องดำเนินการ"
-        className="h-14 rounded-2xl border border-line bg-surface animate-pulse"
+        className="h-14 rounded-[20px] border border-line bg-surface"
       />
     );
   }
@@ -22,7 +22,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
     return (
       <div
         role="status"
-        className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3 shadow-[2px_2px_0_var(--ink)] sm:px-5"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-4 py-3 sm:px-5"
       >
         <div className="flex items-center gap-2.5">
           <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-income/10 text-income">

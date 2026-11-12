@@ -136,14 +136,14 @@ export function CarryForwardLedger({
   if (!r.hasCarryForward || r.closingCashExpected === null) {
     if (locked) {
       return (
-        <p className="rounded-xl border-2 border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
+        <p className="rounded-xl border border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
           รอบนี้ลงบัญชีก่อนระบบมีการยกยอด จึงไม่มียอดยกมาและยกไป
         </p>
       );
     }
     if (!canEdit) {
       return (
-        <p className="rounded-xl border-2 border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
+        <p className="rounded-xl border border-[var(--ink)] bg-paper-2 p-4 text-sm font-medium text-ink-2">
           รอฝ่ายการเงินกรอกยอดยกมาของรอบแรก
         </p>
       );

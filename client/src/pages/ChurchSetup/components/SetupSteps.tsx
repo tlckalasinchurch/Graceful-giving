@@ -277,12 +277,12 @@ export function Step4({
               onClick={() => toggleCat(cat)}
               className={`flex min-h-[48px] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition ${
                 selected
-                  ? "border-2 border-[var(--ink)] bg-accent text-accent-foreground shadow-[2px_2px_0_var(--ink)]"
-                  : "border-[1.5px] border-[var(--ink)]/30 bg-surface text-ink-2 hover:bg-paper-2"
+                  ? "border border-[var(--ink)] bg-accent text-accent-foreground "
+                  : "border border-line bg-surface text-ink-2 hover:bg-paper-2"
               }`}
             >
               <span
-                className={`grid size-5 shrink-0 place-items-center rounded-md border border-[var(--ink)]/30 ${
+                className={`grid size-5 shrink-0 place-items-center rounded-md border border-line ${
                   selected ? "bg-brand text-white" : "bg-paper-2"
                 }`}
               >
@@ -316,7 +316,7 @@ export function Step5({ data }: { data: SetupData }) {
       {data.funds.map((fund, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface p-3.5 shadow-[2px_2px_0_var(--ink)]"
+          className="flex items-center gap-3 rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface p-3.5"
         >
           <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-[var(--ink)] bg-paper-2 text-brand">
             <WalletCards className="size-5" />
@@ -423,7 +423,7 @@ export function Step7() {
       role: "MEMBER",
       label: "สมาชิกทั่วไป",
       desc: "ดูยอดรวมและสร้างคำขอเบิก แต่ไม่เห็นรายละเอียดผู้ถวาย",
-      color: "bg-paper-2 text-brand border border-[var(--ink)]/20",
+      color: "bg-paper-2 text-brand border border-line",
     },
   ];
   return (
@@ -434,7 +434,7 @@ export function Step7() {
       {roles.map(({ role, label, desc, color }) => (
         <div
           key={role}
-          className="flex items-start gap-3 rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface p-3.5 shadow-[2px_2px_0_var(--ink)]"
+          className="flex items-start gap-3 rounded-2xl border-[1.5px] border-[var(--ink)] bg-surface p-3.5"
         >
           <span
             className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-extrabold ${color}`}
@@ -494,7 +494,7 @@ export function Step8({ data }: { data: SetupData }) {
           </div>
         ))}
       </div>
-      <div className="rounded-2xl border-2 border-[var(--ink)] bg-accent p-4 text-center shadow-[3px_3px_0_var(--ink)]">
+      <div className="rounded-2xl border border-[var(--ink)] bg-accent p-4 text-center">
         <Heart className="mx-auto mb-2 size-8 text-brand" fill="currentColor" />
         <p className="text-sm font-extrabold text-accent-foreground">
           พร้อมเริ่มต้นใช้งาน!

@@ -378,7 +378,7 @@ export default function TransactionDetail() {
                   return;
                 setIsEditing(value => !value);
               }}
-              className="flex min-h-11 items-center gap-1.5 rounded-xl border-2 border-[var(--ink)] bg-tile-mint px-3.5 py-2 text-xs font-extrabold text-tile-mint-ink shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-accent hover:text-accent-foreground active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+              className="flex min-h-11 items-center gap-1.5 rounded-xl border border-[var(--ink)] bg-tile-mint px-3.5 py-2 text-xs font-extrabold text-tile-mint-ink transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.985]"
             >
               <Pencil className="w-4 h-4" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
@@ -401,7 +401,7 @@ export default function TransactionDetail() {
                 if (isExpense) deleteExpense.mutate({ id: recordId });
               }}
               disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[var(--ink)] bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink shadow-[2px_2px_0_var(--ink)] transition-all hover:bg-danger hover:text-white disabled:opacity-50"
+              className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-[var(--ink)] bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink transition-colors hover:bg-danger hover:text-white disabled:opacity-50"
             >
               <Ban className="w-4 h-4" />
               <span>ยกเลิกรายการ</span>
@@ -431,9 +431,9 @@ export default function TransactionDetail() {
           {isEditing && (
             <form
               onSubmit={submitEdit}
-              className="space-y-4 rounded-2xl border-2 border-[var(--ink)] bg-paper-2 p-5 shadow-[3px_3px_0_var(--ink)]"
+              className="space-y-4 rounded-2xl border border-[var(--ink)] bg-paper-2 p-5"
             >
-              <p className="text-sm font-extrabold uppercase tracking-wider text-ink">
+              <p className="text-sm font-extrabold text-ink">
                 แก้ไขข้อมูลรายการ
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -606,7 +606,7 @@ export default function TransactionDetail() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b-2 border-[var(--ink)]">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="eyebrow">
+                <span className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
                   {transaction.type === "income" ? "รายรับ (ถวาย)" : "รายจ่าย"}
                 </span>
                 <StatusBadge status={transaction.status} />
@@ -620,7 +620,7 @@ export default function TransactionDetail() {
               </p>
             </div>
             <div className="text-left sm:text-right">
-              <span className="text-xs font-bold uppercase tracking-wider text-ink-3 block">
+              <span className="text-xs font-bold text-ink-3 block">
                 จำนวนเงินสุทธิ
               </span>
               <MoneyDisplay
@@ -662,8 +662,8 @@ export default function TransactionDetail() {
             />
           </div>
           {transaction.notes && (
-            <div className="rounded-2xl bg-paper-2 border-2 border-[var(--ink)] p-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-ink-3">
+            <div className="rounded-2xl bg-paper-2 border border-[var(--ink)] p-4">
+              <p className="text-xs font-bold text-ink-3">
                 {transaction.type === "income"
                   ? "หมายเหตุ"
                   : "หมายเหตุเพิ่มเติม / วัตถุประสงค์"}
@@ -676,7 +676,7 @@ export default function TransactionDetail() {
 
           {/* Receipt Attachment from Supabase Storage */}
           {transaction.receiptUrl && (
-            <div className="rounded-2xl bg-paper-2 border-2 border-[var(--ink)] p-5 space-y-3 shadow-[3px_3px_0_var(--ink)]">
+            <div className="rounded-2xl bg-paper-2 border border-[var(--ink)] p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-extrabold text-ink flex items-center gap-1.5">
                   <Paperclip className="w-4 h-4 text-brand" />
@@ -693,7 +693,7 @@ export default function TransactionDetail() {
 
               <div
                 onClick={() => setShowReceiptModal(true)}
-                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border-2 border-[var(--ink)] bg-surface flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity group relative shadow-[2px_2px_0_var(--ink)]"
+                className="w-full max-w-xs h-44 rounded-xl overflow-hidden border border-[var(--ink)] bg-surface flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity group relative"
               >
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">
@@ -770,10 +770,8 @@ function Detail({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="bg-paper-2 p-4 rounded-xl border-1.5 border-[var(--ink)] space-y-1">
-      <span className="text-xs font-bold uppercase tracking-wider text-ink-3 block">
-        {label}
-      </span>
+    <div className="bg-paper-2 p-4 rounded-xl border border-[var(--ink)] space-y-1">
+      <span className="text-xs font-bold text-ink-3 block">{label}</span>
       <span className="text-sm font-extrabold text-ink flex items-center gap-1.5">
         {icon}
         {value}
