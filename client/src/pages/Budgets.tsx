@@ -228,7 +228,7 @@ export default function Budgets() {
                 <span className="block text-xs font-semibold text-ink-3">
                   ปีงบประมาณ
                 </span>
-                <span className="text-sm font-bold font-mono tabular-nums text-ink">
+                <span className="whitespace-nowrap text-sm font-bold tabular-nums text-ink">
                   {formatDualYear(year)}
                 </span>
               </div>
@@ -245,7 +245,7 @@ export default function Budgets() {
             <button
               type="button"
               onClick={() => setYear(new Date().getFullYear())}
-              className={`rounded-xl border border-line px-3 py-2 text-xs font-semibold transition-colors ${
+              className={`min-h-11 whitespace-nowrap rounded-xl border border-line px-3 py-2 text-xs font-semibold transition-colors ${
                 year === new Date().getFullYear()
                   ? "bg-brand/10 text-brand border-brand/20 font-bold"
                   : "bg-paper text-ink-2 hover:bg-paper-2 hover:text-ink"
@@ -538,9 +538,12 @@ function KpiFilterCard({
   accent?: string;
 }) {
   const getBadgeStyle = () => {
-    if (tone === "ok") return "text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50";
-    if (tone === "warn") return "text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50";
-    if (tone === "over") return "text-rose-700 bg-rose-50 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/50";
+    if (tone === "ok")
+      return "text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50";
+    if (tone === "warn")
+      return "text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50";
+    if (tone === "over")
+      return "text-rose-700 bg-rose-50 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/50";
     return "text-ink bg-paper border-line";
   };
 
@@ -684,7 +687,8 @@ function BudgetPlanCard({
 
       {plan.notes && (
         <p className="mt-3 truncate text-xs text-ink-3 border-t border-line/60 pt-2.5">
-          <span className="font-semibold text-ink-2">หมายเหตุ:</span> {plan.notes}
+          <span className="font-semibold text-ink-2">หมายเหตุ:</span>{" "}
+          {plan.notes}
         </p>
       )}
     </div>

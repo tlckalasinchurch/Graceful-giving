@@ -530,6 +530,41 @@ select:focus-visible {
 }
 
 /* Primary action button — crisp Emerald pill/rounded control. */
+/*
+ * Base layout for the shared button and input classes. Without it, a
+ * button that only names `btn-primary` renders as a square inline-block
+ * with its icon stacked above the label (Tailwind preflight makes <svg>
+ * display:block), and a `neo-input` without `w-full` shrinks to its
+ * placeholder width. The rules sit in the components layer so that any
+ * utility on the element (`flex`, `hidden`, `rounded-full`, `w-32` …)
+ * still wins.
+ */
+@layer components {
+  .btn-primary,
+  .btn-secondary,
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-xl);
+    font-weight: 700;
+    text-align: center;
+  }
+  .btn-primary > svg,
+  .btn-secondary > svg,
+  .btn-accent > svg {
+    flex-shrink: 0;
+  }
+  .neo-input {
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-line);
+    padding: 0.5625rem 0.875rem;
+  }
+}
+
 .btn-primary {
   background: var(--brand);
   color: var(--brand-ink);
@@ -621,13 +656,12 @@ select:focus-visible {
 }
 
 /* Unified form input styling — >= 16px prevents iOS Safari auto-zoom on focus. */
+/* Box rules (height, radius, border, padding) live in the components layer
+   above, so utilities such as `pl-9` win. font-size stays here, unlayered:
+   at 16px or more iOS does not zoom the page when the field takes focus. */
 .neo-input {
-  min-height: 2.75rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-line);
   background: var(--surface);
   color: var(--ink);
-  padding: 0.5625rem 0.875rem;
   font-size: max(16px, 0.9375rem);
   line-height: 1.5;
   transition:

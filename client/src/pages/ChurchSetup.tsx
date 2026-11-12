@@ -108,15 +108,17 @@ export default function ChurchSetup() {
 
   function validateStep(): boolean {
     if (step === 1 && !data.name.trim()) {
-      toast.error("กรุณาระบุชื่อคริสตจักร");
+      toast.error("กรุณาระบุชื่อคริสตจักร", { id: "setup-step-validation" });
       return false;
     }
     if (step === 2 && !data.pastorName.trim()) {
-      toast.error("กรุณาระบุชื่อศิษยาภิบาล");
+      toast.error("กรุณาระบุชื่อศิษยาภิบาล", { id: "setup-step-validation" });
       return false;
     }
     if (step === 4 && data.offeringCategories.length === 0) {
-      toast.error("กรุณาเลือกหมวดหมู่การถวายอย่างน้อย 1 หมวด");
+      toast.error("กรุณาเลือกหมวดหมู่การถวายอย่างน้อย 1 หมวด", {
+        id: "setup-step-validation",
+      });
       return false;
     }
     return true;

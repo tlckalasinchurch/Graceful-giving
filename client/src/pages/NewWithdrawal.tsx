@@ -125,7 +125,7 @@ export default function NewWithdrawal() {
       <div className="max-w-2xl space-y-6">
         <BackLink label={`กลับ${returnLabel}`} onClick={goBack} />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="bento-card-static p-6 md:p-8 space-y-5">
             <div className="space-y-2">
               <label

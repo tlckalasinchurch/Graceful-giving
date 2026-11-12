@@ -44,7 +44,7 @@ const ShortcutTile = forwardRef<HTMLButtonElement, ShortcutProps>(
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`group flex min-h-13 w-full items-center gap-3 rounded-2xl border border-line bg-surface px-3.5 py-2.5 text-left transition-colors hover:border-[var(--field)] hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.985] ${className}`}
+      className={`group flex min-h-13 w-full items-center gap-2.5 rounded-2xl border border-line bg-surface px-3 py-2.5 @md:gap-3 @md:px-3.5 text-left transition-colors hover:border-[var(--field)] hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.985] ${className}`}
       {...rest}
     >
       <span
@@ -52,11 +52,11 @@ const ShortcutTile = forwardRef<HTMLButtonElement, ShortcutProps>(
       >
         <Icon className="size-4.5 shrink-0" />
       </span>
-      <span className="flex-1 text-sm font-semibold leading-snug text-ink">
+      <span className="min-w-0 flex-1 text-sm font-semibold leading-snug text-ink">
         {label}
       </span>
       <ChevronRight
-        className="size-4 shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5"
+        className="hidden size-4 shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5 @md:block"
         aria-hidden="true"
       />
     </button>
@@ -76,7 +76,7 @@ export function SecondaryMenu({
     <div
       role="group"
       aria-label="เมนูลัดอื่น ๆ"
-      className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1"
+      className="grid grid-cols-2 gap-2.5 @md:gap-3 pt-1"
     >
       {canOpenMembers && (
         <ShortcutTile
@@ -106,7 +106,7 @@ export function SecondaryMenu({
           onClick={onOpenGivingGuide}
         />
       )}
-      <div className="col-span-2 sm:col-span-1">
+      <div className="col-span-2 @md:col-span-1">
         <AppMenu>
           <ShortcutTile
             label="เพิ่มเติม"

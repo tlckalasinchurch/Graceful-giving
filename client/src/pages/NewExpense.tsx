@@ -42,7 +42,8 @@ export default function NewExpense() {
   const [category, setCategory] = useState<ExpenseCategory>("utilities");
   const [description, setDescription] = useState("");
   const [payee, setPayee] = useState("");
-  const [fundId, setFundId] = useState<number | null>(null);
+  // null = the person has not picked a fund; the general fund is then used.
+  const [pickedFundId, setFundId] = useState<number | null>(null);
   const [expenseDate, setExpenseDate] = useState(toLocalISODate());
   const [receiptRef, setReceiptRef] = useState("");
   const [details, setDetails] = useState("");
@@ -71,7 +72,7 @@ export default function NewExpense() {
         receiptRef ||
         details ||
         receiptFile ||
-        fundId ||
+        pickedFundId !== null ||
         category !== "utilities"
     );
   useUnsavedChanges(isDirty);
@@ -205,6 +206,11 @@ export default function NewExpense() {
     retry: false,
   });
   const funds = fundsQuery.data ?? [];
+  // Preselect the general fund, as the offering form does. Most expenses come
+  // from it, and an empty select only adds a step for the treasurer.
+  const defaultFundId =
+    (funds.find(f => f.type === "general") ?? funds[0])?.id ?? null;
+  const fundId = pickedFundId ?? defaultFundId;
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -257,7 +263,7 @@ export default function NewExpense() {
       <div className="max-w-4xl space-y-6">
         <BackLink label="กลับหน้ารายการรายจ่าย" onClick={goBack} />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           {/* Section 1: Amount & Presets */}
           <div className="bento-card-static p-6 md:p-8 space-y-5">
             <h2 className="display text-lg text-ink flex items-center gap-2">

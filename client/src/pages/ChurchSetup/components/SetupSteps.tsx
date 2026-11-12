@@ -148,7 +148,6 @@ export function Step2({
       />
       <TextField
         label="ชื่อผู้ดูแลการเงิน (เหรัญญิก)"
-        required
         value={data.treasurerName}
         onChange={v => set({ treasurerName: v })}
         placeholder="ชื่อ นามสกุล"
@@ -172,9 +171,9 @@ export function Step2({
           เกี่ยวกับบทบาทผู้ใช้
         </p>
         <p className="mt-1 text-xs text-ink-2">
-          ผู้ดูแลระบบสามารถกำหนดสิทธิ์ <strong>SUPER_ADMIN</strong>,{" "}
-          <strong>PASTOR</strong>, <strong>TREASURER</strong>{" "}
-          ให้ผู้ใช้แต่ละคนได้ในภายหลังจากหน้าโปรไฟล์
+          ผู้ดูแลระบบสูงสุดกำหนดบทบาท <strong>ศิษยาภิบาล</strong>,{" "}
+          <strong>เหรัญญิก</strong> และบทบาทอื่นให้ผู้ใช้แต่ละคนได้ภายหลัง
+          ที่เมนู ตั้งค่า → บทบาทและสิทธิ์
         </p>
       </div>
     </div>
@@ -216,14 +215,12 @@ export function Step3({
       </div>
       <TextField
         label="เลขที่บัญชี"
-        required
         value={data.bankAccount}
         onChange={v => set({ bankAccount: v })}
         placeholder="000-0-00000-0"
       />
       <TextField
         label="ชื่อบัญชี"
-        required
         value={data.bankAccountName}
         onChange={v => set({ bankAccountName: v })}
         placeholder="คริสตจักร..."
@@ -240,8 +237,8 @@ export function Step3({
           ความปลอดภัย
         </p>
         <p className="mt-1 text-xs text-ink-2">
-          ข้อมูลบัญชีธนาคารจะถูกเก็บเป็นความลับ โดยเข้าถึงได้เฉพาะ TREASURER และ
-          SUPER_ADMIN เท่านั้น
+          ข้อมูลบัญชีธนาคารจะถูกเก็บเป็นความลับ โดยเข้าถึงได้เฉพาะเหรัญญิกและ
+          ผู้ดูแลระบบสูงสุดเท่านั้น
         </p>
       </div>
     </div>
