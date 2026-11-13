@@ -89,10 +89,11 @@ describe("nativeValidationMessage", () => {
   });
 });
 
-function DemoForm({ onValid }: { onValid: () => void }) {
+function DemoForm({ onValid, open }: { onValid: () => void; open?: boolean }) {
   const { errors, report, clearField, invalidProps } = useFieldErrors(
     "demo-form",
-    { name: "demo-name", email: "demo-email" }
+    { name: "demo-name", email: "demo-email" },
+    { open }
   );
   return (
     <form
@@ -135,7 +136,9 @@ describe("useFieldErrors", () => {
     });
 
     expect(onValid).not.toHaveBeenCalled();
-    const alerts = screen.getAllByRole("alert").map(a => a.textContent);
+    const alerts = Array.from(document.querySelectorAll('[id$="-error"]')).map(
+      e => e.textContent
+    );
     expect(alerts).toEqual(["กรุณาระบุชื่อ", "รูปแบบอีเมลไม่ถูกต้อง"]);
     expect(toastError).toHaveBeenCalledTimes(1);
     expect(toastError).toHaveBeenCalledWith("กรุณาระบุชื่อ", {
@@ -156,6 +159,27 @@ describe("useFieldErrors", () => {
       target: { value: "สมชาย" },
     });
     expect(screen.queryByText("กรุณาระบุชื่อ")).toBeNull();
+  });
+
+  it("does not mark an inline error as an alert, so it is announced once", () => {
+    render(<DemoForm onValid={vi.fn()} />);
+    act(() => {
+      fireEvent.click(screen.getByRole("button", { name: "ส่ง" }));
+    });
+    expect(screen.getByText("กรุณาระบุชื่อ").getAttribute("role")).toBeNull();
+  });
+
+  it("clears inline errors when its dialog closes, and not the toast", () => {
+    const { rerender } = render(<DemoForm onValid={vi.fn()} open />);
+    act(() => {
+      fireEvent.click(screen.getByRole("button", { name: "ส่ง" }));
+    });
+    expect(screen.getByText("กรุณาระบุชื่อ")).toBeTruthy();
+    rerender(<DemoForm onValid={vi.fn()} open={false} />);
+    expect(screen.queryByText("กรุณาระบุชื่อ")).toBeNull();
+    rerender(<DemoForm onValid={vi.fn()} open />);
+    expect(screen.queryByText("กรุณาระบุชื่อ")).toBeNull();
+    expect(toastDismiss).not.toHaveBeenCalled();
   });
 
   it("passes when the page rules and the HTML rules pass", () => {

@@ -90,7 +90,8 @@ export default function Approvals() {
 
   const { errors, report, clearField, invalidProps } = useFieldErrors(
     "withdrawal-action",
-    { rejectReason: "reject-reason", cancelReason: "cancel-reason" }
+    { rejectReason: "reject-reason", cancelReason: "cancel-reason" },
+    { open: showRejectModal || showCancelModal }
   );
 
   const signMutation = trpc.withdrawals.sign.useMutation({

@@ -86,7 +86,8 @@ export default function Members() {
 
   const { errors, report, clearField, invalidProps } = useFieldErrors(
     "new-member",
-    { name: "new-member-name", email: "new-member-email" }
+    { name: "new-member-name", email: "new-member-email" },
+    { open: showCreate }
   );
 
   const submit = (event: React.FormEvent) => {

@@ -106,7 +106,9 @@ describe("NewWithdrawal validation and notifications", () => {
       screen.getByLabelText(/วัตถุประสงค์การเบิก/).closest("form")!
     );
     expect(mutate).not.toHaveBeenCalled();
-    const alerts = screen.getAllByRole("alert").map(a => a.textContent);
+    const alerts = Array.from(document.querySelectorAll('[id$="-error"]')).map(
+      e => e.textContent
+    );
     expect(alerts).toEqual([
       "กรุณาระบุวัตถุประสงค์การเบิกอย่างน้อย 5 ตัวอักษร",
       "กรุณาระบุจำนวนเงินที่ถูกต้อง",
