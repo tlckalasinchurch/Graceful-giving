@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
+import { formToast, useFieldErrors } from "@/lib/formFeedback";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageChurchSettings } from "@shared/roles";
 import { trpc } from "@/lib/trpc";
@@ -23,6 +24,8 @@ import {
   Step7,
   Step8,
 } from "./ChurchSetup/components/SetupSteps";
+
+const SETUP_KEY = "church-setup";
 
 export default function ChurchSetup() {
   const [, setLocation] = useLocation();
@@ -99,24 +102,37 @@ export default function ChurchSetup() {
     setLocation("/");
   }
 
-  const set = (partial: Partial<SetupData>) =>
+  const {
+    errors: stepErrors,
+    report,
+    clearField,
+  } = useFieldErrors(SETUP_KEY, {
+    name: "setup-name",
+    pastorName: "setup-pastor-name",
+  });
+  const set = (partial: Partial<SetupData>) => {
     setData(d => ({ ...d, ...partial }));
+    if ("name" in partial) clearField("name");
+    if ("pastorName" in partial) clearField("pastorName");
+  };
   const totalSteps = STEPS.length;
   const progressPct = ((step - 1) / (totalSteps - 1)) * 100;
   const currentStepConfig = STEPS[step - 1];
   const StepIcon = currentStepConfig.icon;
 
   function validateStep(): boolean {
-    if (step === 1 && !data.name.trim()) {
-      toast.error("กรุณาระบุชื่อคริสตจักร");
-      return false;
-    }
-    if (step === 2 && !data.pastorName.trim()) {
-      toast.error("กรุณาระบุชื่อศิษยาภิบาล");
-      return false;
-    }
+    if (step === 1)
+      return report({
+        name: data.name.trim() ? undefined : "กรุณาระบุชื่อคริสตจักร",
+      });
+    if (step === 2)
+      return report({
+        pastorName: data.pastorName.trim()
+          ? undefined
+          : "กรุณาระบุชื่อศิษยาภิบาล",
+      });
     if (step === 4 && data.offeringCategories.length === 0) {
-      toast.error("กรุณาเลือกหมวดหมู่การถวายอย่างน้อย 1 หมวด");
+      formToast.error(SETUP_KEY, "กรุณาเลือกหมวดหมู่การถวายอย่างน้อย 1 หมวด");
       return false;
     }
     return true;
@@ -178,10 +194,10 @@ export default function ChurchSetup() {
       await completeSetupMutation.mutateAsync();
       clearSetupSkip();
       await utils.church.getProfile.invalidate();
-      toast.success("ตั้งค่าคริสตจักรเรียบร้อยแล้ว");
+      formToast.success(SETUP_KEY, "ตั้งค่าคริสตจักรเรียบร้อยแล้ว");
       setTimeout(() => setLocation("/"), 1200);
     } catch (error: unknown) {
-      toast.error(getSaveErrorMessage(error));
+      formToast.error(SETUP_KEY, getSaveErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -280,8 +296,8 @@ export default function ChurchSetup() {
             </div>
 
             {/* Step Content */}
-            {step === 1 && <Step1 data={data} set={set} />}
-            {step === 2 && <Step2 data={data} set={set} />}
+            {step === 1 && <Step1 data={data} set={set} errors={stepErrors} />}
+            {step === 2 && <Step2 data={data} set={set} errors={stepErrors} />}
             {step === 3 && <Step3 data={data} set={set} />}
             {step === 4 && <Step4 data={data} set={set} />}
             {step === 5 && <Step5 data={data} />}

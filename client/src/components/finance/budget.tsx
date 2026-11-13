@@ -1,6 +1,7 @@
 import React from "react";
 import { EXPENSE_CATEGORIES, expenseCategoryLabel } from "@shared/categories";
 import type { ExpenseCategory } from "@shared/categories";
+import { FieldError, fieldErrorId } from "@/lib/formFeedback";
 
 export const THAI_MONTHS = [
   "มกราคม",
@@ -50,19 +51,22 @@ export const TONE_STYLES = {
   ok: {
     bar: "bg-emerald-600 dark:bg-emerald-500",
     text: "text-emerald-700 dark:text-emerald-400",
-    badge: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300",
+    badge:
+      "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300",
     label: "อยู่ในงบ",
   },
   warn: {
     bar: "bg-amber-500 dark:bg-amber-400",
     text: "text-amber-800 dark:text-amber-400",
-    badge: "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300",
+    badge:
+      "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300",
     label: "ใกล้เต็มงบ",
   },
   over: {
     bar: "bg-rose-600 dark:bg-rose-500",
     text: "text-rose-700 dark:text-rose-400",
-    badge: "border-rose-200 bg-rose-50 text-rose-900 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300",
+    badge:
+      "border-rose-200 bg-rose-50 text-rose-900 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300",
     label: "เกินงบ",
   },
 } as const;
@@ -100,7 +104,11 @@ export const BudgetProgress: React.FC<{
   const { percent, tone } = budgetUsage(planned, actual);
   const style =
     quiet && tone === "ok"
-      ? { bar: "bg-ink-3/40 dark:bg-ink-3/30", text: "text-ink-2", label: TONE_STYLES.ok.label }
+      ? {
+          bar: "bg-ink-3/40 dark:bg-ink-3/30",
+          text: "text-ink-2",
+          label: TONE_STYLES.ok.label,
+        }
       : TONE_STYLES[tone];
 
   return (
@@ -121,7 +129,8 @@ export const BudgetProgress: React.FC<{
       <div className="mt-1.5 flex items-center justify-between text-xs tabular-nums">
         <span className={`font-semibold ${style.text}`}>{style.label}</span>
         <span className="font-medium text-ink-3">
-          ใช้ไป <span className="font-bold text-ink">{percent.toFixed(1)}%</span>
+          ใช้ไป{" "}
+          <span className="font-bold text-ink">{percent.toFixed(1)}%</span>
         </span>
       </div>
     </div>
@@ -180,7 +189,17 @@ export const BudgetFormFields: React.FC<{
   values: BudgetFormValues;
   onChange: (values: BudgetFormValues) => void;
   funds: Array<{ id: number; name: string }>;
-}> = ({ values, onChange, funds }) => {
+  /** DOM id of the amount input; the page focuses it on a failed submit. */
+  amountId?: string;
+  /** Thai message shown under the amount input. */
+  amountError?: string;
+}> = ({
+  values,
+  onChange,
+  funds,
+  amountId = "budget-planned-amount",
+  amountError,
+}) => {
   const set =
     (key: keyof BudgetFormValues) =>
     (
@@ -240,13 +259,17 @@ export const BudgetFormFields: React.FC<{
       <label className="text-xs font-semibold text-ink-2">
         วงเงินงบประมาณ (บาท) <span className="text-danger">*</span>
         <input
+          id={amountId}
           required
           inputMode="decimal"
           value={values.plannedAmount}
           onChange={set("plannedAmount")}
           placeholder="เช่น 120,000"
-          className={`${inputClass} font-mono font-bold tabular-nums`}
+          aria-invalid={amountError ? true : undefined}
+          aria-describedby={amountError ? fieldErrorId(amountId) : undefined}
+          className={`${inputClass} font-mono font-bold tabular-nums aria-invalid:border-danger`}
         />
+        <FieldError fieldId={amountId} message={amountError} />
       </label>
       <label className="text-xs font-semibold text-ink-2 sm:col-span-2">
         หมายเหตุ / วัตถุประสงค์งบประมาณ

@@ -19,7 +19,9 @@ import {
   NotebookPen,
   QrCode,
 } from "lucide-react";
-import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
+
+const TOAST_KEY = "giving-guide";
 
 type GuideStep = {
   path: string;
@@ -96,10 +98,10 @@ export default function GivingGuide() {
     try {
       await navigator.clipboard.writeText(giveUrl);
       setCopied(true);
-      toast.success("คัดลอกลิงก์ถวายแล้ว");
+      formToast.success(TOAST_KEY, "คัดลอกลิงก์ถวายแล้ว");
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("คัดลอกไม่สำเร็จ", {
+      formToast.error(TOAST_KEY, "คัดลอกไม่สำเร็จ", {
         description: "กรุณาคัดลอกลิงก์ด้วยตนเอง",
       });
     }

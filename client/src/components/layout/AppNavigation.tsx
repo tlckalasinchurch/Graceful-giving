@@ -123,16 +123,24 @@ const NAV_GROUPS = [
     paths: ["/giving-guide", "/giving/inbox", "/counting", "/offerings"],
   },
   { label: "การเงิน", paths: ["/transactions", "/expenses"] },
-  { label: "วางแผนและควบคุม", paths: ["/funds", "/budgets", "/approvals"] },
+  {
+    label: "วางแผนและควบคุม",
+    paths: ["/funds", "/budgets", "/approvals", "/withdrawals"],
+  },
   { label: "คริสตจักร", paths: ["/ministries", "/members", "/updates"] },
   { label: "วิเคราะห์", paths: ["/reports"] },
-  { label: "บัญชีผู้ใช้", paths: ["/profile", "/settings"] },
+  { label: "บัญชีผู้ใช้", paths: ["/profile", "/settings", "/notifications"] },
 ] as const;
 
+/**
+ * Section label shown above a page title. A sub-page such as `/funds/12` or
+ * `/expenses/new` takes the label of its parent path.
+ */
 export function getNavGroup(path: string) {
   return (
-    NAV_GROUPS.find(group => group.paths.some(item => item === path))?.label ??
-    "เมนู"
+    NAV_GROUPS.find(group =>
+      group.paths.some(item => isActiveRoute(path, item))
+    )?.label ?? "เมนู"
   );
 }
 

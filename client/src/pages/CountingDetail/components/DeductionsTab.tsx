@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 import { MoneyDisplay, StatusBadge } from "@/components/common/CommonUI";
 import { EXPENSE_CATEGORIES } from "@shared/categories";
 import { fmtBaht } from "./countingUtils";
@@ -50,6 +50,16 @@ export function DeductionsTab({
   removeDeduction,
   approveDeduction,
 }: DeductionsTabProps) {
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "counting-deduction",
+    {
+      purpose: "deduction-purpose",
+      paidTo: "deduction-paid-to",
+      amount: "deduction-amount",
+      fundId: "deduction-fund",
+      reason: "deduction-reason",
+    }
+  );
   const [dPurpose, setDPurpose] = useState("");
   const [dReason, setDReason] = useState("");
   const [dPaidTo, setDPaidTo] = useState("");
@@ -86,17 +96,18 @@ export function DeductionsTab({
 
       {editable && (
         <form
+          noValidate
           onSubmit={event => {
             event.preventDefault();
             const value = Number(dAmount);
-            if (!Number.isFinite(value) || value <= 0) {
-              toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
-              return;
-            }
-            if (!dFundId) {
-              toast.error("กรุณาเลือกกองทุนที่ตัดรายการนี้");
-              return;
-            }
+            const valid = report({
+              amount:
+                !Number.isFinite(value) || value <= 0
+                  ? "กรุณาระบุจำนวนเงินที่ถูกต้อง"
+                  : undefined,
+              fundId: dFundId ? undefined : "กรุณาเลือกกองทุนที่ตัดรายการนี้",
+            });
+            if (!valid) return;
             addDeduction.mutate(
               {
                 sessionId,
@@ -128,10 +139,19 @@ export function DeductionsTab({
               <input
                 required
                 minLength={2}
+                id="deduction-purpose"
                 value={dPurpose}
-                onChange={e => setDPurpose(e.target.value)}
+                onChange={e => {
+                  setDPurpose(e.target.value);
+                  clearField("purpose");
+                }}
+                {...invalidProps("purpose")}
                 placeholder="เช่น ค่าน้ำดื่มวันอาทิตย์"
                 className="neo-input mt-1 font-normal"
+              />
+              <FieldError
+                fieldId="deduction-purpose"
+                message={errors.purpose}
               />
             </label>
             <label className="text-sm font-extrabold text-ink">
@@ -139,11 +159,17 @@ export function DeductionsTab({
               <input
                 required
                 minLength={2}
+                id="deduction-paid-to"
                 value={dPaidTo}
-                onChange={e => setDPaidTo(e.target.value)}
+                onChange={e => {
+                  setDPaidTo(e.target.value);
+                  clearField("paidTo");
+                }}
+                {...invalidProps("paidTo")}
                 placeholder="ชื่อผู้รับเงิน"
                 className="neo-input mt-1 font-normal"
               />
+              <FieldError fieldId="deduction-paid-to" message={errors.paidTo} />
             </label>
             <label className="text-sm font-extrabold text-ink">
               จำนวนเงิน *
@@ -152,10 +178,16 @@ export function DeductionsTab({
                 required
                 min="0.25"
                 step="0.25"
+                id="deduction-amount"
                 value={dAmount}
-                onChange={e => setDAmount(e.target.value)}
+                onChange={e => {
+                  setDAmount(e.target.value);
+                  clearField("amount");
+                }}
+                {...invalidProps("amount")}
                 className="neo-input mt-1 font-bold tabular-nums text-danger"
               />
+              <FieldError fieldId="deduction-amount" message={errors.amount} />
             </label>
             <label className="text-sm font-extrabold text-ink">
               หมวดหมู่รายจ่าย
@@ -175,8 +207,14 @@ export function DeductionsTab({
               ตัดจากกองทุน *
               <NativeSelect
                 required
+                id="deduction-fund"
                 value={dFundId}
-                onChange={e => setDFundId(e.target.value)}
+                onChange={e => {
+                  setDFundId(e.target.value);
+                  clearField("fundId");
+                }}
+                invalid={Boolean(errors.fundId)}
+                {...invalidProps("fundId")}
                 className="mt-1"
               >
                 <option value="" disabled>
@@ -188,6 +226,7 @@ export function DeductionsTab({
                   </option>
                 ))}
               </NativeSelect>
+              <FieldError fieldId="deduction-fund" message={errors.fundId} />
             </label>
             <label className="text-sm font-extrabold text-ink md:col-span-2">
               เหตุผล *
@@ -195,11 +234,17 @@ export function DeductionsTab({
                 required
                 minLength={2}
                 rows={2}
+                id="deduction-reason"
                 value={dReason}
-                onChange={e => setDReason(e.target.value)}
+                onChange={e => {
+                  setDReason(e.target.value);
+                  clearField("reason");
+                }}
+                {...invalidProps("reason")}
                 placeholder="อธิบายเหตุผลที่ต้องเบิกจากถุงถวายทันที"
                 className="neo-input mt-1 font-normal"
               />
+              <FieldError fieldId="deduction-reason" message={errors.reason} />
             </label>
           </div>
           <button

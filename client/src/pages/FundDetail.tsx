@@ -18,9 +18,12 @@ import {
   Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { formatThaiDate } from "@/lib/format";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
+
+const TOAST_KEY = "fund-detail";
 
 const FUND_TYPE_LABELS: Record<string, string> = {
   general: "ดำเนินงานทั่วไป",
@@ -129,11 +132,13 @@ export default function FundDetail() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      toast.success(
+      formToast.success(
+        TOAST_KEY,
         `ดาวน์โหลด Statement กองทุนเรียบร้อยแล้ว (${res.rowCount.toLocaleString()} รายการ)`
       );
     } catch (err: any) {
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         err?.message || "ดาวน์โหลด Statement ล้มเหลว กรุณาลองใหม่อีกครั้ง"
       );
     } finally {

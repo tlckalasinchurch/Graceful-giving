@@ -58,6 +58,7 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import {
   canShareImage,
   downloadObjectUrl,
@@ -80,6 +81,8 @@ import {
   StationStepStatusCard,
   StationUnlockConfirmCard,
 } from "@/components/ui/station-giving-kit";
+
+const TOAST_KEY = "giving-station";
 
 type StationTab = "flow" | "poster";
 type FlowStep = 1 | 2 | 3 | 4;
@@ -233,11 +236,14 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   }, [posterQuery.data]);
   const savePosterMutation = trpc.church.saveStationPoster.useMutation({
     onSuccess: () => {
-      toast.success("บันทึกข้อความป้ายแล้ว");
+      formToast.success(TOAST_KEY, "บันทึกข้อความป้ายแล้ว");
       void utils.church.stationPoster.invalidate();
     },
     onError: err =>
-      toast.error(friendlyErrorMessage(err, "บันทึกข้อความป้ายไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(err, "บันทึกข้อความป้ายไม่สำเร็จ")
+      ),
   });
   const canSavePoster = canManageChurchSettings(user);
   const savePoster = () => {
@@ -274,9 +280,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const copyLink = async (link: string) => {
     try {
       await navigator.clipboard.writeText(link);
-      toast.success("คัดลอกลิงก์แล้ว");
+      formToast.success(TOAST_KEY, "คัดลอกลิงก์แล้ว");
     } catch {
-      toast.error("คัดลอกไม่สำเร็จ ให้กดค้างที่ลิงก์เพื่อคัดลอก");
+      formToast.error(
+        TOAST_KEY,
+        "คัดลอกไม่สำเร็จ ให้กดค้างที่ลิงก์เพื่อคัดลอก"
+      );
     }
   };
   const canNativeShare =
@@ -319,7 +328,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         const url = URL.createObjectURL(blob);
         setPosterFile({ url, dataUrl, name, blob });
         downloadObjectUrl(url, name);
-        toast.success(
+        formToast.success(
+          TOAST_KEY,
           "สร้างรูปโปสเตอร์แล้ว ดูตัวอย่างและปุ่มดาวน์โหลดด้านล่าง"
         );
       } else {
@@ -327,7 +337,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         await printPosterImage(url, action.paper);
       }
     } catch (err) {
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         err instanceof Error && err.message
           ? err.message
           : "สร้างรูปโปสเตอร์ไม่สำเร็จ ลองใหม่อีกครั้ง"
@@ -376,19 +387,25 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
   const submitNoSlipMutation = trpc.givingInbox.submitWithoutSlip.useMutation({
     onError: err => {
-      toast.error(friendlyErrorMessage(err, "ส่งรายการไม่สำเร็จ"));
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(err, "ส่งรายการไม่สำเร็จ")
+      );
     },
   });
 
   const submitSlipMutation = trpc.givingInbox.submitSlip.useMutation({
     onError: err => {
-      toast.error(friendlyErrorMessage(err, "ส่งสลิปไม่สำเร็จ"));
+      formToast.error(TOAST_KEY, friendlyErrorMessage(err, "ส่งสลิปไม่สำเร็จ"));
     },
   });
 
   const createOfferingMutation = trpc.offerings.create.useMutation({
     onError: err => {
-      toast.error(friendlyErrorMessage(err, "บันทึกการถวายไม่สำเร็จ"));
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(err, "บันทึกการถวายไม่สำเร็จ")
+      );
     },
   });
 
@@ -439,7 +456,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
   const handleGoToSummary = () => {
     if (effectiveAmount === null) {
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         `เลือกประเภทและใส่ยอดให้ถูกต้อง (ไม่เกิน ${formatAmount(MAX_GIVING_AMOUNT, 0)} บาท)`
       );
       return;
@@ -490,7 +508,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       const msg =
         err instanceof SlipFileError ? err.message : "แนบรูปสลิปไม่สำเร็จ";
       setSubmissionError(msg);
-      toast.error(msg);
+      formToast.error(TOAST_KEY, msg);
       setTimeout(() => {
         errorBannerRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -508,7 +526,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     input.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("กรุณาเลือกไฟล์รูปภาพ QR Code");
+      formToast.error(TOAST_KEY, "กรุณาเลือกไฟล์รูปภาพ QR Code");
       return;
     }
     const reader = new FileReader();
@@ -519,9 +537,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const handleCopyAccount = async (account: string) => {
     try {
       await navigator.clipboard.writeText(account);
-      toast.success("คัดลอกเลขบัญชีแล้ว");
+      formToast.success(TOAST_KEY, "คัดลอกเลขบัญชีแล้ว");
     } catch {
-      toast.error("คัดลอกไม่สำเร็จ กรุณาคัดลอกเลขบัญชีด้วยตนเอง");
+      formToast.error(
+        TOAST_KEY,
+        "คัดลอกไม่สำเร็จ กรุณาคัดลอกเลขบัญชีด้วยตนเอง"
+      );
     }
   };
 
@@ -531,12 +552,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     setSubmissionError(null);
 
     if (effectiveAmount === null) {
-      toast.error("กรุณาระบุจำนวนเงินที่ต้องการถวาย");
+      formToast.error(TOAST_KEY, "กรุณาระบุจำนวนเงินที่ต้องการถวาย");
       isSubmittingRef.current = false;
       return;
     }
     if (!canSend(checklist)) {
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วนก่อนยืนยัน");
+      formToast.error(TOAST_KEY, "กรุณากรอกข้อมูลให้ครบถ้วนก่อนยืนยัน");
       isSubmittingRef.current = false;
       return;
     }
@@ -577,7 +598,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             ? items
             : [{ category: selectedCategory, amount: effectiveAmount }];
         if (effectiveFundId <= 0) {
-          toast.error("ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย");
+          formToast.error(
+            TOAST_KEY,
+            "ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย"
+          );
           return;
         }
         for (const line of linesToCreate) {
@@ -623,10 +647,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         check?.state === "rejected" ? failedAttemptsAfter : undefined,
     });
     if (check?.state === "rejected") {
-      toast.error(check.message);
+      formToast.error(TOAST_KEY, check.message);
     } else {
       setSlipPreview(null);
-      toast.success("ส่งข้อมูลการถวายเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "ส่งข้อมูลการถวายเรียบร้อยแล้ว");
     }
     setStep(4);
   };
@@ -769,7 +793,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         >
           {/* Station Card Shell */}
           <div className="rounded-2xl bg-paper-2 p-4 sm:p-7 text-ink border border-line space-y-5 sm:space-y-6 relative">
-            {/* Top Bar: TH Language Pill & Step Back Button */}
+            {/* Top Bar: Step Back Button. The station is Thai only, so it
+                shows no language control. */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
                 <button
@@ -786,10 +811,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               ) : (
                 <div className="w-11 h-11" />
               )}
-
-              <div className="grid size-11 place-items-center rounded-xl border border-line bg-surface text-xs font-bold text-ink">
-                TH
-              </div>
             </div>
 
             {stationOnly && shownStep === 2 && (
@@ -800,19 +821,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               />
             )}
 
-            {/* ── STEP 1: Landing / Status / Give Now ── */}
+            {/* ── STEP 1: Landing / Status / ถวายทรัพย์ ── */}
             {shownStep === 1 && (
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="text-center -mt-2">
                   <StationCubeLogo
                     brandTitle="GraceBox"
-                    subtitle="AUTOMATED CHURCH GIVING STATION"
+                    subtitle="จุดถวายทรัพย์อัตโนมัติของคริสตจักร"
                   />
                 </div>
 
                 {/* Station Breadcrumb */}
                 <div className="text-xs sm:text-sm font-semibold text-ink-3 text-center sm:text-left">
-                  GRACEBOX STATION <span className="text-ink-3 mx-1">/</span>{" "}
+                  จุดถวาย GraceBox <span className="text-ink-3 mx-1">/</span>{" "}
                   {churchQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์"}
                 </div>
 
@@ -838,17 +859,18 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   isAvailable={stationReady}
                 />
 
-                {/* Primary Give Now CTA */}
+                {/* Primary give CTA */}
                 <StationHeroCTA
                   eyebrow="เริ่มใช้งาน"
                   headline="พร้อมถวายทรัพย์เลยไหม?"
-                  buttonTitle="Give Now"
+                  buttonTitle="ถวายทรัพย์"
                   buttonSubtitle="เริ่มถวายทันที"
                   helperText="ถ้าต้องการถวายเจาะจงกองทุน กดเพื่อเลือกหมวดหมู่ · ทำรายการได้ทันที"
                   onClick={() =>
                     stationReady
                       ? setStep(2)
-                      : toast.error(
+                      : formToast.error(
+                          TOAST_KEY,
                           "ระบบยังไม่พร้อมรับถวาย กรุณาลองใหม่ภายหลัง"
                         )
                   }
@@ -1108,7 +1130,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                               }
                               className="btn-secondary shrink-0 min-h-10 px-3 text-xs"
                             >
-                              <Copy className="w-3.5 h-3.5" aria-hidden="true" />
+                              <Copy
+                                className="w-3.5 h-3.5"
+                                aria-hidden="true"
+                              />
                               <span>คัดลอก</span>
                             </button>
                           </section>
@@ -1313,7 +1338,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                             >
                               <UploadCloud className="w-4 h-4 text-brand shrink-0" />
                               <span className="text-xs font-bold text-ink">
-                                {slipPreview ? "เปลี่ยนรูปสลิป" : "เลือกรูปสลิป"}
+                                {slipPreview
+                                  ? "เปลี่ยนรูปสลิป"
+                                  : "เลือกรูปสลิป"}
                               </span>
                             </button>
 
@@ -1333,7 +1360,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           </div>
 
                           <p className="text-center text-xs text-ink-3">
-                            ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ วางบนพื้นเรียบ ไม่ให้เงาบัง
+                            ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
+                            วางบนพื้นเรียบ ไม่ให้เงาบัง
                           </p>
 
                           {slipPreview && slipReading.state === "reading" && (
@@ -1365,15 +1393,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                                   </div>
                                   {slipReading.data.amount !== null && (
                                     <div>
-                                      ยอดโอน {formatAmount(slipReading.data.amount)}{" "}
+                                      ยอดโอน{" "}
+                                      {formatAmount(slipReading.data.amount)}{" "}
                                       บาท
-                                      {amountFromSlip ? " (ใส่ยอดถวายให้แล้ว)" : ""}
+                                      {amountFromSlip
+                                        ? " (ใส่ยอดถวายให้แล้ว)"
+                                        : ""}
                                     </div>
                                   )}
                                   {slipReading.data.amount !== null &&
                                     effectiveAmount !== null &&
                                     giveLines.length >= 2 &&
-                                    slipReading.data.amount !== effectiveAmount && (
+                                    slipReading.data.amount !==
+                                      effectiveAmount && (
                                       <div className="font-extrabold text-tile-sand-ink">
                                         ยอดบนสลิปไม่ตรงกับยอดรวม{" "}
                                         {formatAmount(effectiveAmount)} บาท

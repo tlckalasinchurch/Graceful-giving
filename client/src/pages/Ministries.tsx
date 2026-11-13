@@ -11,6 +11,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageMinistries } from "@shared/roles";
 import { CalendarClock, Plus, UserRound, X } from "lucide-react";
 import { toast } from "sonner";
+import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
@@ -54,18 +55,28 @@ export default function Ministries() {
       setMeetingSchedule("");
       setDescription("");
       setShowCreate(false);
-      toast.success("เพิ่มฝ่ายงานเรียบร้อยแล้ว");
+      formToast.success("new-ministry", "เพิ่มฝ่ายงานเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "เพิ่มฝ่ายงานไม่สำเร็จ")),
+      formToast.error(
+        "new-ministry",
+        friendlyErrorMessage(error, "เพิ่มฝ่ายงานไม่สำเร็จ")
+      ),
   });
+
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "new-ministry",
+    { name: "new-ministry-name" }
+  );
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (name.trim().length < 2) {
-      toast.error("กรุณาระบุชื่อฝ่ายงาน");
+    if (
+      !report({
+        name: name.trim().length < 2 ? "กรุณาระบุชื่อฝ่ายงาน" : undefined,
+      })
+    )
       return;
-    }
     createMinistry.mutate({
       name: name.trim(),
       leaderName: leaderName.trim() || undefined,
@@ -99,7 +110,7 @@ export default function Ministries() {
     >
       <div className="space-y-6">
         {canManage && showCreate && (
-          <form onSubmit={submit} className="bento-card p-6">
+          <form onSubmit={submit} noValidate className="bento-card p-6">
             <div className="mb-5 flex items-center justify-between pb-3 border-b border-line">
               <h2 className="font-extrabold text-ink">เพิ่มฝ่ายงานใหม่</h2>
               <button
@@ -115,12 +126,18 @@ export default function Ministries() {
               <label className="text-sm font-extrabold text-ink-2">
                 ชื่อฝ่ายงาน *
                 <input
+                  id="new-ministry-name"
                   required
                   value={name}
-                  onChange={event => setName(event.target.value)}
+                  onChange={event => {
+                    setName(event.target.value);
+                    clearField("name");
+                  }}
                   placeholder="เช่น ฝ่ายนมัสการ, ฝ่ายอนุชน"
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
+                  {...invalidProps("name")}
                 />
+                <FieldError fieldId="new-ministry-name" message={errors.name} />
               </label>
               <label className="text-sm font-extrabold text-ink-2">
                 หัวหน้าฝ่าย

@@ -16,6 +16,7 @@ import {
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 import { friendlyErrorMessage } from "@/lib/errors";
+import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canViewDonorNames } from "@shared/roles";
 import { offeringCategoryLabel, paymentMethodLabel } from "@shared/categories";
@@ -103,9 +104,19 @@ export default function MemberDetail() {
     [memberOfferings]
   );
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "member-detail",
+    {
+      name: "member-name",
+      envelopeNo: "member-envelope",
+      email: "member-email",
+    }
+  );
+
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!Number.isInteger(id) || id <= 0) return;
+    if (!report({})) return;
     update.mutate({
       id,
       name: name.trim(),
@@ -145,7 +156,11 @@ export default function MemberDetail() {
           />
         ) : (
           <>
-            <form onSubmit={submit} className="bento-card p-6 md:p-8">
+            <form
+              onSubmit={submit}
+              noValidate
+              className="bento-card p-6 md:p-8"
+            >
               <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-line">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -220,19 +235,34 @@ export default function MemberDetail() {
                   ชื่อ-นามสกุล *
                   <input
                     required
+                    id="member-name"
                     value={name}
-                    onChange={event => setName(event.target.value)}
+                    onChange={event => {
+                      setName(event.target.value);
+                      clearField("name");
+                    }}
+                    {...invalidProps("name")}
                     className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                   />
+                  <FieldError fieldId="member-name" message={errors.name} />
                 </label>
                 <label className="text-sm font-extrabold text-ink-2">
                   รหัสซองถวายประจำตัว
                   <input
+                    id="member-envelope"
                     value={envelopeNo}
-                    onChange={event => setEnvelopeNo(event.target.value)}
+                    onChange={event => {
+                      setEnvelopeNo(event.target.value);
+                      clearField("envelopeNo");
+                    }}
+                    {...invalidProps("envelopeNo")}
                     placeholder="เช่น 001, A-12 (เว้นว่างได้)"
                     maxLength={32}
                     className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
+                  />
+                  <FieldError
+                    fieldId="member-envelope"
+                    message={errors.envelopeNo}
                   />
                 </label>
                 <label className="text-sm font-extrabold text-ink-2">
@@ -247,10 +277,16 @@ export default function MemberDetail() {
                   อีเมล
                   <input
                     type="email"
+                    id="member-email"
                     value={email}
-                    onChange={event => setEmail(event.target.value)}
+                    onChange={event => {
+                      setEmail(event.target.value);
+                      clearField("email");
+                    }}
+                    {...invalidProps("email")}
                     className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                   />
+                  <FieldError fieldId="member-email" message={errors.email} />
                 </label>
                 <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
                   หมายเหตุ

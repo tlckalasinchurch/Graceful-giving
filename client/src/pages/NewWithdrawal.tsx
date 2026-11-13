@@ -17,12 +17,12 @@ import {
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 import { Banknote, CheckCircle2 } from "lucide-react";
-import { toast } from "sonner";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink } from "@/components/common/CommonUI";
 import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
 import { friendlyErrorMessage } from "@/lib/errors";
 import { formatAmount } from "@/lib/format";
+import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 
 const URGENT_PREFIX = "[เร่งด่วน] ";
 const DETAILS_MAX_LENGTH = 1000 - URGENT_PREFIX.length;
@@ -44,7 +44,19 @@ export default function NewWithdrawal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  const FORM_KEY = "new-withdrawal";
+  const fieldIds = {
+    purpose: "newwithdra-f0",
+    amount: "newwithdra-f1",
+    fundId: "newwithdra-f3",
+  };
+  const { errors, report, clearField, reset, invalidProps } = useFieldErrors(
+    FORM_KEY,
+    fieldIds
+  );
+
   const resetForm = () => {
+    reset();
     setPurpose("");
     setAmount("");
     setFundId(null);
@@ -71,11 +83,12 @@ export default function NewWithdrawal() {
       setIsSubmitting(false);
       setShowSuccessModal(true);
       void utils.withdrawals.list.invalidate();
-      toast.success("ยื่นคำขอเบิกเงินเรียบร้อยแล้ว รอการอนุมัติ");
+      // The success dialog is the confirmation; a toast would repeat it.
+      formToast.clear(FORM_KEY);
     },
     onError: error => {
       setIsSubmitting(false);
-      toast.error("ยื่นคำขอเบิกเงินไม่สำเร็จ", {
+      formToast.error(FORM_KEY, "ยื่นคำขอเบิกเงินไม่สำเร็จ", {
         description: friendlyErrorMessage(error),
       });
     },
@@ -84,24 +97,19 @@ export default function NewWithdrawal() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = parseFloat(amount.replace(/,/g, ""));
+    const nextErrors: Partial<Record<keyof typeof fieldIds, string>> = {};
     if (isNaN(numAmount) || numAmount <= 0) {
-      toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
-      return;
-    }
-    if (numAmount > MAX_WITHDRAWAL_AMOUNT) {
-      toast.error(
-        `จำนวนเงินต้องไม่เกิน ${formatAmount(MAX_WITHDRAWAL_AMOUNT, 0)} บาท`
-      );
-      return;
+      nextErrors.amount = "กรุณาระบุจำนวนเงินที่ถูกต้อง";
+    } else if (numAmount > MAX_WITHDRAWAL_AMOUNT) {
+      nextErrors.amount = `จำนวนเงินต้องไม่เกิน ${formatAmount(MAX_WITHDRAWAL_AMOUNT, 0)} บาท`;
     }
     if (purpose.trim().length < 5) {
-      toast.error("กรุณาระบุวัตถุประสงค์การเบิกอย่างน้อย 5 ตัวอักษร");
-      return;
+      nextErrors.purpose = "กรุณาระบุวัตถุประสงค์การเบิกอย่างน้อย 5 ตัวอักษร";
     }
     if (!fundId) {
-      toast.error("กรุณาเลือกกองทุนก่อนยื่นคำขอ");
-      return;
+      nextErrors.fundId = "กรุณาเลือกกองทุนก่อนยื่นคำขอ";
     }
+    if (!report(nextErrors) || !fundId) return;
 
     if (!lock()) return;
     setIsSubmitting(true);
@@ -125,7 +133,7 @@ export default function NewWithdrawal() {
       <div className="max-w-2xl space-y-6">
         <BackLink label={`กลับ${returnLabel}`} onClick={goBack} />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="bento-card-static p-6 md:p-8 space-y-5">
             <div className="space-y-2">
               <label
@@ -139,10 +147,15 @@ export default function NewWithdrawal() {
                 type="text"
                 required
                 value={purpose}
-                onChange={e => setPurpose(e.target.value)}
+                onChange={e => {
+                  setPurpose(e.target.value);
+                  clearField("purpose");
+                }}
                 placeholder="เช่น ค่าจัดค่ายอนุชน, ค่าซ่อมแซมห้องน้ำ"
                 className="neo-input font-medium"
+                {...invalidProps("purpose")}
               />
+              <FieldError fieldId={fieldIds.purpose} message={errors.purpose} />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -163,10 +176,15 @@ export default function NewWithdrawal() {
                     required
                     placeholder="0.00"
                     value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                    className="money w-full min-h-14 pl-10 pr-4 rounded-xl border border-line bg-surface text-2xl font-extrabold text-ink focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25"
+                    onChange={e => {
+                      setAmount(e.target.value);
+                      clearField("amount");
+                    }}
+                    className="money w-full min-h-14 pl-10 pr-4 rounded-xl border border-line bg-surface text-2xl font-extrabold text-ink focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 aria-invalid:border-danger"
+                    {...invalidProps("amount")}
                   />
                 </div>
+                <FieldError fieldId={fieldIds.amount} message={errors.amount} />
               </div>
 
               <div className="space-y-2">
@@ -201,7 +219,12 @@ export default function NewWithdrawal() {
                 id="newwithdra-f3"
                 required
                 value={fundId ?? ""}
-                onChange={e => setFundId(Number(e.target.value))}
+                onChange={e => {
+                  setFundId(Number(e.target.value));
+                  clearField("fundId");
+                }}
+                invalid={Boolean(errors.fundId)}
+                aria-describedby={invalidProps("fundId")["aria-describedby"]}
                 className="font-medium"
               >
                 <option value="" disabled>
@@ -213,6 +236,7 @@ export default function NewWithdrawal() {
                   </option>
                 ))}
               </NativeSelect>
+              <FieldError fieldId={fieldIds.fundId} message={errors.fundId} />
               {funds.length === 0 && (
                 <p className="text-sm font-bold text-danger mt-2">
                   ยังไม่มีกองทุนในระบบ กรุณาเพิ่มกองทุนก่อนยื่นคำขอเบิกเงิน

@@ -55,7 +55,7 @@ export function toDate(value: string | number | Date | null | undefined) {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-/** e.g. "20 ก.ย. 2569". Returns "—" rather than "Invalid Date". */
+/** e.g. "20 ก.ย. 2026" (C.E., see THAI_LOCALE). Returns "—" rather than "Invalid Date". */
 export function formatThaiDate(
   value: string | number | Date | null | undefined
 ) {

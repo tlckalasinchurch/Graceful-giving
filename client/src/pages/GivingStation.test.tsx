@@ -105,7 +105,7 @@ const png = () =>
 
 /** Gets a signed-in member to step 3 with a slip attached. */
 async function goToConfirm() {
-  fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
   await pickLand();
   const input = await screen.findByLabelText("รูปสลิปการโอน");
   fireEvent.change(input, { target: { files: [png()] } });
@@ -159,7 +159,7 @@ describe("GivingStation for an ordinary member", () => {
       },
     });
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     await pickLand();
     fireEvent.click(
       await screen.findByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
@@ -179,7 +179,7 @@ describe("GivingStation for an ordinary member", () => {
 
   it("blocks a send without a slip when the name is missing", async () => {
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     await pickLand();
     fireEvent.change(await screen.findByLabelText(/ชื่อผู้ถวาย/), {
       target: { value: " " },
@@ -191,7 +191,7 @@ describe("GivingStation for an ordinary member", () => {
 
   it("blocks a send without a slip when the transfer date is in the future", async () => {
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     await pickLand();
     fireEvent.change(await screen.findByLabelText(/วันที่โอนเงิน/), {
       target: { value: "2999-01-01" },
@@ -208,7 +208,7 @@ describe("GivingStation for an ordinary member", () => {
       check: { state: "in_review", message: "รอตรวจ", slipAmount: null },
     });
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
     fireEvent.click(screen.getByRole("button", { name: "พันธกิจ" }));
     fireEvent.change(screen.getByLabelText("ยอด ที่ดิน"), {
@@ -245,7 +245,7 @@ describe("GivingStation for an ordinary member", () => {
       check: { state: "verified", message: "ตรงกัน", slipAmount: null },
     });
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
     fireEvent.click(screen.getByRole("button", { name: "พันธกิจ" }));
     fireEvent.change(screen.getByLabelText("ยอด ที่ดิน"), {
@@ -278,7 +278,7 @@ describe("GivingStation for an ordinary member", () => {
 
   it("starts with the usual amount of a tapped category, and a quick amount replaces it", async () => {
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
     expect(
       (screen.getByLabelText("ยอด ที่ดิน") as HTMLInputElement).value
@@ -294,7 +294,7 @@ describe("GivingStation for an ordinary member", () => {
 
   it("removes a category when it is tapped again, and cannot continue with none", async () => {
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     const chip = await screen.findByRole("button", { name: "ที่ดิน" });
     fireEvent.click(chip);
     fireEvent.click(screen.getByRole("button", { name: /ที่ดิน$/ }));
@@ -310,7 +310,7 @@ describe("GivingStation for an ordinary member", () => {
 
   it("cannot continue while an amount is empty or zero", async () => {
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
     for (const value of ["", "0", "-5"]) {
       fireEvent.change(screen.getByLabelText("ยอด ที่ดิน"), {
@@ -358,7 +358,7 @@ describe("GivingStation for an ordinary member", () => {
       bank: null,
     });
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     await pickLand();
     fireEvent.change(await screen.findByLabelText(/ชื่อผู้ถวาย/), {
       target: { value: "สมศรี ใจดี" },
@@ -405,7 +405,7 @@ describe("GivingStation for an ordinary member", () => {
       bank: null,
     });
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     fireEvent.click(await screen.findByRole("button", { name: "ที่ดิน" }));
     fireEvent.click(screen.getByRole("button", { name: "พันธกิจ" }));
     fireEvent.click(screen.getByRole("button", { name: "ดูสรุปการถวาย" }));
@@ -421,7 +421,7 @@ describe("GivingStation for an ordinary member", () => {
 
   it("lets the donor take the slip photo with the camera", async () => {
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     await pickLand();
     const camera = (await screen.findByLabelText(
       "ถ่ายรูปสลิปด้วยกล้อง"
@@ -570,7 +570,7 @@ describe("GivingStation step 3: paid or not yet", () => {
 
   it("has no countdown on step 3, where the donor may be paying", async () => {
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     await pickLand();
     await screen.findByRole("region", { name: "สถานะการโอนเงิน" });
     expect(screen.queryByRole("timer")).toBeNull();
@@ -580,7 +580,7 @@ describe("GivingStation step 3: paid or not yet", () => {
 describe("GivingStation check before every send", () => {
   it("lists what will be sent, and switches to the slip route when a slip is attached", async () => {
     render(<GivingStation />);
-    fireEvent.click(screen.getByRole("button", { name: /Give Now/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     await pickLand();
     const list = await screen.findByRole("region", {
       name: "ตรวจรายการก่อนส่ง",
@@ -657,7 +657,7 @@ describe("GivingStation after a page reload", () => {
     first.unmount();
     authUser = { ...member, id: 99 };
     render(<GivingStation />);
-    expect(screen.getByRole("button", { name: /Give Now/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^ถวายทรัพย์ - / })).toBeTruthy();
   });
 });
 

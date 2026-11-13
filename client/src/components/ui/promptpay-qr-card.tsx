@@ -1,9 +1,11 @@
 import { useRef } from "react";
 import { Download } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { downloadSvgAsPng } from "@/lib/downloadQr";
 import { formatAmount } from "@/lib/format";
+
+const TOAST_KEY = "promptpay-copy";
 
 /**
  * A PromptPay QR with the amount already filled in, for the donor to scan with
@@ -27,7 +29,8 @@ export function PromptPayQrCard({
     try {
       await downloadSvgAsPng(svg, `promptpay-${amount}.png`);
     } catch (err) {
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         err instanceof Error ? err.message : "บันทึกรูป QR ไม่สำเร็จ"
       );
     }

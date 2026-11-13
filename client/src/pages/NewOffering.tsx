@@ -9,7 +9,12 @@ import {
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 import { HandCoins, UserCheck } from "lucide-react";
-import { toast } from "sonner";
+import {
+  FieldError,
+  focusElement,
+  formToast,
+  useFieldErrors,
+} from "@/lib/formFeedback";
 import {
   OFFERING_CATEGORIES,
   offeringCategoryLabel,
@@ -48,7 +53,6 @@ export default function NewOffering() {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const [lastSaved, setLastSaved] = useState<{
     category: OfferingCategory;
@@ -73,7 +77,7 @@ export default function NewOffering() {
     setDonorName("");
     setSelectedMemberId(null);
     setIsAnonymous(false);
-    setFormError(null);
+    resetErrors();
     setTimeout(() => {
       amountRef.current?.focus();
     }, 100);
@@ -144,6 +148,17 @@ export default function NewOffering() {
     }
   };
 
+  const {
+    errors,
+    report,
+    clearField,
+    invalidProps,
+    reset: resetErrors,
+  } = useFieldErrors("new-offering", {
+    amount: "offering-amount",
+    fundId: "offering-fund",
+  });
+
   const { lock, unlock } = useSubmitLock();
   const createMutation = trpc.offerings.create.useMutation({
     onSettled: unlock,
@@ -168,10 +183,11 @@ export default function NewOffering() {
         utils.finance.fundOptions.invalidate(),
         utils.reports.summary.invalidate(),
       ]);
-      toast.success("บันทึกการถวายเรียบร้อยแล้ว");
+      // The success dialog is the confirmation; a toast would repeat it.
+      formToast.clear("new-offering");
     },
     onError: error => {
-      toast.error("บันทึกการถวายไม่สำเร็จ", {
+      formToast.error("new-offering", "บันทึกการถวายไม่สำเร็จ", {
         description: friendlyErrorMessage(error),
       });
     },
@@ -179,14 +195,16 @@ export default function NewOffering() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
-    if (!amount || Number(amount) <= 0) {
-      setFormError("กรุณาระบุจำนวนเงินที่ถูกต้อง");
-      amountRef.current?.focus();
-      return;
-    }
-    if (!fundId) {
-      setFormError("กรุณาเลือกกองทุนก่อนบันทึก");
+    const valid = report({
+      amount:
+        !amount || Number(amount) <= 0
+          ? "กรุณาระบุจำนวนเงินที่ถูกต้อง"
+          : undefined,
+      fundId: fundId ? undefined : "กรุณาเลือกกองทุนก่อนบันทึก",
+    });
+    if (!valid) {
+      // useFieldErrors focuses by id; the amount field also holds a ref.
+      if (!amount || Number(amount) <= 0) focusElement(amountRef.current);
       return;
     }
 
@@ -257,6 +275,7 @@ export default function NewOffering() {
           /* Main Step Form Card */
           <form
             onSubmit={handleSubmit}
+            noValidate
             className="bento-card-static p-6 sm:p-8 space-y-6"
           >
             {/* 1. ประเภทถวาย */}
@@ -302,18 +321,17 @@ export default function NewOffering() {
                   required
                   min="1"
                   step="0.01"
-                  aria-invalid={Boolean(formError)}
+                  {...invalidProps("amount")}
                   value={amount}
-                  onChange={e => setAmount(e.target.value)}
+                  onChange={e => {
+                    setAmount(e.target.value);
+                    clearField("amount");
+                  }}
                   placeholder="0.00"
-                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border border-line text-2xl font-extrabold text-income focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25"
+                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border border-line text-2xl font-extrabold text-income focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 aria-invalid:border-danger"
                 />
               </div>
-              {formError && (
-                <p role="alert" className="text-sm font-bold text-danger">
-                  {formError}
-                </p>
-              )}
+              <FieldError fieldId="offering-amount" message={errors.amount} />
 
               {/* Shortcut Chips */}
               <div className="flex flex-wrap gap-2 pt-1">
@@ -341,7 +359,12 @@ export default function NewOffering() {
                 id="offering-fund"
                 required
                 value={fundId}
-                onChange={e => setFundId(e.target.value)}
+                onChange={e => {
+                  setFundId(e.target.value);
+                  clearField("fundId");
+                }}
+                invalid={Boolean(errors.fundId)}
+                aria-describedby={invalidProps("fundId")["aria-describedby"]}
               >
                 <option value="" disabled>
                   เลือกกองทุน
@@ -352,6 +375,7 @@ export default function NewOffering() {
                   </option>
                 ))}
               </NativeSelect>
+              <FieldError fieldId="offering-fund" message={errors.fundId} />
               {funds.length === 0 && (
                 <p className="text-xs font-bold text-danger">
                   ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย

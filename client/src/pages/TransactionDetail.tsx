@@ -21,7 +21,7 @@ import {
   ExternalLink,
   FileText,
 } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 import { Swal } from "@/lib/sweetalert";
 import {
   confirmDiscardChanges,
@@ -45,6 +45,8 @@ import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 import { friendlyErrorMessage } from "@/lib/errors";
+
+const TOAST_KEY = "transaction-detail";
 
 export default function TransactionDetail() {
   const [, setLocation] = useLocation();
@@ -95,11 +97,14 @@ export default function TransactionDetail() {
         utils.finance.monthlyStats.invalidate(),
         utils.finance.accounts.invalidate(),
       ]);
-      toast.success("ยกเลิกรายการถวายเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "ยกเลิกรายการถวายเรียบร้อยแล้ว");
       setLocation("/transactions");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "ยกเลิกรายการถวายไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(error, "ยกเลิกรายการถวายไม่สำเร็จ")
+      ),
   });
   const deleteExpense = trpc.expenses.delete.useMutation({
     onSuccess: async () => {
@@ -110,11 +115,14 @@ export default function TransactionDetail() {
         utils.finance.accounts.invalidate(),
         utils.budgets.list.invalidate(),
       ]);
-      toast.success("ยกเลิกรายการรายจ่ายเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "ยกเลิกรายการรายจ่ายเรียบร้อยแล้ว");
       setLocation("/transactions");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "ยกเลิกรายการรายจ่ายไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(error, "ยกเลิกรายการรายจ่ายไม่สำเร็จ")
+      ),
   });
   const updateOffering = trpc.offerings.update.useMutation({
     onSuccess: async () => {
@@ -126,10 +134,13 @@ export default function TransactionDetail() {
         utils.finance.accounts.invalidate(),
       ]);
       setIsEditing(false);
-      toast.success("แก้ไขรายการถวายเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "แก้ไขรายการถวายเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "แก้ไขรายการถวายไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(error, "แก้ไขรายการถวายไม่สำเร็จ")
+      ),
   });
   const updateExpense = trpc.expenses.update.useMutation({
     onSuccess: async () => {
@@ -142,10 +153,13 @@ export default function TransactionDetail() {
         utils.budgets.list.invalidate(),
       ]);
       setIsEditing(false);
-      toast.success("แก้ไขรายการรายจ่ายเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "แก้ไขรายการรายจ่ายเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "แก้ไขรายการรายจ่ายไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(error, "แก้ไขรายการรายจ่ายไม่สำเร็จ")
+      ),
   });
   const offeringQuery = trpc.offerings.getById.useQuery(
     { id: recordId },
@@ -298,27 +312,34 @@ export default function TransactionDetail() {
       editDonorMemberId !== baselineDonorMemberId);
   useUnsavedChanges(isDirty);
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    TOAST_KEY,
+    {
+      amount: "edit-amount",
+      fundId: "edit-fund",
+      date: "edit-date",
+      text: "edit-text",
+    }
+  );
+
   const submitEdit = (event: React.FormEvent) => {
     event.preventDefault();
     const amount = Number(editAmount);
-    if (!Number.isFinite(amount) || amount <= 0) {
-      toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
-      return;
-    }
-    if (editFundId === null) {
-      toast.error("กรุณาเลือกกองทุนก่อนบันทึก");
-      return;
-    }
-    if (amount > MAX_GIVING_AMOUNT) {
-      toast.error(
-        `จำนวนเงินต้องไม่เกิน ${formatAmount(MAX_GIVING_AMOUNT, 0)} บาท`
-      );
-      return;
-    }
-    if (!editDate) {
-      toast.error("กรุณาระบุวันที่ทำรายการ");
-      return;
-    }
+    const valid = report({
+      amount:
+        !Number.isFinite(amount) || amount <= 0
+          ? "กรุณาระบุจำนวนเงินที่ถูกต้อง"
+          : amount > MAX_GIVING_AMOUNT
+            ? `จำนวนเงินต้องไม่เกิน ${formatAmount(MAX_GIVING_AMOUNT, 0)} บาท`
+            : undefined,
+      fundId: editFundId === null ? "กรุณาเลือกกองทุนก่อนบันทึก" : undefined,
+      date: editDate ? undefined : "กรุณาระบุวันที่ทำรายการ",
+      text:
+        isExpense && (!editText.trim() || editText.trim().length < 2)
+          ? "กรุณาระบุชื่อรายการค่าใช้จ่ายอย่างน้อย 2 ตัวอักษร"
+          : undefined,
+    });
+    if (!valid || editFundId === null) return;
     if (isOffering) {
       updateOffering.mutate({
         id: recordId,
@@ -334,10 +355,6 @@ export default function TransactionDetail() {
       });
     }
     if (isExpense) {
-      if (!editText.trim() || editText.trim().length < 2) {
-        toast.error("กรุณาระบุชื่อรายการค่าใช้จ่ายอย่างน้อย 2 ตัวอักษร");
-        return;
-      }
       updateExpense.mutate({
         id: recordId,
         amount,
@@ -431,6 +448,7 @@ export default function TransactionDetail() {
           {isEditing && (
             <form
               onSubmit={submitEdit}
+              noValidate
               className="space-y-4 rounded-2xl border border-line bg-paper-2 p-5"
             >
               <p className="text-sm font-extrabold text-ink">
@@ -444,21 +462,30 @@ export default function TransactionDetail() {
                     min="0.01"
                     step="0.01"
                     required
+                    id="edit-amount"
                     value={editAmount}
-                    onChange={event => setEditAmount(event.target.value)}
+                    onChange={event => {
+                      setEditAmount(event.target.value);
+                      clearField("amount");
+                    }}
                     className="neo-input mt-1 font-bold tabular-nums"
+                    {...invalidProps("amount")}
                   />
+                  <FieldError fieldId="edit-amount" message={errors.amount} />
                 </label>
                 <label className="text-xs font-bold text-ink">
                   กองทุน *
                   <select
+                    id="edit-fund"
                     value={editFundId ?? ""}
-                    onChange={event =>
+                    onChange={event => {
                       setEditFundId(
                         event.target.value ? Number(event.target.value) : null
-                      )
-                    }
+                      );
+                      clearField("fundId");
+                    }}
                     className="neo-input mt-1 font-medium"
+                    {...invalidProps("fundId")}
                   >
                     <option value="" disabled>
                       เลือกกองทุน
@@ -469,6 +496,7 @@ export default function TransactionDetail() {
                       </option>
                     ))}
                   </select>
+                  <FieldError fieldId="edit-fund" message={errors.fundId} />
                 </label>
                 <label className="text-xs font-bold text-ink">
                   หมวดหมู่ *
@@ -492,10 +520,16 @@ export default function TransactionDetail() {
                   <input
                     type="date"
                     required
+                    id="edit-date"
                     value={editDate}
-                    onChange={event => setEditDate(event.target.value)}
+                    onChange={event => {
+                      setEditDate(event.target.value);
+                      clearField("date");
+                    }}
                     className="neo-input mt-1 font-medium"
+                    {...invalidProps("date")}
                   />
+                  <FieldError fieldId="edit-date" message={errors.date} />
                 </label>
                 {isOffering && (
                   <label className="text-xs font-bold text-ink">
@@ -574,13 +608,19 @@ export default function TransactionDetail() {
                   {isOffering ? "หมายเหตุ" : "ชื่อรายการค่าใช้จ่าย *"}
                   <input
                     required={isExpense}
+                    id="edit-text"
                     value={editText}
-                    onChange={event => setEditText(event.target.value)}
+                    onChange={event => {
+                      setEditText(event.target.value);
+                      clearField("text");
+                    }}
+                    {...invalidProps("text")}
                     placeholder={
                       isOffering ? "หมายเหตุเพิ่มเติม" : "รายละเอียดค่าใช้จ่าย"
                     }
                     className="neo-input mt-1"
                   />
+                  <FieldError fieldId="edit-text" message={errors.text} />
                 </label>
                 {isExpense && (
                   <label className="text-xs font-bold text-ink sm:col-span-2">

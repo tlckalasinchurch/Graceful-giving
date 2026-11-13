@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Sprout, Check, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
+
+const TOAST_KEY = "login";
 
 const ERRORS: Record<string, string> = {
   cancelled: "ยกเลิกการเข้าสู่ระบบ — กรุณากดปุ่ม LINE เพื่อลองใหม่",
@@ -166,7 +169,8 @@ export default function Login() {
                         toast.info("กำลังตรวจสอบสถานะการอนุมัติ...");
                         const res = await statusQuery.refetch();
                         if (res.data?.state === "active") {
-                          toast.success(
+                          formToast.success(
+                            TOAST_KEY,
                             "อนุมัติเรียบร้อยแล้ว กำลังเข้าสู่ระบบ"
                           );
                           setLocation("/");

@@ -5,7 +5,7 @@ import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
-import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   Inbox,
@@ -54,6 +54,8 @@ import {
 } from "@/lib/splitDraft";
 import { SPLIT_MESSAGE } from "@shared/givingSplit";
 import { NativeSelect } from "@/components/ui/native-select";
+
+const TOAST_KEY = "giving-inbox";
 
 type InboxStatus =
   | "all"
@@ -168,7 +170,7 @@ export default function GivingInbox() {
   // Mutations
   const approveMutation = trpc.givingInbox.approve.useMutation({
     onSuccess: () => {
-      toast.success("อนุมัติและบันทึกเงินถวายเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "อนุมัติและบันทึกเงินถวายเรียบร้อยแล้ว");
       utils.givingInbox.invalidate();
       utils.finance.invalidate();
 
@@ -199,7 +201,7 @@ export default function GivingInbox() {
 
   const rejectMutation = trpc.givingInbox.reject.useMutation({
     onSuccess: () => {
-      toast.success("ปฏิเสธสลิปเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "ปฏิเสธสลิปเรียบร้อยแล้ว");
       utils.givingInbox.invalidate();
       setShowRejectModal(false);
       setRejectReason("");
@@ -216,7 +218,8 @@ export default function GivingInbox() {
     onError: err => {
       const msg = err.message || "เกิดข้อผิดพลาดในการปฏิเสธสลิป";
       if (msg.includes("อนุมัติ") || msg.includes("CONFLICT")) {
-        toast.error(
+        formToast.error(
+          TOAST_KEY,
           "สลิปนี้ได้รับการดำเนินการแล้ว ระบบกำลังอัปเดตข้อมูลล่าสุด"
         );
         utils.givingInbox.invalidate();
@@ -229,7 +232,10 @@ export default function GivingInbox() {
 
   const uploadSlipMutation = trpc.givingInbox.uploadSlip.useMutation({
     onSuccess: data => {
-      toast.success("อัปโหลดสลิปสำเร็จ! ระบบกำลังดึงข้อมูลด้วย AI");
+      formToast.success(
+        TOAST_KEY,
+        "อัปโหลดสลิปสำเร็จ! ระบบกำลังดึงข้อมูลด้วย AI"
+      );
       utils.givingInbox.invalidate();
       setShowUploadModal(false);
       setUploadPreview(null);
@@ -244,24 +250,28 @@ export default function GivingInbox() {
 
   const linkMemberMutation = trpc.givingInbox.linkMember.useMutation({
     onSuccess: () => {
-      toast.success(
+      formToast.success(
+        TOAST_KEY,
         "เชื่อมโยงสมาชิกกับ LINE สำเร็จ สลิปอื่นๆ จะถูกจับคู่อัตโนมัติ"
       );
       utils.givingInbox.invalidate();
       utils.members.invalidate();
     },
     onError: err => {
-      toast.error(friendlyErrorMessage(err));
+      formToast.error(TOAST_KEY, friendlyErrorMessage(err));
     },
   });
 
   const rescanMutation = trpc.givingInbox.rescan.useMutation({
     onSuccess: () => {
-      toast.success("AI สแกนและสกัดข้อมูลสลิปเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "AI สแกนและสกัดข้อมูลสลิปเรียบร้อยแล้ว");
       utils.givingInbox.invalidate();
     },
     onError: err => {
-      toast.error(friendlyErrorMessage(err, "ไม่สามารถสแกนสลิปได้"));
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(err, "ไม่สามารถสแกนสลิปได้")
+      );
     },
   });
 
@@ -269,9 +279,12 @@ export default function GivingInbox() {
     onSuccess: data => {
       utils.givingInbox.invalidate();
       if (data && data.processed > 0) {
-        toast.success(`ประมวลผลสลิปในคิวสำเร็จ ${data.processed} รายการ`);
+        formToast.success(
+          TOAST_KEY,
+          `ประมวลผลสลิปในคิวสำเร็จ ${data.processed} รายการ`
+        );
       } else {
-        toast.success("รีเฟรชข้อมูลล่าสุดเรียบร้อยแล้ว");
+        formToast.success(TOAST_KEY, "รีเฟรชข้อมูลล่าสุดเรียบร้อยแล้ว");
       }
     },
     onError: () => {
@@ -479,7 +492,7 @@ export default function GivingInbox() {
 
   const handleLinkMember = () => {
     if (!currentSlip?.lineUserId || !editMemberId) {
-      toast.error("กรุณาเลือกสมาชิกก่อนเชื่อมโยง");
+      formToast.error(TOAST_KEY, "กรุณาเลือกสมาชิกก่อนเชื่อมโยง");
       return;
     }
     linkMemberMutation.mutate({
@@ -496,7 +509,8 @@ export default function GivingInbox() {
     try {
       setUploadPreview(await prepareSlipImage(file));
     } catch (err) {
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         err instanceof SlipFileError ? err.message : "แนบรูปสลิปไม่สำเร็จ"
       );
     }
@@ -504,7 +518,7 @@ export default function GivingInbox() {
 
   const handleUploadSubmit = () => {
     if (!uploadPreview) {
-      toast.error("กรุณาเลือกรูปภาพสลิป");
+      formToast.error(TOAST_KEY, "กรุณาเลือกรูปภาพสลิป");
       return;
     }
 
@@ -651,7 +665,10 @@ export default function GivingInbox() {
                 aria-pressed={active}
                 onClick={() => {
                   setSelectedStatus(tab.id);
-                  if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                  if (
+                    typeof window !== "undefined" &&
+                    window.innerWidth < 1024
+                  ) {
                     setSelectedSlipId(null);
                   }
                 }}
@@ -689,14 +706,24 @@ export default function GivingInbox() {
                   ยังไม่มีสลิปเข้ามาในกล่องข้อความ
                 </h3>
                 <p className="mt-1 text-xs sm:text-sm font-medium text-ink-2 leading-relaxed">
-                  สมาชิกสามารถส่งรูปสลิปการโอนผ่าน LINE OA หรือหน้าจุดถวาย GraceBox ระบบจะตรวจข้อมูลอัตโนมัติแล้วส่งมาให้เหรัญญิกตรวจสอบ
+                  สมาชิกสามารถส่งรูปสลิปการโอนผ่าน LINE OA หรือหน้าจุดถวาย
+                  GraceBox ระบบจะตรวจข้อมูลอัตโนมัติแล้วส่งมาให้เหรัญญิกตรวจสอบ
                 </p>
               </div>
 
               <ol className="list-decimal space-y-2 pl-5 text-xs sm:text-sm font-medium text-ink marker:font-bold marker:text-ink-3">
-                <li>สมาชิกโอนเงินเข้าบัญชีคริสตจักร แล้วส่งรูปสลิปเข้าห้องแชท LINE OA</li>
-                <li>ระบบดึงยอดเงิน วันที่ บัญชี ตรวจสลิปซ้ำ และจับคู่สมาชิกคริสตจักรด้วย AI</li>
-                <li>เหรัญญิกตรวจความถูกต้องและกดอนุมัติ เพื่อบันทึกเข้าสมุดบัญชีเงินถวายทันที</li>
+                <li>
+                  สมาชิกโอนเงินเข้าบัญชีคริสตจักร แล้วส่งรูปสลิปเข้าห้องแชท LINE
+                  OA
+                </li>
+                <li>
+                  ระบบดึงยอดเงิน วันที่ บัญชี ตรวจสลิปซ้ำ
+                  และจับคู่สมาชิกคริสตจักรด้วย AI
+                </li>
+                <li>
+                  เหรัญญิกตรวจความถูกต้องและกดอนุมัติ
+                  เพื่อบันทึกเข้าสมุดบัญชีเงินถวายทันที
+                </li>
               </ol>
 
               <div className="flex flex-wrap items-center gap-2.5 pt-2">
@@ -726,12 +753,17 @@ export default function GivingInbox() {
           {/* Left Column: Slips Queue List (Hidden on mobile when a slip is being reviewed) */}
           <div
             className={`space-y-4 ${
-              selectedSlipId ? "hidden lg:block lg:col-span-5" : "col-span-1 lg:col-span-5"
+              selectedSlipId
+                ? "hidden lg:block lg:col-span-5"
+                : "col-span-1 lg:col-span-5"
             }`}
           >
             {/* Search Input with Clear Button */}
             <div className="rounded-2xl border border-line bg-surface p-2 flex items-center gap-2">
-              <Search className="w-4 h-4 text-ink-3 ml-2 shrink-0" aria-hidden="true" />
+              <Search
+                className="w-4 h-4 text-ink-3 ml-2 shrink-0"
+                aria-hidden="true"
+              />
               <input
                 type="text"
                 placeholder="ค้นหาชื่อผู้โอน, สมาชิก, ยอดเงิน..."
@@ -756,7 +788,10 @@ export default function GivingInbox() {
             {/* Queue Counter Header */}
             <div className="flex items-center justify-between text-xs font-bold text-ink-2 px-1">
               <span>
-                รายการสลิป {selectedStatus === "all" ? "ทั้งหมด" : STATUS_LABELS[selectedStatus]?.text}
+                รายการสลิป{" "}
+                {selectedStatus === "all"
+                  ? "ทั้งหมด"
+                  : STATUS_LABELS[selectedStatus]?.text}
               </span>
               <span className="tabular-nums font-mono text-ink-3">
                 {filteredSlips.length} รายการ
@@ -916,7 +951,9 @@ export default function GivingInbox() {
           <div
             id="slip-detail-panel"
             className={`${
-              selectedSlipId ? "col-span-1 lg:col-span-7" : "hidden lg:block lg:col-span-7"
+              selectedSlipId
+                ? "col-span-1 lg:col-span-7"
+                : "hidden lg:block lg:col-span-7"
             }`}
           >
             {!selectedSlipId || !currentSlip ? (
@@ -926,7 +963,8 @@ export default function GivingInbox() {
                   เลือกสลิปจากรายการด้านซ้าย
                 </div>
                 <p className="text-xs font-medium max-w-sm text-ink-3 leading-relaxed">
-                  เพื่อตรวจสอบหลักฐานภาพสลิป ข้อมูลที่ AI สกัด และบันทึกบัญชีเงินถวายเข้าคริสตจักร
+                  เพื่อตรวจสอบหลักฐานภาพสลิป ข้อมูลที่ AI สกัด
+                  และบันทึกบัญชีเงินถวายเข้าคริสตจักร
                 </p>
               </div>
             ) : (
@@ -1068,7 +1106,9 @@ export default function GivingInbox() {
                             onClick={() => setIsZoomed(z => !z)}
                             title="คลิกเพื่อซูมเข้า/ออก"
                             className={`w-auto object-contain rounded-lg transition-transform cursor-pointer ${
-                              isZoomed ? "max-h-[520px] scale-105" : "max-h-[280px] hover:opacity-95"
+                              isZoomed
+                                ? "max-h-[520px] scale-105"
+                                : "max-h-[280px] hover:opacity-95"
                             }`}
                           />
                         ) : (
@@ -1089,7 +1129,8 @@ export default function GivingInbox() {
                           <span className="font-mono text-brand">
                             มั่นใจ{" "}
                             {(
-                              Number(currentSlip.extractedAmountConfidence) * 100
+                              Number(currentSlip.extractedAmountConfidence) *
+                              100
                             ).toFixed(0)}
                             %
                           </span>
@@ -1130,7 +1171,10 @@ export default function GivingInbox() {
                               ) : (
                                 <span className="font-extrabold text-danger">
                                   ไม่ตรงกับยอดบนสลิป (
-                                  {formatBaht(Number(currentSlip.extractedAmount))})
+                                  {formatBaht(
+                                    Number(currentSlip.extractedAmount)
+                                  )}
+                                  )
                                 </span>
                               )}
                             </div>
@@ -1140,7 +1184,9 @@ export default function GivingInbox() {
 
                       <div className="grid grid-cols-2 gap-2">
                         <div className="p-2 rounded-lg bg-paper-2 border border-line">
-                          <span className="text-ink-3 font-medium block">ยอดบนสลิป</span>
+                          <span className="text-ink-3 font-medium block">
+                            ยอดบนสลิป
+                          </span>
                           <span className="text-sm font-extrabold tabular-nums font-mono text-brand block mt-0.5">
                             {currentSlip.extractedAmount
                               ? formatBaht(Number(currentSlip.extractedAmount))
@@ -1148,24 +1194,30 @@ export default function GivingInbox() {
                           </span>
                         </div>
                         <div className="p-2 rounded-lg bg-paper-2 border border-line">
-                          <span className="text-ink-3 font-medium block">ชื่อผู้โอน</span>
+                          <span className="text-ink-3 font-medium block">
+                            ชื่อผู้โอน
+                          </span>
                           <span className="text-xs font-extrabold text-ink block mt-0.5 truncate">
                             {currentSlip.extractedSenderName || "—"}
                           </span>
                         </div>
                         <div className="p-2 rounded-lg bg-paper-2 border border-line">
-                          <span className="text-ink-3 font-medium block">ธนาคาร</span>
+                          <span className="text-ink-3 font-medium block">
+                            ธนาคาร
+                          </span>
                           <span className="text-xs font-bold text-ink block mt-0.5 truncate">
                             {currentSlip.extractedBank || "—"}
                           </span>
                         </div>
                         <div className="p-2 rounded-lg bg-paper-2 border border-line">
-                          <span className="text-ink-3 font-medium block">วันที่โอน</span>
+                          <span className="text-ink-3 font-medium block">
+                            วันที่โอน
+                          </span>
                           <span className="text-xs font-bold text-ink block mt-0.5 truncate">
                             {currentSlip.extractedDate
-                              ? new Date(currentSlip.extractedDate).toLocaleDateString(
-                                  THAI_LOCALE
-                                )
+                              ? new Date(
+                                  currentSlip.extractedDate
+                                ).toLocaleDateString(THAI_LOCALE)
                               : "—"}
                           </span>
                         </div>
@@ -1186,7 +1238,9 @@ export default function GivingInbox() {
                   <div className="xl:col-span-7 space-y-4">
                     {/* Submitter Metadata Card */}
                     <div className="rounded-xl border border-line bg-paper-2 p-3 text-xs space-y-1">
-                      <div className="font-extrabold text-ink-2">ผู้ส่งรายการเข้าสู่ระบบ</div>
+                      <div className="font-extrabold text-ink-2">
+                        ผู้ส่งรายการเข้าสู่ระบบ
+                      </div>
                       <div className="font-bold text-ink">
                         {currentSlip.submittedByName ||
                           currentSlip.lineDisplayName ||
@@ -1207,9 +1261,9 @@ export default function GivingInbox() {
                         <div className="text-tile-sand-ink font-extrabold">
                           รายการไม่มีสลิป · วันที่โอนที่แจ้ง:{" "}
                           {currentSlip.declaredDate
-                            ? new Date(currentSlip.declaredDate).toLocaleDateString(
-                                THAI_LOCALE
-                              )
+                            ? new Date(
+                                currentSlip.declaredDate
+                              ).toLocaleDateString(THAI_LOCALE)
                             : "—"}
                         </div>
                       )}
@@ -1314,7 +1368,8 @@ export default function GivingInbox() {
                           htmlFor="inbox-ledger-name"
                           className="text-xs font-extrabold text-ink-2 block"
                         >
-                          ชื่อที่ลงบัญชีถวาย <span className="text-danger">*</span>
+                          ชื่อที่ลงบัญชีถวาย{" "}
+                          <span className="text-danger">*</span>
                         </label>
                         <input
                           id="inbox-ledger-name"
@@ -1326,7 +1381,8 @@ export default function GivingInbox() {
                           className="neo-input w-full text-sm font-semibold p-2.5"
                         />
                         <p className="text-xs font-medium text-ink-3">
-                          แก้ไขเป็นชื่อเต็มได้ ผู้ส่งรายการยังถูกบันทึกแยกไว้เสมอ
+                          แก้ไขเป็นชื่อเต็มได้
+                          ผู้ส่งรายการยังถูกบันทึกแยกไว้เสมอ
                         </p>
                       </div>
 
@@ -1342,13 +1398,16 @@ export default function GivingInbox() {
                           <NativeSelect
                             id="givinginbo-fund"
                             value={editFundId ?? ""}
-                            onChange={e => setEditFundId(Number(e.target.value))}
+                            onChange={e =>
+                              setEditFundId(Number(e.target.value))
+                            }
                             disabled={currentSlip.status === "approved"}
                             className="focus:ring-2 focus:ring-brand font-bold text-xs"
                           >
                             {(fundsQuery.data ?? []).map((f: any) => (
                               <option key={f.id} value={f.id}>
-                                {f.name} (คงเหลือ {formatBaht(Number(f.balance))})
+                                {f.name} (คงเหลือ{" "}
+                                {formatBaht(Number(f.balance))})
                               </option>
                             ))}
                           </NativeSelect>
@@ -1391,7 +1450,10 @@ export default function GivingInbox() {
                               onClick={() => {
                                 const total = parseFloat(editAmount);
                                 if (!total || total <= 0) {
-                                  toast.error("ใส่ยอดเงินก่อนแบ่งยอด");
+                                  formToast.error(
+                                    TOAST_KEY,
+                                    "ใส่ยอดเงินก่อนแบ่งยอด"
+                                  );
                                   return;
                                 }
                                 setEditSplit(startSplit(editCategory, total));
@@ -1426,7 +1488,9 @@ export default function GivingInbox() {
                             aria-labelledby="inbox-category-label"
                             value={editCategory}
                             onChange={e =>
-                              setEditCategory(e.target.value as OfferingCategory)
+                              setEditCategory(
+                                e.target.value as OfferingCategory
+                              )
                             }
                             disabled={currentSlip.status === "approved"}
                             className="focus:ring-2 focus:ring-brand font-medium text-xs"
@@ -1484,7 +1548,8 @@ export default function GivingInbox() {
                             type="button"
                             onClick={handleOpenReject}
                             disabled={
-                              approveMutation.isPending || rejectMutation.isPending
+                              approveMutation.isPending ||
+                              rejectMutation.isPending
                             }
                             className="min-h-11 px-5 py-2.5 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 text-danger font-extrabold text-xs transition-colors cursor-pointer disabled:opacity-50"
                           >
@@ -1744,7 +1809,7 @@ export default function GivingInbox() {
                       : "https://graceful-giving.vercel.app"
                   }/api/line/webhook`;
                   navigator.clipboard.writeText(webhookUrl);
-                  toast.success("คัดลอก Webhook URL แล้ว");
+                  formToast.success(TOAST_KEY, "คัดลอก Webhook URL แล้ว");
                 }}
                 className="text-brand hover:underline flex items-center gap-1 font-extrabold min-h-9 px-2 rounded-lg cursor-pointer"
               >
@@ -1924,9 +1989,7 @@ export function ReceiverCheck({ aiData }: { aiData: unknown }) {
     .filter(Boolean)
     .join(" · ");
   return (
-    <div
-      className={`p-3 rounded-xl border text-xs font-bold ${note.cls}`}
-    >
+    <div className={`p-3 rounded-xl border text-xs font-bold ${note.cls}`}>
       <div className="font-extrabold">ผู้รับในสลิป</div>
       {shown && <div className="font-mono pt-0.5 break-all">{shown}</div>}
       <div className="pt-1">{note.text}</div>

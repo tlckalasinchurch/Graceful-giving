@@ -10,7 +10,7 @@ import {
   Settings2,
   Trash2,
 } from "lucide-react";
-import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { ErrorState } from "@/components/common/CommonUI";
 import { friendlyErrorMessage } from "@/lib/errors";
 import {
@@ -29,9 +29,13 @@ import {
 import { AdminNewsDialog } from "./AdminNewsDialog";
 import { AdminEventDialog } from "./AdminEventDialog";
 
+const TOAST_KEY = "updates-admin";
+
 function toastMutationError(title: string) {
   return (error: unknown) =>
-    toast.error(title, { description: friendlyErrorMessage(error) });
+    formToast.error(TOAST_KEY, title, {
+      description: friendlyErrorMessage(error),
+    });
 }
 
 export function AdminManager() {
@@ -47,7 +51,7 @@ export function AdminManager() {
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
-      toast.success("สร้างข่าวสารเรียบร้อย");
+      formToast.success(TOAST_KEY, "สร้างข่าวสารเรียบร้อย");
       setNewsOpen(false);
     },
   });
@@ -56,7 +60,7 @@ export function AdminManager() {
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
-      toast.success("สร้างกิจกรรมเรียบร้อย");
+      formToast.success(TOAST_KEY, "สร้างกิจกรรมเรียบร้อย");
       setEventOpen(false);
     },
   });
@@ -65,7 +69,7 @@ export function AdminManager() {
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
-      toast.success("อัปเดตข่าวสารเรียบร้อย");
+      formToast.success(TOAST_KEY, "อัปเดตข่าวสารเรียบร้อย");
       setNewsOpen(false);
       setEditingNewsId(null);
     },
@@ -75,7 +79,7 @@ export function AdminManager() {
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
-      toast.success("อัปเดตกิจกรรมเรียบร้อย");
+      formToast.success(TOAST_KEY, "อัปเดตกิจกรรมเรียบร้อย");
       setEventOpen(false);
       setEditingEventId(null);
     },
@@ -85,7 +89,7 @@ export function AdminManager() {
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
-      toast.success("เปลี่ยนสถานะข่าวสารเรียบร้อย");
+      formToast.success(TOAST_KEY, "เปลี่ยนสถานะข่าวสารเรียบร้อย");
     },
   });
   const setEventStatus = trpc.updates.setEventStatus.useMutation({
@@ -93,7 +97,7 @@ export function AdminManager() {
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
-      toast.success("เปลี่ยนสถานะกิจกรรมเรียบร้อย");
+      formToast.success(TOAST_KEY, "เปลี่ยนสถานะกิจกรรมเรียบร้อย");
     },
   });
   const deleteNews = trpc.updates.deleteNews.useMutation({
@@ -101,7 +105,7 @@ export function AdminManager() {
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
-      toast.success("ลบข่าวสารเรียบร้อย");
+      formToast.success(TOAST_KEY, "ลบข่าวสารเรียบร้อย");
       setDeletingNews(null);
     },
   });
@@ -110,7 +114,7 @@ export function AdminManager() {
     onSuccess: async () => {
       await utils.updates.adminList.invalidate();
       await utils.updates.feed.invalidate();
-      toast.success("ลบกิจกรรมเรียบร้อย");
+      formToast.success(TOAST_KEY, "ลบกิจกรรมเรียบร้อย");
       setDeletingEvent(null);
     },
   });
@@ -191,13 +195,7 @@ export function AdminManager() {
 
   const handleEvent = (event: FormEvent) => {
     event.preventDefault();
-    if (
-      eventForm.endsAt &&
-      new Date(eventForm.endsAt) < new Date(eventForm.startsAt)
-    ) {
-      toast.error("วัน-เวลาสิ้นสุด ต้องไม่เกิดขึ้นก่อนวัน-เวลาเริ่มต้น");
-      return;
-    }
+    // Field rules, including "ends before it starts", run in AdminEventDialog.
     const payload = {
       ...eventForm,
       startsAt: new Date(eventForm.startsAt),

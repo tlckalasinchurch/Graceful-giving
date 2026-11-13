@@ -39,12 +39,14 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import { toast } from "sonner";
+import { formToast, useFieldErrors } from "@/lib/formFeedback";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 import { friendlyErrorMessage } from "@/lib/errors";
+
+const TOAST_KEY = "budget-new";
 
 type ToneFilter = "all" | "ok" | "warn" | "over";
 type PeriodScope = "all" | "annual" | "monthly";
@@ -90,19 +92,25 @@ export default function Budgets() {
       await utils.budgets.list.invalidate();
       setForm(EMPTY_BUDGET_FORM);
       setShowCreate(false);
-      toast.success("บันทึกงบประมาณเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "บันทึกงบประมาณเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "บันทึกงบประมาณไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(error, "บันทึกงบประมาณไม่สำเร็จ")
+      ),
+  });
+
+  const { errors, report, clearField } = useFieldErrors(TOAST_KEY, {
+    plannedAmount: "budget-new-amount",
   });
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const parsed = parseBudgetForm(form);
-    if (!parsed.ok) {
-      toast.error(parsed.error);
+    if (!report({ plannedAmount: parsed.ok ? undefined : parsed.error }))
       return;
-    }
+    if (!parsed.ok) return;
     if (!lock()) return;
     createPlan.mutate({
       year,
@@ -228,7 +236,7 @@ export default function Budgets() {
                 <span className="block text-xs font-semibold text-ink-3">
                   ปีงบประมาณ
                 </span>
-                <span className="text-sm font-bold font-mono tabular-nums text-ink">
+                <span className="whitespace-nowrap text-sm font-bold tabular-nums text-ink">
                   {formatDualYear(year)}
                 </span>
               </div>
@@ -245,7 +253,7 @@ export default function Budgets() {
             <button
               type="button"
               onClick={() => setYear(new Date().getFullYear())}
-              className={`rounded-xl border border-line px-3 py-2 text-xs font-semibold transition-colors ${
+              className={`min-h-11 whitespace-nowrap rounded-xl border border-line px-3 py-2 text-xs font-semibold transition-colors ${
                 year === new Date().getFullYear()
                   ? "bg-brand/10 text-brand border-brand/20 font-bold"
                   : "bg-paper text-ink-2 hover:bg-paper-2 hover:text-ink"
@@ -477,7 +485,7 @@ export default function Budgets() {
         }}
       >
         <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl border border-line bg-surface">
-          <form onSubmit={submit}>
+          <form onSubmit={submit} noValidate>
             <DialogHeader className="border-b border-line p-5 pb-4">
               <DialogTitle className="text-base font-bold text-ink">
                 ตั้งงบประมาณสำหรับปี {formatDualYear(year)}
@@ -490,8 +498,13 @@ export default function Budgets() {
             <div className="p-5 max-h-[70vh] overflow-y-auto">
               <BudgetFormFields
                 values={form}
-                onChange={setForm}
+                onChange={values => {
+                  setForm(values);
+                  clearField("plannedAmount");
+                }}
                 funds={funds}
+                amountId="budget-new-amount"
+                amountError={errors.plannedAmount}
               />
             </div>
 
@@ -538,9 +551,12 @@ function KpiFilterCard({
   accent?: string;
 }) {
   const getBadgeStyle = () => {
-    if (tone === "ok") return "text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50";
-    if (tone === "warn") return "text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50";
-    if (tone === "over") return "text-rose-700 bg-rose-50 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/50";
+    if (tone === "ok")
+      return "text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50";
+    if (tone === "warn")
+      return "text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50";
+    if (tone === "over")
+      return "text-rose-700 bg-rose-50 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/50";
     return "text-ink bg-paper border-line";
   };
 
@@ -684,7 +700,8 @@ function BudgetPlanCard({
 
       {plan.notes && (
         <p className="mt-3 truncate text-xs text-ink-3 border-t border-line/60 pt-2.5">
-          <span className="font-semibold text-ink-2">หมายเหตุ:</span> {plan.notes}
+          <span className="font-semibold text-ink-2">หมายเหตุ:</span>{" "}
+          {plan.notes}
         </p>
       )}
     </div>

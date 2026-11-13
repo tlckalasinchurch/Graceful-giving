@@ -276,7 +276,7 @@ export default function Home() {
 
           <section
             aria-labelledby="dashboard-actions"
-            className={`bento-card space-y-4 p-5 sm:p-6 ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"}`}
+            className={`@container bento-card space-y-4 p-5 sm:p-6 ${canSeeFinance ? "lg:col-span-5" : "lg:col-span-12"}`}
           >
             <h2
               id="dashboard-actions"

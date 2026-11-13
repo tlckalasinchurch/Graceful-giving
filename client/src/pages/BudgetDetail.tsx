@@ -23,14 +23,24 @@ import {
 import { trpc } from "@/lib/trpc";
 import { formatBaht, formatThaiDate } from "@/lib/format";
 import { expenseCategoryLabel } from "@shared/categories";
-import { ArrowLeft, Calendar, FileText, Layers, Save, Trash2, Wallet } from "lucide-react";
-import { toast } from "sonner";
+import {
+  ArrowLeft,
+  Calendar,
+  FileText,
+  Layers,
+  Save,
+  Trash2,
+  Wallet,
+} from "lucide-react";
+import { formToast, useFieldErrors } from "@/lib/formFeedback";
 import { Swal } from "@/lib/sweetalert";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 import { friendlyErrorMessage } from "@/lib/errors";
+
+const TOAST_KEY = "budget-edit";
 
 type Plan = {
   id: number;
@@ -93,29 +103,38 @@ export default function BudgetDetail() {
       // Re-seed from the saved record so the form is clean again.
       seededIdRef.current = null;
       await utils.budgets.getById.invalidate({ id });
-      toast.success("บันทึกการแก้ไขงบประมาณแล้ว");
+      formToast.success(TOAST_KEY, "บันทึกการแก้ไขงบประมาณแล้ว");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "บันทึกงบประมาณไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(error, "บันทึกงบประมาณไม่สำเร็จ")
+      ),
   });
 
   const remove = trpc.budgets.delete.useMutation({
     onSuccess: async () => {
       await utils.budgets.list.invalidate();
-      toast.success("ลบงบประมาณแล้ว");
+      formToast.success(TOAST_KEY, "ลบงบประมาณแล้ว");
       setLocation("/budgets");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "ลบงบประมาณไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(error, "ลบงบประมาณไม่สำเร็จ")
+      ),
+  });
+
+  const { errors, report, clearField } = useFieldErrors(TOAST_KEY, {
+    plannedAmount: "budget-edit-amount",
   });
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const parsed = parseBudgetForm(form);
-    if (!parsed.ok) {
-      toast.error(parsed.error);
+    if (!report({ plannedAmount: parsed.ok ? undefined : parsed.error }))
       return;
-    }
+    if (!parsed.ok) return;
     update.mutate({ id, ...parsed.data });
   };
 
@@ -225,11 +244,15 @@ export default function BudgetDetail() {
 
                     <div className="rounded-xl border border-line bg-paper/60 px-4 py-3 text-left sm:text-right">
                       <span className="text-xs font-semibold text-ink-3 block">
-                        {isOver ? "ใช้จ่ายเกินงบไปแล้ว" : "วงเงินงบประมาณคงเหลือ"}
+                        {isOver
+                          ? "ใช้จ่ายเกินงบไปแล้ว"
+                          : "วงเงินงบประมาณคงเหลือ"}
                       </span>
                       <span
                         className={`text-xl sm:text-2xl font-bold font-mono tabular-nums ${
-                          isOver ? "text-rose-600 dark:text-rose-400" : "text-ink"
+                          isOver
+                            ? "text-rose-600 dark:text-rose-400"
+                            : "text-ink"
                         }`}
                       >
                         {isOver ? "-" : ""}
@@ -262,7 +285,9 @@ export default function BudgetDetail() {
                       </dt>
                       <dd
                         className={`mt-1 font-mono text-base font-bold tabular-nums ${
-                          isOver ? "text-rose-600 dark:text-rose-400" : "text-emerald-700 dark:text-emerald-400"
+                          isOver
+                            ? "text-rose-600 dark:text-rose-400"
+                            : "text-emerald-700 dark:text-emerald-400"
                         }`}
                       >
                         {isOver ? "-" : "+"}
@@ -283,11 +308,14 @@ export default function BudgetDetail() {
             {/* Edit Budget Form Section */}
             <form
               onSubmit={submit}
+              noValidate
               className="rounded-2xl border border-line bg-surface p-6 sm:p-7 shadow-sm"
             >
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
                 <div>
-                  <h2 className="text-base font-bold text-ink">แก้ไขแผนงบประมาณ</h2>
+                  <h2 className="text-base font-bold text-ink">
+                    แก้ไขแผนงบประมาณ
+                  </h2>
                   <p className="text-xs text-ink-3">
                     ปรับปรุงวงเงิน หมวดงาน หรือเงื่อนไขของแผนงบประมาณ
                   </p>
@@ -306,8 +334,13 @@ export default function BudgetDetail() {
 
               <BudgetFormFields
                 values={form}
-                onChange={setForm}
+                onChange={values => {
+                  setForm(values);
+                  clearField("plannedAmount");
+                }}
                 funds={funds}
+                amountId="budget-edit-amount"
+                amountError={errors.plannedAmount}
               />
 
               <div className="mt-6 flex items-center justify-end gap-3 border-t border-line pt-4">
@@ -332,7 +365,8 @@ export default function BudgetDetail() {
                     </div>
                     <div>
                       <h2 className="text-base font-bold text-ink">
-                        รายจ่ายที่นับรวมในงบนี้ ({query.data.expenseCount} รายการ)
+                        รายจ่ายที่นับรวมในงบนี้ ({query.data.expenseCount}{" "}
+                        รายการ)
                       </h2>
                       <p className="text-xs text-ink-3">
                         รายการค่าใช้จ่ายจริงที่เกิดขึ้นและตรงตามเงื่อนไขของแผนนี้
@@ -345,7 +379,8 @@ export default function BudgetDetail() {
               {query.data.expenses.length === 0 ? (
                 <div className="py-8 text-center">
                   <p className="text-sm font-medium text-ink-3">
-                    ยังไม่มีรายจ่ายที่ตรงกับช่วงเวลา หมวด และกองทุนของแผนงบประมาณนี้
+                    ยังไม่มีรายจ่ายที่ตรงกับช่วงเวลา หมวด
+                    และกองทุนของแผนงบประมาณนี้
                   </p>
                 </div>
               ) : (

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 import { fmtBaht, Variance } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -64,6 +64,10 @@ export function BankRecordsTab({
   removeBankRecord,
   matchPassbook,
 }: BankRecordsTabProps) {
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "counting-bank-record",
+    { amount: "bank-record-amount", notes: "bank-record-notes" }
+  );
   const [bType, setBType] = useState<BankRecordType>("cash_deposit");
   const [bNotes, setBNotes] = useState("");
   const [bAmount, setBAmount] = useState("");
@@ -115,17 +119,21 @@ export function BankRecordsTab({
     <section className="space-y-4">
       {canEdit && (
         <form
+          noValidate
           onSubmit={event => {
             event.preventDefault();
             const value = Number(bAmount);
-            if (!Number.isFinite(value) || value <= 0) {
-              toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
-              return;
-            }
-            if (needsNote(bType) && !bNotes.trim()) {
-              toast.error("กรุณาระบุรายละเอียดของรายการนี้");
-              return;
-            }
+            const valid = report({
+              amount:
+                !Number.isFinite(value) || value <= 0
+                  ? "กรุณาระบุจำนวนเงินที่ถูกต้อง"
+                  : undefined,
+              notes:
+                needsNote(bType) && !bNotes.trim()
+                  ? "กรุณาระบุรายละเอียดของรายการนี้"
+                  : undefined,
+            });
+            if (!valid) return;
             addBankRecord.mutate(
               {
                 sessionId,
@@ -177,9 +185,18 @@ export function BankRecordsTab({
                 required
                 min="0.25"
                 step="0.25"
+                id="bank-record-amount"
                 value={bAmount}
-                onChange={e => setBAmount(e.target.value)}
+                onChange={e => {
+                  setBAmount(e.target.value);
+                  clearField("amount");
+                }}
+                {...invalidProps("amount")}
                 className="neo-input mt-1 font-bold tabular-nums"
+              />
+              <FieldError
+                fieldId="bank-record-amount"
+                message={errors.amount}
               />
             </label>
             <label className="text-sm font-extrabold text-ink">
@@ -204,13 +221,19 @@ export function BankRecordsTab({
             <label className="mt-4 block text-sm font-extrabold text-ink">
               รายละเอียด *
               <input
+                id="bank-record-notes"
                 value={bNotes}
                 required
                 maxLength={500}
-                onChange={e => setBNotes(e.target.value)}
+                onChange={e => {
+                  setBNotes(e.target.value);
+                  clearField("notes");
+                }}
                 placeholder="เช่น ค่าธรรมเนียมรายปี, ค่าไฟเดือนตุลาคม"
                 className="neo-input mt-1 font-normal"
+                {...invalidProps("notes")}
               />
+              <FieldError fieldId="bank-record-notes" message={errors.notes} />
             </label>
           )}
           <button

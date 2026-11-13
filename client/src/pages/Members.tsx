@@ -11,6 +11,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { Mail, Phone, Plus, Tag, X } from "lucide-react";
 import { toast } from "sonner";
+import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
@@ -74,18 +75,28 @@ export default function Members() {
       setEmail("");
       setNotes("");
       setShowCreate(false);
-      toast.success("เพิ่มสมาชิกเรียบร้อยแล้ว");
+      formToast.success("new-member", "เพิ่มสมาชิกเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "เพิ่มสมาชิกไม่สำเร็จ")),
+      formToast.error(
+        "new-member",
+        friendlyErrorMessage(error, "เพิ่มสมาชิกไม่สำเร็จ")
+      ),
   });
+
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "new-member",
+    { name: "new-member-name", email: "new-member-email" }
+  );
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (name.trim().length < 2) {
-      toast.error("กรุณาระบุชื่อสมาชิก");
+    if (
+      !report({
+        name: name.trim().length < 2 ? "กรุณาระบุชื่อสมาชิก" : undefined,
+      })
+    )
       return;
-    }
     if (!lock()) return;
     createMember.mutate({
       name: name.trim(),
@@ -119,7 +130,7 @@ export default function Members() {
     >
       <div className="space-y-6">
         {showCreate && (
-          <form onSubmit={submit} className="bento-card p-6">
+          <form onSubmit={submit} noValidate className="bento-card p-6">
             <div className="mb-5 flex items-center justify-between pb-3 border-b border-line">
               <h2 className="font-extrabold text-ink">เพิ่มสมาชิกใหม่</h2>
               <button
@@ -135,12 +146,18 @@ export default function Members() {
               <label className="text-sm font-extrabold text-ink-2">
                 ชื่อ-นามสกุล *
                 <input
+                  id="new-member-name"
                   required
                   value={name}
-                  onChange={event => setName(event.target.value)}
+                  onChange={event => {
+                    setName(event.target.value);
+                    clearField("name");
+                  }}
                   placeholder="เช่น คุณสมชาย ใจดี"
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
+                  {...invalidProps("name")}
                 />
+                <FieldError fieldId="new-member-name" message={errors.name} />
               </label>
               <label className="text-sm font-extrabold text-ink-2">
                 รหัสซองถวายประจำตัว (ถ้ามี)
@@ -164,12 +181,18 @@ export default function Members() {
               <label className="text-sm font-extrabold text-ink-2">
                 อีเมล
                 <input
+                  id="new-member-email"
                   type="email"
                   value={email}
-                  onChange={event => setEmail(event.target.value)}
+                  onChange={event => {
+                    setEmail(event.target.value);
+                    clearField("email");
+                  }}
                   placeholder="somchai@church.or.th"
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
+                  {...invalidProps("email")}
                 />
+                <FieldError fieldId="new-member-email" message={errors.email} />
               </label>
               <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
                 หมายเหตุ

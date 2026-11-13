@@ -22,7 +22,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { toast } from "sonner";
+import { focusElement, formToast } from "@/lib/formFeedback";
 import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/categories";
 import {
   Dialog,
@@ -34,6 +34,9 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip } from "@/components/common/CommonUI";
 import { formatBaht, THAI_LOCALE, toLocalISODate } from "@/lib/format";
 
+const FORM_KEY = "new-expense";
+const RECEIPT_KEY = "new-expense-receipt";
+
 export default function NewExpense() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
@@ -42,7 +45,8 @@ export default function NewExpense() {
   const [category, setCategory] = useState<ExpenseCategory>("utilities");
   const [description, setDescription] = useState("");
   const [payee, setPayee] = useState("");
-  const [fundId, setFundId] = useState<number | null>(null);
+  // null = the person has not picked a fund; the general fund is then used.
+  const [pickedFundId, setFundId] = useState<number | null>(null);
   const [expenseDate, setExpenseDate] = useState(toLocalISODate());
   const [receiptRef, setReceiptRef] = useState("");
   const [details, setDetails] = useState("");
@@ -71,7 +75,7 @@ export default function NewExpense() {
         receiptRef ||
         details ||
         receiptFile ||
-        fundId ||
+        pickedFundId !== null ||
         category !== "utilities"
     );
   useUnsavedChanges(isDirty);
@@ -83,11 +87,12 @@ export default function NewExpense() {
     onSuccess: data => {
       setReceiptUrl(data.url);
       setIsUploading(false);
-      toast.success("อัปโหลดใบเสร็จเรียบร้อยแล้ว");
+      formToast.success(RECEIPT_KEY, "อัปโหลดใบเสร็จเรียบร้อยแล้ว");
     },
     onError: err => {
       setIsUploading(false);
-      toast.error(
+      formToast.error(
+        RECEIPT_KEY,
         friendlyErrorMessage(err, "อัปโหลดไฟล์ไม่สำเร็จ กรุณาลองใหม่")
       );
     },
@@ -120,12 +125,14 @@ export default function NewExpense() {
         utils.budgets.list.invalidate(),
         utils.reports.summary.invalidate(),
       ]);
-      toast.success("บันทึกรายการรายจ่ายเรียบร้อยแล้ว");
+      // The success dialog is the confirmation; a toast would repeat it.
+      formToast.clear(FORM_KEY);
     },
     onError: err => {
       setIsSubmitting(false);
       setShowSuccessModal(false);
-      toast.error(
+      formToast.error(
+        FORM_KEY,
         friendlyErrorMessage(
           err,
           "บันทึกรายการรายจ่ายไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
@@ -148,9 +155,9 @@ export default function NewExpense() {
     }
     setErrors(nextErrors);
     const firstError = Object.keys(nextErrors)[0];
-    if (firstError === "amount") amountRef.current?.focus();
-    if (firstError === "description") descriptionRef.current?.focus();
-    if (firstError === "fundId") fundRef.current?.focus();
+    if (firstError === "amount") focusElement(amountRef.current);
+    if (firstError === "description") focusElement(descriptionRef.current);
+    if (firstError === "fundId") focusElement(fundRef.current);
     return { valid: Object.keys(nextErrors).length === 0, numAmount };
   };
 
@@ -158,7 +165,7 @@ export default function NewExpense() {
     e.preventDefault();
     const { valid, numAmount } = validateForm();
     if (!valid || fundId === null) {
-      toast.error("กรุณาตรวจสอบข้อมูลที่ไฮไลต์ก่อนบันทึก");
+      formToast.error(FORM_KEY, "กรุณาตรวจสอบข้อมูลที่ไฮไลต์ก่อนบันทึก");
       return;
     }
 
@@ -205,6 +212,11 @@ export default function NewExpense() {
     retry: false,
   });
   const funds = fundsQuery.data ?? [];
+  // Preselect the general fund, as the offering form does. Most expenses come
+  // from it, and an empty select only adds a step for the treasurer.
+  const defaultFundId =
+    (funds.find(f => f.type === "general") ?? funds[0])?.id ?? null;
+  const fundId = pickedFundId ?? defaultFundId;
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -218,11 +230,14 @@ export default function NewExpense() {
       "application/pdf",
     ];
     if (!allowedTypes.includes(file.type)) {
-      toast.error("รองรับเฉพาะไฟล์ JPG, PNG, WEBP, GIF หรือ PDF เท่านั้น");
+      formToast.error(
+        RECEIPT_KEY,
+        "รองรับเฉพาะไฟล์ JPG, PNG, WEBP, GIF หรือ PDF เท่านั้น"
+      );
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("ไฟล์ต้องมีขนาดไม่เกิน 10 MB");
+      formToast.error(RECEIPT_KEY, "ไฟล์ต้องมีขนาดไม่เกิน 10 MB");
       return;
     }
 
@@ -257,7 +272,7 @@ export default function NewExpense() {
       <div className="max-w-4xl space-y-6">
         <BackLink label="กลับหน้ารายการรายจ่าย" onClick={goBack} />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           {/* Section 1: Amount & Presets */}
           <div className="bento-card-static p-6 md:p-8 space-y-5">
             <h2 className="display text-lg text-ink flex items-center gap-2">

@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ChevronRight, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 import {
   Dialog,
   DialogContent,
@@ -52,7 +52,7 @@ export default function Funds() {
   const createAccountMutation = trpc.finance.createAccount.useMutation({
     onSettled: unlock,
     onSuccess: () => {
-      toast.success("สร้างกองทุนใหม่สำเร็จ");
+      formToast.success("new-fund", "สร้างกองทุนใหม่สำเร็จ");
       setShowNewFundModal(false);
       setNewFundName("");
       setNewFundDesc("");
@@ -60,7 +60,7 @@ export default function Funds() {
       void utils.finance.fundOptions.invalidate();
     },
     onError: error => {
-      toast.error("สร้างกองทุนไม่สำเร็จ", {
+      formToast.error("new-fund", "สร้างกองทุนไม่สำเร็จ", {
         description: friendlyErrorMessage(error),
       });
     },
@@ -112,13 +112,20 @@ export default function Funds() {
     [fundsList]
   );
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "new-fund",
+    { name: "new-fund-name" }
+  );
+
   const handleCreateFund = (e: React.FormEvent) => {
     e.preventDefault();
     if (createAccountMutation.isPending) return;
-    if (!newFundName.trim()) {
-      toast.error("กรุณาระบุชื่อกองทุน");
+    if (
+      !report({
+        name: newFundName.trim() ? undefined : "กรุณาระบุชื่อกองทุน",
+      })
+    )
       return;
-    }
     if (!lock()) return;
     createAccountMutation.mutate({
       name: newFundName.trim(),
@@ -280,7 +287,7 @@ export default function Funds() {
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleCreateFund} className="space-y-4">
+            <form onSubmit={handleCreateFund} noValidate className="space-y-4">
               <div className="space-y-1.5">
                 <label
                   htmlFor="new-fund-name"
@@ -294,9 +301,14 @@ export default function Funds() {
                   required
                   placeholder="เช่น กองทุนทุนการศึกษาบุตรศิษยาภิบาล"
                   value={newFundName}
-                  onChange={e => setNewFundName(e.target.value)}
+                  onChange={e => {
+                    setNewFundName(e.target.value);
+                    clearField("name");
+                  }}
                   className="neo-input w-full px-4 py-2.5 text-sm"
+                  {...invalidProps("name")}
                 />
+                <FieldError fieldId="new-fund-name" message={errors.name} />
               </div>
 
               <div className="space-y-1.5">
