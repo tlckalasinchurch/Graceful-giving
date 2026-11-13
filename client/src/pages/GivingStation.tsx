@@ -793,7 +793,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         >
           {/* Station Card Shell */}
           <div className="rounded-2xl bg-paper-2 p-4 sm:p-7 text-ink border border-line space-y-5 sm:space-y-6 relative">
-            {/* Top Bar: TH Language Pill & Step Back Button */}
+            {/* Top Bar: Step Back Button. The station is Thai only, so it
+                shows no language control. */}
             <div className="flex items-center justify-between">
               {shownStep > 1 && shownStep < 4 ? (
                 <button
@@ -810,10 +811,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               ) : (
                 <div className="w-11 h-11" />
               )}
-
-              <div className="grid size-11 place-items-center rounded-xl border border-line bg-surface text-xs font-bold text-ink">
-                TH
-              </div>
             </div>
 
             {stationOnly && shownStep === 2 && (
@@ -824,19 +821,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               />
             )}
 
-            {/* ── STEP 1: Landing / Status / Give Now ── */}
+            {/* ── STEP 1: Landing / Status / ถวายทรัพย์ ── */}
             {shownStep === 1 && (
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="text-center -mt-2">
                   <StationCubeLogo
                     brandTitle="GraceBox"
-                    subtitle="AUTOMATED CHURCH GIVING STATION"
+                    subtitle="จุดถวายทรัพย์อัตโนมัติของคริสตจักร"
                   />
                 </div>
 
                 {/* Station Breadcrumb */}
                 <div className="text-xs sm:text-sm font-semibold text-ink-3 text-center sm:text-left">
-                  GRACEBOX STATION <span className="text-ink-3 mx-1">/</span>{" "}
+                  จุดถวาย GraceBox <span className="text-ink-3 mx-1">/</span>{" "}
                   {churchQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์"}
                 </div>
 
@@ -862,11 +859,11 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   isAvailable={stationReady}
                 />
 
-                {/* Primary Give Now CTA */}
+                {/* Primary give CTA */}
                 <StationHeroCTA
                   eyebrow="เริ่มใช้งาน"
                   headline="พร้อมถวายทรัพย์เลยไหม?"
-                  buttonTitle="Give Now"
+                  buttonTitle="ถวายทรัพย์"
                   buttonSubtitle="เริ่มถวายทันที"
                   helperText="ถ้าต้องการถวายเจาะจงกองทุน กดเพื่อเลือกหมวดหมู่ · ทำรายการได้ทันที"
                   onClick={() =>

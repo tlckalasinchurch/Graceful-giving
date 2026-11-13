@@ -17,7 +17,7 @@ import { formatAmount } from "@/lib/format";
 
 export function StationCubeLogo({
   brandTitle = "Grace Giving",
-  subtitle = "AUTOMATED CHURCH GIVING STATION",
+  subtitle = "จุดถวายทรัพย์อัตโนมัติของคริสตจักร",
   variant = "white",
   className,
 }: {
@@ -163,7 +163,7 @@ export function StationStatusCard({
 export function StationHeroCTA({
   eyebrow = "เริ่มใช้งาน",
   headline = "พร้อมถวายทรัพย์เลยไหม?",
-  buttonTitle = "Give Now",
+  buttonTitle = "ถวายทรัพย์",
   buttonSubtitle = "เริ่มถวายทันที",
   helperText = "เลือกกองทุนที่ต้องการถวาย · สแกนพร้อมเพย์หรือแนบสลิปได้ทันที",
   onClick,
@@ -348,9 +348,7 @@ export function StationStepStatusCard({
       <div className="text-xs font-medium text-ink-3">{eyebrow}</div>
       <div className="text-base sm:text-lg font-bold text-ink">{title}</div>
       {updatedAtText && (
-        <div className="text-xs text-ink-3">
-          {updatedAtText}
-        </div>
+        <div className="text-xs text-ink-3">{updatedAtText}</div>
       )}
     </div>
   );
@@ -393,9 +391,7 @@ export function StationOfferingPackageCard({
         <h4 className="text-xl sm:text-2xl font-bold text-ink tracking-tight">
           {title}
         </h4>
-        <p className="text-xs sm:text-sm text-ink-2">
-          {subtitle}
-        </p>
+        <p className="text-xs sm:text-sm text-ink-2">{subtitle}</p>
       </div>
 
       {presetAmounts && presetAmounts.length > 0 && onSelectAmount && (
