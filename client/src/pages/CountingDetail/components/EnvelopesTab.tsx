@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 import { MoneyDisplay } from "@/components/common/CommonUI";
 import {
   OFFERING_CATEGORIES,
@@ -109,17 +109,22 @@ export function EnvelopesTab({
     }
   };
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "counting-envelope",
+    { fundId: "envelope-fund", amount: "envelope-amount" }
+  );
+
   const submitEnvelope = (event: React.FormEvent) => {
     event.preventDefault();
     const value = Number(amount);
-    if (!Number.isFinite(value) || value <= 0) {
-      toast.error("กรุณาระบุจำนวนเงินที่ถูกต้อง");
-      return;
-    }
-    if (!fundId) {
-      toast.error("กรุณาเลือกกองทุน");
-      return;
-    }
+    const valid = report({
+      amount:
+        !Number.isFinite(value) || value <= 0
+          ? "กรุณาระบุจำนวนเงินที่ถูกต้อง"
+          : undefined,
+      fundId: fundId ? undefined : "กรุณาเลือกกองทุน",
+    });
+    if (!valid) return;
     const submittedNo = envelopeNo.trim();
     addEnvelope.mutate(
       {
@@ -172,6 +177,7 @@ export function EnvelopesTab({
       {editable && (
         <form
           onSubmit={submitEnvelope}
+          noValidate
           className="bento-card-static p-5 md:p-6"
         >
           <h2 className="mb-4 display text-base text-ink">บันทึกซองถวาย</h2>
@@ -245,8 +251,14 @@ export function EnvelopesTab({
               เข้ากองทุน *
               <NativeSelect
                 required
+                id="envelope-fund"
                 value={fundId}
-                onChange={e => setFundId(e.target.value)}
+                onChange={e => {
+                  setFundId(e.target.value);
+                  clearField("fundId");
+                }}
+                invalid={Boolean(errors.fundId)}
+                {...invalidProps("fundId")}
                 className="mt-1"
               >
                 <option value="" disabled>
@@ -258,6 +270,7 @@ export function EnvelopesTab({
                   </option>
                 ))}
               </NativeSelect>
+              <FieldError fieldId="envelope-fund" message={errors.fundId} />
             </label>
             <label className="text-sm font-extrabold text-ink">
               ช่องทาง
@@ -279,11 +292,17 @@ export function EnvelopesTab({
                 required
                 min="0.25"
                 step="0.25"
+                id="envelope-amount"
                 value={amount}
-                onChange={e => setAmount(e.target.value)}
+                onChange={e => {
+                  setAmount(e.target.value);
+                  clearField("amount");
+                }}
+                {...invalidProps("amount")}
                 placeholder="0.00"
                 className="neo-input mt-1 font-bold tabular-nums"
               />
+              <FieldError fieldId="envelope-amount" message={errors.amount} />
             </label>
             <div className="flex items-end gap-2">
               <label className="flex items-center gap-2 text-sm font-bold text-ink-2">

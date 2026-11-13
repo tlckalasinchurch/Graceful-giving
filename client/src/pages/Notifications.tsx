@@ -8,9 +8,11 @@ import {
 } from "@/components/common/CommonUI";
 import { trpc } from "@/lib/trpc";
 import { CheckCheck } from "lucide-react";
-import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { formatThaiDate } from "@/lib/format";
 import { friendlyErrorMessage } from "@/lib/errors";
+
+const TOAST_KEY = "notifications";
 
 export default function Notifications() {
   const [, setLocation] = useLocation();
@@ -19,17 +21,19 @@ export default function Notifications() {
   const markRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => void utils.notifications.invalidate(),
     onError: error =>
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         friendlyErrorMessage(error, "อัปเดตสถานะการแจ้งเตือนไม่สำเร็จ")
       ),
   });
   const markAllRead = trpc.notifications.markAllAsRead.useMutation({
     onSuccess: async () => {
       await utils.notifications.invalidate();
-      toast.success("ทำเครื่องหมายว่าอ่านแล้วทั้งหมด");
+      formToast.success(TOAST_KEY, "ทำเครื่องหมายว่าอ่านแล้วทั้งหมด");
     },
     onError: error =>
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         friendlyErrorMessage(error, "อัปเดตสถานะการแจ้งเตือนไม่สำเร็จ")
       ),
   });

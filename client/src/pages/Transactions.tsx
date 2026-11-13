@@ -22,6 +22,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { formatThaiDate } from "@/lib/format";
 import { saveCsvFile } from "@/lib/csvDownload";
 import { useCursorPagination } from "@/hooks/useCursorPagination";
@@ -37,6 +38,8 @@ import {
   LEDGER_PERIOD_OPTIONS,
   type LedgerPeriod,
 } from "@/lib/datePeriod";
+
+const TOAST_KEY = "transactions-list";
 
 type TransactionItem = RouterOutputs["transactions"]["paged"]["items"][number];
 
@@ -157,9 +160,12 @@ export default function Transactions() {
         res.csv,
         `transactions-${periodFilter}-${new Date().toISOString().slice(0, 10)}.csv`
       );
-      toast.success(`ส่งออกข้อมูลครบถ้วนแล้ว (${res.rowCount} รายการ)`);
+      formToast.success(
+        TOAST_KEY,
+        `ส่งออกข้อมูลครบถ้วนแล้ว (${res.rowCount} รายการ)`
+      );
     } catch (err) {
-      toast.error("ส่งออกข้อมูลไม่สำเร็จ", {
+      formToast.error(TOAST_KEY, "ส่งออกข้อมูลไม่สำเร็จ", {
         description: csvExportErrorMessage(err),
       });
     } finally {

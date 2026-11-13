@@ -45,7 +45,7 @@ import {
   Award,
   UserRound,
 } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 import { useLocation } from "wouter";
 
 // ── Official Church Governance Structure Model ────────────────────────────────
@@ -291,12 +291,17 @@ export default function Profile() {
     },
   });
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "profile",
+    { name: "profile-f0" }
+  );
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editName.trim()) {
-      toast.error("กรุณาระบุชื่อ-นามสกุล");
+    if (
+      !report({ name: editName.trim() ? undefined : "กรุณาระบุชื่อ-นามสกุล" })
+    )
       return;
-    }
     setIsSaving(true);
     await updateProfileMutation.mutateAsync({
       name: editName.trim(),
@@ -680,7 +685,11 @@ export default function Profile() {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSaveProfile} className="space-y-3 sm:space-y-4">
+          <form
+            onSubmit={handleSaveProfile}
+            noValidate
+            className="space-y-3 sm:space-y-4"
+          >
             <div className="space-y-1.5">
               <label
                 htmlFor="profile-f0"
@@ -693,10 +702,15 @@ export default function Profile() {
                 type="text"
                 required
                 value={editName}
-                onChange={e => setEditName(e.target.value)}
+                onChange={e => {
+                  setEditName(e.target.value);
+                  clearField("name");
+                }}
                 className="neo-input w-full px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-ink"
                 placeholder="เช่น ชื่อ-นามสกุลจริงของคุณ"
+                {...invalidProps("name")}
               />
+              <FieldError fieldId="profile-f0" message={errors.name} />
             </div>
 
             <div className="space-y-1.5">

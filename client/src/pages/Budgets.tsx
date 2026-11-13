@@ -39,12 +39,14 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import { toast } from "sonner";
+import { formToast, useFieldErrors } from "@/lib/formFeedback";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 import { friendlyErrorMessage } from "@/lib/errors";
+
+const TOAST_KEY = "budget-new";
 
 type ToneFilter = "all" | "ok" | "warn" | "over";
 type PeriodScope = "all" | "annual" | "monthly";
@@ -90,19 +92,25 @@ export default function Budgets() {
       await utils.budgets.list.invalidate();
       setForm(EMPTY_BUDGET_FORM);
       setShowCreate(false);
-      toast.success("บันทึกงบประมาณเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "บันทึกงบประมาณเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error(friendlyErrorMessage(error, "บันทึกงบประมาณไม่สำเร็จ")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(error, "บันทึกงบประมาณไม่สำเร็จ")
+      ),
+  });
+
+  const { errors, report, clearField } = useFieldErrors(TOAST_KEY, {
+    plannedAmount: "budget-new-amount",
   });
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const parsed = parseBudgetForm(form);
-    if (!parsed.ok) {
-      toast.error(parsed.error);
+    if (!report({ plannedAmount: parsed.ok ? undefined : parsed.error }))
       return;
-    }
+    if (!parsed.ok) return;
     if (!lock()) return;
     createPlan.mutate({
       year,
@@ -477,7 +485,7 @@ export default function Budgets() {
         }}
       >
         <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl border border-line bg-surface">
-          <form onSubmit={submit}>
+          <form onSubmit={submit} noValidate>
             <DialogHeader className="border-b border-line p-5 pb-4">
               <DialogTitle className="text-base font-bold text-ink">
                 ตั้งงบประมาณสำหรับปี {formatDualYear(year)}
@@ -490,8 +498,13 @@ export default function Budgets() {
             <div className="p-5 max-h-[70vh] overflow-y-auto">
               <BudgetFormFields
                 values={form}
-                onChange={setForm}
+                onChange={values => {
+                  setForm(values);
+                  clearField("plannedAmount");
+                }}
                 funds={funds}
+                amountId="budget-new-amount"
+                amountError={errors.plannedAmount}
               />
             </div>
 

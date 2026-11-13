@@ -1,4 +1,5 @@
 import React from "react";
+import { FieldError, fieldErrorId } from "@/lib/formFeedback";
 import {
   AlertTriangle,
   Calendar,
@@ -43,6 +44,8 @@ export function TextField({
   required,
   type = "text",
   disabled,
+  id: fixedId,
+  error,
 }: {
   label: string;
   value: string;
@@ -51,8 +54,13 @@ export function TextField({
   required?: boolean;
   type?: string;
   disabled?: boolean;
+  /** Stable id, so the wizard can focus this field on a failed step. */
+  id?: string;
+  /** Thai message shown under the field. */
+  error?: string;
 }) {
-  const id = React.useId();
+  const generatedId = React.useId();
+  const id = fixedId ?? generatedId;
   return (
     <div>
       <FieldLabel required={required} htmlFor={id}>
@@ -65,24 +73,33 @@ export function TextField({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? fieldErrorId(id) : undefined}
         className="neo-input w-full px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-3 disabled:opacity-60"
       />
+      <FieldError fieldId={id} message={error} />
     </div>
   );
 }
 
+export type SetupStepErrors = { name?: string; pastorName?: string };
+
 export function Step1({
   data,
   set,
+  errors,
 }: {
   data: SetupData;
   set: (p: Partial<SetupData>) => void;
+  errors?: SetupStepErrors;
 }) {
   return (
     <div className="space-y-4">
       <TextField
         label="ชื่อคริสตจักร"
         required
+        id="setup-name"
+        error={errors?.name}
         value={data.name}
         onChange={v => set({ name: v })}
         placeholder="เช่น คริสตจักรบ้านแห่งพระคุณ (Grace House Church)"
@@ -127,15 +144,19 @@ export function Step1({
 export function Step2({
   data,
   set,
+  errors,
 }: {
   data: SetupData;
   set: (p: Partial<SetupData>) => void;
+  errors?: SetupStepErrors;
 }) {
   return (
     <div className="space-y-4">
       <TextField
         label="ชื่อศิษยาภิบาล"
         required
+        id="setup-pastor-name"
+        error={errors?.pastorName}
         value={data.pastorName}
         onChange={v => set({ pastorName: v })}
         placeholder="ศจ. ชื่อ นามสกุล"

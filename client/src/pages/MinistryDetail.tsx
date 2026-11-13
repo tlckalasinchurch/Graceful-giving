@@ -16,6 +16,7 @@ import {
   useUnsavedChanges,
 } from "@/hooks/useUnsavedChanges";
 import { friendlyErrorMessage } from "@/lib/errors";
+import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 
 export default function MinistryDetail() {
   const [, setLocation] = useLocation();
@@ -93,9 +94,15 @@ export default function MinistryDetail() {
       description !== (query.data?.description ?? ""));
   useUnsavedChanges(isDirty);
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "ministry-detail",
+    { name: "ministry-name" }
+  );
+
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!Number.isInteger(id) || id <= 0) return;
+    if (!report({})) return;
     update.mutate({
       id,
       name: name.trim(),
@@ -134,7 +141,7 @@ export default function MinistryDetail() {
             onAction={() => setLocation("/ministries")}
           />
         ) : canManage ? (
-          <form onSubmit={submit} className="bento-card p-6 md:p-8">
+          <form onSubmit={submit} noValidate className="bento-card p-6 md:p-8">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-line">
               <div>
                 <h1 className="text-2xl font-extrabold tracking-tight text-ink">
@@ -184,10 +191,16 @@ export default function MinistryDetail() {
                 ชื่อฝ่ายงาน *
                 <input
                   required
+                  id="ministry-name"
                   value={name}
-                  onChange={event => setName(event.target.value)}
+                  onChange={event => {
+                    setName(event.target.value);
+                    clearField("name");
+                  }}
+                  {...invalidProps("name")}
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
+                <FieldError fieldId="ministry-name" message={errors.name} />
               </label>
               <label className="text-sm font-extrabold text-ink-2">
                 หัวหน้าฝ่าย

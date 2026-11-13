@@ -1,7 +1,9 @@
 import React from "react";
-import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { CalendarDays, Clock3, Megaphone, Send } from "lucide-react";
 import { THAI_LOCALE } from "@/lib/format";
+
+const TOAST_KEY = "updates-share";
 
 export const categoryLabels = {
   announcement: "ประกาศ",
@@ -94,7 +96,8 @@ export function downloadICS(event: {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  toast.success(
+  formToast.success(
+    TOAST_KEY,
     "ดาวน์โหลดไฟล์ปฏิทิน (.ics) เรียบร้อย สามารถนำเข้า Google Calendar หรือ Apple Calendar ได้ทันที"
   );
 }

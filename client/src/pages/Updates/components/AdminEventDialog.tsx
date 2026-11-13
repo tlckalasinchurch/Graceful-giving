@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React, { FormEvent, useEffect } from "react";
 import { CalendarDays } from "lucide-react";
 import {
   Dialog,
@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Field, SubmitButtons } from "./updatesUtils";
+import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 import { NativeSelect } from "@/components/ui/native-select";
 
 interface AdminEventDialogProps {
@@ -49,10 +50,40 @@ export function AdminEventDialog({
   onSubmit,
   pending,
 }: AdminEventDialogProps) {
+  const { errors, report, reset, invalidProps } = useFieldErrors(
+    "updates-admin",
+    {
+      title: "event-title",
+      summary: "event-summary",
+      description: "event-description",
+      startsAt: "event-startsAt",
+      endsAt: "event-endsAt",
+      registrationUrl: "event-registrationUrl",
+    }
+  );
+  // Editing any field, or opening the dialog again, clears the old errors.
+  useEffect(() => reset(), [eventForm, open, reset]);
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    const endsBeforeStart =
+      eventForm.endsAt &&
+      new Date(eventForm.endsAt) < new Date(eventForm.startsAt);
+    if (
+      !report({
+        endsAt: endsBeforeStart
+          ? "วัน-เวลาสิ้นสุด ต้องไม่เกิดขึ้นก่อนวัน-เวลาเริ่มต้น"
+          : undefined,
+      })
+    )
+      return;
+    onSubmit(event);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="neo-modal max-h-[90vh] w-full max-w-lg overflow-y-auto p-6">
-        <form onSubmit={onSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <DialogHeader className="text-left">
             <div className="flex items-center gap-3">
               <span className="grid size-11 place-items-center rounded-xl border border-brand/40 bg-accent text-accent-foreground">
@@ -73,31 +104,39 @@ export function AdminEventDialog({
               <input
                 required
                 maxLength={180}
+                id="event-title"
                 value={eventForm.title}
+                {...invalidProps("title")}
                 onChange={event =>
                   setEventForm({ ...eventForm, title: event.target.value })
                 }
                 placeholder="เช่น ค่ายครอบครัวบ้านแห่งพระคุณ"
                 className="neo-input w-full px-3.5 py-2.5 text-sm font-medium text-ink"
               />
+              <FieldError fieldId="event-title" message={errors.title} />
             </Field>
             <Field label="สรุปสั้น ๆ">
               <input
                 required
                 maxLength={280}
+                id="event-summary"
                 value={eventForm.summary}
+                {...invalidProps("summary")}
                 onChange={event =>
                   setEventForm({ ...eventForm, summary: event.target.value })
                 }
                 placeholder="ข้อความสั้นสำหรับการ์ดกิจกรรม"
                 className="neo-input w-full px-3.5 py-2.5 text-sm font-medium text-ink"
               />
+              <FieldError fieldId="event-summary" message={errors.summary} />
             </Field>
             <Field label="รายละเอียด">
               <textarea
                 required
                 rows={4}
+                id="event-description"
                 value={eventForm.description}
+                {...invalidProps("description")}
                 onChange={event =>
                   setEventForm({
                     ...eventForm,
@@ -107,28 +146,41 @@ export function AdminEventDialog({
                 placeholder="รายละเอียดกิจกรรม..."
                 className="neo-input w-full px-3.5 py-2.5 text-sm font-medium text-ink"
               />
+              <FieldError
+                fieldId="event-description"
+                message={errors.description}
+              />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="เริ่มวันที่และเวลา">
                 <input
                   required
                   type="datetime-local"
+                  id="event-startsAt"
                   value={eventForm.startsAt}
+                  {...invalidProps("startsAt")}
                   onChange={event =>
                     setEventForm({ ...eventForm, startsAt: event.target.value })
                   }
                   className="neo-input w-full px-3.5 py-2.5 text-sm font-medium text-ink"
                 />
+                <FieldError
+                  fieldId="event-startsAt"
+                  message={errors.startsAt}
+                />
               </Field>
               <Field label="สิ้นสุด (ถ้ามี)">
                 <input
                   type="datetime-local"
+                  id="event-endsAt"
                   value={eventForm.endsAt}
+                  {...invalidProps("endsAt")}
                   onChange={event =>
                     setEventForm({ ...eventForm, endsAt: event.target.value })
                   }
                   className="neo-input w-full px-3.5 py-2.5 text-sm font-medium text-ink"
                 />
+                <FieldError fieldId="event-endsAt" message={errors.endsAt} />
               </Field>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -145,7 +197,9 @@ export function AdminEventDialog({
               <Field label="ลิงก์ลงทะเบียน">
                 <input
                   type="url"
+                  id="event-registrationUrl"
                   value={eventForm.registrationUrl}
+                  {...invalidProps("registrationUrl")}
                   onChange={event =>
                     setEventForm({
                       ...eventForm,
@@ -154,6 +208,10 @@ export function AdminEventDialog({
                   }
                   placeholder="https://..."
                   className="neo-input w-full px-3.5 py-2.5 text-sm font-medium text-ink"
+                />
+                <FieldError
+                  fieldId="event-registrationUrl"
+                  message={errors.registrationUrl}
                 />
               </Field>
             </div>

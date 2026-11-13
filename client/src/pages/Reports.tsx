@@ -13,10 +13,13 @@ import {
 } from "@shared/categories";
 import { BarChart3, Download, Landmark, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { formatBaht, THAI_LOCALE } from "@/lib/format";
 import { NativeSelect } from "@/components/ui/native-select";
 import { csvExportErrorMessage, friendlyErrorMessage } from "@/lib/errors";
 import { saveCsvFile } from "@/lib/csvDownload";
+
+const TOAST_KEY = "reports";
 
 type ReportTab = "cashflow" | "funds";
 
@@ -103,9 +106,12 @@ export default function Reports() {
         result.csv,
         `grace-giving-report-${range.fromDate.toISOString().slice(0, 10)}-${range.toDate.toISOString().slice(0, 10)}.csv`
       );
-      toast.success(`ส่งออก ${result.rowCount} รายการเรียบร้อยแล้ว`);
+      formToast.success(
+        TOAST_KEY,
+        `ส่งออก ${result.rowCount} รายการเรียบร้อยแล้ว`
+      );
     } catch (error) {
-      toast.error("ส่งออกรายงานไม่สำเร็จ", {
+      formToast.error(TOAST_KEY, "ส่งออกรายงานไม่สำเร็จ", {
         description: csvExportErrorMessage(error),
       });
     }

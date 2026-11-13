@@ -24,9 +24,11 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 import { THAI_LOCALE, toLocalISODate } from "@/lib/format";
 import { friendlyErrorMessage } from "@/lib/errors";
+
+const TOAST_KEY = "counting";
 
 /** The Sunday on or before today, as a yyyy-mm-dd string for a date input. */
 function lastSunday(): string {
@@ -70,6 +72,10 @@ export default function Counting() {
     setNotes("");
   };
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    TOAST_KEY,
+    { serviceDate: "counting-service-date" }
+  );
   const { lock, unlock } = useSubmitLock();
   const createSession = trpc.counting.create.useMutation({
     onSettled: unlock,
@@ -77,11 +83,11 @@ export default function Counting() {
       await utils.counting.list.invalidate();
       setShowCreate(false);
       setNotes("");
-      toast.success("เปิดรอบนับเงินถวายแล้ว");
+      formToast.success(TOAST_KEY, "เปิดรอบนับเงินถวายแล้ว");
       setLocation(`/counting/${id}`);
     },
     onError: error =>
-      toast.error("เปิดรอบไม่สำเร็จ", {
+      formToast.error(TOAST_KEY, "เปิดรอบไม่สำเร็จ", {
         description: friendlyErrorMessage(error),
       }),
   });
@@ -89,10 +95,10 @@ export default function Counting() {
   const deleteSession = trpc.counting.deleteSession.useMutation({
     onSuccess: async () => {
       await utils.counting.list.invalidate();
-      toast.success("ลบรอบนับเงินถวายเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "ลบรอบนับเงินถวายเรียบร้อยแล้ว");
     },
     onError: error =>
-      toast.error("ลบรอบไม่สำเร็จ", {
+      formToast.error(TOAST_KEY, "ลบรอบไม่สำเร็จ", {
         description: friendlyErrorMessage(error),
       }),
   });
@@ -101,11 +107,11 @@ export default function Counting() {
     onSuccess: async (_, variables) => {
       await utils.counting.list.invalidate();
       await utils.counting.get.invalidate({ id: variables.id });
-      toast.success("รีเซ็ตรอบเพื่อนับใหม่เรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "รีเซ็ตรอบเพื่อนับใหม่เรียบร้อยแล้ว");
       setLocation(`/counting/${variables.id}`);
     },
     onError: error =>
-      toast.error("รีเซ็ตรอบไม่สำเร็จ", {
+      formToast.error(TOAST_KEY, "รีเซ็ตรอบไม่สำเร็จ", {
         description: friendlyErrorMessage(error),
       }),
   });
@@ -206,6 +212,14 @@ export default function Counting() {
           <form
             onSubmit={event => {
               event.preventDefault();
+              if (
+                !report({
+                  serviceDate: serviceDate
+                    ? undefined
+                    : "กรุณาระบุวันอาทิตย์ที่รับถวาย",
+                })
+              )
+                return;
               if (!lock()) return;
               createSession.mutate({
                 serviceDate: new Date(`${serviceDate}T12:00:00`),
@@ -213,6 +227,7 @@ export default function Counting() {
                 notes: notes.trim() || undefined,
               });
             }}
+            noValidate
             className="bento-card-static p-6 sm:p-7 animate-in fade-in"
           >
             <div className="mb-5 flex items-center justify-between">
@@ -234,9 +249,18 @@ export default function Counting() {
                 <input
                   type="date"
                   required
+                  id="counting-service-date"
                   value={serviceDate}
-                  onChange={event => setServiceDate(event.target.value)}
+                  onChange={event => {
+                    setServiceDate(event.target.value);
+                    clearField("serviceDate");
+                  }}
+                  {...invalidProps("serviceDate")}
                   className="neo-input mt-1.5"
+                />
+                <FieldError
+                  fieldId="counting-service-date"
+                  message={errors.serviceDate}
                 />
               </label>
               <label className="text-sm font-extrabold text-ink md:col-span-2">

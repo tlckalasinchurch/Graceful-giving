@@ -2,11 +2,13 @@ import React, { useMemo, useState } from "react";
 import { friendlyErrorMessage } from "@/lib/errors";
 import { trpc } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
-import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { AlertCircle, UserCheck } from "lucide-react";
 import { NativeSelect } from "@/components/ui/native-select";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { isSuperAdmin } from "@shared/roles";
+
+const TOAST_KEY = "bank-signers";
 
 export function BankSignersSection() {
   const utils = trpc.useUtils();
@@ -27,13 +29,14 @@ export function BankSignersSection() {
 
   const addSignerMutation = trpc.bankSigners.add.useMutation({
     onSuccess: () => {
-      toast.success("เพิ่มผู้มีอำนาจลงนามเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "เพิ่มผู้มีอำนาจลงนามเรียบร้อยแล้ว");
       setSelectedSignerUserId("");
       void utils.bankSigners.list.invalidate();
       void utils.auth.me.invalidate();
     },
     onError: err => {
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         friendlyErrorMessage(err, "ไม่สามารถเพิ่มผู้มีอำนาจลงนามได้")
       );
     },
@@ -41,12 +44,13 @@ export function BankSignersSection() {
 
   const removeSignerMutation = trpc.bankSigners.remove.useMutation({
     onSuccess: () => {
-      toast.success("นำผู้มีอำนาจลงนามออกเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "นำผู้มีอำนาจลงนามออกเรียบร้อยแล้ว");
       void utils.bankSigners.list.invalidate();
       void utils.auth.me.invalidate();
     },
     onError: err => {
-      toast.error(
+      formToast.error(
+        TOAST_KEY,
         friendlyErrorMessage(err, "ไม่สามารถนำผู้มีอำนาจลงนามออกได้")
       );
     },
@@ -54,11 +58,17 @@ export function BankSignersSection() {
 
   const setRequiredSignerMutation = trpc.bankSigners.setRequired.useMutation({
     onSuccess: () => {
-      toast.success("ตั้งเป็นผู้ที่ต้องลงนามทุกครั้งเรียบร้อยแล้ว");
+      formToast.success(
+        TOAST_KEY,
+        "ตั้งเป็นผู้ที่ต้องลงนามทุกครั้งเรียบร้อยแล้ว"
+      );
       void utils.bankSigners.list.invalidate();
     },
     onError: err => {
-      toast.error(friendlyErrorMessage(err, "ไม่สามารถตั้งผู้ลงนามได้"));
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(err, "ไม่สามารถตั้งผู้ลงนามได้")
+      );
     },
   });
 

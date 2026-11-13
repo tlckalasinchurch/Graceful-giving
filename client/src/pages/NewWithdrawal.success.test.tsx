@@ -29,7 +29,15 @@ vi.mock("@/components/layout/AppLayout", () => ({
   AppLayout: ({ children }: any) => <div>{children}</div>,
 }));
 vi.mock("wouter", () => ({ useLocation: () => ["/withdrawals/new", vi.fn()] }));
-vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+const toastError = vi.fn();
+const toastSuccess = vi.fn();
+vi.mock("sonner", () => ({
+  toast: {
+    error: (...a: unknown[]) => toastError(...a),
+    success: (...a: unknown[]) => toastSuccess(...a),
+    dismiss: vi.fn(),
+  },
+}));
 
 import NewWithdrawal from "./NewWithdrawal";
 
@@ -82,5 +90,50 @@ describe("NewWithdrawal success dialog", () => {
       screen.getByLabelText(/วัตถุประสงค์การเบิก/).closest("form")!
     );
     expect(mutate).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("NewWithdrawal validation and notifications", () => {
+  beforeEach(() => {
+    mutate.mockClear();
+    toastError.mockClear();
+    toastSuccess.mockClear();
+  });
+
+  it("shows every missing field inline in Thai and sends nothing", () => {
+    render(<NewWithdrawal />);
+    fireEvent.submit(
+      screen.getByLabelText(/วัตถุประสงค์การเบิก/).closest("form")!
+    );
+    expect(mutate).not.toHaveBeenCalled();
+    const alerts = screen.getAllByRole("alert").map(a => a.textContent);
+    expect(alerts).toEqual([
+      "กรุณาระบุวัตถุประสงค์การเบิกอย่างน้อย 5 ตัวอักษร",
+      "กรุณาระบุจำนวนเงินที่ถูกต้อง",
+      "กรุณาเลือกกองทุนก่อนยื่นคำขอ",
+    ]);
+    expect(document.activeElement).toBe(
+      screen.getByLabelText(/วัตถุประสงค์การเบิก/)
+    );
+  });
+
+  it("keeps one toast slot when the person taps submit again and again", () => {
+    render(<NewWithdrawal />);
+    const form = screen.getByLabelText(/วัตถุประสงค์การเบิก/).closest("form")!;
+    fireEvent.submit(form);
+    fireEvent.submit(form);
+    fireEvent.submit(form);
+    const ids = new Set(toastError.mock.calls.map(c => c[1]?.id));
+    expect(ids).toEqual(new Set(["form:new-withdrawal"]));
+  });
+
+  it("confirms success with the dialog only, not also with a toast", () => {
+    render(<NewWithdrawal />);
+    fillAndSubmit();
+    act(() => mutationOptions.onSuccess());
+    expect(
+      screen.getByRole("dialog", { name: /ส่งคำขอเบิกเงินสำเร็จ/ })
+    ).toBeTruthy();
+    expect(toastSuccess).not.toHaveBeenCalled();
   });
 });

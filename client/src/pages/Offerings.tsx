@@ -22,6 +22,7 @@ import {
   Printer,
 } from "lucide-react";
 import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
 import {
   VoucherModal,
@@ -39,6 +40,8 @@ import {
   LEDGER_PERIOD_OPTIONS,
   type LedgerPeriod,
 } from "@/lib/datePeriod";
+
+const TOAST_KEY = "offerings-list";
 
 type OfferingCursor = NonNullable<
   Exclude<RouterInputs["offerings"]["paged"], void>["cursor"]
@@ -170,11 +173,12 @@ export default function Offerings() {
         res.csv,
         `grace-giving-offerings-${new Date().toISOString().slice(0, 10)}.csv`
       );
-      toast.success(
+      formToast.success(
+        TOAST_KEY,
         `ส่งออกข้อมูลถวายสำเร็จ (${res.rowCount.toLocaleString()} รายการ)`
       );
     } catch (err: any) {
-      toast.error("ส่งออกข้อมูลไม่สำเร็จ", {
+      formToast.error(TOAST_KEY, "ส่งออกข้อมูลไม่สำเร็จ", {
         description: csvExportErrorMessage(err),
       });
     } finally {

@@ -676,6 +676,13 @@ select:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 16%, transparent);
   outline: none;
 }
+/* A field that failed validation keeps a danger border, also while focused. */
+.neo-input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.neo-input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
+}
 
 /* Pastel Consumer Card — 20px radius, crisp 1px border, zero shadow at rest. */
 .bento-card {

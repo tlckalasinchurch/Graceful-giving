@@ -27,7 +27,7 @@ import {
   Filter,
   RefreshCw,
 } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 import { Swal } from "@/lib/sweetalert";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -38,6 +38,8 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { THAI_LOCALE } from "@/lib/format";
 import { BankSignersSection } from "./Settings/BankSignersSection";
 import { friendlyErrorMessage } from "@/lib/errors";
+
+const TOAST_KEY = "settings";
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -89,7 +91,10 @@ export default function Settings() {
       void auditQuery.refetch();
     },
     onError: err => {
-      toast.error(friendlyErrorMessage(err, "ไม่สามารถอัปเดตบทบาทได้"));
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(err, "ไม่สามารถอัปเดตบทบาทได้")
+      );
     },
     onSettled: () => {
       setUpdatingUserId(null);
@@ -98,22 +103,29 @@ export default function Settings() {
 
   const statusMutation = trpc.auth.setUserStatus.useMutation({
     onSuccess: (_data, vars) => {
-      toast.success(
+      formToast.success(
+        TOAST_KEY,
         vars.status === "active" ? "อนุมัติบัญชีแล้ว" : "ปิดการใช้งานบัญชีแล้ว"
       );
       void usersQuery.refetch();
     },
     onError: err =>
-      toast.error(friendlyErrorMessage(err, "ไม่สามารถเปลี่ยนสถานะได้")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(err, "ไม่สามารถเปลี่ยนสถานะได้")
+      ),
   });
 
   const deleteUserMutation = trpc.auth.deleteUser.useMutation({
     onSuccess: () => {
-      toast.success("ลบบัญชีแล้ว");
+      formToast.success(TOAST_KEY, "ลบบัญชีแล้ว");
       void usersQuery.refetch();
     },
     onError: err =>
-      toast.error(friendlyErrorMessage(err, "ไม่สามารถลบบัญชีได้")),
+      formToast.error(
+        TOAST_KEY,
+        friendlyErrorMessage(err, "ไม่สามารถลบบัญชีได้")
+      ),
   });
 
   const handleRoleChange = async (userId: number, newRole: string) => {
@@ -247,8 +259,14 @@ export default function Settings() {
     },
   });
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    TOAST_KEY,
+    { name: "settings-f0", email: "settings-f4", website: "settings-f5" }
+  );
+
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!report({})) return;
     setIsSaving(true);
     updateProfileMutation.mutate({
       name,
@@ -478,7 +496,7 @@ export default function Settings() {
 
         {/* Tab 1: Church Profile Form */}
         {activeTab === "church" && (
-          <form onSubmit={handleSaveProfile} className="space-y-6">
+          <form onSubmit={handleSaveProfile} noValidate className="space-y-6">
             <div className="bento-card-static p-6 md:p-8 space-y-5">
               <h3 className="text-base font-extrabold text-ink flex items-center gap-2">
                 <Building className="w-5 h-5 text-brand" />
@@ -495,9 +513,14 @@ export default function Settings() {
                     type="text"
                     required
                     value={name}
-                    onChange={e => setName(e.target.value)}
+                    onChange={e => {
+                      setName(e.target.value);
+                      clearField("name");
+                    }}
+                    {...invalidProps("name")}
                     className="neo-input w-full px-4 py-2.5 text-sm font-semibold text-ink"
                   />
+                  <FieldError fieldId="settings-f0" message={errors.name} />
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
@@ -547,9 +570,14 @@ export default function Settings() {
                     id="settings-f4"
                     type="email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => {
+                      setEmail(e.target.value);
+                      clearField("email");
+                    }}
+                    {...invalidProps("email")}
                     className="neo-input w-full px-4 py-2.5 text-sm text-ink"
                   />
+                  <FieldError fieldId="settings-f4" message={errors.email} />
                 </div>
 
                 <div className="space-y-1.5">
@@ -561,9 +589,14 @@ export default function Settings() {
                     type="url"
                     placeholder="https://..."
                     value={website}
-                    onChange={e => setWebsite(e.target.value)}
+                    onChange={e => {
+                      setWebsite(e.target.value);
+                      clearField("website");
+                    }}
+                    {...invalidProps("website")}
                     className="neo-input w-full px-4 py-2.5 text-sm text-ink"
                   />
+                  <FieldError fieldId="settings-f5" message={errors.website} />
                 </div>
 
                 <div className="space-y-1.5">

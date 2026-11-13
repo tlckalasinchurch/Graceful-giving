@@ -26,7 +26,7 @@ import {
   XCircle,
   Ban,
 } from "lucide-react";
-import { toast } from "sonner";
+import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 import { Swal } from "@/lib/sweetalert";
 import { formatBaht, THAI_LOCALE } from "@/lib/format";
 import { canManageFinance } from "@shared/roles";
@@ -88,9 +88,15 @@ export default function Approvals() {
     };
   }, [requests]);
 
+  const { errors, report, clearField, invalidProps } = useFieldErrors(
+    "withdrawal-action",
+    { rejectReason: "reject-reason", cancelReason: "cancel-reason" }
+  );
+
   const signMutation = trpc.withdrawals.sign.useMutation({
     onSuccess: data => {
-      toast.success(
+      formToast.success(
+        "withdrawal-action",
         data.outcome === "approved"
           ? "ลงนามเรียบร้อย คำขอได้รับการอนุมัติครบตามเงื่อนไขแล้ว"
           : data.outcome === "rejected"
@@ -102,12 +108,17 @@ export default function Approvals() {
       setSelectedReq(null);
       void utils.withdrawals.list.invalidate();
     },
-    onError: err => toast.error(friendlyErrorMessage(err, "ไม่สามารถลงนามได้")),
+    onError: err =>
+      formToast.error(
+        "withdrawal-action",
+        friendlyErrorMessage(err, "ไม่สามารถลงนามได้")
+      ),
   });
 
   const disburseMutation = trpc.withdrawals.disburse.useMutation({
     onSuccess: () => {
-      toast.success(
+      formToast.success(
+        "withdrawal-action",
         "บันทึกการจ่ายเงินเรียบร้อยแล้ว ยอดถูกนำเข้ารอบนับเงินแล้ว"
       );
       void utils.withdrawals.list.invalidate();
@@ -115,19 +126,25 @@ export default function Approvals() {
       void utils.counting.get.invalidate();
     },
     onError: err =>
-      toast.error(friendlyErrorMessage(err, "ไม่สามารถบันทึกการจ่ายเงินได้")),
+      formToast.error(
+        "withdrawal-action",
+        friendlyErrorMessage(err, "ไม่สามารถบันทึกการจ่ายเงินได้")
+      ),
   });
 
   const cancelMutation = trpc.withdrawals.cancel.useMutation({
     onSuccess: () => {
-      toast.success("ยกเลิกคำขอเบิกเงินเรียบร้อยแล้ว");
+      formToast.success("withdrawal-action", "ยกเลิกคำขอเบิกเงินเรียบร้อยแล้ว");
       setShowCancelModal(false);
       setCancelReason("");
       setSelectedReq(null);
       void utils.withdrawals.list.invalidate();
     },
     onError: err =>
-      toast.error(friendlyErrorMessage(err, "ไม่สามารถยกเลิกคำขอได้")),
+      formToast.error(
+        "withdrawal-action",
+        friendlyErrorMessage(err, "ไม่สามารถยกเลิกคำขอได้")
+      ),
   });
 
   const handleApprove = async (req: WithdrawalItem) => {
@@ -143,10 +160,14 @@ export default function Approvals() {
 
   const handleRejectSubmit = () => {
     if (!selectedReq) return;
-    if (!rejectReason.trim()) {
-      toast.error("กรุณาระบุเหตุผลในการไม่อนุมัติ");
+    if (
+      !report({
+        rejectReason: rejectReason.trim()
+          ? undefined
+          : "กรุณาระบุเหตุผลในการไม่อนุมัติ",
+      })
+    )
       return;
-    }
     signMutation.mutate({
       id: selectedReq.id,
       decision: "rejected",
@@ -167,10 +188,15 @@ export default function Approvals() {
 
   const handleCancelSubmit = () => {
     if (!selectedReq) return;
-    if (cancelReason.trim().length < 3) {
-      toast.error("กรุณาระบุเหตุผลในการยกเลิกอย่างน้อย 3 ตัวอักษร");
+    if (
+      !report({
+        cancelReason:
+          cancelReason.trim().length < 3
+            ? "กรุณาระบุเหตุผลในการยกเลิกอย่างน้อย 3 ตัวอักษร"
+            : undefined,
+      })
+    )
       return;
-    }
     cancelMutation.mutate({
       id: selectedReq.id,
       reason: cancelReason.trim(),
@@ -462,9 +488,18 @@ export default function Approvals() {
                 required
                 aria-label="เหตุผลที่ไม่อนุมัติ"
                 placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้..."
+                id="reject-reason"
                 value={rejectReason}
-                onChange={e => setRejectReason(e.target.value)}
+                onChange={e => {
+                  setRejectReason(e.target.value);
+                  clearField("rejectReason");
+                }}
                 className="neo-input w-full p-3.5 text-xs"
+                {...invalidProps("rejectReason")}
+              />
+              <FieldError
+                fieldId="reject-reason"
+                message={errors.rejectReason}
               />
             </div>
 
@@ -513,9 +548,18 @@ export default function Approvals() {
                 required
                 aria-label="เหตุผลในการยกเลิก"
                 placeholder="เช่น ยกเลิกโครงการ, ปรับเปลี่ยนรายการจัดซื้อ..."
+                id="cancel-reason"
                 value={cancelReason}
-                onChange={e => setCancelReason(e.target.value)}
+                onChange={e => {
+                  setCancelReason(e.target.value);
+                  clearField("cancelReason");
+                }}
                 className="neo-input w-full p-3.5 text-xs"
+                {...invalidProps("cancelReason")}
+              />
+              <FieldError
+                fieldId="cancel-reason"
+                message={errors.cancelReason}
               />
             </div>
 

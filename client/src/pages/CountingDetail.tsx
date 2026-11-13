@@ -25,7 +25,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Swal } from "@/lib/sweetalert";
-import { toast } from "sonner";
+import { formToast } from "@/lib/formFeedback";
 import { Variance } from "./CountingDetail/components/countingUtils";
 import { EnvelopesTab } from "./CountingDetail/components/EnvelopesTab";
 import { CashCountTab } from "./CountingDetail/components/CashCountTab";
@@ -35,6 +35,8 @@ import { ReconciliationSummaryTab } from "./CountingDetail/components/Reconcilia
 import { CarryForwardLedger } from "./CountingDetail/components/CarryForwardLedger";
 import { THAI_LOCALE } from "@/lib/format";
 import { friendlyErrorMessage } from "@/lib/errors";
+
+const TOAST_KEY = "counting-session";
 
 type TabId = "envelopes" | "cash" | "bank" | "deductions" | "summary";
 
@@ -84,7 +86,7 @@ export default function CountingDetail() {
   };
 
   const onError = (verb: string) => (error: { message: string }) =>
-    toast.error(`${verb}ไม่สำเร็จ`, {
+    formToast.error(TOAST_KEY, `${verb}ไม่สำเร็จ`, {
       description: friendlyErrorMessage(error),
     });
 
@@ -135,28 +137,28 @@ export default function CountingDetail() {
   const submitCount = trpc.counting.submitCount.useMutation({
     onSuccess: () => {
       void refreshAll();
-      toast.success("ส่งนับให้ตรวจสอบแล้ว");
+      formToast.success(TOAST_KEY, "ส่งนับให้ตรวจสอบแล้ว");
     },
     onError: onError("ส่งนับ"),
   });
   const reopenCount = trpc.counting.reopenCount.useMutation({
     onSuccess: () => {
       void refreshAll();
-      toast.success("ส่งกลับไปนับใหม่แล้ว");
+      formToast.success(TOAST_KEY, "ส่งกลับไปนับใหม่แล้ว");
     },
     onError: onError("ส่งกลับไปนับใหม่"),
   });
   const verify = trpc.counting.verify.useMutation({
     onSuccess: () => {
       void refreshAll();
-      toast.success("ตรวจสอบรอบเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "ตรวจสอบรอบเรียบร้อยแล้ว");
     },
     onError: onError("ตรวจสอบรอบ"),
   });
   const post = trpc.counting.post.useMutation({
     onSuccess: result => {
       void refreshAll();
-      toast.success("ลงบัญชีเรียบร้อยแล้ว", {
+      formToast.success(TOAST_KEY, "ลงบัญชีเรียบร้อยแล้ว", {
         description: `บันทึกถวาย ${result.offeringCount} รายการ และรายจ่าย ${result.deductionCount} รายการ`,
       });
     },
@@ -165,14 +167,14 @@ export default function CountingDetail() {
   const close = trpc.counting.close.useMutation({
     onSuccess: () => {
       void refreshAll();
-      toast.success("ปิดรอบเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "ปิดรอบเรียบร้อยแล้ว");
     },
     onError: onError("ปิดรอบ"),
   });
   const deleteSession = trpc.counting.deleteSession.useMutation({
     onSuccess: async () => {
       await utils.counting.list.invalidate();
-      toast.success("ลบรอบนับเงินถวายเรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "ลบรอบนับเงินถวายเรียบร้อยแล้ว");
       setLocation("/counting");
     },
     onError: onError("ลบรอบ"),
@@ -181,7 +183,7 @@ export default function CountingDetail() {
     onSuccess: async () => {
       await refreshAll();
       setDraftCounts({});
-      toast.success("รีเซ็ตรอบเพื่อนับใหม่เรียบร้อยแล้ว");
+      formToast.success(TOAST_KEY, "รีเซ็ตรอบเพื่อนับใหม่เรียบร้อยแล้ว");
     },
     onError: onError("รีเซ็ตรอบ"),
   });
