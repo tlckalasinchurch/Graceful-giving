@@ -114,7 +114,8 @@ export default function Funds() {
 
   const { errors, report, clearField, invalidProps } = useFieldErrors(
     "new-fund",
-    { name: "new-fund-name" }
+    { name: "new-fund-name" },
+    { open: showNewFundModal }
   );
 
   const handleCreateFund = (e: React.FormEvent) => {

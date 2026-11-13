@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 /**
@@ -104,12 +104,23 @@ export function nativeValidationMessage(
  * browser's HTML-attribute rules for any field the page did not flag, shows
  * every error inline, puts the first one in the form's toast slot, and
  * focuses that field.
+ *
+ * Pass `open` for a form inside a dialog or a panel that closes. When it
+ * becomes false the inline errors are cleared, so the form does not show an
+ * old error when it opens again. The toast is left alone: a success message
+ * shown as the dialog closes must stay visible.
  */
 export function useFieldErrors<K extends string>(
   formKey: string,
-  fieldIds: Record<K, string>
+  fieldIds: Record<K, string>,
+  options: { open?: boolean } = {}
 ) {
   const [errors, setErrors] = useState<Partial<Record<K, string>>>({});
+  const { open } = options;
+
+  useEffect(() => {
+    if (open === false) setErrors({});
+  }, [open]);
 
   const report = useCallback(
     (pageRules: Partial<Record<K, string>>): boolean => {
@@ -157,6 +168,11 @@ export function useFieldErrors<K extends string>(
 /**
  * Thai inline message under a field. Renders nothing without a message.
  * A block <span>, not a <p>, so it is valid inside a <label>.
+ *
+ * It has no role="alert". The control points at it with aria-describedby, so
+ * a screen reader reads it when the field takes focus, and the form's toast
+ * announces the first error. With role="alert" as well, the first error was
+ * announced twice and every other error was announced at once.
  */
 export function FieldError({
   fieldId,
@@ -169,7 +185,6 @@ export function FieldError({
   return (
     <span
       id={fieldErrorId(fieldId)}
-      role="alert"
       className="mt-1.5 block text-sm font-bold text-danger"
     >
       {message}

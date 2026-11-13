@@ -66,7 +66,8 @@ export default function Ministries() {
 
   const { errors, report, clearField, invalidProps } = useFieldErrors(
     "new-ministry",
-    { name: "new-ministry-name" }
+    { name: "new-ministry-name" },
+    { open: showCreate }
   );
 
   const submit = (event: React.FormEvent) => {
