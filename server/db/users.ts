@@ -10,16 +10,13 @@ import {
 import { ENV } from "../_core/env";
 import {
   getDb,
-  type Database,
 } from "./core";
 import {
   and,
   count,
   desc,
   eq,
-  like,
   ne,
-  or,
   sql,
 } from "drizzle-orm";
 

@@ -10,7 +10,7 @@
 
 import { getDb } from "../db";
 import { lineSlips, offerings } from "../../drizzle/schema";
-import { and, eq, gte, lte, ne, or } from "drizzle-orm";
+import { and, eq, gte, lte, ne } from "drizzle-orm";
 
 export interface DuplicateResult {
   isDuplicate: boolean;

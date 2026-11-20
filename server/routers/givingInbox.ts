@@ -1,7 +1,6 @@
 // Extracted verbatim from server/routers.ts (Phase 4 god-file split).
 // Pure move: no logic, validation, authorisation or API-shape change.
 
-import { type User } from "../../drizzle/schema";
 import {
   protectedProcedure,
   router,

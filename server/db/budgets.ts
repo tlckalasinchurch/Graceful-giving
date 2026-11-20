@@ -13,7 +13,6 @@ import {
   DEFAULT_CHURCH_ID,
   bangkokLocalOfColumn,
   getDb,
-  type Database,
 } from "./core";
 import { bangkokMonthStart } from "@shared/bangkokDate";
 import {

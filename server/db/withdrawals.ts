@@ -19,7 +19,6 @@ import {
   bangkokDateOfInstant,
   getDb,
   type CountingTx,
-  type Database,
 } from "./core";
 import {
   approvalState,

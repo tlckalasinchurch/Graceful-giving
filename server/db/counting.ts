@@ -24,7 +24,6 @@ import {
 import {
   DEFAULT_CHURCH_ID,
   getDb,
-  type Database,
 } from "./core";
 import {
   reconcile,

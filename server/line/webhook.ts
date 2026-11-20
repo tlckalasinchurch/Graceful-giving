@@ -22,11 +22,9 @@ import { getDb, DEFAULT_CHURCH_ID } from "../db";
 import { lineSlips, lineProcessingJobs } from "../../drizzle/schema";
 import { runWorkerBatch } from "./processWorker";
 import { eq, and, ne } from "drizzle-orm";
-import { sql } from "drizzle-orm";
 
 const LINE_API_BASE = "https://api.line.me/v2/bot";
 const LINE_CONTENT_BASE = "https://api-data.line.me/v2/bot";
-const MAX_RETRIES = 3;
 /** LINE webhook bodies are a few KB. Anything near this size is not from LINE. */
 const MAX_WEBHOOK_BODY_BYTES = 256 * 1024;
 

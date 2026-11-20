@@ -5,7 +5,6 @@
 
 import { ENV } from "../_core/env";
 import {
-  and,
   sql,
   type SQL,
 } from "drizzle-orm";
