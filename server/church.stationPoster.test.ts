@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
+import { createTestContext } from "./test/testContext";
 
 vi.mock("./db", async importOriginal => {
   const actual = await importOriginal<typeof import("./db")>();
@@ -19,12 +20,6 @@ import {
 } from "@shared/stationPoster";
 
 type User = NonNullable<TrpcContext["user"]>;
-
-const ctx = (user: User | null): TrpcContext => ({
-  user,
-  req: { protocol: "https", headers: {} } as TrpcContext["req"],
-  res: { clearCookie: () => undefined } as TrpcContext["res"],
-});
 
 const member = {
   id: 1,
@@ -51,13 +46,13 @@ beforeEach(() => {
 describe("church.stationPoster", () => {
   it("rejects a signed-out caller", async () => {
     await expect(
-      appRouter.createCaller(ctx(null)).church.stationPoster()
+      appRouter.createCaller(createTestContext(null)).church.stationPoster()
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
   it("returns the defaults when nothing is saved", async () => {
     const out = await appRouter
-      .createCaller(ctx(member))
+      .createCaller(createTestContext(member))
       .church.stationPoster();
     expect(out).toEqual(DEFAULT_STATION_POSTER);
   });
@@ -67,7 +62,7 @@ describe("church.stationPoster", () => {
       JSON.stringify(edited)
     );
     const out = await appRouter
-      .createCaller(ctx(member))
+      .createCaller(createTestContext(member))
       .church.stationPoster();
     expect(out.headlineWhite).toBe("ถวายด้วยใจ");
   });
@@ -76,7 +71,7 @@ describe("church.stationPoster", () => {
 describe("church.saveStationPoster", () => {
   it("lets a church leader save and writes an audit log", async () => {
     await appRouter
-      .createCaller(ctx(superAdmin))
+      .createCaller(createTestContext(superAdmin))
       .church.saveStationPoster(edited);
     expect(db.saveStationPosterJson).toHaveBeenCalledWith(
       JSON.stringify(edited)
@@ -89,7 +84,7 @@ describe("church.saveStationPoster", () => {
   it("refuses a member and a treasurer", async () => {
     for (const user of [member, treasurer]) {
       await expect(
-        appRouter.createCaller(ctx(user)).church.saveStationPoster(edited)
+        appRouter.createCaller(createTestContext(user)).church.saveStationPoster(edited)
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
     }
     expect(db.saveStationPosterJson).not.toHaveBeenCalled();
@@ -98,7 +93,7 @@ describe("church.saveStationPoster", () => {
   it("refuses text that is too long", async () => {
     await expect(
       appRouter
-        .createCaller(ctx(superAdmin))
+        .createCaller(createTestContext(superAdmin))
         .church.saveStationPoster({ ...edited, headlineWhite: "ก".repeat(81) })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });

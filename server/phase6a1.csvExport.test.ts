@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
+import { createTestContext, makeUser } from "./test/testContext";
 import {
   sanitizeCsvCell,
   fetchAllOfferingsInBatches,
@@ -12,17 +12,7 @@ import {
   type ExpenseRow,
 } from "./db";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const baseUser: User = {
+const baseUser = makeUser({
   id: 10,
   openId: "user-test",
   email: "test@example.com",
@@ -32,40 +22,40 @@ const baseUser: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const superAdmin: User = {
+const superAdmin = makeUser({
   ...baseUser,
   id: 1,
   openId: "admin",
   role: "admin",
   churchRole: "SUPER_ADMIN",
   churchRoles: "SUPER_ADMIN",
-};
+});
 
-const treasurer: User = {
+const treasurer = makeUser({
   ...baseUser,
   id: 2,
   openId: "treasurer",
   churchRole: "TREASURER",
   churchRoles: "TREASURER",
-};
+});
 
-const pastor: User = {
+const pastor = makeUser({
   ...baseUser,
   id: 3,
   openId: "pastor",
   churchRole: "PASTOR",
   churchRoles: "PASTOR",
-};
+});
 
-const member: User = {
+const member = makeUser({
   ...baseUser,
   id: 5,
   openId: "member",
   churchRole: "MEMBER",
   churchRoles: "MEMBER",
-};
+});
 
 describe("Phase 6A.1 — CSV Export & Financial Precision Verification", () => {
   // ─── 1. Keyset Batch Retrieval & Boundary Tests ───────────────────────────────
@@ -545,8 +535,8 @@ describe("Phase 6A.1 — CSV Export & Financial Precision Verification", () => {
     });
 
     it("4.2 Blocks MEMBER and unauthenticated users from calling CSV export endpoints", async () => {
-      const memberCaller = appRouter.createCaller(createContext(member));
-      const unauthCaller = appRouter.createCaller(createContext(null));
+      const memberCaller = appRouter.createCaller(createTestContext(member));
+      const unauthCaller = appRouter.createCaller(createTestContext(null));
 
       await expect(
         memberCaller.transactions.exportCsv({})
@@ -570,9 +560,9 @@ describe("Phase 6A.1 — CSV Export & Financial Precision Verification", () => {
     });
 
     it("4.3 Allows TREASURER and SUPER_ADMIN full access to CSV export", async () => {
-      const treasurerCaller = appRouter.createCaller(createContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(createTestContext(treasurer));
       const superAdminCaller = appRouter.createCaller(
-        createContext(superAdmin)
+        createTestContext(superAdmin)
       );
 
       const [txExport, offExport] = await Promise.all([

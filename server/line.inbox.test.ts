@@ -1,23 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { createTestContext, makeUser } from "./test/testContext";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
 import {
   requiresReview,
   CONFIDENCE_THRESHOLD,
   type SlipExtraction,
 } from "./line/slipOcr";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const memberUser: User = {
+const memberUser = makeUser({
   id: 101,
   openId: "test-member",
   email: "member@example.com",
@@ -28,39 +18,39 @@ const memberUser: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const counterUser: User = {
+const counterUser = makeUser({
   ...memberUser,
   id: 102,
   openId: "test-counter",
   churchRole: "COUNTER",
-};
+});
 
-const deaconUser: User = {
+const deaconUser = makeUser({
   ...memberUser,
   id: 103,
   openId: "test-deacon",
   churchRole: "DEACON",
-};
+});
 
-const treasurerUser: User = {
+const treasurerUser = makeUser({
   ...memberUser,
   id: 104,
   openId: "test-treasurer",
   churchRole: "TREASURER",
-};
+});
 
-const superAdminUser: User = {
+const superAdminUser = makeUser({
   ...memberUser,
   id: 105,
   openId: "test-superadmin",
   churchRole: "SUPER_ADMIN",
-};
+});
 
 describe("LINE Slip AI: Giving Inbox Access Control", () => {
   it("rejects unauthenticated requests with UNAUTHORIZED", async () => {
-    const caller = appRouter.createCaller(createContext(null));
+    const caller = appRouter.createCaller(createTestContext(null));
     await expect(caller.givingInbox.list()).rejects.toMatchObject({
       code: "UNAUTHORIZED",
     });
@@ -73,7 +63,7 @@ describe("LINE Slip AI: Giving Inbox Access Control", () => {
   });
 
   it("denies access to ordinary MEMBER with FORBIDDEN", async () => {
-    const caller = appRouter.createCaller(createContext(memberUser));
+    const caller = appRouter.createCaller(createTestContext(memberUser));
     await expect(caller.givingInbox.list()).rejects.toMatchObject({
       code: "FORBIDDEN",
     });
@@ -92,21 +82,21 @@ describe("LINE Slip AI: Giving Inbox Access Control", () => {
   });
 
   it("denies access to COUNTER with FORBIDDEN (counters only count cash/envelopes)", async () => {
-    const caller = appRouter.createCaller(createContext(counterUser));
+    const caller = appRouter.createCaller(createTestContext(counterUser));
     await expect(caller.givingInbox.list()).rejects.toMatchObject({
       code: "FORBIDDEN",
     });
   });
 
   it("denies access to DEACON with FORBIDDEN", async () => {
-    const caller = appRouter.createCaller(createContext(deaconUser));
+    const caller = appRouter.createCaller(createTestContext(deaconUser));
     await expect(caller.givingInbox.list()).rejects.toMatchObject({
       code: "FORBIDDEN",
     });
   });
 
   it("allows TREASURER to access givingInbox procedures", async () => {
-    const caller = appRouter.createCaller(createContext(treasurerUser));
+    const caller = appRouter.createCaller(createTestContext(treasurerUser));
     // Calling stats should not throw FORBIDDEN or UNAUTHORIZED
     try {
       await caller.givingInbox.stats();
@@ -117,7 +107,7 @@ describe("LINE Slip AI: Giving Inbox Access Control", () => {
   });
 
   it("allows SUPER_ADMIN to access givingInbox procedures", async () => {
-    const caller = appRouter.createCaller(createContext(superAdminUser));
+    const caller = appRouter.createCaller(createTestContext(superAdminUser));
     try {
       await caller.givingInbox.stats();
     } catch (err: any) {
@@ -127,7 +117,7 @@ describe("LINE Slip AI: Giving Inbox Access Control", () => {
   });
 
   it("validates that approve amount must be positive", async () => {
-    const caller = appRouter.createCaller(createContext(treasurerUser));
+    const caller = appRouter.createCaller(createTestContext(treasurerUser));
     await expect(
       caller.givingInbox.approve({
         slipId: 1,

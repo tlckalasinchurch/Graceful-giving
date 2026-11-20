@@ -1,19 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
+import { createTestContext, makeUser } from "./test/testContext";
 import { sanitizeCsvCell } from "./db";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const baseUser: User = {
+const baseUser = makeUser({
   id: 10,
   openId: "user-test",
   email: "test@example.com",
@@ -23,48 +13,48 @@ const baseUser: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const superAdmin: User = {
+const superAdmin = makeUser({
   ...baseUser,
   id: 1,
   openId: "admin",
   role: "admin",
   churchRole: "SUPER_ADMIN",
   churchRoles: "SUPER_ADMIN",
-};
+});
 
-const treasurer: User = {
+const treasurer = makeUser({
   ...baseUser,
   id: 2,
   openId: "treasurer",
   churchRole: "TREASURER",
   churchRoles: "TREASURER",
-};
+});
 
-const pastor: User = {
+const pastor = makeUser({
   ...baseUser,
   id: 3,
   openId: "pastor",
   churchRole: "PASTOR",
   churchRoles: "PASTOR",
-};
+});
 
-const deacon: User = {
+const deacon = makeUser({
   ...baseUser,
   id: 4,
   openId: "deacon",
   churchRole: "DEACON",
   churchRoles: "DEACON",
-};
+});
 
-const member: User = {
+const member = makeUser({
   ...baseUser,
   id: 5,
   openId: "member",
   churchRole: "MEMBER",
   churchRoles: "MEMBER",
-};
+});
 
 describe("Phase 6A Automated Reconciliation Test Suite", () => {
   describe("1. Dataset Scalability & Cursor Pagination Verification (50, 100, 1000, 1001, 2500 records)", () => {
@@ -247,7 +237,7 @@ describe("Phase 6A Automated Reconciliation Test Suite", () => {
 
   describe("3. Server Router Procedures & Access Control Verification", () => {
     it("allows TREASURER to query transactions.summary, transactions.paged, and transactions.exportCsv", async () => {
-      const caller = appRouter.createCaller(createContext(treasurer));
+      const caller = appRouter.createCaller(createTestContext(treasurer));
 
       const summary = await caller.transactions.summary({});
       expect(summary).toBeDefined();
@@ -269,7 +259,7 @@ describe("Phase 6A Automated Reconciliation Test Suite", () => {
     });
 
     it("allows SUPER_ADMIN to query offerings.summary, offerings.paged, and offerings.exportCsv", async () => {
-      const caller = appRouter.createCaller(createContext(superAdmin));
+      const caller = appRouter.createCaller(createTestContext(superAdmin));
 
       const summary = await caller.offerings.summary({});
       expect(summary).toBeDefined();
@@ -286,7 +276,7 @@ describe("Phase 6A Automated Reconciliation Test Suite", () => {
     });
 
     it("allows SUPER_ADMIN to query expenses.summary, expenses.paged, and expenses.exportCsv", async () => {
-      const caller = appRouter.createCaller(createContext(superAdmin));
+      const caller = appRouter.createCaller(createTestContext(superAdmin));
 
       const summary = await caller.expenses.summary({});
       expect(summary).toBeDefined();
@@ -303,7 +293,7 @@ describe("Phase 6A Automated Reconciliation Test Suite", () => {
     });
 
     it("blocks unauthenticated callers with UNAUTHORIZED", async () => {
-      const unauthCaller = appRouter.createCaller(createContext(null));
+      const unauthCaller = appRouter.createCaller(createTestContext(null));
 
       await expect(unauthCaller.transactions.summary({})).rejects.toMatchObject(
         {
@@ -327,7 +317,7 @@ describe("Phase 6A Automated Reconciliation Test Suite", () => {
     });
 
     it("blocks unauthorized roles (MEMBER) from finance procedures with FORBIDDEN", async () => {
-      const memberCaller = appRouter.createCaller(createContext(member));
+      const memberCaller = appRouter.createCaller(createTestContext(member));
 
       await expect(memberCaller.transactions.summary({})).rejects.toMatchObject(
         {
@@ -357,7 +347,7 @@ describe("Phase 6A Automated Reconciliation Test Suite", () => {
     });
 
     it("blocks unauthorized roles (DEACON) from financeViewProcedure with FORBIDDEN", async () => {
-      const deaconCaller = appRouter.createCaller(createContext(deacon));
+      const deaconCaller = appRouter.createCaller(createTestContext(deacon));
 
       await expect(deaconCaller.transactions.summary({})).rejects.toMatchObject(
         {
@@ -373,7 +363,7 @@ describe("Phase 6A Automated Reconciliation Test Suite", () => {
     });
 
     it("enforces canViewDonorNames privacy on offerings.paged: PASTOR views ledger but donor names are masked", async () => {
-      const pastorCaller = appRouter.createCaller(createContext(pastor));
+      const pastorCaller = appRouter.createCaller(createTestContext(pastor));
       const paged = await pastorCaller.offerings.paged({ limit: 10 });
       for (const item of paged.items) {
         if (item.donorName) {
@@ -383,7 +373,7 @@ describe("Phase 6A Automated Reconciliation Test Suite", () => {
     });
 
     it("enforces canViewDonorNames privacy on transactions.paged: PASTOR views transactions but income donor names are masked", async () => {
-      const pastorCaller = appRouter.createCaller(createContext(pastor));
+      const pastorCaller = appRouter.createCaller(createTestContext(pastor));
       const paged = await pastorCaller.transactions.paged({
         limit: 10,
         type: "income",

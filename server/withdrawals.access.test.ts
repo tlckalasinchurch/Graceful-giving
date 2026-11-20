@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
+import { createTestContext, makeUser } from "./test/testContext";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
 
@@ -14,17 +14,7 @@ vi.stubEnv("POSTGRES_URL", "");
 vi.stubEnv("POSTGRES_PRISMA_URL", "");
 afterAll(() => vi.unstubAllEnvs());
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const member: User = {
+const member = makeUser({
   id: 2,
   openId: "member",
   email: "member@example.com",
@@ -35,30 +25,30 @@ const member: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const counter: User = {
+const counter = makeUser({
   ...member,
   id: 3,
   openId: "counter",
   churchRole: "COUNTER",
-};
-const treasurer: User = {
+});
+const treasurer = makeUser({
   ...member,
   id: 4,
   openId: "treasurer",
   churchRole: "TREASURER",
-};
-const pastor: User = {
+});
+const pastor = makeUser({
   ...member,
   id: 5,
   openId: "pastor",
   churchRole: "PASTOR",
-};
+});
 
 describe("bank signers: who may see and manage the signer list", () => {
   it("requires a signed-in user to read the list", async () => {
-    const caller = appRouter.createCaller(createContext(null));
+    const caller = appRouter.createCaller(createTestContext(null));
     await expect(caller.bankSigners.list()).rejects.toMatchObject({
       code: "UNAUTHORIZED",
     });
@@ -71,7 +61,7 @@ describe("bank signers: who may see and manage the signer list", () => {
     ["pastor", pastor],
   ] as const) {
     it(`only SUPER_ADMIN adds, removes or marks a ${label}`, async () => {
-      const caller = appRouter.createCaller(createContext(user));
+      const caller = appRouter.createCaller(createTestContext(user));
       await expect(caller.bankSigners.add({ userId: 9 })).rejects.toMatchObject(
         { code: "FORBIDDEN" }
       );
@@ -85,13 +75,13 @@ describe("bank signers: who may see and manage the signer list", () => {
   }
 
   it("rejects a user id that is not a positive integer", async () => {
-    const superAdmin: User = {
+    const superAdmin = makeUser({
       ...member,
       id: 1,
       openId: "admin",
       role: "admin",
-    };
-    const caller = appRouter.createCaller(createContext(superAdmin));
+    });
+    const caller = appRouter.createCaller(createTestContext(superAdmin));
     await expect(caller.bankSigners.add({ userId: 0 })).rejects.toMatchObject({
       code: "BAD_REQUEST",
     });
@@ -102,14 +92,14 @@ describe("withdrawals: signing is for the people on the bank account", () => {
   // Without a database isBankSigner answers null, so a signed-in member is
   // correctly refused at the gate. Assert only the code.
   it("refuses a signed-in member who is not a signer", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.withdrawals.sign({ id: 1, decision: "approved" })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("demands a note when a signer refuses", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.withdrawals.sign({
         id: 1,
@@ -121,7 +111,7 @@ describe("withdrawals: signing is for the people on the bank account", () => {
   });
 
   it("demands a real cancellation reason", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.withdrawals.cancel({ id: 1, reason: "a" })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -132,7 +122,7 @@ describe("withdrawals.create: input limits", () => {
   const valid = { amount: 500, purpose: "ค่าอุปกรณ์ฝ่ายดนตรี" };
 
   it("refuses an amount above the limit", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.withdrawals.create({
         ...valid,
@@ -142,7 +132,7 @@ describe("withdrawals.create: input limits", () => {
   });
 
   it.each([0, -5])("refuses amount %s", async amount => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.withdrawals.create({ ...valid, amount })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -150,7 +140,7 @@ describe("withdrawals.create: input limits", () => {
 
   it("refuses a fund that does not exist", async () => {
     // Without a database no fund is listed, so any fund id is unknown.
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.withdrawals.create({ ...valid, fundId: 999_999 })
     ).rejects.toMatchObject({
@@ -161,7 +151,7 @@ describe("withdrawals.create: input limits", () => {
 
   it("passes validation at the limit and only then reaches the database", async () => {
     // No database here, so the call fails at the insert, not at validation.
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.withdrawals.create({ ...valid, amount: MAX_WITHDRAWAL_AMOUNT })
     ).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
@@ -170,14 +160,14 @@ describe("withdrawals.create: input limits", () => {
 
 describe("offerings.update and expenses.update: input limits", () => {
   it("refuses an offering amount above the giving limit", async () => {
-    const caller = appRouter.createCaller(createContext(treasurer));
+    const caller = appRouter.createCaller(createTestContext(treasurer));
     await expect(
       caller.offerings.update({ id: 1, amount: MAX_GIVING_AMOUNT + 1 })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
   it("refuses to move an offering to a fund that does not exist", async () => {
-    const caller = appRouter.createCaller(createContext(treasurer));
+    const caller = appRouter.createCaller(createTestContext(treasurer));
     await expect(
       caller.offerings.update({ id: 1, fundId: 999_999 })
     ).rejects.toMatchObject({
@@ -187,14 +177,14 @@ describe("offerings.update and expenses.update: input limits", () => {
   });
 
   it("refuses an expense amount above the limit", async () => {
-    const caller = appRouter.createCaller(createContext(treasurer));
+    const caller = appRouter.createCaller(createTestContext(treasurer));
     await expect(
       caller.expenses.update({ id: 1, amount: MAX_GIVING_AMOUNT + 1 })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
   it("still refuses a member before any validation of the fund", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.offerings.update({ id: 1, amount: 100 })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });

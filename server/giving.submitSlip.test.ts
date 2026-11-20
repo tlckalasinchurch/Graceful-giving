@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { TrpcContext } from "./_core/context";
+import { createTestContext, makeUser } from "./test/testContext";
 
 vi.mock("./db", async importOriginal => {
   const actual = await importOriginal<typeof import("./db")>();
@@ -23,17 +23,7 @@ import * as db from "./db";
 import { runWorkerBatch } from "./line/processWorker";
 import { MAX_GIVING_AMOUNT, MAX_SLIPS_PER_DAY } from "@shared/givingLimits";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const member: User = {
+const member = makeUser({
   id: 201,
   openId: "test-member",
   email: "member@example.com",
@@ -44,8 +34,8 @@ const member: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-} as User;
-const treasurer: User = { ...member, id: 202, churchRole: "TREASURER" };
+});
+const treasurer = makeUser({ ...member, id: 202, churchRole: "TREASURER" });
 
 // 8-byte PNG signature is all the sniffing needs.
 const PNG_B64 = Buffer.from([
@@ -85,7 +75,7 @@ const slipRow = (over: Record<string, unknown> = {}) => ({
 
 describe("givingInbox.submitSlip", () => {
   it("rejects a signed-out caller", async () => {
-    const caller = appRouter.createCaller(createContext(null));
+    const caller = appRouter.createCaller(createTestContext(null));
     await expect(
       caller.givingInbox.submitSlip(validInput)
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
@@ -93,7 +83,7 @@ describe("givingInbox.submitSlip", () => {
   });
 
   it("lets a plain member queue a pending slip with the declared values", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const result = await caller.givingInbox.submitSlip({
       ...validInput,
       fundId: 7,
@@ -122,7 +112,7 @@ describe("givingInbox.submitSlip", () => {
       { category: "tithe" as const, amount: 700 },
       { category: "mission" as const, amount: 300 },
     ];
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await caller.givingInbox.submitSlip({
       ...validInput,
       amount: 1000,
@@ -141,7 +131,7 @@ describe("givingInbox.submitSlip", () => {
   });
 
   it("refuses a split that does not add up to the slip amount, before it stores anything", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.givingInbox.submitSlip({
         ...validInput,
@@ -157,7 +147,7 @@ describe("givingInbox.submitSlip", () => {
 
   it("tells the donor when the slip amount matches the chosen amount", async () => {
     vi.mocked(db.getMyManualSlip).mockResolvedValue(slipRow() as never);
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const { check } = await caller.givingInbox.submitSlip(validInput);
     expect(check.state).toBe("verified");
   });
@@ -170,14 +160,14 @@ describe("givingInbox.submitSlip", () => {
         reviewNote: "ยอดในสลิป 1,000 บาท ไม่ตรงกับยอดที่เลือก 500 บาท",
       }) as never
     );
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const { check } = await caller.givingInbox.submitSlip(validInput);
     expect(check).toMatchObject({ state: "rejected", slipAmount: 1000 });
   });
 
   it("tells the donor how many slips the system has turned away in 24 hours", async () => {
     vi.mocked(db.countRecentSystemRejectedSlips).mockResolvedValue(2);
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const result = await caller.givingInbox.submitSlip(validInput);
     expect(result.failedAttempts).toBe(2);
     expect(db.countRecentSystemRejectedSlips).toHaveBeenCalledWith(
@@ -190,7 +180,7 @@ describe("givingInbox.submitSlip", () => {
     vi.mocked(db.getMyManualSlip).mockResolvedValue(
       slipRow({ status: "pending", extractedAmount: null }) as never
     );
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const { check } = await caller.givingInbox.submitSlip(validInput);
     expect(check.state).toBe("checking");
   });
@@ -200,7 +190,7 @@ describe("givingInbox.submitSlip", () => {
     vi.mocked(runWorkerBatch).mockImplementation(
       () => new Promise(() => undefined)
     );
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const pending = caller.givingInbox.submitSlip(validInput);
     await vi.advanceTimersByTimeAsync(9000);
     await expect(pending).resolves.toMatchObject({ success: true });
@@ -209,7 +199,7 @@ describe("givingInbox.submitSlip", () => {
   });
 
   it("refuses data that is not a JPEG, PNG or WebP image", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const svg = Buffer.from(
       "<svg xmlns='http://www.w3.org/2000/svg'/>"
     ).toString("base64");
@@ -223,7 +213,7 @@ describe("givingInbox.submitSlip", () => {
   });
 
   it.each([0, -5, MAX_GIVING_AMOUNT + 1])("refuses amount %s", async amount => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.givingInbox.submitSlip({ ...validInput, amount })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -231,7 +221,7 @@ describe("givingInbox.submitSlip", () => {
   });
 
   it("refuses a category that is not in the database enum", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.givingInbox.submitSlip({
         ...validInput,
@@ -241,7 +231,7 @@ describe("givingInbox.submitSlip", () => {
   });
 
   it("refuses a fund that does not exist", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.givingInbox.submitSlip({ ...validInput, fundId: 12345 })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -250,7 +240,7 @@ describe("givingInbox.submitSlip", () => {
 
   it("limits how many slips one person can submit per day", async () => {
     vi.mocked(db.countRecentManualSlips).mockResolvedValue(MAX_SLIPS_PER_DAY);
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.givingInbox.submitSlip(validInput)
     ).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS" });
@@ -262,7 +252,7 @@ describe("givingInbox.submitSlip", () => {
     vi.mocked(db.createManualSlip).mockRejectedValue(
       new Error("Supabase key sk-secret rejected")
     );
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const err = await caller.givingInbox.submitSlip(validInput).catch(e => e);
     expect(err.code).toBe("INTERNAL_SERVER_ERROR");
     expect(err.message).not.toContain("sk-secret");
@@ -271,7 +261,7 @@ describe("givingInbox.submitSlip", () => {
 
 describe("givingInbox.mySlips", () => {
   it("rejects a signed-out caller", async () => {
-    const caller = appRouter.createCaller(createContext(null));
+    const caller = appRouter.createCaller(createTestContext(null));
     await expect(caller.givingInbox.mySlips()).rejects.toMatchObject({
       code: "UNAUTHORIZED",
     });
@@ -282,7 +272,7 @@ describe("givingInbox.mySlips", () => {
       slipRow({ status: "approved" }),
       slipRow({ id: 98, status: "needs_review", extractedAmount: null }),
     ] as never);
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     const rows = await caller.givingInbox.mySlips();
     expect(db.listMyManualSlips).toHaveBeenCalledWith(member.id, 10);
     expect(rows.map(r => r.check.state)).toEqual(["approved", "in_review"]);
@@ -299,7 +289,7 @@ describe("givingInbox.mySlips", () => {
 
 describe("givingInbox.uploadSlip (staff)", () => {
   it("stores a valid image with its real type", async () => {
-    const caller = appRouter.createCaller(createContext(treasurer));
+    const caller = appRouter.createCaller(createTestContext(treasurer));
     await expect(
       caller.givingInbox.uploadSlip({ base64Data: PNG_B64 })
     ).resolves.toEqual({ success: true, slipId: 99 });
@@ -309,7 +299,7 @@ describe("givingInbox.uploadSlip (staff)", () => {
   });
 
   it("refuses data that is not an image", async () => {
-    const caller = appRouter.createCaller(createContext(treasurer));
+    const caller = appRouter.createCaller(createTestContext(treasurer));
     const html = Buffer.from("<html></html>").toString("base64");
     await expect(
       caller.givingInbox.uploadSlip({
@@ -324,7 +314,7 @@ describe("givingInbox.uploadSlip (staff)", () => {
     vi.mocked(db.createManualSlip).mockRejectedValue(
       new Error("Supabase key sk-secret rejected")
     );
-    const caller = appRouter.createCaller(createContext(treasurer));
+    const caller = appRouter.createCaller(createTestContext(treasurer));
     const err = await caller.givingInbox
       .uploadSlip({ base64Data: PNG_B64 })
       .catch(e => e);
@@ -335,7 +325,7 @@ describe("givingInbox.uploadSlip (staff)", () => {
 
 describe("existing slip endpoints stay finance-only", () => {
   it("still blocks a member from uploadSlip and offerings.create", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.givingInbox.uploadSlip({ base64Data: PNG_B64 })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });

@@ -8,10 +8,10 @@
  * data.
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createTestContext, makeUser } from "./test/testContext";
 import { sql } from "drizzle-orm";
 import { appRouter } from "./routers";
 import { getDb } from "./db";
-import type { TrpcContext } from "./_core/context";
 import {
   EXPENSE_CATEGORY_IDS,
   LEGACY_OFFERING_CATEGORY_LABELS,
@@ -19,19 +19,9 @@ import {
 } from "@shared/categories";
 import { TEST_CHURCH_ID, purgeTenant } from "./test/tenant";
 
-type User = NonNullable<TrpcContext["user"]>;
-
 const describeDb = process.env.DATABASE_URL ? describe : describe.skip;
 
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const treasurer: User = {
+const treasurer = makeUser({
   id: 950,
   openId: "report-treasurer",
   email: null,
@@ -42,16 +32,16 @@ const treasurer: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const member: User = {
+const member = makeUser({
   ...treasurer,
   id: 951,
   openId: "report-member",
   churchRole: "MEMBER",
-};
+});
 
-const caller = () => appRouter.createCaller(createContext(treasurer));
+const caller = () => appRouter.createCaller(createTestContext(treasurer));
 
 // A window that cannot collide with rows other suites create.
 const fromDate = new Date("2031-03-01T00:00:00.000Z");
@@ -282,7 +272,7 @@ describeDb("reports read real rows", () => {
   });
 
   it("requires a signed-in user", async () => {
-    const anonymous = appRouter.createCaller(createContext(null));
+    const anonymous = appRouter.createCaller(createTestContext(null));
     await expect(anonymous.reports.summary(range)).rejects.toMatchObject({
       code: "UNAUTHORIZED",
     });
@@ -295,7 +285,7 @@ describeDb("reports read real rows", () => {
   });
 
   it("keeps the CSV export with finance roles only", async () => {
-    const asMember = appRouter.createCaller(createContext(member));
+    const asMember = appRouter.createCaller(createTestContext(member));
     await expect(asMember.reports.exportCsv(range)).rejects.toMatchObject({
       code: "FORBIDDEN",
     });
