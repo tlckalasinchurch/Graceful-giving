@@ -1,3 +1,7 @@
+// NOTE (Phase 4, in progress): data-access functions are being moved
+// verbatim into server/db/<domain>.ts; this file keeps the not-yet-moved
+// code plus re-exports for the moved domains, so imports keep working.
+
 import {
   and,
   asc,
@@ -97,97 +101,15 @@ import { ENV } from "./_core/env";
 
 import { resolveSlipImageUrl, storagePutPrivate } from "./storage";
 import { createHash, randomUUID } from "crypto";
-
-let _db: ReturnType<typeof drizzle> | null = null;
-
-/**
- * The tenant every query defaults to. The app is single-tenant, but the tests
- * point this at a throwaway tenant so a run against a real database can never
- * read or delete the application's rows.
- */
-export const DEFAULT_CHURCH_ID = process.env.CHURCH_ID || "demo-church";
-
-/** The transaction handle a passed-in `db.transaction` callback receives. */
-type Database = NonNullable<Awaited<ReturnType<typeof getDb>>>;
-type CountingTx = Parameters<Parameters<Database["transaction"]>[0]>[0];
-
-// A test tenant reaching production would point every read and write at an
-// empty tenant: the app would serve a church with no members, no funds and no
-// history, and would record real offerings where nobody looks for them. Refuse
-// to start instead. Every path that touches data imports this module, so the
-// check covers the server and the serverless handler alike.
-if (ENV.isProduction && DEFAULT_CHURCH_ID.startsWith("test-")) {
-  throw new Error(
-    `CHURCH_ID is set to the test tenant "${DEFAULT_CHURCH_ID}" in production. ` +
-      `That tenant holds no real data. Unset CHURCH_ID so the app uses its ` +
-      `default tenant, and check the deployment's environment variables — ` +
-      `CHURCH_ID exists for the test suite and should never be set in production.`
-  );
-}
-
-let _dbPromise: Promise<ReturnType<typeof drizzle> | null> | null = null;
-
-async function connectDb(dbUrl: string) {
-  try {
-    // Supabase / Neon transaction pooler requires prepared statements off.
-    // max: 1 serialised all parallel tRPC queries on one connection, so one
-    // slow query blocked every request until the function timed out.
-    const client = postgres(dbUrl, {
-      prepare: false,
-      max: 10,
-      connect_timeout: 10,
-      idle_timeout: 20,
-    });
-    // Eager health-check: `postgres` connects lazily, so verify now to preserve
-    // the getDb()-returns-null (never throws) contract on unreachable URLs.
-    await client`SELECT 1`;
-    _db = drizzle(client);
-  } catch (error) {
-    console.warn("[Database] Failed to connect:", error);
-    _db = null;
-  }
-  return _db;
-}
-
-export async function getDb() {
-  const dbUrl =
-    process.env.DATABASE_URL ||
-    process.env.POSTGRES_URL ||
-    process.env.POSTGRES_PRISMA_URL;
-  if (_db || !dbUrl) return _db;
-  // Share one connection attempt between parallel requests. Without this,
-  // each request opened its own client and exhausted the pooler.
-  if (!_dbPromise) {
-    _dbPromise = (
-      isPgliteUrl(dbUrl) ? connectPgliteDb() : connectDb(dbUrl)
-    ).finally(() => {
-      _dbPromise = null;
-    });
-  }
-  return _dbPromise;
-}
-
-/**
- * `pglite://` is the test-only marker `pnpm run ci` sets as DATABASE_URL: an
- * in-memory Postgres (PGlite) with the real migrations applied, so the
- * row-writing integration suites run without a Postgres server and without
- * ever touching a real database. No deployment ever uses this scheme, so the
- * production connection path below is untouched.
- */
-function isPgliteUrl(dbUrl: string): boolean {
-  return dbUrl.startsWith("pglite://");
-}
-
-async function connectPgliteDb(): Promise<ReturnType<typeof drizzle>> {
-  // Dynamic import: @electric-sql/pglite is a devDependency, and this module
-  // must never load on a production path.
-  const { createPgliteTestDb } = await import("./test/pgliteTestDb");
-  const db = (await createPgliteTestDb()) as unknown as ReturnType<
-    typeof drizzle
-  >;
-  _db = db;
-  return db;
-}
+import {
+  DEFAULT_CHURCH_ID,
+  bangkokDateOfColumn,
+  bangkokDateOfInstant,
+  bangkokLocalOfColumn,
+  getDb,
+  type CountingTx,
+  type Database,
+} from "./db/core";
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 
@@ -2175,34 +2097,7 @@ export async function disburseWithdrawal(
  * UTC first, then converted. The result does not depend on the session time
  * zone.
  */
-export function bangkokLocalOfColumn(expr: SQL) {
-  return sql`((${expr} AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Bangkok')`;
-}
 
-/** Calendar date in Asia/Bangkok of a stored `timestamp` column. */
-export function bangkokDateOfColumn(expr: SQL) {
-  return sql`${bangkokLocalOfColumn(expr)}::date`;
-}
-
-/**
- * Same date, for a JS `Date` used as a query parameter. It is bound as an ISO
- * string: drizzle's postgres-js driver does not serialise a raw `Date` inside
- * a `sql` template, and the query then fails.
- */
-export function bangkokDateOfInstant(value: Date) {
-  return sql`(${value.toISOString()}::timestamptz AT TIME ZONE 'Asia/Bangkok')::date`;
-}
-
-/**
- * Lays a paid withdrawal request into the first counting round whose Bangkok
- * date is on or after the payout date, ordered by the round tuple. The request
- * row is locked and the partial unique index on `bank_records.withdrawalRequestId`
- * keeps a payout from landing twice, however the races interleave.
- *
- * Must be called inside the caller's transaction. Returns the round id the
- * line landed in, or null when nothing was attached (no open round yet, or
- * another transaction just won the attach).
- */
 export async function attachWithdrawalToCounting(
   requestId: number,
   tx: CountingTx,
@@ -4900,3 +4795,5 @@ export async function rescanLineSlip(
 
   return true;
 }
+
+export * from "./db/core";
