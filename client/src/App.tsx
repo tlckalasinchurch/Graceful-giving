@@ -44,7 +44,16 @@ const GivingStation = lazy(() => import("./pages/GivingStation"));
 const Give = lazy(() => import("./pages/Give"));
 const GivingGuide = lazy(() => import("./pages/GivingGuide"));
 const Privacy = lazy(() => import("./pages/Privacy"));
-const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
+// Dev-only UI showcase (and its heavy deps: streamdown/mermaid/cytoscape/shiki
+// via AIChatBox, imported only by ComponentShowcase). The lazy() call must live
+// inside the DEV branch: a module-level lazy() keeps the chunk in the production
+// build graph even though the route below is DEV-gated, because the import
+// specifier is statically reachable. Vite replaces import.meta.env.DEV with a
+// literal, so in production builds the dead branch — import included — is
+// eliminated and no showcase chunk is emitted.
+const ComponentShowcase = import.meta.env.DEV
+  ? lazy(() => import("./pages/ComponentShowcase"))
+  : null;
 
 /** Routes reachable without a session. Everything else needs one. */
 const PUBLIC_PATHS = [
@@ -425,8 +434,10 @@ function Router() {
       <Route path="/updates" component={Updates} />
 
       {/* Dev UI showcase (incl. adapted ObsidianUI components) — dev builds
-          only; statically stripped from production bundles. */}
-      {import.meta.env.DEV && (
+          only. The route is DEV-gated AND the lazy() import above lives inside
+          the DEV branch, so the showcase chunk and its heavy deps are excluded
+          from production bundles entirely. */}
+      {import.meta.env.DEV && ComponentShowcase && (
         <Route path="/ui-showcase" component={ComponentShowcase} />
       )}
 
