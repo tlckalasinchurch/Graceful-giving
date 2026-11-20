@@ -619,9 +619,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           utils.finance.accounts.invalidate(),
         ]);
       }
-    } catch (err: any) {
+    } catch (err) {
       const msg =
-        err?.message ||
+        (err instanceof Error && err.message) ||
         "ไม่สามารถบันทึกสลิปได้ กรุณาตรวจสอบการเชื่อมต่อและลองใหม่อีกครั้ง";
       setSubmissionError(msg);
       setTimeout(() => {

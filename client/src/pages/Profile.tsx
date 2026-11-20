@@ -254,10 +254,10 @@ export default function Profile() {
   useEffect(() => {
     if (user && showEditProfileModal) {
       setEditName(user.name || "");
-      setEditAvatarUrl((user as any).avatarUrl || "");
-      setEditPhone((user as any).phone || "");
-      setEditDepartment((user as any).department || "");
-      setEditBio((user as any).bio || "");
+      setEditAvatarUrl(user?.avatarUrl || "");
+      setEditPhone(user?.phone || "");
+      setEditDepartment(user?.department || "");
+      setEditBio(user?.bio || "");
     }
   }, [showEditProfileModal, user?.id]);
 
@@ -341,8 +341,8 @@ export default function Profile() {
 
 
   const effectiveAvatar =
-    (user as any)?.avatarUrl ||
-    ((user as any)?.openId?.includes("http") ? (user as any)?.openId : null);
+    user?.avatarUrl ||
+    (user?.openId?.includes("http") ? user?.openId : null);
 
   return (
     <AppLayout
@@ -381,7 +381,7 @@ export default function Profile() {
                 <p className="text-xs sm:text-sm font-bold text-ink-2 flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
                   <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand shrink-0" />
                   <span>
-                    {(user as any)?.department || "สมาชิกครอบครัวของพระเจ้า"}
+                    {user?.department || "สมาชิกครอบครัวของพระเจ้า"}
                   </span>
                 </p>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs sm:text-sm text-ink-3">
@@ -389,16 +389,16 @@ export default function Profile() {
                     <Mail className="w-3.5 h-3.5" />
                     <span>{user?.email || "ไม่ระบุอีเมล"}</span>
                   </span>
-                  {(user as any)?.phone && (
+                  {user?.phone && (
                     <span className="flex items-center gap-1">
                       <Phone className="w-3.5 h-3.5" />
-                      <span>{(user as any)?.phone}</span>
+                      <span>{user?.phone}</span>
                     </span>
                   )}
                 </div>
-                {(user as any)?.bio && (
+                {user?.bio && (
                   <p className="text-xs text-ink-3 italic pt-1 max-w-lg">
-                    "{(user as any)?.bio}"
+                    "{user?.bio}"
                   </p>
                 )}
               </div>

@@ -34,7 +34,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formToast } from "@/lib/formFeedback";
-import { EXPENSE_CATEGORIES, expenseCategoryLabel } from "@shared/categories";
+import {
+  EXPENSE_CATEGORIES,
+  expenseCategoryLabel,
+  type ExpenseCategory,
+} from "@shared/categories";
 import {
   VoucherModal,
   type VoucherData,
@@ -111,7 +115,7 @@ export default function Expenses() {
     {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
-      category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
+      category: categoryFilter !== "all" ? (categoryFilter as ExpenseCategory) : undefined,
       search: search || undefined,
     },
     { retry: false }
@@ -130,7 +134,7 @@ export default function Expenses() {
       cursor: activeCursor ?? undefined,
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
-      category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
+      category: categoryFilter !== "all" ? (categoryFilter as ExpenseCategory) : undefined,
       search: search || undefined,
     },
     { retry: false }
@@ -165,7 +169,7 @@ export default function Expenses() {
         fromDate: periodRange.fromDate,
         toDate: periodRange.toDate,
         category:
-          categoryFilter !== "all" ? (categoryFilter as any) : undefined,
+          categoryFilter !== "all" ? (categoryFilter as ExpenseCategory) : undefined,
         search: search || undefined,
       });
 
@@ -181,7 +185,7 @@ export default function Expenses() {
         TOAST_KEY,
         `ส่งออกข้อมูลรายจ่ายสำเร็จ (${res.rowCount.toLocaleString()} รายการ)`
       );
-    } catch (err: any) {
+    } catch (err) {
       formToast.error(TOAST_KEY, "ส่งออกข้อมูลไม่สำเร็จ", {
         description: csvExportErrorMessage(err),
       });

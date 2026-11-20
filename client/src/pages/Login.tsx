@@ -141,10 +141,7 @@ export default function Login() {
                           onClick={() => {
                             void navigator.clipboard.writeText(openId);
                             setCopied(true);
-                            (window as any)["set" + "Timeout"](
-                              () => setCopied(false),
-                              2000
-                            );
+                            window.setTimeout(() => setCopied(false), 2000);
                           }}
                           className="btn-secondary inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold cursor-pointer"
                         >

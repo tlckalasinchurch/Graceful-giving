@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Redirect, Route, Switch, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageChurchSettings } from "@shared/roles";
-import { canAccessRoute, stationOnlyRedirect } from "@/lib/routeAccess";
+import { canAccessRoute, stationOnlyRedirect,
+  type AuthUser,
+} from "@/lib/routeAccess";
 import { trpc } from "@/lib/trpc";
 import { hasSkippedSetup } from "@/lib/setupSkip";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -178,7 +180,7 @@ function RoleGuard({
   message = "คุณไม่มีสิทธิ์เข้าถึงส่วนนี้ หากจำเป็นต้องใช้งาน กรุณาติดต่อผู้ดูแลระบบสูงสุด",
 }: {
   children: React.ReactNode;
-  canAccess: (user: any) => boolean;
+  canAccess: (user: AuthUser) => boolean;
   title?: string;
   message?: string;
 }) {

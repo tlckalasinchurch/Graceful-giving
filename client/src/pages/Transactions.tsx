@@ -101,7 +101,7 @@ export default function Transactions() {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       fundId: selectedFundId,
-      type: typeFilter as any,
+      type: typeFilter as "all" | "income" | "expense",
       search: search || undefined,
     },
     { retry: false }
@@ -121,7 +121,7 @@ export default function Transactions() {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       fundId: selectedFundId,
-      type: typeFilter as any,
+      type: typeFilter as "all" | "income" | "expense",
       search: search || undefined,
     },
     { retry: false }
@@ -145,7 +145,7 @@ export default function Transactions() {
         fromDate: periodRange.fromDate,
         toDate: periodRange.toDate,
         fundId: selectedFundId,
-        type: typeFilter as any,
+        type: typeFilter as "all" | "income" | "expense",
         search: search || undefined,
       });
       if (res.rowCount === 0) {

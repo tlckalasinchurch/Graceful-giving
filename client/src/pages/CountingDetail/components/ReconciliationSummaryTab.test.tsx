@@ -75,7 +75,25 @@ describe("ReconciliationSummaryTab & Pre-Post Checklist (GAP-09)", () => {
         sessionId={101}
         status="verified"
         r={baseReconciliation}
-        unapprovedDeductions={[{ id: 1, amount: 500, purpose: "ค่าน้ำมัน" }]}
+        unapprovedDeductions={[
+          {
+            id: 1,
+            sessionId: 101,
+            churchId: "demo-church",
+            purpose: "ค่าน้ำมัน",
+            reason: "เดินทางไปเยี่ยมสมาชิก",
+            amount: 500,
+            paidTo: "ปั๊มน้ำมัน",
+            requestedBy: 1,
+            approvedBy: null,
+            approvedAt: null,
+            category: "other",
+            fundId: null,
+            expenseId: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ]}
         isUnposted={false}
         varianceNote=""
         setVarianceNote={vi.fn()}

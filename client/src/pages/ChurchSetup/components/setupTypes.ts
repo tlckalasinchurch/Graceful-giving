@@ -9,6 +9,16 @@ import {
   WalletCards,
 } from "lucide-react";
 
+/** The finance-account kinds the setup wizard can create. Mirrors the
+finance_account_type enum in drizzle/schema.ts. */
+export type SetupFundType =
+  | "general"
+  | "tithe"
+  | "mission"
+  | "building"
+  | "welfare"
+  | "special";
+
 export type SetupData = {
   // Step 1: Basic Info
   name: string;
@@ -29,7 +39,8 @@ export type SetupData = {
   // Step 4: Offering Categories (comma-separated, stored for display)
   offeringCategories: string[];
   // Step 5: Funds
-  funds: Array<{ name: string; type: string; description: string }>;
+  funds: Array<{ name: string; type: SetupFundType; description: string }>;
+
   // Step 6: Fiscal Year
   fiscalYearStartMonth: number;
   budgetYear: number;
@@ -137,7 +148,7 @@ export const DEFAULT_OFFERING_CATEGORIES = [
   "ค่าเช่าสถานนมัสการ",
 ];
 
-export const DEFAULT_FUNDS = [
+export const DEFAULT_FUNDS: SetupData["funds"] = [
   {
     name: "กองทุนทั่วไป",
     type: "general",

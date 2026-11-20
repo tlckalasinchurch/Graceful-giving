@@ -7,7 +7,7 @@ import {
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
-import { fmtBaht, getNextEnvelopeNo } from "./countingUtils";
+import { fmtBaht, getNextEnvelopeNo, type CountingMutationProps } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Swal } from "@/lib/sweetalert";
 
@@ -29,10 +29,7 @@ interface EnvelopesTabProps {
   funds: Array<{ id: number; name: string }>;
   members: Array<{ id: number; name: string; envelopeNo?: string | null }>;
   offeringTotal: number;
-  addEnvelope: {
-    mutate: (vars: any, options?: any) => void;
-    isPending: boolean;
-  };
+  addEnvelope: CountingMutationProps<"addEnvelope">;
   removeEnvelope: {
     mutate: (vars: { id: number; sessionId: number }) => void;
     isPending: boolean;

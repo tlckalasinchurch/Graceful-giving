@@ -16,7 +16,7 @@ import {
  * the complete set rather than only the primary churchRole. Bank signers
  * carry their own flag, granted outside the church-role list.
  */
-type AuthUser = (RoleUser & { isBankSigner?: boolean }) | null | undefined;
+export type AuthUser = (RoleUser & { isBankSigner?: boolean }) | null | undefined;
 
 /**
  * Single source of truth for which role can open which section, keyed by

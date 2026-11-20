@@ -136,10 +136,11 @@ export default function FundDetail() {
         TOAST_KEY,
         `ดาวน์โหลด Statement กองทุนเรียบร้อยแล้ว (${res.rowCount.toLocaleString()} รายการ)`
       );
-    } catch (err: any) {
+    } catch (err) {
       formToast.error(
         TOAST_KEY,
-        err?.message || "ดาวน์โหลด Statement ล้มเหลว กรุณาลองใหม่อีกครั้ง"
+        (err instanceof Error && err.message) ||
+          "ดาวน์โหลด Statement ล้มเหลว กรุณาลองใหม่อีกครั้ง"
       );
     } finally {
       setIsExporting(false);
