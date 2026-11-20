@@ -3,11 +3,11 @@ import {
   AlertCircle,
   AlertTriangle,
   CheckCircle2,
-  HelpCircle,
   RotateCcw,
   Trash2,
 } from "lucide-react";
 import { fmtBaht, Variance } from "./countingUtils";
+import type { RouterOutputs } from "@/lib/trpc";
 import { Swal } from "@/lib/sweetalert";
 
 interface ReconciliationSummaryTabProps {
@@ -37,7 +37,9 @@ interface ReconciliationSummaryTabProps {
     closingBankExpected?: number | null;
     isBalanced: boolean;
   };
-  unapprovedDeductions: Array<any>;
+  unapprovedDeductions: Array<
+    RouterOutputs["counting"]["get"]["deductions"][number]
+  >;
   isUnposted: boolean;
   submitCount: {
     mutate: (vars: { id: number }) => void;

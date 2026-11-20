@@ -1,11 +1,7 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React, { useState } from "react";
-import {
-  canAccessRoute,
-  stationOnlyRedirect,
-  ROUTE_ACCESS,
-} from "./lib/routeAccess";
+import { canAccessRoute, stationOnlyRedirect } from "./lib/routeAccess";
 import {
   isStationOnlyUser,
   canManageFinance,
@@ -13,12 +9,7 @@ import {
   isSuperAdmin,
   type RoleUser,
 } from "@shared/roles";
-import {
-  saveDraft,
-  loadDraft,
-  clearDraft,
-  type GivingDraft,
-} from "./pages/givingDraft";
+import { saveDraft, loadDraft, type GivingDraft } from "./pages/givingDraft";
 import {
   Dialog,
   DialogContent,
@@ -345,11 +336,6 @@ describe("Final User Acceptance Testing (UAT) Suite", () => {
         role: "user",
         churchRole: "PASTOR",
         roles: ["PASTOR"],
-      };
-      const deaconUser: RoleUser = {
-        role: "user",
-        churchRole: "DEACON",
-        roles: ["DEACON"],
       };
       const bankSignerUser: RoleUser & { isBankSigner: boolean } = {
         role: "user",

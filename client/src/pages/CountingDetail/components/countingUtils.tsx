@@ -1,4 +1,29 @@
 import React from "react";
+import type { RouterInputs, RouterOutputs } from "@/lib/trpc";
+
+/**
+ * The two fields a tab needs from a tRPC useMutation result: the typed
+ * mutate function (variables plus onSuccess/onError/onSettled) and the
+ * pending flag. Keeps the tab prop types honest instead of `(vars: any)`.
+ */
+export type MutationProps<V, D> = {
+  mutate: (
+    vars: V,
+    options?: {
+      onSuccess?: (data: D) => void;
+      onError?: (error: unknown) => void;
+      onSettled?: () => void;
+    }
+  ) => void;
+  isPending: boolean;
+};
+
+export type CountingMutationProps<
+  Procedure extends keyof RouterInputs["counting"],
+> = MutationProps<
+  RouterInputs["counting"][Procedure],
+  RouterOutputs["counting"][Procedure]
+>;
 import { Check } from "lucide-react";
 import { formatBaht } from "@/lib/format";
 

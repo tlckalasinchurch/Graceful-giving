@@ -15,7 +15,7 @@ type LinkProps = React.ComponentProps<typeof Link>;
  */
 export function GuardedLink({ onClick, ...props }: LinkProps) {
   const [, setLocation] = useLocation();
-  const targetHref = (props as any).href || (props as any).to;
+  const targetHref = props.href || props.to;
 
   return (
     <Link

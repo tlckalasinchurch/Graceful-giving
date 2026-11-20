@@ -230,7 +230,7 @@ export default function NewWithdrawal() {
                 <option value="" disabled>
                   เลือกกองทุน
                 </option>
-                {funds.map((f: any) => (
+                {funds.map(f => (
                   <option key={f.id} value={f.id}>
                     {f.name}
                   </option>

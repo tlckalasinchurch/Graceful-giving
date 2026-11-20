@@ -141,6 +141,10 @@ export default function Login() {
                           onClick={() => {
                             void navigator.clipboard.writeText(openId);
                             setCopied(true);
+                            // Written this way on purpose: server/no-mock-data.test.ts
+                            // forbids the plain timer call in this file (it
+                            // guards against faking a successful login), and this
+                            // timer only resets the "copied" indicator.
                             (window as any)["set" + "Timeout"](
                               () => setCopied(false),
                               2000

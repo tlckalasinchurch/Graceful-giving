@@ -1,20 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { createTestContext, makeUser } from "./test/testContext";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const member: User = {
+const member = makeUser({
   id: 2,
   openId: "member",
   email: "member@example.com",
@@ -25,19 +15,19 @@ const member: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const admin: User = {
+const admin = makeUser({
   ...member,
   id: 1,
   openId: "admin",
   role: "admin",
   churchRole: "SUPER_ADMIN",
-};
+});
 
 describe("security regressions", () => {
   it("blocks regular members from mutating member records", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.members.create({ name: "Example Member" })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
@@ -50,7 +40,7 @@ describe("security regressions", () => {
   });
 
   it("rejects an event whose end precedes its start", async () => {
-    const caller = appRouter.createCaller(createContext(admin));
+    const caller = appRouter.createCaller(createTestContext(admin));
     await expect(
       caller.updates.createEvent({
         title: "กิจกรรมทดสอบ",
@@ -64,7 +54,7 @@ describe("security regressions", () => {
   });
 
   it("rejects reversed financial report ranges", async () => {
-    const caller = appRouter.createCaller(createContext(admin));
+    const caller = appRouter.createCaller(createTestContext(admin));
     await expect(
       caller.reports.financial({
         fromDate: new Date("2026-09-20T00:00:00Z"),

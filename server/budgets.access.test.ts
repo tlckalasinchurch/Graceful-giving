@@ -1,19 +1,20 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import { canManageBudgets } from "../shared/roles";
-import type { TrpcContext } from "./_core/context";
+import { type TestUser, createTestContext, makeUser } from "./test/testContext";
 
-type User = NonNullable<TrpcContext["user"]>;
+// This file proves the no-database behaviour (reads degrade to empty, writes
+// fail at the data layer rather than at authorisation). `pnpm run ci` points
+// DATABASE_URL at an in-memory PGlite database, so pin the database URLs off
+// here — the assertions below are about having no database, not about the CI
+// database — and restore them afterwards so no other file in the worker sees
+// the stub.
+vi.stubEnv("DATABASE_URL", "");
+vi.stubEnv("POSTGRES_URL", "");
+vi.stubEnv("POSTGRES_PRISMA_URL", "");
+afterAll(() => vi.unstubAllEnvs());
 
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const member: User = {
+const member = makeUser({
   id: 2,
   openId: "member",
   email: "member@example.com",
@@ -24,47 +25,47 @@ const member: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const counter: User = {
+const counter = makeUser({
   ...member,
   id: 3,
   openId: "counter",
   churchRole: "COUNTER",
-};
-const deacon: User = {
+});
+const deacon = makeUser({
   ...member,
   id: 5,
   openId: "deacon",
   churchRole: "DEACON",
-};
-const treasurer: User = {
+});
+const treasurer = makeUser({
   ...member,
   id: 4,
   openId: "treasurer",
   churchRole: "TREASURER",
-};
-const pastor: User = {
+});
+const pastor = makeUser({
   ...member,
   id: 6,
   openId: "pastor",
   churchRole: "PASTOR",
-};
-const superAdmin: User = {
+});
+const superAdmin = makeUser({
   ...member,
   id: 7,
   openId: "superadmin",
   churchRole: "SUPER_ADMIN",
-};
-const admin: User = { ...member, id: 1, openId: "admin", role: "admin" };
+});
+const admin = makeUser({ ...member, id: 1, openId: "admin", role: "admin" });
 
-const MAY_MANAGE: Array<[string, User]> = [
+const MAY_MANAGE: Array<[string, TestUser]> = [
   ["TREASURER", treasurer],
   ["PASTOR", pastor],
   ["SUPER_ADMIN", superAdmin],
   ["the coarse admin flag", admin],
 ];
-const MAY_NOT_MANAGE: Array<[string, User]> = [
+const MAY_NOT_MANAGE: Array<[string, TestUser]> = [
   ["MEMBER", member],
   ["COUNTER", counter],
   ["DEACON", deacon],
@@ -78,7 +79,7 @@ const validPlan = {
 
 describe("budgets: reading", () => {
   it("requires a signed-in user", async () => {
-    const caller = appRouter.createCaller(createContext(null));
+    const caller = appRouter.createCaller(createTestContext(null));
     await expect(caller.budgets.list({ year: 2026 })).rejects.toMatchObject({
       code: "UNAUTHORIZED",
     });
@@ -87,7 +88,7 @@ describe("budgets: reading", () => {
   // Plans expose spending totals, so a plain member must not read them.
   for (const [label, user] of MAY_NOT_MANAGE) {
     it(`rejects ${label}`, async () => {
-      const caller = appRouter.createCaller(createContext(user));
+      const caller = appRouter.createCaller(createTestContext(user));
       await expect(caller.budgets.list({ year: 2026 })).rejects.toMatchObject({
         code: "FORBIDDEN",
       });
@@ -100,7 +101,7 @@ describe("budgets: reading", () => {
   // Without DATABASE_URL getDb() returns null and the read degrades to empty.
   for (const [label, user] of MAY_MANAGE) {
     it(`lets ${label} read`, async () => {
-      const caller = appRouter.createCaller(createContext(user));
+      const caller = appRouter.createCaller(createTestContext(user));
       await expect(caller.budgets.list({ year: 2026 })).resolves.toEqual([]);
       await expect(caller.budgets.getById({ id: 1 })).resolves.toBeNull();
     });
@@ -110,7 +111,7 @@ describe("budgets: reading", () => {
 describe("budgets: who may create, edit and delete", () => {
   for (const [label, user] of MAY_NOT_MANAGE) {
     it(`rejects ${label}`, async () => {
-      const caller = appRouter.createCaller(createContext(user));
+      const caller = appRouter.createCaller(createTestContext(user));
       await expect(caller.budgets.create(validPlan)).rejects.toMatchObject({
         code: "FORBIDDEN",
       });
@@ -126,7 +127,7 @@ describe("budgets: who may create, edit and delete", () => {
   // The write then fails on the absent database, not on authorisation.
   for (const [label, user] of MAY_MANAGE) {
     it(`lets ${label} past the permission gate`, async () => {
-      const caller = appRouter.createCaller(createContext(user));
+      const caller = appRouter.createCaller(createTestContext(user));
       await expect(caller.budgets.create(validPlan)).rejects.not.toMatchObject({
         code: "FORBIDDEN",
       });
@@ -151,7 +152,7 @@ describe("budgets: the client helper agrees with the router", () => {
 });
 
 describe("budgets: input validation", () => {
-  const caller = () => appRouter.createCaller(createContext(treasurer));
+  const caller = () => appRouter.createCaller(createTestContext(treasurer));
 
   it("rejects a zero or negative amount", async () => {
     await expect(

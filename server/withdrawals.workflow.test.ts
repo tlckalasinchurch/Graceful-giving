@@ -18,13 +18,11 @@ import {
   it,
   vi,
 } from "vitest";
+import { createTestContext, makeUser } from "./test/testContext";
 import { appRouter } from "./routers";
 import { getDb } from "./db";
-import type { TrpcContext } from "./_core/context";
 import { sql } from "drizzle-orm";
 import { TEST_CHURCH_ID, purgeTenant } from "./test/tenant";
-
-type User = NonNullable<TrpcContext["user"]>;
 
 const hasDb = Boolean(process.env.DATABASE_URL);
 const describeDb = hasDb ? describe : describe.skip;
@@ -55,15 +53,7 @@ afterAll(async () => {
   if (db) await purgeTenant(db);
 });
 
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const base: User = {
+const base = makeUser({
   id: 0,
   openId: "x",
   email: null,
@@ -74,34 +64,34 @@ const base: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
 /** The signer the bank requires on every cheque (the pastor). */
-const pastor: User = {
+const pastor = makeUser({
   ...base,
   id: 951,
   openId: "w9-pastor",
   churchRole: "PASTOR",
-};
-const treasurer: User = {
+});
+const treasurer = makeUser({
   ...base,
   id: 952,
   openId: "w9-treasurer",
   churchRole: "TREASURER",
-};
-const assistant: User = {
+});
+const assistant = makeUser({
   ...base,
   id: 953,
   openId: "w9-assistant",
   churchRole: "MEMBER",
-};
+});
 /** A member with no financial role, used as the requester. */
-const requester: User = { ...base, id: 955, openId: "w9-requester" };
+const requester = makeUser({ ...base, id: 955, openId: "w9-requester" });
 
-const asPastor = () => appRouter.createCaller(createContext(pastor));
-const asTreasurer = () => appRouter.createCaller(createContext(treasurer));
-const asAssistant = () => appRouter.createCaller(createContext(assistant));
-const asRequester = () => appRouter.createCaller(createContext(requester));
+const asPastor = () => appRouter.createCaller(createTestContext(pastor));
+const asTreasurer = () => appRouter.createCaller(createTestContext(treasurer));
+const asAssistant = () => appRouter.createCaller(createTestContext(assistant));
+const asRequester = () => appRouter.createCaller(createTestContext(requester));
 
 let requestIdCounter = 0;
 

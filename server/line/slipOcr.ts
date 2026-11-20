@@ -57,9 +57,6 @@ export interface SlipExtraction {
 /** Threshold below which a field is considered low-confidence → needs_review */
 export const CONFIDENCE_THRESHOLD = 0.85;
 
-/** Critical fields that must all exceed threshold for auto-processing */
-const CRITICAL_FIELDS = ["amount", "referenceNumber"] as const;
-
 /** Returns true if the slip should be flagged for manual review */
 export function requiresReview(extraction: SlipExtraction): boolean {
   if (extraction.amountConfidence < CONFIDENCE_THRESHOLD) return true;
@@ -258,7 +255,7 @@ async function extractWithGemini(
     "gemini-2.5-flash-lite",
     "gemini-flash-latest",
   ];
-  let lastError: any;
+  let lastError: unknown;
 
   for (const model of models) {
     try {

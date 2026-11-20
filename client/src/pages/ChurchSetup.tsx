@@ -181,7 +181,7 @@ export default function ChurchSetup() {
           try {
             await createAccountMutation.mutateAsync({
               name: fund.name,
-              type: (fund.type as any) || "general",
+              type: fund.type || "general",
               description: fund.description,
             });
           } catch {

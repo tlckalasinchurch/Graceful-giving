@@ -32,7 +32,6 @@ import {
 } from "./db";
 import {
   bankRecords,
-  countingSessions,
   expenses,
   offerings,
   withdrawalRequests,
@@ -194,7 +193,6 @@ describeDb("bangkokDate SQL helpers on PostgreSQL", () => {
 
 // ─── 2. Withdrawal to counting round ──────────────────────────────────────────
 
-const SUNDAY = "2026-11-08";
 /** The Sunday service date as three clients could store it. */
 const SERVICE_DATE_FORMS = [
   { form: "browser noon (T12:00 Bangkok)", value: "2026-11-08T05:00:00.000Z" },

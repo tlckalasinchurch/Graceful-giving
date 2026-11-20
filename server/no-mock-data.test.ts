@@ -183,7 +183,7 @@ describe("Profile page has no hardcoded personal names or broken LINE avatar log
 
   it("keeps avatarUrl precedence over openId", () => {
     expect(source).toContain(
-      '((user as any)?.openId?.includes("http") ? (user as any)?.openId : null)'
+      '(user?.openId?.includes("http") ? user?.openId : null)'
     );
   });
 });

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { trpc, type RouterOutputs } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";

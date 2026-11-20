@@ -341,7 +341,14 @@ describe("pending and disabled accounts", () => {
 
   it("auth.status reports pending without exposing data", async () => {
     const c = appRouter.createCaller(
-      ctx({ account: { status: "pending", name: "B", avatarUrl: null } })
+      ctx({
+        account: {
+          openId: "line:U-pending",
+          status: "pending",
+          name: "B",
+          avatarUrl: null,
+        },
+      })
     );
     await expect(c.auth.status()).resolves.toMatchObject({
       state: "pending",

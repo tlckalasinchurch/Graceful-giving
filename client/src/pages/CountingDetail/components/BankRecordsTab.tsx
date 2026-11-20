@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 import { MoneyDisplay } from "@/components/common/CommonUI";
-import { fmtBaht, Variance } from "./countingUtils";
+import { fmtBaht, Variance, type CountingMutationProps } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Swal } from "@/lib/sweetalert";
 import type { BankRecordType } from "@shared/counting";
@@ -37,10 +37,7 @@ interface BankRecordsTabProps {
   envelopeTransferTotal: number;
   transferVariance: number;
   actualCashDeposit: number;
-  addBankRecord: {
-    mutate: (vars: any, options?: any) => void;
-    isPending: boolean;
-  };
+  addBankRecord: CountingMutationProps<"addBankRecord">;
   removeBankRecord?: {
     mutate: (vars: { id: number; sessionId: number }) => void;
     isPending: boolean;

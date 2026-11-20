@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { canAccessRoute } from "../client/src/lib/routeAccess";
-import type { ChurchRole } from "../shared/roles";
+import type { ChurchRole, RoleUser } from "../shared/roles";
 
 // Both the navigation menu (AppNavigation.getAuthorizedNavItems), the route
 // guards (App.tsx RoleGuard) and the dashboard shortcut tiles (Home.tsx) read
@@ -71,11 +71,11 @@ describe("route access matrix", () => {
   // primary churchRole — a COUNTER who is also a treasurer should get the
   // treasurer's menu and pages.
   it("honours secondary roles listed in the roles array", () => {
-    const counterAndTreasurer = {
+    const counterAndTreasurer: RoleUser = {
       role: "user",
       churchRole: "COUNTER",
       roles: ["COUNTER", "TREASURER"],
-    } as const;
+    };
     expect(canAccessRoute("/transactions", counterAndTreasurer)).toBe(true);
     expect(canAccessRoute("/reports", counterAndTreasurer)).toBe(true);
     expect(canAccessRoute("/members", counterAndTreasurer)).toBe(true);
@@ -83,11 +83,11 @@ describe("route access matrix", () => {
   });
 
   it("grants a secondary super admin the settings route", () => {
-    const memberAndSuperAdmin = {
+    const memberAndSuperAdmin: RoleUser = {
       role: "user",
       churchRole: "MEMBER",
       roles: ["MEMBER", "SUPER_ADMIN"],
-    } as const;
+    };
     expect(canAccessRoute("/settings", memberAndSuperAdmin)).toBe(true);
   });
 

@@ -12,31 +12,22 @@ import { trpc } from "@/lib/trpc";
 import {
   getChurchRoleInfo,
   isSuperAdmin,
-  canManageFinance,
   canManageChurchSettings,
   canCountOfferings,
 } from "@shared/roles";
 import { Swal } from "@/lib/sweetalert";
+import { friendlyErrorMessage } from "@/lib/errors";
 import {
   Shield,
   Briefcase,
-  TrendingUp,
-  Clock,
   CheckCircle2,
-  Lock,
-  Bell,
   LogOut,
   Edit3,
-  Calendar,
   Receipt,
   HeartHandshake,
-  ArrowRight,
   UserCheck,
   Building,
   Check,
-  FileText,
-  DollarSign,
-  Users,
   Coins,
   Phone,
   Mail,
@@ -263,10 +254,10 @@ export default function Profile() {
   useEffect(() => {
     if (user && showEditProfileModal) {
       setEditName(user.name || "");
-      setEditAvatarUrl((user as any).avatarUrl || "");
-      setEditPhone((user as any).phone || "");
-      setEditDepartment((user as any).department || "");
-      setEditBio((user as any).bio || "");
+      setEditAvatarUrl(user?.avatarUrl || "");
+      setEditPhone(user?.phone || "");
+      setEditDepartment(user?.department || "");
+      setEditBio(user?.bio || "");
     }
   }, [showEditProfileModal, user?.id]);
 
@@ -283,7 +274,7 @@ export default function Profile() {
     onError: err => {
       Swal.error(
         "เกิดข้อผิดพลาดในการบันทึก",
-        err.message || "กรุณาลองใหม่อีกครั้ง"
+        friendlyErrorMessage(err, "กรุณาลองใหม่อีกครั้ง")
       );
     },
     onSettled: () => {
@@ -348,14 +339,8 @@ export default function Profile() {
     }));
   }, [churchProfile, usersQuery.data]);
 
-  const { data: unreadCount = 0 } = trpc.notifications.unreadCount.useQuery(
-    undefined,
-    { retry: false }
-  );
-
   const effectiveAvatar =
-    (user as any)?.avatarUrl ||
-    ((user as any)?.openId?.includes("http") ? (user as any)?.openId : null);
+    user?.avatarUrl || (user?.openId?.includes("http") ? user?.openId : null);
 
   return (
     <AppLayout
@@ -393,25 +378,23 @@ export default function Profile() {
                 </div>
                 <p className="text-xs sm:text-sm font-bold text-ink-2 flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
                   <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand shrink-0" />
-                  <span>
-                    {(user as any)?.department || "สมาชิกครอบครัวของพระเจ้า"}
-                  </span>
+                  <span>{user?.department || "สมาชิกครอบครัวของพระเจ้า"}</span>
                 </p>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs sm:text-sm text-ink-3">
                   <span className="flex items-center gap-1">
                     <Mail className="w-3.5 h-3.5" />
                     <span>{user?.email || "ไม่ระบุอีเมล"}</span>
                   </span>
-                  {(user as any)?.phone && (
+                  {user?.phone && (
                     <span className="flex items-center gap-1">
                       <Phone className="w-3.5 h-3.5" />
-                      <span>{(user as any)?.phone}</span>
+                      <span>{user?.phone}</span>
                     </span>
                   )}
                 </div>
-                {(user as any)?.bio && (
+                {user?.bio && (
                   <p className="text-xs text-ink-3 italic pt-1 max-w-lg">
-                    "{(user as any)?.bio}"
+                    "{user?.bio}"
                   </p>
                 )}
               </div>

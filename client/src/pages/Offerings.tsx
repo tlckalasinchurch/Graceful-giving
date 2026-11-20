@@ -23,7 +23,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formToast } from "@/lib/formFeedback";
-import { OFFERING_CATEGORIES, offeringCategoryLabel } from "@shared/categories";
+import {
+  OFFERING_CATEGORIES,
+  offeringCategoryLabel,
+  type OfferingCategory,
+} from "@shared/categories";
 import {
   VoucherModal,
   type VoucherData,
@@ -91,7 +95,10 @@ export default function Offerings() {
     {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
-      category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
+      category:
+        categoryFilter !== "all"
+          ? (categoryFilter as OfferingCategory)
+          : undefined,
       search: search || undefined,
     },
     { retry: false }
@@ -110,7 +117,10 @@ export default function Offerings() {
       cursor: activeCursor ?? undefined,
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
-      category: categoryFilter !== "all" ? (categoryFilter as any) : undefined,
+      category:
+        categoryFilter !== "all"
+          ? (categoryFilter as OfferingCategory)
+          : undefined,
       search: search || undefined,
     },
     { retry: false }
@@ -161,7 +171,9 @@ export default function Offerings() {
         fromDate: periodRange.fromDate,
         toDate: periodRange.toDate,
         category:
-          categoryFilter !== "all" ? (categoryFilter as any) : undefined,
+          categoryFilter !== "all"
+            ? (categoryFilter as OfferingCategory)
+            : undefined,
         search: search || undefined,
       });
 
@@ -177,7 +189,7 @@ export default function Offerings() {
         TOAST_KEY,
         `ส่งออกข้อมูลถวายสำเร็จ (${res.rowCount.toLocaleString()} รายการ)`
       );
-    } catch (err: any) {
+    } catch (err) {
       formToast.error(TOAST_KEY, "ส่งออกข้อมูลไม่สำเร็จ", {
         description: csvExportErrorMessage(err),
       });

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   fetchAllOfferingsInBatches,
   exportTransactionsCsvData,
-  exportOfferingsCsvData,
   exportExpensesCsvData,
   type OfferingRow,
   type ExpenseRow,
@@ -21,7 +20,7 @@ describe("Phase 6A.2 — Export Architecture & Scalability Audit", () => {
       let calls = 0;
       const mockFetchBatch = async (_churchId: string, opts: any) => {
         calls++;
-        let startId = opts?.cursor ? opts.cursor.id - 1 : totalCount;
+        const startId = opts?.cursor ? opts.cursor.id - 1 : totalCount;
         if (startId <= 0) return [];
         const count = Math.min(batchSize, startId);
         const batch: OfferingRow[] = [];
@@ -275,7 +274,7 @@ describe("Phase 6A.2 — Export Architecture & Scalability Audit", () => {
   describe("4. Concurrency & Cutoff Semantics", () => {
     it("4.1 Newly inserted records with newer date during export are safely excluded by cursor cutoff", async () => {
       const baseTime = 1700000000000;
-      let database = [
+      const database = [
         {
           id: 2,
           amount: 100,

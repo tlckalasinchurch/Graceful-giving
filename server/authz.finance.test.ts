@@ -1,18 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { type TestUser, createTestContext, makeUser } from "./test/testContext";
 import { appRouter, redactChurchProfile } from "./routers";
-import type { TrpcContext } from "./_core/context";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const base: User = {
+const base = makeUser({
   id: 2,
   openId: "member",
   email: "member@example.com",
@@ -22,10 +12,10 @@ const base: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-} as User;
+});
 
-const withRole = (churchRole: string): User =>
-  ({ ...base, churchRole }) as User;
+const withRole = (churchRole: TestUser["churchRole"]): TestUser =>
+  makeUser({ ...base, churchRole });
 
 const member = withRole("MEMBER");
 const deacon = withRole("DEACON");
@@ -43,7 +33,7 @@ const financeReads: Array<
 describe("finance read access", () => {
   for (const [name, call] of financeReads) {
     it(`${name} rejects anonymous callers`, async () => {
-      const caller = appRouter.createCaller(createContext(null));
+      const caller = appRouter.createCaller(createTestContext(null));
       await expect(call(caller)).rejects.toMatchObject({
         code: "UNAUTHORIZED",
       });
@@ -55,7 +45,7 @@ describe("finance read access", () => {
       ["counter", counter],
     ] as const) {
       it(`${name} rejects a ${label}`, async () => {
-        const caller = appRouter.createCaller(createContext(user));
+        const caller = appRouter.createCaller(createTestContext(user));
         await expect(call(caller)).rejects.toMatchObject({ code: "FORBIDDEN" });
       });
     }
@@ -64,14 +54,14 @@ describe("finance read access", () => {
 
 describe("fund and member lists", () => {
   it("rejects a plain member from the full fund list", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(caller.finance.accounts()).rejects.toMatchObject({
       code: "FORBIDDEN",
     });
   });
 
   it("rejects a plain member from the member directory", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(caller.members.list()).rejects.toMatchObject({
       code: "FORBIDDEN",
     });
@@ -81,21 +71,23 @@ describe("fund and member lists", () => {
   });
 
   it("rejects a counter from member details", async () => {
-    const caller = appRouter.createCaller(createContext(counter));
+    const caller = appRouter.createCaller(createTestContext(counter));
     await expect(caller.members.getById({ id: 1 })).rejects.toMatchObject({
       code: "FORBIDDEN",
     });
   });
 
   it("lets a plain member read the name-only fund list", async () => {
-    const caller = appRouter.createCaller(createContext(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(caller.finance.fundOptions()).resolves.toBeDefined();
   });
 });
 
 describe("receipt upload validation", () => {
   it("rejects a content type outside the allow list", async () => {
-    const caller = appRouter.createCaller(createContext(withRole("TREASURER")));
+    const caller = appRouter.createCaller(
+      createTestContext(withRole("TREASURER"))
+    );
     await expect(
       caller.expenses.uploadReceipt({
         contentType: "text/html",

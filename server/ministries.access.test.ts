@@ -1,19 +1,20 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import { canManageMinistries } from "../shared/roles";
-import type { TrpcContext } from "./_core/context";
+import { type TestUser, createTestContext, makeUser } from "./test/testContext";
 
-type User = NonNullable<TrpcContext["user"]>;
+// This file proves the no-database behaviour (reads degrade to empty, writes
+// fail at the data layer rather than at authorisation). `pnpm run ci` points
+// DATABASE_URL at an in-memory PGlite database, so pin the database URLs off
+// here — the assertions below are about having no database, not about the CI
+// database — and restore them afterwards so no other file in the worker sees
+// the stub.
+vi.stubEnv("DATABASE_URL", "");
+vi.stubEnv("POSTGRES_URL", "");
+vi.stubEnv("POSTGRES_PRISMA_URL", "");
+afterAll(() => vi.unstubAllEnvs());
 
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const member: User = {
+const member = makeUser({
   id: 2,
   openId: "member",
   email: "member@example.com",
@@ -24,48 +25,48 @@ const member: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const counter: User = {
+const counter = makeUser({
   ...member,
   id: 3,
   openId: "counter",
   churchRole: "COUNTER",
-};
-const treasurer: User = {
+});
+const treasurer = makeUser({
   ...member,
   id: 4,
   openId: "treasurer",
   churchRole: "TREASURER",
-};
-const deacon: User = {
+});
+const deacon = makeUser({
   ...member,
   id: 5,
   openId: "deacon",
   churchRole: "DEACON",
-};
-const pastor: User = {
+});
+const pastor = makeUser({
   ...member,
   id: 6,
   openId: "pastor",
   churchRole: "PASTOR",
-};
-const superAdmin: User = {
+});
+const superAdmin = makeUser({
   ...member,
   id: 7,
   openId: "superadmin",
   churchRole: "SUPER_ADMIN",
-};
-const admin: User = { ...member, id: 1, openId: "admin", role: "admin" };
+});
+const admin = makeUser({ ...member, id: 1, openId: "admin", role: "admin" });
 
 /** Roles the ministry router accepts for writes, and those it must reject. */
-const MAY_MANAGE: Array<[string, User]> = [
+const MAY_MANAGE: Array<[string, TestUser]> = [
   ["DEACON", deacon],
   ["PASTOR", pastor],
   ["SUPER_ADMIN", superAdmin],
   ["the coarse admin flag", admin],
 ];
-const MAY_NOT_MANAGE: Array<[string, User]> = [
+const MAY_NOT_MANAGE: Array<[string, TestUser]> = [
   ["MEMBER", member],
   ["COUNTER", counter],
   ["TREASURER", treasurer],
@@ -73,7 +74,7 @@ const MAY_NOT_MANAGE: Array<[string, User]> = [
 
 describe("ministries: reading", () => {
   it("requires a signed-in user", async () => {
-    const caller = appRouter.createCaller(createContext(null));
+    const caller = appRouter.createCaller(createTestContext(null));
     await expect(caller.ministries.list()).rejects.toMatchObject({
       code: "UNAUTHORIZED",
     });
@@ -86,7 +87,7 @@ describe("ministries: reading", () => {
   // empty list, which is exactly what a plain member should be allowed to do.
   it("is open to every signed-in role", async () => {
     for (const [, user] of [...MAY_MANAGE, ...MAY_NOT_MANAGE]) {
-      const caller = appRouter.createCaller(createContext(user));
+      const caller = appRouter.createCaller(createTestContext(user));
       await expect(caller.ministries.list()).resolves.toEqual([]);
     }
   });
@@ -95,7 +96,7 @@ describe("ministries: reading", () => {
 describe("ministries: who may create, edit and archive", () => {
   for (const [label, user] of MAY_NOT_MANAGE) {
     it(`rejects ${label}`, async () => {
-      const caller = appRouter.createCaller(createContext(user));
+      const caller = appRouter.createCaller(createTestContext(user));
       await expect(
         caller.ministries.create({ name: "ฝ่ายนมัสการ", status: "active" })
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
@@ -109,7 +110,7 @@ describe("ministries: who may create, edit and archive", () => {
   }
 
   it("rejects unauthenticated writes", async () => {
-    const caller = appRouter.createCaller(createContext(null));
+    const caller = appRouter.createCaller(createTestContext(null));
     await expect(
       caller.ministries.create({ name: "ฝ่ายนมัสการ", status: "active" })
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
@@ -120,7 +121,7 @@ describe("ministries: who may create, edit and archive", () => {
   // the gate let them through.
   for (const [label, user] of MAY_MANAGE) {
     it(`lets ${label} past the permission gate`, async () => {
-      const caller = appRouter.createCaller(createContext(user));
+      const caller = appRouter.createCaller(createTestContext(user));
       await expect(
         caller.ministries.create({ name: "ฝ่ายนมัสการ", status: "active" })
       ).rejects.not.toMatchObject({ code: "FORBIDDEN" });
@@ -152,14 +153,14 @@ describe("ministries: the client helper agrees with the router", () => {
 
 describe("ministries: input validation", () => {
   it("rejects a name shorter than two characters", async () => {
-    const caller = appRouter.createCaller(createContext(deacon));
+    const caller = appRouter.createCaller(createTestContext(deacon));
     await expect(
       caller.ministries.create({ name: "ก", status: "active" })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
   it("rejects a non-positive id", async () => {
-    const caller = appRouter.createCaller(createContext(deacon));
+    const caller = appRouter.createCaller(createTestContext(deacon));
     await expect(caller.ministries.archive({ id: 0 })).rejects.toMatchObject({
       code: "BAD_REQUEST",
     });
@@ -168,14 +169,14 @@ describe("ministries: input validation", () => {
   // Drizzle's .set({}) throws "No values to set", so an update carrying only
   // an id has to be rejected as input rather than reaching the database.
   it("rejects an update that changes nothing", async () => {
-    const caller = appRouter.createCaller(createContext(deacon));
+    const caller = appRouter.createCaller(createTestContext(deacon));
     await expect(caller.ministries.update({ id: 1 })).rejects.toMatchObject({
       code: "BAD_REQUEST",
     });
   });
 
   it("accepts an update that changes a single field", async () => {
-    const caller = appRouter.createCaller(createContext(deacon));
+    const caller = appRouter.createCaller(createTestContext(deacon));
     // Reaches the data layer (which has no database here) rather than failing
     // validation, proving the refine above is not over-eager.
     await expect(

@@ -2,6 +2,7 @@ import "dotenv/config";
 import { createServer } from "http";
 import net from "net";
 import { createApp } from "./app";
+import { installProcessHandlers } from "./processHandlers";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -48,6 +49,13 @@ function getConfiguredPort(defaultPort: number): number {
 async function startServer() {
   const app = createApp();
   const server = createServer(app);
+
+  // Log and gracefully shut down on unhandled rejections / uncaught
+  // exceptions instead of dying mid-request with a bare stack dump. This is
+  // the long-lived monolith only — the Vercel serverless handler
+  // (apiHandler.ts) intentionally does not install these; its lifecycle is
+  // owned by the platform.
+  installProcessHandlers(server);
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

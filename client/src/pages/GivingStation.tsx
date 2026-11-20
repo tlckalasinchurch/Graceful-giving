@@ -339,9 +339,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     } catch (err) {
       formToast.error(
         TOAST_KEY,
-        err instanceof Error && err.message
-          ? err.message
-          : "สร้างรูปโปสเตอร์ไม่สำเร็จ ลองใหม่อีกครั้ง"
+        friendlyErrorMessage(err, "สร้างรูปโปสเตอร์ไม่สำเร็จ ลองใหม่อีกครั้ง")
       );
     } finally {
       setPosterBusy(false);
@@ -621,9 +619,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           utils.finance.accounts.invalidate(),
         ]);
       }
-    } catch (err: any) {
+    } catch (err) {
       const msg =
-        err?.message ||
+        (err instanceof Error && err.message) ||
         "ไม่สามารถบันทึกสลิปได้ กรุณาตรวจสอบการเชื่อมต่อและลองใหม่อีกครั้ง";
       setSubmissionError(msg);
       setTimeout(() => {

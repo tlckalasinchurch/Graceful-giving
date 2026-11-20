@@ -3,7 +3,10 @@ import { friendlyErrorMessage } from "@/lib/errors";
 import { formatAmount, formatBaht, THAI_LOCALE } from "@/lib/format";
 import { prepareSlipImage, SlipFileError } from "@/lib/slipImage";
 import { useLocation } from "wouter";
-import { trpc } from "@/lib/trpc";
+import { trpc, type RouterOutputs } from "@/lib/trpc";
+
+/** One row of the giving-inbox slip list. */
+type InboxSlip = RouterOutputs["givingInbox"]["list"][number];
 import { Swal } from "@/lib/sweetalert";
 import { formToast } from "@/lib/formFeedback";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -11,7 +14,6 @@ import {
   Inbox,
   CheckCircle2,
   XCircle,
-  AlertTriangle,
   ExternalLink,
   Calendar,
   CreditCard,
@@ -184,7 +186,7 @@ export default function GivingInbox() {
       }
     },
     onError: err => {
-      const msg = err.message || "เกิดข้อผิดพลาดในการอนุมัติสลิป";
+      const msg = friendlyErrorMessage(err, "เกิดข้อผิดพลาดในการอนุมัติสลิป");
       if (msg.includes("ได้รับการอนุมัติไปแล้ว") || msg.includes("CONFLICT")) {
         Swal.warning(
           "รายการถูกดำเนินการแล้ว",
@@ -216,7 +218,7 @@ export default function GivingInbox() {
       }
     },
     onError: err => {
-      const msg = err.message || "เกิดข้อผิดพลาดในการปฏิเสธสลิป";
+      const msg = friendlyErrorMessage(err, "เกิดข้อผิดพลาดในการปฏิเสธสลิป");
       if (msg.includes("อนุมัติ") || msg.includes("CONFLICT")) {
         formToast.error(
           TOAST_KEY,
@@ -244,7 +246,10 @@ export default function GivingInbox() {
       setSelectedSlipId(data.slipId);
     },
     onError: err => {
-      Swal.error("อัปโหลดไม่สำเร็จ", err.message);
+      Swal.error(
+        "อัปโหลดไม่สำเร็จ",
+        friendlyErrorMessage(err, "เกิดข้อผิดพลาดในการอัปโหลดสลิป")
+      );
     },
   });
 
@@ -311,7 +316,7 @@ export default function GivingInbox() {
   // Set when one transfer is split over several categories. Null: one category.
   const [editSplit, setEditSplit] = useState<SplitDraft[] | null>(null);
 
-  const handleSelectSlip = (slip: any) => {
+  const handleSelectSlip = (slip: InboxSlip) => {
     setSelectedSlipId(slip.id);
     setEditAmount(
       slip.approvedAmount ||
@@ -421,7 +426,7 @@ export default function GivingInbox() {
     });
   };
 
-  const handleQuickApprove = async (e: React.MouseEvent, slip: any) => {
+  const handleQuickApprove = async (e: React.MouseEvent, slip: InboxSlip) => {
     e.stopPropagation();
     // An entry without a slip is never approved in one tap. Open it to check.
     if (
@@ -543,7 +548,7 @@ export default function GivingInbox() {
     );
   });
 
-  const stats = statsQuery.data as any;
+  const stats = statsQuery.data;
   const totalSlips = stats?.total ?? 0;
 
   return (
@@ -1316,7 +1321,7 @@ export default function GivingInbox() {
                             setEditMemberId(nextId);
                             if (nextId && !editDonorName.trim()) {
                               const found = (membersQuery.data ?? []).find(
-                                (m: any) => m.id === nextId
+                                m => m.id === nextId
                               );
                               if (found?.name) setEditDonorName(found.name);
                             }
@@ -1328,7 +1333,7 @@ export default function GivingInbox() {
                             -- ไม่ระบุสมาชิก (ผู้ถวายนิรนาม) --
                           </option>
                           {(membersQuery.data ?? [])
-                            .filter((m: any) => {
+                            .filter(m => {
                               if (m.id === editMemberId) return true;
                               const q = memberSearch.trim().toLowerCase();
                               if (!q) return true;
@@ -1340,7 +1345,7 @@ export default function GivingInbox() {
                                 .includes(q);
                               return nameMatch || envMatch;
                             })
-                            .map((m: any) => (
+                            .map(m => (
                               <option key={m.id} value={m.id}>
                                 {m.name}{" "}
                                 {m.envelopeNo ? `(#${m.envelopeNo})` : ""}
@@ -1404,7 +1409,7 @@ export default function GivingInbox() {
                             disabled={currentSlip.status === "approved"}
                             className="focus:ring-2 focus:ring-brand font-bold text-xs"
                           >
-                            {(fundsQuery.data ?? []).map((f: any) => (
+                            {(fundsQuery.data ?? []).map(f => (
                               <option key={f.id} value={f.id}>
                                 {f.name} (คงเหลือ{" "}
                                 {formatBaht(Number(f.balance))})

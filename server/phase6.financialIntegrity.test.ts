@@ -1,23 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { createTestContext, makeUser } from "./test/testContext";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
 import {
   computeLedgerTotals,
   getPeriodDateRange,
   type ReconcilableItem,
 } from "../client/src/lib/datePeriod";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const treasurerUser: User = {
+const treasurerUser = makeUser({
   id: 2,
   openId: "treasurer-auditor",
   email: "treasurer@example.com",
@@ -29,7 +19,7 @@ const treasurerUser: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
 describe("Phase 6 Independent Audit — Financial Integrity & Limit 1000 Analysis", () => {
   describe("Dataset Size Verifications: 50, 100, 1,000, 1,001, and >2,000 items", () => {
@@ -62,13 +52,10 @@ describe("Phase 6 Independent Audit — Financial Integrity & Limit 1000 Analysi
     });
 
     it("verifies computeLedgerTotals calculates exact arithmetic with 1,000 transactions", () => {
-      const items: ReconcilableItem[] = Array.from(
-        { length: 1000 },
-        (_, i) => ({
-          type: "income",
-          amount: 500.0,
-        })
-      );
+      const items: ReconcilableItem[] = Array.from({ length: 1000 }, () => ({
+        type: "income",
+        amount: 500.0,
+      }));
 
       const totals = computeLedgerTotals(items);
       expect(totals.incomeCount).toBe(1000);
@@ -138,7 +125,7 @@ describe("Phase 6 Independent Audit — Financial Integrity & Limit 1000 Analysi
 
   describe("Server API Boundary & Limit Verification", () => {
     it("enforces max limit: 1000 on offerings.list and throws BAD_REQUEST if client requests > 1000", async () => {
-      const caller = appRouter.createCaller(createContext(treasurerUser));
+      const caller = appRouter.createCaller(createTestContext(treasurerUser));
       await expect(
         caller.offerings.list({ limit: 1001 })
       ).rejects.toMatchObject({
@@ -147,7 +134,7 @@ describe("Phase 6 Independent Audit — Financial Integrity & Limit 1000 Analysi
     });
 
     it("enforces max limit: 1000 on expenses.list and throws BAD_REQUEST if client requests > 1000", async () => {
-      const caller = appRouter.createCaller(createContext(treasurerUser));
+      const caller = appRouter.createCaller(createTestContext(treasurerUser));
       await expect(caller.expenses.list({ limit: 1001 })).rejects.toMatchObject(
         {
           code: "BAD_REQUEST",
@@ -156,7 +143,7 @@ describe("Phase 6 Independent Audit — Financial Integrity & Limit 1000 Analysi
     });
 
     it("verifies reports.summary does NOT truncate at 1000 because it uses SQL aggregations", async () => {
-      const caller = appRouter.createCaller(createContext(treasurerUser));
+      const caller = appRouter.createCaller(createTestContext(treasurerUser));
       const summary = await caller.reports.summary({
         fromDate: new Date("2026-01-01"),
         toDate: new Date("2026-12-31"),

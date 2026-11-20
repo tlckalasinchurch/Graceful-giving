@@ -27,10 +27,6 @@ import { formatThaiDate } from "@/lib/format";
 import { saveCsvFile } from "@/lib/csvDownload";
 import { useCursorPagination } from "@/hooks/useCursorPagination";
 import { csvExportErrorMessage, friendlyErrorMessage } from "@/lib/errors";
-import {
-  expenseCategoryLabel,
-  offeringCategoryLabel,
-} from "@shared/categories";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 import {
@@ -105,7 +101,7 @@ export default function Transactions() {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       fundId: selectedFundId,
-      type: typeFilter as any,
+      type: typeFilter as "all" | "income" | "expense",
       search: search || undefined,
     },
     { retry: false }
@@ -125,7 +121,7 @@ export default function Transactions() {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
       fundId: selectedFundId,
-      type: typeFilter as any,
+      type: typeFilter as "all" | "income" | "expense",
       search: search || undefined,
     },
     { retry: false }
@@ -149,7 +145,7 @@ export default function Transactions() {
         fromDate: periodRange.fromDate,
         toDate: periodRange.toDate,
         fundId: selectedFundId,
-        type: typeFilter as any,
+        type: typeFilter as "all" | "income" | "expense",
         search: search || undefined,
       });
       if (res.rowCount === 0) {

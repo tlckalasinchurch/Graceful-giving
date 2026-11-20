@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { TrpcContext } from "./_core/context";
+import { createTestContext, makeUser } from "./test/testContext";
 
 vi.mock("./line/slipOcr", async importOriginal => {
   const actual = await importOriginal<typeof import("./line/slipOcr")>();
@@ -26,15 +26,7 @@ import * as db from "./db";
 import { extractSlipData } from "./line/slipOcr";
 import { MAX_SLIPS_PER_DAY } from "@shared/givingLimits";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-const ctx = (user: User | null): TrpcContext => ({
-  user,
-  req: { protocol: "https", headers: {} } as TrpcContext["req"],
-  res: { clearCookie: () => undefined } as TrpcContext["res"],
-});
-
-const member: User = {
+const member = makeUser({
   id: 301,
   openId: "line:Umember",
   email: null,
@@ -45,8 +37,8 @@ const member: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-} as User;
-const treasurer: User = { ...member, id: 302, churchRole: "TREASURER" };
+});
+const treasurer = makeUser({ ...member, id: 302, churchRole: "TREASURER" });
 
 const today = () => new Date();
 const daysAgo = (n: number) => new Date(Date.now() - n * 24 * 60 * 60 * 1000);
@@ -89,13 +81,15 @@ beforeEach(() => {
 describe("givingInbox.submitWithoutSlip", () => {
   it("rejects a signed-out caller", async () => {
     await expect(
-      appRouter.createCaller(ctx(null)).givingInbox.submitWithoutSlip(valid())
+      appRouter
+        .createCaller(createTestContext(null))
+        .givingInbox.submitWithoutSlip(valid())
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
   it("queues the entry for review and tells the donor it is not credited yet", async () => {
     const result = await appRouter
-      .createCaller(ctx(member))
+      .createCaller(createTestContext(member))
       .givingInbox.submitWithoutSlip(valid());
     expect(result.check.state).toBe("in_review");
     expect(result.check.message).toContain("ยังไม่นับเข้าบัญชี");
@@ -113,7 +107,7 @@ describe("givingInbox.submitWithoutSlip", () => {
 
   it("tells every finance user that an entry waits for review", async () => {
     await appRouter
-      .createCaller(ctx(member))
+      .createCaller(createTestContext(member))
       .givingInbox.submitWithoutSlip(valid());
     expect(db.createNotification).toHaveBeenCalledTimes(2);
     expect(db.createNotification).toHaveBeenCalledWith(
@@ -128,12 +122,14 @@ describe("givingInbox.submitWithoutSlip", () => {
   it("does not fail the donor when a notification fails", async () => {
     vi.mocked(db.createNotification).mockRejectedValue(new Error("down"));
     await expect(
-      appRouter.createCaller(ctx(member)).givingInbox.submitWithoutSlip(valid())
+      appRouter
+        .createCaller(createTestContext(member))
+        .givingInbox.submitWithoutSlip(valid())
     ).resolves.toMatchObject({ success: true });
   });
 
   it("refuses a missing or one-letter name", async () => {
-    const caller = appRouter.createCaller(ctx(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     for (const donorName of ["", " ", "ก"]) {
       await expect(
         caller.givingInbox.submitWithoutSlip({ ...valid(), donorName })
@@ -143,7 +139,7 @@ describe("givingInbox.submitWithoutSlip", () => {
   });
 
   it("refuses a wrong amount", async () => {
-    const caller = appRouter.createCaller(ctx(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     for (const amount of [0, -5, 99_000_000]) {
       await expect(
         caller.givingInbox.submitWithoutSlip({ ...valid(), amount })
@@ -152,7 +148,7 @@ describe("givingInbox.submitWithoutSlip", () => {
   });
 
   it("refuses a future date and a date older than 60 days", async () => {
-    const caller = appRouter.createCaller(ctx(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.givingInbox.submitWithoutSlip({
         ...valid(),
@@ -177,7 +173,7 @@ describe("givingInbox.submitWithoutSlip", () => {
   it("refuses an unknown fund", async () => {
     await expect(
       appRouter
-        .createCaller(ctx(member))
+        .createCaller(createTestContext(member))
         .givingInbox.submitWithoutSlip({ ...valid(), fundId: 999 })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
@@ -187,14 +183,18 @@ describe("givingInbox.submitWithoutSlip", () => {
       new db.DuplicateEntryError("ส่งรายการนี้ไปแล้ว")
     );
     await expect(
-      appRouter.createCaller(ctx(member)).givingInbox.submitWithoutSlip(valid())
+      appRouter
+        .createCaller(createTestContext(member))
+        .givingInbox.submitWithoutSlip(valid())
     ).rejects.toMatchObject({ code: "CONFLICT" });
   });
 
   it("limits how many entries one person sends in a day", async () => {
     vi.mocked(db.countRecentManualSlips).mockResolvedValue(MAX_SLIPS_PER_DAY);
     await expect(
-      appRouter.createCaller(ctx(member)).givingInbox.submitWithoutSlip(valid())
+      appRouter
+        .createCaller(createTestContext(member))
+        .givingInbox.submitWithoutSlip(valid())
     ).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS" });
   });
 });
@@ -208,13 +208,15 @@ describe("givingInbox.approve and reject tell the donor", () => {
       submittedByUserId: 301,
       amount: 170,
     } as never);
-    await appRouter.createCaller(ctx(treasurer)).givingInbox.approve({
-      slipId: 55,
-      fundId: 7,
-      amount: 170,
-      donorName: "นายผสดี มั่นคง",
-      confirmedBankCheck: true,
-    });
+    await appRouter
+      .createCaller(createTestContext(treasurer))
+      .givingInbox.approve({
+        slipId: 55,
+        fundId: 7,
+        amount: 170,
+        donorName: "นายผสดี มั่นคง",
+        confirmedBankCheck: true,
+      });
     expect(db.approveLineSlip).toHaveBeenCalledWith(
       expect.objectContaining({
         donorName: "นายผสดี มั่นคง",
@@ -233,7 +235,7 @@ describe("givingInbox.approve and reject tell the donor", () => {
       submittedByUserId: 301,
     } as never);
     await appRouter
-      .createCaller(ctx(treasurer))
+      .createCaller(createTestContext(treasurer))
       .givingInbox.reject({ slipId: 55, reason: "ไม่พบยอดเข้าบัญชี" });
     expect(db.createNotification).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -251,14 +253,14 @@ describe("givingInbox.approve and reject tell the donor", () => {
       submittedByUserId: null,
     } as never);
     await appRouter
-      .createCaller(ctx(treasurer))
+      .createCaller(createTestContext(treasurer))
       .givingInbox.reject({ slipId: 56, reason: "ซ้ำ" });
     expect(db.createNotification).not.toHaveBeenCalled();
   });
 
   it("does not let a plain member approve", async () => {
     await expect(
-      appRouter.createCaller(ctx(member)).givingInbox.approve({
+      appRouter.createCaller(createTestContext(member)).givingInbox.approve({
         slipId: 55,
         fundId: 7,
         amount: 170,
@@ -274,12 +276,14 @@ describe("one transfer, several categories", () => {
   ];
 
   it("keeps the split on an entry without a slip, with the first category as the main one", async () => {
-    await appRouter.createCaller(ctx(member)).givingInbox.submitWithoutSlip({
-      ...valid(),
-      amount: 1000,
-      category: "tithe",
-      items,
-    });
+    await appRouter
+      .createCaller(createTestContext(member))
+      .givingInbox.submitWithoutSlip({
+        ...valid(),
+        amount: 1000,
+        category: "tithe",
+        items,
+      });
     expect(db.createNoSlipEntry).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: "1000.00",
@@ -291,11 +295,13 @@ describe("one transfer, several categories", () => {
 
   it("refuses a split that does not add up to the transfer", async () => {
     await expect(
-      appRouter.createCaller(ctx(member)).givingInbox.submitWithoutSlip({
-        ...valid(),
-        amount: 1000,
-        items: [items[0], { category: "mission", amount: 200 }],
-      })
+      appRouter
+        .createCaller(createTestContext(member))
+        .givingInbox.submitWithoutSlip({
+          ...valid(),
+          amount: 1000,
+          items: [items[0], { category: "mission", amount: 200 }],
+        })
     ).rejects.toMatchObject({
       code: "BAD_REQUEST",
       message: expect.stringContaining("ผลรวม"),
@@ -304,7 +310,7 @@ describe("one transfer, several categories", () => {
   });
 
   it("refuses the same category twice and a one-line split", async () => {
-    const caller = appRouter.createCaller(ctx(member));
+    const caller = appRouter.createCaller(createTestContext(member));
     await expect(
       caller.givingInbox.submitWithoutSlip({
         ...valid(),
@@ -330,12 +336,14 @@ describe("one transfer, several categories", () => {
       submittedByUserId: 301,
       amount: 1000,
     } as never);
-    await appRouter.createCaller(ctx(treasurer)).givingInbox.approve({
-      slipId: 55,
-      fundId: 7,
-      amount: 1000,
-      items,
-    });
+    await appRouter
+      .createCaller(createTestContext(treasurer))
+      .givingInbox.approve({
+        slipId: 55,
+        fundId: 7,
+        amount: 1000,
+        items,
+      });
     expect(db.approveLineSlip).toHaveBeenCalledWith(
       expect.objectContaining({ amount: 1000, items })
     );
@@ -368,14 +376,16 @@ describe("givingInbox.readSlip", () => {
 
   it("rejects a signed-out caller", async () => {
     await expect(
-      appRouter.createCaller(ctx(null)).givingInbox.readSlip(input)
+      appRouter
+        .createCaller(createTestContext(null))
+        .givingInbox.readSlip(input)
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
   it("returns the amount, name and date the AI was sure about", async () => {
     vi.mocked(extractSlipData).mockResolvedValue(extraction as never);
     const r = await appRouter
-      .createCaller(ctx(person()))
+      .createCaller(createTestContext(person()))
       .givingInbox.readSlip(input);
     expect(r).toEqual({
       status: "read",
@@ -393,14 +403,14 @@ describe("givingInbox.readSlip", () => {
   it("answers unreadable, not an error, when the AI fails", async () => {
     vi.mocked(extractSlipData).mockRejectedValue(new Error("rate limit"));
     const r = await appRouter
-      .createCaller(ctx(person()))
+      .createCaller(createTestContext(person()))
       .givingInbox.readSlip(input);
     expect(r.status).toBe("unreadable");
   });
 
   it("refuses data that is not an image", async () => {
     await expect(
-      appRouter.createCaller(ctx(person())).givingInbox.readSlip({
+      appRouter.createCaller(createTestContext(person())).givingInbox.readSlip({
         base64Data: Buffer.from("<svg onload=alert(1)>").toString("base64"),
       })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -409,7 +419,7 @@ describe("givingInbox.readSlip", () => {
 
   it("limits how many readings one person asks for", async () => {
     vi.mocked(extractSlipData).mockResolvedValue(extraction as never);
-    const caller = appRouter.createCaller(ctx(person()));
+    const caller = appRouter.createCaller(createTestContext(person()));
     for (let i = 0; i < 12; i++) await caller.givingInbox.readSlip(input);
     await expect(caller.givingInbox.readSlip(input)).rejects.toMatchObject({
       code: "TOO_MANY_REQUESTS",

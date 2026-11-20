@@ -12,13 +12,9 @@ import {
   Building,
   CheckCircle2,
   CreditCard,
-  Globe,
   Loader2,
   Lock,
-  Mail,
-  Phone,
   Save,
-  Settings as SettingsIcon,
   Shield,
   UserCheck,
   Users,
@@ -33,7 +29,11 @@ import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { LogOut } from "lucide-react";
 import { EXPENSE_CATEGORIES, OFFERING_CATEGORIES } from "@shared/categories";
-import { isSuperAdmin, getChurchRoleInfo, CHURCH_ROLES } from "@shared/roles";
+import {
+  isSuperAdmin,
+  getChurchRoleInfo,
+  type ChurchRole,
+} from "@shared/roles";
 import { NativeSelect } from "@/components/ui/native-select";
 import { THAI_LOCALE } from "@/lib/format";
 import { BankSignersSection } from "./Settings/BankSignersSection";
@@ -59,11 +59,10 @@ export default function Settings() {
   });
   const utils = trpc.useUtils();
 
-  const {
-    data: churchProfile,
-    isLoading,
-    refetch,
-  } = trpc.church.getProfile.useQuery(undefined, { retry: false });
+  const { data: churchProfile, refetch } = trpc.church.getProfile.useQuery(
+    undefined,
+    { retry: false }
+  );
 
   const usersQuery = trpc.auth.listUsers.useQuery(undefined, {
     retry: false,
@@ -130,7 +129,7 @@ export default function Settings() {
 
   const handleRoleChange = async (userId: number, newRole: string) => {
     const targetUser = usersQuery.data?.find(u => u.id === userId);
-    const targetRoleInfo = getChurchRoleInfo(newRole as any);
+    const targetRoleInfo = getChurchRoleInfo(newRole as ChurchRole);
 
     const isConfirmed = await Swal.confirm(
       "ยืนยันการเปลี่ยนบทบาท?",
@@ -147,16 +146,16 @@ export default function Settings() {
     try {
       await setRoleMutation.mutateAsync({
         userId,
-        churchRole: newRole as any,
+        churchRole: newRole as ChurchRole,
       });
       await Swal.success(
         "เปลี่ยนบทบาทสำเร็จ!",
         `ได้เปลี่ยนบทบาทของ ${targetUser?.name || "ผู้ใช้งาน"} เป็น ${targetRoleInfo.badgeLabel} เรียบร้อยแล้ว`
       );
-    } catch (err: any) {
+    } catch (err) {
       await Swal.error(
         "ไม่สามารถเปลี่ยนบทบาทได้",
-        err.message || "เกิดข้อผิดพลาดในการปรับเปลี่ยนบทบาท"
+        friendlyErrorMessage(err, "เกิดข้อผิดพลาดในการปรับเปลี่ยนบทบาท")
       );
     } finally {
       setUpdatingUserId(null);

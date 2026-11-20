@@ -358,7 +358,7 @@ export default function NewExpense() {
                     <button
                       key={cat.id}
                       type="button"
-                      onClick={() => setCategory(cat.id as any)}
+                      onClick={() => setCategory(cat.id)}
                       aria-pressed={isSelected}
                       className={`p-3.5 rounded-xl border border-line text-left flex flex-col justify-between transition-colors ${
                         isSelected

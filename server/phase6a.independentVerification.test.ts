@@ -1,20 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
+import { createTestContext, makeUser } from "./test/testContext";
 import { sanitizeCsvCell } from "./db";
 import { formatAmount, formatBaht } from "../client/src/lib/format";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const baseUser: User = {
+const baseUser = makeUser({
   id: 10,
   openId: "user-test",
   email: "test@example.com",
@@ -24,48 +14,48 @@ const baseUser: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const superAdmin: User = {
+const superAdmin = makeUser({
   ...baseUser,
   id: 1,
   openId: "admin",
   role: "admin",
   churchRole: "SUPER_ADMIN",
   churchRoles: "SUPER_ADMIN",
-};
+});
 
-const treasurer: User = {
+const treasurer = makeUser({
   ...baseUser,
   id: 2,
   openId: "treasurer",
   churchRole: "TREASURER",
   churchRoles: "TREASURER",
-};
+});
 
-const pastor: User = {
+const pastor = makeUser({
   ...baseUser,
   id: 3,
   openId: "pastor",
   churchRole: "PASTOR",
   churchRoles: "PASTOR",
-};
+});
 
-const deacon: User = {
+const deacon = makeUser({
   ...baseUser,
   id: 4,
   openId: "deacon",
   churchRole: "DEACON",
   churchRoles: "DEACON",
-};
+});
 
-const member: User = {
+const member = makeUser({
   ...baseUser,
   id: 5,
   openId: "member",
   churchRole: "MEMBER",
   churchRoles: "MEMBER",
-};
+});
 
 describe("Phase 6A Independent Financial Verification", () => {
   describe("1. Composite Cursor Ordering & Pagination Correctness", () => {
@@ -122,7 +112,8 @@ describe("Phase 6A Independent Financial Verification", () => {
 
       // Step through with cursor pagination (limit: 5)
       const pageSize = 5;
-      const pages: (typeof dataset)[] = [];
+      type DatasetRow = (typeof dataset)[number];
+      const pages: DatasetRow[][] = [];
       let cursor: {
         date: Date;
         type: "income" | "expense";
@@ -130,10 +121,10 @@ describe("Phase 6A Independent Financial Verification", () => {
       } | null = null;
 
       for (let p = 0; p < 4; p++) {
-        const candidate = cursor
+        const candidate: DatasetRow[] = cursor
           ? dataset.filter(item => isAfterCursor(item, cursor!))
           : dataset;
-        const page = candidate.slice(0, pageSize);
+        const page: DatasetRow[] = candidate.slice(0, pageSize);
         pages.push(page);
         expect(page.length).toBe(pageSize);
         cursor = page[page.length - 1];
@@ -200,10 +191,6 @@ describe("Phase 6A Independent Financial Verification", () => {
       const candidate2 = dataset.filter(i => isAfterCursor(i, currentCursor!));
       const page2 = candidate2.slice(0, pageSize);
       currentCursor = page2[page2.length - 1];
-
-      // Page 3
-      const candidate3 = dataset.filter(i => isAfterCursor(i, currentCursor!));
-      const page3 = candidate3.slice(0, pageSize);
 
       // Navigate Back to Page 2
       const prevCursorToPage2 = cursorHistory.pop(); // Pop Page 2 cursor
@@ -364,7 +351,7 @@ describe("Phase 6A Independent Financial Verification", () => {
 
   describe("4. Direct API Authorization & Tenant Isolation Verification", () => {
     it("strictly blocks anonymous calls across all 9 financial summary, paged, and export procedures", async () => {
-      const unauthCaller = appRouter.createCaller(createContext(null));
+      const unauthCaller = appRouter.createCaller(createTestContext(null));
 
       const calls = [
         unauthCaller.transactions.summary({}),
@@ -384,7 +371,7 @@ describe("Phase 6A Independent Financial Verification", () => {
     });
 
     it("strictly blocks MEMBER role across all 9 financial summary, paged, and export procedures", async () => {
-      const memberCaller = appRouter.createCaller(createContext(member));
+      const memberCaller = appRouter.createCaller(createTestContext(member));
 
       const calls = [
         memberCaller.transactions.summary({}),
@@ -404,7 +391,7 @@ describe("Phase 6A Independent Financial Verification", () => {
     });
 
     it("strictly blocks DEACON role from financeViewProcedure endpoints", async () => {
-      const deaconCaller = appRouter.createCaller(createContext(deacon));
+      const deaconCaller = appRouter.createCaller(createTestContext(deacon));
 
       await expect(deaconCaller.transactions.summary({})).rejects.toMatchObject(
         { code: "FORBIDDEN" }
@@ -427,7 +414,7 @@ describe("Phase 6A Independent Financial Verification", () => {
     });
 
     it("allows PASTOR to view transactions & offerings but masks donor names for privacy", async () => {
-      const pastorCaller = appRouter.createCaller(createContext(pastor));
+      const pastorCaller = appRouter.createCaller(createTestContext(pastor));
 
       // PASTOR can view summary
       const summary = await pastorCaller.transactions.summary({});
@@ -454,9 +441,11 @@ describe("Phase 6A Independent Financial Verification", () => {
     });
 
     it("allows TREASURER and SUPER_ADMIN full access to financial data and exports", async () => {
-      const treasurerCaller = appRouter.createCaller(createContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       const superAdminCaller = appRouter.createCaller(
-        createContext(superAdmin)
+        createTestContext(superAdmin)
       );
 
       const [txSum, offSum, expSum] = await Promise.all([

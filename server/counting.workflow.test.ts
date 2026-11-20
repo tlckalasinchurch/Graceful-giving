@@ -10,13 +10,11 @@
  * a run cannot reach the application's data.
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createTestContext, makeUser } from "./test/testContext";
 import { appRouter } from "./routers";
 import { getDb } from "./db";
-import type { TrpcContext } from "./_core/context";
 import { sql } from "drizzle-orm";
 import { TEST_CHURCH_ID, purgeTenant } from "./test/tenant";
-
-type User = NonNullable<TrpcContext["user"]>;
 
 const hasDb = Boolean(process.env.DATABASE_URL);
 const describeDb = hasDb ? describe : describe.skip;
@@ -29,15 +27,7 @@ afterAll(async () => {
   if (db) await purgeTenant(db);
 });
 
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const base: User = {
+const base = makeUser({
   id: 0,
   openId: "x",
   email: null,
@@ -48,23 +38,23 @@ const base: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const counter: User = {
+const counter = makeUser({
   ...base,
   id: 901,
   openId: "counter",
   churchRole: "COUNTER",
-};
-const treasurer: User = {
+});
+const treasurer = makeUser({
   ...base,
   id: 902,
   openId: "treasurer",
   churchRole: "TREASURER",
-};
+});
 
-const asCounter = () => appRouter.createCaller(createContext(counter));
-const asTreasurer = () => appRouter.createCaller(createContext(treasurer));
+const asCounter = () => appRouter.createCaller(createTestContext(counter));
+const asTreasurer = () => appRouter.createCaller(createTestContext(treasurer));
 
 const serviceDate = new Date("2026-09-20T01:00:00.000Z");
 
@@ -438,7 +428,7 @@ describeDb(
     let expenseId = 0;
 
     const treasurerCaller = () =>
-      appRouter.createCaller(createContext(treasurer));
+      appRouter.createCaller(createTestContext(treasurer));
 
     async function balanceOf(id: number): Promise<number> {
       const db = await getDb();

@@ -1,18 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
+import { createTestContext, makeUser } from "./test/testContext";
 
-type User = NonNullable<TrpcContext["user"]>;
+// The GAP-02/GAP-03 tests below prove that valid input reaches the data layer
+// by expecting the no-database failure there. `pnpm run ci` points DATABASE_URL
+// at an in-memory PGlite database, so pin the database URLs off here — the
+// assertions are about having no database, not about the CI database — and
+// restore them afterwards so no other file in the worker sees the stub.
+vi.stubEnv("DATABASE_URL", "");
+vi.stubEnv("POSTGRES_URL", "");
+vi.stubEnv("POSTGRES_PRISMA_URL", "");
+afterAll(() => vi.unstubAllEnvs());
 
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const baseUser: User = {
+const baseUser = makeUser({
   id: 10,
   openId: "user-10",
   email: "user@example.com",
@@ -22,53 +22,53 @@ const baseUser: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const superAdmin: User = {
+const superAdmin = makeUser({
   ...baseUser,
   id: 1,
   openId: "admin",
   role: "admin",
   churchRole: "SUPER_ADMIN",
   churchRoles: "SUPER_ADMIN",
-};
+});
 
-const treasurer: User = {
+const treasurer = makeUser({
   ...baseUser,
   id: 2,
   openId: "treasurer",
   churchRole: "TREASURER",
   churchRoles: "TREASURER",
-};
+});
 
-const pastor: User = {
+const pastor = makeUser({
   ...baseUser,
   id: 3,
   openId: "pastor",
   churchRole: "PASTOR",
   churchRoles: "PASTOR",
-};
+});
 
-const deacon: User = {
+const deacon = makeUser({
   ...baseUser,
   id: 4,
   openId: "deacon",
   churchRole: "DEACON",
   churchRoles: "DEACON",
-};
+});
 
-const member: User = {
+const member = makeUser({
   ...baseUser,
   id: 5,
   openId: "member",
   churchRole: "MEMBER",
   churchRoles: "MEMBER",
-};
+});
 
 describe("Phase 5A — Financial Integrity & Schema Validation", () => {
   describe("GAP-01: Complete transaction queries & fund/donor filtering", () => {
     it("allows finance viewers to query up to 1000 offerings and expenses with fundId and donorMemberId", async () => {
-      const caller = appRouter.createCaller(createContext(treasurer));
+      const caller = appRouter.createCaller(createTestContext(treasurer));
       const offerings = await caller.offerings.list({
         limit: 1000,
         fundId: 1,
@@ -88,7 +88,7 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
     });
 
     it("rejects offerings.list and expenses.list limits above 1000 or non-positive fundId", async () => {
-      const caller = appRouter.createCaller(createContext(treasurer));
+      const caller = appRouter.createCaller(createTestContext(treasurer));
       await expect(
         caller.offerings.list({ limit: 1500 })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -103,7 +103,7 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
     });
 
     it("blocks non-finance roles (DEACON, MEMBER) from reading offerings or expenses lists", async () => {
-      const deaconCaller = appRouter.createCaller(createContext(deacon));
+      const deaconCaller = appRouter.createCaller(createTestContext(deacon));
       await expect(
         deaconCaller.offerings.list({ limit: 500 })
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
@@ -111,7 +111,7 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
         deaconCaller.expenses.list({ limit: 500 })
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
 
-      const memberCaller = appRouter.createCaller(createContext(member));
+      const memberCaller = appRouter.createCaller(createTestContext(member));
       await expect(
         memberCaller.offerings.list({ donorMemberId: 1 })
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
@@ -120,12 +120,12 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
 
   describe("GAP-02: Envelope number (envelopeNo) & donor-member linkage (donorMemberId)", () => {
     it("accepts envelopeNo on members.create and members.update for church leaders and validates length", async () => {
-      const pastorCaller = appRouter.createCaller(createContext(pastor));
+      const pastorCaller = appRouter.createCaller(createTestContext(pastor));
       // Valid envelopeNo passes input validation and reaches DB layer (which returns success or DB offline error, never BAD_REQUEST/FORBIDDEN)
       await expect(
         pastorCaller.members.update({
           id: 1,
-          fullName: "สมชาย ใจดี",
+          name: "สมชาย ใจดี",
           envelopeNo: "A-101",
         })
       ).rejects.not.toMatchObject({ code: "BAD_REQUEST" });
@@ -133,22 +133,24 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
       // Overly long envelopeNo (> 32 chars) is rejected by Zod input validation
       await expect(
         pastorCaller.members.create({
-          fullName: "สมชาย ใจดี",
+          name: "สมชาย ใจดี",
           envelopeNo: "ENV-" + "X".repeat(40),
         })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     });
 
     it("blocks TREASURER, DEACON, and MEMBER from creating or updating member envelopeNo", async () => {
-      const treasurerCaller = appRouter.createCaller(createContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       await expect(
         treasurerCaller.members.create({
-          fullName: "สมชาย ใจดี",
+          name: "สมชาย ใจดี",
           envelopeNo: "A-101",
         })
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
 
-      const deaconCaller = appRouter.createCaller(createContext(deacon));
+      const deaconCaller = appRouter.createCaller(createTestContext(deacon));
       await expect(
         deaconCaller.members.update({
           id: 1,
@@ -158,7 +160,9 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
     });
 
     it("validates donorMemberId on offerings.create and offerings.update", async () => {
-      const treasurerCaller = appRouter.createCaller(createContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       // Negative donorMemberId must fail Zod validation with BAD_REQUEST
       await expect(
         treasurerCaller.offerings.create({
@@ -187,7 +191,9 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
 
   describe("GAP-03: Full transaction editing & expense fund validation", () => {
     it("allows TREASURER and SUPER_ADMIN to pass all offering and expense update fields through schema validation", async () => {
-      const treasurerCaller = appRouter.createCaller(createContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       // Passes Zod validation and reaches updateOffering DB layer
       await expect(
         treasurerCaller.offerings.update({
@@ -225,7 +231,7 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
     });
 
     it("blocks PASTOR, DEACON, and MEMBER from mutating offerings or expenses", async () => {
-      const pastorCaller = appRouter.createCaller(createContext(pastor));
+      const pastorCaller = appRouter.createCaller(createTestContext(pastor));
       await expect(
         pastorCaller.offerings.update({ id: 1, amount: 500 })
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
@@ -235,7 +241,7 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
     });
 
     it("enforces assertActiveFund when reassigning fundId on expenses.update", async () => {
-      const adminCaller = appRouter.createCaller(createContext(superAdmin));
+      const adminCaller = appRouter.createCaller(createTestContext(superAdmin));
       // When DB is offline/empty in unit tests, fundId 999 does not exist so assertActiveFund throws BAD_REQUEST
       await expect(
         adminCaller.expenses.update({

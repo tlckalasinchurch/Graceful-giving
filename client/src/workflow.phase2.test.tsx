@@ -1,13 +1,13 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import React, { useState } from "react";
 
 describe("Phase 2 Cognitive Load & Workflow Regressions", () => {
   describe("NewOffering Record Next Envelope Workflow", () => {
     it("resets amount and notes but preserves fund, category, and date", () => {
       function OfferingTestHarness() {
-        const [fundId, setFundId] = useState("1");
-        const [category, setCategory] = useState("tithe");
+        const [fundId] = useState("1");
+        const [category] = useState("tithe");
         const [amount, setAmount] = useState("1000");
         const [notes, setNotes] = useState("ขอบพระคุณ");
         const [isSuccessOpen, setIsSuccessOpen] = useState(true);

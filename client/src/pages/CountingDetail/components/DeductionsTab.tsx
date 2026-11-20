@@ -3,7 +3,7 @@ import { Trash2 } from "lucide-react";
 import { FieldError, useFieldErrors } from "@/lib/formFeedback";
 import { MoneyDisplay, StatusBadge } from "@/components/common/CommonUI";
 import { EXPENSE_CATEGORIES } from "@shared/categories";
-import { fmtBaht } from "./countingUtils";
+import { fmtBaht, type CountingMutationProps } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Swal } from "@/lib/sweetalert";
 
@@ -24,10 +24,7 @@ interface DeductionsTabProps {
   }>;
   funds: Array<{ id: number; name: string }>;
   deductionTotal: number;
-  addDeduction: {
-    mutate: (vars: any, options?: any) => void;
-    isPending: boolean;
-  };
+  addDeduction: CountingMutationProps<"addDeduction">;
   removeDeduction: {
     mutate: (vars: { id: number; sessionId: number }) => void;
     isPending: boolean;

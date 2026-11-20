@@ -6,6 +6,10 @@ node_modules/
 dist/
 build/
 *.dist
+api/index.js
+
+# Archived reports — historical, not maintained
+docs/archive/
 
 # Generated files
 *.tsbuildinfo

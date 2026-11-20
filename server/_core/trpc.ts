@@ -21,7 +21,7 @@ export function readableInputMessage(cause: unknown, fallback: string): string {
  * friendly Thai message for internal server errors.
  */
 export function safeErrorMessage(
-  shape: { message: string; code: number; data: any },
+  shape: { message: string; code: number; data: unknown },
   error: TRPCError,
   ctx?: TrpcContext
 ): string {
@@ -30,8 +30,7 @@ export function safeErrorMessage(
   }
   const isSuperAdmin =
     ctx?.user &&
-    (ctx.user.role === "admin" ||
-      (ctx.user as any).churchRole === "SUPER_ADMIN");
+    (ctx.user.role === "admin" || ctx.user.churchRole === "SUPER_ADMIN");
   if (!isSuperAdmin && error.code === "INTERNAL_SERVER_ERROR") {
     return "เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง";
   }

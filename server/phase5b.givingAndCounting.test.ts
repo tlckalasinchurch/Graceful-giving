@@ -1,19 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
+import { createTestContext, makeUser } from "./test/testContext";
 import { reconcile, canTransition } from "@shared/counting";
 
-type User = NonNullable<TrpcContext["user"]>;
+// The slip-ingestion tests below prove the no-database failure path.
+// `pnpm run ci` points DATABASE_URL at an in-memory PGlite database, so pin
+// the database URLs off here — the assertions are about having no database,
+// not about the CI database — and restore them afterwards so no other file in
+// the worker sees the stub.
+vi.stubEnv("DATABASE_URL", "");
+vi.stubEnv("POSTGRES_URL", "");
+vi.stubEnv("POSTGRES_PRISMA_URL", "");
+afterAll(() => vi.unstubAllEnvs());
 
-function createContext(user: User | null): TrpcContext {
-  return {
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  };
-}
-
-const baseUser: User = {
+const baseUser = makeUser({
   id: 10,
   openId: "user-10",
   email: "user@example.com",
@@ -23,53 +23,44 @@ const baseUser: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const superAdmin: User = {
-  ...baseUser,
-  id: 1,
-  openId: "admin",
-  role: "admin",
-  churchRole: "SUPER_ADMIN",
-  churchRoles: "SUPER_ADMIN",
-};
-
-const treasurer: User = {
+const treasurer = makeUser({
   ...baseUser,
   id: 2,
   openId: "treasurer",
   churchRole: "TREASURER",
   churchRoles: "TREASURER",
-};
+});
 
-const pastor: User = {
+const pastor = makeUser({
   ...baseUser,
   id: 3,
   openId: "pastor",
   churchRole: "PASTOR",
   churchRoles: "PASTOR",
-};
+});
 
-const counter: User = {
+const counter = makeUser({
   ...baseUser,
   id: 4,
   openId: "counter",
   churchRole: "COUNTER",
   churchRoles: "COUNTER",
-};
+});
 
-const member: User = {
+const member = makeUser({
   ...baseUser,
   id: 5,
   openId: "member",
   churchRole: "MEMBER",
   churchRoles: "MEMBER",
-};
+});
 
 describe("Phase 5B — Giving & Counting Regression Suite", () => {
   describe("Task 1: GAP-05 Giving Station & Slip Ingestion", () => {
     it("validates that submitSlip requires a non-empty image and positive amount", async () => {
-      const caller = appRouter.createCaller(createContext(member));
+      const caller = appRouter.createCaller(createTestContext(member));
       await expect(
         caller.givingInbox.submitSlip({
           base64Data: "",
@@ -88,7 +79,7 @@ describe("Phase 5B — Giving & Counting Regression Suite", () => {
     });
 
     it("rejects non-image payloads such as HTML or invalid base64", async () => {
-      const caller = appRouter.createCaller(createContext(member));
+      const caller = appRouter.createCaller(createTestContext(member));
       const htmlBase64 = Buffer.from(
         "<html><body>Malicious</body></html>"
       ).toString("base64");
@@ -102,7 +93,7 @@ describe("Phase 5B — Giving & Counting Regression Suite", () => {
     });
 
     it("accepts valid JPEG slip data within size limit and handles storage gracefully", async () => {
-      const caller = appRouter.createCaller(createContext(member));
+      const caller = appRouter.createCaller(createTestContext(member));
       // Valid minimal 1x1 JPEG base64
       const validJpegBase64 =
         "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=";
@@ -120,7 +111,7 @@ describe("Phase 5B — Giving & Counting Regression Suite", () => {
     });
 
     it("allows submitting giving details without a slip as a fallback mechanism", async () => {
-      const caller = appRouter.createCaller(createContext(member));
+      const caller = appRouter.createCaller(createTestContext(member));
       // Submit without slip reaches DB validation
       await expect(
         caller.givingInbox.submitWithoutSlip({
@@ -198,24 +189,26 @@ describe("Phase 5B — Giving & Counting Regression Suite", () => {
     });
 
     it("blocks unauthorized users (MEMBER, COUNTER, PASTOR) from posting counting sessions", async () => {
-      const memberCaller = appRouter.createCaller(createContext(member));
+      const memberCaller = appRouter.createCaller(createTestContext(member));
       await expect(memberCaller.counting.post({ id: 1 })).rejects.toMatchObject(
         { code: "FORBIDDEN" }
       );
 
-      const counterCaller = appRouter.createCaller(createContext(counter));
+      const counterCaller = appRouter.createCaller(createTestContext(counter));
       await expect(
         counterCaller.counting.post({ id: 1 })
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
 
-      const pastorCaller = appRouter.createCaller(createContext(pastor));
+      const pastorCaller = appRouter.createCaller(createTestContext(pastor));
       await expect(pastorCaller.counting.post({ id: 1 })).rejects.toMatchObject(
         { code: "FORBIDDEN" }
       );
     });
 
     it("allows TREASURER and SUPER_ADMIN to call posting procedure with validation", async () => {
-      const treasurerCaller = appRouter.createCaller(createContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       // Reaches session lookup (throws NOT_FOUND when session does not exist in unit test)
       await expect(
         treasurerCaller.counting.post({ id: 99999 })

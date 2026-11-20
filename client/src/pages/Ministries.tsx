@@ -10,7 +10,6 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageMinistries } from "@shared/roles";
 import { CalendarClock, Plus, UserRound, X } from "lucide-react";
-import { toast } from "sonner";
 import { FieldError, formToast, useFieldErrors } from "@/lib/formFeedback";
 import {
   confirmDiscardChanges,

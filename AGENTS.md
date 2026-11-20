@@ -15,7 +15,7 @@ pnpm build    # vite build (dist/public) + esbuild server + esbuild api/index.js
 pnpm check    # tsc --noEmit (project-wide; tsconfig excludes **/*.test.ts only)
 pnpm test     # vitest run — server tests (node) AND client tests (jsdom)
 pnpm format   # prettier --write .
-pnpm ci       # pnpm check && pnpm test, with DATABASE_URL/POSTGRES_* blanked for the test run
+pnpm ci       # pnpm check && pnpm test, with DATABASE_URL pointed at in-memory PGlite and POSTGRES_* blanked for the test run
 pnpm db:push  # drizzle-kit generate && pnpm db:migrate (NOT drizzle-kit push)
 pnpm db:migrate       # apply pending migrations to the env's database
 pnpm db:migrate:deploy# production-build-only gate (see below)
@@ -26,7 +26,7 @@ Single test file: `pnpm exec vitest run server/updates.access.test.ts`. No lint 
 ## CI / deploy — Vercel is the only automation
 
 - **No GitHub Actions.** `vercel.json` `buildCommand`: `pnpm run ci && pnpm run build && pnpm run db:migrate:deploy`. A typecheck/test failure blocks deploy; a migration failure fails the build and the old version stays live. Migrations run in one transaction.
-- `pnpm ci` blanks `DATABASE_URL`, `POSTGRES_URL`, `POSTGRES_PRISMA_URL` **for the test run only** — Vercel's build env sets them and the integration suites would otherwise hit the live DB. Keep that guard intact.
+- `pnpm ci` points `DATABASE_URL` at in-memory PGlite (`pglite://test`, see `server/test/pgliteTestDb.ts` + the `pglite://` branch in `server/db.ts`) and blanks `POSTGRES_URL`/`POSTGRES_PRISMA_URL` **for the test run only** — Vercel's build env sets them and the integration suites would otherwise hit the live DB. Keep that guard intact: no real database URL may reach the test run.
 - Preview and production **share one `DATABASE_URL`**; `db:migrate:deploy` migrates on **production builds only** (`scripts/migrate.ts --only-production` → `shouldMigrate` in `server/migrate.ts`). Previews skip migrating by design — an unmerged schema change is not applied until merge. `SKIP_DB_MIGRATE=1` is the emergency bypass. `DATABASE_URL_MIGRATE` (owner role) is for the production build only; without it the migration step fails on purpose.
 - Schema changes: edit `drizzle/schema.ts`, then `pnpm exec drizzle-kit generate --name <what_changed>` — it needs `DATABASE_URL` set to **any** value but does not connect. Check the SQL holds only your change; never hand-edit it; commit the SQL **and** `drizzle/meta/` (`server/drizzle.sync.test.ts` fails otherwise). The app does **not** alter the schema on connect — migrations run at deploy time. Write them backward-compatible with the currently-live code (add a column, don't rename one). Read `drizzle/README.md` before touching the schema (`0000_baseline.sql` is idempotent; `drizzle/legacy/` is never run; `bank_signers`/`withdrawal_approvals` are owned by `app_user`, not the owner role).
 - `.env.example` is stale (mentions Clerk; Clerk is not used). Real settings are enumerated in `server/_core/config.ts`, which logs names (never values) missing on cold start — check there first when a feature silently no-ops. Key ones: `LINE_LOGIN_CHANNEL_ID/SECRET`, `APP_URL`, `JWT_SECRET`, `OWNER_OPEN_ID` (signing in as this user creates an active SUPER_ADMIN; everyone else starts `pending`), `LINE_CHANNEL_SECRET/ACCESS_TOKEN` (slip webhook), `CRON_SECRET`, `GOOGLE_API_KEY`/`GEMINI_API_KEY` (slip OCR), `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`.
@@ -56,7 +56,7 @@ Single test file: `pnpm exec vitest run server/updates.access.test.ts`. No lint 
 ### Testing
 
 - Server tests call `appRouter.createCaller(ctx)` directly (no HTTP) with a fake `TrpcContext`; access-control tests assert thrown tRPC error codes. Client tests run in jsdom (`environmentMatchGlobs` in `vitest.config.ts`).
-- Row-writing integration suites skip themselves unless `DATABASE_URL` is set (and need a migrated DB): `budgets.integration`, `counting.workflow`, `reports.integration`, `withdrawals.workflow` — expect skipped files locally.
+- Row-writing integration suites skip themselves unless `DATABASE_URL` is set (and need a migrated DB): `budgets.integration`, `counting.workflow`, `reports.integration`, `withdrawals.workflow`, `finance.dateIntegrity.integration` — under `pnpm ci` they run against in-memory PGlite with the real migrations applied; expect skipped files locally with no `DATABASE_URL`. Tests that prove the no-database behaviour pin the database URLs off with `vi.stubEnv` (see `server/audit.db.test.ts`) instead of relying on ambient env.
 - `server/test/setupTenant.ts` (vitest setupFile) assigns a unique `test-<uuid>` `CHURCH_ID` per file **only when `DATABASE_URL` is set**, early enough for `DEFAULT_CHURCH_ID`'s module-scope read; writers call `purgeTenant` (`server/test/tenant.ts`) in `afterAll` to drop the whole tenant. If adding a row-writing suite: scope every statement by `churchId` and inherit this mechanism.
 
 ## Local tooling quirks

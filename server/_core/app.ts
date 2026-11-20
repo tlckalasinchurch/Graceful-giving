@@ -15,6 +15,15 @@ export function createApp(): Express {
   if (ENV.isProduction) reportMissingConfig();
   const app = express();
 
+  // One trusted proxy hop on Vercel: the edge overwrites x-forwarded-for
+  // with the single client IP, so with `trust proxy` 1 Express resolves
+  // req.ip to that client (rateLimit.ts relies on it). Self-hosted there
+  // is no proxy in front, so trust proxy stays off and req.ip is the
+  // direct socket peer — a client-supplied x-forwarded-for is ignored.
+  if (process.env.VERCEL) {
+    app.set("trust proxy", 1);
+  }
+
   // CORS — restrict to the configured origin in production; open in dev.
   if (ENV.allowedOrigin) {
     app.use(cors({ origin: ENV.allowedOrigin, credentials: true }));

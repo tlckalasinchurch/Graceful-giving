@@ -1,0 +1,38 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  // Dead-code detection for the audit's dead-code concern. Knip runs as
+  // `pnpm run lint:knip` (separate from `pnpm run lint`) so its findings
+  // stay advisory until the team triages them — see the Phase 10 report.
+  //
+  // Entry points: every test file (test helpers are used by tests, not by
+  // shipped code, and must not be flagged as dead). The app/server/config
+  // entries are auto-detected by knip's vite/vitest/package.json plugins
+  // and are not repeated here.
+  "entry": [
+    // server/db.ts and server/routers.ts are the Phase 4 split barrels —
+    // listing them as entries keeps knip from flagging their re-exports as
+    // unused. The app/server/config entries are auto-detected by knip's
+    // vite/vitest/package.json plugins and are not repeated here.
+    "server/db.ts",
+    "server/routers.ts",
+    "server/**/*.test.ts",
+    "client/**/*.test.{ts,tsx}"
+  ],
+  "project": [
+    "client/src/**/*.{ts,tsx}",
+    "server/**/*.{ts,tsx}",
+    "shared/**/*.{ts,tsx}",
+    "scripts/**/*.{ts,mts,mjs,js}"
+  ],
+  // Generated / vendored / archived paths are outside knip's `project`
+  // globs above, so no `ignore` list is needed. (drizzle.config.ts is
+  // excluded the same way; the drizzle plugin is disabled below because
+  // loading that config throws unless DATABASE_URL is set.)
+  // pnpm is the package manager itself; tailwindcss and tw-animate-css are
+  // imported from CSS (`client/src/index.css`), which knip does not trace.
+  "ignoreDependencies": ["pnpm", "tailwindcss", "tw-animate-css"],
+  // The drizzle-kit plugin loads drizzle.config.ts, which throws unless
+  // DATABASE_URL is set. Drizzle files are SQL + schema (outside the
+  // `project` globs), so the plugin adds nothing here — disable it.
+  "drizzle": false
+}
