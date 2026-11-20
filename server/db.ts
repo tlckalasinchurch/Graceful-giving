@@ -158,11 +158,35 @@ export async function getDb() {
   // Share one connection attempt between parallel requests. Without this,
   // each request opened its own client and exhausted the pooler.
   if (!_dbPromise) {
-    _dbPromise = connectDb(dbUrl).finally(() => {
+    _dbPromise = (
+      isPgliteUrl(dbUrl) ? connectPgliteDb() : connectDb(dbUrl)
+    ).finally(() => {
       _dbPromise = null;
     });
   }
   return _dbPromise;
+}
+
+/**
+ * `pglite://` is the test-only marker `pnpm run ci` sets as DATABASE_URL: an
+ * in-memory Postgres (PGlite) with the real migrations applied, so the
+ * row-writing integration suites run without a Postgres server and without
+ * ever touching a real database. No deployment ever uses this scheme, so the
+ * production connection path below is untouched.
+ */
+function isPgliteUrl(dbUrl: string): boolean {
+  return dbUrl.startsWith("pglite://");
+}
+
+async function connectPgliteDb(): Promise<ReturnType<typeof drizzle>> {
+  // Dynamic import: @electric-sql/pglite is a devDependency, and this module
+  // must never load on a production path.
+  const { createPgliteTestDb } = await import("./test/pgliteTestDb");
+  const db = (await createPgliteTestDb()) as unknown as ReturnType<
+    typeof drizzle
+  >;
+  _db = db;
+  return db;
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────

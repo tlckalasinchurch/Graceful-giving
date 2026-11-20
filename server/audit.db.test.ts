@@ -1,5 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { DEFAULT_CHURCH_ID, listAuditLogs, createAuditLog } from "./db";
+
+// This file proves the no-database behaviour. `pnpm run ci` points
+// DATABASE_URL at an in-memory PGlite database, so pin the database URLs off
+// here — the assertions below are about having no database, not about the CI
+// database — and restore them afterwards so no other file in the worker sees
+// the stub.
+vi.stubEnv("DATABASE_URL", "");
+vi.stubEnv("POSTGRES_URL", "");
+vi.stubEnv("POSTGRES_PRISMA_URL", "");
+afterAll(() => vi.unstubAllEnvs());
 
 describe("audit DB operations outside a live database", () => {
   it("degrades gracefully to empty array when database is not connected", async () => {

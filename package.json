@@ -10,7 +10,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
-    "ci": "pnpm check && cross-env DATABASE_URL= POSTGRES_URL= POSTGRES_PRISMA_URL= pnpm test",
+    "ci": "pnpm check && cross-env DATABASE_URL=pglite://test POSTGRES_URL= POSTGRES_PRISMA_URL= pnpm test",
     "db:push": "drizzle-kit generate && pnpm run db:migrate",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:migrate:deploy": "tsx scripts/migrate.ts --only-production"

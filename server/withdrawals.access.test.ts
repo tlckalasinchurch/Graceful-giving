@@ -1,8 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
+
+// The input-limit test below proves valid input reaches the data layer by
+// expecting the no-database failure there. `pnpm run ci` points DATABASE_URL
+// at an in-memory PGlite database, so pin the database URLs off here — the
+// assertion is about having no database, not about the CI database — and
+// restore them afterwards so no other file in the worker sees the stub.
+vi.stubEnv("DATABASE_URL", "");
+vi.stubEnv("POSTGRES_URL", "");
+vi.stubEnv("POSTGRES_PRISMA_URL", "");
+afterAll(() => vi.unstubAllEnvs());
 
 type User = NonNullable<TrpcContext["user"]>;
 

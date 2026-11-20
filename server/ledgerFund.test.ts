@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+
+// These tests run without a database (see the describe comment below).
+// `pnpm run ci` points DATABASE_URL at an in-memory PGlite database, so pin
+// the database URLs off here to keep that premise true — and restore them
+// afterwards so no other file in the worker sees the stub.
+vi.stubEnv("DATABASE_URL", "");
+vi.stubEnv("POSTGRES_URL", "");
+vi.stubEnv("POSTGRES_PRISMA_URL", "");
+afterAll(() => vi.unstubAllEnvs());
 
 type User = NonNullable<TrpcContext["user"]>;
 
