@@ -10,14 +10,12 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { sql } from "drizzle-orm";
 import { appRouter } from "./routers";
 import { getDb } from "./db";
-import type { TrpcContext } from "./_core/context";
+import { createTestContext, makeUser } from "./test/testContext";
 import { TEST_CHURCH_ID, purgeTenant } from "./test/tenant";
-
-type User = NonNullable<TrpcContext["user"]>;
 
 const describeDb = process.env.DATABASE_URL ? describe : describe.skip;
 
-const treasurer: User = {
+const treasurer = makeUser({
   id: 960,
   openId: "budget-treasurer",
   email: null,
@@ -28,14 +26,9 @@ const treasurer: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-const caller = () =>
-  appRouter.createCaller({
-    user: treasurer,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  });
+const caller = () => appRouter.createCaller(createTestContext(treasurer));
 
 // A year no other suite writes into.
 const YEAR = 2032;

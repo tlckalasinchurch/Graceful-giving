@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
+import { type TestUser, createTestContext, makeUser } from "./test/testContext";
 
 // These tests run without a database (see the describe comment below).
 // `pnpm run ci` points DATABASE_URL at an in-memory PGlite database, so pin
@@ -11,9 +11,7 @@ vi.stubEnv("POSTGRES_URL", "");
 vi.stubEnv("POSTGRES_PRISMA_URL", "");
 afterAll(() => vi.unstubAllEnvs());
 
-type User = NonNullable<TrpcContext["user"]>;
-
-const base: User = {
+const base = makeUser({
   id: 4,
   openId: "treasurer",
   email: null,
@@ -24,15 +22,11 @@ const base: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
-const member: User = { ...base, id: 2, openId: "member", churchRole: "MEMBER" };
+});
+const member = makeUser({ ...base, id: 2, openId: "member", churchRole: "MEMBER" });
 
-function callerFor(user: User) {
-  return appRouter.createCaller({
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  });
+function callerFor(user: TestUser) {
+  return appRouter.createCaller(createTestContext(user));
 }
 
 // An entry with no fund changes no fund balance, so the total balance stops
@@ -43,8 +37,8 @@ describe("ledger entries need a fund", () => {
   const treasurer = () => callerFor(base);
 
   it("offerings.create refuses a missing fund", async () => {
-    // @ts-expect-error fundId is required
     await expect(
+      // @ts-expect-error fundId is required
       treasurer().offerings.create({ amount: 100 })
     ).rejects.toMatchObject({
       code: "BAD_REQUEST",

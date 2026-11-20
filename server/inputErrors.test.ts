@@ -4,10 +4,9 @@ import { TRPCError } from "@trpc/server";
 import { appRouter } from "./routers";
 import { readableInputMessage, safeErrorMessage } from "./_core/trpc";
 import type { TrpcContext } from "./_core/context";
+import { type TestUser, createTestContext, makeUser } from "./test/testContext";
 
-type User = NonNullable<TrpcContext["user"]>;
-
-const member: User = {
+const member = makeUser({
   id: 2,
   openId: "member",
   email: null,
@@ -18,14 +17,10 @@ const member: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
   lastSignedIn: new Date(),
-};
+});
 
-function callerFor(user: User | null) {
-  return appRouter.createCaller({
-    user,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
-  });
+function callerFor(user: TestUser | null) {
+  return appRouter.createCaller(createTestContext(user));
 }
 
 describe("readableInputMessage", () => {

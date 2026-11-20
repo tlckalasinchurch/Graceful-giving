@@ -3,13 +3,12 @@ import { appRouter } from "./routers";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { COOKIE_NAME } from "../shared/const";
 import type { TrpcContext } from "./_core/context";
+import { makeUser } from "./test/testContext";
 
 type CookieCall = {
   name: string;
   options: Record<string, unknown>;
 };
-
-type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
 function createAuthContext(): {
   ctx: TrpcContext;
@@ -17,7 +16,7 @@ function createAuthContext(): {
 } {
   const clearedCookies: CookieCall[] = [];
 
-  const user: AuthenticatedUser = {
+  const user = makeUser({
     id: 1,
     openId: "sample-user",
     email: "sample@example.com",
@@ -27,7 +26,7 @@ function createAuthContext(): {
     createdAt: new Date(),
     updatedAt: new Date(),
     lastSignedIn: new Date(),
-  };
+  });
 
   const ctx: TrpcContext = {
     user,
@@ -39,7 +38,7 @@ function createAuthContext(): {
       clearCookie: (name: string, options: Record<string, unknown>) => {
         clearedCookies.push({ name, options });
       },
-    } as TrpcContext["res"],
+    } as unknown as TrpcContext["res"],
   };
 
   return { ctx, clearedCookies };
