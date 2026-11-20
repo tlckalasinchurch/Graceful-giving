@@ -1,12 +1,18 @@
 {
   "include": ["client/src/**/*", "shared/**/*", "server/**/*", "api/**/*"],
-  "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
+  "exclude": ["node_modules", "build", "dist"],
   "compilerOptions": {
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
     "noEmit": true,
     "module": "ESNext",
+    // The runtime is Node 20+ / modern browsers (Vite + esbuild handle emit);
+    // without an explicit target tsc defaults to ES5, which rejects the
+    // ES2018+ iteration and regex features the tests already use.
+    "target": "ES2020",
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "jsx": "preserve",
     "esModuleInterop": true,
