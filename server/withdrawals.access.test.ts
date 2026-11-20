@@ -103,8 +103,6 @@ describe("withdrawals: signing is for the people on the bank account", () => {
     await expect(
       caller.withdrawals.sign({
         id: 1,
-        // @ts-expect-error note is mandatory with a rejection: the requester
-        // must be able to read why.
         decision: "rejected",
       })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });

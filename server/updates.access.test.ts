@@ -84,11 +84,9 @@ describe("church updates access", () => {
 
   it("validates deletion parameters", async () => {
     const adminCaller = appRouter.createCaller(createTestContext(admin));
-    // @ts-expect-error test invalid negative or zero id
     await expect(
       adminCaller.updates.deleteNews({ id: 0 })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
-    // @ts-expect-error test invalid negative or zero id
     await expect(
       adminCaller.updates.deleteEvent({ id: -5 })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });

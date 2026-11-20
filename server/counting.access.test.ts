@@ -168,8 +168,8 @@ describe("counting: input validation", () => {
   it("requires a fund on every envelope", async () => {
     const caller = appRouter.createCaller(createTestContext(counter));
     await expect(
+      // @ts-expect-error fundId is mandatory: an envelope must land in a fund.
       caller.counting.addEnvelope({
-        // @ts-expect-error fundId is mandatory: an envelope must land in a fund.
         sessionId: 1,
         amount: 500,
         isAnonymous: false,
@@ -194,9 +194,9 @@ describe("counting: input validation", () => {
   it("requires a fund on a deduction so the balance cannot overstate the bank", async () => {
     const caller = appRouter.createCaller(createTestContext(counter));
     await expect(
+      // @ts-expect-error fundId is mandatory: cash leaving the bag must
+      // reduce a fund, or the fund balance overstates the bank deposit.
       caller.counting.addDeduction({
-        // @ts-expect-error fundId is mandatory: cash leaving the bag must
-        // reduce a fund, or the fund balance overstates the bank deposit.
         sessionId: 1,
         purpose: "ค่าน้ำดื่ม",
         reason: "ซื้อสดวันนี้",

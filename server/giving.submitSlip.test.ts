@@ -330,6 +330,7 @@ describe("existing slip endpoints stay finance-only", () => {
       caller.givingInbox.uploadSlip({ base64Data: PNG_B64 })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(
+      // @ts-expect-error fundId is required
       caller.offerings.create({ amount: 100, category: "cash" })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
