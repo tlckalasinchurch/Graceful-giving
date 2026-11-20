@@ -17,6 +17,7 @@ import {
   canCountOfferings,
 } from "@shared/roles";
 import { Swal } from "@/lib/sweetalert";
+import { friendlyErrorMessage } from "@/lib/errors";
 import {
   Shield,
   Briefcase,
@@ -283,7 +284,7 @@ export default function Profile() {
     onError: err => {
       Swal.error(
         "เกิดข้อผิดพลาดในการบันทึก",
-        err.message || "กรุณาลองใหม่อีกครั้ง"
+        friendlyErrorMessage(err, "กรุณาลองใหม่อีกครั้ง")
       );
     },
     onSettled: () => {

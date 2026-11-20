@@ -184,7 +184,7 @@ export default function GivingInbox() {
       }
     },
     onError: err => {
-      const msg = err.message || "เกิดข้อผิดพลาดในการอนุมัติสลิป";
+      const msg = friendlyErrorMessage(err, "เกิดข้อผิดพลาดในการอนุมัติสลิป");
       if (msg.includes("ได้รับการอนุมัติไปแล้ว") || msg.includes("CONFLICT")) {
         Swal.warning(
           "รายการถูกดำเนินการแล้ว",
@@ -216,7 +216,7 @@ export default function GivingInbox() {
       }
     },
     onError: err => {
-      const msg = err.message || "เกิดข้อผิดพลาดในการปฏิเสธสลิป";
+      const msg = friendlyErrorMessage(err, "เกิดข้อผิดพลาดในการปฏิเสธสลิป");
       if (msg.includes("อนุมัติ") || msg.includes("CONFLICT")) {
         formToast.error(
           TOAST_KEY,
@@ -244,7 +244,10 @@ export default function GivingInbox() {
       setSelectedSlipId(data.slipId);
     },
     onError: err => {
-      Swal.error("อัปโหลดไม่สำเร็จ", err.message);
+      Swal.error(
+        "อัปโหลดไม่สำเร็จ",
+        friendlyErrorMessage(err, "เกิดข้อผิดพลาดในการอัปโหลดสลิป")
+      );
     },
   });
 

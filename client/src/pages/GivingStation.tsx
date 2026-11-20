@@ -339,9 +339,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     } catch (err) {
       formToast.error(
         TOAST_KEY,
-        err instanceof Error && err.message
-          ? err.message
-          : "สร้างรูปโปสเตอร์ไม่สำเร็จ ลองใหม่อีกครั้ง"
+        friendlyErrorMessage(err, "สร้างรูปโปสเตอร์ไม่สำเร็จ ลองใหม่อีกครั้ง")
       );
     } finally {
       setPosterBusy(false);

@@ -72,7 +72,11 @@ describe("startup config check", () => {
 });
 
 describe("rate limiter", () => {
-  const run = (limiter: ReturnType<typeof createRateLimiter>, ip: string) => {
+  const run = (
+    limiter: ReturnType<typeof createRateLimiter>,
+    ip: string,
+    forwardedFor = ip
+  ) => {
     const res = {
       statusCode: 200,
       headers: {} as Record<string, string>,
@@ -89,7 +93,7 @@ describe("rate limiter", () => {
     };
     const next = vi.fn();
     limiter(
-      { headers: { "x-forwarded-for": ip } } as never,
+      { headers: { "x-forwarded-for": forwardedFor }, ip } as never,
       res as never,
       next
     );
@@ -122,12 +126,51 @@ describe("rate limiter", () => {
     vi.useRealTimers();
   });
 
-  it("takes the first address of x-forwarded-for", () => {
+  it("counts by req.ip, so a spoofed x-forwarded-for buys no fresh bucket", () => {
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 1 });
+    expect(run(limiter, "1.1.1.1", "9.9.9.9").next).toHaveBeenCalled();
+    const spoofed = run(limiter, "1.1.1.1", "8.8.8.8");
+    expect(spoofed.next).not.toHaveBeenCalled();
+    expect(spoofed.res.statusCode).toBe(429);
+  });
+
+  it("prefers req.ip over x-forwarded-for", () => {
+    expect(
+      clientAddress({
+        headers: { "x-forwarded-for": "9.9.9.9" },
+        ip: "1.2.3.4",
+      } as never)
+    ).toBe("1.2.3.4");
+  });
+
+  it("falls back to the first address of x-forwarded-for when req.ip is absent", () => {
     expect(
       clientAddress({
         headers: { "x-forwarded-for": "9.9.9.9, 10.0.0.1" },
       } as never)
     ).toBe("9.9.9.9");
+  });
+});
+
+describe("trust proxy", () => {
+  it("trusts one proxy hop on Vercel, so req.ip is the client", async () => {
+    vi.stubEnv("VERCEL", "1");
+    const { createApp } = await import("./_core/app");
+    try {
+      expect(createApp().get("trust proxy")).toBe(1);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("trusts no proxy when self-hosted, so a spoofed header is ignored", async () => {
+    vi.stubEnv("VERCEL", "");
+    const { createApp } = await import("./_core/app");
+    try {
+      expect(createApp().get("trust proxy")).toBeFalsy();
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
 

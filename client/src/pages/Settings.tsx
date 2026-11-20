@@ -156,7 +156,7 @@ export default function Settings() {
     } catch (err: any) {
       await Swal.error(
         "ไม่สามารถเปลี่ยนบทบาทได้",
-        err.message || "เกิดข้อผิดพลาดในการปรับเปลี่ยนบทบาท"
+        friendlyErrorMessage(err, "เกิดข้อผิดพลาดในการปรับเปลี่ยนบทบาท")
       );
     } finally {
       setUpdatingUserId(null);
