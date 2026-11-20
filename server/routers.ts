@@ -6,132 +6,72 @@
 import { systemRouter } from "./_core/systemRouter";
 import { router } from "./_core/trpc";
 import { type User } from "../drizzle/schema";
-import { getSessionCookieOptions } from "./_core/cookies";
-import {
-  protectedProcedure,
-  publicProcedure,
-} from "./_core/trpc";
-import { assertCsvWithinLimit } from "./csvLimit";
+import { protectedProcedure } from "./_core/trpc";
 import {
   DEFAULT_CHURCH_ID,
   DuplicateEntryError,
   WorkflowError,
   addBankRecord,
-  addBankSigner,
   addOfferingEnvelope,
   addSessionDeduction,
   addSessionDocument,
   approveLineSlip,
   approveSessionDeduction,
-  archiveMinistry,
   attachPendingWithdrawals,
   cancelWithdrawalRequest,
-  countPendingUsers,
   countRecentManualSlips,
   countRecentSystemRejectedSlips,
-  countUnreadNotifications,
   createAuditLog,
-  createBudgetPlan,
-  createChurchEvent,
-  createChurchNews,
   createCountingSession,
   createExpense,
-  createFinanceAccount,
   createManualSlip,
-  createMember,
-  createMinistry,
   createNoSlipEntry,
   createNotification,
   createOffering,
   createWithdrawalRequest,
-  deactivateMember,
   deleteBankRecord,
-  deleteBudgetPlan,
-  deleteChurchEvent,
-  deleteChurchNews,
   deleteCountingSession,
-  deleteInactiveUser,
   deleteOfferingEnvelope,
   deleteSessionDeduction,
   disburseWithdrawal,
   exportExpensesCsvData,
   exportOfferingsCsvData,
-  exportTransactionsCsvData,
   findEarlierUnpostedSession,
-  getAllUsers,
-  getBudgetPlanById,
-  getChurchProfile,
   getCountingSession,
   getCountingSessionDetail,
   getExpenseById,
   getExpensesSummary,
-  getFinancialReportData,
-  getFinancialReportSummary,
-  getFinancialSummary,
   getLineInboxStats,
   getLineSlipById,
-  getMemberById,
-  getMinistryById,
-  getMonthlyStats,
   getMyManualSlip,
   getOfferingById,
   getOfferingsSummary,
-  getStationPosterJson,
-  getTransactionsSummary,
   getWithdrawalRequestBasic,
   isBankSigner,
   linkLineUserToMember,
-  listAllChurchEvents,
-  listAllChurchNews,
-  listAuditLogs,
-  listBankSigners,
-  listBudgetPlans,
   listCountingSessions,
   listExpenses,
   listExpensesPaged,
   listFinanceAccounts,
   listLineSlips,
-  listMembers,
-  listMinistries,
   listMyManualSlips,
-  listNotifications,
   listOfferings,
   listOfferingsPaged,
-  listPublishedChurchEvents,
-  listPublishedChurchNews,
-  listTransactionsPaged,
   listWithdrawalRequests,
-  markAllNotificationsRead,
-  markNotificationRead,
-  markSetupCompleted,
   matchBankRecordToPassbook,
   postCountingSession,
   rejectLineSlip,
-  removeBankSigner,
   rescanLineSlip,
   resetCountingSession,
   resolveOpeningBalances,
-  saveStationPosterJson,
   setCashCount,
   setCountingCarryFields,
   setCountingSessionStatus,
-  setRequiredBankSigner,
-  setUserStatus,
   signWithdrawalRequest,
-  updateBudgetPlan,
-  updateChurchEvent,
-  updateChurchEventStatus,
-  updateChurchNews,
-  updateChurchNewsStatus,
   updateExpense,
   updateLineSlipReview,
-  updateMember,
-  updateMinistry,
   updateOffering,
   updateOfferingEnvelope,
-  updateUserChurchRole,
-  updateUserProfile,
-  upsertChurchProfile,
   voidExpense,
   voidOffering,
 } from "./db";
@@ -147,7 +87,6 @@ import {
   RECEIPT_EXTENSIONS,
   SLIP_CHECK_WAIT_MS,
   SLIP_READ_TIMEOUT_MS,
-  adminProcedure,
   allowSlipRead,
   assertActiveFund,
   assertCanCount,
@@ -155,42 +94,24 @@ import {
   assertCountEditable,
   assertNotPosted,
   assertSplitSound,
-  budgetMonth,
-  budgetProcedure,
-  budgetYear,
   canApproveDeduction,
   canManageChurchSettings,
   canManageFinance,
   canViewDonorNames,
-  churchLeaderProcedure,
-  churchRoleEnum,
-  csvCell,
   drainWorkerWithin,
-  eventStatus,
   expenseCategory,
   expenseStatus,
   financeProcedure,
   financeViewProcedure,
-  fundManageProcedure,
-  fundReadProcedure,
-  getUserRoles,
-  memberDetailProcedure,
-  memberReadProcedure,
-  ministryProcedure,
-  newsCategory,
-  newsStatus,
   notifyDonorOfDecision,
   notifyFinanceOfNewEntry,
   offeringCategory,
   paymentMethod,
-  redactChurchProfile,
-  reportDateRange,
   requireCountingSession,
   splitItems,
   splitLine,
 } from "./routers/common";
 import { storagePut } from "./storage";
-import { COOKIE_NAME } from "@shared/const";
 import {
   BANK_RECORD_TYPES,
   canTransition,
@@ -204,337 +125,28 @@ import {
   checkTransferDate,
 } from "@shared/givingLimits";
 import { MAX_SPLIT_LINES } from "@shared/givingSplit";
-import {
-  buildPromptPayPayload,
-  parsePromptPayId,
-} from "@shared/promptpay";
 import { UNREADABLE_SLIP } from "@shared/slipReading";
-import {
-  parseStationPoster,
-  stationPosterSchema,
-} from "@shared/stationPoster";
 import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { authRouter } from "./routers/auth";
+import { churchRouter } from "./routers/church";
+import { financeRouter } from "./routers/finance";
+import { transactionsRouter } from "./routers/transactions";
+import { bankSignersRouter } from "./routers/bankSigners";
+import { membersRouter } from "./routers/members";
+import { ministriesRouter } from "./routers/ministries";
+import { budgetsRouter } from "./routers/budgets";
+import { notificationsRouter } from "./routers/notifications";
+import { reportsRouter } from "./routers/reports";
+import { updatesRouter } from "./routers/updates";
+import { auditRouter } from "./routers/audit";
 
 export const appRouter = router({
   system: systemRouter,
-  auth: router({
-    me: publicProcedure.query(async opts => {
-      const user = opts.ctx.user;
-      if (!user) return null;
-      const roles = getUserRoles(user);
-      const signer = await isBankSigner(user.id);
-      return {
-        ...user,
-        roles,
-        isBankSigner: signer !== null,
-      };
-    }),
-    /** Sign-in state for the login screen. Works for signed-out and pending people. */
-    status: publicProcedure.query(({ ctx }) => {
-      if (ctx.user) return { state: "active" as const };
-      if (ctx.account) {
-        return {
-          state: ctx.account.status,
-          name: ctx.account.name,
-          avatarUrl: ctx.account.avatarUrl,
-          openId: ctx.account.openId,
-        };
-      }
-      return { state: "signed_out" as const };
-    }),
-    listUsers: churchLeaderProcedure.query(async () => {
-      return await getAllUsers();
-    }),
-    updateProfile: protectedProcedure
-      .input(
-        z.object({
-          name: z.string().trim().min(1).max(180).optional(),
-          avatarUrl: z.string().nullable().optional(),
-          phone: z.string().max(40).nullable().optional(),
-          department: z.string().max(120).nullable().optional(),
-          bio: z.string().max(500).nullable().optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        await updateUserProfile(ctx.user.id, input);
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "update_profile",
-          entity: "user",
-          entityId: ctx.user.id,
-          metadata: { fields: Object.keys(input) },
-        });
-        return { success: true } as const;
-      }),
-    logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return { success: true } as const;
-    }),
-    /** Set the church role of a user (SUPER_ADMIN only). Also approves a pending person. */
-    setChurchRole: adminProcedure
-      .input(
-        z.object({
-          userId: z.number().int().positive(),
-          churchRole: churchRoleEnum.nullable(),
-          churchRoles: z.array(churchRoleEnum).optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        // Changing your own role could remove the last super admin. Another
-        // super admin makes this change instead.
-        if (input.userId === ctx.user.id) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message:
-              "เปลี่ยนบทบาทของตัวเองไม่ได้ ให้ผู้ดูแลระบบคนอื่นเปลี่ยนให้",
-          });
-        }
-        const roles =
-          input.churchRoles || (input.churchRole ? [input.churchRole] : null);
-        await updateUserChurchRole(input.userId, input.churchRole, roles);
-        await setUserStatus(input.userId, "active");
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "update_user_role",
-          entity: "user",
-          entityId: input.userId,
-          metadata: {
-            assignedRole: input.churchRole,
-            assignedRoles: roles,
-            updatedBy: ctx.user.name || ctx.user.email,
-          },
-        });
-        return { success: true } as const;
-      }),
-    /** How many people signed in with LINE and wait for approval (SUPER_ADMIN only). */
-    pendingCount: adminProcedure.query(async () => ({
-      count: await countPendingUsers(),
-    })),
-    /** Delete a pending or disabled account (SUPER_ADMIN only). */
-    deleteUser: adminProcedure
-      .input(z.object({ userId: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        if (input.userId === ctx.user.id) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "ลบบัญชีของตัวเองไม่ได้",
-          });
-        }
-        const target = (await getAllUsers()).find(u => u.id === input.userId);
-        if (!target) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบผู้ใช้" });
-        }
-        const deleted = await deleteInactiveUser(input.userId);
-        if (!deleted) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "ต้องปิดการใช้งานบัญชีก่อน จึงจะลบได้",
-          });
-        }
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "delete_user",
-          entity: "user",
-          entityId: input.userId,
-          metadata: {
-            name: target.name,
-            openId: target.openId,
-            status: target.status,
-            churchRole: target.churchRole,
-          },
-        });
-        return { success: true } as const;
-      }),
-    /** Approve, disable, or re-enable an account (SUPER_ADMIN only). */
-    setUserStatus: adminProcedure
-      .input(
-        z.object({
-          userId: z.number().int().positive(),
-          status: z.enum(["active", "disabled"]),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        if (input.userId === ctx.user.id) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "ปิดการใช้งานบัญชีของตัวเองไม่ได้",
-          });
-        }
-        await setUserStatus(input.userId, input.status);
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: input.status === "active" ? "approve_user" : "disable_user",
-          entity: "user",
-          entityId: input.userId,
-          metadata: { status: input.status },
-        });
-        return { success: true } as const;
-      }),
-  }),
-  church: router({
-    getProfile: protectedProcedure.query(async ({ ctx }) => {
-      return redactChurchProfile(await getChurchProfile(), ctx.user);
-    }),
-    updateProfile: churchLeaderProcedure
-      .input(
-        z.object({
-          name: z.string().trim().min(2).max(180),
-          address: z.string().trim().max(1000).optional(),
-          phone: z.string().trim().max(20).optional(),
-          email: z.string().email().max(320).optional().or(z.literal("")),
-          website: z.string().url().max(500).optional().or(z.literal("")),
-          pastorName: z.string().trim().max(120).optional(),
-          assistantPastorName: z.string().trim().max(120).optional(),
-          treasurerName: z.string().trim().max(120).optional(),
-          bankName: z.string().trim().max(120).optional(),
-          bankAccount: z.string().trim().max(30).optional(),
-          bankAccountName: z.string().trim().max(120).optional(),
-          /** Empty clears it. Left out, it stays as it is. */
-          promptPayId: z
-            .string()
-            .trim()
-            .max(20)
-            .refine(v => v === "" || parsePromptPayId(v) !== null, {
-              message:
-                "เลขพร้อมเพย์ต้องเป็นเบอร์มือถือ 10 หลัก เลขประจำตัว 13 หลัก หรือ e-Wallet 15 หลัก",
-            })
-            .optional(),
-          fiscalYearStartMonth: z.number().int().min(1).max(12).default(1),
-          motto: z.string().trim().max(280).optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { promptPayId, ...rest } = input;
-        await upsertChurchProfile({
-          ...rest,
-          churchId: DEFAULT_CHURCH_ID,
-          // "" clears the ID. undefined leaves it alone. Store digits only.
-          ...(promptPayId === undefined
-            ? {}
-            : { promptPayId: parsePromptPayId(promptPayId)?.digits ?? null }),
-        });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "update_church_profile",
-          entity: "church_profile",
-          metadata: { name: input.name },
-        });
-        return { success: true } as const;
-      }),
-    /**
-     * Where to send the money, for a donor who has not paid yet. Any signed-in
-     * member may read it: the church wants donors to see the account. Only
-     * these three fields leave. The PromptPay ID stays on the server.
-     */
-    payeeInfo: protectedProcedure.query(async () => {
-      const profile = await getChurchProfile();
-      if (!profile?.bankAccount) return null;
-      return {
-        bankName: profile.bankName,
-        bankAccount: profile.bankAccount,
-        bankAccountName: profile.bankAccountName,
-      };
-    }),
-    /**
-     * A PromptPay QR payload for `amount`, so the donor scans it with a bank
-     * app and does not type the amount. Null when no PromptPay ID is set. The
-     * ID itself never leaves the server except inside the payload.
-     */
-    paymentQr: protectedProcedure
-      .input(
-        z.object({
-          amount: z.number().positive().max(MAX_GIVING_AMOUNT),
-        })
-      )
-      .query(async ({ input }) => {
-        const profile = await getChurchProfile();
-        const id = profile?.promptPayId
-          ? parsePromptPayId(profile.promptPayId)
-          : null;
-        if (!profile || !id) return null;
-        return {
-          payload: buildPromptPayPayload(id, input.amount),
-          amount: Math.round(input.amount * 100) / 100,
-          payeeName: profile.bankAccountName || profile.name,
-        };
-      }),
-    /** The saved poster words, or the defaults. Any signed-in person may read. */
-    stationPoster: protectedProcedure.query(async () => {
-      return parseStationPoster(await getStationPosterJson());
-    }),
-    /** Saves the poster words. Church leaders only. */
-    saveStationPoster: churchLeaderProcedure
-      .input(stationPosterSchema)
-      .mutation(async ({ input, ctx }) => {
-        await saveStationPosterJson(JSON.stringify(input));
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "save_station_poster",
-          entity: "church_profile",
-          metadata: {},
-        });
-        return { success: true } as const;
-      }),
-    completeSetup: churchLeaderProcedure.mutation(async () => {
-      await markSetupCompleted();
-      return { success: true } as const;
-    }),
-  }),
-  finance: router({
-    summary: financeViewProcedure.query(async () => {
-      return await getFinancialSummary();
-    }),
-    monthlyStats: financeViewProcedure
-      .input(
-        z
-          .object({ months: z.number().int().min(1).max(24).default(6) })
-          .optional()
-      )
-      .query(async ({ input }) => {
-        return await getMonthlyStats(DEFAULT_CHURCH_ID, input?.months ?? 6);
-      }),
-    accounts: fundReadProcedure.query(async () => {
-      return await listFinanceAccounts();
-    }),
-    /** Fund names only, no balances: any member can pick one on a withdrawal request. */
-    fundOptions: protectedProcedure.query(async () => {
-      const accounts = await listFinanceAccounts();
-      return accounts.map(a => ({ id: a.id, name: a.name, type: a.type }));
-    }),
-    createAccount: fundManageProcedure
-      .input(
-        z.object({
-          name: z.string().trim().min(2).max(120),
-          type: z
-            .enum([
-              "general",
-              "tithe",
-              "mission",
-              "building",
-              "welfare",
-              "special",
-            ])
-            .default("general"),
-          description: z.string().trim().max(500).optional(),
-        })
-      )
-      .mutation(async ({ input }) => {
-        const id = await createFinanceAccount({
-          ...input,
-          churchId: DEFAULT_CHURCH_ID,
-        });
-        return { id };
-      }),
-  }),
+  auth: authRouter,
+  church: churchRouter,
+  finance: financeRouter,
   offerings: router({
     list: financeViewProcedure
       .input(
@@ -1012,148 +624,8 @@ export const appRouter = router({
         return { id: input.id };
       }),
   }),
-  transactions: router({
-    summary: financeViewProcedure
-      .input(
-        z
-          .object({
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            type: z.enum(["all", "income", "expense"]).default("all"),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ ctx, input }) => {
-        return await getTransactionsSummary(DEFAULT_CHURCH_ID, {
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          type: input?.type ?? "all",
-          search: input?.search,
-          showDonorNames: canViewDonorNames(ctx.user),
-        });
-      }),
-    paged: financeViewProcedure
-      .input(
-        z
-          .object({
-            limit: z.number().int().min(1).max(200).default(50),
-            cursor: z
-              .object({
-                date: z.coerce.date(),
-                id: z.number().int().positive(),
-                type: z.enum(["income", "expense"]),
-              })
-              .optional(),
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            type: z.enum(["all", "income", "expense"]).default("all"),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ ctx, input }) => {
-        return await listTransactionsPaged(DEFAULT_CHURCH_ID, {
-          limit: input?.limit ?? 50,
-          cursor: input?.cursor,
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          type: input?.type ?? "all",
-          search: input?.search,
-          showDonorNames: canViewDonorNames(ctx.user),
-        });
-      }),
-    exportCsv: financeViewProcedure
-      .input(
-        z
-          .object({
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            type: z.enum(["all", "income", "expense"]).default("all"),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ ctx, input }) => {
-        return await exportTransactionsCsvData(DEFAULT_CHURCH_ID, {
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          type: input?.type ?? "all",
-          search: input?.search,
-          showDonorNames: canViewDonorNames(ctx.user),
-        });
-      }),
-  }),
-  bankSigners: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      if (
-        !canManageFinance(ctx.user) &&
-        !canManageChurchSettings(ctx.user) &&
-        !(await isBankSigner(ctx.user.id))
-      ) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "เฉพาะฝ่ายการเงินและผู้มีอำนาจลงนามเท่านั้น",
-        });
-      }
-      return await listBankSigners(DEFAULT_CHURCH_ID);
-    }),
-    add: adminProcedure
-      .input(z.object({ userId: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        const added = await addBankSigner(input.userId, ctx.user.id);
-        if (added) {
-          await createAuditLog({
-            churchId: DEFAULT_CHURCH_ID,
-            userId: ctx.user.id,
-            action: "SIGNER_ADD",
-            entity: "bank_signers",
-            entityId: input.userId,
-            metadata: { addedUserId: input.userId },
-          });
-        }
-        return { added };
-      }),
-    remove: adminProcedure
-      .input(z.object({ userId: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        const removed = await removeBankSigner(input.userId);
-        if (removed) {
-          await createAuditLog({
-            churchId: DEFAULT_CHURCH_ID,
-            userId: ctx.user.id,
-            action: "SIGNER_REMOVE",
-            entity: "bank_signers",
-            entityId: input.userId,
-            metadata: { removedUserId: input.userId },
-          });
-        }
-        return { removed };
-      }),
-    /** Moves the "ต้องลงนามทุกครั้ง" flag to the given signer. */
-    setRequired: adminProcedure
-      .input(z.object({ userId: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        const moved = await setRequiredBankSigner(input.userId);
-        if (moved) {
-          await createAuditLog({
-            churchId: DEFAULT_CHURCH_ID,
-            userId: ctx.user.id,
-            action: "SIGNER_REQUIRED",
-            entity: "bank_signers",
-            entityId: input.userId,
-            metadata: { requiredUserId: input.userId },
-          });
-        }
-        return { moved };
-      }),
-  }),
+  transactions: transactionsRouter,
+  bankSigners: bankSignersRouter,
   withdrawals: router({
     list: protectedProcedure
       .input(z.object({ myOnly: z.boolean().default(false) }).optional())
@@ -1307,454 +779,12 @@ export const appRouter = router({
         return { success: true, sessionId: res.attachedSessionId };
       }),
   }),
-  members: router({
-    list: memberReadProcedure.query(async () => listMembers(DEFAULT_CHURCH_ID)),
-    getById: memberDetailProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .query(async ({ input }) => getMemberById(input.id, DEFAULT_CHURCH_ID)),
-    create: churchLeaderProcedure
-      .input(
-        z.object({
-          name: z.string().trim().min(2).max(180),
-          envelopeNo: z.string().trim().max(32).optional(),
-          phone: z.string().trim().max(30).optional(),
-          email: z.string().email().max(320).optional(),
-          status: z.enum(["active", "inactive", "pending"]).default("active"),
-          avatarUrl: z.string().url().max(500).optional(),
-          notes: z.string().trim().max(2000).optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const id = await createMember({
-          ...input,
-          envelopeNo: input.envelopeNo?.trim() || null,
-        });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "CREATE",
-          entity: "member",
-          entityId: id,
-          metadata: {
-            name: input.name,
-            envelopeNo: input.envelopeNo?.trim() || null,
-          },
-        });
-        return { id };
-      }),
-    update: churchLeaderProcedure
-      .input(
-        z.object({
-          id: z.number().int().positive(),
-          name: z.string().trim().min(2).max(180).optional(),
-          envelopeNo: z.string().trim().max(32).nullable().optional(),
-          phone: z.string().trim().max(30).nullable().optional(),
-          email: z.string().email().max(320).nullable().optional(),
-          status: z.enum(["active", "inactive", "pending"]).optional(),
-          avatarUrl: z.string().url().max(500).nullable().optional(),
-          notes: z.string().trim().max(2000).nullable().optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { id, ...data } = input;
-        const normalized = {
-          ...data,
-          ...(data.envelopeNo !== undefined
-            ? { envelopeNo: data.envelopeNo?.trim() || null }
-            : {}),
-        };
-        const updated = await updateMember(id, normalized);
-        if (updated === null)
-          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบสมาชิก" });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "UPDATE",
-          entity: "member",
-          entityId: id,
-          metadata: normalized,
-        });
-        return { id: updated };
-      }),
-    deactivate: churchLeaderProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        const updated = await deactivateMember(input.id);
-        if (updated === null)
-          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบสมาชิก" });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "DEACTIVATE",
-          entity: "member",
-          entityId: input.id,
-        });
-        return { id: updated };
-      }),
-  }),
-  ministries: router({
-    list: protectedProcedure.query(async () =>
-      listMinistries(DEFAULT_CHURCH_ID)
-    ),
-    getById: protectedProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .query(async ({ input }) => getMinistryById(input.id, DEFAULT_CHURCH_ID)),
-    create: ministryProcedure
-      .input(
-        z.object({
-          name: z.string().trim().min(2).max(180),
-          description: z.string().trim().max(2000).optional(),
-          leaderName: z.string().trim().max(180).optional(),
-          meetingSchedule: z.string().trim().max(180).optional(),
-          status: z.enum(["active", "inactive"]).default("active"),
-        })
-      )
-      .mutation(async ({ input }) => ({ id: await createMinistry(input) })),
-    update: ministryProcedure
-      .input(
-        z
-          .object({
-            id: z.number().int().positive(),
-            name: z.string().trim().min(2).max(180).optional(),
-            description: z.string().trim().max(2000).nullable().optional(),
-            leaderName: z.string().trim().max(180).nullable().optional(),
-            meetingSchedule: z.string().trim().max(180).nullable().optional(),
-            status: z.enum(["active", "inactive"]).optional(),
-          })
-          // Drizzle's .set({}) throws "No values to set", which would surface
-          // as a 500; an id with no changes is a bad request, not a crash.
-          .refine(input => Object.keys(input).length > 1, {
-            message: "ต้องระบุอย่างน้อยหนึ่งฟิลด์ที่ต้องการแก้ไข",
-          })
-      )
-      .mutation(async ({ input }) => {
-        const { id, ...data } = input;
-        const updated = await updateMinistry(id, data);
-        if (updated === null)
-          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบฝ่ายงาน" });
-        return { id: updated };
-      }),
-    archive: ministryProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ input }) => {
-        const updated = await archiveMinistry(input.id);
-        if (updated === null)
-          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบฝ่ายงาน" });
-        return { id: updated };
-      }),
-  }),
-  budgets: router({
-    list: budgetProcedure
-      .input(z.object({ year: budgetYear }))
-      .query(async ({ input }) =>
-        listBudgetPlans(input.year, DEFAULT_CHURCH_ID)
-      ),
-    getById: budgetProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .query(async ({ input }) =>
-        getBudgetPlanById(input.id, DEFAULT_CHURCH_ID)
-      ),
-    create: budgetProcedure
-      .input(
-        z.object({
-          year: budgetYear,
-          month: budgetMonth.nullable().default(null),
-          category: expenseCategory.nullable().default(null),
-          fundId: z.number().int().positive().nullable().default(null),
-          plannedAmount: z.number().positive().max(9_999_999_999_999),
-          notes: z.string().trim().max(1000).optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const id = await createBudgetPlan({
-          ...input,
-          plannedAmount: input.plannedAmount.toFixed(2),
-          notes: input.notes || null,
-        });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "CREATE",
-          entity: "budget_plan",
-          entityId: id,
-          metadata: input,
-        });
-        return { id };
-      }),
-    update: budgetProcedure
-      .input(
-        z
-          .object({
-            id: z.number().int().positive(),
-            year: budgetYear.optional(),
-            month: budgetMonth.nullable().optional(),
-            category: expenseCategory.nullable().optional(),
-            fundId: z.number().int().positive().nullable().optional(),
-            plannedAmount: z
-              .number()
-              .positive()
-              .max(9_999_999_999_999)
-              .optional(),
-            notes: z.string().trim().max(1000).nullable().optional(),
-          })
-          .refine(input => Object.keys(input).length > 1, {
-            message: "ต้องระบุอย่างน้อยหนึ่งฟิลด์ที่ต้องการแก้ไข",
-          })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { id, plannedAmount, ...rest } = input;
-        const updated = await updateBudgetPlan(id, {
-          ...rest,
-          ...(plannedAmount !== undefined
-            ? { plannedAmount: plannedAmount.toFixed(2) }
-            : {}),
-        });
-        if (updated === null)
-          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบงบประมาณ" });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "UPDATE",
-          entity: "budget_plan",
-          entityId: id,
-          metadata: input,
-        });
-        return { id: updated };
-      }),
-    delete: budgetProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        const deleted = await deleteBudgetPlan(input.id);
-        if (deleted === null)
-          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบงบประมาณ" });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "DELETE",
-          entity: "budget_plan",
-          entityId: input.id,
-        });
-        return { id: deleted };
-      }),
-  }),
-  notifications: router({
-    list: protectedProcedure.query(async ({ ctx }) =>
-      listNotifications(ctx.user.id, DEFAULT_CHURCH_ID)
-    ),
-    unreadCount: protectedProcedure.query(async ({ ctx }) =>
-      countUnreadNotifications(ctx.user.id, DEFAULT_CHURCH_ID)
-    ),
-    markAsRead: protectedProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        await markNotificationRead(input.id, ctx.user.id, DEFAULT_CHURCH_ID);
-        return { id: input.id };
-      }),
-    markAllAsRead: protectedProcedure.mutation(async ({ ctx }) => {
-      await markAllNotificationsRead(ctx.user.id, DEFAULT_CHURCH_ID);
-      return { success: true } as const;
-    }),
-  }),
-  reports: router({
-    /** Category totals and fund balances for the report screen. */
-    summary: financeViewProcedure
-      .input(reportDateRange)
-      .query(async ({ input }) =>
-        getFinancialReportSummary(
-          DEFAULT_CHURCH_ID,
-          input.fromDate,
-          input.toDate
-        )
-      ),
-    financial: financeViewProcedure
-      .input(reportDateRange)
-      .query(async ({ input }) => {
-        return await getFinancialReportData(
-          DEFAULT_CHURCH_ID,
-          input.fromDate,
-          input.toDate
-        );
-      }),
-    exportCsv: financeViewProcedure
-      .input(reportDateRange)
-      .query(async ({ input }) => {
-        const rows = await getFinancialReportData(
-          DEFAULT_CHURCH_ID,
-          input.fromDate,
-          input.toDate
-        );
-        const header =
-          "วันที่,ประเภท,หมวดหมู่,รายละเอียด,จำนวนเงิน (บาท),ช่องทาง";
-        const lines = rows.map(r =>
-          [
-            r.date,
-            r.type === "income" ? "รายรับ" : "รายจ่าย",
-            r.category,
-            r.description,
-            r.amount.toFixed(2),
-            r.method ?? "-",
-          ]
-            .map(csvCell)
-            .join(",")
-        );
-        return {
-          csv: assertCsvWithinLimit([header, ...lines].join("\n")),
-          rowCount: rows.length,
-        };
-      }),
-  }),
-  updates: router({
-    feed: protectedProcedure.query(async () => ({
-      news: await listPublishedChurchNews(),
-      events: await listPublishedChurchEvents(),
-    })),
-    adminList: churchLeaderProcedure.query(async () => ({
-      news: await listAllChurchNews(),
-      events: await listAllChurchEvents(),
-    })),
-    createNews: churchLeaderProcedure
-      .input(
-        z.object({
-          title: z.string().trim().min(3).max(180),
-          summary: z.string().trim().min(3).max(280),
-          body: z.string().trim().min(3),
-          category: newsCategory,
-          status: newsStatus.default("draft"),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const id = await createChurchNews({
-          authorId: ctx.user.id,
-          title: input.title,
-          summary: input.summary,
-          body: input.body,
-          category: input.category,
-          status: input.status,
-          publishedAt: input.status === "published" ? new Date() : null,
-        });
-        return { id };
-      }),
-    createEvent: churchLeaderProcedure
-      .input(
-        z
-          .object({
-            title: z.string().trim().min(3).max(180),
-            summary: z.string().trim().min(3).max(280),
-            description: z.string().trim().min(3),
-            startsAt: z.coerce.date(),
-            endsAt: z.coerce.date().optional(),
-            location: z.string().trim().max(180).optional(),
-            registrationUrl: z
-              .string()
-              .url()
-              .max(500)
-              .optional()
-              .or(z.literal("")),
-            status: eventStatus.default("draft"),
-          })
-          .refine(data => !data.endsAt || data.endsAt >= data.startsAt, {
-            message: "เวลาสิ้นสุดต้องไม่มาก่อนเวลาเริ่มต้น",
-            path: ["endsAt"],
-          })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const id = await createChurchEvent({
-          authorId: ctx.user.id,
-          title: input.title,
-          summary: input.summary,
-          description: input.description,
-          startsAt: input.startsAt,
-          endsAt: input.endsAt ?? null,
-          location: input.location || null,
-          registrationUrl: input.registrationUrl || null,
-          status: input.status,
-        });
-        return { id };
-      }),
-    updateNews: churchLeaderProcedure
-      .input(
-        z.object({
-          id: z.number().int().positive(),
-          title: z.string().trim().min(3).max(180),
-          summary: z.string().trim().min(3).max(280),
-          body: z.string().trim().min(3),
-          category: newsCategory,
-          status: newsStatus,
-        })
-      )
-      .mutation(async ({ input }) => {
-        await updateChurchNews(input.id, {
-          title: input.title,
-          summary: input.summary,
-          body: input.body,
-          category: input.category,
-          status: input.status,
-          publishedAt: input.status === "published" ? new Date() : null,
-        });
-        return { success: true } as const;
-      }),
-    updateEvent: churchLeaderProcedure
-      .input(
-        z
-          .object({
-            id: z.number().int().positive(),
-            title: z.string().trim().min(3).max(180),
-            summary: z.string().trim().min(3).max(280),
-            description: z.string().trim().min(3),
-            startsAt: z.coerce.date(),
-            endsAt: z.coerce.date().optional(),
-            location: z.string().trim().max(180).optional(),
-            registrationUrl: z
-              .string()
-              .url()
-              .max(500)
-              .optional()
-              .or(z.literal("")),
-            status: eventStatus,
-          })
-          .refine(data => !data.endsAt || data.endsAt >= data.startsAt, {
-            message: "เวลาสิ้นสุดต้องไม่มาก่อนเวลาเริ่มต้น",
-            path: ["endsAt"],
-          })
-      )
-      .mutation(async ({ input }) => {
-        await updateChurchEvent(input.id, {
-          title: input.title,
-          summary: input.summary,
-          description: input.description,
-          startsAt: input.startsAt,
-          endsAt: input.endsAt ?? null,
-          location: input.location || null,
-          registrationUrl: input.registrationUrl || null,
-          status: input.status,
-        });
-        return { success: true } as const;
-      }),
-    setNewsStatus: churchLeaderProcedure
-      .input(z.object({ id: z.number().int().positive(), status: newsStatus }))
-      .mutation(async ({ input }) => {
-        await updateChurchNewsStatus(input.id, input.status);
-        return { success: true } as const;
-      }),
-    setEventStatus: churchLeaderProcedure
-      .input(z.object({ id: z.number().int().positive(), status: eventStatus }))
-      .mutation(async ({ input }) => {
-        await updateChurchEventStatus(input.id, input.status);
-        return { success: true } as const;
-      }),
-    deleteNews: churchLeaderProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ input }) => {
-        await deleteChurchNews(input.id);
-        return { success: true } as const;
-      }),
-    deleteEvent: churchLeaderProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ input }) => {
-        await deleteChurchEvent(input.id);
-        return { success: true } as const;
-      }),
-  }),
+  members: membersRouter,
+  ministries: ministriesRouter,
+  budgets: budgetsRouter,
+  notifications: notificationsRouter,
+  reports: reportsRouter,
+  updates: updatesRouter,
   counting: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       assertCanCount(ctx.user);
@@ -3166,19 +2196,7 @@ export const appRouter = router({
         }
       }),
   }),
-  audit: router({
-    list: adminProcedure
-      .input(
-        z
-          .object({
-            limit: z.number().min(1).max(200).default(50),
-          })
-          .optional()
-      )
-      .query(async ({ input }) => {
-        return await listAuditLogs(DEFAULT_CHURCH_ID, input?.limit ?? 50);
-      }),
-  }),
+  audit: auditRouter,
 });
 
 export { redactChurchProfile } from "./routers/common";
