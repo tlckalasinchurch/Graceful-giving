@@ -2,11 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
-  BackLink,
   EmptyState,
   ErrorState,
   LoadingSkeleton,
-  MoneyDisplay,
 } from "@/components/common/CommonUI";
 import {
   BudgetFormFields,
@@ -27,7 +25,6 @@ import {
   ArrowLeft,
   Calendar,
   FileText,
-  Layers,
   Save,
   Trash2,
   Wallet,

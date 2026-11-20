@@ -12,13 +12,9 @@ import {
   Building,
   CheckCircle2,
   CreditCard,
-  Globe,
   Loader2,
   Lock,
-  Mail,
-  Phone,
   Save,
-  Settings as SettingsIcon,
   Shield,
   UserCheck,
   Users,
@@ -33,7 +29,7 @@ import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { LogOut } from "lucide-react";
 import { EXPENSE_CATEGORIES, OFFERING_CATEGORIES } from "@shared/categories";
-import { isSuperAdmin, getChurchRoleInfo, CHURCH_ROLES } from "@shared/roles";
+import { isSuperAdmin, getChurchRoleInfo } from "@shared/roles";
 import { NativeSelect } from "@/components/ui/native-select";
 import { THAI_LOCALE } from "@/lib/format";
 import { BankSignersSection } from "./Settings/BankSignersSection";
@@ -61,7 +57,6 @@ export default function Settings() {
 
   const {
     data: churchProfile,
-    isLoading,
     refetch,
   } = trpc.church.getProfile.useQuery(undefined, { retry: false });
 

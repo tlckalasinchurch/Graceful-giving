@@ -12,7 +12,6 @@ import { trpc } from "@/lib/trpc";
 import {
   getChurchRoleInfo,
   isSuperAdmin,
-  canManageFinance,
   canManageChurchSettings,
   canCountOfferings,
 } from "@shared/roles";
@@ -21,23 +20,14 @@ import { friendlyErrorMessage } from "@/lib/errors";
 import {
   Shield,
   Briefcase,
-  TrendingUp,
-  Clock,
   CheckCircle2,
-  Lock,
-  Bell,
   LogOut,
   Edit3,
-  Calendar,
   Receipt,
   HeartHandshake,
-  ArrowRight,
   UserCheck,
   Building,
   Check,
-  FileText,
-  DollarSign,
-  Users,
   Coins,
   Phone,
   Mail,
@@ -349,10 +339,6 @@ export default function Profile() {
     }));
   }, [churchProfile, usersQuery.data]);
 
-  const { data: unreadCount = 0 } = trpc.notifications.unreadCount.useQuery(
-    undefined,
-    { retry: false }
-  );
 
   const effectiveAvatar =
     (user as any)?.avatarUrl ||

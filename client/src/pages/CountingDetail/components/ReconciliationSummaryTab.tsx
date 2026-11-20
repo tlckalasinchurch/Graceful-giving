@@ -3,7 +3,6 @@ import {
   AlertCircle,
   AlertTriangle,
   CheckCircle2,
-  HelpCircle,
   RotateCcw,
   Trash2,
 } from "lucide-react";
