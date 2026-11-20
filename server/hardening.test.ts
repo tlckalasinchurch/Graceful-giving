@@ -42,7 +42,7 @@ describe("startup config check", () => {
   });
 
   it("accepts either OCR key", () => {
-    const { GEMINI_API_KEY, ...rest } = full;
+    const { GEMINI_API_KEY: _removed, ...rest } = full;
     expect(missingConfig({ ...rest, GOOGLE_API_KEY: "g" })).toEqual([]);
     expect(missingConfig(rest).map(i => i.name)).toEqual([
       "GOOGLE_API_KEY or GEMINI_API_KEY",

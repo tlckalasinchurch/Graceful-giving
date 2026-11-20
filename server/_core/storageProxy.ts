@@ -22,7 +22,7 @@ export function registerStorageProxy(app: Express) {
       key.includes("..") ||
       key.includes("\\") ||
       key.startsWith("/") ||
-      !/^[a-zA-Z0-9_\-\./]+$/.test(key)
+      !/^[a-zA-Z0-9_./-]+$/.test(key)
     ) {
       res.status(400).send("Invalid storage key");
       return;

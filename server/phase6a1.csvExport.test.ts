@@ -41,7 +41,6 @@ const treasurer = makeUser({
   churchRoles: "TREASURER",
 });
 
-
 const member = makeUser({
   ...baseUser,
   id: 5,
@@ -210,7 +209,7 @@ describe("Phase 6A.1 — CSV Export & Financial Precision Verification", () => {
       let callCount = 0;
       const mockFetchBatch = async (_churchId: string, opts: any) => {
         callCount++;
-        let currentId = opts?.cursor ? opts.cursor.id - 1 : totalCount;
+        const currentId = opts?.cursor ? opts.cursor.id - 1 : totalCount;
         if (currentId <= 0) return [];
         const count = Math.min(batchSize, currentId);
         const batch: OfferingRow[] = [];
@@ -556,7 +555,9 @@ describe("Phase 6A.1 — CSV Export & Financial Precision Verification", () => {
     });
 
     it("4.3 Allows TREASURER and SUPER_ADMIN full access to CSV export", async () => {
-      const treasurerCaller = appRouter.createCaller(createTestContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       const superAdminCaller = appRouter.createCaller(
         createTestContext(superAdmin)
       );

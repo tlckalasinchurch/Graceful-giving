@@ -3,14 +3,8 @@
 // validation or authorisation change. server/db.ts re-exports this
 // module, so existing imports keep working.
 
-import {
-  InsertChurchProfile,
-  churchProfiles,
-} from "../../drizzle/schema";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
+import { InsertChurchProfile, churchProfiles } from "../../drizzle/schema";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
 import { eq } from "drizzle-orm";
 
 // ─── Church Profile ───────────────────────────────────────────────────────────
@@ -30,7 +24,12 @@ export async function upsertChurchProfile(input: InsertChurchProfile) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const churchId = input.churchId ?? DEFAULT_CHURCH_ID;
-  const { id, createdAt, churchId: _c, ...updateFields } = input;
+  const {
+    id: _id,
+    createdAt: _createdAt,
+    churchId: _c,
+    ...updateFields
+  } = input;
   await db
     .insert(churchProfiles)
     .values({ ...input, churchId })
