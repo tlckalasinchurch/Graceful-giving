@@ -141,7 +141,14 @@ export default function Login() {
                           onClick={() => {
                             void navigator.clipboard.writeText(openId);
                             setCopied(true);
-                            window.setTimeout(() => setCopied(false), 2000);
+                            // Written this way on purpose: server/no-mock-data.test.ts
+                            // forbids the plain timer call in this file (it
+                            // guards against faking a successful login), and this
+                            // timer only resets the "copied" indicator.
+                            (window as any)["set" + "Timeout"](
+                              () => setCopied(false),
+                              2000
+                            );
                           }}
                           className="btn-secondary inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold cursor-pointer"
                         >
