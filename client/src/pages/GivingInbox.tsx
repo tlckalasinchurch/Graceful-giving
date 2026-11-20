@@ -1321,7 +1321,7 @@ export default function GivingInbox() {
                             setEditMemberId(nextId);
                             if (nextId && !editDonorName.trim()) {
                               const found = (membersQuery.data ?? []).find(
-                                (m) => m.id === nextId
+                                m => m.id === nextId
                               );
                               if (found?.name) setEditDonorName(found.name);
                             }

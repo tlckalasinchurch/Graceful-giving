@@ -37,7 +37,9 @@ interface ReconciliationSummaryTabProps {
     closingBankExpected?: number | null;
     isBalanced: boolean;
   };
-  unapprovedDeductions: Array<RouterOutputs["counting"]["get"]["deductions"][number]>;
+  unapprovedDeductions: Array<
+    RouterOutputs["counting"]["get"]["deductions"][number]
+  >;
   isUnposted: boolean;
   submitCount: {
     mutate: (vars: { id: number }) => void;

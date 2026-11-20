@@ -84,7 +84,9 @@ describe("church.saveStationPoster", () => {
   it("refuses a member and a treasurer", async () => {
     for (const user of [member, treasurer]) {
       await expect(
-        appRouter.createCaller(createTestContext(user)).church.saveStationPoster(edited)
+        appRouter
+          .createCaller(createTestContext(user))
+          .church.saveStationPoster(edited)
       ).rejects.toMatchObject({ code: "FORBIDDEN" });
     }
     expect(db.saveStationPosterJson).not.toHaveBeenCalled();

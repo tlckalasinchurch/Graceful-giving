@@ -66,8 +66,6 @@ describe("NewExpense page", () => {
     expect(document.getElementById("expense-description")).toBeTruthy();
     expect(document.getElementById("expense-fund")).toBeTruthy();
     expect(screen.getByText("กองทุนสิบลด")).toBeTruthy();
-    expect(
-      screen.getByRole("button", { name: /บันทึกรายจ่าย/ })
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: /บันทึกรายจ่าย/ })).toBeTruthy();
   });
 });

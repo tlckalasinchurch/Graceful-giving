@@ -109,9 +109,7 @@ describe("Transactions page", () => {
   it("mounts with its title and the empty state", () => {
     render(<Transactions />);
     expect(screen.getByTestId("app-layout")).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { name: "รายการธุรกรรม" })
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "รายการธุรกรรม" })).toBeTruthy();
     expect(screen.getByText("ไม่พบรายการธุรกรรม")).toBeTruthy();
   });
 

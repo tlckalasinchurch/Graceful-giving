@@ -3,19 +3,9 @@
 // validation or authorisation change. server/db.ts re-exports this
 // module, so existing imports keep working.
 
-import {
-  InsertMember,
-  members,
-} from "../../drizzle/schema";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
-import {
-  and,
-  asc,
-  eq,
-} from "drizzle-orm";
+import { InsertMember, members } from "../../drizzle/schema";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
+import { and, asc, eq } from "drizzle-orm";
 
 // ─── Members / Notifications / Audit ──────────────────────────────────────────
 

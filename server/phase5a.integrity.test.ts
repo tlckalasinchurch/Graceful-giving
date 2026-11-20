@@ -140,7 +140,9 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
     });
 
     it("blocks TREASURER, DEACON, and MEMBER from creating or updating member envelopeNo", async () => {
-      const treasurerCaller = appRouter.createCaller(createTestContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       await expect(
         treasurerCaller.members.create({
           name: "สมชาย ใจดี",
@@ -158,7 +160,9 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
     });
 
     it("validates donorMemberId on offerings.create and offerings.update", async () => {
-      const treasurerCaller = appRouter.createCaller(createTestContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       // Negative donorMemberId must fail Zod validation with BAD_REQUEST
       await expect(
         treasurerCaller.offerings.create({
@@ -187,7 +191,9 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
 
   describe("GAP-03: Full transaction editing & expense fund validation", () => {
     it("allows TREASURER and SUPER_ADMIN to pass all offering and expense update fields through schema validation", async () => {
-      const treasurerCaller = appRouter.createCaller(createTestContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       // Passes Zod validation and reaches updateOffering DB layer
       await expect(
         treasurerCaller.offerings.update({

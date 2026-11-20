@@ -339,10 +339,8 @@ export default function Profile() {
     }));
   }, [churchProfile, usersQuery.data]);
 
-
   const effectiveAvatar =
-    user?.avatarUrl ||
-    (user?.openId?.includes("http") ? user?.openId : null);
+    user?.avatarUrl || (user?.openId?.includes("http") ? user?.openId : null);
 
   return (
     <AppLayout
@@ -380,9 +378,7 @@ export default function Profile() {
                 </div>
                 <p className="text-xs sm:text-sm font-bold text-ink-2 flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
                   <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand shrink-0" />
-                  <span>
-                    {user?.department || "สมาชิกครอบครัวของพระเจ้า"}
-                  </span>
+                  <span>{user?.department || "สมาชิกครอบครัวของพระเจ้า"}</span>
                 </p>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs sm:text-sm text-ink-3">
                   <span className="flex items-center gap-1">

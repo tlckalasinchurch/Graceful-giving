@@ -4,20 +4,14 @@
 // module, so existing imports keep working.
 
 import { assertCsvWithinLimit } from "../csvLimit";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
 import {
   fetchAllExpensesInBatches,
   getExpensesSummary,
   listExpenses,
   type ExpenseRow,
 } from "./expenses";
-import {
-  listFinanceAccounts,
-  sanitizeCsvCell,
-} from "./finance";
+import { listFinanceAccounts, sanitizeCsvCell } from "./finance";
 import {
   fetchAllOfferingsInBatches,
   getOfferingsSummary,

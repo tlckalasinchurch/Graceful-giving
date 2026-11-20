@@ -14,10 +14,7 @@ import {
   EXPENSE_CATEGORY_IDS,
   OFFERING_CATEGORY_IDS,
 } from "@shared/categories";
-import {
-  isEditable,
-  type CountingStatus,
-} from "@shared/counting";
+import { isEditable, type CountingStatus } from "@shared/counting";
 import {
   MAX_GIVING_AMOUNT,
   MAX_SLIP_READS_PER_5_MIN,
@@ -261,7 +258,10 @@ export const splitLine = z.object({
     .max(MAX_GIVING_AMOUNT),
 });
 /** One transfer that pays for several categories. */
-export const splitItems = z.array(splitLine).min(MIN_SPLIT_LINES).max(MAX_SPLIT_LINES);
+export const splitItems = z
+  .array(splitLine)
+  .min(MIN_SPLIT_LINES)
+  .max(MAX_SPLIT_LINES);
 
 /** Throws BAD_REQUEST when the split does not add up to the transfer amount. */
 export function assertSplitSound(

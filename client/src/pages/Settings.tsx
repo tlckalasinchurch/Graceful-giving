@@ -29,7 +29,11 @@ import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { LogOut } from "lucide-react";
 import { EXPENSE_CATEGORIES, OFFERING_CATEGORIES } from "@shared/categories";
-import { isSuperAdmin, getChurchRoleInfo, type ChurchRole } from "@shared/roles";
+import {
+  isSuperAdmin,
+  getChurchRoleInfo,
+  type ChurchRole,
+} from "@shared/roles";
 import { NativeSelect } from "@/components/ui/native-select";
 import { THAI_LOCALE } from "@/lib/format";
 import { BankSignersSection } from "./Settings/BankSignersSection";
@@ -55,10 +59,10 @@ export default function Settings() {
   });
   const utils = trpc.useUtils();
 
-  const {
-    data: churchProfile,
-    refetch,
-  } = trpc.church.getProfile.useQuery(undefined, { retry: false });
+  const { data: churchProfile, refetch } = trpc.church.getProfile.useQuery(
+    undefined,
+    { retry: false }
+  );
 
   const usersQuery = trpc.auth.listUsers.useQuery(undefined, {
     retry: false,

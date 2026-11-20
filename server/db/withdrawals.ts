@@ -25,15 +25,7 @@ import {
   type ApprovalOutcome,
   type Signature,
 } from "@shared/withdrawals";
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  inArray,
-  isNull,
-  sql,
-} from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 
 // ─── Withdrawal Requests ──────────────────────────────────────────────────────
 

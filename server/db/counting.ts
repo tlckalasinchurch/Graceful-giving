@@ -21,14 +21,8 @@ import {
   sessionDeductions,
   sessionDocuments,
 } from "../../drizzle/schema";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
-import {
-  reconcile,
-  type CountingStatus,
-} from "@shared/counting";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
+import { reconcile, type CountingStatus } from "@shared/counting";
 import {
   and,
   asc,

@@ -76,9 +76,7 @@ import ChurchSetup from "./ChurchSetup";
 describe("ChurchSetup page", () => {
   it("mounts the first setup step with its progress", () => {
     render(<ChurchSetup />);
-    expect(
-      screen.getByRole("heading", { name: /ยินดีต้อนรับ/ })
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /ยินดีต้อนรับ/ })).toBeTruthy();
     expect(screen.getByText(/ขั้นตอนที่ 1 จาก/)).toBeTruthy();
   });
 });

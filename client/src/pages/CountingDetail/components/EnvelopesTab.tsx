@@ -7,7 +7,11 @@ import {
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
-import { fmtBaht, getNextEnvelopeNo, type CountingMutationProps } from "./countingUtils";
+import {
+  fmtBaht,
+  getNextEnvelopeNo,
+  type CountingMutationProps,
+} from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Swal } from "@/lib/sweetalert";
 

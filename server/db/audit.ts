@@ -3,18 +3,9 @@
 // validation or authorisation change. server/db.ts re-exports this
 // module, so existing imports keep working.
 
-import {
-  auditLogs,
-  users,
-} from "../../drizzle/schema";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
-import {
-  desc,
-  eq,
-} from "drizzle-orm";
+import { auditLogs, users } from "../../drizzle/schema";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
+import { desc, eq } from "drizzle-orm";
 
 export async function createAuditLog(input: {
   churchId?: string;

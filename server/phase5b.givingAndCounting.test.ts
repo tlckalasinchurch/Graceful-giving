@@ -25,7 +25,6 @@ const baseUser = makeUser({
   lastSignedIn: new Date(),
 });
 
-
 const treasurer = makeUser({
   ...baseUser,
   id: 2,
@@ -207,7 +206,9 @@ describe("Phase 5B — Giving & Counting Regression Suite", () => {
     });
 
     it("allows TREASURER and SUPER_ADMIN to call posting procedure with validation", async () => {
-      const treasurerCaller = appRouter.createCaller(createTestContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       // Reaches session lookup (throws NOT_FOUND when session does not exist in unit test)
       await expect(
         treasurerCaller.counting.post({ id: 99999 })

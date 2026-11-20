@@ -3,25 +3,10 @@
 // validation or authorisation change. server/db.ts re-exports this
 // module, so existing imports keep working.
 
-import {
-  expenses,
-  financeAccounts,
-  offerings,
-} from "../../drizzle/schema";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
+import { expenses, financeAccounts, offerings } from "../../drizzle/schema";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
 import { bangkokDateString } from "@shared/bangkokDate";
-import {
-  and,
-  asc,
-  between,
-  count,
-  eq,
-  ne,
-  sum,
-} from "drizzle-orm";
+import { and, asc, between, count, eq, ne, sum } from "drizzle-orm";
 
 // ─── Reports ──────────────────────────────────────────────────────────────────
 

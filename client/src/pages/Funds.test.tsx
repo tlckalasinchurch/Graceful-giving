@@ -9,7 +9,11 @@ vi.mock("@/lib/trpc", () => ({
     useUtils: () => ({ finance: { fundOptions: { invalidate: vi.fn() } } }),
     finance: {
       accounts: {
-        useQuery: () => ({ data: accountsData, isLoading: false, refetch: vi.fn() }),
+        useQuery: () => ({
+          data: accountsData,
+          isLoading: false,
+          refetch: vi.fn(),
+        }),
       },
       createAccount: {
         useMutation: () => ({ mutate: vi.fn(), isPending: false }),

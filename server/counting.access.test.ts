@@ -225,7 +225,12 @@ describe("counting: input validation", () => {
 
 describe("counting: role assignment", () => {
   it("accepts COUNTER as a church role", async () => {
-    const admin = makeUser({ ...member, id: 1, openId: "admin", role: "admin" });
+    const admin = makeUser({
+      ...member,
+      id: 1,
+      openId: "admin",
+      role: "admin",
+    });
     const caller = appRouter.createCaller(createTestContext(admin));
     // Asserts the schema accepts COUNTER, whether or not a database is present.
     const code = await caller.auth
@@ -236,7 +241,12 @@ describe("counting: role assignment", () => {
   });
 
   it("rejects a role that does not exist", async () => {
-    const admin = makeUser({ ...member, id: 1, openId: "admin", role: "admin" });
+    const admin = makeUser({
+      ...member,
+      id: 1,
+      openId: "admin",
+      role: "admin",
+    });
     const caller = appRouter.createCaller(createTestContext(admin));
     await expect(
       // @ts-expect-error COUNTERS is not a valid church role.

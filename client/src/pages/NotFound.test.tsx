@@ -17,9 +17,7 @@ describe("NotFound page", () => {
     expect(
       screen.getByRole("heading", { name: "ไม่พบหน้าที่คุณต้องการ" })
     ).toBeTruthy();
-    expect(
-      screen.getByRole("button", { name: "กลับหน้าหลัก" })
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "กลับหน้าหลัก" })).toBeTruthy();
     expect(
       screen.getByRole("link", { name: /ข่าวสาร & กิจกรรม/ })
     ).toHaveAttribute("href", "/updates");

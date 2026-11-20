@@ -41,7 +41,7 @@ const DEFAULT_SHUTDOWN_TIMEOUT_MS = 10_000;
  */
 export function installProcessHandlers(
   server: Server,
-  options: ProcessHandlerOptions = {},
+  options: ProcessHandlerOptions = {}
 ): () => void {
   const {
     shutdownTimeoutMs = DEFAULT_SHUTDOWN_TIMEOUT_MS,
@@ -60,9 +60,7 @@ export function installProcessHandlers(
     // force the exit rather than hanging a broken process. unref() so the
     // timer alone never keeps the process alive.
     const forceExit = setTimeout(() => {
-      logError(
-        "[Process] Graceful shutdown timed out; forcing exit.",
-      );
+      logError("[Process] Graceful shutdown timed out; forcing exit.");
       exit(exitCode);
     }, shutdownTimeoutMs);
     forceExit.unref();
@@ -80,7 +78,7 @@ export function installProcessHandlers(
 
   function onUnhandledRejection(
     reason: unknown,
-    _promise: Promise<unknown>,
+    _promise: Promise<unknown>
   ): void {
     // Passing the reason through to console.error prints an Error's message
     // and stack; a non-Error rejection value is printed as-is.

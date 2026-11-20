@@ -85,7 +85,9 @@ describe("fund and member lists", () => {
 
 describe("receipt upload validation", () => {
   it("rejects a content type outside the allow list", async () => {
-    const caller = appRouter.createCaller(createTestContext(withRole("TREASURER")));
+    const caller = appRouter.createCaller(
+      createTestContext(withRole("TREASURER"))
+    );
     await expect(
       caller.expenses.uploadReceipt({
         contentType: "text/html",

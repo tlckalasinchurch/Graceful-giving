@@ -95,7 +95,10 @@ export default function Offerings() {
     {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
-      category: categoryFilter !== "all" ? (categoryFilter as OfferingCategory) : undefined,
+      category:
+        categoryFilter !== "all"
+          ? (categoryFilter as OfferingCategory)
+          : undefined,
       search: search || undefined,
     },
     { retry: false }
@@ -114,7 +117,10 @@ export default function Offerings() {
       cursor: activeCursor ?? undefined,
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
-      category: categoryFilter !== "all" ? (categoryFilter as OfferingCategory) : undefined,
+      category:
+        categoryFilter !== "all"
+          ? (categoryFilter as OfferingCategory)
+          : undefined,
       search: search || undefined,
     },
     { retry: false }
@@ -165,7 +171,9 @@ export default function Offerings() {
         fromDate: periodRange.fromDate,
         toDate: periodRange.toDate,
         category:
-          categoryFilter !== "all" ? (categoryFilter as OfferingCategory) : undefined,
+          categoryFilter !== "all"
+            ? (categoryFilter as OfferingCategory)
+            : undefined,
         search: search || undefined,
       });
 

@@ -81,7 +81,9 @@ beforeEach(() => {
 describe("givingInbox.submitWithoutSlip", () => {
   it("rejects a signed-out caller", async () => {
     await expect(
-      appRouter.createCaller(createTestContext(null)).givingInbox.submitWithoutSlip(valid())
+      appRouter
+        .createCaller(createTestContext(null))
+        .givingInbox.submitWithoutSlip(valid())
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
@@ -120,7 +122,9 @@ describe("givingInbox.submitWithoutSlip", () => {
   it("does not fail the donor when a notification fails", async () => {
     vi.mocked(db.createNotification).mockRejectedValue(new Error("down"));
     await expect(
-      appRouter.createCaller(createTestContext(member)).givingInbox.submitWithoutSlip(valid())
+      appRouter
+        .createCaller(createTestContext(member))
+        .givingInbox.submitWithoutSlip(valid())
     ).resolves.toMatchObject({ success: true });
   });
 
@@ -179,14 +183,18 @@ describe("givingInbox.submitWithoutSlip", () => {
       new db.DuplicateEntryError("ส่งรายการนี้ไปแล้ว")
     );
     await expect(
-      appRouter.createCaller(createTestContext(member)).givingInbox.submitWithoutSlip(valid())
+      appRouter
+        .createCaller(createTestContext(member))
+        .givingInbox.submitWithoutSlip(valid())
     ).rejects.toMatchObject({ code: "CONFLICT" });
   });
 
   it("limits how many entries one person sends in a day", async () => {
     vi.mocked(db.countRecentManualSlips).mockResolvedValue(MAX_SLIPS_PER_DAY);
     await expect(
-      appRouter.createCaller(createTestContext(member)).givingInbox.submitWithoutSlip(valid())
+      appRouter
+        .createCaller(createTestContext(member))
+        .givingInbox.submitWithoutSlip(valid())
     ).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS" });
   });
 });
@@ -200,13 +208,15 @@ describe("givingInbox.approve and reject tell the donor", () => {
       submittedByUserId: 301,
       amount: 170,
     } as never);
-    await appRouter.createCaller(createTestContext(treasurer)).givingInbox.approve({
-      slipId: 55,
-      fundId: 7,
-      amount: 170,
-      donorName: "นายผสดี มั่นคง",
-      confirmedBankCheck: true,
-    });
+    await appRouter
+      .createCaller(createTestContext(treasurer))
+      .givingInbox.approve({
+        slipId: 55,
+        fundId: 7,
+        amount: 170,
+        donorName: "นายผสดี มั่นคง",
+        confirmedBankCheck: true,
+      });
     expect(db.approveLineSlip).toHaveBeenCalledWith(
       expect.objectContaining({
         donorName: "นายผสดี มั่นคง",
@@ -266,12 +276,14 @@ describe("one transfer, several categories", () => {
   ];
 
   it("keeps the split on an entry without a slip, with the first category as the main one", async () => {
-    await appRouter.createCaller(createTestContext(member)).givingInbox.submitWithoutSlip({
-      ...valid(),
-      amount: 1000,
-      category: "tithe",
-      items,
-    });
+    await appRouter
+      .createCaller(createTestContext(member))
+      .givingInbox.submitWithoutSlip({
+        ...valid(),
+        amount: 1000,
+        category: "tithe",
+        items,
+      });
     expect(db.createNoSlipEntry).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: "1000.00",
@@ -283,11 +295,13 @@ describe("one transfer, several categories", () => {
 
   it("refuses a split that does not add up to the transfer", async () => {
     await expect(
-      appRouter.createCaller(createTestContext(member)).givingInbox.submitWithoutSlip({
-        ...valid(),
-        amount: 1000,
-        items: [items[0], { category: "mission", amount: 200 }],
-      })
+      appRouter
+        .createCaller(createTestContext(member))
+        .givingInbox.submitWithoutSlip({
+          ...valid(),
+          amount: 1000,
+          items: [items[0], { category: "mission", amount: 200 }],
+        })
     ).rejects.toMatchObject({
       code: "BAD_REQUEST",
       message: expect.stringContaining("ผลรวม"),
@@ -322,12 +336,14 @@ describe("one transfer, several categories", () => {
       submittedByUserId: 301,
       amount: 1000,
     } as never);
-    await appRouter.createCaller(createTestContext(treasurer)).givingInbox.approve({
-      slipId: 55,
-      fundId: 7,
-      amount: 1000,
-      items,
-    });
+    await appRouter
+      .createCaller(createTestContext(treasurer))
+      .givingInbox.approve({
+        slipId: 55,
+        fundId: 7,
+        amount: 1000,
+        items,
+      });
     expect(db.approveLineSlip).toHaveBeenCalledWith(
       expect.objectContaining({ amount: 1000, items })
     );
@@ -360,7 +376,9 @@ describe("givingInbox.readSlip", () => {
 
   it("rejects a signed-out caller", async () => {
     await expect(
-      appRouter.createCaller(createTestContext(null)).givingInbox.readSlip(input)
+      appRouter
+        .createCaller(createTestContext(null))
+        .givingInbox.readSlip(input)
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 

@@ -6,10 +6,7 @@ import type { RouterInputs, RouterOutputs } from "@/lib/trpc";
  * mutate function (variables plus onSuccess/onError/onSettled) and the
  * pending flag. Keeps the tab prop types honest instead of `(vars: any)`.
  */
-export type MutationProps<
-  V,
-  D,
-> = {
+export type MutationProps<V, D> = {
   mutate: (
     vars: V,
     options?: {

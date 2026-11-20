@@ -9,16 +9,8 @@ import {
   churchEvents,
   churchNews,
 } from "../../drizzle/schema";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
-import {
-  and,
-  asc,
-  desc,
-  eq,
-} from "drizzle-orm";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
+import { and, asc, desc, eq } from "drizzle-orm";
 
 // ─── News & Events (existing) ─────────────────────────────────────────────────
 

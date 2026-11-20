@@ -59,9 +59,7 @@ describe("Notifications page", () => {
   it("mounts with its title and the empty state", () => {
     render(<Notifications />);
     expect(screen.getByTestId("app-layout")).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { name: "การแจ้งเตือน" })
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "การแจ้งเตือน" })).toBeTruthy();
     expect(screen.getByText("ยังไม่มีการแจ้งเตือน")).toBeTruthy();
   });
 

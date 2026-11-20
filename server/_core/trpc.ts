@@ -30,8 +30,7 @@ export function safeErrorMessage(
   }
   const isSuperAdmin =
     ctx?.user &&
-    (ctx.user.role === "admin" ||
-      ctx.user.churchRole === "SUPER_ADMIN");
+    (ctx.user.role === "admin" || ctx.user.churchRole === "SUPER_ADMIN");
   if (!isSuperAdmin && error.code === "INTERNAL_SERVER_ERROR") {
     return "เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง";
   }

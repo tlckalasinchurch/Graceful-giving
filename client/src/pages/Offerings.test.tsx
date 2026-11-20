@@ -107,9 +107,7 @@ describe("Offerings page", () => {
     expect(screen.getByRole("heading", { name: "สมุดบัญชีถวาย" })).toBeTruthy();
     expect(screen.getByText(/ยอดถวายรวม/)).toBeTruthy();
     expect(screen.getByText("ยังไม่มีรายการถวาย")).toBeTruthy();
-    expect(
-      screen.getByRole("button", { name: "บันทึกถวายใหม่" })
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "บันทึกถวายใหม่" })).toBeTruthy();
   });
 
   it("lists one offering with its donor, fund, and amount", () => {
@@ -141,9 +139,7 @@ describe("Offerings page", () => {
   it("hides the create button from an ordinary member", () => {
     authUser = member;
     render(<Offerings />);
-    expect(
-      screen.queryByRole("button", { name: "บันทึกถวายใหม่" })
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "บันทึกถวายใหม่" })).toBeNull();
     expect(screen.getByText("ยังไม่มีรายการถวาย")).toBeTruthy();
   });
 });

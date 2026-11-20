@@ -3,21 +3,9 @@
 // validation or authorisation change. server/db.ts re-exports this
 // module, so existing imports keep working.
 
-import {
-  InsertNotification,
-  notifications,
-} from "../../drizzle/schema";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
-import {
-  and,
-  count,
-  desc,
-  eq,
-  isNull,
-} from "drizzle-orm";
+import { InsertNotification, notifications } from "../../drizzle/schema";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
+import { and, count, desc, eq, isNull } from "drizzle-orm";
 
 export async function listNotifications(
   userId: number,

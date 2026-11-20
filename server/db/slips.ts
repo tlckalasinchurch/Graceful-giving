@@ -13,14 +13,8 @@ import {
   offerings,
   users,
 } from "../../drizzle/schema";
-import {
-  resolveSlipImageUrl,
-  storagePutPrivate,
-} from "../storage";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
+import { resolveSlipImageUrl, storagePutPrivate } from "../storage";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
 import { type OfferingCategory } from "@shared/categories";
 import {
   SPLIT_MESSAGE,
@@ -29,10 +23,7 @@ import {
   type SplitLine,
 } from "@shared/givingSplit";
 import { resolveLedgerName } from "@shared/ledgerName";
-import {
-  createHash,
-  randomUUID,
-} from "crypto";
+import { createHash, randomUUID } from "crypto";
 import {
   and,
   count,

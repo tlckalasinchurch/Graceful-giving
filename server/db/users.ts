@@ -3,23 +3,10 @@
 // validation or authorisation change. server/db.ts re-exports this
 // module, so existing imports keep working.
 
-import {
-  InsertUser,
-  type User,
-  users,
-} from "../../drizzle/schema";
+import { InsertUser, type User, users } from "../../drizzle/schema";
 import { ENV } from "../_core/env";
-import {
-  getDb,
-} from "./core";
-import {
-  and,
-  count,
-  desc,
-  eq,
-  ne,
-  sql,
-} from "drizzle-orm";
+import { getDb } from "./core";
+import { and, count, desc, eq, ne, sql } from "drizzle-orm";
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 

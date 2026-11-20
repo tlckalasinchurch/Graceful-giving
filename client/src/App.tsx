@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Redirect, Route, Switch, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageChurchSettings } from "@shared/roles";
-import { canAccessRoute, stationOnlyRedirect,
+import {
+  canAccessRoute,
+  stationOnlyRedirect,
   type AuthUser,
 } from "@/lib/routeAccess";
 import { trpc } from "@/lib/trpc";

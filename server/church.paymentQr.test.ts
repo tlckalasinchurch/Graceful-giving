@@ -50,7 +50,9 @@ beforeEach(() => {
 describe("church.paymentQr", () => {
   it("rejects a signed-out caller", async () => {
     await expect(
-      appRouter.createCaller(createTestContext(null)).church.paymentQr({ amount: 500 })
+      appRouter
+        .createCaller(createTestContext(null))
+        .church.paymentQr({ amount: 500 })
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 
@@ -72,13 +74,17 @@ describe("church.paymentQr", () => {
       promptPayId: null,
     } as never);
     await expect(
-      appRouter.createCaller(createTestContext(member)).church.paymentQr({ amount: 500 })
+      appRouter
+        .createCaller(createTestContext(member))
+        .church.paymentQr({ amount: 500 })
     ).resolves.toBeNull();
   });
 
   it.each([0, -5, MAX_GIVING_AMOUNT + 1])("refuses amount %s", async amount => {
     await expect(
-      appRouter.createCaller(createTestContext(member)).church.paymentQr({ amount })
+      appRouter
+        .createCaller(createTestContext(member))
+        .church.paymentQr({ amount })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });
@@ -91,7 +97,9 @@ describe("church.payeeInfo", () => {
   });
 
   it("shows any signed-in member the account to pay, and nothing else", async () => {
-    const info = await appRouter.createCaller(createTestContext(member)).church.payeeInfo();
+    const info = await appRouter
+      .createCaller(createTestContext(member))
+      .church.payeeInfo();
     expect(info).toEqual({
       bankName: "กสิกรไทย",
       bankAccount: "1234567890",
@@ -145,11 +153,13 @@ describe("PromptPay ID in the church profile", () => {
 
   it("refuses an invalid ID, and a member cannot set one", async () => {
     await expect(
-      appRouter.createCaller(createTestContext(superAdmin)).church.updateProfile({
-        name: "คริสตจักรทดสอบ",
-        fiscalYearStartMonth: 1,
-        promptPayId: "12345",
-      })
+      appRouter
+        .createCaller(createTestContext(superAdmin))
+        .church.updateProfile({
+          name: "คริสตจักรทดสอบ",
+          fiscalYearStartMonth: 1,
+          promptPayId: "12345",
+        })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     await expect(
       appRouter.createCaller(createTestContext(member)).church.updateProfile({

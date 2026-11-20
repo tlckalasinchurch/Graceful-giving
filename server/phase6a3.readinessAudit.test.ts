@@ -147,7 +147,6 @@ describe("Phase 6A.3 — Production Readiness & Precision Audit", () => {
       const exportStartTime = new Date("2026-11-07T12:00:00.000Z");
       const toDate = exportStartTime;
 
-
       // A concurrent user inserts a backdated record during export with receiptDate = 2026-11-04T12:00:00.000Z
       const concurrentBackdated = {
         id: 3,

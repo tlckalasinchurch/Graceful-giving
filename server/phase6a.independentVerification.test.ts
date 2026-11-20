@@ -192,7 +192,6 @@ describe("Phase 6A Independent Financial Verification", () => {
       const page2 = candidate2.slice(0, pageSize);
       currentCursor = page2[page2.length - 1];
 
-
       // Navigate Back to Page 2
       const prevCursorToPage2 = cursorHistory.pop(); // Pop Page 2 cursor
       const backCandidate2 = dataset.filter(i =>
@@ -442,7 +441,9 @@ describe("Phase 6A Independent Financial Verification", () => {
     });
 
     it("allows TREASURER and SUPER_ADMIN full access to financial data and exports", async () => {
-      const treasurerCaller = appRouter.createCaller(createTestContext(treasurer));
+      const treasurerCaller = appRouter.createCaller(
+        createTestContext(treasurer)
+      );
       const superAdminCaller = appRouter.createCaller(
         createTestContext(superAdmin)
       );

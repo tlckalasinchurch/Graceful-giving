@@ -3,19 +3,10 @@
 // validation or authorisation change. server/db.ts re-exports this
 // module, so existing imports keep working.
 
-import {
-  InsertOffering,
-  offerings,
-} from "../../drizzle/schema";
+import { InsertOffering, offerings } from "../../drizzle/schema";
 import { assertCsvWithinLimit } from "../csvLimit";
-import {
-  DEFAULT_CHURCH_ID,
-  getDb,
-} from "./core";
-import {
-  listFinanceAccounts,
-  sanitizeCsvCell,
-} from "./finance";
+import { DEFAULT_CHURCH_ID, getDb } from "./core";
+import { listFinanceAccounts, sanitizeCsvCell } from "./finance";
 import { bangkokDateString } from "@shared/bangkokDate";
 import type { OfferingCategory } from "@shared/categories";
 import {

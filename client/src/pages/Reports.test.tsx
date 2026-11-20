@@ -86,9 +86,7 @@ describe("Reports page", () => {
   it("mounts with its title and the empty state when there are no entries", () => {
     render(<Reports />);
     expect(screen.getByTestId("app-layout")).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { name: "รายงานการเงิน" })
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "รายงานการเงิน" })).toBeTruthy();
     expect(screen.getByText("ยังไม่มีรายการในช่วงเวลานี้")).toBeTruthy();
   });
 

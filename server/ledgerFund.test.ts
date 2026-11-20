@@ -23,7 +23,12 @@ const base = makeUser({
   updatedAt: new Date(),
   lastSignedIn: new Date(),
 });
-const member = makeUser({ ...base, id: 2, openId: "member", churchRole: "MEMBER" });
+const member = makeUser({
+  ...base,
+  id: 2,
+  openId: "member",
+  churchRole: "MEMBER",
+});
 
 function callerFor(user: TestUser) {
   return appRouter.createCaller(createTestContext(user));

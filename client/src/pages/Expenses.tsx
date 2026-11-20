@@ -115,7 +115,10 @@ export default function Expenses() {
     {
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
-      category: categoryFilter !== "all" ? (categoryFilter as ExpenseCategory) : undefined,
+      category:
+        categoryFilter !== "all"
+          ? (categoryFilter as ExpenseCategory)
+          : undefined,
       search: search || undefined,
     },
     { retry: false }
@@ -134,7 +137,10 @@ export default function Expenses() {
       cursor: activeCursor ?? undefined,
       fromDate: periodRange.fromDate,
       toDate: periodRange.toDate,
-      category: categoryFilter !== "all" ? (categoryFilter as ExpenseCategory) : undefined,
+      category:
+        categoryFilter !== "all"
+          ? (categoryFilter as ExpenseCategory)
+          : undefined,
       search: search || undefined,
     },
     { retry: false }
@@ -169,7 +175,9 @@ export default function Expenses() {
         fromDate: periodRange.fromDate,
         toDate: periodRange.toDate,
         category:
-          categoryFilter !== "all" ? (categoryFilter as ExpenseCategory) : undefined,
+          categoryFilter !== "all"
+            ? (categoryFilter as ExpenseCategory)
+            : undefined,
         search: search || undefined,
       });
 

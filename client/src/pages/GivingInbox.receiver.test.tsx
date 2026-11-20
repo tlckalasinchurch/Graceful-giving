@@ -24,7 +24,9 @@ describe("ReceiverCheck", () => {
   });
 
   it("warns on a mismatch and on one differing digit", () => {
-    const { rerender, container } = render(<ReceiverCheck aiData={aiData("mismatch")} />);
+    const { rerender, container } = render(
+      <ReceiverCheck aiData={aiData("mismatch")} />
+    );
     expect(screen.getByText(/ไม่ตรงกับบัญชีของคริสตจักร/)).toBeTruthy();
     expect(container.firstChild).toHaveClass("bg-danger/10");
 

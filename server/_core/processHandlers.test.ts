@@ -48,7 +48,7 @@ describe("installProcessHandlers", () => {
     process.emit("unhandledRejection", reason, Promise.resolve());
     expect(t.logError).toHaveBeenCalledWith(
       "[Process] Unhandled promise rejection:",
-      reason,
+      reason
     );
     expect(t.server.close).toHaveBeenCalledTimes(1);
     // Exit only after the HTTP server has drained and the pool is closed.
@@ -67,7 +67,7 @@ describe("installProcessHandlers", () => {
     process.emit("uncaughtException", error);
     expect(t.logError).toHaveBeenCalledWith(
       "[Process] Uncaught exception:",
-      error,
+      error
     );
     expect(t.server.close).toHaveBeenCalledTimes(1);
     t.invokeCloseCallback();
@@ -81,7 +81,7 @@ describe("installProcessHandlers", () => {
     process.emit("unhandledRejection", "string reason", Promise.resolve());
     expect(t.logError).toHaveBeenCalledWith(
       "[Process] Unhandled promise rejection:",
-      "string reason",
+      "string reason"
     );
   });
 
@@ -95,7 +95,7 @@ describe("installProcessHandlers", () => {
     await sleep(0);
     expect(t.logError).toHaveBeenCalledWith(
       "[Process] Failed to close database connections:",
-      dbError,
+      dbError
     );
     expect(t.exit).toHaveBeenCalledWith(1);
   });
@@ -120,7 +120,7 @@ describe("installProcessHandlers", () => {
     expect(t.server.close).toHaveBeenCalledTimes(1);
     expect(t.logError).toHaveBeenCalledWith(
       "[Process] Unhandled promise rejection:",
-      expect.any(Error),
+      expect.any(Error)
     );
   });
 
