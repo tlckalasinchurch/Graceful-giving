@@ -112,7 +112,8 @@ describe("Phase 6A Independent Financial Verification", () => {
 
       // Step through with cursor pagination (limit: 5)
       const pageSize = 5;
-      const pages: (typeof dataset)[] = [];
+      type DatasetRow = (typeof dataset)[number];
+      const pages: DatasetRow[][] = [];
       let cursor: {
         date: Date;
         type: "income" | "expense";
@@ -120,10 +121,10 @@ describe("Phase 6A Independent Financial Verification", () => {
       } | null = null;
 
       for (let p = 0; p < 4; p++) {
-        const candidate = cursor
+        const candidate: DatasetRow[] = cursor
           ? dataset.filter(item => isAfterCursor(item, cursor!))
           : dataset;
-        const page = candidate.slice(0, pageSize);
+        const page: DatasetRow[] = candidate.slice(0, pageSize);
         pages.push(page);
         expect(page.length).toBe(pageSize);
         cursor = page[page.length - 1];
@@ -191,9 +192,6 @@ describe("Phase 6A Independent Financial Verification", () => {
       const page2 = candidate2.slice(0, pageSize);
       currentCursor = page2[page2.length - 1];
 
-      // Page 3
-      const candidate3 = dataset.filter(i => isAfterCursor(i, currentCursor!));
-      const page3 = candidate3.slice(0, pageSize);
 
       // Navigate Back to Page 2
       const prevCursorToPage2 = cursorHistory.pop(); // Pop Page 2 cursor

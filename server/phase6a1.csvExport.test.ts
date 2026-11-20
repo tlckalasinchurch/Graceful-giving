@@ -41,13 +41,6 @@ const treasurer = makeUser({
   churchRoles: "TREASURER",
 });
 
-const pastor = makeUser({
-  ...baseUser,
-  id: 3,
-  openId: "pastor",
-  churchRole: "PASTOR",
-  churchRoles: "PASTOR",
-});
 
 const member = makeUser({
   ...baseUser,
@@ -327,8 +320,11 @@ describe("Phase 6A.1 — CSV Export & Financial Precision Verification", () => {
             id: 1,
             name: "กองทุนทั่วไป",
             churchId: "demo-church",
+            type: "general" as const,
             balance: "1000",
-            isDefault: true,
+            description: null,
+            isActive: true,
+            sortOrder: 0,
             createdAt: new Date(),
             updatedAt: new Date(),
           },

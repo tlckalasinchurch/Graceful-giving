@@ -25,14 +25,6 @@ const baseUser = makeUser({
   lastSignedIn: new Date(),
 });
 
-const superAdmin = makeUser({
-  ...baseUser,
-  id: 1,
-  openId: "admin",
-  role: "admin",
-  churchRole: "SUPER_ADMIN",
-  churchRoles: "SUPER_ADMIN",
-});
 
 const treasurer = makeUser({
   ...baseUser,

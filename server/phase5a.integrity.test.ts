@@ -125,7 +125,7 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
       await expect(
         pastorCaller.members.update({
           id: 1,
-          fullName: "สมชาย ใจดี",
+          name: "สมชาย ใจดี",
           envelopeNo: "A-101",
         })
       ).rejects.not.toMatchObject({ code: "BAD_REQUEST" });
@@ -133,7 +133,7 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
       // Overly long envelopeNo (> 32 chars) is rejected by Zod input validation
       await expect(
         pastorCaller.members.create({
-          fullName: "สมชาย ใจดี",
+          name: "สมชาย ใจดี",
           envelopeNo: "ENV-" + "X".repeat(40),
         })
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -143,7 +143,7 @@ describe("Phase 5A — Financial Integrity & Schema Validation", () => {
       const treasurerCaller = appRouter.createCaller(createTestContext(treasurer));
       await expect(
         treasurerCaller.members.create({
-          fullName: "สมชาย ใจดี",
+          name: "สมชาย ใจดี",
           envelopeNo: "A-101",
         })
       ).rejects.toMatchObject({ code: "FORBIDDEN" });

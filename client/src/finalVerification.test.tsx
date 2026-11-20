@@ -44,10 +44,10 @@ describe("Final UX Verification Suite", () => {
 
     it("batch recording strictly clears amount, donorName, memberId, notes, and envelopeNo without leaking to next entry", () => {
       function BatchRecordHarness() {
-        const [fundId, setFundId] = useState("20");
-        const [category, setCategory] = useState("tithe");
-        const [method, setMethod] = useState("cash");
-        const [date, setDate] = useState("2026-11-09");
+        const [fundId] = useState("20");
+        const [category] = useState("tithe");
+        const [method] = useState("cash");
+        const [date] = useState("2026-11-09");
         const [amount, setAmount] = useState("5000");
         const [donorName, setDonorName] = useState("คุณสมชาย ใจดี");
         const [memberId, setMemberId] = useState<number | null>(101);

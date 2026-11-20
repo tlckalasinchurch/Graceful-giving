@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   fetchAllOfferingsInBatches,
   exportTransactionsCsvData,
-  exportOfferingsCsvData,
   exportExpensesCsvData,
   type OfferingRow,
   type ExpenseRow,

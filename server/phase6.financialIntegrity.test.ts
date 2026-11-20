@@ -54,7 +54,7 @@ describe("Phase 6 Independent Audit — Financial Integrity & Limit 1000 Analysi
     it("verifies computeLedgerTotals calculates exact arithmetic with 1,000 transactions", () => {
       const items: ReconcilableItem[] = Array.from(
         { length: 1000 },
-        (_, i) => ({
+        () => ({
           type: "income",
           amount: 500.0,
         })

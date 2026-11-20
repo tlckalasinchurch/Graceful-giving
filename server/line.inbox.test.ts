@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createTestContext, makeUser } from "./test/testContext";
 import { appRouter } from "./routers";
-import {
-  requiresReview,
-  CONFIDENCE_THRESHOLD,
-  type SlipExtraction,
-} from "./line/slipOcr";
+import { requiresReview, type SlipExtraction } from "./line/slipOcr";
 
 const memberUser = makeUser({
   id: 101,
