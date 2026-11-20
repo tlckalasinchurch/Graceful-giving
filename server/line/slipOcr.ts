@@ -255,7 +255,7 @@ async function extractWithGemini(
     "gemini-2.5-flash-lite",
     "gemini-flash-latest",
   ];
-  let lastError: any;
+  let lastError: unknown;
 
   for (const model of models) {
     try {

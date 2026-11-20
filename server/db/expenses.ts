@@ -17,6 +17,7 @@ import {
   sanitizeCsvCell,
 } from "./finance";
 import { bangkokDateString } from "@shared/bangkokDate";
+import type { ExpenseCategory } from "@shared/categories";
 import {
   and,
   count,
@@ -72,7 +73,7 @@ export function buildExpenseConditions(
   if (opts.fundId !== undefined)
     conditions.push(eq(expenses.fundId, opts.fundId));
   if (opts.category && opts.category !== "all") {
-    conditions.push(eq(expenses.category, opts.category as any));
+    conditions.push(eq(expenses.category, opts.category as ExpenseCategory));
   }
   if (opts.search && opts.search.trim()) {
     const pattern = `%${opts.search.trim()}%`;
@@ -362,7 +363,7 @@ export async function updateExpense(
     if (!existing[0]) return null;
     const updatedRows = await tx
       .update(expenses)
-      .set(input as any)
+      .set(input)
       .where(
         and(
           eq(expenses.id, id),

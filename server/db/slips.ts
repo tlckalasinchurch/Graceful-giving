@@ -102,7 +102,7 @@ export async function listLineSlips(
   const conditions = [eq(lineSlips.churchId, churchId)];
 
   if (filters.status && filters.status !== "all") {
-    conditions.push(eq(lineSlips.status, filters.status as any));
+    conditions.push(eq(lineSlips.status, filters.status as LineSlip["status"]));
   }
   if (filters.memberId) {
     conditions.push(eq(lineSlips.matchedMemberId, filters.memberId));
@@ -536,7 +536,7 @@ export async function updateLineSlipReview(input: UpdateLineSlipReviewInput) {
 
   const [updated] = await db
     .update(lineSlips)
-    .set(updateSet as any)
+    .set(updateSet)
     .where(
       and(eq(lineSlips.id, input.slipId), eq(lineSlips.churchId, churchId))
     )
@@ -624,7 +624,18 @@ export async function getLineInboxStats(churchId = DEFAULT_CHURCH_ID) {
     .where(eq(lineSlips.churchId, churchId))
     .groupBy(lineSlips.status);
 
-  const stats: Record<string, number> = {
+  const stats: Record<
+    | "pending"
+    | "processing"
+    | "extracted"
+    | "needs_review"
+    | "matched"
+    | "duplicate"
+    | "approved"
+    | "rejected"
+    | "failed",
+    number
+  > = {
     pending: 0,
     processing: 0,
     extracted: 0,

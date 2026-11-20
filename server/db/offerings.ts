@@ -17,6 +17,7 @@ import {
   sanitizeCsvCell,
 } from "./finance";
 import { bangkokDateString } from "@shared/bangkokDate";
+import type { OfferingCategory } from "@shared/categories";
 import {
   and,
   count,
@@ -73,7 +74,7 @@ export function buildOfferingConditions(
   if (opts.fundId !== undefined)
     conditions.push(eq(offerings.fundId, opts.fundId));
   if (opts.category && opts.category !== "all") {
-    conditions.push(eq(offerings.category, opts.category as any));
+    conditions.push(eq(offerings.category, opts.category as OfferingCategory));
   }
   if (opts.donorMemberId !== undefined) {
     if (opts.showDonorNames) {
@@ -385,7 +386,7 @@ export async function updateOffering(
     if (!existing[0]) return null;
     const updatedRows = await tx
       .update(offerings)
-      .set(input as any)
+      .set(input)
       .where(
         and(
           eq(offerings.id, id),

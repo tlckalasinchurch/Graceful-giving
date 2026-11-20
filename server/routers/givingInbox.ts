@@ -172,8 +172,10 @@ export const givingInboxRouter = router({
             amount: result.amount,
           });
           return result;
-        } catch (err: any) {
-          const msg = err?.message || "เกิดข้อผิดพลาดในการอนุมัติสลิป";
+        } catch (err) {
+          const msg =
+            (err instanceof Error && err.message) ||
+            "เกิดข้อผิดพลาดในการอนุมัติสลิป";
           if (msg.includes("ได้รับการอนุมัติไปแล้ว")) {
             throw new TRPCError({ code: "CONFLICT", message: msg });
           }
@@ -205,8 +207,8 @@ export const givingInboxRouter = router({
             reason: input.reason,
           });
           return result;
-        } catch (err: any) {
-          const msg = typeof err?.message === "string" ? err.message : "";
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
           const isExpected =
             msg.includes("กรุณาระบุ") ||
             msg.includes("ไม่พบสลิป") ||
@@ -245,8 +247,8 @@ export const givingInboxRouter = router({
             reviewNote: input.reviewNote,
             status: input.status,
           });
-        } catch (err: any) {
-          const msg = typeof err?.message === "string" ? err.message : "";
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
           const isExpected =
             msg.includes("ไม่พบสลิป") || msg.includes("ไม่สามารถแก้ไข");
           throw new TRPCError({
@@ -274,8 +276,8 @@ export const givingInboxRouter = router({
             input.memberId,
             ctx.user.id
           );
-        } catch (err: any) {
-          const msg = typeof err?.message === "string" ? err.message : "";
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
           const isExpected = msg.includes("ไม่พบ") || msg.includes("ไม่สามารถ");
           throw new TRPCError({
             code: "BAD_REQUEST",
@@ -645,8 +647,8 @@ export const givingInboxRouter = router({
           );
 
           return { success: true };
-        } catch (err: any) {
-          const msg = typeof err?.message === "string" ? err.message : "";
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
           const isExpected = msg.includes("ไม่พบ") || msg.includes("ไม่สามารถ");
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",

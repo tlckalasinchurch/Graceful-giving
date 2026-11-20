@@ -5,6 +5,7 @@
 
 import {
   InsertUser,
+  type User,
   users,
 } from "../../drizzle/schema";
 import { ENV } from "../_core/env";
@@ -184,7 +185,7 @@ export async function getAllUsers() {
 
 export async function updateUserChurchRole(
   userId: number,
-  churchRole: string | null,
+  churchRole: User["churchRole"],
   churchRoles?: string[] | null
 ) {
   const db = await getDb();
@@ -201,7 +202,7 @@ export async function updateUserChurchRole(
       churchRoles: rolesString,
       role,
       updatedAt: new Date(),
-    } as any)
+    })
     .where(eq(users.id, userId));
 }
 

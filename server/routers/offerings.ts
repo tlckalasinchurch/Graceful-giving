@@ -174,7 +174,7 @@ export const offeringsRouter = router({
           reference: input.reference ?? null,
           notes: input.notes ?? null,
           recordedBy: ctx.user.id,
-        } as any);
+        });
         await createAuditLog({
           churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,

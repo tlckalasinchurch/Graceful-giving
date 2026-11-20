@@ -158,7 +158,7 @@ export const expensesRouter = router({
           receiptUrl: input.receiptUrl ?? null,
           status: "approved",
           recordedBy: ctx.user.id,
-        } as any);
+        });
         await createAuditLog({
           churchId: DEFAULT_CHURCH_ID,
           userId: ctx.user.id,
@@ -242,7 +242,7 @@ export const expensesRouter = router({
         const updated = await updateExpense(id, {
           ...rest,
           ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
-        } as any);
+        });
         if (updated === null)
           throw new TRPCError({
             code: "NOT_FOUND",
