@@ -13,6 +13,11 @@ import postgres from "postgres";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+// Retained so closeDb() can end the pool during graceful shutdown
+// (server/_core/processHandlers.ts). Null when no postgres-js client exists —
+// e.g. the PGlite test path, which owns its own lifecycle.
+let _client: postgres.Sql | null = null;
+
 /**
  * The tenant every query defaults to. The app is single-tenant, but the tests
  * point this at a throwaway tenant so a run against a real database can never
@@ -54,12 +59,32 @@ async function connectDb(dbUrl: string) {
     // Eager health-check: `postgres` connects lazily, so verify now to preserve
     // the getDb()-returns-null (never throws) contract on unreachable URLs.
     await client`SELECT 1`;
+    _client = client;
     _db = drizzle(client);
   } catch (error) {
     console.warn("[Database] Failed to connect:", error);
     _db = null;
   }
   return _db;
+}
+
+/**
+ * Ends the postgres-js pool and forgets the cached drizzle instance, so a
+ * later getDb() reconnects from scratch. No-op when no postgres-js client
+ * exists (no DATABASE_URL yet, a failed connect, or the PGlite test path).
+ * Used by the graceful-shutdown path in server/_core/processHandlers.ts;
+ * never throws — a failing close must not block process exit.
+ */
+export async function closeDb(): Promise<void> {
+  const client = _client;
+  _client = null;
+  _db = null;
+  if (!client) return;
+  try {
+    await client.end();
+  } catch (error) {
+    console.warn("[Database] Failed to close connection pool:", error);
+  }
 }
 
 export async function getDb() {
