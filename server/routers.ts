@@ -1,619 +1,224 @@
-import { COOKIE_NAME } from "@shared/const";
-import { z } from "zod";
-import { getSessionCookieOptions } from "./_core/cookies";
+// Thin shell for the tRPC router (Phase 4 god-file split).
+// Sub-routers live in server/routers/<domain>.ts; shared procedures,
+// helpers and schemas live in server/routers/common.ts. The API shape
+// (appRouter keys, procedure names, inputs) is unchanged.
+
 import { systemRouter } from "./_core/systemRouter";
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { storagePut } from "./storage";
+import { router } from "./_core/trpc";
+import { type User } from "../drizzle/schema";
+import { getSessionCookieOptions } from "./_core/cookies";
 import {
+  protectedProcedure,
+  publicProcedure,
+} from "./_core/trpc";
+import { assertCsvWithinLimit } from "./csvLimit";
+import {
+  DEFAULT_CHURCH_ID,
+  DuplicateEntryError,
+  WorkflowError,
+  addBankRecord,
+  addBankSigner,
+  addOfferingEnvelope,
+  addSessionDeduction,
+  addSessionDocument,
+  approveLineSlip,
+  approveSessionDeduction,
+  archiveMinistry,
+  attachPendingWithdrawals,
+  cancelWithdrawalRequest,
+  countPendingUsers,
+  countRecentManualSlips,
+  countRecentSystemRejectedSlips,
+  countUnreadNotifications,
+  createAuditLog,
   createBudgetPlan,
-  deleteBudgetPlan,
-  getBudgetPlanById,
-  listBudgetPlans,
-  updateBudgetPlan,
   createChurchEvent,
   createChurchNews,
-  createAuditLog,
-  getWithdrawalRequestBasic,
-  signWithdrawalRequest,
-  WorkflowError,
-  cancelWithdrawalRequest,
-  listAuditLogs,
-  createNotification,
-  createNoSlipEntry,
-  DuplicateEntryError,
-  listFinanceUserIds,
+  createCountingSession,
   createExpense,
   createFinanceAccount,
-  createOffering,
-  createWithdrawalRequest,
-  DEFAULT_CHURCH_ID,
-  addBankSigner,
-  removeBankSigner,
-  setRequiredBankSigner,
-  listBankSigners,
-  isBankSigner,
-  deleteChurchEvent,
-  deleteChurchNews,
-  deleteExpense,
-  deleteOffering,
+  createManualSlip,
   createMember,
   createMinistry,
+  createNoSlipEntry,
+  createNotification,
+  createOffering,
+  createWithdrawalRequest,
+  deactivateMember,
+  deleteBankRecord,
+  deleteBudgetPlan,
+  deleteChurchEvent,
+  deleteChurchNews,
+  deleteCountingSession,
+  deleteInactiveUser,
+  deleteOfferingEnvelope,
+  deleteSessionDeduction,
   disburseWithdrawal,
+  exportExpensesCsvData,
+  exportOfferingsCsvData,
+  exportTransactionsCsvData,
+  findEarlierUnpostedSession,
+  getAllUsers,
+  getBudgetPlanById,
   getChurchProfile,
+  getCountingSession,
+  getCountingSessionDetail,
   getExpenseById,
+  getExpensesSummary,
   getFinancialReportData,
   getFinancialReportSummary,
   getFinancialSummary,
-  getMonthlyStats,
-  getOfferingById,
-  getOfferingsSummary,
-  listOfferingsPaged,
-  exportOfferingsCsvData,
-  getExpensesSummary,
-  listExpensesPaged,
-  exportExpensesCsvData,
-  getTransactionsSummary,
-  listTransactionsPaged,
-  exportTransactionsCsvData,
+  getLineInboxStats,
+  getLineSlipById,
   getMemberById,
   getMinistryById,
+  getMonthlyStats,
+  getMyManualSlip,
+  getOfferingById,
+  getOfferingsSummary,
+  getStationPosterJson,
+  getTransactionsSummary,
+  getWithdrawalRequestBasic,
+  isBankSigner,
+  linkLineUserToMember,
   listAllChurchEvents,
   listAllChurchNews,
+  listAuditLogs,
+  listBankSigners,
+  listBudgetPlans,
+  listCountingSessions,
   listExpenses,
+  listExpensesPaged,
   listFinanceAccounts,
-  listOfferings,
+  listLineSlips,
   listMembers,
   listMinistries,
+  listMyManualSlips,
   listNotifications,
-  countUnreadNotifications,
+  listOfferings,
+  listOfferingsPaged,
   listPublishedChurchEvents,
   listPublishedChurchNews,
+  listTransactionsPaged,
   listWithdrawalRequests,
-  markSetupCompleted,
-  getStationPosterJson,
-  saveStationPosterJson,
-  updateExpense,
-  updateOffering,
-  voidExpense,
-  voidOffering,
-  updateMember,
-  updateMinistry,
-  archiveMinistry,
-  deactivateMember,
-  getAllUsers,
-  setUserStatus,
-  deleteInactiveUser,
-  countPendingUsers,
-  updateUserProfile,
-  markNotificationRead,
   markAllNotificationsRead,
+  markNotificationRead,
+  markSetupCompleted,
+  matchBankRecordToPassbook,
+  postCountingSession,
+  rejectLineSlip,
+  removeBankSigner,
+  rescanLineSlip,
+  resetCountingSession,
+  resolveOpeningBalances,
+  saveStationPosterJson,
+  setCashCount,
+  setCountingCarryFields,
+  setCountingSessionStatus,
+  setRequiredBankSigner,
+  setUserStatus,
+  signWithdrawalRequest,
+  updateBudgetPlan,
   updateChurchEvent,
   updateChurchEventStatus,
   updateChurchNews,
   updateChurchNewsStatus,
-  updateUserChurchRole,
-  upsertChurchProfile,
-  listCountingSessions,
-  getCountingSession,
-  getCountingSessionDetail,
-  findEarlierUnpostedSession,
-  resolveOpeningBalances,
-  setCountingCarryFields,
-  createCountingSession,
-  attachPendingWithdrawals,
-  setCountingSessionStatus,
-  addOfferingEnvelope,
-  updateOfferingEnvelope,
-  deleteOfferingEnvelope,
-  setCashCount,
-  addSessionDeduction,
-  approveSessionDeduction,
-  deleteSessionDeduction,
-  addBankRecord,
-  deleteBankRecord,
-  matchBankRecordToPassbook,
-  addSessionDocument,
-  postCountingSession,
-  deleteCountingSession,
-  resetCountingSession,
-  listLineSlips,
-  getLineSlipById,
-  approveLineSlip,
-  rejectLineSlip,
+  updateExpense,
   updateLineSlipReview,
-  linkLineUserToMember,
-  getLineInboxStats,
-  createManualSlip,
-  countRecentManualSlips,
-  getMyManualSlip,
-  countRecentSystemRejectedSlips,
-  listMyManualSlips,
-  rescanLineSlip,
+  updateMember,
+  updateMinistry,
+  updateOffering,
+  updateOfferingEnvelope,
+  updateUserChurchRole,
+  updateUserProfile,
+  upsertChurchProfile,
+  voidExpense,
+  voidOffering,
 } from "./db";
-import { runWorkerBatch } from "./line/processWorker";
-import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
-import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
-import { decodeSlipImage, SlipImageError } from "./line/slipImage";
 import { toDonorSlipStatus } from "./line/donorSlipStatus";
+import { runWorkerBatch } from "./line/processWorker";
+import {
+  SlipImageError,
+  decodeSlipImage,
+} from "./line/slipImage";
 import { extractSlipData } from "./line/slipOcr";
 import { toSlipReading } from "./line/slipReading";
-import { UNREADABLE_SLIP } from "@shared/slipReading";
 import {
-  MAX_SPLIT_LINES,
-  MIN_SPLIT_LINES,
-  SPLIT_MESSAGE,
-  checkSplit,
-} from "@shared/givingSplit";
-import type { DonorSlipStatus } from "@shared/donorSlip";
-import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
+  RECEIPT_EXTENSIONS,
+  SLIP_CHECK_WAIT_MS,
+  SLIP_READ_TIMEOUT_MS,
+  adminProcedure,
+  allowSlipRead,
+  assertActiveFund,
+  assertCanCount,
+  assertCanVerify,
+  assertCountEditable,
+  assertNotPosted,
+  assertSplitSound,
+  budgetMonth,
+  budgetProcedure,
+  budgetYear,
+  canApproveDeduction,
+  canManageChurchSettings,
+  canManageFinance,
+  canViewDonorNames,
+  churchLeaderProcedure,
+  churchRoleEnum,
+  csvCell,
+  drainWorkerWithin,
+  eventStatus,
+  expenseCategory,
+  expenseStatus,
+  financeProcedure,
+  financeViewProcedure,
+  fundManageProcedure,
+  fundReadProcedure,
+  getUserRoles,
+  memberDetailProcedure,
+  memberReadProcedure,
+  ministryProcedure,
+  newsCategory,
+  newsStatus,
+  notifyDonorOfDecision,
+  notifyFinanceOfNewEntry,
+  offeringCategory,
+  paymentMethod,
+  redactChurchProfile,
+  reportDateRange,
+  requireCountingSession,
+  splitItems,
+  splitLine,
+} from "./routers/common";
+import { storagePut } from "./storage";
+import { COOKIE_NAME } from "@shared/const";
+import {
+  BANK_RECORD_TYPES,
+  canTransition,
+  isEditable,
+} from "@shared/counting";
+import { type DonorSlipStatus } from "@shared/donorSlip";
 import {
   MAX_GIVING_AMOUNT,
   MAX_SLIPS_PER_DAY,
-  checkTransferDate,
   TRANSFER_DATE_MESSAGE,
-  MAX_SLIP_READS_PER_5_MIN,
+  checkTransferDate,
 } from "@shared/givingLimits";
-import { TRPCError } from "@trpc/server";
-import type { User } from "../drizzle/schema";
-import { assertCsvWithinLimit } from "./csvLimit";
-import type { CountingStatus } from "@shared/counting";
-import { BANK_RECORD_TYPES, canTransition, isEditable } from "@shared/counting";
+import { MAX_SPLIT_LINES } from "@shared/givingSplit";
 import {
-  EXPENSE_CATEGORY_IDS,
-  OFFERING_CATEGORY_IDS,
-} from "@shared/categories";
-
-// ─── Permission helpers ────────────────────────────────────────────────────────
-
-function getUserRoles(user: User): string[] {
-  const list: string[] = [];
-  if (user.churchRoles) {
-    list.push(
-      ...user.churchRoles
-        .split(",")
-        .map(r => r.trim())
-        .filter(Boolean)
-    );
-  }
-  if (user.churchRole && !list.includes(user.churchRole)) {
-    list.push(user.churchRole);
-  }
-  return list.length > 0 ? list : ["MEMBER"];
-}
-
-function hasAnyRole(user: User, ...roles: string[]): boolean {
-  if (user.role === "admin") return true;
-  const userRoles = getUserRoles(user);
-  return roles.some(r => userRoles.includes(r));
-}
-
-function canManageFinance(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "TREASURER");
-}
-
-function canViewDonorNames(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "TREASURER");
-}
-
-function canManageChurchSettings(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "PASTOR");
-}
-
-/** Deacons oversee ministry and service work alongside church leadership. */
-function canManageMinistries(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "PASTOR", "DEACON");
-}
-
-/**
- * Budget plans are set by the people who both approve and pay for spending:
- * the treasurer, the pastor and the super admin. This matches the /budgets
- * entry in client/src/lib/routeAccess.ts.
- */
-function canManageBudgets(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "TREASURER", "PASTOR");
-}
-
-/**
- * Ledger records (offerings, expenses, fund balances) and church-wide totals.
- * Same people the /expenses, /funds and /reports routes admit.
- */
-function canViewFinanceRecords(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "PASTOR", "TREASURER");
-}
-
-/** The member directory holds phone numbers, emails and notes. */
-function canViewMemberDirectory(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "PASTOR", "TREASURER", "DEACON");
-}
-
-/** Bank account details are for people who handle money or run the church. */
-function canViewBankDetails(user: User): boolean {
-  return canViewFinanceRecords(user);
-}
-
-/** COUNTER records the count; finance roles may also record it. */
-function canCountOfferings(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "TREASURER", "COUNTER");
-}
-
-/** Verifying, banking and posting stay with the treasurer. */
-function canVerifyCount(user: User): boolean {
-  return canManageFinance(user);
-}
-
-/** A deduction from the offering bag needs a leader's approval. */
-function canApproveDeduction(user: User): boolean {
-  return hasAnyRole(user, "SUPER_ADMIN", "PASTOR", "TREASURER");
-}
-
-// ─── Shared Procedures ────────────────────────────────────────────────────────
-
-const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  // hasAnyRole reads the full role set (churchRoles + churchRole) and also
-  // passes the coarse admin flag, so a SUPER_ADMIN granted via a secondary
-  // role is not locked out of admin-only procedures.
-  if (!hasAnyRole(ctx.user, "SUPER_ADMIN")) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "เฉพาะผู้ดูแลระบบเท่านั้น",
-    });
-  }
-  return next();
-});
-
-const financeProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canManageFinance(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "คุณไม่มีสิทธิ์จัดการข้อมูลการเงิน",
-    });
-  }
-  return next();
-});
-
-const churchLeaderProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canManageChurchSettings(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "เฉพาะผู้นำคริสตจักรเท่านั้น",
-    });
-  }
-  return next();
-});
-
-const fundManageProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canManageFinance(ctx.user) && !canManageChurchSettings(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "คุณไม่มีสิทธิ์จัดการกองทุน",
-    });
-  }
-  return next();
-});
-
-const ministryProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canManageMinistries(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "เฉพาะผู้นำคริสตจักรและผู้รับผิดชอบฝ่ายเท่านั้น",
-    });
-  }
-  return next();
-});
-
-const financeViewProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canViewFinanceRecords(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "เฉพาะเหรัญญิก ศิษยาภิบาล หรือผู้ดูแลระบบเท่านั้น",
-    });
-  }
-  return next();
-});
-
-/** Counters pick a fund and a member for each envelope, so they read both. */
-const fundReadProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canViewFinanceRecords(ctx.user) && !canCountOfferings(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "คุณไม่มีสิทธิ์ดูข้อมูลกองทุน",
-    });
-  }
-  return next();
-});
-
-const memberReadProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canViewMemberDirectory(ctx.user) && !canCountOfferings(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "คุณไม่มีสิทธิ์ดูรายชื่อสมาชิก",
-    });
-  }
-  return next();
-});
-
-const memberDetailProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canViewMemberDirectory(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "คุณไม่มีสิทธิ์ดูข้อมูลสมาชิก",
-    });
-  }
-  return next();
-});
-
-const budgetProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!canManageBudgets(ctx.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "เฉพาะเหรัญญิก ศิษยาภิบาล หรือผู้ดูแลระบบเท่านั้น",
-    });
-  }
-  return next();
-});
-
-/** Refuses a fund id that is missing or no longer active. */
-async function assertActiveFund(fundId: number) {
-  const funds = await listFinanceAccounts();
-  if (!funds.some(f => f.id === fundId)) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "ไม่พบกองทุนที่เลือก",
-    });
-  }
-}
-
-const RECEIPT_EXTENSIONS = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/gif": "gif",
-  "application/pdf": "pdf",
-} as const;
-
-// ─── Zod Enums ────────────────────────────────────────────────────────────────
-
-const newsCategory = z.enum([
-  "announcement",
-  "ministry",
-  "finance",
-  "pastoral",
-]);
-const newsStatus = z.enum(["draft", "published", "archived"]);
-const eventStatus = z.enum(["draft", "published", "cancelled"]);
-// Built from the shared category source of truth, so the API can never accept
-// a value the database enum would reject, or reject one the UI offers.
-const offeringCategory = z.enum(OFFERING_CATEGORY_IDS);
-
-const splitLine = z.object({
-  category: offeringCategory,
-  amount: z
-    .number()
-    .positive("ยอดของแต่ละประเภทต้องมากกว่า 0")
-    .max(MAX_GIVING_AMOUNT),
-});
-/** One transfer that pays for several categories. */
-const splitItems = z.array(splitLine).min(MIN_SPLIT_LINES).max(MAX_SPLIT_LINES);
-
-/** Throws BAD_REQUEST when the split does not add up to the transfer amount. */
-function assertSplitSound(
-  items: Array<{ category: string; amount: number }> | undefined,
-  total: number
-): void {
-  if (!items) return;
-  const problem = checkSplit(items as never, total);
-  if (problem) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: SPLIT_MESSAGE[problem],
-    });
-  }
-}
-const expenseCategory = z.enum(EXPENSE_CATEGORY_IDS);
-const expenseStatus = z.enum(["draft", "approved", "paid"]);
-const paymentMethod = z.enum(["cash", "transfer", "check"]);
-const churchRoleEnum = z.enum([
-  "SUPER_ADMIN",
-  "PASTOR",
-  "TREASURER",
-  "DEACON",
-  "COUNTER",
-  "MEMBER",
-]);
-const budgetYear = z.number().int().min(2000).max(2100);
-const budgetMonth = z.number().int().min(1).max(12);
-const reportDateRange = z
-  .object({ fromDate: z.coerce.date(), toDate: z.coerce.date() })
-  .refine(data => data.fromDate <= data.toDate, {
-    message: "วันที่เริ่มต้นต้องไม่อยู่หลังวันที่สิ้นสุด",
-    path: ["toDate"],
-  });
-
-function csvCell(value: string | number): string {
-  const raw = String(value);
-  const safe = /^[=+\-@]/.test(raw) ? `'${raw}` : raw;
-  return `"${safe.replace(/"/g, '""')}"`;
-}
-
-// ─── Counting session helpers ─────────────────────────────────────────────────
-
-async function requireCountingSession(id: number) {
-  const session = await getCountingSession(id);
-  if (!session) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "ไม่พบรอบนับเงินถวาย",
-    });
-  }
-  return session;
-}
-
-/** Counters may only change the count sheet and envelopes while counting. */
-function assertCountEditable(status: CountingStatus) {
-  if (!isEditable(status)) {
-    throw new TRPCError({
-      code: "CONFLICT",
-      message: "รอบนี้ส่งนับแล้ว ต้องส่งกลับไปแก้ไขก่อนจึงจะบันทึกได้",
-    });
-  }
-}
-
-/** Posted and closed rounds are part of the books; their figures are fixed. */
-function assertNotPosted(status: CountingStatus) {
-  if (status === "posted" || status === "closed") {
-    throw new TRPCError({
-      code: "CONFLICT",
-      message: "รอบนี้ลงบัญชีแล้ว แก้ไขยอดไม่ได้",
-    });
-  }
-}
-
-function assertCanCount(user: User) {
-  if (!canCountOfferings(user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "คุณไม่มีสิทธิ์บันทึกการนับเงินถวาย",
-    });
-  }
-}
-
-function assertCanVerify(user: User) {
-  if (!canVerifyCount(user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "เฉพาะเหรัญญิกหรือผู้ดูแลระบบเท่านั้น",
-    });
-  }
-}
-
-/**
- * Everyone sees the church's name and contact details, not its bank account
- * or PromptPay ID. A donor gets a QR code for the amount they give instead.
- */
-export function redactChurchProfile<
-  T extends {
-    bankName: string | null;
-    bankAccount: string | null;
-    bankAccountName: string | null;
-  },
->(profile: T | null, user: User): T | null {
-  if (!profile || canViewBankDetails(user)) return profile;
-  return {
-    ...profile,
-    bankName: null,
-    bankAccount: null,
-    bankAccountName: null,
-    ...("promptPayId" in profile ? { promptPayId: null } : {}),
-  };
-}
-
-/** How long a donor waits for the slip reading before it falls back to the queue. */
-const SLIP_CHECK_WAIT_MS = 8000;
-
-/** Runs the slip worker, but gives up waiting after `ms`. Never throws. */
-async function drainWorkerWithin(ms: number): Promise<void> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<void>(resolve => {
-    timer = setTimeout(resolve, ms);
-  });
-  try {
-    await Promise.race([
-      runWorkerBatch().then(
-        () => undefined,
-        err => console.warn("[submitSlip] Worker error:", err)
-      ),
-      timeout,
-    ]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-/**
- * Tells every finance user a new entry waits for review. A failed
- * notification never fails the donor's submission.
- */
-async function notifyFinanceOfNewEntry(opts: {
-  slipId: number;
-  from: string;
-  amount: number;
-  kind: "slip" | "no_slip";
-}): Promise<void> {
-  try {
-    const ids = await listFinanceUserIds();
-    const what =
-      opts.kind === "no_slip"
-        ? "รายการถวายที่ไม่มีสลิป (ต้องตรวจกับยอดเข้าบัญชี)"
-        : "สลิปถวาย";
-    await Promise.all(
-      ids.map(userId =>
-        createNotification({
-          userId,
-          type: "giving_review",
-          title: "มีรายการถวายรอตรวจสอบ",
-          description: `${opts.from} ส่ง${what} ${opts.amount.toLocaleString()} บาท`,
-          link: "/giving/inbox",
-        })
-      )
-    );
-  } catch (err) {
-    console.warn("[notify] Could not notify finance users:", err);
-  }
-}
-
-/** Tells the donor what the treasurer decided. Never throws. */
-async function notifyDonorOfDecision(opts: {
-  userId: number | null;
-  decision: "approved" | "rejected";
-  amount?: number;
-  reason?: string;
-}): Promise<void> {
-  if (opts.userId === null) return;
-  try {
-    await createNotification({
-      userId: opts.userId,
-      type:
-        opts.decision === "approved" ? "giving_approved" : "giving_rejected",
-      title:
-        opts.decision === "approved"
-          ? "บันทึกการถวายของคุณเข้าบัญชีแล้ว"
-          : "รายการถวายของคุณไม่ได้รับการอนุมัติ",
-      description:
-        opts.decision === "approved"
-          ? `เหรัญญิกบันทึกยอด ${(opts.amount ?? 0).toLocaleString()} บาทแล้ว ขอบคุณพระเจ้า`
-          : `เหตุผล: ${opts.reason ?? "ข้อมูลไม่ถูกต้อง"} กรุณาติดต่อเจ้าหน้าที่หรือส่งใหม่`,
-      link: "/giving/station",
-    });
-  } catch (err) {
-    console.warn("[notify] Could not notify the donor:", err);
-  }
-}
-
-/** Slip readings per person, per server instance. A guard against runaway use. */
-const slipReadTimes = new Map<number, number[]>();
-
-function allowSlipRead(userId: number, now = Date.now()): boolean {
-  const recent = (slipReadTimes.get(userId) ?? []).filter(
-    t => now - t < 5 * 60 * 1000
-  );
-  if (recent.length >= MAX_SLIP_READS_PER_5_MIN) {
-    slipReadTimes.set(userId, recent);
-    return false;
-  }
-  recent.push(now);
-  slipReadTimes.set(userId, recent);
-  return true;
-}
-
-/** How long a donor waits for the AI to read a slip before the form is left to them. */
-const SLIP_READ_TIMEOUT_MS = 20_000;
-
-// ─── App Router ───────────────────────────────────────────────────────────────
+  buildPromptPayPayload,
+  parsePromptPayId,
+} from "@shared/promptpay";
+import { UNREADABLE_SLIP } from "@shared/slipReading";
+import {
+  parseStationPoster,
+  stationPosterSchema,
+} from "@shared/stationPoster";
+import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 
 export const appRouter = router({
   system: systemRouter,
-
-  // ── Auth ────────────────────────────────────────────────────────────────────
   auth: router({
     me: publicProcedure.query(async opts => {
       const user = opts.ctx.user;
@@ -773,8 +378,6 @@ export const appRouter = router({
         return { success: true } as const;
       }),
   }),
-
-  // ── Church Profile ──────────────────────────────────────────────────────────
   church: router({
     getProfile: protectedProcedure.query(async ({ ctx }) => {
       return redactChurchProfile(await getChurchProfile(), ctx.user);
@@ -886,8 +489,6 @@ export const appRouter = router({
       return { success: true } as const;
     }),
   }),
-
-  // ── Finance Summary ─────────────────────────────────────────────────────────
   finance: router({
     summary: financeViewProcedure.query(async () => {
       return await getFinancialSummary();
@@ -934,8 +535,6 @@ export const appRouter = router({
         return { id };
       }),
   }),
-
-  // ── Offerings ───────────────────────────────────────────────────────────────
   offerings: router({
     list: financeViewProcedure
       .input(
@@ -1164,8 +763,6 @@ export const appRouter = router({
         return { id: input.id };
       }),
   }),
-
-  // ── Expenses ────────────────────────────────────────────────────────────────
   expenses: router({
     list: financeViewProcedure
       .input(
@@ -1415,8 +1012,6 @@ export const appRouter = router({
         return { id: input.id };
       }),
   }),
-
-  // ── Unified Transactions (Ledger) ───────────────────────────────────────────
   transactions: router({
     summary: financeViewProcedure
       .input(
@@ -1495,9 +1090,6 @@ export const appRouter = router({
         });
       }),
   }),
-
-  // ── Withdrawal Requests ─────────────────────────────────────────────────────
-  // ── Withdrawal bank signers (Part 2) ────────────────────────────────────────
   bankSigners: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       if (
@@ -1562,8 +1154,6 @@ export const appRouter = router({
         return { moved };
       }),
   }),
-
-  // ── Withdrawals ──────────────────────────────────────────────────────────────
   withdrawals: router({
     list: protectedProcedure
       .input(z.object({ myOnly: z.boolean().default(false) }).optional())
@@ -1717,8 +1307,6 @@ export const appRouter = router({
         return { success: true, sessionId: res.attachedSessionId };
       }),
   }),
-
-  // ── Members ──────────────────────────────────────────────────────────────────
   members: router({
     list: memberReadProcedure.query(async () => listMembers(DEFAULT_CHURCH_ID)),
     getById: memberDetailProcedure
@@ -1804,10 +1392,6 @@ export const appRouter = router({
         return { id: updated };
       }),
   }),
-
-  // ── Ministries ───────────────────────────────────────────────────────────────
-  // Reading is open to every signed-in member so the congregation can see the
-  // teams; creating and editing belongs to leadership and deacons.
   ministries: router({
     list: protectedProcedure.query(async () =>
       listMinistries(DEFAULT_CHURCH_ID)
@@ -1859,10 +1443,6 @@ export const appRouter = router({
         return { id: updated };
       }),
   }),
-
-  // ── Budgets ──────────────────────────────────────────────────────────────────
-  // Plans are compared against recorded expenses, so reading them exposes
-  // spending totals: both reading and writing are limited to budget managers.
   budgets: router({
     list: budgetProcedure
       .input(z.object({ year: budgetYear }))
@@ -1957,8 +1537,6 @@ export const appRouter = router({
         return { id: deleted };
       }),
   }),
-
-  // ── Notifications ────────────────────────────────────────────────────────────
   notifications: router({
     list: protectedProcedure.query(async ({ ctx }) =>
       listNotifications(ctx.user.id, DEFAULT_CHURCH_ID)
@@ -1977,8 +1555,6 @@ export const appRouter = router({
       return { success: true } as const;
     }),
   }),
-
-  // ── Reports ──────────────────────────────────────────────────────────────────
   reports: router({
     /** Category totals and fund balances for the report screen. */
     summary: financeViewProcedure
@@ -2027,8 +1603,6 @@ export const appRouter = router({
         };
       }),
   }),
-
-  // ── Updates (existing) ──────────────────────────────────────────────────────
   updates: router({
     feed: protectedProcedure.query(async () => ({
       news: await listPublishedChurchNews(),
@@ -2181,7 +1755,6 @@ export const appRouter = router({
         return { success: true } as const;
       }),
   }),
-  // ── Weekly Offering Counting ────────────────────────────────────────────────
   counting: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       assertCanCount(ctx.user);
@@ -2996,8 +2569,6 @@ export const appRouter = router({
         return { success: true } as const;
       }),
   }),
-
-  // ── Giving Inbox (LINE Slip AI) ──────────────────────────────────────────
   givingInbox: router({
     /**
      * List slips in inbox with optional status filter.
@@ -3595,8 +3166,6 @@ export const appRouter = router({
         }
       }),
   }),
-
-  // ── Audit Logs ──────────────────────────────────────────────────────────────
   audit: router({
     list: adminProcedure
       .input(
@@ -3612,4 +3181,5 @@ export const appRouter = router({
   }),
 });
 
+export { redactChurchProfile } from "./routers/common";
 export type AppRouter = typeof appRouter;
