@@ -10,7 +10,6 @@ import { protectedProcedure } from "./_core/trpc";
 import {
   DEFAULT_CHURCH_ID,
   DuplicateEntryError,
-  WorkflowError,
   addBankRecord,
   addOfferingEnvelope,
   addSessionDeduction,
@@ -18,46 +17,27 @@ import {
   approveLineSlip,
   approveSessionDeduction,
   attachPendingWithdrawals,
-  cancelWithdrawalRequest,
   countRecentManualSlips,
   countRecentSystemRejectedSlips,
   createAuditLog,
   createCountingSession,
-  createExpense,
   createManualSlip,
   createNoSlipEntry,
-  createNotification,
-  createOffering,
-  createWithdrawalRequest,
   deleteBankRecord,
   deleteCountingSession,
   deleteOfferingEnvelope,
   deleteSessionDeduction,
-  disburseWithdrawal,
-  exportExpensesCsvData,
-  exportOfferingsCsvData,
   findEarlierUnpostedSession,
   getCountingSession,
   getCountingSessionDetail,
-  getExpenseById,
-  getExpensesSummary,
   getLineInboxStats,
   getLineSlipById,
   getMyManualSlip,
-  getOfferingById,
-  getOfferingsSummary,
-  getWithdrawalRequestBasic,
-  isBankSigner,
   linkLineUserToMember,
   listCountingSessions,
-  listExpenses,
-  listExpensesPaged,
   listFinanceAccounts,
   listLineSlips,
   listMyManualSlips,
-  listOfferings,
-  listOfferingsPaged,
-  listWithdrawalRequests,
   matchBankRecordToPassbook,
   postCountingSession,
   rejectLineSlip,
@@ -67,13 +47,8 @@ import {
   setCashCount,
   setCountingCarryFields,
   setCountingSessionStatus,
-  signWithdrawalRequest,
-  updateExpense,
   updateLineSlipReview,
-  updateOffering,
   updateOfferingEnvelope,
-  voidExpense,
-  voidOffering,
 } from "./db";
 import { toDonorSlipStatus } from "./line/donorSlipStatus";
 import { runWorkerBatch } from "./line/processWorker";
@@ -84,25 +59,19 @@ import {
 import { extractSlipData } from "./line/slipOcr";
 import { toSlipReading } from "./line/slipReading";
 import {
-  RECEIPT_EXTENSIONS,
   SLIP_CHECK_WAIT_MS,
   SLIP_READ_TIMEOUT_MS,
   allowSlipRead,
-  assertActiveFund,
   assertCanCount,
   assertCanVerify,
   assertCountEditable,
   assertNotPosted,
   assertSplitSound,
   canApproveDeduction,
-  canManageChurchSettings,
-  canManageFinance,
   canViewDonorNames,
   drainWorkerWithin,
   expenseCategory,
-  expenseStatus,
   financeProcedure,
-  financeViewProcedure,
   notifyDonorOfDecision,
   notifyFinanceOfNewEntry,
   offeringCategory,
@@ -111,7 +80,6 @@ import {
   splitItems,
   splitLine,
 } from "./routers/common";
-import { storagePut } from "./storage";
 import {
   BANK_RECORD_TYPES,
   canTransition,
@@ -126,7 +94,6 @@ import {
 } from "@shared/givingLimits";
 import { MAX_SPLIT_LINES } from "@shared/givingSplit";
 import { UNREADABLE_SLIP } from "@shared/slipReading";
-import { MAX_WITHDRAWAL_AMOUNT } from "@shared/withdrawals";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { authRouter } from "./routers/auth";
@@ -141,644 +108,20 @@ import { notificationsRouter } from "./routers/notifications";
 import { reportsRouter } from "./routers/reports";
 import { updatesRouter } from "./routers/updates";
 import { auditRouter } from "./routers/audit";
+import { offeringsRouter } from "./routers/offerings";
+import { expensesRouter } from "./routers/expenses";
+import { withdrawalsRouter } from "./routers/withdrawals";
 
 export const appRouter = router({
   system: systemRouter,
   auth: authRouter,
   church: churchRouter,
   finance: financeRouter,
-  offerings: router({
-    list: financeViewProcedure
-      .input(
-        z
-          .object({
-            limit: z.number().int().min(1).max(1000).default(50),
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            category: offeringCategory.optional(),
-            donorMemberId: z.number().int().positive().optional(),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ ctx, input }) => {
-        const showDonorNames = canViewDonorNames(ctx.user);
-        return await listOfferings(DEFAULT_CHURCH_ID, {
-          limit: input?.limit ?? 50,
-          showDonorNames,
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          category: input?.category,
-          donorMemberId: input?.donorMemberId,
-          search: input?.search,
-        });
-      }),
-    summary: financeViewProcedure
-      .input(
-        z
-          .object({
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            category: offeringCategory.optional(),
-            donorMemberId: z.number().int().positive().optional(),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ ctx, input }) => {
-        return await getOfferingsSummary(DEFAULT_CHURCH_ID, {
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          category: input?.category,
-          donorMemberId: input?.donorMemberId,
-          search: input?.search,
-          showDonorNames: canViewDonorNames(ctx.user),
-        });
-      }),
-    paged: financeViewProcedure
-      .input(
-        z
-          .object({
-            limit: z.number().int().min(1).max(200).default(50),
-            cursor: z
-              .object({
-                date: z.coerce.date(),
-                id: z.number().int().positive(),
-              })
-              .optional(),
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            category: offeringCategory.optional(),
-            donorMemberId: z.number().int().positive().optional(),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ ctx, input }) => {
-        return await listOfferingsPaged(DEFAULT_CHURCH_ID, {
-          limit: input?.limit ?? 50,
-          cursor: input?.cursor,
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          category: input?.category,
-          donorMemberId: input?.donorMemberId,
-          search: input?.search,
-          showDonorNames: canViewDonorNames(ctx.user),
-        });
-      }),
-    exportCsv: financeViewProcedure
-      .input(
-        z
-          .object({
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            category: offeringCategory.optional(),
-            donorMemberId: z.number().int().positive().optional(),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ ctx, input }) => {
-        return await exportOfferingsCsvData(DEFAULT_CHURCH_ID, {
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          category: input?.category,
-          donorMemberId: input?.donorMemberId,
-          search: input?.search,
-          showDonorNames: canViewDonorNames(ctx.user),
-        });
-      }),
-    getById: financeViewProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .query(async ({ ctx, input }) => {
-        return await getOfferingById(
-          input.id,
-          DEFAULT_CHURCH_ID,
-          canViewDonorNames(ctx.user)
-        );
-      }),
-    create: financeProcedure
-      .input(
-        z.object({
-          amount: z.number().positive().max(MAX_GIVING_AMOUNT),
-          category: offeringCategory.default("cash"),
-          // Required: an entry with no fund changes no fund balance, so the
-          // total balance stops matching the income and expense totals.
-          fundId: z.number().int().positive(),
-          donorName: z.string().trim().max(120).optional(),
-          donorMemberId: z.number().int().positive().nullable().optional(),
-          receiptDate: z.coerce.date().optional(),
-          method: paymentMethod.default("cash"),
-          reference: z.string().trim().max(120).optional(),
-          notes: z.string().trim().max(500).optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        await assertActiveFund(input.fundId);
-        const id = await createOffering({
-          amount: input.amount.toFixed(2),
-          category: input.category,
-          fundId: input.fundId,
-          donorName: input.donorName ?? null,
-          donorMemberId: input.donorMemberId ?? null,
-          receiptDate: input.receiptDate ?? new Date(),
-          method: input.method,
-          reference: input.reference ?? null,
-          notes: input.notes ?? null,
-          recordedBy: ctx.user.id,
-        } as any);
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "CREATE",
-          entity: "offering",
-          entityId: id,
-          metadata: input,
-        });
-        await createNotification({
-          userId: ctx.user.id,
-          type: "finance_created",
-          title: "บันทึกรายการการเงินแล้ว",
-          description: `บันทึก ${input.amount.toLocaleString()} บาทเรียบร้อยแล้ว`,
-          link: null,
-        });
-        return { id };
-      }),
-    update: financeProcedure
-      .input(
-        z.object({
-          id: z.number().int().positive(),
-          amount: z
-            .number()
-            .positive()
-            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด")
-            .optional(),
-          category: offeringCategory.optional(),
-          // Leave it out to keep the fund. null is refused: it would take the
-          // amount out of the fund and put it in no fund.
-          fundId: z.number().int().positive().optional(),
-          donorName: z.string().trim().max(120).nullable().optional(),
-          donorMemberId: z.number().int().positive().nullable().optional(),
-          receiptDate: z.coerce.date().optional(),
-          method: paymentMethod.optional(),
-          reference: z.string().trim().max(120).nullable().optional(),
-          notes: z.string().trim().max(500).nullable().optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { id, amount, ...rest } = input;
-        if (typeof rest.fundId === "number")
-          await assertActiveFund(rest.fundId);
-        const updated = await updateOffering(id, {
-          ...rest,
-          ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
-        });
-        if (updated === null)
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "ไม่พบรายการถวายหรือรายการถูกยกเลิกไปแล้ว",
-          });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "UPDATE",
-          entity: "offering",
-          entityId: id,
-          metadata: rest,
-        });
-        return { id: updated };
-      }),
-    delete: financeProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        const deleted = await voidOffering(input.id);
-        if (!deleted)
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "ไม่พบรายการถวายหรือรายการถูกยกเลิกไปแล้ว",
-          });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "VOID",
-          entity: "offering",
-          entityId: input.id,
-        });
-        return { id: input.id };
-      }),
-  }),
-  expenses: router({
-    list: financeViewProcedure
-      .input(
-        z
-          .object({
-            limit: z.number().int().min(1).max(1000).default(50),
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            category: expenseCategory.optional(),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ input }) => {
-        return await listExpenses(DEFAULT_CHURCH_ID, {
-          limit: input?.limit ?? 50,
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          category: input?.category,
-          search: input?.search,
-        });
-      }),
-    summary: financeViewProcedure
-      .input(
-        z
-          .object({
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            category: expenseCategory.optional(),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ input }) => {
-        return await getExpensesSummary(DEFAULT_CHURCH_ID, {
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          category: input?.category,
-          search: input?.search,
-        });
-      }),
-    paged: financeViewProcedure
-      .input(
-        z
-          .object({
-            limit: z.number().int().min(1).max(200).default(50),
-            cursor: z
-              .object({
-                date: z.coerce.date(),
-                id: z.number().int().positive(),
-              })
-              .optional(),
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            category: expenseCategory.optional(),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ input }) => {
-        return await listExpensesPaged(DEFAULT_CHURCH_ID, {
-          limit: input?.limit ?? 50,
-          cursor: input?.cursor,
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          category: input?.category,
-          search: input?.search,
-        });
-      }),
-    exportCsv: financeViewProcedure
-      .input(
-        z
-          .object({
-            fromDate: z.coerce.date().optional(),
-            toDate: z.coerce.date().optional(),
-            fundId: z.number().int().positive().optional(),
-            category: expenseCategory.optional(),
-            search: z.string().trim().optional(),
-          })
-          .optional()
-      )
-      .query(async ({ input }) => {
-        return await exportExpensesCsvData(DEFAULT_CHURCH_ID, {
-          fromDate: input?.fromDate,
-          toDate: input?.toDate,
-          fundId: input?.fundId,
-          category: input?.category,
-          search: input?.search,
-        });
-      }),
-    getById: financeViewProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .query(async ({ input }) => {
-        return await getExpenseById(input.id, DEFAULT_CHURCH_ID);
-      }),
-    create: financeProcedure
-      .input(
-        z.object({
-          amount: z.number().positive(),
-          category: expenseCategory.default("other"),
-          // Required, for the same reason as on offerings.create.
-          fundId: z.number().int().positive(),
-          description: z.string().trim().min(2).max(280),
-          details: z.string().trim().max(1000).optional(),
-          expenseDate: z.coerce.date().optional(),
-          payee: z.string().trim().max(120).optional(),
-          receiptRef: z.string().trim().max(120).optional(),
-          receiptUrl: z.string().url().optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        await assertActiveFund(input.fundId);
-        const id = await createExpense({
-          amount: input.amount.toFixed(2),
-          category: input.category,
-          fundId: input.fundId,
-          description: input.description,
-          details: input.details ?? null,
-          expenseDate: input.expenseDate ?? new Date(),
-          payee: input.payee ?? null,
-          receiptRef: input.receiptRef ?? null,
-          receiptUrl: input.receiptUrl ?? null,
-          status: "approved",
-          recordedBy: ctx.user.id,
-        } as any);
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "CREATE",
-          entity: "expense",
-          entityId: id,
-          metadata: input,
-        });
-        await createNotification({
-          userId: ctx.user.id,
-          type: "finance_created",
-          title: "บันทึกรายการรายจ่ายแล้ว",
-          description: `บันทึก ${input.amount.toLocaleString()} บาทเรียบร้อยแล้ว`,
-          link: null,
-        });
-        return { id };
-      }),
-    uploadReceipt: financeProcedure
-      .input(
-        z.object({
-          fileName: z.string().min(1).max(255),
-          contentType: z.enum([
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-            "image/gif",
-            "application/pdf",
-          ]),
-          // About 5 MB of binary once decoded; matches the /api/trpc body limit.
-          base64Data: z.string().min(1).max(6_900_000),
-        })
-      )
-      .mutation(async ({ input }) => {
-        // The extension comes from the validated content type, never from the
-        // client's file name, so a file cannot be stored as receipt.html.
-        const ext = RECEIPT_EXTENSIONS[input.contentType];
-        const key = `expenses/receipt.${ext}`;
-        try {
-          const { url } = await storagePut(
-            key,
-            input.base64Data,
-            input.contentType
-          );
-          return { url };
-        } catch (err) {
-          console.warn(
-            "[uploadReceipt] Storage upload failed, falling back to inline data URL:",
-            err
-          );
-          const raw = input.base64Data
-            .replace(/^data:[^;,]*;base64,/, "")
-            .trim();
-          return { url: `data:${input.contentType};base64,${raw}` };
-        }
-      }),
-    update: financeProcedure
-      .input(
-        z.object({
-          id: z.number().int().positive(),
-          amount: z
-            .number()
-            .positive()
-            .max(MAX_GIVING_AMOUNT, "จำนวนเงินสูงเกินกำหนด")
-            .optional(),
-          category: expenseCategory.optional(),
-          // Leave it out to keep the fund. null is refused, as on offerings.update.
-          fundId: z.number().int().positive().optional(),
-          description: z.string().trim().min(2).max(280).optional(),
-          details: z.string().trim().max(1000).nullable().optional(),
-          expenseDate: z.coerce.date().optional(),
-          payee: z.string().trim().max(120).nullable().optional(),
-          receiptRef: z.string().trim().max(120).nullable().optional(),
-          receiptUrl: z.string().url().nullable().optional(),
-          status: expenseStatus.optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { id, amount, ...rest } = input;
-        if (typeof rest.fundId === "number")
-          await assertActiveFund(rest.fundId);
-        const updated = await updateExpense(id, {
-          ...rest,
-          ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
-        } as any);
-        if (updated === null)
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "ไม่พบรายการรายจ่ายหรือรายการถูกยกเลิกไปแล้ว",
-          });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "UPDATE",
-          entity: "expense",
-          entityId: id,
-          metadata: rest,
-        });
-        return { id: updated };
-      }),
-    delete: financeProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        const deleted = await voidExpense(input.id);
-        if (!deleted)
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "ไม่พบรายการรายจ่ายหรือรายการถูกยกเลิกไปแล้ว",
-          });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "VOID",
-          entity: "expense",
-          entityId: input.id,
-        });
-        return { id: input.id };
-      }),
-  }),
+  offerings: offeringsRouter,
+  expenses: expensesRouter,
   transactions: transactionsRouter,
   bankSigners: bankSignersRouter,
-  withdrawals: router({
-    list: protectedProcedure
-      .input(z.object({ myOnly: z.boolean().default(false) }).optional())
-      .query(async ({ ctx, input }) => {
-        const seesAll =
-          canManageFinance(ctx.user) ||
-          canManageChurchSettings(ctx.user) ||
-          (await isBankSigner(ctx.user.id));
-        const userId = input?.myOnly || !seesAll ? ctx.user.id : undefined;
-        return await listWithdrawalRequests(DEFAULT_CHURCH_ID, { userId });
-      }),
-    create: protectedProcedure
-      .input(
-        z.object({
-          amount: z
-            .number()
-            .positive()
-            .max(MAX_WITHDRAWAL_AMOUNT, "จำนวนเงินสูงเกินกำหนด"),
-          purpose: z.string().trim().min(5).max(280),
-          details: z.string().trim().max(1000).optional(),
-          fundId: z.number().int().positive().optional(),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        if (input.fundId !== undefined) await assertActiveFund(input.fundId);
-        const id = await createWithdrawalRequest({
-          amount: input.amount.toFixed(2),
-          purpose: input.purpose,
-          details: input.details ?? null,
-          fundId: input.fundId,
-          requestedBy: ctx.user.id,
-          requestDate: new Date(),
-        });
-        return { id };
-      }),
-    /** One signer presses one decision. The bank's rule decides the outcome. */
-    sign: protectedProcedure
-      .input(
-        z
-          .object({
-            id: z.number().int().positive(),
-            decision: z.enum(["approved", "rejected"]),
-            note: z.string().trim().max(500).optional(),
-          })
-          // Input parsing runs before the handler, so a rejection without a
-          // reason never reaches the signer's transaction.
-          .superRefine((val, check) => {
-            if (val.decision === "rejected" && !val.note?.trim()) {
-              check.addIssue({
-                code: "custom",
-                message: "กรุณาระบุเหตุผลการปฏิเสธ",
-              });
-            }
-          })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const signer = await isBankSigner(ctx.user.id);
-        if (!signer) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "เฉพาะผู้มีอำนาจลงนามในบัญชีธนาคาร",
-          });
-        }
-        try {
-          const { outcome } = await signWithdrawalRequest(
-            input.id,
-            ctx.user.id,
-            input.decision,
-            input.note?.trim() || null
-          );
-          await createAuditLog({
-            churchId: DEFAULT_CHURCH_ID,
-            userId: ctx.user.id,
-            action: "SIGN",
-            entity: "withdrawal_requests",
-            entityId: input.id,
-            metadata: { decision: input.decision, outcome },
-          });
-          return { outcome };
-        } catch (err) {
-          if (err instanceof WorkflowError) {
-            throw new TRPCError({ code: err.trpcCode, message: err.message });
-          }
-          throw err;
-        }
-      }),
-    /** The requester or a signer may stop a request before it is paid. */
-    cancel: protectedProcedure
-      .input(
-        z.object({
-          id: z.number().int().positive(),
-          reason: z.string().trim().min(3).max(500),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const request = await getWithdrawalRequestBasic(
-          input.id,
-          DEFAULT_CHURCH_ID
-        );
-        if (!request) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบคำขอเบิก" });
-        }
-        const allowed =
-          request.requestedBy === ctx.user.id ||
-          (await isBankSigner(ctx.user.id)) !== null;
-        if (!allowed) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "เฉพาะผู้ขอเบิกหรือผู้มีอำนาจลงนามเท่านั้นที่ยกเลิกได้",
-          });
-        }
-        const cancelled = await cancelWithdrawalRequest(
-          input.id,
-          ctx.user.id,
-          input.reason
-        );
-        if (!cancelled) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "คำขอเบิกนี้ถูกดำเนินการไปแล้ว ยกเลิกไม่ได้",
-          });
-        }
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "CANCEL",
-          entity: "withdrawal_requests",
-          entityId: input.id,
-          metadata: { reason: input.reason },
-        });
-        return { success: true } as const;
-      }),
-    disburse: financeProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .mutation(async ({ ctx, input }) => {
-        const res = await disburseWithdrawal(input.id, ctx.user.id);
-        if (!res) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "ต้องอนุมัติคำขอเบิกก่อนจ่ายเงิน",
-          });
-        }
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "DISBURSE",
-          entity: "withdrawal_requests",
-          entityId: input.id,
-          metadata: { attachedSessionId: res.attachedSessionId },
-        });
-        return { success: true, sessionId: res.attachedSessionId };
-      }),
-  }),
+  withdrawals: withdrawalsRouter,
   members: membersRouter,
   ministries: ministriesRouter,
   budgets: budgetsRouter,
