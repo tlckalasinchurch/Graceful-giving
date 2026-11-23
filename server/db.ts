@@ -21,6 +21,7 @@ import {
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { toSlipView } from "./line/slipView";
 import {
   bankRecords,
   budgetPlans,
@@ -3971,10 +3972,7 @@ export async function listLineSlips(
           e
         );
       }
-      return {
-        ...slip,
-        signedImageUrl: signedUrl,
-      };
+      return toSlipView(slip, signedUrl);
     })
   );
 
@@ -4010,10 +4008,7 @@ export async function getLineSlipById(
   }
 
   const [withId] = await withSubmitterLineIds([slip]);
-  return {
-    ...withId,
-    signedImageUrl,
-  };
+  return toSlipView(withId, signedImageUrl);
 }
 
 export interface ApproveLineSlipInput {

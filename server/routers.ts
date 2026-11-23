@@ -135,6 +135,7 @@ import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
 import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
 import { decodeSlipImage, SlipImageError } from "./line/slipImage";
 import { toDonorSlipStatus } from "./line/donorSlipStatus";
+import { toSlipReviewView } from "./line/slipView";
 import { extractSlipData } from "./line/slipOcr";
 import { toSlipReading } from "./line/slipReading";
 import { UNREADABLE_SLIP } from "@shared/slipReading";
@@ -3175,7 +3176,7 @@ export const appRouter = router({
       )
       .mutation(async ({ input }) => {
         try {
-          return await updateLineSlipReview({
+          const updated = await updateLineSlipReview({
             slipId: input.slipId,
             churchId: DEFAULT_CHURCH_ID,
             fundId: input.fundId,
@@ -3185,6 +3186,9 @@ export const appRouter = router({
             reviewNote: input.reviewNote,
             status: input.status,
           });
+          // The stored row holds the raw model text, the storage key, the image
+          // hash and the inline base64 image. None of that leaves the server.
+          return toSlipReviewView(updated);
         } catch (err: any) {
           const msg = typeof err?.message === "string" ? err.message : "";
           const isExpected =
@@ -3540,7 +3544,9 @@ export const appRouter = router({
         try {
           const dataUrl = `data:${image.contentType};base64,${image.buffer.toString("base64")}`;
           const extraction = await Promise.race([
-            extractSlipData(dataUrl),
+            // Bound the provider request by the donor's wait, so it is
+            // cancelled instead of running on after the form gives up.
+            extractSlipData(dataUrl, { timeoutMs: SLIP_READ_TIMEOUT_MS }),
             new Promise<never>((_, reject) => {
               timer = setTimeout(
                 () => reject(new Error("slip reading timed out")),

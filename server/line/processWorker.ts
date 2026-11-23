@@ -25,7 +25,7 @@ import {
   lineProcessingJobs,
   type LineSlip,
 } from "../../drizzle/schema";
-import { and, eq, lte, sql } from "drizzle-orm";
+import { and, eq, gte, isNull, lt, lte, notInArray, sql } from "drizzle-orm";
 import { extractInlineSlipDataUrl, resolveSlipImageUrl } from "../storage";
 import { MAX_AUTO_REJECTS } from "../../shared/givingLimits";
 import { verifySlip } from "./slipVerification";
@@ -36,10 +36,165 @@ import {
 } from "./duplicateDetector";
 import { matchMember } from "./memberMatcher";
 
+type Db = NonNullable<Awaited<ReturnType<typeof getDb>>>;
+
 const MAX_ATTEMPTS = 3;
 const BATCH_SIZE = 10;
 /** Retry delay grows as 1min, 5min between attempts, to outlast a provider rate limit. */
 const RETRY_BACKOFF_FACTOR = 5;
+
+/**
+ * The whole reading step for one slip, across every provider attempt. This is
+ * the worker's own budget; `OCR_PROVIDER_TIMEOUT_MS` bounds a single attempt.
+ * Keeping them apart lets a job spend more than one attempt while still never
+ * outliving its slot.
+ */
+export const WORKER_OCR_JOB_TIMEOUT_MS = 45_000;
+
+/**
+ * How long a claimed job may stay `processing` before it counts as abandoned.
+ * A live job cannot reach this: its OCR step is bounded by
+ * `WORKER_OCR_JOB_TIMEOUT_MS` and the provider by its own timeout, and the
+ * process that holds it is killed long before the lease runs out. So only a
+ * run that died (platform timeout, crash, deploy) looks stale.
+ */
+export const STALE_JOB_LEASE_MS = 10 * 60 * 1000;
+
+/** The worker's budget expired. Reported apart from a provider timeout. */
+export class WorkerOcrTimeoutError extends Error {
+  constructor(
+    message = "slip OCR job timed out",
+    options?: { cause?: unknown }
+  ) {
+    super(message, options);
+    this.name = "WorkerOcrTimeoutError";
+  }
+}
+
+/**
+ * Runs the OCR step under the job budget and cancels the provider request when
+ * the budget runs out, so nothing keeps running after the job gives up. The
+ * same signal covers every provider attempt and its backoff: the provider
+ * aborts the moment the budget expires, and `invokeLLM` does not retry after an
+ * abort.
+ */
+export async function extractWithinJobBudget(
+  signedUrl: string,
+  timeoutMs: number = WORKER_OCR_JOB_TIMEOUT_MS
+) {
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () =>
+      controller.abort(
+        new DOMException("worker OCR budget exceeded", "TimeoutError")
+      ),
+    timeoutMs
+  );
+  try {
+    return await extractSlipData(signedUrl, { signal: controller.signal });
+  } catch (err) {
+    // The budget is the reason only when it is what fired; anything else keeps
+    // its own type so the retry decision stays with the caller.
+    if (controller.signal.aborted) {
+      throw new WorkerOcrTimeoutError(
+        `slip OCR exceeded its ${timeoutMs}ms budget`,
+        { cause: err }
+      );
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * The lease is measured against the database clock, never a host clock. Hosts
+ * drift, and a worker must not look abandoned because its host is a few
+ * minutes ahead — the retry-backoff gate below already reads `now()` too.
+ */
+const staleCutoff = () =>
+  sql`now() - make_interval(secs => ${STALE_JOB_LEASE_MS / 1000})`;
+
+/**
+ * Recovery for jobs left `processing` by a worker that died mid-run. Nothing
+ * else ever moves such a job out of `processing`, so without this the slip
+ * waits for staff to press rescan.
+ *
+ * Safety: both updates are single guarded statements that match only
+ * `status = processing` with a `lastAttemptAt` older than the lease, so a job a
+ * live worker is holding can never be taken. A requeued job goes back through
+ * the normal atomic claim, which means one worker at a time.
+ *
+ * The lease is a heuristic, so recovery still cannot assume the old worker is
+ * gone: writes on both sides carry an ownership guard, and the reaper never
+ * touches a slip staff have already decided on.
+ */
+export async function reclaimStaleJobs(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>
+): Promise<{ requeued: number; failed: number }> {
+  const stale = () =>
+    and(
+      eq(lineProcessingJobs.status, "processing"),
+      lt(lineProcessingJobs.lastAttemptAt, staleCutoff())
+    );
+
+  // Retries left: hand it back to the queue it was claimed from.
+  const requeued = await db
+    .update(lineProcessingJobs)
+    .set({
+      status: "queued",
+      errorMessage: "requeued after worker lease expired",
+      updatedAt: new Date(),
+    })
+    .where(and(stale(), lte(lineProcessingJobs.attempts, MAX_ATTEMPTS - 1)))
+    .returning({ id: lineProcessingJobs.id });
+
+  // Out of retries: fail it the same way the error path does.
+  const exhausted = await db
+    .select({
+      id: lineProcessingJobs.id,
+      slipId: lineProcessingJobs.slipId,
+    })
+    .from(lineProcessingJobs)
+    .where(and(stale(), gte(lineProcessingJobs.attempts, MAX_ATTEMPTS)));
+
+  let failed = 0;
+  for (const job of exhausted) {
+    const [claimed] = await db
+      .update(lineProcessingJobs)
+      .set({
+        status: "failed",
+        errorMessage: "worker lease expired",
+        updatedAt: new Date(),
+      })
+      .where(and(eq(lineProcessingJobs.id, job.id), stale()))
+      .returning({ id: lineProcessingJobs.id });
+    if (!claimed) continue;
+
+    failed++;
+    await db
+      .update(lineSlips)
+      .set({
+        status: "failed",
+        lastErrorMessage: "worker lease expired",
+        updatedAt: new Date(),
+      })
+      // A slip staff already approved or rejected keeps its status: the ledger
+      // must not disagree with the inbox because a worker died.
+      .where(
+        and(
+          eq(lineSlips.id, job.slipId),
+          notInArray(lineSlips.status, ["approved", "rejected"]),
+          isNull(lineSlips.approvedOfferingId)
+        )
+      )
+      .catch((e: unknown) =>
+        console.error("[Worker] Failed to mark a stale slip failed:", e)
+      );
+  }
+
+  return { requeued: requeued.length, failed };
+}
 
 // ─── Auth guard ───────────────────────────────────────────────────────────────
 
@@ -75,7 +230,40 @@ async function getChurchPayee(
   }
 }
 
-async function processJob(jobId: number, slipId: number): Promise<void> {
+/**
+ * Closes a job, but only while it is still the one this run claimed. The first
+ * write (or a newer claim) changes `status`/`attempts`, so a worker that comes
+ * back after its lease expired matches no row and cannot reopen finished work.
+ */
+async function markJobDone(
+  db: Db,
+  jobId: number,
+  claimedAttempts: number
+): Promise<void> {
+  const [done] = await db
+    .update(lineProcessingJobs)
+    .set({ status: "done", updatedAt: new Date() })
+    .where(
+      and(
+        eq(lineProcessingJobs.id, jobId),
+        eq(lineProcessingJobs.status, "processing"),
+        eq(lineProcessingJobs.attempts, claimedAttempts)
+      )
+    )
+    .returning({ id: lineProcessingJobs.id });
+
+  if (!done) {
+    console.warn(
+      `[Worker] Job #${jobId} is no longer owned by this run (attempt ${claimedAttempts}); leaving its state alone`
+    );
+  }
+}
+
+async function processJob(
+  jobId: number,
+  slipId: number,
+  claimedAttempts: number
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
 
@@ -89,18 +277,15 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
   if (!slip) throw new Error(`Slip #${slipId} not found`);
   if (slip.status !== "pending") {
     // Already processed by another worker run
-    await db
-      .update(lineProcessingJobs)
-      .set({ status: "done", updatedAt: new Date() })
-      .where(eq(lineProcessingJobs.id, jobId));
+    await markJobDone(db, jobId, claimedAttempts);
     return;
   }
 
   // 2. Get signed URL (or inline data URL) for private image
   const signedUrl = await resolveSlipImageUrl(slip.slipImageKey, slip.aiData);
 
-  // 3. AI OCR extraction
-  const extraction = await extractSlipData(signedUrl);
+  // 3. AI OCR extraction, under the worker's own time budget
+  const extraction = await extractWithinJobBudget(signedUrl);
 
   // 4. Duplicate detection
   let finalStatus: LineSlip["status"] = "extracted";
@@ -206,7 +391,7 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
 
   // 6. Update line_slips with all results
   const inlineDataUrl = extractInlineSlipDataUrl(slip.aiData);
-  await db
+  const written = await db
     .update(lineSlips)
     .set({
       status: finalStatus,
@@ -249,13 +434,21 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
       processingAttempts: (slip.processingAttempts ?? 0) + 1,
       updatedAt: new Date(),
     })
-    .where(eq(lineSlips.id, slipId));
+    // Ownership guard: only a slip still awaiting a reading is written. If
+    // another run (or a rescan) got there first, that result stands and this
+    // run must not overwrite it with a reading taken from the same image.
+    .where(and(eq(lineSlips.id, slipId), eq(lineSlips.status, "pending")))
+    .returning({ id: lineSlips.id });
+
+  if (written.length === 0) {
+    console.warn(
+      `[Worker] Slip #${slipId} was already written by another run; keeping its result`
+    );
+    return;
+  }
 
   // 7. Mark job done
-  await db
-    .update(lineProcessingJobs)
-    .set({ status: "done", updatedAt: new Date() })
-    .where(eq(lineProcessingJobs.id, jobId));
+  await markJobDone(db, jobId, claimedAttempts);
 }
 
 // ─── Worker batch runner ──────────────────────────────────────────────────────
@@ -266,6 +459,11 @@ export async function runWorkerBatch(): Promise<{
 }> {
   const db = await getDb();
   if (!db) return { processed: 0, errors: 0 };
+
+  // Give back the jobs a dead run left behind before picking new work.
+  await reclaimStaleJobs(db).catch(err =>
+    console.warn("[Worker] Could not reclaim stale jobs:", err)
+  );
 
   // Fetch queued jobs that have exceeded neither max attempts nor their backoff delay.
   // Without the backoff gate, a provider rate limit burns all MAX_ATTEMPTS within
@@ -296,11 +494,13 @@ export async function runWorkerBatch(): Promise<{
 
   for (const job of jobs) {
     // Atomically claim job (prevents double-processing if two cron runs overlap)
+    // The attempt number this run owns; every later write checks it.
+    const claimedAttempts = (job.attempts ?? 0) + 1;
     const claimed = await db
       .update(lineProcessingJobs)
       .set({
         status: "processing",
-        attempts: (job.attempts ?? 0) + 1,
+        attempts: claimedAttempts,
         lastAttemptAt: new Date(),
         updatedAt: new Date(),
       })
@@ -315,7 +515,7 @@ export async function runWorkerBatch(): Promise<{
     if (!claimed.length) continue; // Another worker claimed this job
 
     try {
-      await processJob(job.id, job.slipId);
+      await processJob(job.id, job.slipId, claimedAttempts);
       processed++;
     } catch (err) {
       errors++;
@@ -334,7 +534,15 @@ export async function runWorkerBatch(): Promise<{
           errorMessage: err instanceof Error ? err.message : String(err),
           updatedAt: new Date(),
         })
-        .where(eq(lineProcessingJobs.id, job.id))
+        // Same ownership guard as the success path: a run that lost its job
+        // must not move the state of the run that owns it now.
+        .where(
+          and(
+            eq(lineProcessingJobs.id, job.id),
+            eq(lineProcessingJobs.status, "processing"),
+            eq(lineProcessingJobs.attempts, claimedAttempts)
+          )
+        )
         .catch((e: unknown) =>
           console.error("[Worker] Failed to update job status:", e)
         );
@@ -348,7 +556,13 @@ export async function runWorkerBatch(): Promise<{
             lastErrorMessage: err instanceof Error ? err.message : String(err),
             updatedAt: new Date(),
           })
-          .where(eq(lineSlips.id, job.slipId))
+          // Never overwrite a decision staff already made on this slip.
+          .where(
+            and(
+              eq(lineSlips.id, job.slipId),
+              eq(lineSlips.status, "pending")
+            )
+          )
           .catch((e: unknown) =>
             console.error("[Worker] Failed to mark slip failed:", e)
           );

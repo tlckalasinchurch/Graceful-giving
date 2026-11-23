@@ -11,6 +11,17 @@
  */
 
 import { invokeLLM } from "../_core/llm";
+import {
+  CONFIDENCE_THRESHOLD as SCHEMA_CONFIDENCE_THRESHOLD,
+  InvalidOcrOutputError,
+  classifyExtraction,
+  extractionWarnings,
+  parseSlipExtraction,
+  processingStatusFor,
+  type FieldStates,
+  type ProcessingStatus,
+  type ValidatedSlipExtraction,
+} from "./slipExtractionSchema";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,10 +63,19 @@ export interface SlipExtraction {
   receiverBank?: string | null;
   /** AI notes or caveats */
   notes: string | null;
+  /** Field-level reading state: missing / unreadable / uncertain / certain. */
+  fieldStates?: FieldStates;
+  /** Machine-readable caveats. Never contains personal data. */
+  warnings?: string[];
+  /** How complete the reading is, for the review UI. */
+  processingStatus?: ProcessingStatus;
+  /** Which provider and model produced this reading. */
+  provider?: string;
+  model?: string;
 }
 
 /** Threshold below which a field is considered low-confidence → needs_review */
-export const CONFIDENCE_THRESHOLD = 0.85;
+export const CONFIDENCE_THRESHOLD = SCHEMA_CONFIDENCE_THRESHOLD;
 
 /** Critical fields that must all exceed threshold for auto-processing */
 const CRITICAL_FIELDS = ["amount", "referenceNumber"] as const;
@@ -157,6 +177,74 @@ export class TransientOcrError extends Error {
   }
 }
 
+/** The provider did not answer inside the per-attempt budget. Retryable. */
+export class OcrTimeoutError extends TransientOcrError {
+  constructor(
+    message = "slip reading timed out",
+    public readonly timeoutMs?: number
+  ) {
+    super(message);
+    this.name = "OcrTimeoutError";
+  }
+}
+
+/**
+ * One provider attempt may not run longer than this. Separate from the worker
+ * job budget in `processWorker`, which covers every attempt for one slip.
+ */
+export const OCR_PROVIDER_TIMEOUT_MS = 25_000;
+
+// fetch() aborts with a DOMException, which is not an instanceof Error in
+// Node, so the check reads the name off any object.
+const isAbortError = (error: unknown): boolean => {
+  if (!error || typeof error !== "object") return false;
+  const name = (error as { name?: unknown }).name;
+  return name === "AbortError" || name === "TimeoutError";
+};
+
+/**
+ * Combines the caller's cancellation signal with a per-attempt timeout. The
+ * provider request is aborted when either fires, so a hung request can never
+ * outlive the caller's budget.
+ */
+export function providerAbortSignal(
+  external: AbortSignal | undefined,
+  timeoutMs: number
+): AbortSignal {
+  const timeout = AbortSignal.timeout(timeoutMs);
+  return external ? AbortSignal.any([external, timeout]) : timeout;
+}
+
+/**
+ * Adds the reading state and provenance to a validated extraction. Date
+ * normalization runs first, so a date whose confidence was downgraded for
+ * being implausible is reported as uncertain rather than certain.
+ */
+function annotateExtraction(
+  parsed: ValidatedSlipExtraction,
+  provider: string,
+  model: string
+): Omit<SlipExtraction, "rawText"> {
+  const dateCheck = normalizeAndValidateDate(
+    parsed.transferDate,
+    parsed.transferTime,
+    parsed.dateConfidence
+  );
+  const normalized: ValidatedSlipExtraction = {
+    ...parsed,
+    transferDate: dateCheck.transferDate,
+    dateConfidence: dateCheck.dateConfidence,
+  };
+  return {
+    ...normalized,
+    fieldStates: classifyExtraction(normalized),
+    warnings: extractionWarnings(normalized),
+    processingStatus: processingStatusFor(normalized),
+    provider,
+    model,
+  };
+}
+
 /** HTTP statuses worth retrying: rate limit plus server-side faults. */
 const TRANSIENT_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
 
@@ -166,6 +254,9 @@ const TRANSIENT_NETWORK_PATTERNS =
 
 export function isTransientError(err: unknown): boolean {
   if (err instanceof TransientOcrError) return true;
+  // A cancelled or timed-out request is worth another try; an invalid answer
+  // is not (InvalidOcrOutputError has neither name).
+  if (isAbortError(err)) return true;
 
   const msg = err instanceof Error ? err.message : String(err);
 
@@ -233,16 +324,20 @@ export function normalizeAndValidateDate(
 
 async function extractWithGemini(
   signedImageUrl: string,
-  apiKey: string
+  apiKey: string,
+  opts: { signal?: AbortSignal; timeoutMs?: number } = {}
 ): Promise<SlipExtraction> {
   let base64Data: string;
   let contentType = "image/jpeg";
+  const timeoutMs = opts.timeoutMs ?? OCR_PROVIDER_TIMEOUT_MS;
   const dataUriMatch = signedImageUrl.match(/^data:([^;,]+);base64,([\s\S]+)$/);
   if (dataUriMatch) {
     contentType = dataUriMatch[1] || "image/jpeg";
     base64Data = dataUriMatch[2].trim();
   } else {
-    const imgRes = await fetch(signedImageUrl);
+    const imgRes = await fetch(signedImageUrl, {
+      signal: providerAbortSignal(opts.signal, timeoutMs),
+    });
     if (!imgRes.ok) {
       throw new Error(`Failed to download slip image: ${imgRes.status}`);
     }
@@ -266,6 +361,7 @@ async function extractWithGemini(
       const resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: providerAbortSignal(opts.signal, timeoutMs),
         body: JSON.stringify({
           contents: [
             {
@@ -304,19 +400,18 @@ async function extractWithGemini(
 
       const data = await resp.json();
       const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      const parsed = JSON.parse(rawText) as Omit<SlipExtraction, "rawText">;
+      // Reject anything that does not match the schema. Never cast.
+      const parsed = parseSlipExtraction(rawText);
 
-      // Sanitize and validate date
-      const dateCheck = normalizeAndValidateDate(
-        parsed.transferDate,
-        parsed.transferTime,
-        parsed.dateConfidence
-      );
-      parsed.transferDate = dateCheck.transferDate;
-      parsed.dateConfidence = dateCheck.dateConfidence;
-
-      return { rawText, ...parsed };
+      return { rawText, ...annotateExtraction(parsed, "gemini", model) };
     } catch (err) {
+      // A timeout will not improve by trying another model name.
+      if (isAbortError(err)) {
+        throw new OcrTimeoutError(
+          `Gemini ${model} timed out after ${timeoutMs}ms`,
+          timeoutMs
+        );
+      }
       lastError = err;
     }
   }
@@ -327,7 +422,8 @@ async function extractWithGemini(
 // ─── Main extraction function ─────────────────────────────────────────────────
 
 export async function extractSlipData(
-  signedImageUrl: string
+  signedImageUrl: string,
+  opts: { signal?: AbortSignal; timeoutMs?: number } = {}
 ): Promise<SlipExtraction> {
   let rawText = "";
 
@@ -338,7 +434,7 @@ export async function extractSlipData(
       console.log(
         "[SlipOCR] Extracting slip data via Google Gemini Vision API..."
       );
-      return await extractWithGemini(signedImageUrl, geminiKey);
+      return await extractWithGemini(signedImageUrl, geminiKey, opts);
     } catch (geminiErr) {
       // If it's a transient rate limit or service outage, throw so the worker retries
       if (isTransientError(geminiErr)) {
@@ -375,32 +471,19 @@ export async function extractSlipData(
       ],
       outputSchema: OUTPUT_SCHEMA,
       maxTokens: 600,
+      signal: providerAbortSignal(
+        opts.signal,
+        opts.timeoutMs ?? OCR_PROVIDER_TIMEOUT_MS
+      ),
     });
 
     const content = result.choices[0]?.message?.content;
     rawText =
       typeof content === "string" ? content : JSON.stringify(content ?? "");
 
-    // Parse JSON — handle cases where model wraps in markdown fence
-    let parsed: Omit<SlipExtraction, "rawText">;
-    try {
-      parsed = JSON.parse(rawText) as Omit<SlipExtraction, "rawText">;
-    } catch {
-      const match = rawText.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error("AI returned non-JSON response");
-      parsed = JSON.parse(match[0]) as Omit<SlipExtraction, "rawText">;
-    }
-
-    // Sanitize and validate date
-    const dateCheck = normalizeAndValidateDate(
-      parsed.transferDate,
-      parsed.transferTime,
-      parsed.dateConfidence
-    );
-    parsed.transferDate = dateCheck.transferDate;
-    parsed.dateConfidence = dateCheck.dateConfidence;
-
-    return { rawText, ...parsed };
+    // Validate the fallback response with the same schema as Gemini.
+    const parsed = parseSlipExtraction(rawText);
+    return { rawText, ...annotateExtraction(parsed, "forge", "default") };
   } catch (err) {
     // Re-throw transient errors (e.g. rate limit, 503, connection dropped) so queue retries
     if (isTransientError(err)) {
