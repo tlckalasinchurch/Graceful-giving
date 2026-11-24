@@ -32,9 +32,9 @@ colors:
 typography:
   display:
     fontFamily: "Plus Jakarta Sans, Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
-    fontWeight: 700
+    fontWeight: 600
     lineHeight: 1.18
-    letterSpacing: "-0.02em"
+    letterSpacing: "0em"
   body:
     fontFamily: "Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
     fontSize: "1rem"
@@ -135,9 +135,12 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach/orange`) so o
 ## Typography
 
 - **Stacks:** body `"Manrope"` (`--font-sans`), display `"Plus Jakarta Sans" → "Manrope"` (`--font-display`), Thai `"IBM Plex Sans Thai"` in both. Never ship a Thai UI string in only the Latin fonts. `.font-script` declares `"Caveat"`, which the font `@import` does not load, so it falls back to a generic cursive.
-- **Display:** `.display` utility — weight 800, line-height 1.15, tracking −0.025em (floor −0.04em), lining numerals.
+- **Display:** `.display` utility — weight 600, line-height 1.18, normal tracking, lining tabular numerals. At `text-2xl` and larger it tightens to −0.015em. Hierarchy comes from size; do not add `font-bold`/`font-extrabold` on top of `.display`.
+- **Weights:** body 400, labels 500, headings and key amounts 600. 700 and above are not used in new work.
 - **Body: `1rem` / 1.65** (set on `body`, not per-component). The root size scales: 16.5px by default, 15.75px under 360px, 17px from 640px, 17.5px from 1024px, 18px from 1440px.
-- **Numbers:** amounts use `.money` (`tabular-nums` + −0.02em) so columns settle without jitter.
+- **Numbers:** amounts use `.money` (`tabular-nums`) so columns settle without jitter. Small amounts keep normal tracking; `.money` at `text-2xl` and larger tightens to −0.015em.
+- **Ledger total:** `.ledger-total` draws a thin double underline, the way a ledger closes a column. It is the product's one signature detail: use it only on a total that is confirmed or summed, never on an amount still being entered or awaiting review.
+- **Status tiles:** the pastel `--tile-*` pairs carry meaning only. Mint = matched or done, sand = needs checking, peach/rose = error. Plain information sits on `bg-paper-2`.
 - **Labels:** minimum readable text size is 12px (`text-xs`). Avoid arbitrary sub-12px micro-text (`text-[10px]`, `text-[11px]`) on financial ledger interfaces.
 - **Labels & Headings:** the heading carries its own weight; avoid repetitive decorative kicker/eyebrow labels. `.eyebrow` is a lime tab (0.8125rem, 700, uppercase, 2px offset shadow); `.eyebrow-quiet` is the plain variant.
 
