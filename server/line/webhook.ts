@@ -18,15 +18,18 @@ import type { Request, Response, Express } from "express";
 import { createHmac, createHash, timingSafeEqual } from "crypto";
 import { ENV } from "../_core/env";
 import { storagePutPrivate } from "../storage";
-import { getDb, DEFAULT_CHURCH_ID } from "../db";
+import { countRecentSlipsFromLineUser, getDb, DEFAULT_CHURCH_ID } from "../db";
+import { MAX_SLIPS_PER_DAY } from "../../shared/givingLimits";
 import { lineSlips, lineProcessingJobs } from "../../drizzle/schema";
-import { runWorkerBatch } from "./processWorker";
+import { drainWorkerWithin } from "./processWorker";
 import { eq, and, ne } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 
 const LINE_API_BASE = "https://api.line.me/v2/bot";
 const LINE_CONTENT_BASE = "https://api-data.line.me/v2/bot";
 const MAX_RETRIES = 3;
+/** How long the webhook waits for the slip reading before it answers LINE. */
+const WORKER_WAIT_MS = 8000;
 /** LINE webhook bodies are a few KB. Anything near this size is not from LINE. */
 const MAX_WEBHOOK_BODY_BYTES = 256 * 1024;
 
@@ -160,6 +163,23 @@ async function processImageEvent(
     return;
   }
 
+  // ── Daily cap per sender: every image costs one AI reading ────────────────
+  const recent = await countRecentSlipsFromLineUser(
+    lineUserId,
+    new Date(Date.now() - 24 * 60 * 60 * 1000),
+    churchId
+  );
+  if (recent >= MAX_SLIPS_PER_DAY) {
+    console.warn(`[LINE Webhook] Daily slip cap reached for ${lineUserId}`);
+    if (event.replyToken) {
+      await replyToLine(
+        event.replyToken,
+        "วันนี้ส่งสลิปครบจำนวนแล้วค่ะ กรุณาลองใหม่พรุ่งนี้ หรือติดต่อเจ้าหน้าที่ 🙏"
+      );
+    }
+    return;
+  }
+
   // ── Download image ────────────────────────────────────────────────────────
   let imageBuffer: Buffer;
   try {
@@ -230,25 +250,34 @@ async function processImageEvent(
   // ── Get LINE display name ──────────────────────────────────────────────────
   const lineDisplayName = await getLineProfile(lineUserId);
 
-  // ── Insert line_slips row (idempotent — unique constraint on eventId) ──────
-  let newSlipId: number;
+  // ── Insert line_slips row and its job together (idempotent via eventId) ────
+  // A slip with no job is never read, so both inserts commit or neither does.
   try {
-    const [inserted] = await db
-      .insert(lineSlips)
-      .values({
+    const inserted = await db.transaction(async tx => {
+      const [row] = await tx
+        .insert(lineSlips)
+        .values({
+          churchId,
+          lineUserId,
+          lineDisplayName,
+          lineEventId,
+          slipImageKey: uploadKey,
+          slipHash,
+          status: "pending",
+          processingAttempts: 0,
+          ...(inlineDataUrl ? { aiData: { inlineDataUrl } } : {}),
+        })
+        .onConflictDoNothing()
+        .returning({ id: lineSlips.id });
+      if (!row) return null;
+      await tx.insert(lineProcessingJobs).values({
+        slipId: row.id,
         churchId,
-        lineUserId,
-        lineDisplayName,
-        lineEventId,
-        slipImageKey: uploadKey,
-        slipHash,
-        status: "pending",
-        processingAttempts: 0,
-        ...(inlineDataUrl ? { aiData: { inlineDataUrl } } : {}),
-      })
-      .onConflictDoNothing()
-      .returning({ id: lineSlips.id });
-
+        status: "queued",
+        attempts: 0,
+      });
+      return row;
+    });
     if (!inserted) {
       // Conflict: another worker already processed this event
       console.log(
@@ -256,27 +285,9 @@ async function processImageEvent(
       );
       return;
     }
-    newSlipId = inserted.id;
   } catch (err) {
     console.error("[LINE Webhook] DB insert failed:", err);
     return;
-  }
-
-  // ── Enqueue processing job ─────────────────────────────────────────────────
-  try {
-    await db.insert(lineProcessingJobs).values({
-      slipId: newSlipId,
-      churchId,
-      status: "queued",
-      attempts: 0,
-    });
-    // Immediately attempt to process in background without blocking webhook response
-    runWorkerBatch().catch(err =>
-      console.warn("[LINE Webhook] Trigger worker error:", err)
-    );
-  } catch (err) {
-    console.error("[LINE Webhook] Job enqueue failed:", err);
-    // Non-fatal: worker can still pick up slips with no job row by polling line_slips
   }
 
   // ── Reply to user immediately ──────────────────────────────────────────────
@@ -350,6 +361,9 @@ export function registerLineWebhook(app: Express): void {
 
       if (tasks.length > 0) {
         await Promise.all(tasks);
+        // Read the new slips before answering: a function that has answered
+        // can be frozen, which would leave them queued until the daily cron.
+        await drainWorkerWithin(WORKER_WAIT_MS);
       }
 
       // Return 200 to LINE

@@ -4703,6 +4703,27 @@ export async function countRecentManualSlips(
   return Number(row?.n ?? 0);
 }
 
+/** Slips one LINE user sent since `since`, whatever way they arrived. */
+export async function countRecentSlipsFromLineUser(
+  lineUserId: string,
+  since: Date,
+  churchId: string = DEFAULT_CHURCH_ID
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const [row] = await db
+    .select({ n: count() })
+    .from(lineSlips)
+    .where(
+      and(
+        eq(lineSlips.churchId, churchId),
+        eq(lineSlips.lineUserId, lineUserId),
+        gte(lineSlips.createdAt, since)
+      )
+    );
+  return Number(row?.n ?? 0);
+}
+
 /** The columns a donor's status view needs, for slips they sent from the app. */
 const donorSlipColumns = {
   id: lineSlips.id,
@@ -4838,37 +4859,40 @@ export async function createManualSlip(input: {
     inlineDataUrl = `data:${contentType};base64,${input.imageBuffer.toString("base64")}`;
   }
 
-  const [slip] = await db
-    .insert(lineSlips)
-    .values({
+  // Slip and job go in together: a slip with no job is never read.
+  return db.transaction(async tx => {
+    const [slip] = await tx
+      .insert(lineSlips)
+      .values({
+        churchId,
+        lineUserId: `manual-${input.userId}`,
+        lineDisplayName:
+          input.donorName || `อัปโหลดโดย ${input.userName || "เจ้าหน้าที่"}`,
+        submittedByUserId: input.userId,
+        submittedByName: input.userName ?? null,
+        typedDonorName: input.typedDonorName?.trim() || null,
+        lineEventId: `manual-${Date.now()}-${hash.slice(0, 8)}`,
+        slipImageKey: key,
+        slipHash: hash,
+        status: "pending",
+        processingAttempts: 0,
+        ...(inlineDataUrl ? { aiData: { inlineDataUrl } } : {}),
+        declaredAmount: input.declared?.amount ?? null,
+        declaredCategory: input.declared?.category ?? null,
+        declaredFundId: input.declared?.fundId ?? null,
+        declaredItems: input.declared?.items ?? null,
+      })
+      .returning();
+
+    await tx.insert(lineProcessingJobs).values({
+      slipId: slip.id,
       churchId,
-      lineUserId: `manual-${input.userId}`,
-      lineDisplayName:
-        input.donorName || `อัปโหลดโดย ${input.userName || "เจ้าหน้าที่"}`,
-      submittedByUserId: input.userId,
-      submittedByName: input.userName ?? null,
-      typedDonorName: input.typedDonorName?.trim() || null,
-      lineEventId: `manual-${Date.now()}-${hash.slice(0, 8)}`,
-      slipImageKey: key,
-      slipHash: hash,
-      status: "pending",
-      processingAttempts: 0,
-      ...(inlineDataUrl ? { aiData: { inlineDataUrl } } : {}),
-      declaredAmount: input.declared?.amount ?? null,
-      declaredCategory: input.declared?.category ?? null,
-      declaredFundId: input.declared?.fundId ?? null,
-      declaredItems: input.declared?.items ?? null,
-    })
-    .returning();
+      status: "queued",
+      attempts: 0,
+    });
 
-  await db.insert(lineProcessingJobs).values({
-    slipId: slip.id,
-    churchId,
-    status: "queued",
-    attempts: 0,
+    return slip;
   });
-
-  return slip;
 }
 
 /** Thrown when the same entry is already waiting, so the donor sends it once. */
@@ -5055,16 +5079,18 @@ export async function rescanLineSlip(
     );
   }
 
-  await db
-    .update(lineSlips)
-    .set({ status: "pending", lastErrorMessage: null, updatedAt: new Date() })
-    .where(and(eq(lineSlips.id, slipId), eq(lineSlips.churchId, churchId)));
+  await db.transaction(async tx => {
+    await tx
+      .update(lineSlips)
+      .set({ status: "pending", lastErrorMessage: null, updatedAt: new Date() })
+      .where(and(eq(lineSlips.id, slipId), eq(lineSlips.churchId, churchId)));
 
-  await db.insert(lineProcessingJobs).values({
-    slipId,
-    churchId,
-    status: "queued",
-    attempts: 0,
+    await tx.insert(lineProcessingJobs).values({
+      slipId,
+      churchId,
+      status: "queued",
+      attempts: 0,
+    });
   });
 
   return true;
