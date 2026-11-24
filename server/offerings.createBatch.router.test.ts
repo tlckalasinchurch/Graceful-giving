@@ -60,7 +60,10 @@ beforeEach(() => {
 
 describe("offerings.createBatch", () => {
   it("saves the lines for the signed-in user and notifies once", async () => {
-    stubs.createOfferingsBatch.mockResolvedValue({ ids: [1, 2], replayed: false });
+    stubs.createOfferingsBatch.mockResolvedValue({
+      ids: [1, 2],
+      replayed: false,
+    });
 
     await expect(
       caller(user("TREASURER")).offerings.createBatch(input)
@@ -78,7 +81,10 @@ describe("offerings.createBatch", () => {
   });
 
   it("does not notify again when the key was already saved", async () => {
-    stubs.createOfferingsBatch.mockResolvedValue({ ids: [1, 2], replayed: true });
+    stubs.createOfferingsBatch.mockResolvedValue({
+      ids: [1, 2],
+      replayed: true,
+    });
 
     await caller(user("TREASURER")).offerings.createBatch(input);
 
@@ -90,7 +96,10 @@ describe("offerings.createBatch", () => {
 
     await expect(
       caller(user("TREASURER")).offerings.createBatch(input)
-    ).rejects.toMatchObject({ code: "CONFLICT", message: expect.stringMatching(/ส่งไปแล้ว/) });
+    ).rejects.toMatchObject({
+      code: "CONFLICT",
+      message: expect.stringMatching(/ส่งไปแล้ว/),
+    });
   });
 
   it("refuses an inactive fund before saving", async () => {

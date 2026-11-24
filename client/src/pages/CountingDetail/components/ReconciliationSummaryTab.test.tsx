@@ -237,9 +237,7 @@ describe("ReconciliationSummaryTab & Pre-Post Checklist (GAP-09)", () => {
       screen.getByText(/ยังไม่ได้จดเหตุผล จึงยังลงบัญชีไม่ได้/)
     ).toBeInTheDocument();
     expect(screen.queryByText("ยังมีผลต่าง · บันทึกเหตุผลแล้ว")).toBeNull();
-    expect(
-      screen.getByText(/การจดเหตุผลไม่ได้แก้ตัวเลข/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/การจดเหตุผลไม่ได้แก้ตัวเลข/)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "ลงบัญชีเข้าระบบ" })
     ).toBeDisabled();

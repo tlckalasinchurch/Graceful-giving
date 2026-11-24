@@ -117,24 +117,25 @@ export function ReconciliationSummaryTab({
     : effectiveVarianceNote
       ? "acknowledged"
       : "blocked";
-  const varianceText = [
-    { label: "เงินสดที่นับได้เทียบกับซอง", amount: r.cashVariance },
-    { label: "เงินโอนเทียบกับซอง", amount: r.transferVariance },
-    ...(r.cashOnHandActual !== null && r.cashOnHandActual !== undefined
-      ? [
-          {
-            label: "เงินสดในกล่องเทียบกับยอดที่ควรมี",
-            amount: r.cashOnHandVariance ?? 0,
-          },
-        ]
-      : []),
-  ]
-    .filter(line => line.amount !== 0)
-    .map(
-      line =>
-        `${line.label} ${line.amount > 0 ? "เกิน" : "ขาด"} ${fmtBaht(Math.abs(line.amount))}`
-    )
-    .join(" / ") || "ยังไม่ได้นับเงินสดในกล่อง จึงยังเทียบยอดไม่ได้";
+  const varianceText =
+    [
+      { label: "เงินสดที่นับได้เทียบกับซอง", amount: r.cashVariance },
+      { label: "เงินโอนเทียบกับซอง", amount: r.transferVariance },
+      ...(r.cashOnHandActual !== null && r.cashOnHandActual !== undefined
+        ? [
+            {
+              label: "เงินสดในกล่องเทียบกับยอดที่ควรมี",
+              amount: r.cashOnHandVariance ?? 0,
+            },
+          ]
+        : []),
+    ]
+      .filter(line => line.amount !== 0)
+      .map(
+        line =>
+          `${line.label} ${line.amount > 0 ? "เกิน" : "ขาด"} ${fmtBaht(Math.abs(line.amount))}`
+      )
+      .join(" / ") || "ยังไม่ได้นับเงินสดในกล่อง จึงยังเทียบยอดไม่ได้";
 
   const checklistItems = [
     {

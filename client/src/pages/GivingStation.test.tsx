@@ -208,15 +208,15 @@ describe("GivingStation wording", () => {
     expect(steps.textContent).toContain("เลือกประเภทและยอด");
     expect(steps.textContent).toContain("โอนเงินและส่งสลิป");
     expect(steps.textContent).toContain("ผลการส่ง");
-    expect(
-      steps.querySelector('[aria-current="step"]')?.textContent
-    ).toContain("เริ่มถวาย");
+    expect(steps.querySelector('[aria-current="step"]')?.textContent).toContain(
+      "เริ่มถวาย"
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
     await screen.findByRole("button", { name: "ที่ดิน" });
-    expect(
-      steps.querySelector('[aria-current="step"]')?.textContent
-    ).toContain("เลือกประเภทและยอด");
+    expect(steps.querySelector('[aria-current="step"]')?.textContent).toContain(
+      "เลือกประเภทและยอด"
+    );
   });
 
   it("states which fund the gift goes to before the summary", async () => {

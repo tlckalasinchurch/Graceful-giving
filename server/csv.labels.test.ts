@@ -61,42 +61,68 @@ describe("offerings CSV", () => {
       offering({ id: 1, method: "check", category: "special" }),
     ];
 
-    const { csv } = await exportOfferingsCsvData("demo-church", {}, {
-      fetchOfferings: async () => rows,
-      fetchFunds: async () => [fund],
-    });
+    const { csv } = await exportOfferingsCsvData(
+      "demo-church",
+      {},
+      {
+        fetchOfferings: async () => rows,
+        fetchFunds: async () => [fund],
+      }
+    );
 
     const [header, ...lines] = csv.replace("\uFEFF", "").split("\n");
     expect(header).toBe(
       "ID,วันที่,ประเภทการถวาย,ผู้ถวาย,จำนวนเงิน,ช่องทาง,กองทุน,เลขอ้างอิง,หมายเหตุ"
     );
     // Fields are quoted except the amount; none of these test values has a comma.
-    const cells = (line: string) => line.split(",").map(c => c.replace(/"/g, ""));
+    const cells = (line: string) =>
+      line.split(",").map(c => c.replace(/"/g, ""));
     expect(cells(lines[0])[5]).toBe("เงินสด");
     expect(cells(lines[1])[5]).toBe("โอนเงิน");
     expect(cells(lines[2])[5]).toBe("เช็ค");
     expect(cells(lines[1])[2]).toBe("สิบลด");
-    for (const raw of ["cash", "transfer", "check", "tithe", "mission", "special"]) {
+    for (const raw of [
+      "cash",
+      "transfer",
+      "check",
+      "tithe",
+      "mission",
+      "special",
+    ]) {
       expect(csv).not.toContain(`"${raw}"`);
     }
   });
 
   it("still neutralises a donor name that starts like a formula", async () => {
-    const { csv } = await exportOfferingsCsvData("demo-church", { showDonorNames: true }, {
-      fetchOfferings: async () => [offering({ donorName: "=HYPERLINK(\"x\")" })],
-      fetchFunds: async () => [fund],
-    });
+    const { csv } = await exportOfferingsCsvData(
+      "demo-church",
+      { showDonorNames: true },
+      {
+        fetchOfferings: async () => [
+          offering({ donorName: '=HYPERLINK("x")' }),
+        ],
+        fetchFunds: async () => [fund],
+      }
+    );
     expect(csv).toContain(`"'=HYPERLINK(""x"")"`);
   });
 
   it("shows a historic category in Thai and an unknown one as it is", async () => {
-    const { csv } = await exportOfferingsCsvData("demo-church", {}, {
-      fetchOfferings: async () => [
-        offering({ id: 2, category: "general" as never }),
-        offering({ id: 1, category: "legacy_x" as never, method: "เงินสด" as never }),
-      ],
-      fetchFunds: async () => [fund],
-    });
+    const { csv } = await exportOfferingsCsvData(
+      "demo-church",
+      {},
+      {
+        fetchOfferings: async () => [
+          offering({ id: 2, category: "general" as never }),
+          offering({
+            id: 1,
+            category: "legacy_x" as never,
+            method: "เงินสด" as never,
+          }),
+        ],
+        fetchFunds: async () => [fund],
+      }
+    );
     expect(csv).toContain('"ถวายทั่วไป"');
     expect(csv).toContain('"legacy_x"');
     expect(csv).toContain('"เงินสด"');
@@ -118,10 +144,14 @@ describe("expenses CSV", () => {
       receiptRef: null,
       receiptUrl: null,
     };
-    const { csv } = await exportExpensesCsvData("demo-church", {}, {
-      fetchExpenses: async () => [expense],
-      fetchFunds: async () => [fund],
-    });
+    const { csv } = await exportExpensesCsvData(
+      "demo-church",
+      {},
+      {
+        fetchExpenses: async () => [expense],
+        fetchFunds: async () => [fund],
+      }
+    );
     expect(csv).not.toContain('"utilities"');
     expect(csv).toContain('"สาธารณูปโภค"');
   });
@@ -160,7 +190,8 @@ describe("financial report CSV", () => {
     ]);
 
     const result = await call();
-    const text = typeof result === "string" ? result : (result as { csv: string }).csv;
+    const text =
+      typeof result === "string" ? result : (result as { csv: string }).csv;
 
     expect(text).toContain('"สิบลด"');
     expect(text).toContain('"โอนเงิน"');

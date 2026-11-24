@@ -1132,7 +1132,8 @@ export async function createOfferingsBatch(
 ): Promise<{ ids: number[]; replayed: boolean }> {
   const db = database ?? ((await getDb()) as BatchDatabase | null);
   if (!db) throw new Error("Database is not available");
-  if (input.lines.length === 0) throw new Error("A gift needs at least one line");
+  if (input.lines.length === 0)
+    throw new Error("A gift needs at least one line");
   const fingerprint = batchFingerprint(input);
 
   return db.transaction(async tx => {

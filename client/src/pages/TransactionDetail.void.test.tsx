@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { explainVoidFailure } from "@/lib/voidError";
 
@@ -9,7 +15,9 @@ let deleteOptions: { onError?: (e: unknown) => void } = {};
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
-vi.mock("@/lib/sweetalert", () => ({ Swal: { confirm: (...a: unknown[]) => confirm(...a) } }));
+vi.mock("@/lib/sweetalert", () => ({
+  Swal: { confirm: (...a: unknown[]) => confirm(...a) },
+}));
 vi.mock("wouter", () => ({
   useLocation: () => ["/transactions/offering-5", vi.fn()],
   useRoute: () => [true, { id: "offering-5" }],
@@ -30,10 +38,17 @@ vi.mock("@/components/layout/AppLayout", () => ({
 }));
 vi.mock("@/_core/hooks/useAuth", () => ({
   useAuth: () => ({
-    user: { id: 4, role: "user", churchRole: "TREASURER", roles: ["TREASURER"] },
+    user: {
+      id: 4,
+      role: "user",
+      churchRole: "TREASURER",
+      roles: ["TREASURER"],
+    },
   }),
 }));
-vi.mock("@/components/finance/VoucherModal", () => ({ VoucherModal: () => null }));
+vi.mock("@/components/finance/VoucherModal", () => ({
+  VoucherModal: () => null,
+}));
 vi.mock("@/components/finance/ReceiptPreviewModal", () => ({
   ReceiptPreviewModal: () => null,
 }));
@@ -150,7 +165,8 @@ describe("cancelling an offering", () => {
     act(() =>
       deleteOptions.onError?.({
         data: { code: "CONFLICT" },
-        message: "รายการนี้มาจากรอบนับเงินที่ปิดรอบแล้ว จึงแก้ไขหรือยกเลิกไม่ได้",
+        message:
+          "รายการนี้มาจากรอบนับเงินที่ปิดรอบแล้ว จึงแก้ไขหรือยกเลิกไม่ได้",
       })
     );
 

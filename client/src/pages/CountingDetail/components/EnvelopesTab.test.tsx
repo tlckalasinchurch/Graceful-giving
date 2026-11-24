@@ -172,10 +172,9 @@ describe("EnvelopesTab auto-running envelope number", () => {
 describe("EnvelopesTab double submit", () => {
   function fillValidEnvelope() {
     const view = renderEnvelopesTab({ envelopes: [] });
-    fireEvent.change(
-      screen.getByRole("combobox", { name: /เข้ากองทุน/i }),
-      { target: { value: "1" } }
-    );
+    fireEvent.change(screen.getByRole("combobox", { name: /เข้ากองทุน/i }), {
+      target: { value: "1" },
+    });
     fireEvent.change(screen.getByPlaceholderText("0.00"), {
       target: { value: "500" },
     });

@@ -68,9 +68,7 @@ describe("NewOffering read-back", () => {
 
   it("says the page chose the fund until the person picks one", () => {
     render(<NewOffering />);
-    expect(
-      screen.getByText(/ระบบเลือก “กองทุนทั่วไป” ให้ก่อน/)
-    ).toBeTruthy();
+    expect(screen.getByText(/ระบบเลือก “กองทุนทั่วไป” ให้ก่อน/)).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText(/เข้ากองทุน/), {
       target: { value: "2" },
@@ -88,7 +86,9 @@ describe("NewOffering read-back", () => {
     fireEvent.change(screen.getByLabelText(/ระบุจำนวนเงิน/), {
       target: { value: "250" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /ยืนยันบันทึกการถวาย/ }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /ยืนยันบันทึกการถวาย/ })
+    );
 
     expect(mutate).toHaveBeenCalledTimes(1);
     expect(mutate.mock.calls[0][0]).toMatchObject({
@@ -106,7 +106,9 @@ describe("NewOffering failed save", () => {
     fireEvent.change(screen.getByLabelText(/ระบุจำนวนเงิน/), {
       target: { value: "250" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /ยืนยันบันทึกการถวาย/ }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /ยืนยันบันทึกการถวาย/ })
+    );
 
     act(() => {
       mutationOptions.onError?.({ message: "เชื่อมต่อฐานข้อมูลไม่สำเร็จ" });
@@ -116,12 +118,14 @@ describe("NewOffering failed save", () => {
     const alert = screen.getByRole("alert");
     expect(alert.textContent).toContain("ยังไม่ได้บันทึกการถวายนี้");
     expect(alert.textContent).toContain("ข้อมูลที่กรอกยังอยู่ครบ");
-    expect((screen.getByLabelText(/ระบุจำนวนเงิน/) as HTMLInputElement).value).toBe(
-      "250"
-    );
+    expect(
+      (screen.getByLabelText(/ระบุจำนวนเงิน/) as HTMLInputElement).value
+    ).toBe("250");
 
     // The next try clears the old message.
-    fireEvent.click(screen.getByRole("button", { name: /ยืนยันบันทึกการถวาย/ }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /ยืนยันบันทึกการถวาย/ })
+    );
     expect(screen.queryByRole("alert")).toBeNull();
     expect(mutate).toHaveBeenCalledTimes(2);
   });
@@ -133,7 +137,11 @@ describe("NewOffering with no fund", () => {
     render(<NewOffering />);
 
     expect(screen.getAllByText(/ยังไม่มีกองทุนในระบบ/)).toHaveLength(1);
-    expect(screen.getByRole("button", { name: "ไปหน้าจัดการกองทุน" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /ยืนยันบันทึกการถวาย/ })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "ไปหน้าจัดการกองทุน" })
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: /ยืนยันบันทึกการถวาย/ })
+    ).toBeNull();
   });
 });

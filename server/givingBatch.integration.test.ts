@@ -79,7 +79,9 @@ function gift(
 beforeAll(async () => {
   pg = new PGlite();
   db = drizzle(pg);
-  await migrate(db, { migrationsFolder: join(import.meta.dirname, "..", "drizzle") });
+  await migrate(db, {
+    migrationsFolder: join(import.meta.dirname, "..", "drizzle"),
+  });
 }, 60_000);
 
 afterAll(async () => {
