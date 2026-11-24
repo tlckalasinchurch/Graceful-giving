@@ -200,6 +200,84 @@ describe("GivingStation for staff who record straight to the ledger", () => {
   });
 });
 
+describe("GivingStation wording", () => {
+  it("names the four steps in Thai and marks the one the person is on", async () => {
+    render(<GivingStation />);
+    const steps = screen.getByRole("list", { name: "ขั้นตอนการถวาย" });
+    expect(steps.textContent).toContain("เริ่มถวาย");
+    expect(steps.textContent).toContain("เลือกประเภทและยอด");
+    expect(steps.textContent).toContain("โอนเงินและส่งสลิป");
+    expect(steps.textContent).toContain("ผลการส่ง");
+    expect(
+      steps.querySelector('[aria-current="step"]')?.textContent
+    ).toContain("เริ่มถวาย");
+
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await screen.findByRole("button", { name: "ที่ดิน" });
+    expect(
+      steps.querySelector('[aria-current="step"]')?.textContent
+    ).toContain("เลือกประเภทและยอด");
+  });
+
+  it("states which fund the gift goes to before the summary", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await screen.findByRole("button", { name: "ที่ดิน" });
+    expect(screen.getByText(/เงินถวายจะเข้า/).textContent).toContain(
+      "กองทุนทั่วไป"
+    );
+  });
+
+  it("uses no English product terms or competing step numbers for staff", () => {
+    authUser = treasurer;
+    const { container } = render(<GivingStation />);
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("Mobile Flow");
+    expect(text).not.toContain("Sanctuary");
+    expect(text).toContain("หน้าถวายบนมือถือ");
+    expect(text).toContain("โปสเตอร์ป้าย QR ติดหน้าห้อง");
+  });
+});
+
+describe("GivingStation failed send", () => {
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  it("tells staff the gift was not saved and that a retry will not save it twice", async () => {
+    authUser = treasurer;
+    createBatch.mockRejectedValue(new Error("Failed to fetch"));
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await pickLand();
+    fireEvent.click(
+      await screen.findByRole("button", { name: "บันทึกรายการถวายเข้าบัญชี" })
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("ยังไม่ได้บันทึกรายการถวายเข้าบัญชี");
+    expect(alert.textContent).toContain("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+    expect(alert.textContent).toContain("ระบบจะไม่บันทึกซ้ำ");
+  });
+
+  it("gives a member who sent without a slip plain retry advice", async () => {
+    submitWithoutSlip.mockRejectedValue(new Error("Failed to fetch"));
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await pickLand();
+    fireEvent.change(await screen.findByLabelText(/ชื่อผู้ถวาย/), {
+      target: { value: "สมชาย ใจดี" },
+    });
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("ส่งรายการไม่สำเร็จ");
+    expect(alert.textContent).toContain("แจ้งเจ้าหน้าที่");
+  });
+});
+
 describe("GivingStation for an ordinary member", () => {
   it("shows the giving flow in the plain frame, with no app menu or poster tab", () => {
     render(<GivingStation />);

@@ -87,6 +87,14 @@ const TOAST_KEY = "giving-station";
 type StationTab = "flow" | "poster";
 type FlowStep = 1 | 2 | 3 | 4;
 
+/** What each step is for. The step list names them so nobody has to guess. */
+const STEP_TITLES: Record<FlowStep, string> = {
+  1: "เริ่มถวาย",
+  2: "เลือกประเภทและยอด",
+  3: "โอนเงินและส่งสลิป",
+  4: "ผลการส่ง",
+};
+
 const DEFAULT_AMOUNTS: Record<OfferingCategory, number> = {
   cash: 300,
   meal: 100,
@@ -632,10 +640,11 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           utils.finance.accounts.invalidate(),
         ]);
       }
-    } catch (err: any) {
-      const msg =
-        err?.message ||
-        "ไม่สามารถบันทึกสลิปได้ กรุณาตรวจสอบการเชื่อมต่อและลองใหม่อีกครั้ง";
+    } catch (err: unknown) {
+      const msg = friendlyErrorMessage(
+        err,
+        "ส่งไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง"
+      );
       setSubmissionError(msg);
       setTimeout(() => {
         errorBannerRef.current?.scrollIntoView({
@@ -748,7 +757,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               }`}
             >
               <Smartphone className="w-4 h-4 text-brand" />
-              <span>1. หน้าเว็บถวายอัตโนมัติ (Mobile Flow)</span>
+              <span>หน้าถวายบนมือถือ</span>
             </button>
 
             <button
@@ -761,10 +770,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               }`}
             >
               <QrCode className="w-4 h-4 text-brand" />
-              <span>
-                2. โปสเตอร์ป้าย QR ติดหน้าห้อง (1 สแกน → 2 เลือกประเภท → 3
-                โอน/สลิป → 4 ขอบคุณพระเจ้า)
-              </span>
+              <span>โปสเตอร์ป้าย QR ติดหน้าห้อง</span>
             </button>
           </div>
         )}
@@ -784,7 +790,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                     : "border border-line bg-paper-2 text-ink-2"
                 }`}
               >
-                ขั้นที่ {n}
+                <span className="sr-only">ขั้นที่ {n}: </span>
+                {STEP_TITLES[n]}
               </li>
             ))}
           </ol>
@@ -844,7 +851,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
 
                 {/* Station Breadcrumb */}
                 <div className="text-xs sm:text-sm font-semibold text-ink-3 text-center sm:text-left">
-                  จุดถวาย GraceBox <span className="text-ink-3 mx-1">/</span>{" "}
+                  จุดถวายของคริสตจักร <span className="text-ink-3 mx-1">/</span>{" "}
                   {churchQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์"}
                 </div>
 
@@ -927,7 +934,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             {shownStep === 2 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in fade-in duration-200">
                 <div className="lg:col-span-2 text-xl font-extrabold text-ink tracking-tight px-1">
-                  จุดถวายอัตโนมัติ · {churchQuery.data?.name || "Sanctuary"}
+                  จุดถวายอัตโนมัติ · {churchQuery.data?.name || "คริสตจักร"}
                 </div>
 
                 {/* Selection Status Card */}
@@ -960,6 +967,12 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       ))
                     )}
                   </select>
+                  <p className="text-sm font-bold text-ink">
+                    เงินถวายจะเข้า “
+                    {funds.find(f => f.id === effectiveFundId)?.name ??
+                      "กองทุนทั่วไปของคริสตจักร"}
+                    ”
+                  </p>
                 </div>
 
                 {/* Tap the categories, then type an amount for each */}
@@ -1042,9 +1055,11 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                             </ul>
                           )}
                           <div className="text-xs font-medium text-ink-3 mt-1">
-                            กองทุน:{" "}
-                            {funds.find(f => f.id === effectiveFundId)?.name ||
-                              "กองทุนหลักคริสตจักร"}
+                            เข้ากองทุน:{" "}
+                            <span className="font-bold text-ink">
+                              {funds.find(f => f.id === effectiveFundId)
+                                ?.name || "กองทุนทั่วไปของคริสตจักร"}
+                            </span>
                           </div>
                         </div>
                         <div className="text-2xl sm:text-3xl font-extrabold text-income tabular-nums">
@@ -1085,32 +1100,26 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           </button>
                         ))}
                       </div>
-                      <p className="text-xs font-medium text-ink-3 leading-relaxed">
+                      <p className="text-sm font-medium text-ink-2 leading-relaxed">
                         {transferState === "not_yet"
                           ? "โอนตามบัญชีหรือ QR ด้านล่าง แล้วกลับมาที่หน้านี้เพื่อแนบสลิปยืนยันยอด"
                           : "แนบสลิปและตรวจรายการด้านล่างเพื่อยืนยันยอดที่โอน"}
                       </p>
                       {transferState === "not_yet" && (
-                        <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs font-bold text-ink">
-                          <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
-                            <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
-                              1
-                            </span>
+                        <ul className="grid grid-cols-1 gap-2 pt-1 text-sm font-bold text-ink">
+                          <li className="rounded-xl border border-line bg-paper-2 px-3 py-2">
+                            <span className="text-brand">ก่อน: </span>
                             <span>คัดลอกเลขบัญชี หรือบันทึกรูป QR</span>
                           </li>
-                          <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
-                            <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
-                              2
-                            </span>
+                          <li className="rounded-xl border border-line bg-paper-2 px-3 py-2">
+                            <span className="text-brand">จากนั้น: </span>
                             <span>เปิดแอปธนาคารเพื่อโอนเงิน</span>
                           </li>
-                          <li className="rounded-xl border border-line bg-paper-2 px-3 py-2 flex items-center gap-2">
-                            <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
-                              3
-                            </span>
+                          <li className="rounded-xl border border-line bg-paper-2 px-3 py-2">
+                            <span className="text-brand">สุดท้าย: </span>
                             <span>กลับมาหน้านี้เพื่อแนบรูปสลิป</span>
                           </li>
-                        </ol>
+                        </ul>
                       )}
                     </section>
 
@@ -1213,10 +1222,19 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                               <AlertTriangle className="size-5 shrink-0 text-danger mt-0.5" />
                               <div className="flex-1 space-y-1">
                                 <h4 className="font-bold text-tile-peach-ink text-sm sm:text-base">
-                                  ไม่สามารถบันทึกสลิปได้ กรุณาลองใหม่อีกครั้ง
+                                  {submitMode === "slip"
+                                    ? "ส่งสลิปไม่สำเร็จ"
+                                    : submitMode === "ledger"
+                                      ? "ยังไม่ได้บันทึกรายการถวายเข้าบัญชี"
+                                      : "ส่งรายการไม่สำเร็จ"}
                                 </h4>
-                                <p className="text-xs sm:text-sm font-medium text-tile-peach-ink leading-relaxed">
+                                <p className="text-sm font-medium text-tile-peach-ink leading-relaxed">
                                   {submissionError}
+                                </p>
+                                <p className="text-sm font-medium text-tile-peach-ink leading-relaxed">
+                                  {submitMode === "ledger"
+                                    ? "ข้อมูลที่เลือกไว้ยังอยู่ครบ กด “ลองส่งใหม่อีกครั้ง” ได้เลย ระบบจะไม่บันทึกซ้ำหากรายการเดิมถูกบันทึกไปแล้ว"
+                                    : "ข้อมูลและรูปที่เลือกไว้ยังอยู่ครบ ตรวจอินเทอร์เน็ตแล้วกด “ลองส่งใหม่อีกครั้ง” หากยังไม่สำเร็จ ให้แจ้งเจ้าหน้าที่"}
                                 </p>
                               </div>
                             </div>
@@ -1370,7 +1388,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                             </button>
                           </div>
 
-                          <p className="text-center text-xs text-ink-3">
+                          <p className="text-center text-sm text-ink-2">
                             ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
                             วางบนพื้นเรียบ ไม่ให้เงาบัง
                           </p>
@@ -1490,7 +1508,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                       <h3 className="display text-2xl text-ink">
                         {outcome.title}
                       </h3>
-                      <p className="text-xs sm:text-sm font-medium text-ink-2 leading-relaxed">
+                      <p className="text-sm font-medium text-ink-2 leading-relaxed">
                         {outcome.message}
                       </p>
                     </div>

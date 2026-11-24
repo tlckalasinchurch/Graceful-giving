@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { NativeSelect } from "@/components/ui/native-select";
 import { BackLink, Chip, EmptyState } from "@/components/common/CommonUI";
-import { formatBaht, toLocalISODate } from "@/lib/format";
+import { formatAmount, formatBaht, toLocalISODate } from "@/lib/format";
 import { friendlyErrorMessage } from "@/lib/errors";
 
 export default function NewOffering() {
@@ -53,6 +53,11 @@ export default function NewOffering() {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  // True once the person picks a fund. Until then the page chose it for them
+  // and says so, so a gift is never posted to a fund nobody looked at.
+  const [fundPicked, setFundPicked] = useState(false);
+  // A failed save stays on the page until the next try: a toast disappears.
+  const [saveError, setSaveError] = useState<string | null>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const [lastSaved, setLastSaved] = useState<{
     category: OfferingCategory;
@@ -78,6 +83,7 @@ export default function NewOffering() {
     setSelectedMemberId(null);
     setIsAnonymous(false);
     resetErrors();
+    setSaveError(null);
     setTimeout(() => {
       amountRef.current?.focus();
     }, 100);
@@ -187,6 +193,7 @@ export default function NewOffering() {
       formToast.clear("new-offering");
     },
     onError: error => {
+      setSaveError(friendlyErrorMessage(error, "ระบบบันทึกไม่สำเร็จ"));
       formToast.error("new-offering", "บันทึกการถวายไม่สำเร็จ", {
         description: friendlyErrorMessage(error),
       });
@@ -209,6 +216,7 @@ export default function NewOffering() {
     }
 
     if (!lock()) return;
+    setSaveError(null);
     createMutation.mutate({
       category,
       amount: Number(amount),
@@ -227,6 +235,12 @@ export default function NewOffering() {
     });
   };
 
+  const selectedFund = funds.find(f => String(f.id) === fundId) ?? null;
+  const amountNumber = Number(amount);
+  const amountReadBack =
+    amount !== "" && Number.isFinite(amountNumber) && amountNumber > 0
+      ? `${formatAmount(amountNumber)} บาท`
+      : null;
   const categories = OFFERING_CATEGORIES;
   const quickAmounts = [100, 300, 500, 1000, 2000, 5000];
   const paymentMethods = ["เงินสด", "โอนเงิน", "QR พร้อมเพย์", "เช็ค"];
@@ -332,6 +346,11 @@ export default function NewOffering() {
                 />
               </div>
               <FieldError fieldId="offering-amount" message={errors.amount} />
+              {amountReadBack && (
+                <p className="text-base font-extrabold text-income tabular-nums">
+                  จำนวนเงิน {amountReadBack}
+                </p>
+              )}
 
               {/* Shortcut Chips */}
               <div className="flex flex-wrap gap-2 pt-1">
@@ -361,6 +380,7 @@ export default function NewOffering() {
                 value={fundId}
                 onChange={e => {
                   setFundId(e.target.value);
+                  setFundPicked(true);
                   clearField("fundId");
                 }}
                 invalid={Boolean(errors.fundId)}
@@ -376,9 +396,11 @@ export default function NewOffering() {
                 ))}
               </NativeSelect>
               <FieldError fieldId="offering-fund" message={errors.fundId} />
-              {funds.length === 0 && (
-                <p className="text-xs font-bold text-danger">
-                  ยังไม่มีกองทุนในระบบ ต้องสร้างกองทุนก่อนบันทึกการถวาย
+              {selectedFund && (
+                <p className="text-sm font-medium text-ink-2">
+                  {fundPicked
+                    ? `เงินจะเข้า “${selectedFund.name}”`
+                    : `ระบบเลือก “${selectedFund.name}” ให้ก่อน ตรวจดูว่าถูกกองทุนหรือเปลี่ยนได้ที่ช่องด้านบน`}
                 </p>
               )}
             </div>
@@ -536,6 +558,46 @@ export default function NewOffering() {
                 className="neo-input"
               />
             </div>
+
+            {/* What will be saved: read it back before the button */}
+            <section
+              aria-label="สรุปก่อนบันทึก"
+              className="rounded-xl border border-line bg-paper-2 p-4 space-y-1.5"
+            >
+              <h3 className="text-sm font-extrabold text-ink">
+                ตรวจสอบก่อนบันทึก
+              </h3>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+                <dt className="font-semibold text-ink-2">จำนวนเงิน</dt>
+                <dd className="font-extrabold text-ink tabular-nums">
+                  {amountReadBack ?? "ยังไม่ได้ระบุ"}
+                </dd>
+                <dt className="font-semibold text-ink-2">เข้ากองทุน</dt>
+                <dd className="font-extrabold text-ink">
+                  {selectedFund?.name ?? "ยังไม่ได้เลือก"}
+                </dd>
+                <dt className="font-semibold text-ink-2">ประเภท</dt>
+                <dd className="font-bold text-ink">
+                  {offeringCategoryLabel(category)}
+                </dd>
+                <dt className="font-semibold text-ink-2">วิธีรับเงิน</dt>
+                <dd className="font-bold text-ink">{method}</dd>
+              </dl>
+            </section>
+
+            {saveError && (
+              <div
+                role="alert"
+                className="rounded-xl border border-danger/40 bg-tile-peach p-4 text-sm text-tile-peach-ink space-y-1"
+              >
+                <p className="font-extrabold">ยังไม่ได้บันทึกการถวายนี้</p>
+                <p className="font-medium">{saveError}</p>
+                <p className="font-medium">
+                  ข้อมูลที่กรอกยังอยู่ครบ ตรวจอินเทอร์เน็ตแล้วกด “ยืนยันบันทึกการถวาย”
+                  อีกครั้งได้ ก่อนกดซ้ำให้ดูหน้า “ดูรายการทั้งหมด” ว่ารายการนี้ถูกบันทึกไปแล้วหรือไม่
+                </p>
+              </div>
+            )}
 
             {/* Submit Button */}
             <button
