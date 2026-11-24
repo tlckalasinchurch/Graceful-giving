@@ -53,11 +53,24 @@ Settings → Environment Variables, Production): ต้องยังมี `SK
 `DATABASE_URL_MIGRATE` ดูแค่ชื่อ ไม่ต้องเปิดค่า
 ถ้าไม่ตรง หยุดและปรึกษาก่อน เพราะลำดับขั้นข้างล่างจะเปลี่ยน
 
-**2. 🔒 ตรวจ backup** (Supabase → Database → Backups): ต้องมี backup อัตโนมัติล่าสุด
-ภายใน 24 ชั่วโมง ถ้ามี Point-in-Time Recovery ให้จดเวลาปัจจุบันไว้ ถ้าไม่มี backup ล่าสุด
-ให้สร้างก่อน (แผน Supabase ที่ใช้อยู่กำหนดว่าทำเองได้หรือไม่ ยังไม่ได้ตรวจ)
+**2. 🔒 ทำ backup เอง** — ตรวจแล้ว 2026-11-24: project อยู่ในแผน **free** ของ Supabase
+ซึ่งไม่มี backup อัตโนมัติรายวันและไม่มี Point-in-Time Recovery จึงต้อง dump เองก่อนทุกครั้ง
+
+1. ติดตั้ง PostgreSQL 17 command line tools (ต้องเป็นเวอร์ชัน 17 ขึ้นไป ตรงกับ server)
+2. PO รันเองในหน้าต่าง PowerShell ของตัวเอง ไม่รันผ่านเซสชันของ AI:
+   `powershell -ExecutionPolicy Bypass -File scripts\backup-db.ps1`
+3. วาง connection string แบบ **Session pooler (port 5432)** ของ role `postgres` ตอนที่สคริปต์ถาม
+   (ไม่แสดงบนจอ ไม่บันทึกลงไฟล์ ห้ามส่งในแชต)
+4. สคริปต์ dump schema, data และ roles ไปที่ `%USERPROFILE%\GraceGivingBackups\<วันเวลา>`
+   (ไม่ยอมเขียนในโฟลเดอร์ของ repo) แล้วตรวจว่าทุกไฟล์มีอยู่และไม่ว่าง มีตารางเงินหลักครบ
+   และพิมพ์เฉพาะขนาด จำนวน และ SHA-256
+5. ต้องได้ `RESULT: PASS` และต้องคัดลอกโฟลเดอร์ไปเก็บอีกที่หนึ่งนอกเครื่องนี้
+   ไฟล์มีชื่อผู้ถวายและข้อมูลการเงิน
+6. ส่งให้ผู้ช่วยเฉพาะบรรทัดผลลัพธ์ (PASS/FAIL, ขนาด, จำนวน, hash) ไม่ส่งเนื้อหาไฟล์
+
+backup นี้ไม่รวมไฟล์รูปใน Supabase Storage (สลิปและใบเสร็จ) ฐานข้อมูลเก็บแค่ path
 การเปลี่ยนนี้เพิ่มตารางใหม่อย่างเดียว rollback ใช้ไฟล์ rollback ได้โดยไม่ต้องกู้ backup
-backup มีไว้กันกรณีรันผิดไฟล์
+backup มีไว้กันกรณีรันผิดไฟล์และกันข้อมูลการเงินทั้งหมด
 
 **3. 🔒 รัน precheck** (SQL editor ของ Supabase, role `postgres`):
 `pr160_giving_submissions_precheck.sql` แล้วเทียบผลกับบรรทัด "Expect" ทุกข้อ
