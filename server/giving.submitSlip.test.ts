@@ -14,9 +14,22 @@ vi.mock("./db", async importOriginal => {
     listFinanceAccounts: vi.fn(),
   };
 });
-vi.mock("./line/processWorker", () => ({
-  runWorkerBatch: vi.fn(async () => ({})),
-}));
+vi.mock("./line/processWorker", () => {
+  const runWorkerBatch = vi.fn(async () => ({}));
+  // Same wait-then-give-up rule as the real drainWorkerWithin, over the mock.
+  const drainWorkerWithin = async (ms: number) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<void>(r => {
+      timer = setTimeout(r, ms);
+    });
+    try {
+      await Promise.race([runWorkerBatch().then(() => undefined), timeout]);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+  return { runWorkerBatch, drainWorkerWithin };
+});
 
 import { appRouter } from "./routers";
 import * as db from "./db";

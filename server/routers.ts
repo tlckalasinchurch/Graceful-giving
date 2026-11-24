@@ -130,7 +130,7 @@ import {
   listMyManualSlips,
   rescanLineSlip,
 } from "./db";
-import { runWorkerBatch } from "./line/processWorker";
+import { drainWorkerWithin, runWorkerBatch } from "./line/processWorker";
 import { buildPromptPayPayload, parsePromptPayId } from "@shared/promptpay";
 import { parseStationPoster, stationPosterSchema } from "@shared/stationPoster";
 import { decodeSlipImage, SlipImageError } from "./line/slipImage";
@@ -553,25 +553,6 @@ export function redactChurchProfile<
 
 /** How long a donor waits for the slip reading before it falls back to the queue. */
 const SLIP_CHECK_WAIT_MS = 8000;
-
-/** Runs the slip worker, but gives up waiting after `ms`. Never throws. */
-async function drainWorkerWithin(ms: number): Promise<void> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<void>(resolve => {
-    timer = setTimeout(resolve, ms);
-  });
-  try {
-    await Promise.race([
-      runWorkerBatch().then(
-        () => undefined,
-        err => console.warn("[submitSlip] Worker error:", err)
-      ),
-      timeout,
-    ]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
 
 /**
  * Tells every finance user a new entry waits for review. A failed

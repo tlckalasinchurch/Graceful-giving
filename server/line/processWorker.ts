@@ -25,7 +25,7 @@ import {
   lineProcessingJobs,
   type LineSlip,
 } from "../../drizzle/schema";
-import { and, eq, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lt, lte, sql } from "drizzle-orm";
 import { extractInlineSlipDataUrl, resolveSlipImageUrl } from "../storage";
 import { MAX_AUTO_REJECTS } from "../../shared/givingLimits";
 import { verifySlip } from "./slipVerification";
@@ -40,6 +40,8 @@ const MAX_ATTEMPTS = 3;
 const BATCH_SIZE = 10;
 /** Retry delay grows as 1min, 5min between attempts, to outlast a provider rate limit. */
 const RETRY_BACKOFF_FACTOR = 5;
+/** A job still "processing" after this long lost its function (timeout, crash). */
+const STUCK_JOB_MINUTES = 10;
 
 // ─── Auth guard ───────────────────────────────────────────────────────────────
 
@@ -260,12 +262,70 @@ async function processJob(jobId: number, slipId: number): Promise<void> {
 
 // ─── Worker batch runner ──────────────────────────────────────────────────────
 
+/**
+ * Puts jobs back in the queue when their function died mid-run (the claim sets
+ * "processing" and only a caught error clears it). A job out of attempts fails
+ * with its slip, so the slip shows up for staff instead of staying pending.
+ */
+export async function reclaimStuckJobs(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const stuck = and(
+    eq(lineProcessingJobs.status, "processing"),
+    sql`${lineProcessingJobs.lastAttemptAt} < now() - (interval '1 minute' * ${STUCK_JOB_MINUTES})`
+  );
+  await db
+    .update(lineProcessingJobs)
+    .set({ status: "queued", updatedAt: new Date() })
+    .where(and(stuck, lt(lineProcessingJobs.attempts, MAX_ATTEMPTS)));
+  const dead = await db
+    .update(lineProcessingJobs)
+    .set({
+      status: "failed",
+      errorMessage: "Worker stopped before finishing",
+      updatedAt: new Date(),
+    })
+    .where(and(stuck, gte(lineProcessingJobs.attempts, MAX_ATTEMPTS)))
+    .returning({ slipId: lineProcessingJobs.slipId });
+  for (const { slipId } of dead) {
+    await db
+      .update(lineSlips)
+      .set({
+        status: "failed",
+        lastErrorMessage: "Worker stopped before finishing",
+        updatedAt: new Date(),
+      })
+      .where(and(eq(lineSlips.id, slipId), eq(lineSlips.status, "pending")));
+  }
+}
+
+/** Runs the worker, but stops waiting after `ms`. Never throws. */
+export async function drainWorkerWithin(ms: number): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<void>(resolve => {
+    timer = setTimeout(resolve, ms);
+  });
+  try {
+    await Promise.race([
+      runWorkerBatch().then(
+        () => undefined,
+        err => console.warn("[Worker] Drain error:", err)
+      ),
+      timeout,
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function runWorkerBatch(): Promise<{
   processed: number;
   errors: number;
 }> {
   const db = await getDb();
   if (!db) return { processed: 0, errors: 0 };
+
+  await reclaimStuckJobs();
 
   // Fetch queued jobs that have exceeded neither max attempts nor their backoff delay.
   // Without the backoff gate, a provider rate limit burns all MAX_ATTEMPTS within
