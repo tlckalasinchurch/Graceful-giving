@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   decimal,
   index,
   integer,
@@ -341,24 +342,31 @@ export type InsertAuditLog = typeof auditLogs.$inferInsert;
 // ─── Finance Accounts / Funds ──────────────────────────────────────────────────
 
 /** Fund and ledger account definitions for the church. */
-export const financeAccounts = pgTable("finance_accounts", {
-  id: serial("id").primaryKey(),
-  churchId: varchar("churchId", { length: 64 }).notNull(),
-  name: varchar("name", { length: 120 }).notNull(),
-  type: financeAccountTypeEnum("type").default("general").notNull(),
-  /** Running balance — updated whenever an offering or expense is recorded */
-  balance: decimal("balance", { precision: 15, scale: 2 })
-    .default("0")
-    .notNull(),
-  description: text("description"),
-  isActive: boolean("isActive").default(true).notNull(),
-  sortOrder: integer("sortOrder").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-});
+export const financeAccounts = pgTable(
+  "finance_accounts",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    type: financeAccountTypeEnum("type").default("general").notNull(),
+    /** Running balance — updated whenever an offering or expense is recorded */
+    balance: decimal("balance", { precision: 15, scale: 2 })
+      .default("0")
+      .notNull(),
+    description: text("description"),
+    isActive: boolean("isActive").default(true).notNull(),
+    sortOrder: integer("sortOrder").default(0).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  t => [
+    /** Backstop for the app's own guard (server/ledgerGuards.ts): no fund goes below zero. */
+    check("finance_accounts_balance_nonneg", sql`${t.balance} >= 0`),
+  ]
+);
 
 export type FinanceAccount = typeof financeAccounts.$inferSelect;
 export type InsertFinanceAccount = typeof financeAccounts.$inferInsert;

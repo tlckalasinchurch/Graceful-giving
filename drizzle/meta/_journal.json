@@ -36,6 +36,13 @@
       "when": 1793516228188,
       "tag": "0004_slip_split_items",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795491033882,
+      "tag": "0005_finance_balance_nonneg",
+      "breakpoints": true
     }
   ]
 }

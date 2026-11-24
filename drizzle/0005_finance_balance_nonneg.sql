@@ -1,0 +1,1 @@
+ALTER TABLE "finance_accounts" ADD CONSTRAINT "finance_accounts_balance_nonneg" CHECK ("finance_accounts"."balance" >= 0);
