@@ -10,6 +10,7 @@ import {
 import { fmtBaht, getNextEnvelopeNo } from "./countingUtils";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Swal } from "@/lib/sweetalert";
+import { useSubmitLock } from "@/hooks/useSubmitLock";
 
 interface EnvelopesTabProps {
   sessionId: number;
@@ -60,6 +61,9 @@ export function EnvelopesTab({
   const [method, setMethod] = useState<"cash" | "transfer" | "check">("cash");
   const [amount, setAmount] = useState("");
   const amountRef = useRef<HTMLInputElement>(null);
+  // A disabled button only takes effect after the next render, so a fast double
+  // click or Enter could send the same envelope twice. The lock is a ref.
+  const { lock, unlock } = useSubmitLock();
 
   // If the session changes while mounted, re-initialize envelope number
   const lastSessionIdRef = useRef(sessionId);
@@ -125,6 +129,7 @@ export function EnvelopesTab({
       fundId: fundId ? undefined : "กรุณาเลือกกองทุน",
     });
     if (!valid) return;
+    if (!lock()) return;
     const submittedNo = envelopeNo.trim();
     addEnvelope.mutate(
       {
@@ -148,6 +153,8 @@ export function EnvelopesTab({
           setAmount("");
           amountRef.current?.focus();
         },
+        // Runs after success and after failure, so the next try is not blocked.
+        onSettled: unlock,
       }
     );
   };
