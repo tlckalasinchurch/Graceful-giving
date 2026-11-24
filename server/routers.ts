@@ -512,6 +512,9 @@ function assertNotPosted(status: CountingStatus) {
   }
 }
 
+const REQUESTER_CANNOT_SIGN_MESSAGE =
+  "ผู้ขอเบิกไม่สามารถเป็นผู้ลงนามอนุมัติคำขอของตนเองได้ กรุณาให้ผู้มีสิทธิ์ท่านอื่นเป็นผู้ดำเนินการ";
+
 function assertCanCount(user: User) {
   if (!canCountOfferings(user)) {
     throw new TRPCError({
@@ -1605,6 +1608,14 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        // The bank needs the required signer on every request, and nobody signs
+        // their own request, so a request from that person could never be paid.
+        if ((await isBankSigner(ctx.user.id))?.isRequired) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: REQUESTER_CANNOT_SIGN_MESSAGE,
+          });
+        }
         if (input.fundId !== undefined) await assertActiveFund(input.fundId);
         const id = await createWithdrawalRequest({
           amount: input.amount.toFixed(2),
@@ -1642,6 +1653,20 @@ export const appRouter = router({
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "เฉพาะผู้มีอำนาจลงนามในบัญชีธนาคาร",
+          });
+        }
+        // requestedBy never changes, so this read needs no lock.
+        const request = await getWithdrawalRequestBasic(
+          input.id,
+          DEFAULT_CHURCH_ID
+        );
+        if (!request) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "ไม่พบคำขอเบิก" });
+        }
+        if (request.requestedBy === ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: REQUESTER_CANNOT_SIGN_MESSAGE,
           });
         }
         try {

@@ -308,7 +308,10 @@ export default function Approvals() {
                 s => s.userId === currentUserId
               );
               const canSign =
-                req.status === "pending" && isSigner && !hasSigned;
+                req.status === "pending" &&
+                isSigner &&
+                !hasSigned &&
+                req.requestedBy !== currentUserId;
               const canPay = req.status === "approved" && canDisburse;
               const canCancel =
                 (req.status === "pending" || req.status === "approved") &&
