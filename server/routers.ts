@@ -45,6 +45,7 @@ import {
   getFinancialReportSummary,
   getFinancialSummary,
   getMonthlyStats,
+  createOfferingsBatch,
   getOfferingById,
   getOfferingsSummary,
   listOfferingsPaged,
@@ -166,6 +167,9 @@ import { BANK_RECORD_TYPES, canTransition, isEditable } from "@shared/counting";
 import {
   EXPENSE_CATEGORY_IDS,
   OFFERING_CATEGORY_IDS,
+  expenseCategoryLabel,
+  offeringCategoryLabel,
+  paymentMethodLabel,
 } from "@shared/categories";
 
 // ─── Permission helpers ────────────────────────────────────────────────────────
@@ -1142,6 +1146,61 @@ export const appRouter = router({
         );
         return { id };
       }),
+    /**
+     * Saves a split gift (one line per category) all together or not at all.
+     * `submissionKey` makes a retry safe: the same key returns the offerings
+     * the first request saved instead of saving them again.
+     */
+    createBatch: financeProcedure
+      .input(
+        z.object({
+          submissionKey: z.string().trim().min(8).max(64),
+          fundId: z.number().int().positive(),
+          lines: z
+            .array(
+              z.object({
+                category: offeringCategory,
+                amount: z.number().positive().max(MAX_GIVING_AMOUNT),
+              })
+            )
+            .min(1)
+            .max(OFFERING_CATEGORY_IDS.length),
+          donorName: z.string().trim().max(120).optional(),
+          donorMemberId: z.number().int().positive().nullable().optional(),
+          receiptDate: z.coerce.date().optional(),
+          method: paymentMethod.default("cash"),
+          notes: z.string().trim().max(500).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        await assertActiveFund(input.fundId);
+        const result = await createOfferingsBatch(
+          {
+            submissionKey: input.submissionKey,
+            fundId: input.fundId,
+            lines: input.lines,
+            donorName: input.donorName ?? null,
+            donorMemberId: input.donorMemberId ?? null,
+            receiptDate: input.receiptDate ?? new Date(),
+            method: input.method,
+            notes: input.notes ?? null,
+          },
+          ctx.user.id
+        ).catch(rethrowLedgerError);
+        if (!result.replayed) {
+          const total = input.lines.reduce((sum, l) => sum + l.amount, 0);
+          await notifyNonFatal("offerings.createBatch", result.ids[0], () =>
+            createNotification({
+              userId: ctx.user.id,
+              type: "finance_created",
+              title: "บันทึกรายการการเงินแล้ว",
+              description: `บันทึก ${total.toLocaleString()} บาทเรียบร้อยแล้ว`,
+              link: null,
+            })
+          );
+        }
+        return { ids: result.ids, replayed: result.replayed };
+      }),
     update: financeProcedure
       .input(
         z.object({
@@ -2064,10 +2123,12 @@ export const appRouter = router({
           [
             r.date,
             r.type === "income" ? "รายรับ" : "รายจ่าย",
-            r.category,
+            r.type === "income"
+              ? offeringCategoryLabel(r.category)
+              : expenseCategoryLabel(r.category),
             r.description,
             r.amount.toFixed(2),
-            r.method ?? "-",
+            r.method ? paymentMethodLabel(r.method) : "-",
           ]
             .map(csvCell)
             .join(",")

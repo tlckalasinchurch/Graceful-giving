@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const submitSlip = vi.fn();
 const submitWithoutSlip = vi.fn();
 const readSlip = vi.fn();
+const createBatch = vi.fn();
 const savePoster = vi.fn();
 // What church.stationPoster returns. Undefined means still loading.
 let posterData: Record<string, string> | undefined;
@@ -83,6 +84,9 @@ vi.mock("@/lib/trpc", () => ({
       create: {
         useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
       },
+      createBatch: {
+        useMutation: () => ({ mutateAsync: createBatch, isPending: false }),
+      },
     },
   },
 }));
@@ -137,6 +141,141 @@ beforeEach(() => {
     bankAccount: "123-4-56789-0",
     bankAccountName: "คริสตจักรทดสอบ",
   };
+});
+
+describe("GivingStation for staff who record straight to the ledger", () => {
+  beforeEach(() => {
+    // jsdom has no scrollIntoView; the error banner scrolls itself into view.
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  /**
+   * Opens the summary as a treasurer with one category (land, usual 1,000).
+   * Staff cannot save several categories straight to the ledger: the checklist
+   * blocks it and points to a slip, so the ledger path carries one line.
+   */
+  async function oneCategoryToSummary() {
+    authUser = treasurer;
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await pickLand();
+  }
+
+  it("saves the gift in one request, as a transfer dated now", async () => {
+    createBatch.mockResolvedValue({ ids: [1, 2], replayed: false });
+    await oneCategoryToSummary();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "บันทึกรายการถวายเข้าบัญชี" })
+    );
+
+    await waitFor(() => expect(createBatch).toHaveBeenCalledTimes(1));
+    const sent = createBatch.mock.calls[0][0];
+    expect(sent.lines).toEqual([{ category: "land", amount: 1000 }]);
+    expect(sent.fundId).toBe(1);
+    expect(sent.method).toBe("transfer");
+    expect(sent.receiptDate).toBeInstanceOf(Date);
+    expect(typeof sent.submissionKey).toBe("string");
+    expect(sent.submissionKey.length).toBeGreaterThanOrEqual(8);
+  });
+
+  it("sends the same key again when the save failed and the user retries", async () => {
+    createBatch
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce({ ids: [1, 2], replayed: false });
+    await oneCategoryToSummary();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "บันทึกรายการถวายเข้าบัญชี" })
+    );
+    await waitFor(() => expect(createBatch).toHaveBeenCalledTimes(1));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /ลองส่งใหม่อีกครั้ง/ })
+    );
+    await waitFor(() => expect(createBatch).toHaveBeenCalledTimes(2));
+
+    expect(createBatch.mock.calls[1][0].submissionKey).toBe(
+      createBatch.mock.calls[0][0].submissionKey
+    );
+  });
+});
+
+describe("GivingStation wording", () => {
+  it("names the four steps in Thai and marks the one the person is on", async () => {
+    render(<GivingStation />);
+    const steps = screen.getByRole("list", { name: "ขั้นตอนการถวาย" });
+    expect(steps.textContent).toContain("เริ่มถวาย");
+    expect(steps.textContent).toContain("เลือกประเภทและยอด");
+    expect(steps.textContent).toContain("โอนเงินและส่งสลิป");
+    expect(steps.textContent).toContain("ผลการส่ง");
+    expect(steps.querySelector('[aria-current="step"]')?.textContent).toContain(
+      "เริ่มถวาย"
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await screen.findByRole("button", { name: "ที่ดิน" });
+    expect(steps.querySelector('[aria-current="step"]')?.textContent).toContain(
+      "เลือกประเภทและยอด"
+    );
+  });
+
+  it("states which fund the gift goes to before the summary", async () => {
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await screen.findByRole("button", { name: "ที่ดิน" });
+    expect(screen.getByText(/เงินถวายจะเข้า/).textContent).toContain(
+      "กองทุนทั่วไป"
+    );
+  });
+
+  it("uses no English product terms or competing step numbers for staff", () => {
+    authUser = treasurer;
+    const { container } = render(<GivingStation />);
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("Mobile Flow");
+    expect(text).not.toContain("Sanctuary");
+    expect(text).toContain("หน้าถวายบนมือถือ");
+    expect(text).toContain("โปสเตอร์ป้าย QR ติดหน้าห้อง");
+  });
+});
+
+describe("GivingStation failed send", () => {
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  it("tells staff the gift was not saved and that a retry will not save it twice", async () => {
+    authUser = treasurer;
+    createBatch.mockRejectedValue(new Error("Failed to fetch"));
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await pickLand();
+    fireEvent.click(
+      await screen.findByRole("button", { name: "บันทึกรายการถวายเข้าบัญชี" })
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("ยังไม่ได้บันทึกรายการถวายเข้าบัญชี");
+    expect(alert.textContent).toContain("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+    expect(alert.textContent).toContain("ระบบจะไม่บันทึกซ้ำ");
+  });
+
+  it("gives a member who sent without a slip plain retry advice", async () => {
+    submitWithoutSlip.mockRejectedValue(new Error("Failed to fetch"));
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await pickLand();
+    fireEvent.change(await screen.findByLabelText(/ชื่อผู้ถวาย/), {
+      target: { value: "สมชาย ใจดี" },
+    });
+    fireEvent.click(
+      await screen.findByRole("button", { name: "ส่งให้เหรัญญิกตรวจสอบ" })
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("ส่งรายการไม่สำเร็จ");
+    expect(alert.textContent).toContain("แจ้งเจ้าหน้าที่");
+  });
 });
 
 describe("GivingStation for an ordinary member", () => {

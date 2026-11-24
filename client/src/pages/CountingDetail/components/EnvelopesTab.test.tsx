@@ -168,3 +168,100 @@ describe("EnvelopesTab auto-running envelope number", () => {
     expect(donorInput.value).toBe("");
   });
 });
+
+describe("EnvelopesTab double submit", () => {
+  function fillValidEnvelope() {
+    const view = renderEnvelopesTab({ envelopes: [] });
+    fireEvent.change(screen.getByRole("combobox", { name: /เข้ากองทุน/i }), {
+      target: { value: "1" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("0.00"), {
+      target: { value: "500" },
+    });
+    return view;
+  }
+
+  it("sends one request when the button is clicked twice before the first one settles", () => {
+    const { addEnvelope } = fillValidEnvelope();
+    const button = screen.getByRole("button", { name: "เพิ่มซอง" });
+
+    fireEvent.click(button);
+    fireEvent.click(button);
+
+    expect(addEnvelope.mutate).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends one request when Enter submits the form twice in a row", () => {
+    const { addEnvelope } = fillValidEnvelope();
+    const amount = screen.getByPlaceholderText("0.00");
+
+    fireEvent.submit(amount.closest("form")!);
+    fireEvent.submit(amount.closest("form")!);
+
+    expect(addEnvelope.mutate).toHaveBeenCalledTimes(1);
+  });
+
+  it("lets the user try again after the request failed", () => {
+    const { addEnvelope } = fillValidEnvelope();
+    const button = screen.getByRole("button", { name: "เพิ่มซอง" });
+
+    fireEvent.click(button);
+    expect(addEnvelope.mutate).toHaveBeenCalledTimes(1);
+    // The request failed: only onSettled runs, not onSuccess.
+    act(() => addEnvelope.mutate.mock.calls[0][1].onSettled());
+    fireEvent.click(button);
+
+    expect(addEnvelope.mutate).toHaveBeenCalledTimes(2);
+  });
+
+  it("lets the user add the next envelope after a success", () => {
+    const { addEnvelope } = fillValidEnvelope();
+    fireEvent.click(screen.getByRole("button", { name: "เพิ่มซอง" }));
+    act(() => {
+      const options = addEnvelope.mutate.mock.calls[0][1];
+      options.onSuccess();
+      options.onSettled();
+    });
+
+    fireEvent.change(screen.getByPlaceholderText("0.00"), {
+      target: { value: "300" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "เพิ่มซอง" }));
+
+    expect(addEnvelope.mutate).toHaveBeenCalledTimes(2);
+    expect(addEnvelope.mutate.mock.calls[1][0]).toMatchObject({
+      amount: 300,
+      envelopeNo: "2",
+    });
+  });
+
+  it("does not hold the lock after a form that failed its own checks", () => {
+    const { addEnvelope } = renderEnvelopesTab({ envelopes: [] });
+    fireEvent.change(screen.getByRole("combobox", { name: /เข้ากองทุน/i }), {
+      target: { value: "1" },
+    });
+
+    fireEvent.submit(screen.getByPlaceholderText("0.00").closest("form")!);
+    expect(addEnvelope.mutate).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByPlaceholderText("0.00"), {
+      target: { value: "500" },
+    });
+    fireEvent.submit(screen.getByPlaceholderText("0.00").closest("form")!);
+    expect(addEnvelope.mutate).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("EnvelopesTab round total", () => {
+  // The double rule marks a closed ledger total, so only a posted or closed
+  // round may carry it.
+  it("draws the ledger rule only when the round is final", () => {
+    renderEnvelopesTab({ editable: false, offeringTotal: 1500, final: true });
+    expect(screen.getByText(/1,500/)).toHaveClass("ledger-total");
+  });
+
+  it("leaves an open round's total without the rule", () => {
+    renderEnvelopesTab({ editable: false, offeringTotal: 1500 });
+    expect(screen.getByText(/1,500/)).not.toHaveClass("ledger-total");
+  });
+});

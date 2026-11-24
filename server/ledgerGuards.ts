@@ -52,6 +52,14 @@ export class InvalidFundBalanceError extends Error {
   }
 }
 
+/** A submission key was used again for a different gift. */
+export class SubmissionKeyReuseError extends Error {
+  constructor() {
+    super("The submission key was already used for a different gift");
+    this.name = "SubmissionKeyReuseError";
+  }
+}
+
 /** Satang (1/100 baht) as an integer, so sums never drift. */
 export function toSatang(value: number | string): number {
   const n = typeof value === "number" ? value : Number(value);
@@ -87,6 +95,10 @@ export function planFundChanges(
 }
 
 function rowsOf(result: unknown): Array<Record<string, unknown>> {
+  // postgres-js returns the rows as an array. PGlite (used by the tests that
+  // run the real SQL without a server) wraps them in `{ rows }`.
+  const wrapped = (result as { rows?: unknown } | null)?.rows;
+  if (Array.isArray(wrapped)) return wrapped as Array<Record<string, unknown>>;
   return Array.from((result ?? []) as ArrayLike<Record<string, unknown>>);
 }
 
@@ -179,5 +191,7 @@ export function ledgerGuardMessage(err: unknown): string | null {
     return "รายการนี้มาจากรอบนับเงินที่ปิดรอบแล้ว จึงแก้ไขหรือยกเลิกไม่ได้";
   if (err instanceof InvalidFundBalanceError)
     return "ยอดเริ่มต้นของกองทุนต้องไม่ติดลบ";
+  if (err instanceof SubmissionKeyReuseError)
+    return "รายการนี้ถูกส่งไปแล้วด้วยยอดหรือกองทุนที่ต่างกัน กรุณาเริ่มทำรายการใหม่";
   return null;
 }

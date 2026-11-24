@@ -109,6 +109,33 @@ export function ReconciliationSummaryTab({
     r.cashOnHandActual !== null && r.cashOnHandActual !== undefined;
   const isReconciliationResolved =
     r.isBalanced || Boolean(effectiveVarianceNote);
+  // Three different situations that used to look alike once a note existed:
+  // the figures agree, they do not agree but the reason is written down, or
+  // they do not agree and nothing is written (posting is blocked).
+  const reconStatus: "balanced" | "acknowledged" | "blocked" = r.isBalanced
+    ? "balanced"
+    : effectiveVarianceNote
+      ? "acknowledged"
+      : "blocked";
+  const varianceText =
+    [
+      { label: "เงินสดที่นับได้เทียบกับซอง", amount: r.cashVariance },
+      { label: "เงินโอนเทียบกับซอง", amount: r.transferVariance },
+      ...(r.cashOnHandActual !== null && r.cashOnHandActual !== undefined
+        ? [
+            {
+              label: "เงินสดในกล่องเทียบกับยอดที่ควรมี",
+              amount: r.cashOnHandVariance ?? 0,
+            },
+          ]
+        : []),
+    ]
+      .filter(line => line.amount !== 0)
+      .map(
+        line =>
+          `${line.label} ${line.amount > 0 ? "เกิน" : "ขาด"} ${fmtBaht(Math.abs(line.amount))}`
+      )
+      .join(" / ") || "ยังไม่ได้นับเงินสดในกล่อง จึงยังเทียบยอดไม่ได้";
 
   const checklistItems = [
     {
@@ -168,11 +195,18 @@ export function ReconciliationSummaryTab({
       id: "reconciliation",
       title: "การกระทบยอดและการรับรองผลต่าง",
       passed: isReconciliationResolved,
-      detail: r.isBalanced
-        ? "ยอดเงินสดและเงินโอนตรงกันพอดี 100%"
-        : effectiveVarianceNote
-          ? `มีผลต่าง (บันทึกคำอธิบายแล้ว: "${effectiveVarianceNote}")`
-          : "ยอดยังไม่ตรงกัน และยังไม่มีบันทึกคำอธิบายผลต่าง",
+      badge:
+        reconStatus === "balanced"
+          ? { text: "ตรงกัน", tone: "ok" as const }
+          : reconStatus === "acknowledged"
+            ? { text: "ยังมีผลต่าง · บันทึกเหตุผลแล้ว", tone: "warn" as const }
+            : undefined,
+      detail:
+        reconStatus === "balanced"
+          ? "ยอดเงินสดและเงินโอนตรงกับซองถวาย ไม่มีผลต่าง"
+          : reconStatus === "acknowledged"
+            ? `ยอดยังไม่ตรง: ${varianceText}. จดเหตุผลไว้แล้ว ("${effectiveVarianceNote}") การจดเหตุผลเป็นหลักฐานเท่านั้น ไม่ได้แก้ตัวเลข`
+            : `ยอดยังไม่ตรง: ${varianceText}. ยังไม่ได้จดเหตุผล จึงยังลงบัญชีไม่ได้`,
       actionHint: !isReconciliationResolved
         ? "กรอกคำอธิบายผลต่างในช่องด้านล่างเพื่อเป็นหลักฐาน"
         : undefined,
@@ -192,7 +226,7 @@ export function ReconciliationSummaryTab({
     if (!canPost) return;
     const confirmed = await Swal.confirm(
       "ยืนยันการลงบัญชีเข้าระบบ?",
-      `จะบันทึกรายการถวายและรายจ่ายของรอบนี้เข้าบัญชีการเงิน\n\nยอดถวายตามซอง: ${fmtBaht(r.offeringTotal)}\nรายการหักเบิก: ${fmtBaht(r.deductionTotal)}${effectiveVarianceNote ? `\nคำอธิบายผลต่าง: ${effectiveVarianceNote}` : ""}\n\nลงบัญชีแล้วรอบจะล็อกข้อมูลซองและผลนับ หากต้องแก้ไขต้องขอ "ส่งกลับไปนับใหม่" ก่อน`,
+      `จะบันทึกรายการถวายและรายจ่ายของรอบนี้เข้าบัญชีการเงิน\n\nยอดถวายตามซอง: ${fmtBaht(r.offeringTotal)}\nรายการหักเบิก: ${fmtBaht(r.deductionTotal)}${r.envelopeCheckTotal > 0 ? `\nยอดซองเช็ค: ${fmtBaht(r.envelopeCheckTotal)} (ระบบยังไม่เทียบยอดเช็คกับรายการธนาคาร)` : ""}\n\n${r.isBalanced ? "ผลต่าง: ไม่มี ยอดตรงกัน" : `ผลต่างที่ยังเหลือ: ${varianceText}\nเหตุผลที่จดไว้: ${effectiveVarianceNote}\nการจดเหตุผลไม่ได้แก้ตัวเลข ระบบจะลงบัญชีตามยอดซองถวาย`}\n\nลงบัญชีแล้วรอบจะล็อกข้อมูลซองและผลนับ หากต้องแก้ไขต้องขอ "ส่งกลับไปนับใหม่" ก่อน`,
       {
         icon: "question",
         confirmButtonText: "ลงบัญชี",
@@ -255,7 +289,12 @@ export function ReconciliationSummaryTab({
                 item.passed ? "bg-surface" : "bg-paper-2/40"
               }`}
             >
-              {item.passed ? (
+              {item.badge?.tone === "warn" ? (
+                <AlertTriangle
+                  className="size-5 shrink-0 text-brand mt-0.5"
+                  aria-label="ผ่านเกณฑ์ แต่ยังมีผลต่าง"
+                />
+              ) : item.passed ? (
                 <CheckCircle2
                   className="size-5 shrink-0 text-income mt-0.5"
                   aria-label="ผ่านเกณฑ์"
@@ -277,12 +316,18 @@ export function ReconciliationSummaryTab({
                   </span>
                   <span
                     className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                      item.passed
-                        ? "bg-tile-mint/50 text-tile-mint-ink"
-                        : "bg-tile-peach text-tile-peach-ink"
+                      item.badge?.tone === "warn"
+                        ? "bg-tile-sand text-tile-sand-ink"
+                        : item.passed
+                          ? "bg-tile-mint/50 text-tile-mint-ink"
+                          : "bg-tile-peach text-tile-peach-ink"
                     }`}
                   >
-                    {item.passed ? "เรียบร้อย" : "ยังไม่เสร็จ"}
+                    {item.badge
+                      ? item.badge.text
+                      : item.passed
+                        ? "เรียบร้อย"
+                        : "ยังไม่เสร็จ"}
                   </span>
                 </div>
                 <p className="text-xs font-medium text-ink-2 leading-relaxed">
@@ -298,6 +343,19 @@ export function ReconciliationSummaryTab({
             </li>
           ))}
         </ul>
+
+        {pendingChecklist.length === 0 && reconStatus === "acknowledged" && (
+          <div
+            role="status"
+            className="border-t border-line bg-tile-sand p-3.5 text-sm font-bold text-tile-sand-ink flex items-start gap-2"
+          >
+            <AlertTriangle className="size-4 shrink-0 mt-0.5" />
+            <span>
+              ลงบัญชีได้ โดยรับทราบว่ายอดยังไม่ตรง ({varianceText})
+              ระบบจะลงบัญชีตามยอดซองถวาย ไม่ได้ปรับตัวเลขให้ตรง
+            </span>
+          </div>
+        )}
 
         {/* Explain why posting is blocked if incomplete */}
         {pendingChecklist.length > 0 && status === "verified" && (
@@ -333,13 +391,21 @@ export function ReconciliationSummaryTab({
             {
               label: "— ซองเช็ค",
               value: fmtBaht(r.envelopeCheckTotal),
+              note: "ระบบยังไม่เทียบยอดเช็คกับรายการธนาคาร ยอดเช็คจึงไม่ทำให้เกิดผลต่างในตารางนี้",
             },
           ].map(row => (
             <div
               key={row.label}
               className="flex items-center justify-between gap-4 p-4"
             >
-              <dt className="text-sm font-medium text-ink-2">{row.label}</dt>
+              <dt className="text-sm font-medium text-ink-2">
+                {row.label}
+                {"note" in row && row.note && (
+                  <span className="mt-0.5 block text-sm font-bold text-tile-sand-ink">
+                    {row.note}
+                  </span>
+                )}
+              </dt>
               <dd className="text-sm font-extrabold tabular-nums text-ink">
                 {row.value}
               </dd>
@@ -348,11 +414,11 @@ export function ReconciliationSummaryTab({
           <div className="flex items-center justify-between gap-4 bg-paper-2 p-4">
             <div>
               <dt className="text-sm font-extrabold text-ink">
-                ผลต่างเงินสด (นับได้จริง − ซองเงินสด)
+                เงินสดที่นับได้ เทียบกับยอดซองเงินสด
               </dt>
-              <p className="text-xs font-medium text-ink-2">
-                นับได้ {fmtBaht(r.countedCashTotal)} เทียบซองเงินสด{" "}
-                {fmtBaht(r.envelopeCashTotal)}
+              <p className="text-sm font-medium text-ink-2">
+                นับเงินสดได้ {fmtBaht(r.countedCashTotal)} ยอดซองเงินสดรวม{" "}
+                {fmtBaht(r.envelopeCashTotal)} (นับได้น้อยกว่าซอง = “ขาด”)
               </p>
             </div>
             <dd>
@@ -362,10 +428,10 @@ export function ReconciliationSummaryTab({
           <div className="flex items-center justify-between gap-4 bg-paper-2 p-4">
             <div>
               <dt className="text-sm font-extrabold text-ink">
-                ผลต่างเงินโอน (เข้าบัญชีจริง − ซองเงินโอน)
+                เงินโอนที่เข้าบัญชีจริง เทียบกับยอดซองเงินโอน
               </dt>
-              <p className="text-xs font-medium text-ink-2">
-                รายการโอนเข้าบัญชี เทียบซองเงินโอน{" "}
+              <p className="text-sm font-medium text-ink-2">
+                รายการโอนที่บันทึกจากธนาคาร เทียบกับยอดซองเงินโอน{" "}
                 {fmtBaht(r.envelopeTransferTotal)}
               </p>
             </div>
@@ -377,10 +443,10 @@ export function ReconciliationSummaryTab({
             <div className="flex items-center justify-between gap-4 bg-paper-2 p-4">
               <div>
                 <dt className="text-sm font-extrabold text-ink">
-                  ผลต่างเงินสดในกล่อง (นับได้จริง − ยอดคาดการณ์)
+                  เงินสดในกล่องที่นับได้ เทียบกับยอดที่ควรมี
                 </dt>
-                <p className="text-xs font-medium text-ink-2">
-                  นับได้จริง {fmtBaht(r.cashOnHandActual)} เทียบยอดคาดการณ์{" "}
+                <p className="text-sm font-medium text-ink-2">
+                  นับได้จริง {fmtBaht(r.cashOnHandActual)} ยอดที่ควรมี{" "}
                   {fmtBaht(r.cashOnHandExpected ?? 0)}
                 </p>
               </div>
@@ -401,10 +467,17 @@ export function ReconciliationSummaryTab({
               <h3 className="font-extrabold text-brand">
                 ยอดยังไม่ตรงกัน (จำเป็นต้องบันทึกคำอธิบายผลต่าง)
               </h3>
-              <p className="mt-1 text-xs sm:text-sm font-medium text-ink-2 leading-relaxed">
-                ระบบไม่อนุญาตให้ปรับตัวเลขการเงินโดยอัตโนมัติ
-                หากยอดนับจริงไม่ตรงกับซอง ให้แสดงผลต่างที่เกิดขึ้นจริง
-                และบันทึกคำอธิบายสาเหตุไว้เป็นหลักฐานเพื่อการตรวจสอบ
+              <p className="mt-1 text-sm font-medium text-ink-2 leading-relaxed">
+                ผลต่างตอนนี้: {varianceText}
+              </p>
+              <p className="mt-1 text-sm font-medium text-ink-2 leading-relaxed">
+                ลองตรวจที่แท็บ “ซองถวาย” ว่ามีซองที่บันทึกซ้ำ เลขซองซ้ำ
+                หรือยอดผิดหรือไม่ แล้วนับใหม่ได้ก่อนลงบัญชี
+              </p>
+              <p className="mt-1 text-sm font-bold text-ink leading-relaxed">
+                การจดเหตุผลไม่ได้แก้ตัวเลข ระบบไม่ปรับยอดให้เอง
+                จดไว้เพื่อเป็นหลักฐาน เมื่อมีเหตุผลแล้วจะลงบัญชีได้
+                และยอดที่ลงบัญชีคือยอดตามซองถวาย
               </p>
             </div>
           </div>

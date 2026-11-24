@@ -45,6 +45,7 @@ import { MAX_GIVING_AMOUNT } from "@shared/givingLimits";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { canManageFinance } from "@shared/roles";
 import { friendlyErrorMessage } from "@/lib/errors";
+import { explainVoidFailure, type VoidFailure } from "@/lib/voidError";
 
 const TOAST_KEY = "transaction-detail";
 
@@ -89,6 +90,9 @@ export default function TransactionDetail() {
   const [showVoucher, setShowVoucher] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const utils = trpc.useUtils();
+  // A refused cancellation stays on the page until the next try. A toast
+  // disappears, and this message says what to do next.
+  const [voidFailure, setVoidFailure] = useState<VoidFailure | null>(null);
   const deleteOffering = trpc.offerings.delete.useMutation({
     onSuccess: async () => {
       await Promise.all([
@@ -100,11 +104,11 @@ export default function TransactionDetail() {
       formToast.success(TOAST_KEY, "ยกเลิกรายการถวายเรียบร้อยแล้ว");
       setLocation("/transactions");
     },
-    onError: error =>
-      formToast.error(
-        TOAST_KEY,
-        friendlyErrorMessage(error, "ยกเลิกรายการถวายไม่สำเร็จ")
-      ),
+    onError: error => {
+      const message = friendlyErrorMessage(error, "ยกเลิกรายการถวายไม่สำเร็จ");
+      setVoidFailure(explainVoidFailure(message, "offering"));
+      formToast.error(TOAST_KEY, message);
+    },
   });
   const deleteExpense = trpc.expenses.delete.useMutation({
     onSuccess: async () => {
@@ -118,11 +122,14 @@ export default function TransactionDetail() {
       formToast.success(TOAST_KEY, "ยกเลิกรายการรายจ่ายเรียบร้อยแล้ว");
       setLocation("/transactions");
     },
-    onError: error =>
-      formToast.error(
-        TOAST_KEY,
-        friendlyErrorMessage(error, "ยกเลิกรายการรายจ่ายไม่สำเร็จ")
-      ),
+    onError: error => {
+      const message = friendlyErrorMessage(
+        error,
+        "ยกเลิกรายการรายจ่ายไม่สำเร็จ"
+      );
+      setVoidFailure(explainVoidFailure(message, "expense"));
+      formToast.error(TOAST_KEY, message);
+    },
   });
   const updateOffering = trpc.offerings.update.useMutation({
     onSuccess: async () => {
@@ -404,9 +411,13 @@ export default function TransactionDetail() {
           {transaction && canEdit && (
             <button
               onClick={async () => {
+                setVoidFailure(null);
+                const amountText = `${formatAmount(Number(transaction.amount))} บาท`;
                 const isConfirmed = await Swal.confirm(
                   "ยืนยันการยกเลิกรายการ?",
-                  "ข้อมูลจะไม่ถูกลบถาวร แต่ยอดเงินในกองทุนจะถูกปรับกลับสถานะเดิม",
+                  isOffering
+                    ? `ยกเลิกรายการถวาย ${amountText}\nเข้ากองทุน: ${transaction.fund}\n\nการยกเลิกรายการถวายจะ “ลดยอดกองทุน” ${transaction.fund} ลง ${amountText}\nหากเงินนี้ถูกใช้ไปแล้ว ระบบจะไม่ให้ยกเลิกเพื่อไม่ให้ยอดกองทุนติดลบ\n\nรายการไม่ได้ถูกลบ ยังเก็บประวัติไว้ตรวจสอบ`
+                    : `ยกเลิกรายจ่าย ${amountText}\nจากกองทุน: ${transaction.fund}\n\nการยกเลิกรายจ่ายจะ “เพิ่มยอดกองทุน” ${transaction.fund} กลับ ${amountText}\n\nรายการไม่ได้ถูกลบ ยังเก็บประวัติไว้ตรวจสอบ`,
                   {
                     confirmButtonText: "ยืนยันยกเลิกรายการ",
                     cancelButtonText: "ปิดหน้าต่าง",
@@ -445,6 +456,27 @@ export default function TransactionDetail() {
         />
       ) : (
         <div className="bento-card-static space-y-6 p-6 sm:p-8">
+          {voidFailure && (
+            <div
+              role="alert"
+              className="space-y-1.5 rounded-xl border border-danger/40 bg-tile-peach p-4 text-tile-peach-ink"
+            >
+              <p className="text-base font-extrabold">{voidFailure.title}</p>
+              <p className="text-sm font-medium leading-relaxed">
+                {voidFailure.advice}
+              </p>
+              <p className="text-sm font-medium leading-relaxed">
+                ข้อความจากระบบ: {voidFailure.detail}
+              </p>
+              <button
+                type="button"
+                onClick={() => setVoidFailure(null)}
+                className="btn-secondary min-h-11 px-4 py-2 text-sm"
+              >
+                รับทราบ
+              </button>
+            </div>
+          )}
           {isEditing && (
             <form
               onSubmit={submitEdit}

@@ -987,3 +987,32 @@ export const lineProcessingJobs = pgTable(
 
 export type LineProcessingJob = typeof lineProcessingJobs.$inferSelect;
 export type InsertLineProcessingJob = typeof lineProcessingJobs.$inferInsert;
+
+/**
+ * One row per split-giving submission the Giving Station saved straight to the
+ * ledger. The unique (churchId, submissionKey) index is what makes a retry or
+ * a double send safe: the second insert cannot create a second row, so it
+ * returns the offerings the first one made instead of making them again. The
+ * row is written in the same transaction as the offerings, so a failed save
+ * leaves no key behind and the same key can be tried again.
+ */
+export const givingSubmissions = pgTable(
+  "giving_submissions",
+  {
+    id: serial("id").primaryKey(),
+    churchId: varchar("churchId", { length: 64 }).notNull(),
+    /** Chosen by the browser once per submission attempt. */
+    submissionKey: varchar("submissionKey", { length: 64 }).notNull(),
+    userId: integer("userId").notNull(),
+    /** Hash of the amounts, categories and fund, so a reused key cannot carry a different gift. */
+    fingerprint: varchar("fingerprint", { length: 64 }).notNull(),
+    /** Ids of the offerings this submission created, in line order. */
+    offeringIds: jsonb("offeringIds").$type<number[]>().notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  t => [
+    uniqueIndex("giving_submissions_key_uniq").on(t.churchId, t.submissionKey),
+  ]
+);
+
+export type GivingSubmission = typeof givingSubmissions.$inferSelect;

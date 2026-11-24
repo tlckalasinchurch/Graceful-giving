@@ -427,11 +427,31 @@ body {
   color: var(--ink);
 }
 
-/* Amounts line up down a column and do not jitter while counting up. */
+/* Amounts line up down a column and do not jitter while counting up.
+   Normal spacing by default: tightened digits are hard to read at small
+   sizes, so only large figures (see the rule below) are drawn closer. */
 .money {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+}
+
+/* Large figures and headings only: a slight tightening that reads as one
+   figure. Small text keeps normal spacing. */
+:is(.money, .display):is(.text-2xl, .text-3xl, .text-4xl, .text-5xl) {
+  letter-spacing: -0.015em;
+}
+
+/* A confirmed or summed total, underlined twice the way a ledger closes a
+   column. Use it only on a total that is final; never on an amount still
+   being typed or awaiting review. */
+.ledger-total {
+  text-decoration-line: underline;
+  text-decoration-style: double;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-decoration-skip-ink: none;
+  text-underline-offset: 0.22em;
 }
 
 button:focus-visible,
@@ -498,8 +518,8 @@ select:focus-visible {
 /* Crisp display headings — 1.18 line-height prevents Thai vowel/tone clipping. */
 .display {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: 0;
   line-height: 1.18;
   font-variant-numeric: lining-nums tabular-nums;
 }
