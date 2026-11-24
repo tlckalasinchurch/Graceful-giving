@@ -88,6 +88,7 @@ import {
   type OfferingCategory,
   offeringCategoryLabel,
   expenseCategoryLabel,
+  paymentMethodLabel,
 } from "@shared/categories";
 import type { CountingStatus } from "@shared/counting";
 import { reconcile } from "@shared/counting";
@@ -990,10 +991,10 @@ export async function exportOfferingsCsvData(
     return [
       sanitizeCsvCell(r.id),
       sanitizeCsvCell(dateStr),
-      sanitizeCsvCell(r.category),
+      sanitizeCsvCell(offeringCategoryLabel(r.category)),
       sanitizeCsvCell(donorName),
       r.amount.toFixed(2),
-      sanitizeCsvCell(r.method),
+      sanitizeCsvCell(paymentMethodLabel(r.method)),
       sanitizeCsvCell(fundName),
       sanitizeCsvCell(r.reference ?? "—"),
       sanitizeCsvCell(r.notes ?? "—"),
@@ -1535,7 +1536,7 @@ export async function exportExpensesCsvData(
       sanitizeCsvCell(dateStr),
       sanitizeCsvCell(r.description),
       sanitizeCsvCell(r.payee ?? "ทั่วไป"),
-      sanitizeCsvCell(r.category),
+      sanitizeCsvCell(expenseCategoryLabel(r.category)),
       r.amount.toFixed(2),
       sanitizeCsvCell(fundName),
       sanitizeCsvCell(r.receiptRef ?? "—"),
@@ -3030,7 +3031,7 @@ export async function getFinancialReportData(
       date: bangkokDateString(r.receiptDate),
       type: "income" as const,
       category: r.category,
-      description: r.notes || `ถวาย${r.category}`,
+      description: r.notes || `ถวาย${offeringCategoryLabel(r.category)}`,
       amount: parseFloat((r.amount as unknown as string) ?? "0"),
       method: r.method,
     })),

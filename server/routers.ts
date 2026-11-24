@@ -167,6 +167,9 @@ import { BANK_RECORD_TYPES, canTransition, isEditable } from "@shared/counting";
 import {
   EXPENSE_CATEGORY_IDS,
   OFFERING_CATEGORY_IDS,
+  expenseCategoryLabel,
+  offeringCategoryLabel,
+  paymentMethodLabel,
 } from "@shared/categories";
 
 // ─── Permission helpers ────────────────────────────────────────────────────────
@@ -2120,10 +2123,12 @@ export const appRouter = router({
           [
             r.date,
             r.type === "income" ? "รายรับ" : "รายจ่าย",
-            r.category,
+            r.type === "income"
+              ? offeringCategoryLabel(r.category)
+              : expenseCategoryLabel(r.category),
             r.description,
             r.amount.toFixed(2),
-            r.method ?? "-",
+            r.method ? paymentMethodLabel(r.method) : "-",
           ]
             .map(csvCell)
             .join(",")
