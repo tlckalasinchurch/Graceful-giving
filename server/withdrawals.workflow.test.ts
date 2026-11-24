@@ -184,17 +184,63 @@ describeDb("withdrawal signing workflow against a real database", () => {
     expect(await approvalRows(id)).toHaveLength(2);
   });
 
-  it("lets the requester's own signature count but still needs another", async () => {
-    const id = await newRequest(pastor.id);
+  it("refuses the requester's own signature, approve or reject, and stores nothing", async () => {
+    const id = await newRequest(treasurer.id);
+
+    await expect(
+      asTreasurer().withdrawals.sign({ id, decision: "approved" })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      asTreasurer().withdrawals.sign({
+        id,
+        decision: "rejected",
+        note: "ยกเลิก",
+      })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(await approvalRows(id)).toHaveLength(0);
+    await expect(await requestStatus(id)).toMatchObject({ status: "pending" });
+  });
+
+  it("approves a signer's request with the other two signers, and lets the requester cancel", async () => {
+    const id = await newRequest(treasurer.id);
 
     await expect(
       asPastor().withdrawals.sign({ id, decision: "approved" })
     ).resolves.toMatchObject({ outcome: "pending" });
-
     await expect(
       asAssistant().withdrawals.sign({ id, decision: "approved" })
     ).resolves.toMatchObject({ outcome: "approved" });
-    await expect(await requestStatus(id)).toMatchObject({ status: "approved" });
+
+    const other = await newRequest(treasurer.id);
+    await expect(
+      asTreasurer().withdrawals.cancel({ id: other, reason: "ไม่ต้องการแล้ว" })
+    ).resolves.toMatchObject({ success: true });
+  });
+
+  it("keeps the request pending when the requester and a valid signer sign at once", async () => {
+    const id = await newRequest(treasurer.id);
+
+    const results = await Promise.allSettled([
+      asTreasurer().withdrawals.sign({ id, decision: "approved" }),
+      asPastor().withdrawals.sign({ id, decision: "approved" }),
+    ]);
+    expect(results[0].status).toBe("rejected");
+    expect(results[1].status).toBe("fulfilled");
+    expect(await approvalRows(id)).toHaveLength(1);
+    await expect(await requestStatus(id)).toMatchObject({ status: "pending" });
+  });
+
+  it("refuses to create a request for the required signer, and creates one for others", async () => {
+    await expect(
+      asPastor().withdrawals.create({ amount: 500, purpose: "ค่าอุปกรณ์ทดสอบ" })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+
+    await expect(
+      asTreasurer().withdrawals.create({
+        amount: 500,
+        purpose: "ค่าอุปกรณ์ทดสอบ",
+      })
+    ).resolves.toMatchObject({ id: expect.any(Number) });
   });
 
   it("rejects the request on the first refusal and stores the reason", async () => {
