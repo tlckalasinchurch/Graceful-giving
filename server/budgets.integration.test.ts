@@ -46,10 +46,12 @@ beforeAll(async () => {
   if (!process.env.DATABASE_URL) return;
   const db = await getDb();
   if (!db) throw new Error("DATABASE_URL set but the database is unreachable");
+  // The funds start with money in them: an expense that would take a fund
+  // below zero is refused, and these tests record expenses with no offering.
   const inserted = (await db.execute(
     sql`INSERT INTO finance_accounts ("churchId", name, type, balance, "isActive")
-        VALUES (${TEST_CHURCH_ID}, 'กองทุน A', 'general', 0, true),
-               (${TEST_CHURCH_ID}, 'กองทุน B', 'general', 0, true)
+        VALUES (${TEST_CHURCH_ID}, 'กองทุน A', 'general', 100000, true),
+               (${TEST_CHURCH_ID}, 'กองทุน B', 'general', 100000, true)
         RETURNING id`
   )) as unknown as Array<{ id: number }>;
   [fundA, fundB] = inserted.map(r => r.id);

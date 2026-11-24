@@ -88,9 +88,11 @@ beforeAll(async () => {
         BETWEEN ${fromDate.toISOString()}::timestamp
         AND ${toDate.toISOString()}::timestamp`
   );
+  // The fund starts with money in it: an expense that would take a fund below
+  // zero is refused, and these tests record expenses before any offering.
   const inserted = await db.execute(
     sql`INSERT INTO finance_accounts ("churchId", name, type, balance, "isActive")
-        VALUES (${TEST_CHURCH_ID}, 'กองทุนรายงาน', 'general', 0, true)
+        VALUES (${TEST_CHURCH_ID}, 'กองทุนรายงาน', 'general', 100000, true)
         RETURNING id`
   );
   fundId = (inserted as unknown as Array<{ id: number }>)[0].id;
