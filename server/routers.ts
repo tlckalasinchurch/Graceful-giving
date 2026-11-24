@@ -156,6 +156,11 @@ import {
 import { TRPCError } from "@trpc/server";
 import type { User } from "../drizzle/schema";
 import { assertCsvWithinLimit } from "./csvLimit";
+import {
+  FundNotFoundError,
+  InvalidFundBalanceError,
+  ledgerGuardMessage,
+} from "./ledgerGuards";
 import type { CountingStatus } from "@shared/counting";
 import { BANK_RECORD_TYPES, canTransition, isEditable } from "@shared/counting";
 import {
@@ -360,6 +365,45 @@ async function assertActiveFund(fundId: number) {
       code: "BAD_REQUEST",
       message: "ไม่พบกองทุนที่เลือก",
     });
+  }
+}
+
+/**
+ * Use as `.catch(rethrowLedgerError)` on a ledger write. A fund that cannot
+ * cover a debit, or that does not exist, becomes a user-facing Thai error.
+ * Anything else is rethrown untouched, so an internal or SQL error is never
+ * turned into a message the person could read as their own mistake.
+ */
+function rethrowLedgerError(err: unknown): never {
+  const message = ledgerGuardMessage(err);
+  if (message === null) throw err;
+  throw new TRPCError({
+    code:
+      err instanceof FundNotFoundError || err instanceof InvalidFundBalanceError
+        ? "BAD_REQUEST"
+        : "CONFLICT",
+    message,
+  });
+}
+
+/**
+ * Sends a notification after a financial write has already committed. A
+ * failure is logged for operators and never reported to the caller: the money
+ * is recorded, and saying otherwise would invite a second, duplicate entry.
+ * Only the message is logged, never the notification payload.
+ */
+async function notifyNonFatal(
+  source: string,
+  entityId: number,
+  send: () => Promise<unknown>
+): Promise<void> {
+  try {
+    await send();
+  } catch (err) {
+    console.error(
+      `[notification] ${source} entity=${entityId} not delivered:`,
+      err instanceof Error ? err.message : String(err)
+    );
   }
 }
 
@@ -911,26 +955,30 @@ export const appRouter = router({
     }),
     createAccount: fundManageProcedure
       .input(
-        z.object({
-          name: z.string().trim().min(2).max(120),
-          type: z
-            .enum([
-              "general",
-              "tithe",
-              "mission",
-              "building",
-              "welfare",
-              "special",
-            ])
-            .default("general"),
-          description: z.string().trim().max(500).optional(),
-        })
+        z
+          .object({
+            name: z.string().trim().min(2).max(120),
+            type: z
+              .enum([
+                "general",
+                "tithe",
+                "mission",
+                "building",
+                "welfare",
+                "special",
+              ])
+              .default("general"),
+            description: z.string().trim().max(500).optional(),
+          })
+          // A fund always starts at 0 and gains money only through ledger
+          // entries. Strict, so a stray `balance` is refused instead of ignored.
+          .strict()
       )
       .mutation(async ({ input }) => {
         const id = await createFinanceAccount({
           ...input,
           churchId: DEFAULT_CHURCH_ID,
-        });
+        }).catch(rethrowLedgerError);
         return { id };
       }),
   }),
@@ -1072,33 +1120,33 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         await assertActiveFund(input.fundId);
-        const id = await createOffering({
-          amount: input.amount.toFixed(2),
-          category: input.category,
-          fundId: input.fundId,
-          donorName: input.donorName ?? null,
-          donorMemberId: input.donorMemberId ?? null,
-          receiptDate: input.receiptDate ?? new Date(),
-          method: input.method,
-          reference: input.reference ?? null,
-          notes: input.notes ?? null,
-          recordedBy: ctx.user.id,
-        } as any);
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "CREATE",
-          entity: "offering",
-          entityId: id,
-          metadata: input,
-        });
-        await createNotification({
-          userId: ctx.user.id,
-          type: "finance_created",
-          title: "บันทึกรายการการเงินแล้ว",
-          description: `บันทึก ${input.amount.toLocaleString()} บาทเรียบร้อยแล้ว`,
-          link: null,
-        });
+        const id = await createOffering(
+          {
+            amount: input.amount.toFixed(2),
+            category: input.category,
+            fundId: input.fundId,
+            donorName: input.donorName ?? null,
+            donorMemberId: input.donorMemberId ?? null,
+            receiptDate: input.receiptDate ?? new Date(),
+            method: input.method,
+            reference: input.reference ?? null,
+            notes: input.notes ?? null,
+            recordedBy: ctx.user.id,
+          } as any,
+          DEFAULT_CHURCH_ID,
+          { userId: ctx.user.id, metadata: input }
+        ).catch(rethrowLedgerError);
+        // The offering and its audit entry are already committed together.
+        // A notification that fails must not turn that into an error.
+        await notifyNonFatal("offerings.create", id, () =>
+          createNotification({
+            userId: ctx.user.id,
+            type: "finance_created",
+            title: "บันทึกรายการการเงินแล้ว",
+            description: `บันทึก ${input.amount.toLocaleString()} บาทเรียบร้อยแล้ว`,
+            link: null,
+          })
+        );
         return { id };
       }),
     update: financeProcedure
@@ -1126,41 +1174,35 @@ export const appRouter = router({
         const { id, amount, ...rest } = input;
         if (typeof rest.fundId === "number")
           await assertActiveFund(rest.fundId);
-        const updated = await updateOffering(id, {
-          ...rest,
-          ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
-        });
+        const updated = await updateOffering(
+          id,
+          {
+            ...rest,
+            ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
+          },
+          DEFAULT_CHURCH_ID,
+          // The before/after pair is built inside the transaction, from the
+          // row it has locked.
+          { userId: ctx.user.id }
+        ).catch(rethrowLedgerError);
         if (updated === null)
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "ไม่พบรายการถวายหรือรายการถูกยกเลิกไปแล้ว",
           });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "UPDATE",
-          entity: "offering",
-          entityId: id,
-          metadata: rest,
-        });
         return { id: updated };
       }),
     delete: financeProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .mutation(async ({ ctx, input }) => {
-        const deleted = await voidOffering(input.id);
+        const deleted = await voidOffering(input.id, DEFAULT_CHURCH_ID, {
+          userId: ctx.user.id,
+        }).catch(rethrowLedgerError);
         if (!deleted)
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "ไม่พบรายการถวายหรือรายการถูกยกเลิกไปแล้ว",
           });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "VOID",
-          entity: "offering",
-          entityId: input.id,
-        });
         return { id: input.id };
       }),
   }),
@@ -1284,34 +1326,34 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         await assertActiveFund(input.fundId);
-        const id = await createExpense({
-          amount: input.amount.toFixed(2),
-          category: input.category,
-          fundId: input.fundId,
-          description: input.description,
-          details: input.details ?? null,
-          expenseDate: input.expenseDate ?? new Date(),
-          payee: input.payee ?? null,
-          receiptRef: input.receiptRef ?? null,
-          receiptUrl: input.receiptUrl ?? null,
-          status: "approved",
-          recordedBy: ctx.user.id,
-        } as any);
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "CREATE",
-          entity: "expense",
-          entityId: id,
-          metadata: input,
-        });
-        await createNotification({
-          userId: ctx.user.id,
-          type: "finance_created",
-          title: "บันทึกรายการรายจ่ายแล้ว",
-          description: `บันทึก ${input.amount.toLocaleString()} บาทเรียบร้อยแล้ว`,
-          link: null,
-        });
+        const id = await createExpense(
+          {
+            amount: input.amount.toFixed(2),
+            category: input.category,
+            fundId: input.fundId,
+            description: input.description,
+            details: input.details ?? null,
+            expenseDate: input.expenseDate ?? new Date(),
+            payee: input.payee ?? null,
+            receiptRef: input.receiptRef ?? null,
+            receiptUrl: input.receiptUrl ?? null,
+            status: "approved",
+            recordedBy: ctx.user.id,
+          } as any,
+          DEFAULT_CHURCH_ID,
+          { userId: ctx.user.id, metadata: input }
+        ).catch(rethrowLedgerError);
+        // The expense and its audit entry are already committed together.
+        // A notification that fails must not turn that into an error.
+        await notifyNonFatal("expenses.create", id, () =>
+          createNotification({
+            userId: ctx.user.id,
+            type: "finance_created",
+            title: "บันทึกรายการรายจ่ายแล้ว",
+            description: `บันทึก ${input.amount.toLocaleString()} บาทเรียบร้อยแล้ว`,
+            link: null,
+          })
+        );
         return { id };
       }),
     uploadReceipt: financeProcedure
@@ -1377,41 +1419,35 @@ export const appRouter = router({
         const { id, amount, ...rest } = input;
         if (typeof rest.fundId === "number")
           await assertActiveFund(rest.fundId);
-        const updated = await updateExpense(id, {
-          ...rest,
-          ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
-        } as any);
+        const updated = await updateExpense(
+          id,
+          {
+            ...rest,
+            ...(amount === undefined ? {} : { amount: amount.toFixed(2) }),
+          } as any,
+          DEFAULT_CHURCH_ID,
+          // The before/after pair is built inside the transaction, from the
+          // row it has locked.
+          { userId: ctx.user.id }
+        ).catch(rethrowLedgerError);
         if (updated === null)
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "ไม่พบรายการรายจ่ายหรือรายการถูกยกเลิกไปแล้ว",
           });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "UPDATE",
-          entity: "expense",
-          entityId: id,
-          metadata: rest,
-        });
         return { id: updated };
       }),
     delete: financeProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .mutation(async ({ ctx, input }) => {
-        const deleted = await voidExpense(input.id);
+        const deleted = await voidExpense(input.id, DEFAULT_CHURCH_ID, {
+          userId: ctx.user.id,
+        }).catch(rethrowLedgerError);
         if (!deleted)
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "ไม่พบรายการรายจ่ายหรือรายการถูกยกเลิกไปแล้ว",
           });
-        await createAuditLog({
-          churchId: DEFAULT_CHURCH_ID,
-          userId: ctx.user.id,
-          action: "VOID",
-          entity: "expense",
-          entityId: input.id,
-        });
         return { id: input.id };
       }),
   }),
@@ -2868,7 +2904,7 @@ export const appRouter = router({
           openingCash: r.openingCash,
           openingBank: r.openingBank,
           closingBank: r.closingBankExpected,
-        });
+        }).catch(rethrowLedgerError);
         if (!result) {
           throw new TRPCError({
             code: "CONFLICT",

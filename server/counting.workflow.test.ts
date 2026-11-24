@@ -495,13 +495,23 @@ describeDb(
       expect(await balanceOf(localFundId)).toBe(1000);
     });
 
-    it("restores the balance when an offering is voided", async () => {
-      await treasurerCaller().offerings.delete({ id: offeringId });
-      expect(await balanceOf(localFundId)).toBe(-500);
+    // The fund holds 1,000 (1,500 in, 500 out). Voiding the offering would
+    // take 1,500 out, which would leave -500. Negative balances are refused,
+    // so the void is blocked and nothing changes.
+    it("refuses to void an offering that would take the fund below zero", async () => {
+      await expect(
+        treasurerCaller().offerings.delete({ id: offeringId })
+      ).rejects.toMatchObject({ code: "CONFLICT" });
+      expect(await balanceOf(localFundId)).toBe(1000);
     });
 
     it("restores the balance when an expense is voided", async () => {
       await treasurerCaller().expenses.delete({ id: expenseId });
+      expect(await balanceOf(localFundId)).toBe(1500);
+    });
+
+    it("voids the offering once the fund can cover it", async () => {
+      await treasurerCaller().offerings.delete({ id: offeringId });
       expect(await balanceOf(localFundId)).toBe(0);
     });
   }

@@ -22,6 +22,14 @@ import {
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
+  ClosedSessionError,
+  InvalidFundBalanceError,
+  applyFundChanges,
+  auditBeforeAfter,
+  toSatang,
+  type FundChange,
+} from "./ledgerGuards";
+import {
   bankRecords,
   budgetPlans,
   BudgetPlan,
@@ -110,6 +118,51 @@ export const DEFAULT_CHURCH_ID = process.env.CHURCH_ID || "demo-church";
 /** The transaction handle a passed-in `db.transaction` callback receives. */
 type Database = NonNullable<Awaited<ReturnType<typeof getDb>>>;
 type CountingTx = Parameters<Parameters<Database["transaction"]>[0]>[0];
+
+/**
+ * Refuses to touch a record that came from a closed counting session. The
+ * session row is read with FOR SHARE: a concurrent close (an UPDATE of that
+ * row) waits for this transaction, and if the close already committed this
+ * read sees `closed`. Either way an edit cannot slip in behind a close.
+ */
+async function assertSessionNotClosed(
+  tx: CountingTx,
+  sessionId: number | null | undefined,
+  churchId: string
+) {
+  if (!sessionId) return;
+  const rows = await tx
+    .select({ status: countingSessions.status })
+    .from(countingSessions)
+    .where(
+      and(
+        eq(countingSessions.id, sessionId),
+        eq(countingSessions.churchId, churchId)
+      )
+    )
+    .for("share")
+    .limit(1);
+  if (rows[0]?.status === "closed") throw new ClosedSessionError();
+}
+
+/** The counting session an expense was posted from, or null if it has none. */
+async function sessionOfExpense(
+  tx: CountingTx,
+  expenseId: number,
+  churchId: string
+) {
+  const rows = await tx
+    .select({ sessionId: sessionDeductions.sessionId })
+    .from(sessionDeductions)
+    .where(
+      and(
+        eq(sessionDeductions.expenseId, expenseId),
+        eq(sessionDeductions.churchId, churchId)
+      )
+    )
+    .limit(1);
+  return rows[0]?.sessionId ?? null;
+}
 
 // A test tenant reaching production would point every read and write at an
 // empty tenant: the app would serve a church with no members, no funds and no
@@ -461,6 +514,18 @@ export async function listFinanceAccounts(churchId = DEFAULT_CHURCH_ID) {
 }
 
 export async function createFinanceAccount(input: InsertFinanceAccount) {
+  // A fund never starts below zero. The router takes no balance at all, so
+  // this guards every other caller of the function. It runs before the
+  // database is touched.
+  if (input.balance !== undefined && input.balance !== null) {
+    let satang: number;
+    try {
+      satang = toSatang(input.balance);
+    } catch {
+      throw new InvalidFundBalanceError();
+    }
+    if (satang < 0) throw new InvalidFundBalanceError();
+  }
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const result = await db
@@ -979,9 +1044,13 @@ export async function getOfferingById(
   };
 }
 
+/** Who did it and what to record, for an audit entry written with the change. */
+export type LedgerAudit = { userId: number; metadata?: unknown };
+
 export async function createOffering(
   input: Omit<InsertOffering, "churchId">,
-  churchId = DEFAULT_CHURCH_ID
+  churchId = DEFAULT_CHURCH_ID,
+  audit?: LedgerAudit
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -991,25 +1060,38 @@ export async function createOffering(
       .values({ ...input, churchId })
       .returning({ id: offerings.id });
     // Update fund balance in the same transaction as the offering insert.
-    if (input.fundId) {
-      await tx.execute(
-        sql`UPDATE finance_accounts SET balance = balance + ${input.amount} WHERE id = ${input.fundId} AND "churchId" = ${churchId}`
+    await applyFundChanges(tx, churchId, [
+      { fundId: input.fundId, baht: Number(input.amount) },
+    ]);
+    const id = result[0].id;
+    if (audit) {
+      await createAuditLog(
+        {
+          churchId,
+          userId: audit.userId,
+          action: "CREATE",
+          entity: "offering",
+          entityId: id,
+          metadata: audit.metadata,
+        },
+        tx
       );
     }
-    return result[0].id;
+    return id;
   });
 }
 
 export async function updateOffering(
   id: number,
   input: Partial<Omit<InsertOffering, "churchId" | "recordedBy">>,
-  churchId = DEFAULT_CHURCH_ID
+  churchId = DEFAULT_CHURCH_ID,
+  audit?: LedgerAudit
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.transaction(async tx => {
     const existing = await tx
-      .select({ amount: offerings.amount, fundId: offerings.fundId })
+      .select()
       .from(offerings)
       .where(
         and(
@@ -1021,6 +1103,7 @@ export async function updateOffering(
       .for("update")
       .limit(1);
     if (!existing[0]) return null;
+    await assertSessionNotClosed(tx, existing[0].sessionId, churchId);
     const updatedRows = await tx
       .update(offerings)
       .set(input as any)
@@ -1039,14 +1122,25 @@ export async function updateOffering(
         input.amount === undefined ? oldAmount : Number(input.amount);
       const oldFundId = existing[0].fundId;
       const newFundId = input.fundId === undefined ? oldFundId : input.fundId;
-      if (oldFundId)
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance - ${oldAmount} WHERE id = ${oldFundId} AND "churchId" = ${churchId}`
-        );
-      if (newFundId)
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance + ${newAmount} WHERE id = ${newFundId} AND "churchId" = ${churchId}`
-        );
+      // The old amount leaves its fund and the new one enters its fund. Net
+      // per fund, so an edit inside one fund only has to cover the difference.
+      await applyFundChanges(tx, churchId, [
+        { fundId: oldFundId, baht: -oldAmount },
+        { fundId: newFundId, baht: newAmount },
+      ]);
+    }
+    if (audit) {
+      await createAuditLog(
+        {
+          churchId,
+          userId: audit.userId,
+          action: "UPDATE",
+          entity: "offering",
+          entityId: id,
+          metadata: auditBeforeAfter(existing[0], input),
+        },
+        tx
+      );
     }
     return id;
   });
@@ -1700,7 +1794,8 @@ export async function getExpenseById(
 
 export async function createExpense(
   input: Omit<InsertExpense, "churchId">,
-  churchId = DEFAULT_CHURCH_ID
+  churchId = DEFAULT_CHURCH_ID,
+  audit?: LedgerAudit
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -1709,26 +1804,40 @@ export async function createExpense(
       .insert(expenses)
       .values({ ...input, churchId })
       .returning({ id: expenses.id });
-    // Deduct fund balance in the same transaction as the expense insert.
-    if (input.fundId) {
-      await tx.execute(
-        sql`UPDATE finance_accounts SET balance = balance - ${input.amount} WHERE id = ${input.fundId} AND "churchId" = ${churchId}`
+    // Deduct fund balance in the same transaction as the expense insert. A
+    // fund that cannot cover it throws, and the insert rolls back with it.
+    await applyFundChanges(tx, churchId, [
+      { fundId: input.fundId, baht: -Number(input.amount) },
+    ]);
+    const id = result[0].id;
+    if (audit) {
+      await createAuditLog(
+        {
+          churchId,
+          userId: audit.userId,
+          action: "CREATE",
+          entity: "expense",
+          entityId: id,
+          metadata: audit.metadata,
+        },
+        tx
       );
     }
-    return result[0].id;
+    return id;
   });
 }
 
 export async function updateExpense(
   id: number,
   input: Partial<Omit<InsertExpense, "churchId" | "recordedBy">>,
-  churchId = DEFAULT_CHURCH_ID
+  churchId = DEFAULT_CHURCH_ID,
+  audit?: LedgerAudit
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.transaction(async tx => {
     const existing = await tx
-      .select({ amount: expenses.amount, fundId: expenses.fundId })
+      .select()
       .from(expenses)
       .where(
         and(
@@ -1740,6 +1849,11 @@ export async function updateExpense(
       .for("update")
       .limit(1);
     if (!existing[0]) return null;
+    await assertSessionNotClosed(
+      tx,
+      await sessionOfExpense(tx, id, churchId),
+      churchId
+    );
     const updatedRows = await tx
       .update(expenses)
       .set(input as any)
@@ -1758,14 +1872,24 @@ export async function updateExpense(
         input.amount === undefined ? oldAmount : Number(input.amount);
       const oldFundId = existing[0].fundId;
       const newFundId = input.fundId === undefined ? oldFundId : input.fundId;
-      if (oldFundId)
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance + ${oldAmount} WHERE id = ${oldFundId} AND "churchId" = ${churchId}`
-        );
-      if (newFundId)
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance - ${newAmount} WHERE id = ${newFundId} AND "churchId" = ${churchId}`
-        );
+      // The old amount returns to its fund and the new one leaves its fund.
+      await applyFundChanges(tx, churchId, [
+        { fundId: oldFundId, baht: oldAmount },
+        { fundId: newFundId, baht: -newAmount },
+      ]);
+    }
+    if (audit) {
+      await createAuditLog(
+        {
+          churchId,
+          userId: audit.userId,
+          action: "UPDATE",
+          entity: "expense",
+          entityId: id,
+          metadata: auditBeforeAfter(existing[0], input),
+        },
+        tx
+      );
     }
     return id;
   });
@@ -1775,7 +1899,11 @@ export async function deleteExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
   return voidExpense(id, churchId);
 }
 
-export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
+export async function voidOffering(
+  id: number,
+  churchId = DEFAULT_CHURCH_ID,
+  audit?: LedgerAudit
+) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.transaction(async tx => {
@@ -1784,6 +1912,7 @@ export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
         amount: offerings.amount,
         fundId: offerings.fundId,
         status: offerings.status,
+        sessionId: offerings.sessionId,
       })
       .from(offerings)
       .where(
@@ -1796,6 +1925,7 @@ export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
       .for("update")
       .limit(1);
     if (!existing[0] || existing[0].status === "voided") return false;
+    await assertSessionNotClosed(tx, existing[0].sessionId, churchId);
     const updatedRows = await tx
       .update(offerings)
       .set({ status: "voided", voidedAt: new Date() })
@@ -1808,15 +1938,39 @@ export async function voidOffering(id: number, churchId = DEFAULT_CHURCH_ID) {
       )
       .returning({ id: offerings.id });
     if (!updatedRows[0]) return false;
-    if (existing[0].fundId)
-      await tx.execute(
-        sql`UPDATE finance_accounts SET balance = balance - ${Number(existing[0].amount)} WHERE id = ${existing[0].fundId} AND "churchId" = ${churchId}`
+    // Taking the gift back out of the fund must not take the fund below zero.
+    await applyFundChanges(tx, churchId, [
+      { fundId: existing[0].fundId, baht: -Number(existing[0].amount) },
+    ]);
+    if (audit) {
+      await createAuditLog(
+        {
+          churchId,
+          userId: audit.userId,
+          action: "VOID",
+          entity: "offering",
+          entityId: id,
+          metadata: {
+            before: {
+              status: existing[0].status,
+              amount: existing[0].amount,
+              fundId: existing[0].fundId,
+            },
+            after: { status: "voided" },
+          },
+        },
+        tx
       );
+    }
     return true;
   });
 }
 
-export async function voidExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
+export async function voidExpense(
+  id: number,
+  churchId = DEFAULT_CHURCH_ID,
+  audit?: LedgerAudit
+) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   return db.transaction(async tx => {
@@ -1837,6 +1991,11 @@ export async function voidExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
       .for("update")
       .limit(1);
     if (!existing[0] || existing[0].status === "voided") return false;
+    await assertSessionNotClosed(
+      tx,
+      await sessionOfExpense(tx, id, churchId),
+      churchId
+    );
     const updatedRows = await tx
       .update(expenses)
       .set({ status: "voided" })
@@ -1853,6 +2012,26 @@ export async function voidExpense(id: number, churchId = DEFAULT_CHURCH_ID) {
       await tx.execute(
         sql`UPDATE finance_accounts SET balance = balance + ${Number(existing[0].amount)} WHERE id = ${existing[0].fundId} AND "churchId" = ${churchId}`
       );
+    if (audit) {
+      await createAuditLog(
+        {
+          churchId,
+          userId: audit.userId,
+          action: "VOID",
+          entity: "expense",
+          entityId: id,
+          metadata: {
+            before: {
+              status: existing[0].status,
+              amount: existing[0].amount,
+              fundId: existing[0].fundId,
+            },
+            after: { status: "voided" },
+          },
+        },
+        tx
+      );
+    }
     return true;
   });
 }
@@ -2595,15 +2774,23 @@ export async function markAllNotificationsRead(
     );
 }
 
-export async function createAuditLog(input: {
-  churchId?: string;
-  userId: number;
-  action: string;
-  entity: string;
-  entityId?: number | null;
-  metadata?: unknown;
-}) {
-  const db = await getDb();
+/**
+ * Pass the caller's transaction as `tx` to write the entry inside it: if the
+ * entry cannot be written, the financial change it describes rolls back too.
+ * Without `tx` the entry is written on its own, after the fact.
+ */
+export async function createAuditLog(
+  input: {
+    churchId?: string;
+    userId: number;
+    action: string;
+    entity: string;
+    entityId?: number | null;
+    metadata?: unknown;
+  },
+  tx?: CountingTx
+) {
+  const db = tx ?? (await getDb());
   if (!db) throw new Error("Database is not available");
   await db.insert(auditLogs).values({
     churchId: input.churchId ?? DEFAULT_CHURCH_ID,
@@ -3575,6 +3762,12 @@ export async function postCountingSession(
       .from(offeringEnvelopes)
       .where(eq(offeringEnvelopes.sessionId, id));
 
+    // Every fund change of this round, applied together once the rows are in.
+    // Netted per fund, so a fund that takes in more than it pays out in this
+    // round never fails on the order of the loops; a fund the round would
+    // overdraw throws, and the whole post (status, rows, balances) rolls back.
+    const fundChanges: FundChange[] = [];
+
     let offeringCount = 0;
     for (const envelope of envelopeRows) {
       await tx.insert(offerings).values({
@@ -3591,11 +3784,10 @@ export async function postCountingSession(
         notes: envelope.notes,
         recordedBy: envelope.recordedBy,
       });
-      if (envelope.fundId) {
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance + ${envelope.amount} WHERE id = ${envelope.fundId} AND "churchId" = ${churchId}`
-        );
-      }
+      fundChanges.push({
+        fundId: envelope.fundId,
+        baht: Number(envelope.amount),
+      });
       offeringCount += 1;
     }
 
@@ -3625,13 +3817,14 @@ export async function postCountingSession(
         .update(sessionDeductions)
         .set({ expenseId: inserted[0].id })
         .where(eq(sessionDeductions.id, deduction.id));
-      if (deduction.fundId) {
-        await tx.execute(
-          sql`UPDATE finance_accounts SET balance = balance - ${deduction.amount} WHERE id = ${deduction.fundId} AND "churchId" = ${churchId}`
-        );
-      }
+      fundChanges.push({
+        fundId: deduction.fundId,
+        baht: -Number(deduction.amount),
+      });
       deductionCount += 1;
     }
+
+    await applyFundChanges(tx, churchId, fundChanges);
 
     return { offeringCount, deductionCount };
   });
