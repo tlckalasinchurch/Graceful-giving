@@ -244,3 +244,49 @@ describe("the baseline run by a role that does not own every table", () => {
     expect(await indexesOf(pg)).toContain("bank_records_withdrawal_uniq");
   }, 60_000);
 });
+
+describe("the non-negative fund balance constraint", () => {
+  const fund = (balance: string) =>
+    `insert into finance_accounts ("churchId", name, balance) values ('c1', 'กองทุน', '${balance}');`;
+  const CHECK = /finance_accounts_balance_nonneg/;
+
+  it("accepts zero and positive balances and refuses a negative one", async () => {
+    const pg = await newDb();
+    await migrate(drizzle(pg), { migrationsFolder: folder });
+    await expect(pg.exec(fund("0"))).resolves.toBeDefined();
+    await expect(pg.exec(fund("0.01"))).resolves.toBeDefined();
+    await expect(pg.exec(fund("-0.01"))).rejects.toThrow(CHECK);
+  }, 60_000);
+
+  it("refuses an update that takes a fund below zero, and allows exactly zero", async () => {
+    const pg = await newDb();
+    await migrate(drizzle(pg), { migrationsFolder: folder });
+    await pg.exec(fund("100"));
+    await expect(
+      pg.exec(`update finance_accounts set balance = balance - 100.01`)
+    ).rejects.toThrow(CHECK);
+    await pg.exec(`update finance_accounts set balance = balance - 100`);
+    const { rows } = await pg.query<{ balance: string }>(
+      `select balance from finance_accounts`
+    );
+    expect(Number(rows[0].balance)).toBe(0);
+  }, 60_000);
+
+  it("is refused on a table that already holds a negative balance, and leaves the data alone", async () => {
+    const pg = await newDb();
+    await migrate(drizzle(pg), { migrationsFolder: folder });
+    const sqlText = readFileSync(
+      join(folder, "0005_finance_balance_nonneg.sql"),
+      "utf8"
+    );
+    await pg.exec(
+      `alter table finance_accounts drop constraint finance_accounts_balance_nonneg`
+    );
+    await pg.exec(fund("-5"));
+    await expect(pg.exec(sqlText)).rejects.toThrow(/check constraint/i);
+    const { rows } = await pg.query<{ balance: string }>(
+      `select balance from finance_accounts`
+    );
+    expect(Number(rows[0].balance)).toBe(-5);
+  }, 60_000);
+});

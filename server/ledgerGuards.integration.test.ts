@@ -439,3 +439,47 @@ beforeAll(() => {
     );
   }
 });
+
+/**
+ * The database's own CHECK (finance_accounts_balance_nonneg), reached with raw
+ * SQL that skips the app guard. Needs migration 0005 applied to the test
+ * database (`pnpm db:migrate`).
+ */
+describeDb("the database refuses a negative fund balance on its own", () => {
+  const CHECK_VIOLATION = /finance_accounts_balance_nonneg|check constraint/i;
+
+  it("rejects a raw debit that would go below zero and keeps the balance", async () => {
+    const fund = await fundWith(50);
+    await expect(
+      rows(
+        sql`UPDATE finance_accounts SET balance = balance - 50.01 WHERE id = ${fund}`
+      )
+    ).rejects.toThrow(CHECK_VIOLATION);
+    expect(await balanceOf(fund)).toBe(50);
+  });
+
+  it("allows a raw debit down to exactly zero", async () => {
+    const fund = await fundWith(50);
+    await rows(
+      sql`UPDATE finance_accounts SET balance = balance - 50 WHERE id = ${fund}`
+    );
+    expect(await balanceOf(fund)).toBe(0);
+  });
+
+  it("rejects a fund inserted with a negative balance", async () => {
+    await expect(fundWith(-0.01)).rejects.toThrow(CHECK_VIOLATION);
+  });
+
+  it("lets only as many racing raw debits through as the balance covers", async () => {
+    const fund = await fundWith(100);
+    const results = await Promise.allSettled(
+      Array.from({ length: 4 }, () =>
+        rows(
+          sql`UPDATE finance_accounts SET balance = balance - 40 WHERE id = ${fund}`
+        )
+      )
+    );
+    expect(results.filter(r => r.status === "fulfilled")).toHaveLength(2);
+    expect(await balanceOf(fund)).toBe(20);
+  });
+});

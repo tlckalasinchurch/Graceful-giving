@@ -75,6 +75,35 @@ Until the steps below are done, a pull request that adds a migration deploys
 **without** it. Do not merge one, or apply its SQL by hand before the deploy
 and add its row to the record.
 
+### Pending by hand: `0005_finance_balance_nonneg`
+
+Adds `CHECK (balance >= 0)` on `finance_accounts` (the database's own backstop
+for the guard in `server/ledgerGuards.ts`). Production does not migrate on
+deploy, so apply it **before** merging the pull request that adds it:
+
+1. As the table owner (`postgres`), look first. Stop and review the books if
+   the first query returns a row, because the constraint cannot be added then:
+
+   ```sql
+   SELECT id, "churchId", name, balance FROM finance_accounts WHERE balance < 0;
+   SELECT conname FROM pg_constraint
+    WHERE conrelid = 'public.finance_accounts'::regclass AND contype = 'c';
+   ```
+
+2. Run the SQL in `0005_finance_balance_nonneg.sql`. It takes a brief lock on a
+   small table and fails whole if any row is negative.
+3. Record it as in "Recording migrations applied by hand" below: the SHA-256 of
+   the SQL file, and the `when` of its journal entry.
+
+Roll back (data is untouched either way):
+
+```sql
+BEGIN;
+ALTER TABLE finance_accounts DROP CONSTRAINT finance_accounts_balance_nonneg;
+DELETE FROM drizzle."__drizzle_migrations" WHERE hash = '<sha256 of the 0005 file>';
+COMMIT;
+```
+
 To turn the deploy step on, in the Vercel project `graceful-giving`:
 
 1. Add `DATABASE_URL_MIGRATE` for **Production only**, as a Sensitive value:
