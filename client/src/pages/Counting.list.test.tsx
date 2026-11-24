@@ -30,7 +30,23 @@ const sessions = [
     varianceNote: null,
     createdAt: day,
   },
+  {
+    id: 4,
+    serviceDate: "2026-11-08T00:00:00.000Z",
+    serviceRound: 1,
+    status: "verified",
+    notes: "รอบตรวจสอบแล้ว",
+    varianceNote: null,
+    createdAt: day,
+  },
 ];
+
+const auth = vi.hoisted(() => ({ churchRole: "COUNTER" }));
+vi.mock("@/_core/hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: { id: 1, role: "user", churchRole: auth.churchRole },
+  }),
+}));
 
 vi.mock("@/lib/trpc", () => {
   const mutation = {
@@ -70,8 +86,26 @@ import Counting from "./Counting";
 describe("Counting list", () => {
   it("offers 'continue' for the open round and 'summary' for posted and closed ones", () => {
     render(<Counting />);
-    expect(screen.getAllByRole("button", { name: /นับต่อ/ })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /นับต่อ/ })).toHaveLength(2);
     expect(screen.getAllByRole("button", { name: /ดูสรุป/ })).toHaveLength(2);
+  });
+
+  it("hides reset and delete on a verified round from a counter, and keeps them on the open one", () => {
+    auth.churchRole = "COUNTER";
+    render(<Counting />);
+    expect(screen.getAllByRole("button", { name: /นับใหม่/ })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /ลบรอบค้าง/ })).toHaveLength(
+      1
+    );
+  });
+
+  it("shows reset and delete on a verified round to the treasurer", () => {
+    auth.churchRole = "TREASURER";
+    render(<Counting />);
+    expect(screen.getAllByRole("button", { name: /นับใหม่/ })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /ลบรอบค้าง/ })).toHaveLength(
+      2
+    );
   });
 
   it("names the search field, filters by the typed text, and clears it", () => {

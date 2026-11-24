@@ -521,6 +521,15 @@ function assertCanCount(user: User) {
   }
 }
 
+/** A counter reached for a round the finance team has already verified. */
+function verifiedLockedError() {
+  return new TRPCError({
+    code: "FORBIDDEN",
+    message:
+      "รอบนี้ตรวจสอบแล้ว เฉพาะเหรัญญิกหรือผู้ดูแลระบบเท่านั้นที่ลบหรือล้างข้อมูลได้",
+  });
+}
+
 function assertCanVerify(user: User) {
   if (!canVerifyCount(user)) {
     throw new TRPCError({
@@ -2969,8 +2978,11 @@ export const appRouter = router({
               "ไม่สามารถลบรอบที่ลงบัญชีหรือปิดรอบแล้วได้ เพื่อความถูกต้องของระบบบัญชี",
           });
         }
-        const res = await deleteCountingSession(input.id);
+        const res = await deleteCountingSession(input.id, {
+          canTouchVerified: canVerifyCount(ctx.user),
+        });
         if (!res.success) {
+          if (res.reason === "VERIFIED_LOCKED") throw verifiedLockedError();
           throw new TRPCError({
             code: res.reason === "NOT_FOUND" ? "NOT_FOUND" : "BAD_REQUEST",
             message:
@@ -3008,8 +3020,11 @@ export const appRouter = router({
               "ไม่สามารถรีเซ็ตรอบที่ลงบัญชีหรือปิดรอบแล้วได้ เพื่อความถูกต้องของระบบบัญชี",
           });
         }
-        const res = await resetCountingSession(input.id);
+        const res = await resetCountingSession(input.id, {
+          canTouchVerified: canVerifyCount(ctx.user),
+        });
         if (!res.success) {
+          if (res.reason === "VERIFIED_LOCKED") throw verifiedLockedError();
           throw new TRPCError({
             code: res.reason === "NOT_FOUND" ? "NOT_FOUND" : "BAD_REQUEST",
             message:

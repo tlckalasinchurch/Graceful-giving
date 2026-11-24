@@ -3,6 +3,8 @@ import { useSubmitLock } from "@/hooks/useSubmitLock";
 import { isOpenSession } from "./countingStatus";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { canManageFinance } from "@shared/roles";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   EmptyState,
@@ -52,6 +54,7 @@ type FilterTab = "all" | "pending" | "completed";
 export default function Counting() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
+  const { user } = useAuth();
   const [showCreate, setShowCreate] = useState(false);
   const [serviceDate, setServiceDate] = useState(lastSunday());
   const [notes, setNotes] = useState("");
@@ -406,6 +409,9 @@ export default function Counting() {
           <div className="bento-card-static divide-y divide-line overflow-hidden">
             {filteredSessions.map(session => {
               const isUnposted = isOpenSession(session.status);
+              // A verified round is the finance team's to reset or delete.
+              const canWipe =
+                session.status !== "verified" || canManageFinance(user);
 
               return (
                 <div
@@ -464,29 +470,33 @@ export default function Counting() {
                           <ChevronRight className="h-3.5 w-3.5" />
                         </button>
 
-                        {/* Reset / Recount Button */}
-                        <button
-                          type="button"
-                          title="ล้างข้อมูลทั้งหมดในรอบนี้เพื่อเริ่มนับใหม่"
-                          onClick={() => handleResetSession(session)}
-                          disabled={resetSession.isPending}
-                          className="btn-secondary min-h-11 px-3.5 py-2 text-xs disabled:opacity-50"
-                        >
-                          <RotateCcw className="h-3.5 w-3.5" />
-                          <span>นับใหม่</span>
-                        </button>
+                        {canWipe && (
+                          <>
+                            {/* Reset / Recount Button */}
+                            <button
+                              type="button"
+                              title="ล้างข้อมูลทั้งหมดในรอบนี้เพื่อเริ่มนับใหม่"
+                              onClick={() => handleResetSession(session)}
+                              disabled={resetSession.isPending}
+                              className="btn-secondary min-h-11 px-3.5 py-2 text-xs disabled:opacity-50"
+                            >
+                              <RotateCcw className="h-3.5 w-3.5" />
+                              <span>นับใหม่</span>
+                            </button>
 
-                        {/* Delete Session Button */}
-                        <button
-                          type="button"
-                          title="ลบรอบนับเงินค้างนี้อย่างถาวร"
-                          onClick={() => handleDeleteSession(session)}
-                          disabled={deleteSession.isPending}
-                          className="min-h-11 inline-flex items-center gap-1 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          <span>ลบรอบค้าง</span>
-                        </button>
+                            {/* Delete Session Button */}
+                            <button
+                              type="button"
+                              title="ลบรอบนับเงินค้างนี้อย่างถาวร"
+                              onClick={() => handleDeleteSession(session)}
+                              disabled={deleteSession.isPending}
+                              className="min-h-11 inline-flex items-center gap-1 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              <span>ลบรอบค้าง</span>
+                            </button>
+                          </>
+                        )}
                       </>
                     ) : (
                       /* Completed session: View Summary */

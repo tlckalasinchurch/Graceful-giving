@@ -11,7 +11,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { getDb } from "./db";
+import { getDb, postCountingSession, resetCountingSession } from "./db";
 import type { TrpcContext } from "./_core/context";
 import { sql } from "drizzle-orm";
 import { TEST_CHURCH_ID, purgeTenant } from "./test/tenant";
@@ -791,5 +791,184 @@ describeDb("counting workflow: posting carries balances forward", () => {
     }>;
     expect(rows.map(r => r.id)).toEqual([linkedId]);
     expect(rows[0].withdrawalRequestId).toBe(1);
+  });
+});
+
+describeDb("verified rounds: reset and delete", () => {
+  let lockFundId = 0;
+  // One date, one round number per session, so each test owns its round.
+  let nextRound = 0;
+  const lockDate = new Date("2026-08-02T01:00:00.000Z");
+
+  beforeAll(async () => {
+    const db = await getDb();
+    const inserted = await db!.execute(
+      sql`INSERT INTO finance_accounts ("churchId", name, type, balance, "isActive")
+          VALUES (${TEST_CHURCH_ID}, 'กองทุนทดสอบล็อกรอบ', 'general', 0, true)
+          RETURNING id`
+    );
+    lockFundId = (inserted as unknown as Array<{ id: number }>)[0].id;
+  });
+
+  async function roundWithEnvelope(
+    status: "counting" | "counted" | "verified"
+  ): Promise<number> {
+    nextRound += 1;
+    const created = await asCounter().counting.create({
+      serviceDate: lockDate,
+      serviceRound: nextRound,
+    });
+    await asCounter().counting.addEnvelope({
+      sessionId: created.id,
+      fundId: lockFundId,
+      amount: 500,
+      category: "cash",
+      method: "cash",
+      isAnonymous: true,
+    });
+    const db = await getDb();
+    await db!.execute(
+      sql`UPDATE counting_sessions SET status = ${status} WHERE id = ${created.id}`
+    );
+    return created.id;
+  }
+
+  async function sessionState(id: number) {
+    const db = await getDb();
+    const rows = await db!.execute(
+      sql`SELECT s.status,
+                 (SELECT count(*)::int FROM offering_envelopes WHERE "sessionId" = s.id) AS envelopes,
+                 (SELECT count(*)::int FROM offerings WHERE "sessionId" = s.id) AS offerings
+          FROM counting_sessions s WHERE s.id = ${id}`
+    );
+    return (
+      rows as unknown as Array<{
+        status: string;
+        envelopes: number;
+        offerings: number;
+      }>
+    )[0];
+  }
+
+  async function lockFundBalance(): Promise<number> {
+    const db = await getDb();
+    const rows = await db!.execute(
+      sql`SELECT balance FROM finance_accounts WHERE id = ${lockFundId}`
+    );
+    return parseFloat(
+      (rows as unknown as Array<{ balance: string }>)[0].balance
+    );
+  }
+
+  it("refuses a counter's reset of a verified round and changes nothing", async () => {
+    const id = await roundWithEnvelope("verified");
+    await expect(
+      asCounter().counting.resetSession({ id })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(await sessionState(id)).toMatchObject({
+      status: "verified",
+      envelopes: 1,
+    });
+  });
+
+  it("refuses a counter's delete of a verified round and changes nothing", async () => {
+    const id = await roundWithEnvelope("verified");
+    await expect(
+      asCounter().counting.deleteSession({ id })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(await sessionState(id)).toMatchObject({
+      status: "verified",
+      envelopes: 1,
+    });
+  });
+
+  it("lets the treasurer reset a verified round", async () => {
+    const id = await roundWithEnvelope("verified");
+    await expect(
+      asTreasurer().counting.resetSession({ id })
+    ).resolves.toMatchObject({ success: true });
+    expect(await sessionState(id)).toMatchObject({
+      status: "counting",
+      envelopes: 0,
+    });
+  });
+
+  it("lets the treasurer delete a verified round", async () => {
+    const id = await roundWithEnvelope("verified");
+    await expect(
+      asTreasurer().counting.deleteSession({ id })
+    ).resolves.toMatchObject({ success: true });
+    expect(await sessionState(id)).toBeUndefined();
+  });
+
+  it("still lets a counter reset or delete rounds that are counting or counted", async () => {
+    const counting = await roundWithEnvelope("counting");
+    const counted = await roundWithEnvelope("counted");
+    await expect(
+      asCounter().counting.resetSession({ id: counting })
+    ).resolves.toMatchObject({ success: true });
+    await expect(
+      asCounter().counting.deleteSession({ id: counted })
+    ).resolves.toMatchObject({ success: true });
+  });
+
+  it("never lets a reset and a post both win on the same verified round", async () => {
+    for (let i = 0; i < 5; i++) {
+      const id = await roundWithEnvelope("verified");
+      const before = await lockFundBalance();
+      const [posted, wiped] = await Promise.all([
+        postCountingSession(id, treasurer.id, {
+          openingCash: 0,
+          openingBank: 0,
+          closingBank: 0,
+        }),
+        resetCountingSession(id, { canTouchVerified: true }),
+      ]);
+      const state = await sessionState(id);
+      const after = await lockFundBalance();
+      if (posted) {
+        // Post won: the round is posted, its offering is in, the fund took it once.
+        expect(wiped).toMatchObject({
+          success: false,
+          reason: "ALREADY_POSTED",
+        });
+        expect(state).toMatchObject({
+          status: "posted",
+          envelopes: 1,
+          offerings: 1,
+        });
+        expect(after - before).toBe(500);
+      } else {
+        // Reset won: nothing was posted and the fund is untouched.
+        expect(wiped).toMatchObject({ success: true });
+        expect(state).toMatchObject({
+          status: "counting",
+          envelopes: 0,
+          offerings: 0,
+        });
+        expect(after - before).toBe(0);
+      }
+    }
+  });
+
+  it("keeps a verified round whole when a reset races its verification", async () => {
+    for (let i = 0; i < 5; i++) {
+      const id = await roundWithEnvelope("counted");
+      const [verified, wiped] = await Promise.allSettled([
+        asTreasurer().counting.verify({ id }),
+        asCounter().counting.resetSession({ id }),
+      ]);
+      const state = await sessionState(id);
+      if (state.status === "verified") {
+        // Verify landed first; the counter's reset must have been refused.
+        expect(verified.status).toBe("fulfilled");
+        expect(wiped.status).toBe("rejected");
+        expect(state.envelopes).toBe(1);
+      } else {
+        // Reset landed first; verify found a round that was no longer counted.
+        expect(state).toMatchObject({ status: "counting", envelopes: 0 });
+        expect(verified.status).toBe("rejected");
+      }
+    }
   });
 });
