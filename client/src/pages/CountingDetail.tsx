@@ -292,6 +292,11 @@ export default function CountingDetail() {
     detail.session.status === "counted" ||
     detail.session.status === "verified";
 
+  // A verified round is the finance team's to reset or delete; counters keep
+  // the buttons for rounds still being counted.
+  const canWipeSession =
+    detail.session.status !== "verified" || canManageFinance(user);
+
   const handleDeleteThisSession = async () => {
     const confirmed = await Swal.confirm(
       "ยืนยันการลบรอบนับเงินนี้?",
@@ -333,7 +338,7 @@ export default function CountingDetail() {
       action={
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={detail.session.status} />
-          {isUnposted && (
+          {isUnposted && canWipeSession && (
             <>
               <button
                 type="button"

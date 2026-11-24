@@ -2406,6 +2406,9 @@ export async function attachWithdrawalToCounting(
       asc(countingSessions.serviceRound),
       asc(countingSessions.id)
     )
+    // Reset and delete hold this row FOR UPDATE; sharing it here makes the
+    // new bank line and a wipe of the round take turns.
+    .for("share")
     .limit(1);
   if (!target) return null;
 
@@ -3830,8 +3833,12 @@ export async function postCountingSession(
   });
 }
 
+/** Who may wipe a round. A verified round is the finance team's to touch. */
+export type CountingWipeActor = { canTouchVerified: boolean };
+
 export async function deleteCountingSession(
   id: number,
+  actor: CountingWipeActor,
   churchId = DEFAULT_CHURCH_ID
 ) {
   const db = await getDb();
@@ -3847,6 +3854,9 @@ export async function deleteCountingSession(
           eq(countingSessions.churchId, churchId)
         )
       )
+      // The lock keeps the status below true until this transaction ends, so a
+      // post or a verify cannot land in between.
+      .for("update")
       .limit(1);
 
     if (!session[0]) {
@@ -3855,6 +3865,10 @@ export async function deleteCountingSession(
 
     if (session[0].status === "posted" || session[0].status === "closed") {
       return { success: false, reason: "ALREADY_POSTED" as const };
+    }
+
+    if (session[0].status === "verified" && !actor.canTouchVerified) {
+      return { success: false, reason: "VERIFIED_LOCKED" as const };
     }
 
     // A bank line that a withdrawal request produced survives the round; its
@@ -3899,6 +3913,7 @@ export async function deleteCountingSession(
 
 export async function resetCountingSession(
   id: number,
+  actor: CountingWipeActor,
   churchId = DEFAULT_CHURCH_ID
 ) {
   const db = await getDb();
@@ -3914,6 +3929,7 @@ export async function resetCountingSession(
           eq(countingSessions.churchId, churchId)
         )
       )
+      .for("update")
       .limit(1);
 
     if (!session[0]) {
@@ -3922,6 +3938,10 @@ export async function resetCountingSession(
 
     if (session[0].status === "posted" || session[0].status === "closed") {
       return { success: false, reason: "ALREADY_POSTED" as const };
+    }
+
+    if (session[0].status === "verified" && !actor.canTouchVerified) {
+      return { success: false, reason: "VERIFIED_LOCKED" as const };
     }
 
     // Reset child data for a fresh recount, but never a bank line that a
