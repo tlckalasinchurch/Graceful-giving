@@ -15,6 +15,8 @@ import { useSubmitLock } from "@/hooks/useSubmitLock";
 interface EnvelopesTabProps {
   sessionId: number;
   editable: boolean;
+  /** True once the round is posted or closed: its total can no longer change. */
+  final?: boolean;
   envelopes: Array<{
     id: number;
     sessionId: number;
@@ -43,6 +45,7 @@ interface EnvelopesTabProps {
 export function EnvelopesTab({
   sessionId,
   editable,
+  final = false,
   envelopes,
   funds,
   members,
@@ -353,7 +356,9 @@ export function EnvelopesTab({
           </h2>
           <p className="flex items-baseline gap-2">
             <span className="text-base font-medium text-ink-2">รวม</span>
-            <span className="display money text-2xl text-income">
+            <span
+              className={`display money text-2xl text-income${final ? " ledger-total" : ""}`}
+            >
               {fmtBaht(offeringTotal)}
             </span>
           </p>

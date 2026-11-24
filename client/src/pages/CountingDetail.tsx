@@ -448,6 +448,7 @@ export default function CountingDetail() {
             <EnvelopesTab
               sessionId={sessionId}
               editable={editable}
+              final={status === "posted" || status === "closed"}
               envelopes={detail.envelopes}
               funds={funds}
               members={members}

@@ -251,3 +251,17 @@ describe("EnvelopesTab double submit", () => {
     expect(addEnvelope.mutate).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("EnvelopesTab round total", () => {
+  // The double rule marks a closed ledger total, so only a posted or closed
+  // round may carry it.
+  it("draws the ledger rule only when the round is final", () => {
+    renderEnvelopesTab({ editable: false, offeringTotal: 1500, final: true });
+    expect(screen.getByText(/1,500/)).toHaveClass("ledger-total");
+  });
+
+  it("leaves an open round's total without the rule", () => {
+    renderEnvelopesTab({ editable: false, offeringTotal: 1500 });
+    expect(screen.getByText(/1,500/)).not.toHaveClass("ledger-total");
+  });
+});
