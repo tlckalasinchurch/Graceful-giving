@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const submitSlip = vi.fn();
 const submitWithoutSlip = vi.fn();
 const readSlip = vi.fn();
+const createBatch = vi.fn();
 const savePoster = vi.fn();
 // What church.stationPoster returns. Undefined means still loading.
 let posterData: Record<string, string> | undefined;
@@ -83,6 +84,9 @@ vi.mock("@/lib/trpc", () => ({
       create: {
         useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
       },
+      createBatch: {
+        useMutation: () => ({ mutateAsync: createBatch, isPending: false }),
+      },
     },
   },
 }));
@@ -137,6 +141,63 @@ beforeEach(() => {
     bankAccount: "123-4-56789-0",
     bankAccountName: "คริสตจักรทดสอบ",
   };
+});
+
+describe("GivingStation for staff who record straight to the ledger", () => {
+  beforeEach(() => {
+    // jsdom has no scrollIntoView; the error banner scrolls itself into view.
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  /**
+   * Opens the summary as a treasurer with one category (land, usual 1,000).
+   * Staff cannot save several categories straight to the ledger: the checklist
+   * blocks it and points to a slip, so the ledger path carries one line.
+   */
+  async function oneCategoryToSummary() {
+    authUser = treasurer;
+    render(<GivingStation />);
+    fireEvent.click(screen.getByRole("button", { name: /^ถวายทรัพย์ - / }));
+    await pickLand();
+  }
+
+  it("saves the gift in one request, as a transfer dated now", async () => {
+    createBatch.mockResolvedValue({ ids: [1, 2], replayed: false });
+    await oneCategoryToSummary();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "บันทึกรายการถวายเข้าบัญชี" })
+    );
+
+    await waitFor(() => expect(createBatch).toHaveBeenCalledTimes(1));
+    const sent = createBatch.mock.calls[0][0];
+    expect(sent.lines).toEqual([{ category: "land", amount: 1000 }]);
+    expect(sent.fundId).toBe(1);
+    expect(sent.method).toBe("transfer");
+    expect(sent.receiptDate).toBeInstanceOf(Date);
+    expect(typeof sent.submissionKey).toBe("string");
+    expect(sent.submissionKey.length).toBeGreaterThanOrEqual(8);
+  });
+
+  it("sends the same key again when the save failed and the user retries", async () => {
+    createBatch
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce({ ids: [1, 2], replayed: false });
+    await oneCategoryToSummary();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "บันทึกรายการถวายเข้าบัญชี" })
+    );
+    await waitFor(() => expect(createBatch).toHaveBeenCalledTimes(1));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /ลองส่งใหม่อีกครั้ง/ })
+    );
+    await waitFor(() => expect(createBatch).toHaveBeenCalledTimes(2));
+
+    expect(createBatch.mock.calls[1][0].submissionKey).toBe(
+      createBatch.mock.calls[0][0].submissionKey
+    );
+  });
 });
 
 describe("GivingStation for an ordinary member", () => {

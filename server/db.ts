@@ -24,6 +24,7 @@ import postgres from "postgres";
 import {
   ClosedSessionError,
   InvalidFundBalanceError,
+  SubmissionKeyReuseError,
   applyFundChanges,
   auditBeforeAfter,
   toSatang,
@@ -68,6 +69,7 @@ import {
   ministries,
   notifications,
   offeringEnvelopes,
+  givingSubmissions,
   offerings,
   sessionDeductions,
   sessionDocuments,
@@ -1078,6 +1080,154 @@ export async function createOffering(
       );
     }
     return id;
+  });
+}
+
+/** What the batch writer needs from a database: just a way to open a transaction. */
+type BatchDatabase = {
+  transaction: <T>(run: (tx: CountingTx) => Promise<T>) => Promise<T>;
+};
+
+export type OfferingBatchInput = {
+  /** Chosen by the browser once per submission; a retry sends the same one. */
+  submissionKey: string;
+  fundId: number;
+  lines: Array<{ category: OfferingCategory; amount: number }>;
+  donorName: string | null;
+  donorMemberId: number | null;
+  receiptDate: Date;
+  method: "cash" | "transfer" | "check";
+  notes: string | null;
+};
+
+function batchFingerprint(input: OfferingBatchInput): string {
+  return createHash("sha256")
+    .update(
+      JSON.stringify([
+        input.fundId,
+        input.method,
+        input.donorName,
+        input.lines.map(l => [l.category, toSatang(l.amount)]),
+      ])
+    )
+    .digest("hex");
+}
+
+/**
+ * Saves every line of a split gift, or none of them, exactly once.
+ *
+ * One transaction holds the submission key, every offering, the fund change
+ * and the audit entries. A line that fails rolls the whole gift back, key
+ * included, so the same key can be sent again. The unique key index makes a
+ * second request with the same key wait for the first and then return the
+ * offerings the first one made: `replayed` is true and nothing is written.
+ * A key reused for a different gift, or by another person, is refused.
+ */
+export async function createOfferingsBatch(
+  input: OfferingBatchInput,
+  userId: number,
+  churchId = DEFAULT_CHURCH_ID,
+  database?: BatchDatabase
+): Promise<{ ids: number[]; replayed: boolean }> {
+  const db = database ?? ((await getDb()) as BatchDatabase | null);
+  if (!db) throw new Error("Database is not available");
+  if (input.lines.length === 0) throw new Error("A gift needs at least one line");
+  const fingerprint = batchFingerprint(input);
+
+  return db.transaction(async tx => {
+    const claimed = await tx
+      .insert(givingSubmissions)
+      .values({
+        churchId,
+        submissionKey: input.submissionKey,
+        userId,
+        fingerprint,
+        offeringIds: [],
+      })
+      .onConflictDoNothing({
+        target: [givingSubmissions.churchId, givingSubmissions.submissionKey],
+      })
+      .returning({ id: givingSubmissions.id });
+
+    if (!claimed[0]) {
+      // Another request owns the key and has committed (the unique index made
+      // this insert wait for it). Hand back what it saved.
+      const [existing] = await tx
+        .select({
+          userId: givingSubmissions.userId,
+          fingerprint: givingSubmissions.fingerprint,
+          offeringIds: givingSubmissions.offeringIds,
+        })
+        .from(givingSubmissions)
+        .where(
+          and(
+            eq(givingSubmissions.churchId, churchId),
+            eq(givingSubmissions.submissionKey, input.submissionKey)
+          )
+        )
+        .limit(1);
+      if (
+        !existing ||
+        existing.userId !== userId ||
+        existing.fingerprint !== fingerprint
+      ) {
+        throw new SubmissionKeyReuseError();
+      }
+      return { ids: existing.offeringIds, replayed: true };
+    }
+
+    const ids: number[] = [];
+    for (let index = 0; index < input.lines.length; index += 1) {
+      const line = input.lines[index];
+      const inserted = await tx
+        .insert(offerings)
+        .values({
+          churchId,
+          amount: line.amount.toFixed(2),
+          category: line.category,
+          fundId: input.fundId,
+          donorName: input.donorName,
+          donorMemberId: input.donorMemberId,
+          receiptDate: input.receiptDate,
+          method: input.method,
+          notes: input.notes,
+          recordedBy: userId,
+        })
+        .returning({ id: offerings.id });
+      const id = inserted[0].id;
+      ids.push(id);
+      await createAuditLog(
+        {
+          churchId,
+          userId,
+          action: "CREATE",
+          entity: "offering",
+          entityId: id,
+          metadata: {
+            category: line.category,
+            amount: line.amount,
+            fundId: input.fundId,
+            submissionKey: input.submissionKey,
+            line: index + 1,
+            lines: input.lines.length,
+          },
+        },
+        tx
+      );
+    }
+    // One netted change for the fund: the same total the lines would have
+    // added one by one, applied once inside this transaction.
+    await applyFundChanges(tx, churchId, [
+      {
+        fundId: input.fundId,
+        baht: input.lines.reduce((sum, l) => sum + toSatang(l.amount), 0) / 100,
+      },
+    ]);
+    await tx
+      .update(givingSubmissions)
+      .set({ offeringIds: ids })
+      .where(eq(givingSubmissions.id, claimed[0].id));
+    return { ids, replayed: false };
   });
 }
 

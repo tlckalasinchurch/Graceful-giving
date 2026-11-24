@@ -400,7 +400,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     },
   });
 
-  const createOfferingMutation = trpc.offerings.create.useMutation({
+  // Staff saving straight to the ledger: every line is saved together or not
+  // at all, and a retry with the same key never saves the gift twice.
+  const createBatchMutation = trpc.offerings.createBatch.useMutation({
     onError: err => {
       formToast.error(
         TOAST_KEY,
@@ -408,6 +410,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       );
     },
   });
+  const batchKeyRef = useRef<{ signature: string; key: string } | null>(null);
 
   const draftRestored = useRef(false);
   useEffect(() => {
@@ -604,17 +607,25 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           );
           return;
         }
-        for (const line of linesToCreate) {
-          await createOfferingMutation.mutateAsync({
+        // The same key goes out again on a retry of the same gift. A changed
+        // gift gets a new key, so the server never mistakes it for the old one.
+        const signature = JSON.stringify([effectiveFundId, linesToCreate]);
+        if (batchKeyRef.current?.signature !== signature) {
+          batchKeyRef.current = { signature, key: crypto.randomUUID() };
+        }
+        await createBatchMutation.mutateAsync({
+          submissionKey: batchKeyRef.current.key,
+          fundId: effectiveFundId,
+          lines: linesToCreate.map(line => ({
             category: line.category,
             amount: line.amount,
-            fundId: effectiveFundId,
-            method: "transfer",
-            receiptDate: new Date(),
-            donorName: name,
-            notes: "ทำรายการผ่านจุดถวายอัตโนมัติ (GraceBox Station)",
-          });
-        }
+          })),
+          method: "transfer",
+          receiptDate: new Date(),
+          donorName: name,
+          notes: "ทำรายการผ่านจุดถวายอัตโนมัติ (GraceBox Station)",
+        });
+        batchKeyRef.current = null;
         void Promise.all([
           utils.offerings.list.invalidate(),
           utils.finance.summary.invalidate(),
@@ -711,7 +722,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
   const isSubmitting =
     submitSlipMutation.isPending ||
     submitNoSlipMutation.isPending ||
-    createOfferingMutation.isPending ||
+    createBatchMutation.isPending ||
     isCompressing;
 
   const shownStep: FlowStep = step === 4 && !submission ? 1 : step;
