@@ -286,12 +286,12 @@ export default function NewExpense() {
             <div className="space-y-2">
               <label
                 htmlFor="expense-amount"
-                className="text-sm font-extrabold text-ink"
+                className="text-sm font-semibold text-ink"
               >
                 จำนวนเงิน (บาท) <span className="text-danger">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-extrabold text-danger">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-semibold text-danger">
                   ฿
                 </span>
                 <input
@@ -313,7 +313,7 @@ export default function NewExpense() {
                     if (errors.amount)
                       setErrors(current => ({ ...current, amount: undefined }));
                   }}
-                  className={`w-full pl-12 pr-4 py-4 rounded-xl border focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/25 bg-surface money text-3xl font-extrabold text-ink placeholder:text-ink-3 ${errors.amount ? "border-danger" : "border-line"}`}
+                  className={`w-full pl-12 pr-4 py-4 rounded-xl border focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/25 bg-surface money text-3xl font-semibold text-ink placeholder:text-ink-3 ${errors.amount ? "border-danger" : "border-line"}`}
                 />
               </div>
               <p
@@ -325,7 +325,7 @@ export default function NewExpense() {
               {errors.amount && (
                 <p
                   id="expense-amount-error"
-                  className="text-sm font-bold text-danger"
+                  className="text-sm font-medium text-danger"
                   role="alert"
                 >
                   {errors.amount}
@@ -347,7 +347,7 @@ export default function NewExpense() {
 
             {/* Category Grid */}
             <fieldset className="space-y-2 pt-2 min-w-0 border-0 p-0 m-0">
-              <legend className="text-sm font-extrabold text-ink mb-2.5 p-0">
+              <legend className="text-sm font-semibold text-ink mb-2.5 p-0">
                 หมวดหมู่รายจ่าย <span className="text-danger">*</span>
               </legend>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -381,7 +381,7 @@ export default function NewExpense() {
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-extrabold text-ink">
+                        <p className="text-sm font-semibold text-ink">
                           {cat.label}
                         </p>
                         <p className="text-xs font-medium text-ink-2 line-clamp-1">
@@ -408,7 +408,7 @@ export default function NewExpense() {
               <div className="space-y-2 sm:col-span-2">
                 <label
                   htmlFor="expense-description"
-                  className="text-sm font-extrabold text-ink"
+                  className="text-sm font-semibold text-ink"
                 >
                   ชื่อรายการ / คำอธิบายรายจ่าย{" "}
                   <span className="text-danger">*</span>
@@ -418,7 +418,7 @@ export default function NewExpense() {
                   ref={descriptionRef}
                   type="text"
                   required
-                  placeholder="เช่น ค่าไฟฟ้าประจำเดือน, อุปกรณ์รวีวารศึกษา..."
+                  placeholder="เช่น ค่าไฟฟ้าประจำเดือน, อุปกรณ์รวีวารศึกษา…"
                   value={description}
                   aria-invalid={Boolean(errors.description)}
                   aria-describedby={
@@ -437,7 +437,7 @@ export default function NewExpense() {
                 {errors.description && (
                   <p
                     id="expense-description-error"
-                    className="text-sm font-bold text-danger"
+                    className="text-sm font-medium text-danger"
                     role="alert"
                   >
                     {errors.description}
@@ -448,14 +448,14 @@ export default function NewExpense() {
               <div className="space-y-2">
                 <label
                   htmlFor="newexpense-f0"
-                  className="text-sm font-extrabold text-ink"
+                  className="text-sm font-semibold text-ink"
                 >
                   ผู้รับเงิน / ร้านค้า / องค์กร
                 </label>
                 <input
                   id="newexpense-f0"
                   type="text"
-                  placeholder="เช่น การไฟฟ้านครหลวง, บจก. ซาวด์..."
+                  placeholder="เช่น การไฟฟ้านครหลวง, บจก. ซาวด์…"
                   value={payee}
                   onChange={e => setPayee(e.target.value)}
                   className="neo-input"
@@ -465,7 +465,7 @@ export default function NewExpense() {
               <div className="space-y-2">
                 <label
                   htmlFor="expense-fund"
-                  className="text-sm font-extrabold text-ink"
+                  className="text-sm font-semibold text-ink"
                 >
                   ตัดจ่ายจากกองทุน <span className="text-danger">*</span>
                 </label>
@@ -497,19 +497,19 @@ export default function NewExpense() {
                 {errors.fundId && (
                   <p
                     id="expense-fund-error"
-                    className="text-sm font-bold text-danger"
+                    className="text-sm font-medium text-danger"
                     role="alert"
                   >
                     {errors.fundId}
                   </p>
                 )}
                 {funds.length === 0 && !fundsQuery.isLoading && (
-                  <p className="text-xs font-bold text-danger mt-1">
+                  <p className="text-xs font-medium text-danger mt-1">
                     ยังไม่มีกองทุนในระบบ{" "}
                     <button
                       type="button"
                       onClick={() => setLocation("/funds")}
-                      className="underline font-extrabold hover:text-ink cursor-pointer ml-1"
+                      className="underline font-semibold hover:text-ink cursor-pointer ml-1"
                     >
                       ไปหน้าจัดการกองทุนเพื่อเพิ่มกองทุน
                     </button>
@@ -520,7 +520,7 @@ export default function NewExpense() {
               <div className="space-y-2">
                 <label
                   htmlFor="newexpense-f1"
-                  className="text-sm font-extrabold text-ink"
+                  className="text-sm font-semibold text-ink"
                 >
                   วันที่ทำรายการ
                 </label>
@@ -536,7 +536,7 @@ export default function NewExpense() {
               <div className="space-y-2">
                 <label
                   htmlFor="newexpense-f2"
-                  className="text-sm font-extrabold text-ink"
+                  className="text-sm font-semibold text-ink"
                 >
                   เลขที่ใบเสร็จ / ใบแจ้งหนี้ (ถ้ามี)
                 </label>
@@ -553,14 +553,14 @@ export default function NewExpense() {
               <div className="space-y-2 sm:col-span-2">
                 <label
                   htmlFor="newexpense-f3"
-                  className="text-sm font-extrabold text-ink"
+                  className="text-sm font-semibold text-ink"
                 >
                   หมายเหตุเพิ่มเติม / วัตถุประสงค์
                 </label>
                 <textarea
                   id="newexpense-f3"
                   rows={2}
-                  placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับการตรวจสอบบัญชี..."
+                  placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับการตรวจสอบบัญชี…"
                   value={details}
                   onChange={e => setDetails(e.target.value)}
                   className="neo-input"
@@ -582,7 +582,7 @@ export default function NewExpense() {
               <div className="p-6 rounded-xl bg-paper-2 border border-line flex items-center gap-4">
                 <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin motion-reduce:animate-none flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-bold text-ink">
+                  <p className="text-sm font-medium text-ink">
                     กำลังอัปโหลดไฟล์…
                   </p>
                   <p className="text-xs font-medium text-ink-3">
@@ -608,7 +608,7 @@ export default function NewExpense() {
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-extrabold text-ink">
+                      <p className="text-sm font-semibold text-ink">
                         {receiptUrl ? "อัปโหลดสำเร็จแล้ว" : "แนบไฟล์เรียบร้อย"}
                       </p>
                       <p className="text-xs font-medium text-ink-3 truncate max-w-[160px]">
@@ -624,7 +624,7 @@ export default function NewExpense() {
                       setReceiptContentType("");
                       setReceiptUrl(null);
                     }}
-                    className="text-xs text-danger hover:underline font-extrabold px-3 py-1.5"
+                    className="text-xs text-danger hover:underline font-semibold px-3 py-1.5"
                   >
                     ลบไฟล์
                   </button>
@@ -634,7 +634,7 @@ export default function NewExpense() {
                     href={receiptUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-bold text-brand hover:underline flex items-center gap-1"
+                    className="text-xs font-medium text-brand hover:underline flex items-center gap-1"
                   >
                     <ImageIcon className="w-3 h-3" />
                     ดูใบเสร็จต้นฉบับ
@@ -646,7 +646,7 @@ export default function NewExpense() {
                 <div className="w-12 h-12 rounded-xl border border-line bg-surface flex items-center justify-center text-brand mb-3">
                   <ImageIcon className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-extrabold text-ink">
+                <p className="text-sm font-semibold text-ink">
                   คลิกเพื่ออัปโหลด หรือลากไฟล์มาวางที่นี่
                 </p>
                 <p className="text-xs font-medium text-ink-3 mt-1">
@@ -681,9 +681,9 @@ export default function NewExpense() {
               <Plus className="w-4 h-4" />
               <span>
                 {isSubmitting
-                  ? "กำลังบันทึก..."
+                  ? "กำลังบันทึก…"
                   : isUploading
-                    ? "กำลังอัปโหลด..."
+                    ? "กำลังอัปโหลด…"
                     : "บันทึกรายจ่าย"}
               </span>
             </button>
@@ -720,23 +720,23 @@ export default function NewExpense() {
               <div className="p-4 rounded-xl bg-paper-2 border border-line text-left space-y-2 text-xs text-ink-2">
                 <div className="flex justify-between">
                   <span className="font-semibold text-ink-3">รายการ:</span>
-                  <span className="font-extrabold text-ink">{description}</span>
+                  <span className="font-semibold text-ink">{description}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-semibold text-ink-3">จำนวนเงิน:</span>
-                  <span className="font-extrabold text-danger text-sm tabular-nums">
+                  <span className="font-semibold text-danger text-sm tabular-nums">
                     {formatBaht(-parseFloat(amount.replace(/,/g, "") || "0"))}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-semibold text-ink-3">ผู้รับเงิน:</span>
-                  <span className="font-bold text-ink">
+                  <span className="font-medium text-ink">
                     {payee || "ทั่วไป"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-semibold text-ink-3">วันที่:</span>
-                  <span className="font-bold text-ink">
+                  <span className="font-medium text-ink">
                     {new Date(expenseDate).toLocaleDateString(THAI_LOCALE)}
                   </span>
                 </div>

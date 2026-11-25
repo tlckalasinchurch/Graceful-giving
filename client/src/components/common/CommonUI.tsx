@@ -1,5 +1,4 @@
 import React from "react";
-import { Illustration } from "@/components/Illustration";
 import { ArrowLeft, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { formatAmount } from "@/lib/format";
 import {
@@ -46,36 +45,17 @@ export const LoadingSkeleton: React.FC<{
 export const EmptyState: React.FC<{
   title: string;
   description: string;
-  illustrationSrc?: string;
-  illustrationAlt?: string;
   actionText?: string;
   onAction?: () => void;
   className?: string;
-}> = ({
-  title,
-  description,
-  illustrationSrc = "/illustrations/offering_box.jpg",
-  illustrationAlt = "กล่องถวาย",
-  actionText,
-  onAction,
-  className = "",
-}) => {
+}> = ({ title, description, actionText, onAction, className = "" }) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center space-y-4 rounded-[20px] border border-dashed border-line bg-surface px-6 py-12 text-center ${className}`}
+      className={`flex flex-col items-center justify-center space-y-4 rounded-[20px] border border-line bg-surface px-6 py-12 text-center ${className}`}
     >
-      <div className="flex size-16 items-center justify-center rounded-2xl bg-paper-2">
-        <Illustration
-          src={illustrationSrc}
-          alt={illustrationAlt}
-          className="size-11 shrink-0 rounded-xl object-cover"
-          width={44}
-          height={44}
-        />
-      </div>
       <div className="max-w-sm space-y-1.5">
         <h3 className="display text-lg text-ink">{title}</h3>
-        <p className="text-sm leading-relaxed text-ink-3">{description}</p>
+        <p className="text-base leading-relaxed text-ink-2">{description}</p>
       </div>
       {actionText && onAction && (
         <button
@@ -263,11 +243,11 @@ export const MoneyDisplay: React.FC<{
     base: { whole: "text-lg font-semibold", satang: "text-sm" },
     md: { whole: "text-xl md:text-2xl font-semibold", satang: "text-base" },
     lg: {
-      whole: "text-2xl sm:text-3xl font-bold",
+      whole: "text-2xl sm:text-3xl font-semibold",
       satang: "text-lg",
     },
     xl: {
-      whole: "text-3xl sm:text-4xl font-bold",
+      whole: "text-3xl sm:text-4xl font-semibold",
       satang: "text-xl",
     },
   } as const;
@@ -379,7 +359,7 @@ export const FilterBar: React.FC<{
   onFilterChange?: (id: string) => void;
   className?: string;
 }> = ({
-  searchPlaceholder = "ค้นหา...",
+  searchPlaceholder = "ค้นหา…",
   searchValue,
   onSearchChange,
   filters,
@@ -511,7 +491,7 @@ export const ConfirmDialog: React.FC<{
               variant === "danger" ? "btn-destructive" : "btn-primary"
             }`}
           >
-            {isLoading ? "กำลังดำเนินการ..." : confirmText}
+            {isLoading ? "กำลังดำเนินการ…" : confirmText}
           </button>
         </DialogFooter>
       </DialogContent>
@@ -546,18 +526,17 @@ export const LedgerPagination: React.FC<{
   if (totalCount <= 0) return null;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const buttonClass =
-    "btn-secondary inline-flex min-h-11 items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40";
+    "btn-secondary inline-flex min-h-11 items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40";
   return (
     <nav
       aria-label="เปลี่ยนหน้ารายการ"
       className={`flex flex-col items-center justify-between gap-3 text-xs font-medium text-ink-2 sm:flex-row ${className}`}
     >
       <p aria-live="polite">
-        แสดงหน้า{" "}
-        <span className="font-extrabold text-ink">{pageIndex + 1}</span> จาก{" "}
-        <span className="font-extrabold text-ink">{totalPages}</span> หน้า
+        แสดงหน้า <span className="font-semibold text-ink">{pageIndex + 1}</span>{" "}
+        จาก <span className="font-semibold text-ink">{totalPages}</span> หน้า
         (ข้อมูลทั้งหมด{" "}
-        <span className="font-extrabold text-ink">
+        <span className="font-semibold text-ink">
           {totalCount.toLocaleString()}
         </span>{" "}
         รายการ)

@@ -244,7 +244,7 @@ export default function ComponentsShowcase() {
     <div className="min-h-dvh bg-ground text-ink py-8">
       <main className="container max-w-6xl mx-auto">
         <div className="space-y-2 justify-between flex">
-          <h2 className="text-3xl font-bold tracking-tight mb-6">
+          <h2 className="text-3xl font-semibold tracking-tight mb-6">
             Shadcn/ui Component Library
           </h2>
           <Button variant="outline" size="icon" onClick={toggleTheme}>
@@ -1236,7 +1236,7 @@ export default function ComponentsShowcase() {
                   <Label>Toggle</Label>
                   <div className="flex gap-2">
                     <Toggle aria-label="Toggle italic">
-                      <span className="font-bold">B</span>
+                      <span className="font-medium">B</span>
                     </Toggle>
                     <Toggle aria-label="Toggle italic">
                       <span className="italic">I</span>
@@ -1251,7 +1251,7 @@ export default function ComponentsShowcase() {
                   <Label>Toggle Group</Label>
                   <ToggleGroup type="multiple">
                     <ToggleGroupItem value="bold" aria-label="Toggle bold">
-                      <span className="font-bold">B</span>
+                      <span className="font-medium">B</span>
                     </ToggleGroupItem>
                     <ToggleGroupItem value="italic" aria-label="Toggle italic">
                       <span className="italic">I</span>
@@ -1424,7 +1424,7 @@ export default function ComponentsShowcase() {
                   </div>
                   <div className="rounded-2xl border bg-card p-6 text-center">
                     <FlipText
-                      className="text-3xl font-bold text-brand"
+                      className="text-3xl font-semibold text-brand"
                       loop={false}
                     >
                       Graceful Giving
@@ -1441,7 +1441,7 @@ export default function ComponentsShowcase() {
           {/* JamBox Station — Adapted Giving Kit Section */}
           <section className="space-y-4">
             <h3 className="text-2xl font-semibold">
-              GraceBox Station — Adapted Self-Service Giving & QR Poster Kit
+              Grace Giving station: self-service giving and QR poster kit
             </h3>
             <Card>
               <CardContent className="pt-6 space-y-8">

@@ -265,7 +265,7 @@ export function AdminManager() {
         <div>
           <div className="flex items-center gap-2">
             <Settings2 className="size-5 text-brand" />
-            <h2 className="font-display text-xl font-extrabold text-ink">
+            <h2 className="font-display text-xl font-semibold text-ink">
               จัดการเนื้อหา
             </h2>
           </div>
@@ -295,7 +295,7 @@ export function AdminManager() {
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="ค้นหาชื่อข่าวสารหรือกิจกรรม..."
+          placeholder="ค้นหาชื่อข่าวสารหรือกิจกรรม…"
           className="neo-input w-full py-2.5 pl-10 pr-4 text-xs font-medium text-ink"
         />
       </div>
@@ -316,8 +316,8 @@ export function AdminManager() {
           {/* Admin News List */}
           <div className="rounded-2xl border border-line bg-surface p-4">
             <div className="mb-3 flex items-center justify-between pb-2 border-b border-line">
-              <p className="text-sm font-extrabold text-ink">ข่าวสารทั้งหมด</p>
-              <span className="text-xs font-extrabold text-ink-3">
+              <p className="text-sm font-semibold text-ink">ข่าวสารทั้งหมด</p>
+              <span className="text-xs font-semibold text-ink-3">
                 {filteredNews.length} รายการ
               </span>
             </div>
@@ -333,7 +333,7 @@ export function AdminManager() {
                         <Megaphone className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-extrabold text-ink">
+                        <p className="truncate text-sm font-semibold text-ink">
                           {item.title}
                         </p>
                         <p className="text-xs font-medium text-ink-3">
@@ -359,7 +359,7 @@ export function AdminManager() {
                       <StatusPill status={item.status} />
                       {item.status === "draft" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-extrabold text-income hover:underline"
+                          className="min-h-11 px-2 text-xs font-semibold text-income hover:underline"
                           onClick={() =>
                             setNewsStatus.mutate({
                               id: item.id,
@@ -372,7 +372,7 @@ export function AdminManager() {
                       )}
                       {item.status === "published" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-extrabold text-danger hover:underline"
+                          className="min-h-11 px-2 text-xs font-semibold text-danger hover:underline"
                           onClick={() =>
                             setNewsStatus.mutate({
                               id: item.id,
@@ -388,7 +388,7 @@ export function AdminManager() {
                 ))}
               </div>
             ) : (
-              <p className="py-6 text-center text-xs font-bold text-ink-3">
+              <p className="py-6 text-center text-xs font-medium text-ink-3">
                 ไม่พบข่าวสาร
               </p>
             )}
@@ -397,8 +397,8 @@ export function AdminManager() {
           {/* Admin Events List */}
           <div className="rounded-2xl border border-line bg-surface p-4">
             <div className="mb-3 flex items-center justify-between pb-2 border-b border-line">
-              <p className="text-sm font-extrabold text-ink">กิจกรรมทั้งหมด</p>
-              <span className="text-xs font-extrabold text-ink-3">
+              <p className="text-sm font-semibold text-ink">กิจกรรมทั้งหมด</p>
+              <span className="text-xs font-semibold text-ink-3">
                 {filteredEvents.length} รายการ
               </span>
             </div>
@@ -414,7 +414,7 @@ export function AdminManager() {
                         <CalendarDays className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-extrabold text-ink">
+                        <p className="truncate text-sm font-semibold text-ink">
                           {item.title}
                         </p>
                         <p className="text-xs font-medium text-ink-3">
@@ -440,7 +440,7 @@ export function AdminManager() {
                       <StatusPill status={item.status} />
                       {item.status === "draft" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-extrabold text-income hover:underline"
+                          className="min-h-11 px-2 text-xs font-semibold text-income hover:underline"
                           onClick={() =>
                             setEventStatus.mutate({
                               id: item.id,
@@ -453,7 +453,7 @@ export function AdminManager() {
                       )}
                       {item.status === "published" && (
                         <button
-                          className="min-h-11 px-2 text-xs font-extrabold text-danger hover:underline"
+                          className="min-h-11 px-2 text-xs font-semibold text-danger hover:underline"
                           onClick={() =>
                             setEventStatus.mutate({
                               id: item.id,
@@ -469,7 +469,7 @@ export function AdminManager() {
                 ))}
               </div>
             ) : (
-              <p className="py-6 text-center text-xs font-bold text-ink-3">
+              <p className="py-6 text-center text-xs font-medium text-ink-3">
                 ไม่พบกิจกรรม
               </p>
             )}
@@ -513,7 +513,7 @@ export function AdminManager() {
                     <AlertTriangle className="size-6" />
                   </div>
                   <div>
-                    <DialogTitle className="font-display text-lg font-extrabold text-ink">
+                    <DialogTitle className="font-display text-lg font-semibold text-ink">
                       ยืนยันการลบข่าวสาร
                     </DialogTitle>
                     <DialogDescription className="text-xs font-medium text-ink-2">
@@ -522,7 +522,7 @@ export function AdminManager() {
                   </div>
                 </div>
               </DialogHeader>
-              <p className="mt-3 rounded-xl border border-danger/30 bg-danger/10 p-3 text-xs font-bold text-danger">
+              <p className="mt-3 rounded-xl border border-danger/30 bg-danger/10 p-3 text-xs font-medium text-danger">
                 ต้องการลบ &ldquo;{deletingNews.title}&rdquo; ออกจากระบบหรือไม่?
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -537,9 +537,9 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteNews.isPending}
                   onClick={() => deleteNews.mutate({ id: deletingNews.id })}
-                  className="min-h-11 rounded-xl border border-danger/30 bg-danger py-2.5 text-xs font-extrabold text-white hover:opacity-90 disabled:opacity-60"
+                  className="min-h-11 rounded-xl border border-danger/30 bg-danger py-2.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-60"
                 >
-                  {deleteNews.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
+                  {deleteNews.isPending ? "กำลังลบ…" : "ยืนยันลบ"}
                 </button>
               </div>
             </>
@@ -561,7 +561,7 @@ export function AdminManager() {
                     <AlertTriangle className="size-6" />
                   </div>
                   <div>
-                    <DialogTitle className="font-display text-lg font-extrabold text-ink">
+                    <DialogTitle className="font-display text-lg font-semibold text-ink">
                       ยืนยันการลบกิจกรรม
                     </DialogTitle>
                     <DialogDescription className="text-xs font-medium text-ink-2">
@@ -570,7 +570,7 @@ export function AdminManager() {
                   </div>
                 </div>
               </DialogHeader>
-              <p className="mt-3 rounded-xl border border-danger/30 bg-danger/10 p-3 text-xs font-bold text-danger">
+              <p className="mt-3 rounded-xl border border-danger/30 bg-danger/10 p-3 text-xs font-medium text-danger">
                 ต้องการลบกิจกรรม &ldquo;{deletingEvent.title}&rdquo; หรือไม่?
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -585,9 +585,9 @@ export function AdminManager() {
                   type="button"
                   disabled={deleteEvent.isPending}
                   onClick={() => deleteEvent.mutate({ id: deletingEvent.id })}
-                  className="min-h-11 rounded-xl border border-danger/30 bg-danger py-2.5 text-xs font-extrabold text-white hover:opacity-90 disabled:opacity-60"
+                  className="min-h-11 rounded-xl border border-danger/30 bg-danger py-2.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-60"
                 >
-                  {deleteEvent.isPending ? "กำลังลบ..." : "ยืนยันลบ"}
+                  {deleteEvent.isPending ? "กำลังลบ…" : "ยืนยันลบ"}
                 </button>
               </div>
             </>

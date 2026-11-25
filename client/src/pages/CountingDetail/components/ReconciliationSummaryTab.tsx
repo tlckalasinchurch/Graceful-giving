@@ -262,7 +262,7 @@ export function ReconciliationSummaryTab({
       <div className="bento-card-static overflow-hidden">
         <div className="border-b border-line bg-paper-2 p-4 flex items-center justify-between">
           <div>
-            <h2 className="font-extrabold text-ink text-base">
+            <h2 className="font-semibold text-ink text-base">
               รายการตรวจสอบความพร้อมก่อนลงบัญชี (Pre-Post Checklist)
             </h2>
             <p className="mt-0.5 text-xs font-medium text-ink-2">
@@ -270,7 +270,7 @@ export function ReconciliationSummaryTab({
             </p>
           </div>
           <span
-            className={`px-3 py-1 rounded-xl text-xs font-extrabold border border-line  ${
+            className={`px-3 py-1 rounded-xl text-xs font-semibold border border-line  ${
               pendingChecklist.length === 0
                 ? "bg-tile-mint text-tile-mint-ink"
                 : "bg-tile-peach text-tile-peach-ink"
@@ -308,14 +308,14 @@ export function ReconciliationSummaryTab({
               <div className="flex-1 space-y-0.5">
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`text-sm font-extrabold ${
+                    className={`text-sm font-semibold ${
                       item.passed ? "text-ink" : "text-brand"
                     }`}
                   >
                     {item.title}
                   </span>
                   <span
-                    className={`text-xs font-bold px-2 py-0.5 rounded-md ${
+                    className={`text-xs font-medium px-2 py-0.5 rounded-md ${
                       item.badge?.tone === "warn"
                         ? "bg-tile-sand text-tile-sand-ink"
                         : item.passed
@@ -334,7 +334,7 @@ export function ReconciliationSummaryTab({
                   {item.detail}
                 </p>
                 {item.actionHint && (
-                  <p className="text-xs font-bold text-brand mt-1 flex items-center gap-1">
+                  <p className="text-xs font-medium text-brand mt-1 flex items-center gap-1">
                     <span>คำแนะนำ:</span>
                     <span>{item.actionHint}</span>
                   </p>
@@ -347,7 +347,7 @@ export function ReconciliationSummaryTab({
         {pendingChecklist.length === 0 && reconStatus === "acknowledged" && (
           <div
             role="status"
-            className="border-t border-line bg-tile-sand p-3.5 text-sm font-bold text-tile-sand-ink flex items-start gap-2"
+            className="border-t border-line bg-tile-sand p-3.5 text-sm font-medium text-tile-sand-ink flex items-start gap-2"
           >
             <AlertTriangle className="size-4 shrink-0 mt-0.5" />
             <span>
@@ -359,7 +359,7 @@ export function ReconciliationSummaryTab({
 
         {/* Explain why posting is blocked if incomplete */}
         {pendingChecklist.length > 0 && status === "verified" && (
-          <div className="border-t border-line bg-tile-peach/80 p-3.5 text-xs font-bold text-tile-peach-ink flex items-center gap-2">
+          <div className="border-t border-line bg-tile-peach/80 p-3.5 text-xs font-medium text-tile-peach-ink flex items-center gap-2">
             <AlertTriangle className="size-4 shrink-0" />
             <span>
               ปุ่มลงบัญชีถูกระงับชั่วคราวเนื่องจากยังมีขั้นตอนที่ต้องทำอีก{" "}
@@ -371,7 +371,7 @@ export function ReconciliationSummaryTab({
 
       {/* ── 2. Reconciliation Table (Expected vs. Counted) ── */}
       <div className="bento-card-static overflow-hidden">
-        <h2 className="border-b border-line bg-paper-2 p-4 font-extrabold text-ink">
+        <h2 className="border-b border-line bg-paper-2 p-4 font-semibold text-ink">
           ตารางกระทบยอดเงินถวายและผลต่าง (Reconciliation Table)
         </h2>
         <dl className="divide-y divide-line">
@@ -401,19 +401,19 @@ export function ReconciliationSummaryTab({
               <dt className="text-sm font-medium text-ink-2">
                 {row.label}
                 {"note" in row && row.note && (
-                  <span className="mt-0.5 block text-sm font-bold text-tile-sand-ink">
+                  <span className="mt-0.5 block text-sm font-medium text-tile-sand-ink">
                     {row.note}
                   </span>
                 )}
               </dt>
-              <dd className="text-sm font-extrabold tabular-nums text-ink">
+              <dd className="text-sm font-semibold tabular-nums text-ink">
                 {row.value}
               </dd>
             </div>
           ))}
           <div className="flex items-center justify-between gap-4 bg-paper-2 p-4">
             <div>
-              <dt className="text-sm font-extrabold text-ink">
+              <dt className="text-sm font-semibold text-ink">
                 เงินสดที่นับได้ เทียบกับยอดซองเงินสด
               </dt>
               <p className="text-sm font-medium text-ink-2">
@@ -427,7 +427,7 @@ export function ReconciliationSummaryTab({
           </div>
           <div className="flex items-center justify-between gap-4 bg-paper-2 p-4">
             <div>
-              <dt className="text-sm font-extrabold text-ink">
+              <dt className="text-sm font-semibold text-ink">
                 เงินโอนที่เข้าบัญชีจริง เทียบกับยอดซองเงินโอน
               </dt>
               <p className="text-sm font-medium text-ink-2">
@@ -442,7 +442,7 @@ export function ReconciliationSummaryTab({
           {r.cashOnHandActual !== null && r.cashOnHandActual !== undefined && (
             <div className="flex items-center justify-between gap-4 bg-paper-2 p-4">
               <div>
-                <dt className="text-sm font-extrabold text-ink">
+                <dt className="text-sm font-semibold text-ink">
                   เงินสดในกล่องที่นับได้ เทียบกับยอดที่ควรมี
                 </dt>
                 <p className="text-sm font-medium text-ink-2">
@@ -464,7 +464,7 @@ export function ReconciliationSummaryTab({
           <div className="flex items-start gap-2.5">
             <AlertTriangle className="size-5 shrink-0 text-brand mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-extrabold text-brand">
+              <h3 className="font-semibold text-brand">
                 ยอดยังไม่ตรงกัน (จำเป็นต้องบันทึกคำอธิบายผลต่าง)
               </h3>
               <p className="mt-1 text-sm font-medium text-ink-2 leading-relaxed">
@@ -474,7 +474,7 @@ export function ReconciliationSummaryTab({
                 ลองตรวจที่แท็บ “ซองถวาย” ว่ามีซองที่บันทึกซ้ำ เลขซองซ้ำ
                 หรือยอดผิดหรือไม่ แล้วนับใหม่ได้ก่อนลงบัญชี
               </p>
-              <p className="mt-1 text-sm font-bold text-ink leading-relaxed">
+              <p className="mt-1 text-sm font-medium text-ink leading-relaxed">
                 การจดเหตุผลไม่ได้แก้ตัวเลข ระบบไม่ปรับยอดให้เอง
                 จดไว้เพื่อเป็นหลักฐาน เมื่อมีเหตุผลแล้วจะลงบัญชีได้
                 และยอดที่ลงบัญชีคือยอดตามซองถวาย
@@ -497,7 +497,7 @@ export function ReconciliationSummaryTab({
       )}
 
       {unapprovedDeductions.length > 0 && (
-        <p className="rounded-xl border border-line bg-tile-peach p-4 text-sm font-extrabold text-tile-peach-ink">
+        <p className="rounded-xl border border-line bg-tile-peach p-4 text-sm font-semibold text-tile-peach-ink">
           มีรายการหักเบิกที่ยังไม่ได้รับอนุมัติ {unapprovedDeductions.length}{" "}
           รายการ (ต้องอนุมัติก่อนลงบัญชี)
         </p>
@@ -505,7 +505,7 @@ export function ReconciliationSummaryTab({
 
       {/* ── 4. Workflow Actions ── */}
       <div className="bento-card-static p-5">
-        <h3 className="font-extrabold text-ink">ดำเนินการกับรอบนี้</h3>
+        <h3 className="font-semibold text-ink">ดำเนินการกับรอบนี้</h3>
         <p className="mt-1 text-sm font-medium text-ink-2">
           ลำดับงาน: นับ → ส่งตรวจ → ตรวจสอบและรับรอง → ลงบัญชี → ปิดรอบ
           (ผู้นับไม่สามารถตรวจสอบรอบของตัวเองได้)
@@ -518,7 +518,7 @@ export function ReconciliationSummaryTab({
               disabled={submitCount.isPending}
               className="btn-primary min-h-11 px-5 py-2.5 text-sm disabled:opacity-50 cursor-pointer"
             >
-              {submitCount.isPending ? "กำลังส่ง..." : "ส่งนับให้ตรวจสอบ"}
+              {submitCount.isPending ? "กำลังส่ง…" : "ส่งนับให้ตรวจสอบ"}
             </button>
           )}
           {canManageFinance &&
@@ -529,9 +529,7 @@ export function ReconciliationSummaryTab({
                 disabled={reopenCount.isPending}
                 className="btn-secondary min-h-11 px-5 py-2.5 text-sm disabled:opacity-50 cursor-pointer"
               >
-                {reopenCount.isPending
-                  ? "กำลังดำเนินการ..."
-                  : "ส่งกลับไปนับใหม่"}
+                {reopenCount.isPending ? "กำลังดำเนินการ…" : "ส่งกลับไปนับใหม่"}
               </button>
             )}
           {canManageFinance && status === "counted" && (
@@ -542,10 +540,10 @@ export function ReconciliationSummaryTab({
                 disabled={verify.isPending || isSelfVerifyBlocked}
                 className="btn-primary min-h-11 px-5 py-2.5 text-sm disabled:opacity-50 cursor-pointer"
               >
-                {verify.isPending ? "กำลังรับรองยอด..." : "ตรวจสอบและรับรองยอด"}
+                {verify.isPending ? "กำลังรับรองยอด…" : "ตรวจสอบและรับรองยอด"}
               </button>
               {isSelfVerifyBlocked && (
-                <p className="w-full text-xs font-bold text-brand">
+                <p className="w-full text-xs font-medium text-brand">
                   ผู้ส่งยอดนับไม่สามารถรับรองยอดของตัวเองได้
                   (ต้องให้ผู้ตรวจสอบท่านอื่นกดรับรอง)
                 </p>
@@ -559,7 +557,7 @@ export function ReconciliationSummaryTab({
               disabled={!canPost || post.isPending}
               className="btn-primary min-h-11 px-5 py-2.5 text-sm disabled:opacity-50 cursor-pointer"
             >
-              {post.isPending ? "กำลังลงบัญชี..." : "ลงบัญชีเข้าระบบ"}
+              {post.isPending ? "กำลังลงบัญชี…" : "ลงบัญชีเข้าระบบ"}
             </button>
           )}
           {canManageFinance && status === "posted" && (
@@ -567,9 +565,9 @@ export function ReconciliationSummaryTab({
               type="button"
               onClick={handleClose}
               disabled={close.isPending}
-              className="min-h-11 rounded-xl border border-line bg-ink px-5 py-2.5 text-sm font-extrabold text-white disabled:opacity-50 cursor-pointer"
+              className="min-h-11 rounded-xl border border-line bg-ink px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 cursor-pointer"
             >
-              {close.isPending ? "กำลังปิดรอบ..." : "ปิดรอบถาวร"}
+              {close.isPending ? "กำลังปิดรอบ…" : "ปิดรอบถาวร"}
             </button>
           )}
           {!canManageFinance &&
@@ -580,7 +578,7 @@ export function ReconciliationSummaryTab({
               </p>
             )}
           {status === "closed" && (
-            <p className="text-sm font-extrabold text-income">
+            <p className="text-sm font-semibold text-income">
               รอบนี้ปิดเรียบร้อยแล้ว ข้อมูลถูกล็อกเพื่อการตรวจสอบ
             </p>
           )}
@@ -591,7 +589,7 @@ export function ReconciliationSummaryTab({
         <div className="bento-card-static p-5">
           <div className="flex items-center gap-2 mb-1.5">
             <RotateCcw className="h-4 w-4 text-brand" />
-            <h4 className="font-extrabold text-ink">
+            <h4 className="font-semibold text-ink">
               การจัดการรอบนับเงิน (งานค้าง / เริ่มนับใหม่)
             </h4>
           </div>
@@ -607,16 +605,16 @@ export function ReconciliationSummaryTab({
               className="btn-secondary min-h-11 px-4 py-2 text-xs disabled:opacity-50 cursor-pointer"
             >
               <RotateCcw className="h-4 w-4 text-brand" />
-              <span>ล้างข้อมูลเพื่อนับใหม่ (Recount)</span>
+              <span>ล้างข้อมูลเพื่อนับใหม่</span>
             </button>
             <button
               type="button"
               onClick={handleDeleteThisSession}
               disabled={deleteSessionPending}
-              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-4 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
+              className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-4 py-2 text-xs font-semibold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Trash2 className="h-4 w-4" />
-              <span>ลบรอบนี้ (Delete Session)</span>
+              <span>ลบรอบนี้</span>
             </button>
           </div>
         </div>

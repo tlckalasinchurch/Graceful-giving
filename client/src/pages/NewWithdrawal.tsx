@@ -138,7 +138,7 @@ export default function NewWithdrawal() {
             <div className="space-y-2">
               <label
                 htmlFor="newwithdra-f0"
-                className="text-sm font-extrabold text-ink"
+                className="text-sm font-semibold text-ink"
               >
                 วัตถุประสงค์การเบิก <span className="text-danger">*</span>
               </label>
@@ -162,12 +162,12 @@ export default function NewWithdrawal() {
               <div className="space-y-2">
                 <label
                   htmlFor="newwithdra-f1"
-                  className="text-sm font-extrabold text-ink"
+                  className="text-sm font-semibold text-ink"
                 >
                   จำนวนเงิน (บาท) <span className="text-danger">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-extrabold text-ink-3">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-ink-3">
                     ฿
                   </span>
                   <input
@@ -180,7 +180,7 @@ export default function NewWithdrawal() {
                       setAmount(e.target.value);
                       clearField("amount");
                     }}
-                    className="money w-full min-h-14 pl-10 pr-4 rounded-xl border border-line bg-surface text-2xl font-extrabold text-ink focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 aria-invalid:border-danger"
+                    className="money w-full min-h-14 pl-10 pr-4 rounded-xl border border-line bg-surface text-2xl font-semibold text-ink focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 aria-invalid:border-danger"
                     {...invalidProps("amount")}
                   />
                 </div>
@@ -190,7 +190,7 @@ export default function NewWithdrawal() {
               <div className="space-y-2">
                 <label
                   htmlFor="newwithdra-f2"
-                  className="text-sm font-extrabold text-ink"
+                  className="text-sm font-semibold text-ink"
                 >
                   ความเร่งด่วน
                 </label>
@@ -211,7 +211,7 @@ export default function NewWithdrawal() {
             <div className="space-y-2">
               <label
                 htmlFor="newwithdra-f3"
-                className="text-sm font-extrabold text-ink"
+                className="text-sm font-semibold text-ink"
               >
                 เบิกจากกองทุน <span className="text-danger">*</span>
               </label>
@@ -238,7 +238,7 @@ export default function NewWithdrawal() {
               </NativeSelect>
               <FieldError fieldId={fieldIds.fundId} message={errors.fundId} />
               {funds.length === 0 && (
-                <p className="text-sm font-bold text-danger mt-2">
+                <p className="text-sm font-medium text-danger mt-2">
                   ยังไม่มีกองทุนในระบบ กรุณาเพิ่มกองทุนก่อนยื่นคำขอเบิกเงิน
                 </p>
               )}
@@ -247,7 +247,7 @@ export default function NewWithdrawal() {
             <div className="space-y-2">
               <label
                 htmlFor="newwithdra-f4"
-                className="text-sm font-extrabold text-ink"
+                className="text-sm font-semibold text-ink"
               >
                 หมายเหตุเพิ่มเติม
               </label>
@@ -255,7 +255,7 @@ export default function NewWithdrawal() {
                 id="newwithdra-f4"
                 rows={2}
                 maxLength={DETAILS_MAX_LENGTH}
-                placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับผู้อนุมัติ..."
+                placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับผู้อนุมัติ…"
                 value={details}
                 onChange={e => setDetails(e.target.value)}
                 className="neo-input"
@@ -277,9 +277,7 @@ export default function NewWithdrawal() {
               className="btn-primary min-h-12 px-8 text-sm disabled:opacity-50"
             >
               <Banknote className="w-4 h-4" />
-              <span>
-                {isSubmitting ? "กำลังส่งคำขอ..." : "ยื่นคำขอเบิกเงิน"}
-              </span>
+              <span>{isSubmitting ? "กำลังส่งคำขอ…" : "ยื่นคำขอเบิกเงิน"}</span>
             </button>
           </div>
         </form>

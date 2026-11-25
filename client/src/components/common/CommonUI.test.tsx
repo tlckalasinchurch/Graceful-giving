@@ -25,7 +25,7 @@ describe("CommonUI Components", () => {
   });
 
   describe("EmptyState", () => {
-    it("renders title, description and illustration", () => {
+    it("renders title and description, with no decorative picture", () => {
       render(
         <EmptyState
           title="ไม่พบข้อมูล"
@@ -37,9 +37,7 @@ describe("CommonUI Components", () => {
       expect(
         screen.getByText("ยังไม่มีรายการถวายในระบบขณะนี้")
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole("img", { name: "กล่องถวาย" })
-      ).toBeInTheDocument();
+      expect(screen.queryByRole("img")).toBeNull();
     });
 
     it("renders action button and triggers callback on click", () => {

@@ -1,5 +1,5 @@
 ---
-name: GraceBox — Grace-giving
+name: Grace Giving
 description: Thai church finance ledger — Pastel Consumer Fintech light-default (#f5f7f6 ground, #ffffff surfaces, #141715 ink, #087f5b emerald brand, pale category tiles, 1px hairline borders, 20px cards) with a true-neutral dark mode.
 colors:
   ground: "#f5f7f6"
@@ -42,8 +42,8 @@ typography:
     lineHeight: 1.65
   eyebrow:
     fontFamily: "Manrope, IBM Plex Sans Thai, system-ui, sans-serif"
-    fontSize: "0.8125rem"
-    fontWeight: 600
+    fontSize: "0.875rem"
+    fontWeight: 500
     letterSpacing: "0em"
 rounded:
   sm: "0.375rem"
@@ -94,7 +94,7 @@ components:
     rounded: "{rounded.2xl}"
 ---
 
-# GraceBox — Design System
+# Grace Giving — Design System
 
 ## Overview
 
@@ -121,8 +121,9 @@ Source of truth: `client/src/index.css` (`:root` for Light, `.dark` for Dark). T
 | Text on brand       | `--brand-ink`                          | `#ffffff`             | `#ffffff`                            |
 | Money-in            | `--income`                             | `#087f5b`             | `#3dd68c`                            |
 | Danger              | `--danger` (`--destructive`)           | `#c41c29`             | `#f06565`                            |
-| Lime accent         | `--accent-lime` (`--accent`)           | `#ccf572`             | `#b8f34a`                            |
-| Text on lime        | `--accent-lime-ink`                    | `#253606`             | `#253606`                            |
+| Selected / accent   | `--accent` = `--tile-mint`             | `#dcf7ea`             | `#122a20`                            |
+| Text on accent      | `--accent-foreground` = `--tile-mint-ink` | `#0c633f`          | `#6ee7b7`                            |
+| Lime (legacy, unused as `--accent`) | `--accent-lime` / `--accent-lime-ink` | `#ccf572` / `#253606` | `#b8f34a` / `#253606` |
 | Coral highlight     | `--coral` / `--coral-ink`              | `#ff6b7d` / `#ffffff` | `#ff6b7d` / `#ffffff`                |
 | LINE green          | `--line-brand`                         | `#06c755`             | `#06c755` (not redefined in `.dark`) |
 
@@ -136,13 +137,13 @@ The tokens carry legacy aliases (`clay-*`, `brand-cream/sage/peach/orange`) so o
 
 - **Stacks:** body `"Manrope"` (`--font-sans`), display `"Plus Jakarta Sans" → "Manrope"` (`--font-display`), Thai `"IBM Plex Sans Thai"` in both. Never ship a Thai UI string in only the Latin fonts. `.font-script` declares `"Caveat"`, which the font `@import` does not load, so it falls back to a generic cursive.
 - **Display:** `.display` utility — weight 600, line-height 1.18, normal tracking, lining tabular numerals. At `text-2xl` and larger it tightens to −0.015em. Hierarchy comes from size; do not add `font-bold`/`font-extrabold` on top of `.display`.
-- **Weights:** body 400, labels 500, headings and key amounts 600. 700 and above are not used in new work.
+- **Weights:** body 400, labels 500, headings, buttons and key amounts 600. Nothing in the app uses 700 or above (2026-11-25 sweep: 800/900 became 600; 700 became 600 at `text-lg` and up or on `.display`, 500 below).
 - **Body: `1rem` / 1.65** (set on `body`, not per-component). The root size scales: 16.5px by default, 15.75px under 360px, 17px from 640px, 17.5px from 1024px, 18px from 1440px.
 - **Numbers:** amounts use `.money` (`tabular-nums`) so columns settle without jitter. Small amounts keep normal tracking; `.money` at `text-2xl` and larger tightens to −0.015em.
 - **Ledger total:** `.ledger-total` draws a thin double underline, the way a ledger closes a column. It is the product's one signature detail: use it only on a total that is confirmed or summed, never on an amount still being entered or awaiting review.
 - **Status tiles:** the pastel `--tile-*` pairs carry meaning only. Mint = matched or done, sand = needs checking, peach/rose = error. Plain information sits on `bg-paper-2`.
 - **Labels:** minimum readable text size is 12px (`text-xs`). Avoid arbitrary sub-12px micro-text (`text-[10px]`, `text-[11px]`) on financial ledger interfaces.
-- **Labels & Headings:** the heading carries its own weight; avoid repetitive decorative kicker/eyebrow labels. `.eyebrow` is a lime tab (0.8125rem, 700, uppercase, 2px offset shadow); `.eyebrow-quiet` is the plain variant.
+- **Labels & Headings:** the heading carries its own weight; avoid repetitive decorative kicker/eyebrow labels. `.eyebrow` is plain secondary text (0.875rem, 500, `--ink-2`), never a pill; `.eyebrow-quiet` is the muted variant. Selected states (`bg-accent`) are the pale brand mint, so the app has one green family.
 
 ## Layout
 

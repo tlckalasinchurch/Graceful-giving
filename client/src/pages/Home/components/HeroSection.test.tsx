@@ -22,23 +22,14 @@ describe("HeroSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the scripture quote badge", () => {
+  it("leaves the scripture verse to the sign-in page", () => {
     render(<HeroSection />);
 
-    expect(screen.getByText("2 โครินธ์ 9:7")).toBeInTheDocument();
-    expect(
-      screen.getByText("“ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”")
-    ).toBeInTheDocument();
+    expect(screen.queryByText("2 โครินธ์ 9:7")).toBeNull();
   });
 
-  it("renders the hero illustration with correct alt text", () => {
+  it("shows no decorative picture", () => {
     render(<HeroSection />);
-
-    const img = screen.getByAltText("พระเยซูคริสต์และลูกแกะ");
-    expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute(
-      "src",
-      "/illustrations/hero_jesus_shepherd.jpg"
-    );
+    expect(screen.queryByRole("img")).toBeNull();
   });
 });

@@ -705,9 +705,9 @@ export default function GivingInbox() {
                 <h3 className="text-lg sm:text-xl font-semibold text-ink">
                   ยังไม่มีสลิปเข้ามาในกล่องข้อความ
                 </h3>
-                <p className="mt-1 text-xs sm:text-sm font-medium text-ink-2 leading-relaxed">
-                  สมาชิกสามารถส่งรูปสลิปการโอนผ่าน LINE OA หรือหน้าจุดถวาย
-                  GraceBox ระบบจะตรวจข้อมูลอัตโนมัติแล้วส่งมาให้เหรัญญิกตรวจสอบ
+                <p className="mt-1 text-base font-normal text-ink-2 leading-relaxed">
+                  สมาชิกสามารถส่งรูปสลิปการโอนผ่าน LINE OA หรือหน้าถวายทรัพย์
+                  ระบบจะตรวจข้อมูลอัตโนมัติแล้วส่งมาให้เหรัญญิกตรวจสอบ
                 </p>
               </div>
 
@@ -766,7 +766,7 @@ export default function GivingInbox() {
               />
               <input
                 type="text"
-                placeholder="ค้นหาชื่อผู้โอน, สมาชิก, ยอดเงิน..."
+                placeholder="ค้นหาชื่อผู้โอน, สมาชิก, ยอดเงิน…"
                 aria-label="ค้นหาสลิปจากชื่อผู้โอน สมาชิก หรือยอดเงิน"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -801,7 +801,7 @@ export default function GivingInbox() {
             {/* Slip Cards List */}
             {slipsQuery.isLoading ? (
               <div className="rounded-2xl border border-line bg-surface p-12 text-center text-xs font-medium text-ink-3">
-                กำลังโหลดรายการสลิป...
+                กำลังโหลดรายการสลิป…
               </div>
             ) : filteredSlips.length === 0 ? (
               <div className="rounded-2xl border border-line bg-surface p-10 text-center text-ink-3 space-y-3">
@@ -935,8 +935,11 @@ export default function GivingInbox() {
                         )}
 
                         {slip.status !== "matched" && slip.extractedRef && (
-                          <span className="font-mono text-xs truncate max-w-[130px]">
-                            Ref: {slip.extractedRef}
+                          <span className="text-xs truncate max-w-[130px]">
+                            เลขอ้างอิง{" "}
+                            <span className="font-mono">
+                              {slip.extractedRef}
+                            </span>
                           </span>
                         )}
                       </div>
@@ -1028,7 +1031,7 @@ export default function GivingInbox() {
                           />
                           <span>
                             {rescanMutation.isPending
-                              ? "กำลังอ่านข้อมูล..."
+                              ? "กำลังอ่านข้อมูล…"
                               : "สแกนอ่านข้อมูลใหม่"}
                           </span>
                         </button>
@@ -1224,8 +1227,11 @@ export default function GivingInbox() {
                       </div>
 
                       {currentSlip.extractedRef && (
-                        <div className="pt-1 text-xs font-medium text-ink-3 font-mono truncate">
-                          Ref: {currentSlip.extractedRef}
+                        <div className="pt-1 text-xs font-medium text-ink-3 truncate">
+                          เลขอ้างอิง{" "}
+                          <span className="font-mono">
+                            {currentSlip.extractedRef}
+                          </span>
                         </div>
                       )}
 
@@ -1246,9 +1252,11 @@ export default function GivingInbox() {
                           currentSlip.lineDisplayName ||
                           "—"}
                         {currentSlip.submitterLineId && (
-                          <span className="font-mono text-ink-3 break-all">
-                            {" "}
-                            · LINE ID: {currentSlip.submitterLineId}
+                          <span className="block text-ink-3 break-all">
+                            LINE ID{" "}
+                            <span className="font-mono">
+                              {currentSlip.submitterLineId}
+                            </span>
                           </span>
                         )}
                       </div>
@@ -1301,7 +1309,7 @@ export default function GivingInbox() {
                               type="search"
                               value={memberSearch}
                               onChange={e => setMemberSearch(e.target.value)}
-                              placeholder="พิมพ์ค้นหาสมาชิก หรือเลขซอง..."
+                              placeholder="พิมพ์ค้นหาสมาชิก หรือเลขซอง…"
                               aria-label="ค้นหาสมาชิกผู้ถวาย"
                               className="w-full rounded-xl border border-line bg-paper-2 px-3 py-2 text-xs font-medium text-ink placeholder:text-ink-3 focus:border-brand focus-visible:outline-none"
                             />
@@ -1570,7 +1578,7 @@ export default function GivingInbox() {
                             {approveMutation.isPending ? (
                               <>
                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>กำลังบันทึกบัญชี...</span>
+                                <span>กำลังบันทึกบัญชี…</span>
                               </>
                             ) : (
                               <>
@@ -1633,7 +1641,7 @@ export default function GivingInbox() {
                         {approveMutation.isPending ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>กำลังบันทึก...</span>
+                            <span>กำลังบันทึก…</span>
                           </>
                         ) : (
                           <>
@@ -1770,7 +1778,7 @@ export default function GivingInbox() {
               className="btn-primary min-h-10 px-5 py-2 text-xs disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
               {uploadSlipMutation.isPending
-                ? "กำลังประมวลผล..."
+                ? "กำลังประมวลผล…"
                 : "ส่งให้ AI อ่านสลิป"}
             </button>
           </div>
@@ -1916,7 +1924,7 @@ export default function GivingInbox() {
               rows={3}
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
-              placeholder="ระบุรายละเอียดเหตุผลการปฏิเสธสลิปนี้..."
+              placeholder="ระบุรายละเอียดเหตุผลการปฏิเสธสลิปนี้…"
               className="neo-input w-full text-sm p-3 resize-none"
             />
           </div>
@@ -1939,7 +1947,7 @@ export default function GivingInbox() {
               {rejectMutation.isPending ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>กำลังปฏิเสธ...</span>
+                  <span>กำลังปฏิเสธ…</span>
                 </>
               ) : (
                 <span>ปฏิเสธรายการ</span>

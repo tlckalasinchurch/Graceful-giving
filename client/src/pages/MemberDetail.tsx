@@ -164,11 +164,11 @@ export default function MemberDetail() {
               <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-line">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-2xl font-extrabold tracking-tight text-ink">
+                    <h1 className="text-2xl font-semibold tracking-tight text-ink">
                       แก้ไขข้อมูลสมาชิก
                     </h1>
                     {query.data.envelopeNo && (
-                      <span className="inline-flex items-center gap-1 rounded-lg border border-brand/40 bg-accent px-2.5 py-0.5 text-xs font-extrabold text-accent-foreground">
+                      <span className="inline-flex items-center gap-1 rounded-lg border border-brand/40 bg-accent px-2.5 py-0.5 text-xs font-semibold text-accent-foreground">
                         <Tag className="size-3.5 text-brand" />
                         ซอง #{query.data.envelopeNo}
                       </span>
@@ -176,7 +176,7 @@ export default function MemberDetail() {
                   </div>
                   <p className="mt-1 text-sm font-medium text-ink-3">
                     สถานะปัจจุบัน:{" "}
-                    <span className="font-extrabold text-ink">
+                    <span className="font-semibold text-ink">
                       {query.data.status === "active"
                         ? "ใช้งานอยู่ (active)"
                         : query.data.status === "inactive"
@@ -224,14 +224,14 @@ export default function MemberDetail() {
                         deactivate.mutate({ id });
                       }
                     }}
-                    className="min-h-11 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 px-4 py-2 text-xs font-extrabold text-danger transition-colors disabled:opacity-50 cursor-pointer"
+                    className="min-h-11 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 px-4 py-2 text-xs font-semibold text-danger transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     ปิดใช้งาน
                   </button>
                 )}
               </div>
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-extrabold text-ink-2">
+                <label className="text-sm font-semibold text-ink-2">
                   ชื่อ-นามสกุล *
                   <input
                     required
@@ -246,7 +246,7 @@ export default function MemberDetail() {
                   />
                   <FieldError fieldId="member-name" message={errors.name} />
                 </label>
-                <label className="text-sm font-extrabold text-ink-2">
+                <label className="text-sm font-semibold text-ink-2">
                   รหัสซองถวายประจำตัว
                   <input
                     id="member-envelope"
@@ -265,7 +265,7 @@ export default function MemberDetail() {
                     message={errors.envelopeNo}
                   />
                 </label>
-                <label className="text-sm font-extrabold text-ink-2">
+                <label className="text-sm font-semibold text-ink-2">
                   โทรศัพท์
                   <input
                     value={phone}
@@ -273,7 +273,7 @@ export default function MemberDetail() {
                     className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                   />
                 </label>
-                <label className="text-sm font-extrabold text-ink-2">
+                <label className="text-sm font-semibold text-ink-2">
                   อีเมล
                   <input
                     type="email"
@@ -288,7 +288,7 @@ export default function MemberDetail() {
                   />
                   <FieldError fieldId="member-email" message={errors.email} />
                 </label>
-                <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
+                <label className="text-sm font-semibold text-ink-2 md:col-span-2">
                   หมายเหตุ
                   <textarea
                     value={notes}
@@ -318,7 +318,7 @@ export default function MemberDetail() {
                       <HandCoins className="size-5" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-extrabold text-ink">
+                      <h2 className="text-lg font-semibold text-ink">
                         ประวัติการถวายของสมาชิก
                       </h2>
                       <p className="text-xs font-medium text-ink-3">
@@ -328,7 +328,7 @@ export default function MemberDetail() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="block text-xs font-bold text-ink-3">
+                    <span className="block text-xs font-medium text-ink-3">
                       ยอดถวายสะสม
                     </span>
                     <MoneyDisplay
@@ -357,7 +357,7 @@ export default function MemberDetail() {
                           className="flex min-h-14 w-full items-center justify-between gap-4 rounded-xl px-3 py-3 text-left transition-colors hover:bg-paper-2"
                         >
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-extrabold text-ink">
+                            <p className="truncate text-sm font-semibold text-ink">
                               {offeringCategoryLabel(o.category)}
                             </p>
                             <p className="text-xs font-medium text-ink-3">

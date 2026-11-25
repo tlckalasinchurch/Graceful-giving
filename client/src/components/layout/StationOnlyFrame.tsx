@@ -24,7 +24,7 @@ export function StationOnlyFrame({
             <Sprout className="size-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <p className="truncate text-base font-bold text-ink">
+            <p className="truncate text-base font-medium text-ink">
               {churchName || "จุดถวายทรัพย์"}
             </p>
             {userName && (
@@ -37,7 +37,7 @@ export function StationOnlyFrame({
         <button
           type="button"
           onClick={onLogout}
-          className="btn-secondary inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-bold focus-visible:ring-2 focus-visible:ring-brand"
+          className="btn-secondary inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-medium focus-visible:ring-2 focus-visible:ring-brand"
         >
           <LogOut className="size-4" aria-hidden="true" />
           <span>ออกจากระบบ</span>
@@ -48,7 +48,7 @@ export function StationOnlyFrame({
         <footer className="mt-8 text-center">
           <a
             href="/privacy"
-            className="text-xs font-bold text-ink-3 underline underline-offset-2 hover:text-ink"
+            className="inline-flex min-h-11 items-center px-2 text-base font-medium text-ink-2 underline underline-offset-2 hover:text-ink"
           >
             นโยบายความเป็นส่วนตัว
           </a>

@@ -133,7 +133,7 @@ export default function Members() {
         {showCreate && (
           <form onSubmit={submit} noValidate className="bento-card p-6">
             <div className="mb-5 flex items-center justify-between pb-3 border-b border-line">
-              <h2 className="font-extrabold text-ink">เพิ่มสมาชิกใหม่</h2>
+              <h2 className="font-semibold text-ink">เพิ่มสมาชิกใหม่</h2>
               <button
                 type="button"
                 aria-label="ปิดแบบฟอร์ม"
@@ -144,7 +144,7 @@ export default function Members() {
               </button>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-extrabold text-ink-2">
+              <label className="text-sm font-semibold text-ink-2">
                 ชื่อ-นามสกุล *
                 <input
                   id="new-member-name"
@@ -160,7 +160,7 @@ export default function Members() {
                 />
                 <FieldError fieldId="new-member-name" message={errors.name} />
               </label>
-              <label className="text-sm font-extrabold text-ink-2">
+              <label className="text-sm font-semibold text-ink-2">
                 รหัสซองถวายประจำตัว (ถ้ามี)
                 <input
                   value={envelopeNo}
@@ -170,7 +170,7 @@ export default function Members() {
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-extrabold text-ink-2">
+              <label className="text-sm font-semibold text-ink-2">
                 โทรศัพท์
                 <input
                   value={phone}
@@ -179,7 +179,7 @@ export default function Members() {
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-extrabold text-ink-2">
+              <label className="text-sm font-semibold text-ink-2">
                 อีเมล
                 <input
                   id="new-member-email"
@@ -195,7 +195,7 @@ export default function Members() {
                 />
                 <FieldError fieldId="new-member-email" message={errors.email} />
               </label>
-              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
+              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
                 หมายเหตุ
                 <textarea
                   value={notes}
@@ -214,7 +214,7 @@ export default function Members() {
           </form>
         )}
         <FilterBar
-          searchPlaceholder="ค้นหาชื่อ, รหัสซองถวาย, เบอร์โทรศัพท์ หรืออีเมลสมาชิก..."
+          searchPlaceholder="ค้นหาชื่อ, รหัสซองถวาย, เบอร์โทรศัพท์ หรืออีเมลสมาชิก…"
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           activeFilter={statusFilter}
@@ -265,22 +265,22 @@ export default function Members() {
                 key={member.id}
                 type="button"
                 onClick={() => setLocation(`/members/${member.id}`)}
-                className="bento-card p-5 text-left transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5"
+                className="bento-card p-5 text-left transition-colors"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h2 className="font-extrabold text-ink truncate">
+                    <h2 className="font-semibold text-ink truncate">
                       {member.name}
                     </h2>
                     {member.envelopeNo && (
-                      <span className="mt-1 inline-flex items-center gap-1 rounded-lg border border-line bg-accent/60 px-2 py-0.5 text-xs font-extrabold text-ink">
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-lg border border-line bg-accent/60 px-2 py-0.5 text-xs font-semibold text-ink">
                         <Tag className="size-3 text-brand" />
                         ซอง #{member.envelopeNo}
                       </span>
                     )}
                   </div>
                   <span
-                    className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${
+                    className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                       member.status === "active"
                         ? "border-line bg-tile-mint text-tile-mint-ink"
                         : member.status === "pending"

@@ -153,7 +153,7 @@ export function BalanceCard({
         {isBalanceLoading ? (
           <span className="text-xs text-ink-3">กำลังตรวจสอบยอดเงินล่าสุด…</span>
         ) : isPositiveBalance ? (
-          <span className="inline-flex items-center gap-2 rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
+          <span className="text-sm font-normal text-ink-2">
             ขอบคุณพระเจ้าสำหรับทุกการถวาย
           </span>
         ) : (

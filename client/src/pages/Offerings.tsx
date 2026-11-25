@@ -11,7 +11,6 @@ import {
   LoadingSkeleton,
   MoneyDisplay,
 } from "@/components/common/CommonUI";
-import { Illustration } from "@/components/Illustration";
 import {
   Calendar,
   Download,
@@ -151,8 +150,8 @@ export default function Offerings() {
 
   const bannerAmount = totalAmount;
   const bannerLabel = isFiltered
-    ? `ยอดถวายรวมตามตัวกรอง (${periodRange.label} · ${totalCount.toLocaleString()} รายการ)`
-    : `ยอดถวายรวม (${periodRange.label} · ${totalCount.toLocaleString()} รายการ)`;
+    ? `ยอดถวายรวมตามตัวกรอง (${periodRange.label}, ${totalCount.toLocaleString()} รายการ)`
+    : `ยอดถวายรวม (${periodRange.label}, ${totalCount.toLocaleString()} รายการ)`;
 
   const exportCSV = async () => {
     try {
@@ -209,7 +208,7 @@ export default function Offerings() {
             ) : (
               <Download className="w-3.5 h-3.5" />
             )}
-            <span>{isExporting ? "กำลังส่งออก..." : "ส่งออก CSV"}</span>
+            <span>{isExporting ? "กำลังส่งออก…" : "ส่งออก CSV"}</span>
           </button>
           <button
             onClick={() => setLocation("/giving/station")}
@@ -230,35 +229,20 @@ export default function Offerings() {
         </div>
       }
     >
-      {/* 1. Header Banner with 3D Offering Box Illustration */}
+      {/* 1. Header: the total for the chosen period */}
       <div className="bento-card p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-2.5 text-center sm:text-left">
-          <div className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
-            <span>{bannerLabel}</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-income">
+          <p className="text-base font-medium text-ink-2">{bannerLabel}</p>
+          <h2 className="text-3xl sm:text-4xl font-semibold text-income">
             <MoneyDisplay amount={bannerAmount} type="income" size="xl" />
           </h2>
-          <p className="text-xs font-medium text-ink-3">
-            “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก” (2 โครินธ์ 9:7)
-          </p>
-        </div>
-
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-paper-2 p-1.5 border border-line shrink-0">
-          <Illustration
-            src="/illustrations/offering_box.jpg"
-            alt="กล่องถวาย"
-            className="w-full h-full object-cover rounded-xl"
-            width={112}
-            height={112}
-          />
         </div>
       </div>
 
       {/* 2. Filter Bar */}
       <div className="bento-card-static p-4 md:p-5 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs font-extrabold text-ink-2">
+          <span className="text-xs font-semibold text-ink-2">
             ช่วงเวลาที่แสดงผล
           </span>
           <div
@@ -276,7 +260,7 @@ export default function Offerings() {
                 type="button"
                 onClick={() => setPeriodFilter(opt.id)}
                 aria-pressed={periodFilter === opt.id}
-                className={`min-h-9 rounded-lg px-3 py-1 text-xs font-extrabold transition-colors ${
+                className={`min-h-9 rounded-lg px-3 py-1 text-xs font-semibold transition-colors ${
                   periodFilter === opt.id
                     ? "bg-accent text-accent-foreground border border-brand/40"
                     : "text-ink-2 hover:bg-surface"
@@ -288,7 +272,7 @@ export default function Offerings() {
           </div>
         </div>
         <FilterBar
-          searchPlaceholder="ค้นหาประเภทถวาย, ชื่อผู้ถวาย, กองทุน หรือเลขอ้างอิง..."
+          searchPlaceholder="ค้นหาประเภทถวาย, ชื่อผู้ถวาย, กองทุน หรือเลขอ้างอิง…"
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           filters={[
@@ -356,15 +340,15 @@ export default function Offerings() {
                     <HandCoins className="w-6 h-6 stroke-[2.2]" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-extrabold text-ink truncate">
+                    <h3 className="text-sm font-semibold text-ink truncate">
                       {o.title}
                     </h3>
-                    <p className="text-xs font-bold text-ink-2 truncate pt-0.5">
+                    <p className="text-xs font-medium text-ink-2 truncate pt-0.5">
                       ผู้ถวาย: {o.donorName}
-                      {o.reference ? ` · #${o.reference}` : ""}
+                      {o.reference ? `, เลขที่ ${o.reference}` : ""}
                     </p>
                     <p className="text-xs font-medium text-ink-3 pt-0.5">
-                      {formatThaiDateTime(o.date)} · {o.method} · {o.fund}
+                      {formatThaiDateTime(o.date)}, {o.method}, {o.fund}
                     </p>
                   </div>
                 </div>

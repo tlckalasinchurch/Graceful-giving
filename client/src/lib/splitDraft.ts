@@ -118,14 +118,14 @@ export function describeLines(
  */
 export function toggleGiveCategory(
   lines: ReadonlyArray<SplitDraft>,
-  category: OfferingCategory,
-  defaultAmount: number
+  category: OfferingCategory
 ): SplitDraft[] {
   if (lines.some(l => l.category === category)) {
     return lines.filter(l => l.category !== category);
   }
   if (lines.length >= MAX_SPLIT_LINES) return [...lines];
-  return [...lines, { category, amount: asText(defaultAmount) }];
+  // Starts empty: the donor types the amount, nothing is filled in for them.
+  return [...lines, { category, amount: "" }];
 }
 
 /**

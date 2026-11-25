@@ -25,7 +25,6 @@ import {
   RecentTransactions,
   type TransactionItem,
 } from "./Home/components/RecentTransactions";
-import { ChurchNewsSheet } from "./Home/components/ChurchNewsSheet";
 import { formatThaiDate } from "@/lib/format";
 import { monthDelta } from "./Home/summaryFormat";
 import { fundPoolSplit, fundShares } from "./Home/fundShares";
@@ -45,9 +44,6 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const [showBalance, setShowBalance] = useState(true);
-
-  // Dialog states
-  const [newsOpen, setNewsOpen] = useState(false);
 
   // The dashboard only offers shortcuts the signed-in role can actually open,
   // so a tile never drops the user on the Restricted Access screen.
@@ -280,12 +276,8 @@ export default function Home() {
           >
             <h2
               id="dashboard-actions"
-              className="flex items-center gap-2 px-1 text-sm font-semibold text-ink-2"
+              className="px-1 text-sm font-semibold text-ink-2"
             >
-              <span
-                className="size-1.5 rounded-full bg-brand"
-                aria-hidden="true"
-              />
               ทำรายการ
             </h2>
             <PrimaryActions
@@ -302,7 +294,7 @@ export default function Home() {
               canOpenMembers={canOpenMembers}
               canOpenGivingGuide={canOpenGivingGuide}
               onOpenMembers={() => setLocation("/members")}
-              onOpenNews={() => setNewsOpen(true)}
+              onOpenNews={() => setLocation("/updates")}
               onOpenWithdrawals={() => setLocation("/withdrawals/new")}
               onOpenGivingGuide={() => setLocation("/giving-guide")}
             />
@@ -348,9 +340,6 @@ export default function Home() {
           )}
         </div>
       </div>
-
-      {/* Sheet: Church News & Announcements */}
-      <ChurchNewsSheet open={newsOpen} onOpenChange={setNewsOpen} />
     </AppLayout>
   );
 }

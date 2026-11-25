@@ -185,7 +185,7 @@ export function FieldError({
   return (
     <span
       id={fieldErrorId(fieldId)}
-      className="mt-1.5 block text-sm font-bold text-danger"
+      className="mt-1.5 block text-sm font-medium text-danger"
     >
       {message}
     </span>

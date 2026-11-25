@@ -40,7 +40,7 @@ export function BudgetSection({
         <h2 className="display text-lg text-ink">แผนการใช้จ่าย</h2>
         <button
           onClick={onOpenBudgets}
-          className="inline-flex min-h-9 items-center rounded-lg px-2.5 text-sm font-bold text-brand transition-colors hover:bg-brand/10 focus-visible:ring-2 focus-visible:ring-brand"
+          className="inline-flex min-h-9 items-center rounded-lg px-2.5 text-sm font-medium text-brand transition-colors hover:bg-brand/10 focus-visible:ring-2 focus-visible:ring-brand"
         >
           ดูงบประมาณ
         </button>
@@ -75,7 +75,7 @@ export function BudgetSection({
             <li key={plan.id} className="space-y-2">
               <div className="flex items-baseline justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-ink">
+                  <p className="truncate text-sm font-medium text-ink">
                     {budgetCategoryLabel(plan.category)}
                   </p>
                   <p className="text-xs text-ink-3">
@@ -83,7 +83,7 @@ export function BudgetSection({
                   </p>
                 </div>
                 <p className="money shrink-0 text-xs sm:text-sm text-ink-2">
-                  <span className="font-bold text-ink">
+                  <span className="font-medium text-ink">
                     {formatBaht(plan.actualAmount)}
                   </span>
                   {" / "}

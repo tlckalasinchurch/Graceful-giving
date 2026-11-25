@@ -32,7 +32,7 @@ const ShortcutTile = forwardRef<HTMLButtonElement, ShortcutProps>(
     {
       label,
       icon: Icon,
-      iconClassName = "bg-ground text-ink-2 border-line",
+      iconClassName = "bg-paper-2 text-ink-2",
       onClick,
       className = "",
       ...rest
@@ -48,7 +48,7 @@ const ShortcutTile = forwardRef<HTMLButtonElement, ShortcutProps>(
       {...rest}
     >
       <span
-        className={`flex size-9 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105 ${iconClassName}`}
+        className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
       >
         <Icon className="size-4.5 shrink-0" />
       </span>
@@ -82,37 +82,25 @@ export function SecondaryMenu({
         <ShortcutTile
           label="สมาชิก"
           icon={UsersRound}
-          iconClassName="bg-tile-mint text-tile-mint-ink"
           onClick={onOpenMembers}
         />
       )}
-      <ShortcutTile
-        label="กิจกรรม"
-        icon={CalendarDays}
-        iconClassName="bg-tile-sand text-tile-sand-ink"
-        onClick={onOpenNews}
-      />
+      <ShortcutTile label="กิจกรรม" icon={CalendarDays} onClick={onOpenNews} />
       <ShortcutTile
         label="ขอเบิกเงิน"
         icon={Banknote}
-        iconClassName="bg-tile-rose text-tile-rose-ink"
         onClick={onOpenWithdrawals}
       />
       {canOpenGivingGuide && (
         <ShortcutTile
           label="ขั้นตอนการถวาย"
           icon={ClipboardList}
-          iconClassName="bg-tile-peach text-tile-peach-ink"
           onClick={onOpenGivingGuide}
         />
       )}
       <div className="col-span-2 @md:col-span-1">
         <AppMenu>
-          <ShortcutTile
-            label="เพิ่มเติม"
-            icon={MoreHorizontal}
-            iconClassName="bg-tile-lilac text-tile-lilac-ink"
-          />
+          <ShortcutTile label="เพิ่มเติม" icon={MoreHorizontal} />
         </AppMenu>
       </div>
     </div>

@@ -4,7 +4,6 @@ import {
   CalendarCheck2,
   ChevronRight,
   CreditCard,
-  HandCoins,
   Play,
   RotateCcw,
   Smartphone,
@@ -34,15 +33,12 @@ export function StationCubeLogo({
         className
       )}
     >
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand text-white">
-        <HandCoins className="size-5" aria-hidden="true" />
-      </span>
       <span className="min-w-0">
         <h1 className="display block truncate text-2xl leading-none text-ink sm:text-3xl">
           {brandTitle}
         </h1>
         {subtitle && (
-          <p className="mt-1 block text-xs font-medium text-ink-3">
+          <p className="mt-1 block text-base font-normal text-ink-2">
             {subtitle}
           </p>
         )}
@@ -89,7 +85,7 @@ export function StationProfileCard({
             className="size-10 shrink-0 rounded-full object-cover border border-line"
           />
         ) : (
-          <div className="grid size-10 shrink-0 place-items-center rounded-full bg-tile-mint text-sm font-bold text-tile-mint-ink">
+          <div className="grid size-10 shrink-0 place-items-center rounded-full bg-tile-mint text-sm font-semibold text-tile-mint-ink">
             {userName.trim().slice(0, 1).toUpperCase() || "G"}
           </div>
         )}
@@ -97,13 +93,13 @@ export function StationProfileCard({
           <span className="block truncate text-sm sm:text-base font-semibold text-ink">
             {userName}
           </span>
-          <span className="text-xs text-ink-3">ผู้ถวาย</span>
+          <span className="text-sm text-ink-3">ผู้ถวาย</span>
         </div>
       </div>
 
       <div className="shrink-0 text-right">
-        <div className="text-xs font-medium text-ink-3">{metricLabel}</div>
-        <div className="text-xs sm:text-sm font-semibold tabular-nums text-brand">
+        <div className="text-sm font-medium text-ink-3">{metricLabel}</div>
+        <div className="text-sm sm:text-base font-semibold tabular-nums text-brand">
           {metricValue}
         </div>
       </div>
@@ -140,12 +136,12 @@ export function StationStatusCard({
             )}
             aria-hidden="true"
           />
-          <span className="text-xs font-semibold text-ink">{label}</span>
+          <span className="text-sm font-semibold text-ink">{label}</span>
         </div>
 
         <span
           className={cn(
-            "text-xs font-semibold",
+            "text-sm font-semibold",
             isAvailable ? "text-income" : "text-danger"
           )}
         >
@@ -153,7 +149,7 @@ export function StationStatusCard({
         </span>
       </div>
 
-      <p className="text-xs text-ink-3 leading-relaxed">{statusDetail}</p>
+      <p className="text-base text-ink-2 leading-relaxed">{statusDetail}</p>
     </div>
   );
 }
@@ -180,40 +176,37 @@ export function StationHeroCTA({
   return (
     <div className={cn("space-y-3 pt-1", className)}>
       <div className="space-y-0.5">
-        <div className="text-xs font-medium text-ink-3">{eyebrow}</div>
-        <h3 className="display text-xl tracking-tight text-ink sm:text-2xl">
-          {headline}
-        </h3>
+        {eyebrow && (
+          <div className="text-sm font-medium text-ink-3">{eyebrow}</div>
+        )}
+        {headline && (
+          <h3 className="display text-xl text-ink sm:text-2xl">{headline}</h3>
+        )}
       </div>
 
       <button
         type="button"
         onClick={onClick}
-        aria-label={`${buttonTitle} - ${buttonSubtitle}`}
-        className="group flex w-full items-center justify-between gap-4 rounded-2xl bg-brand p-5 text-left text-white transition-colors hover:bg-[var(--brand-hover)] active:scale-[0.99] sm:p-6 cursor-pointer"
+        aria-label={
+          buttonSubtitle ? `${buttonTitle} - ${buttonSubtitle}` : undefined
+        }
+        className="flex min-h-14 w-full items-center justify-between gap-4 rounded-xl bg-brand px-5 text-left text-white transition-colors hover:bg-[var(--brand-hover)] active:scale-[0.99] cursor-pointer"
       >
-        <div className="flex min-w-0 items-center gap-4">
-          <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-white/15 text-white sm:size-14">
-            <HandCoins className="size-6 sm:size-7" aria-hidden="true" />
-          </div>
-
-          <div className="min-w-0">
-            <div className="text-xl font-extrabold leading-tight tracking-tight text-white sm:text-2xl">
-              {buttonTitle}
-            </div>
-            <div className="mt-0.5 text-xs sm:text-sm font-semibold text-white/90">
+        <span className="min-w-0">
+          <span className="block text-xl font-semibold leading-tight">
+            {buttonTitle}
+          </span>
+          {buttonSubtitle && (
+            <span className="mt-0.5 block text-base font-normal text-white/90">
               {buttonSubtitle}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-white/15 text-white transition-transform group-hover:translate-x-1 sm:size-11">
-          <ArrowRight className="size-5 stroke-[2.2]" />
-        </div>
+            </span>
+          )}
+        </span>
+        <ArrowRight className="size-5 shrink-0" aria-hidden="true" />
       </button>
 
       {helperText && (
-        <p className="pt-1 text-center text-xs font-medium leading-relaxed text-ink-3 sm:text-sm">
+        <p className="pt-1 text-center text-base font-normal leading-relaxed text-ink-2">
           {helperText}
         </p>
       )}
@@ -293,12 +286,12 @@ export function StationCountdownCard({
       )}
     >
       <div className="space-y-0.5">
-        <div className="text-xs font-medium text-ink-3">{label}</div>
+        <div className="text-sm font-medium text-ink-3">{label}</div>
         <div
           role="timer"
           aria-label={label}
           className={cn(
-            "text-3xl sm:text-4xl font-extrabold tabular-nums tracking-tight",
+            "text-3xl sm:text-4xl font-semibold tabular-nums",
             warning ? "text-danger" : "text-ink"
           )}
         >
@@ -317,7 +310,7 @@ export function StationCountdownCard({
         <button
           type="button"
           onClick={extend}
-          className="btn-secondary min-h-10 px-3 py-1.5 text-xs"
+          className="btn-secondary min-h-11 px-4 py-2 text-sm"
         >
           <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
           <span>ต่อเวลา</span>
@@ -345,10 +338,10 @@ export function StationStepStatusCard({
         className
       )}
     >
-      <div className="text-xs font-medium text-ink-3">{eyebrow}</div>
-      <div className="text-base sm:text-lg font-bold text-ink">{title}</div>
+      <div className="text-sm font-medium text-ink-3">{eyebrow}</div>
+      <div className="text-base sm:text-lg font-semibold text-ink">{title}</div>
       {updatedAtText && (
-        <div className="text-xs text-ink-3">{updatedAtText}</div>
+        <div className="text-sm text-ink-3">{updatedAtText}</div>
       )}
     </div>
   );
@@ -388,10 +381,8 @@ export function StationOfferingPackageCard({
       )}
     >
       <div className="space-y-0.5">
-        <h4 className="text-xl sm:text-2xl font-bold text-ink tracking-tight">
-          {title}
-        </h4>
-        <p className="text-xs sm:text-sm text-ink-2">{subtitle}</p>
+        <h4 className="text-xl sm:text-2xl font-semibold text-ink">{title}</h4>
+        <p className="text-base text-ink-2">{subtitle}</p>
       </div>
 
       {presetAmounts && presetAmounts.length > 0 && onSelectAmount && (
@@ -403,7 +394,7 @@ export function StationOfferingPackageCard({
               onClick={() => onSelectAmount(preset)}
               aria-pressed={amountThb === preset}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
+                "min-h-11 px-4 rounded-full text-base font-medium border transition-colors cursor-pointer tabular-nums focus-visible:ring-2 focus-visible:ring-brand active:scale-95",
                 amountThb === preset
                   ? "border-brand bg-tile-mint text-tile-mint-ink"
                   : "border-line bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
@@ -415,7 +406,7 @@ export function StationOfferingPackageCard({
         </div>
       )}
 
-      <div className="text-2xl sm:text-3xl font-extrabold text-ink tabular-nums">
+      <div className="text-2xl sm:text-3xl font-semibold text-ink tabular-nums">
         {formatAmount(amountThb)} บาท
       </div>
 
@@ -460,10 +451,8 @@ export function StationUnlockConfirmCard({
       )}
     >
       <div className="space-y-1.5">
-        <h3 className="text-lg sm:text-xl font-bold text-ink tracking-tight">
-          {title}
-        </h3>
-        <p className="text-xs sm:text-sm text-ink-2 leading-relaxed max-w-md mx-auto">
+        <h3 className="text-lg sm:text-xl font-semibold text-ink">{title}</h3>
+        <p className="text-base text-ink-2 leading-relaxed max-w-md mx-auto">
           {description}
         </p>
       </div>
@@ -477,7 +466,7 @@ export function StationUnlockConfirmCard({
         aria-busy={loading}
         className="btn-primary w-full py-3.5 px-5 text-sm sm:text-base cursor-pointer disabled:opacity-50"
       >
-        {loading ? "กำลังส่งข้อมูลการถวาย..." : buttonLabel}
+        {loading ? "กำลังส่งข้อมูลการถวาย…" : buttonLabel}
       </button>
     </div>
   );
@@ -655,20 +644,20 @@ export function StationQrPoster({
             />
           </svg>
 
-          <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-none mt-1">
+          <div className="text-4xl sm:text-5xl font-semibold tracking-tight leading-none mt-1">
             <span className="text-ink">{brandPrefix}</span>
             <span className="text-brand">{brandHighlight}</span>
           </div>
 
           <div className="flex items-center justify-center gap-2.5 w-full mt-2">
             <span className="h-[1.5px] w-10 bg-brand/40" />
-            <span className="text-xs font-bold tracking-wide text-ink-3 sm:text-sm">
+            <span className="text-xs font-medium tracking-wide text-ink-3 sm:text-sm">
               {stationSubheader}
             </span>
             <span className="h-[1.5px] w-10 bg-brand/40" />
           </div>
 
-          <div className="mt-2 text-xl sm:text-2xl font-bold tracking-tight">
+          <div className="mt-2 text-xl sm:text-2xl font-semibold tracking-tight">
             <span className="text-ink">{headlineWhite}</span>
             <span className="text-brand">{headlineOrange}</span>
           </div>
@@ -682,7 +671,7 @@ export function StationQrPoster({
 
         {/* Scan Prompt + White QR Card */}
         <div className="space-y-2.5">
-          <div className="text-sm font-bold text-ink sm:text-base">
+          <div className="text-sm font-medium text-ink sm:text-base">
             {scanPrompt}
           </div>
 
@@ -712,7 +701,7 @@ export function StationQrPoster({
                   <div
                     role="img"
                     aria-label="ยังไม่ได้ตั้งค่า QR Code"
-                    className="w-full h-full flex items-center justify-center rounded-lg border-2 border-dashed border-line p-3 text-center text-xs font-bold text-ink-3"
+                    className="w-full h-full flex items-center justify-center rounded-lg border-2 border-dashed border-line p-3 text-center text-xs font-medium text-ink-3"
                   >
                     ยังไม่ได้ตั้งค่าลิงก์ QR Code
                   </div>
@@ -726,7 +715,7 @@ export function StationQrPoster({
                 {/* Center Badge */}
                 {qrCenterBadge && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="rounded-sm border border-[var(--ink)] bg-accent px-1.5 py-0.5 text-xs font-black tracking-tight text-ink">
+                    <span className="rounded-sm border border-[var(--ink)] bg-accent px-1.5 py-0.5 text-xs font-semibold text-ink">
                       {qrCenterBadge}
                     </span>
                   </div>
@@ -752,10 +741,10 @@ export function StationQrPoster({
                     {renderStepIcon(step.icon)}
                   </div>
                   <div className="flex flex-col items-center gap-1 sm:flex-row">
-                    <span className="grid size-4 shrink-0 place-items-center rounded-full border border-line bg-accent text-[10px] font-extrabold text-accent-foreground">
+                    <span className="grid size-4 shrink-0 place-items-center rounded-full border border-line bg-accent text-[10px] font-semibold text-accent-foreground">
                       {step.number}
                     </span>
-                    <span className="break-words text-center text-xs font-bold leading-tight text-ink sm:text-xs">
+                    <span className="break-words text-center text-xs font-medium leading-tight text-ink sm:text-xs">
                       {step.label}
                     </span>
                   </div>
@@ -773,7 +762,7 @@ export function StationQrPoster({
 
         {/* Bottom Callout */}
         <div className="pt-2 space-y-1">
-          <div className="text-xl sm:text-2xl font-bold tracking-tight">
+          <div className="text-xl sm:text-2xl font-semibold tracking-tight">
             <span className="text-ink">{footerLeadWhite} </span>
             <span className="text-brand">{footerLeadOrange}</span>
           </div>

@@ -164,13 +164,13 @@ describe("splitDraft", () => {
 });
 
 describe("toggleGiveCategory and giveTotal (step 2 of the station)", () => {
-  it("adds a tapped category with its usual amount, and removes it on a second tap", () => {
-    const one = toggleGiveCategory([], "tithe", 1000);
-    expect(one).toEqual([{ category: "tithe", amount: "1000" }]);
-    const two = toggleGiveCategory(one, "mission", 500);
+  it("adds a tapped category with no amount filled in, and removes it on a second tap", () => {
+    const one = toggleGiveCategory([], "tithe");
+    expect(one).toEqual([{ category: "tithe", amount: "" }]);
+    const two = toggleGiveCategory(one, "mission");
     expect(two.map(l => l.category)).toEqual(["tithe", "mission"]);
-    expect(toggleGiveCategory(two, "tithe", 1000)).toEqual([
-      { category: "mission", amount: "500" },
+    expect(toggleGiveCategory(two, "tithe")).toEqual([
+      { category: "mission", amount: "" },
     ]);
   });
 

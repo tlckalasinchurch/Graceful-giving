@@ -188,7 +188,7 @@ export function ThemeToggle() {
       ) : (
         <Moon className="size-4 shrink-0 text-ink-3" aria-hidden="true" />
       )}
-      <span>{dark ? "โหมดสว่าง (Light)" : "โหมดมืด (Dark)"}</span>
+      <span>{dark ? "โหมดสว่าง" : "โหมดมืด"}</span>
     </button>
   );
 }
@@ -219,12 +219,12 @@ export function AppMenu({ children }: { children?: ReactNode }) {
       >
         <SheetHeader className="border-b border-line bg-ground p-5 pt-[max(1.25rem,env(safe-area-inset-top))] pr-16">
           <div className="mb-2 flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-brand text-sm font-bold text-white">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-brand text-sm font-medium text-white">
               <Sprout className="size-4.5" aria-hidden="true" />
             </div>
             <div>
-              <span className="font-display text-base font-bold tracking-tight text-ink block leading-none">
-                Grace <span className="text-brand">Giving</span>
+              <span className="font-display text-base font-semibold tracking-tight text-ink block leading-none">
+                Grace <span>Giving</span>
               </span>
               <span className="text-xs font-medium text-ink-3 mt-1 block">
                 การเงินคริสตจักรที่โปร่งใส
@@ -307,9 +307,7 @@ export function AppMenu({ children }: { children?: ReactNode }) {
                     aria-hidden="true"
                   />
                 )}
-                <span>
-                  {theme === "dark" ? "โหมดสว่าง (Light)" : "โหมดมืด (Dark)"}
-                </span>
+                <span>{theme === "dark" ? "โหมดสว่าง" : "โหมดมืด"}</span>
               </div>
               <span className="text-xs text-ink-3 font-medium">
                 {theme === "dark" ? "เปิดอยู่" : "ปิดอยู่"}

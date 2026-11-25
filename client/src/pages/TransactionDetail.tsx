@@ -402,7 +402,7 @@ export default function TransactionDetail() {
                   return;
                 setIsEditing(value => !value);
               }}
-              className="flex min-h-11 items-center gap-1.5 rounded-xl border border-brand/40 bg-tile-mint px-3.5 py-2 text-xs font-extrabold text-tile-mint-ink transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.985]"
+              className="flex min-h-11 items-center gap-1.5 rounded-xl border border-brand/40 bg-tile-mint px-3.5 py-2 text-xs font-semibold text-tile-mint-ink transition-colors hover:bg-accent hover:text-accent-foreground active:scale-[0.985]"
             >
               <Pencil className="w-4 h-4" />
               <span>{isEditing ? "ยกเลิก" : "แก้ไข"}</span>
@@ -429,7 +429,7 @@ export default function TransactionDetail() {
                 if (isExpense) deleteExpense.mutate({ id: recordId });
               }}
               disabled={deleteOffering.isPending || deleteExpense.isPending}
-              className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink transition-colors hover:bg-danger hover:text-white disabled:opacity-50"
+              className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-semibold text-tile-peach-ink transition-colors hover:bg-danger hover:text-white disabled:opacity-50"
             >
               <Ban className="w-4 h-4" />
               <span>ยกเลิกรายการ</span>
@@ -461,7 +461,7 @@ export default function TransactionDetail() {
               role="alert"
               className="space-y-1.5 rounded-xl border border-danger/40 bg-tile-peach p-4 text-tile-peach-ink"
             >
-              <p className="text-base font-extrabold">{voidFailure.title}</p>
+              <p className="text-base font-semibold">{voidFailure.title}</p>
               <p className="text-sm font-medium leading-relaxed">
                 {voidFailure.advice}
               </p>
@@ -483,11 +483,11 @@ export default function TransactionDetail() {
               noValidate
               className="space-y-4 rounded-2xl border border-line bg-paper-2 p-5"
             >
-              <p className="text-sm font-extrabold text-ink">
+              <p className="text-sm font-semibold text-ink">
                 แก้ไขข้อมูลรายการ
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   จำนวนเงิน (บาท) *
                   <input
                     type="number"
@@ -500,12 +500,12 @@ export default function TransactionDetail() {
                       setEditAmount(event.target.value);
                       clearField("amount");
                     }}
-                    className="neo-input mt-1 font-bold tabular-nums"
+                    className="neo-input mt-1 font-medium tabular-nums"
                     {...invalidProps("amount")}
                   />
                   <FieldError fieldId="edit-amount" message={errors.amount} />
                 </label>
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   กองทุน *
                   <select
                     id="edit-fund"
@@ -530,7 +530,7 @@ export default function TransactionDetail() {
                   </select>
                   <FieldError fieldId="edit-fund" message={errors.fundId} />
                 </label>
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   หมวดหมู่ *
                   <select
                     value={editCategory}
@@ -547,7 +547,7 @@ export default function TransactionDetail() {
                     ))}
                   </select>
                 </label>
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   วันที่ทำรายการ *
                   <input
                     type="date"
@@ -564,7 +564,7 @@ export default function TransactionDetail() {
                   <FieldError fieldId="edit-date" message={errors.date} />
                 </label>
                 {isOffering && (
-                  <label className="text-xs font-bold text-ink">
+                  <label className="text-xs font-medium text-ink">
                     ช่องทางรับเงิน
                     <select
                       value={editMethod}
@@ -581,7 +581,7 @@ export default function TransactionDetail() {
                     </select>
                   </label>
                 )}
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   {isOffering
                     ? "เลขอ้างอิง / เลขซอง"
                     : "เลขที่ใบเสร็จ / อ้างอิง"}
@@ -596,7 +596,7 @@ export default function TransactionDetail() {
                     className="neo-input mt-1"
                   />
                 </label>
-                <label className="text-xs font-bold text-ink">
+                <label className="text-xs font-medium text-ink">
                   {isOffering ? "ชื่อผู้ถวาย" : "ผู้รับเงิน / ร้านค้า"}
                   <input
                     value={editPerson}
@@ -610,7 +610,7 @@ export default function TransactionDetail() {
                   />
                 </label>
                 {isOffering && (
-                  <label className="text-xs font-bold text-ink">
+                  <label className="text-xs font-medium text-ink">
                     เชื่อมโยงทะเบียนสมาชิก
                     <select
                       value={editDonorMemberId ?? ""}
@@ -636,7 +636,7 @@ export default function TransactionDetail() {
                     </select>
                   </label>
                 )}
-                <label className="text-xs font-bold text-ink sm:col-span-2">
+                <label className="text-xs font-medium text-ink sm:col-span-2">
                   {isOffering ? "หมายเหตุ" : "ชื่อรายการค่าใช้จ่าย *"}
                   <input
                     required={isExpense}
@@ -655,7 +655,7 @@ export default function TransactionDetail() {
                   <FieldError fieldId="edit-text" message={errors.text} />
                 </label>
                 {isExpense && (
-                  <label className="text-xs font-bold text-ink sm:col-span-2">
+                  <label className="text-xs font-medium text-ink sm:col-span-2">
                     หมายเหตุเพิ่มเติม / วัตถุประสงค์
                     <textarea
                       rows={2}
@@ -678,7 +678,7 @@ export default function TransactionDetail() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-line">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
+                <span className="inline-flex items-center rounded-full bg-paper-2 px-3 py-1 text-sm font-medium text-ink-2">
                   {transaction.type === "income" ? "รายรับ (ถวาย)" : "รายจ่าย"}
                 </span>
                 <StatusBadge status={transaction.status} />
@@ -692,7 +692,7 @@ export default function TransactionDetail() {
               </p>
             </div>
             <div className="text-left sm:text-right">
-              <span className="text-xs font-bold text-ink-3 block">
+              <span className="text-xs font-medium text-ink-3 block">
                 จำนวนเงินสุทธิ
               </span>
               <MoneyDisplay
@@ -735,7 +735,7 @@ export default function TransactionDetail() {
           </div>
           {transaction.notes && (
             <div className="rounded-2xl bg-paper-2 border border-line p-4">
-              <p className="text-xs font-bold text-ink-3">
+              <p className="text-xs font-medium text-ink-3">
                 {transaction.type === "income"
                   ? "หมายเหตุ"
                   : "หมายเหตุเพิ่มเติม / วัตถุประสงค์"}
@@ -750,7 +750,7 @@ export default function TransactionDetail() {
           {transaction.receiptUrl && (
             <div className="rounded-2xl bg-paper-2 border border-line p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-xs font-extrabold text-ink flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-ink flex items-center gap-1.5">
                   <Paperclip className="w-4 h-4 text-brand" />
                   หลักฐานสลิป / ใบเสร็จแนบ (Supabase Storage)
                 </span>
@@ -773,7 +773,7 @@ export default function TransactionDetail() {
                 {transaction.receiptUrl.toLowerCase().includes(".pdf") ? (
                   <div className="text-center p-4">
                     <FileText className="w-12 h-12 text-brand mx-auto mb-2" />
-                    <span className="text-xs font-bold text-ink-2">
+                    <span className="text-xs font-medium text-ink-2">
                       เอกสารแนบ PDF
                     </span>
                     <p className="text-xs text-ink-3 mt-1">
@@ -787,7 +787,7 @@ export default function TransactionDetail() {
                       alt="ตัวอย่างหลักฐานใบเสร็จ"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-bold">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-medium">
                       คลิกเพื่อขยาย
                     </div>
                   </>
@@ -846,8 +846,8 @@ function Detail({
 }) {
   return (
     <div className="bg-paper-2 p-4 rounded-xl border border-line space-y-1">
-      <span className="text-xs font-bold text-ink-3 block">{label}</span>
-      <span className="text-sm font-extrabold text-ink flex items-center gap-1.5">
+      <span className="text-xs font-medium text-ink-3 block">{label}</span>
+      <span className="text-sm font-semibold text-ink flex items-center gap-1.5">
         {icon}
         {value}
       </span>

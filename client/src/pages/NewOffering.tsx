@@ -3,7 +3,6 @@ import { useSubmitLock } from "@/hooks/useSubmitLock";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Illustration } from "@/components/Illustration";
 import {
   confirmDiscardChanges,
   useUnsavedChanges,
@@ -253,21 +252,9 @@ export default function NewOffering() {
       action={<BackLink label="ดูรายการทั้งหมด" onClick={goBack} />}
     >
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Hero Card with offering_box.jpg */}
+        {/* Intro */}
         <div className="bento-card p-6 flex items-center gap-5">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-paper-2 shrink-0">
-            <Illustration
-              src="/illustrations/offering_box.jpg"
-              alt="กล่องถวาย"
-              className="w-full h-full object-cover"
-              width={96}
-              height={96}
-            />
-          </div>
           <div className="space-y-1.5">
-            <span className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
-              การถวายทรัพย์
-            </span>
             <h2 className="display text-lg sm:text-xl text-ink">
               การถวายด้วยความยินดี
             </h2>
@@ -294,7 +281,7 @@ export default function NewOffering() {
           >
             {/* 1. ประเภทถวาย */}
             <fieldset className="space-y-2.5 min-w-0 border-0 p-0 m-0">
-              <legend className="text-sm font-extrabold text-ink mb-2.5 p-0">
+              <legend className="text-sm font-semibold text-ink mb-2.5 p-0">
                 1. เลือกประเภทการถวาย
               </legend>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -306,7 +293,7 @@ export default function NewOffering() {
                     aria-pressed={category === cat.id}
                     className={`min-h-11 px-3 py-2.5 rounded-xl border border-line text-sm text-center transition-colors ${
                       category === cat.id
-                        ? "bg-accent text-accent-foreground font-extrabold "
+                        ? "bg-accent text-accent-foreground font-semibold "
                         : "bg-surface text-ink font-semibold hover:bg-paper-2"
                     }`}
                   >
@@ -320,12 +307,12 @@ export default function NewOffering() {
             <div className="space-y-2.5">
               <label
                 htmlFor="offering-amount"
-                className="text-sm font-extrabold text-ink block"
+                className="text-sm font-semibold text-ink block"
               >
                 2. ระบุจำนวนเงิน (บาท)
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-extrabold text-income">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-semibold text-income">
                   ฿
                 </span>
                 <input
@@ -342,12 +329,12 @@ export default function NewOffering() {
                     clearField("amount");
                   }}
                   placeholder="0.00"
-                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border border-line text-2xl font-extrabold text-income focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 aria-invalid:border-danger"
+                  className="money w-full min-h-14 pl-12 pr-4 rounded-xl bg-surface border border-line text-2xl font-semibold text-income focus-visible:outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 aria-invalid:border-danger"
                 />
               </div>
               <FieldError fieldId="offering-amount" message={errors.amount} />
               {amountReadBack && (
-                <p className="text-base font-extrabold text-income tabular-nums">
+                <p className="text-base font-semibold text-income tabular-nums">
                   จำนวนเงิน {amountReadBack}
                 </p>
               )}
@@ -370,7 +357,7 @@ export default function NewOffering() {
             <div className="space-y-2.5">
               <label
                 htmlFor="offering-fund"
-                className="text-sm font-extrabold text-ink block"
+                className="text-sm font-semibold text-ink block"
               >
                 3. เข้ากองทุน
               </label>
@@ -407,7 +394,7 @@ export default function NewOffering() {
 
             {/* 4. วิธีรับเงิน */}
             <fieldset className="space-y-2.5 min-w-0 border-0 p-0 m-0">
-              <legend className="text-sm font-extrabold text-ink mb-2.5 p-0">
+              <legend className="text-sm font-semibold text-ink mb-2.5 p-0">
                 4. วิธีการรับเงิน
               </legend>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -419,7 +406,7 @@ export default function NewOffering() {
                     aria-pressed={method === m}
                     className={`min-h-11 py-2.5 px-3 rounded-xl border border-line text-sm transition-colors ${
                       method === m
-                        ? "bg-accent text-accent-foreground font-extrabold "
+                        ? "bg-accent text-accent-foreground font-semibold "
                         : "bg-surface text-ink font-semibold hover:bg-paper-2"
                     }`}
                   >
@@ -434,7 +421,7 @@ export default function NewOffering() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="offering-date"
-                  className="text-sm font-extrabold text-ink block"
+                  className="text-sm font-semibold text-ink block"
                 >
                   วันที่รับเงิน
                 </label>
@@ -450,7 +437,7 @@ export default function NewOffering() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="offering-envelope"
-                  className="text-sm font-extrabold text-ink block"
+                  className="text-sm font-semibold text-ink block"
                 >
                   รหัสซองถวาย (ถ้ามี)
                 </label>
@@ -469,7 +456,7 @@ export default function NewOffering() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="offering-donor"
-                  className="text-sm font-extrabold text-ink block"
+                  className="text-sm font-semibold text-ink block"
                 >
                   ชื่อผู้ถวาย (ถ้ามี)
                 </label>
@@ -499,7 +486,7 @@ export default function NewOffering() {
             </div>
 
             {!isAnonymous && matchedMember && (
-              <div className="flex items-center justify-between gap-2 rounded-xl border border-line bg-tile-mint/60 px-3.5 py-2.5 text-xs font-extrabold text-tile-mint-ink">
+              <div className="flex items-center justify-between gap-2 rounded-xl border border-line bg-tile-mint/60 px-3.5 py-2.5 text-xs font-semibold text-tile-mint-ink">
                 <span className="flex items-center gap-1.5">
                   <UserCheck className="size-4 shrink-0 text-brand" />
                   <span>
@@ -536,7 +523,7 @@ export default function NewOffering() {
               />
               <label
                 htmlFor="anon"
-                className="text-xs font-bold text-ink-2 cursor-pointer"
+                className="text-xs font-medium text-ink-2 cursor-pointer"
               >
                 ไม่ระบุชื่อผู้ถวาย (ถวายโดยไม่เปิดเผยนาม)
               </label>
@@ -545,7 +532,7 @@ export default function NewOffering() {
             <div className="space-y-1.5">
               <label
                 htmlFor="offering-notes"
-                className="text-sm font-extrabold text-ink block"
+                className="text-sm font-semibold text-ink block"
               >
                 หมายเหตุ / คำอธิษฐานขอบพระคุณ
               </label>
@@ -564,24 +551,24 @@ export default function NewOffering() {
               aria-label="สรุปก่อนบันทึก"
               className="rounded-xl border border-line bg-paper-2 p-4 space-y-1.5"
             >
-              <h3 className="text-sm font-extrabold text-ink">
+              <h3 className="text-sm font-semibold text-ink">
                 ตรวจสอบก่อนบันทึก
               </h3>
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
                 <dt className="font-semibold text-ink-2">จำนวนเงิน</dt>
-                <dd className="font-extrabold text-ink tabular-nums">
+                <dd className="font-semibold text-ink tabular-nums">
                   {amountReadBack ?? "ยังไม่ได้ระบุ"}
                 </dd>
                 <dt className="font-semibold text-ink-2">เข้ากองทุน</dt>
-                <dd className="font-extrabold text-ink">
+                <dd className="font-semibold text-ink">
                   {selectedFund?.name ?? "ยังไม่ได้เลือก"}
                 </dd>
                 <dt className="font-semibold text-ink-2">ประเภท</dt>
-                <dd className="font-bold text-ink">
+                <dd className="font-medium text-ink">
                   {offeringCategoryLabel(category)}
                 </dd>
                 <dt className="font-semibold text-ink-2">วิธีรับเงิน</dt>
-                <dd className="font-bold text-ink">{method}</dd>
+                <dd className="font-medium text-ink">{method}</dd>
               </dl>
             </section>
 
@@ -590,7 +577,7 @@ export default function NewOffering() {
                 role="alert"
                 className="rounded-xl border border-danger/40 bg-tile-peach p-4 text-sm text-tile-peach-ink space-y-1"
               >
-                <p className="font-extrabold">ยังไม่ได้บันทึกการถวายนี้</p>
+                <p className="font-semibold">ยังไม่ได้บันทึกการถวายนี้</p>
                 <p className="font-medium">{saveError}</p>
                 <p className="font-medium">
                   ข้อมูลที่กรอกยังอยู่ครบ ตรวจอินเทอร์เน็ตแล้วกด
@@ -609,7 +596,7 @@ export default function NewOffering() {
               <HandCoins className="w-5 h-5" />
               <span>
                 {createMutation.isPending
-                  ? "กำลังบันทึก..."
+                  ? "กำลังบันทึก…"
                   : "ยืนยันบันทึกการถวาย"}
               </span>
             </button>
@@ -620,15 +607,6 @@ export default function NewOffering() {
       {/* Success Celebration Dialog */}
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
         <DialogContent className="max-w-sm bg-surface rounded-2xl p-6 text-center text-ink space-y-4">
-          <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-line p-1 bg-paper-2">
-            <Illustration
-              src="/illustrations/income_hand_heart.jpg"
-              alt="ถวายสำเร็จ"
-              className="w-full h-full object-cover rounded-xl"
-              width={80}
-              height={80}
-            />
-          </div>
           <div>
             <DialogTitle className="display text-xl text-ink">
               บันทึกการถวายเรียบร้อยแล้ว
@@ -641,19 +619,19 @@ export default function NewOffering() {
           <div className="p-4 rounded-xl bg-paper-2 border border-line text-xs text-left space-y-1.5">
             <p className="flex justify-between">
               <span className="font-semibold text-ink-3">ประเภท:</span>
-              <span className="font-extrabold text-ink">
+              <span className="font-semibold text-ink">
                 {offeringCategoryLabel(lastSaved?.category ?? category)}
               </span>
             </p>
             <p className="flex justify-between">
               <span className="font-semibold text-ink-3">จำนวนเงิน:</span>
-              <span className="font-extrabold text-income tabular-nums">
+              <span className="font-semibold text-income tabular-nums">
                 {formatBaht(lastSaved?.amount ?? Number(amount))}
               </span>
             </p>
             <p className="flex justify-between">
               <span className="font-semibold text-ink-3">ช่องทาง:</span>
-              <span className="font-bold text-ink">
+              <span className="font-medium text-ink">
                 {lastSaved?.method ?? method}
               </span>
             </p>

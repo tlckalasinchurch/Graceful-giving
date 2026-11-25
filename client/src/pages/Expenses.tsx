@@ -269,7 +269,7 @@ export default function Expenses() {
             ) : (
               <Download className="size-4" />
             )}
-            <span>{isExporting ? "กำลังส่งออก..." : "ส่งออก CSV"}</span>
+            <span>{isExporting ? "กำลังส่งออก…" : "ส่งออก CSV"}</span>
           </button>
           {canCreate && (
             <button
@@ -303,7 +303,7 @@ export default function Expenses() {
                 : "ยังไม่มีข้อมูล"
             }
           >
-            <p className="text-xl font-extrabold text-ink">
+            <p className="text-xl font-semibold text-ink">
               {topCategory?.label ?? "—"}
             </p>
           </MetricCard>
@@ -313,7 +313,7 @@ export default function Expenses() {
             note="มีเลขที่ใบเสร็จหรือไฟล์แนบ"
             tone="accent"
           >
-            <p className="text-xl font-extrabold tabular-nums text-ink">
+            <p className="text-xl font-semibold tabular-nums text-ink">
               {withReceipt} / {expenses.length}{" "}
               <span className="text-sm font-semibold text-ink-3">
                 รายการในหน้านี้
@@ -324,7 +324,7 @@ export default function Expenses() {
 
         <div className="bento-card-static p-4 md:p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-extrabold text-ink-2">
+            <span className="text-xs font-semibold text-ink-2">
               ช่วงเวลาที่แสดงผล
             </span>
             <div
@@ -342,7 +342,7 @@ export default function Expenses() {
                   type="button"
                   onClick={() => setPeriodFilter(opt.id)}
                   aria-pressed={periodFilter === opt.id}
-                  className={`min-h-9 rounded-lg px-3 py-1 text-xs font-extrabold transition-colors ${
+                  className={`min-h-9 rounded-lg px-3 py-1 text-xs font-semibold transition-colors ${
                     periodFilter === opt.id
                       ? "bg-accent text-accent-foreground border border-brand/40"
                       : "text-ink-2 hover:bg-surface"
@@ -354,7 +354,7 @@ export default function Expenses() {
             </div>
           </div>
           <FilterBar
-            searchPlaceholder="ค้นหารายการ, ผู้รับเงิน, กองทุน, เลขที่ใบเสร็จ..."
+            searchPlaceholder="ค้นหารายการ, ผู้รับเงิน, กองทุน, เลขที่ใบเสร็จ…"
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
             activeFilter={categoryFilter}
@@ -401,7 +401,7 @@ export default function Expenses() {
                   <caption className="sr-only">
                     รายการรายจ่ายของคริสตจักร พร้อมสถานะและเอกสารประกอบ
                   </caption>
-                  <thead className="border-b border-line bg-paper-2 text-xs font-extrabold text-ink">
+                  <thead className="border-b border-line bg-paper-2 text-xs font-semibold text-ink">
                     <tr>
                       <th scope="col" className="py-3.5 px-5">
                         วันที่
@@ -441,7 +441,7 @@ export default function Expenses() {
                           >
                             <Link
                               href={`/transactions/expense-${e.id}`}
-                              className="block truncate rounded-md font-bold text-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                              className="block truncate rounded-md font-medium text-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                             >
                               {e.description}
                             </Link>
@@ -457,7 +457,7 @@ export default function Expenses() {
                           </th>
                           <td className="whitespace-nowrap py-3.5 px-5">
                             <span
-                              className={`inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-0.5 text-xs font-bold ${cat.color}`}
+                              className={`inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-0.5 text-xs font-medium ${cat.color}`}
                             >
                               <CatIcon className="size-3.5" />
                               {expenseCategoryLabel(e.category)}
@@ -525,7 +525,7 @@ export default function Expenses() {
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-line text-xs font-bold ${cat.color}`}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-line text-xs font-medium ${cat.color}`}
                             >
                               <CatIcon className="w-3 h-3" />
                               {expenseCategoryLabel(e.category)}
@@ -536,7 +536,7 @@ export default function Expenses() {
                           </div>
                           <Link
                             href={`/transactions/expense-${e.id}`}
-                            className="block rounded-md font-bold text-ink text-sm truncate underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                            className="block rounded-md font-medium text-ink text-sm truncate underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                           >
                             {e.description}
                           </Link>
@@ -571,7 +571,7 @@ export default function Expenses() {
                                 title: e.description,
                               })
                             }
-                            className="inline-flex min-h-11 items-center gap-1.5 px-3.5 py-2 rounded-xl bg-tile-mint text-tile-mint-ink border border-line text-xs font-bold"
+                            className="inline-flex min-h-11 items-center gap-1.5 px-3.5 py-2 rounded-xl bg-tile-mint text-tile-mint-ink border border-line text-xs font-medium"
                           >
                             <Paperclip className="w-3.5 h-3.5" />
                             <span>ดูสลิป</span>
@@ -579,7 +579,7 @@ export default function Expenses() {
                         )}
                         <button
                           onClick={() => setSelectedVoucher(toVoucher(e))}
-                          className="min-h-11 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface text-ink border border-line text-xs font-bold"
+                          className="min-h-11 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface text-ink border border-line text-xs font-medium"
                         >
                           <Printer className="w-3.5 h-3.5 text-brand" />
                           <span>พิมพ์ใบสำคัญ</span>
@@ -641,7 +641,7 @@ function MetricCard({
   return (
     <div className="bento-card p-5">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-extrabold text-ink-3">{label}</span>
+        <span className="text-xs font-semibold text-ink-3">{label}</span>
         <span
           className={`grid size-8 place-items-center rounded-lg border border-line ${
             tone === "expense"

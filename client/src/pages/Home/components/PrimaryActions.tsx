@@ -51,7 +51,7 @@ export function PrimaryActions({
       {canRecordOffering && (
         <button
           onClick={onNewOffering}
-          className="btn-primary group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-bold transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base cursor-pointer"
+          className="btn-primary group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-medium transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base cursor-pointer"
           aria-label="บันทึกการถวาย"
         >
           <span className="flex size-7 items-center justify-center rounded-lg bg-surface/20 text-white">
@@ -77,7 +77,7 @@ export function PrimaryActions({
       {showCountingCTA && onOpenCounting && (
         <button
           onClick={onOpenCounting}
-          className="btn-primary group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-bold transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base cursor-pointer"
+          className="btn-primary group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-medium transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base cursor-pointer"
           aria-label="ไปที่รอบนับเงินถวาย"
         >
           <span className="flex size-7 items-center justify-center rounded-lg bg-surface/20 text-white">
@@ -90,13 +90,13 @@ export function PrimaryActions({
       {showGivingCTA && onOpenGivingStation && (
         <button
           onClick={onOpenGivingStation}
-          className="btn-primary group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-bold transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base cursor-pointer"
-          aria-label="ถวายทรัพย์ (Giving Station)"
+          className="btn-primary group flex min-h-[52px] items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-medium transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base cursor-pointer"
+          aria-label="ถวายทรัพย์"
         >
           <span className="flex size-7 items-center justify-center rounded-lg bg-surface/20 text-white">
             <HeartHandshake className="size-4.5" aria-hidden="true" />
           </span>
-          <span>ถวายทรัพย์ (Giving Station)</span>
+          <span>ถวายทรัพย์</span>
         </button>
       )}
     </div>

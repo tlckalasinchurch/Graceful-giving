@@ -209,7 +209,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     <div className="min-h-dvh bg-ground text-ink flex flex-col font-sans selection:bg-brand/30 overflow-x-clip">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-xl focus:bg-surface focus:px-4 focus:py-2.5 focus:text-sm focus:font-bold focus:text-ink focus:ring-2 focus:ring-brand focus:outline-none border border-line"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-xl focus:bg-surface focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium focus:text-ink focus:ring-2 focus:ring-brand focus:outline-none border border-line"
       >
         ข้ามไปยังเนื้อหาหลัก
       </a>
@@ -225,8 +225,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               <Sprout className="size-4.5" aria-hidden="true" />
             </span>
             <span className="min-w-0">
-              <span className="font-display font-bold block truncate text-base leading-none tracking-tight text-ink">
-                Grace <span className="text-brand">Giving</span>
+              <span className="font-display font-semibold block truncate text-base leading-none tracking-tight text-ink">
+                Grace <span>Giving</span>
               </span>
               <span className="mt-1 block truncate text-xs font-medium text-ink-3">
                 {churchName}

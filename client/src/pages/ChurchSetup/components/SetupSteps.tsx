@@ -29,7 +29,7 @@ export function FieldLabel({
   return (
     <label
       htmlFor={htmlFor}
-      className="mb-1.5 block text-xs font-extrabold text-ink"
+      className="mb-1.5 block text-xs font-semibold text-ink"
     >
       {children} {required && <span className="text-danger">*</span>}
     </label>
@@ -187,7 +187,7 @@ export function Step2({
         />
       </div>
       <div className="rounded-2xl border border-line bg-paper-2 p-4">
-        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
           <Info className="size-3.5 text-brand" aria-hidden="true" />
           เกี่ยวกับบทบาทผู้ใช้
         </p>
@@ -244,7 +244,7 @@ export function Step3({
         label="ชื่อบัญชี"
         value={data.bankAccountName}
         onChange={v => set({ bankAccountName: v })}
-        placeholder="คริสตจักร..."
+        placeholder="คริสตจักร…"
       />
       <TextField
         label="หมายเลขพร้อมเพย์ (PromptPay ID — เบอร์โทร 10 หลัก หรือเลขนิติบุคคล 13 หลัก)"
@@ -253,7 +253,7 @@ export function Step3({
         placeholder="08X-XXX-XXXX หรือเลขประจำตัว 13 หลัก (ไม่บังคับ)"
       />
       <div className="rounded-2xl border border-line bg-paper-2 p-4">
-        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
           <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
           ความปลอดภัย
         </p>
@@ -293,7 +293,7 @@ export function Step4({
               key={cat}
               type="button"
               onClick={() => toggleCat(cat)}
-              className={`flex min-h-[48px] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition ${
+              className={`flex min-h-[48px] items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition ${
                 selected
                   ? "border border-brand/40 bg-accent text-accent-foreground "
                   : "border border-line bg-surface text-ink-2 hover:bg-paper-2"
@@ -316,7 +316,7 @@ export function Step4({
         })}
       </div>
       {data.offeringCategories.length === 0 && (
-        <p className="flex items-center gap-1.5 text-xs font-bold text-danger">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-danger">
           <AlertTriangle className="size-3.5 shrink-0" aria-hidden="true" />
           กรุณาเลือกอย่างน้อย 1 หมวดหมู่
         </p>
@@ -340,14 +340,14 @@ export function Step5({ data }: { data: SetupData }) {
             <WalletCards className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-extrabold text-ink">{fund.name}</p>
+            <p className="text-sm font-semibold text-ink">{fund.name}</p>
             <p className="text-xs text-ink-2">{fund.description}</p>
           </div>
           <Check className="size-4 shrink-0 text-income" />
         </div>
       ))}
       <div className="rounded-2xl border border-line bg-paper-2 p-4">
-        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
           <Info className="size-3.5 text-brand" aria-hidden="true" />
           สามารถเพิ่มกองทุนเพิ่มเติมได้ภายหลัง
         </p>
@@ -402,7 +402,7 @@ export function Step6({
         />
       </div>
       <div className="rounded-2xl border border-line bg-paper-2 p-4 space-y-2">
-        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
           <Calendar className="size-3.5 text-brand" aria-hidden="true" />
           ตัวอย่างรอบปีงบประมาณ
         </p>
@@ -455,18 +455,18 @@ export function Step7() {
           className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-3.5"
         >
           <span
-            className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-extrabold ${color}`}
+            className={`inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-semibold ${color}`}
           >
             {role}
           </span>
           <div>
-            <p className="text-sm font-extrabold text-ink">{label}</p>
+            <p className="text-sm font-semibold text-ink">{label}</p>
             <p className="text-xs text-ink-2">{desc}</p>
           </div>
         </div>
       ))}
       <div className="rounded-2xl border border-line bg-paper-2 p-4">
-        <p className="flex items-center gap-1.5 text-xs font-extrabold text-ink">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-ink">
           <ShieldCheck className="size-3.5 text-income" aria-hidden="true" />
           การกำหนดสิทธิ์
         </p>
@@ -506,7 +506,7 @@ export function Step8({ data }: { data: SetupData }) {
             }`}
           >
             <span className="text-ink-2">{label}</span>
-            <span className="font-extrabold text-ink text-right max-w-[55%] truncate">
+            <span className="font-semibold text-ink text-right max-w-[55%] truncate">
               {value}
             </span>
           </div>
@@ -514,7 +514,7 @@ export function Step8({ data }: { data: SetupData }) {
       </div>
       <div className="rounded-2xl border border-brand/40 bg-accent p-4 text-center">
         <Heart className="mx-auto mb-2 size-8 text-brand" fill="currentColor" />
-        <p className="text-sm font-extrabold text-accent-foreground">
+        <p className="text-sm font-semibold text-accent-foreground">
           พร้อมเริ่มต้นใช้งาน!
         </p>
         <p className="mt-1 text-xs font-medium text-accent-foreground/80">

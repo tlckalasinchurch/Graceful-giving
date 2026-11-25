@@ -405,12 +405,12 @@ export default function Settings() {
           <div className="w-16 h-16 rounded-2xl bg-danger/10 border border-line mx-auto flex items-center justify-center text-danger">
             <Lock className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-extrabold text-ink">
+          <h2 className="text-xl font-semibold text-ink">
             สิทธิ์การเข้าถึงถูกจำกัด
           </h2>
           <p className="text-sm text-ink-3">
             หน้านี้สงวนไว้สำหรับ{" "}
-            <strong className="text-tile-sand-ink font-bold">
+            <strong className="text-tile-sand-ink font-medium">
               ผู้ดูแลระบบสูงสุด (SUPER_ADMIN)
             </strong>{" "}
             เท่านั้น
@@ -419,7 +419,7 @@ export default function Settings() {
           <div className="pt-2">
             <Link
               href="/"
-              className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-extrabold"
+              className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold"
             >
               กลับสู่หน้าหลัก
             </Link>
@@ -439,9 +439,9 @@ export default function Settings() {
         <div className="bento-card-static flex items-center gap-1.5 p-1.5 overflow-x-auto no-scrollbar touch-pan-x">
           <button
             onClick={() => setActiveTab("church")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "church"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -450,9 +450,9 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("roles")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "roles"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -461,9 +461,9 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("categories")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "categories"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -472,9 +472,9 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("payment")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "payment"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -483,9 +483,9 @@ export default function Settings() {
           </button>
           <button
             onClick={() => setActiveTab("audit")}
-            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
+            className={`min-h-11 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === "audit"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
@@ -498,14 +498,14 @@ export default function Settings() {
         {activeTab === "church" && (
           <form onSubmit={handleSaveProfile} noValidate className="space-y-6">
             <div className="bento-card-static p-6 md:p-8 space-y-5">
-              <h3 className="text-base font-extrabold text-ink flex items-center gap-2">
+              <h3 className="text-base font-semibold text-ink flex items-center gap-2">
                 <Building className="w-5 h-5 text-brand" />
                 ข้อมูลทั่วไปของคริสตจักร
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="settings-f0" className="font-bold text-ink">
+                  <label htmlFor="settings-f0" className="font-medium text-ink">
                     ชื่อคริสตจักร <span className="text-danger">*</span>
                   </label>
                   <input
@@ -524,7 +524,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="settings-f1" className="font-bold text-ink">
+                  <label htmlFor="settings-f1" className="font-medium text-ink">
                     คำขวัญ / นิมิตคริสตจักร
                   </label>
                   <input
@@ -537,7 +537,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="settings-f2" className="font-bold text-ink">
+                  <label htmlFor="settings-f2" className="font-medium text-ink">
                     ที่อยู่คริสตจักร
                   </label>
                   <textarea
@@ -550,7 +550,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="settings-f3" className="font-bold text-ink">
+                  <label htmlFor="settings-f3" className="font-medium text-ink">
                     เบอร์โทรศัพท์
                   </label>
                   <input
@@ -563,7 +563,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="settings-f4" className="font-bold text-ink">
+                  <label htmlFor="settings-f4" className="font-medium text-ink">
                     อีเมลทางการ
                   </label>
                   <input
@@ -581,7 +581,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="settings-f5" className="font-bold text-ink">
+                  <label htmlFor="settings-f5" className="font-medium text-ink">
                     เว็บไซต์ / เพจคริสตจักร
                   </label>
                   <input
@@ -600,7 +600,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="settings-f6" className="font-bold text-ink">
+                  <label htmlFor="settings-f6" className="font-medium text-ink">
                     ศิษยาภิบาลอาวุโส
                   </label>
                   <input
@@ -613,7 +613,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="settings-f7" className="font-bold text-ink">
+                  <label htmlFor="settings-f7" className="font-medium text-ink">
                     ผู้ช่วยศิษยาภิบาล / ผู้ประกาศ
                   </label>
                   <input
@@ -626,7 +626,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="settings-f8" className="font-bold text-ink">
+                  <label htmlFor="settings-f8" className="font-medium text-ink">
                     เหรัญญิกคริสตจักร
                   </label>
                   <input
@@ -639,7 +639,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="settings-f9" className="font-bold text-ink">
+                  <label htmlFor="settings-f9" className="font-medium text-ink">
                     เดือนเริ่มต้นปีงบประมาณ
                   </label>
                   <NativeSelect
@@ -669,10 +669,10 @@ export default function Settings() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="btn-primary min-h-11 px-8 py-3 rounded-xl font-extrabold text-sm flex items-center gap-2 disabled:opacity-50"
+                className="btn-primary min-h-11 px-8 py-3 rounded-xl font-semibold text-sm flex items-center gap-2 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}</span>
+                <span>{isSaving ? "กำลังบันทึก…" : "บันทึกการตั้งค่า"}</span>
               </button>
             </div>
           </form>
@@ -681,16 +681,16 @@ export default function Settings() {
         {/* Account and sign out */}
         {activeTab === "church" && (
           <section className="bento-card-static p-6 md:p-8">
-            <h3 className="text-base font-extrabold text-ink">บัญชีผู้ใช้</h3>
+            <h3 className="text-base font-semibold text-ink">บัญชีผู้ใช้</h3>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-ink-2">
-                <p className="font-bold text-ink">
+                <p className="font-medium text-ink">
                   {user?.name || "ผู้ใช้งาน"}
                 </p>
                 <p>{user?.email || "ไม่ระบุอีเมล"}</p>
                 <p className="mt-1">
                   บทบาทในระบบ:{" "}
-                  <span className="font-bold text-brand">
+                  <span className="font-medium text-brand">
                     {getChurchRoleInfo(user?.churchRole).badgeLabel}
                   </span>
                 </p>
@@ -698,7 +698,7 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/profile"
-                  className="btn-secondary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold"
+                  className="btn-secondary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium"
                 >
                   <UserCheck className="h-4 w-4 text-brand" />
                   ดูโปรไฟล์เต็ม
@@ -706,7 +706,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => void logout()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-5 py-2.5 text-sm font-bold text-danger transition-colors hover:bg-danger/15"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-5 py-2.5 text-sm font-medium text-danger transition-colors hover:bg-danger/15"
                 >
                   <LogOut className="h-4 w-4" />
                   ออกจากระบบ
@@ -723,7 +723,7 @@ export default function Settings() {
             <div className="bento-card-static p-6 md:p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
                 <div>
-                  <h3 className="text-lg font-extrabold text-ink flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-ink flex items-center gap-2">
                     <Users className="w-5 h-5 text-brand" />
                     จัดการบทบาทและสิทธิ์ผู้ใช้งานในระบบ
                   </h3>
@@ -734,12 +734,12 @@ export default function Settings() {
                 </div>
                 {user?.churchRole === "SUPER_ADMIN" ||
                 user?.role === "admin" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-accent text-accent-foreground border-[1.5px] border-brand/40 self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-accent text-accent-foreground border-[1.5px] border-brand/40 self-start sm:self-auto">
                     <CheckCircle2 className="w-3.5 h-3.5 text-brand" />
                     คุณมีสิทธิ์กำหนดบทบาท
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-tile-sand text-tile-sand-ink border border-line self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-tile-sand text-tile-sand-ink border border-line self-start sm:self-auto">
                     เฉพาะผู้ดูแลระบบสูงสุดที่สามารถเปลี่ยนสิทธิ์ได้
                   </span>
                 )}
@@ -751,7 +751,7 @@ export default function Settings() {
                   <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3" />
                   <input
                     type="text"
-                    placeholder="ค้นหาชื่อผู้ใช้งาน หรือ อีเมล..."
+                    placeholder="ค้นหาชื่อผู้ใช้งาน หรือ อีเมล…"
                     aria-label="ค้นหาผู้ใช้งานจากชื่อหรืออีเมล"
                     value={roleSearch}
                     onChange={e => setRoleSearch(e.target.value)}
@@ -833,20 +833,20 @@ export default function Settings() {
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="space-y-0.5">
-                                  <div className="font-extrabold text-sm text-ink flex flex-wrap items-center gap-1.5">
+                                  <div className="font-semibold text-sm text-ink flex flex-wrap items-center gap-1.5">
                                     <span>{u.name || "ไม่ระบุชื่อ"}</span>
                                     {isMe && (
-                                      <span className="text-xs bg-accent text-accent-foreground font-extrabold px-2 py-0.5 rounded-full border border-line">
+                                      <span className="text-xs bg-accent text-accent-foreground font-semibold px-2 py-0.5 rounded-full border border-line">
                                         คุณ
                                       </span>
                                     )}
                                     {u.status === "pending" && (
-                                      <span className="text-xs bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-line">
+                                      <span className="text-xs bg-tile-sky text-tile-sky-ink font-medium px-2 py-0.5 rounded-full border border-line">
                                         รออนุมัติ
                                       </span>
                                     )}
                                     {u.status === "disabled" && (
-                                      <span className="text-xs bg-danger/10 text-danger font-bold px-2 py-0.5 rounded-full border border-danger/30">
+                                      <span className="text-xs bg-danger/10 text-danger font-medium px-2 py-0.5 rounded-full border border-danger/30">
                                         ปิดใช้งาน
                                       </span>
                                     )}
@@ -868,7 +868,7 @@ export default function Settings() {
                               </div>
 
                               <div className="space-y-1.5 pt-1 border-t border-line">
-                                <span className="block text-xs font-bold text-ink-2">
+                                <span className="block text-xs font-medium text-ink-2">
                                   บทบาทในระบบ:
                                 </span>
                                 {canEdit ? (
@@ -906,7 +906,7 @@ export default function Settings() {
                                     </NativeSelect>
                                   </div>
                                 ) : (
-                                  <span className="inline-block px-3 py-1.5 rounded-xl text-xs font-extrabold bg-surface text-ink border border-line">
+                                  <span className="inline-block px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface text-ink border border-line">
                                     {u.churchRole || "MEMBER"}
                                   </span>
                                 )}
@@ -924,7 +924,7 @@ export default function Settings() {
                                           status: "active",
                                         })
                                       }
-                                      className="btn-primary min-h-11 flex-1 py-2 px-3 text-xs font-extrabold cursor-pointer"
+                                      className="btn-primary min-h-11 flex-1 py-2 px-3 text-xs font-semibold cursor-pointer"
                                     >
                                       {u.status === "pending"
                                         ? "อนุมัติผู้ใช้"
@@ -950,7 +950,7 @@ export default function Settings() {
                                             status: "disabled",
                                           });
                                       }}
-                                      className="min-h-11 flex-1 py-2 px-3 rounded-xl border border-danger/30 bg-danger/10 text-danger text-xs font-bold hover:bg-danger/15 cursor-pointer"
+                                      className="min-h-11 flex-1 py-2 px-3 rounded-xl border border-danger/30 bg-danger/10 text-danger text-xs font-medium hover:bg-danger/15 cursor-pointer"
                                     >
                                       ปิดใช้งาน
                                     </button>
@@ -972,7 +972,7 @@ export default function Settings() {
                                           userId: u.id,
                                         });
                                     }}
-                                    className="min-h-11 px-4 rounded-xl border border-danger/30 bg-surface text-danger text-xs font-bold hover:bg-danger/10 cursor-pointer"
+                                    className="min-h-11 px-4 rounded-xl border border-danger/30 bg-surface text-danger text-xs font-medium hover:bg-danger/10 cursor-pointer"
                                   >
                                     ลบ
                                   </button>
@@ -987,7 +987,7 @@ export default function Settings() {
                       <div className="hidden md:block relative overflow-x-auto">
                         <table className="w-full text-left text-sm">
                           <thead>
-                            <tr className="border-b border-line text-xs font-extrabold text-ink">
+                            <tr className="border-b border-line text-xs font-semibold text-ink">
                               <th className="pb-3 px-3">ผู้ใช้งาน</th>
                               <th className="pb-3 px-3">อีเมล</th>
                               <th className="pb-3 px-3">เข้าใช้ล่าสุด</th>
@@ -1007,20 +1007,20 @@ export default function Settings() {
                                   className="hover:bg-paper-2/60 transition-colors"
                                 >
                                   <td className="py-3.5 px-3">
-                                    <div className="font-bold text-ink flex items-center gap-2">
+                                    <div className="font-medium text-ink flex items-center gap-2">
                                       <span>{u.name || "ไม่ระบุชื่อ"}</span>
                                       {isMe && (
-                                        <span className="text-xs bg-accent text-accent-foreground font-extrabold px-2 py-0.5 rounded-full border border-brand/40">
+                                        <span className="text-xs bg-accent text-accent-foreground font-semibold px-2 py-0.5 rounded-full border border-brand/40">
                                           คุณ
                                         </span>
                                       )}
                                       {u.status === "pending" && (
-                                        <span className="text-xs bg-tile-sky text-tile-sky-ink font-bold px-2 py-0.5 rounded-full border border-line">
+                                        <span className="text-xs bg-tile-sky text-tile-sky-ink font-medium px-2 py-0.5 rounded-full border border-line">
                                           รออนุมัติ
                                         </span>
                                       )}
                                       {u.status === "disabled" && (
-                                        <span className="text-xs bg-danger/10 text-danger font-bold px-2 py-0.5 rounded-full border border-danger/30">
+                                        <span className="text-xs bg-danger/10 text-danger font-medium px-2 py-0.5 rounded-full border border-danger/30">
                                           ปิดใช้งาน
                                         </span>
                                       )}
@@ -1094,7 +1094,7 @@ export default function Settings() {
                                                 status: "active",
                                               })
                                             }
-                                            className="btn-primary min-h-9 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-extrabold cursor-pointer"
+                                            className="btn-primary min-h-9 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer"
                                           >
                                             {u.status === "pending"
                                               ? "อนุมัติ"
@@ -1121,7 +1121,7 @@ export default function Settings() {
                                                   userId: u.id,
                                                 });
                                             }}
-                                            className="min-h-9 whitespace-nowrap rounded-lg border border-danger/30 bg-danger/10 px-2.5 py-1.5 text-xs font-bold text-danger hover:bg-danger/15 cursor-pointer"
+                                            className="min-h-9 whitespace-nowrap rounded-lg border border-danger/30 bg-danger/10 px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger/15 cursor-pointer"
                                           >
                                             ลบ
                                           </button>
@@ -1146,14 +1146,14 @@ export default function Settings() {
                                                   status: "disabled",
                                                 });
                                             }}
-                                            className="min-h-9 whitespace-nowrap rounded-lg border border-danger/30 bg-danger/10 px-2.5 py-1.5 text-xs font-bold text-danger hover:bg-danger/15 cursor-pointer"
+                                            className="min-h-9 whitespace-nowrap rounded-lg border border-danger/30 bg-danger/10 px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger/15 cursor-pointer"
                                           >
                                             ปิดใช้งาน
                                           </button>
                                         )}
                                       </div>
                                     ) : (
-                                      <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-paper-2 text-ink border border-line">
+                                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-paper-2 text-ink border border-line">
                                         {u.churchRole || "MEMBER"}
                                       </span>
                                     )}
@@ -1173,7 +1173,7 @@ export default function Settings() {
             {/* Structure and Appointed Roles Reference */}
             <div className="bento-card-static p-6 md:p-8 space-y-6">
               <div>
-                <h3 className="text-lg font-extrabold text-ink flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-ink flex items-center gap-2">
                   <Shield className="w-5 h-5 text-brand" />
                   โครงสร้างสิทธิ์การใช้งานและผู้รับผิดชอบอย่างเป็นทางการ
                 </h3>
@@ -1191,16 +1191,16 @@ export default function Settings() {
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
                       <div>
-                        <span className="font-extrabold text-base text-ink">
+                        <span className="font-semibold text-base text-ink">
                           {r.title}
                         </span>
                         <span className="ml-2.5 font-mono text-xs text-ink-2 bg-surface px-2.5 py-0.5 rounded-md border border-line">
                           {r.role}
                         </span>
                       </div>
-                      <div className="text-xs font-bold px-3 py-1 rounded-full border border-line bg-surface text-ink self-start sm:self-auto">
+                      <div className="text-xs font-medium px-3 py-1 rounded-full border border-line bg-surface text-ink self-start sm:self-auto">
                         ผู้รับผิดชอบ:{" "}
-                        <span className="text-brand font-extrabold">
+                        <span className="text-brand font-semibold">
                           {r.appointee}
                         </span>
                       </div>
@@ -1211,13 +1211,13 @@ export default function Settings() {
                     </p>
 
                     <div className="pt-1">
-                      <p className="text-xs font-bold text-ink mb-1.5">
+                      <p className="text-xs font-medium text-ink mb-1.5">
                         ขอบเขตหน้าที่ในระบบ:
                       </p>
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-ink-2">
                         {r.duties.map(duty => (
                           <li key={duty} className="flex items-start gap-1.5">
-                            <span className="text-brand font-bold">•</span>
+                            <span className="text-brand font-medium">•</span>
                             <span>{duty}</span>
                           </li>
                         ))}
@@ -1233,7 +1233,7 @@ export default function Settings() {
         {/* Tab 3: Categories */}
         {activeTab === "categories" && (
           <div className="bento-card-static p-6 md:p-8 space-y-5">
-            <h3 className="text-base font-extrabold text-ink flex items-center gap-2">
+            <h3 className="text-base font-semibold text-ink flex items-center gap-2">
               <Banknote className="w-5 h-5 text-tile-sand-ink" />
               หมวดหมู่การเงินมาตรฐานคริสตจักร
             </h3>
@@ -1244,7 +1244,7 @@ export default function Settings() {
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-line bg-paper-2 p-4">
-                <p className="font-extrabold text-ink">หมวดรายรับ (เงินถวาย)</p>
+                <p className="font-semibold text-ink">หมวดรายรับ (เงินถวาย)</p>
                 <ul className="mt-2 space-y-1">
                   {OFFERING_CATEGORIES.map(c => (
                     <li
@@ -1260,7 +1260,7 @@ export default function Settings() {
                 </ul>
               </div>
               <div className="rounded-2xl border border-line bg-paper-2 p-4">
-                <p className="font-extrabold text-ink">หมวดรายจ่าย</p>
+                <p className="font-semibold text-ink">หมวดรายจ่าย</p>
                 <ul className="mt-2 space-y-1">
                   {EXPENSE_CATEGORIES.map(c => (
                     <li
@@ -1283,7 +1283,7 @@ export default function Settings() {
         {activeTab === "payment" && (
           <div className="space-y-6">
             <div className="bento-card-static p-6 md:p-8 space-y-5">
-              <h3 className="text-base font-extrabold text-ink flex items-center gap-2">
+              <h3 className="text-base font-semibold text-ink flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-brand" />
                 บัญชีรับเงินถวาย
               </h3>
@@ -1294,16 +1294,16 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2 text-center sm:text-left text-xs">
-                  <p className="font-extrabold text-base text-ink">
+                  <p className="font-semibold text-base text-ink">
                     {bankAccountName}
                   </p>
                   <p className="text-ink-2">
                     ธนาคาร:{" "}
-                    <span className="font-bold text-ink">{bankName}</span>
+                    <span className="font-medium text-ink">{bankName}</span>
                   </p>
                   <p className="text-ink-2">
                     เลขที่บัญชี:{" "}
-                    <span className="font-mono font-bold text-sm text-ink">
+                    <span className="font-mono font-medium text-sm text-ink">
                       {bankAccount}
                     </span>
                   </p>
@@ -1325,7 +1325,7 @@ export default function Settings() {
                   <div className="space-y-1.5">
                     <label
                       htmlFor="set-bank-name"
-                      className="font-bold text-ink"
+                      className="font-medium text-ink"
                     >
                       ธนาคาร
                     </label>
@@ -1341,7 +1341,7 @@ export default function Settings() {
                   <div className="space-y-1.5">
                     <label
                       htmlFor="set-bank-account"
-                      className="font-bold text-ink"
+                      className="font-medium text-ink"
                     >
                       เลขที่บัญชี
                     </label>
@@ -1358,7 +1358,7 @@ export default function Settings() {
                   <div className="space-y-1.5 sm:col-span-2">
                     <label
                       htmlFor="set-bank-account-name"
-                      className="font-bold text-ink"
+                      className="font-medium text-ink"
                     >
                       ชื่อบัญชี
                     </label>
@@ -1374,7 +1374,7 @@ export default function Settings() {
                   <div className="space-y-1.5 sm:col-span-2">
                     <label
                       htmlFor="set-promptpay"
-                      className="font-bold text-ink"
+                      className="font-medium text-ink"
                     >
                       เลขพร้อมเพย์ของคริสตจักร
                     </label>
@@ -1399,11 +1399,11 @@ export default function Settings() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="btn-primary min-h-11 px-8 py-3 rounded-xl font-extrabold text-sm flex items-center gap-2 disabled:opacity-50"
+                    className="btn-primary min-h-11 px-8 py-3 rounded-xl font-semibold text-sm flex items-center gap-2 disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
                     <span>
-                      {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลบัญชี"}
+                      {isSaving ? "กำลังบันทึก…" : "บันทึกข้อมูลบัญชี"}
                     </span>
                   </button>
                 </div>
@@ -1418,7 +1418,7 @@ export default function Settings() {
           <div className="bento-card-static p-6 md:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
               <div>
-                <h3 className="text-lg font-extrabold text-ink flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-ink flex items-center gap-2">
                   <FileText className="w-5 h-5 text-ink-3" />
                   บันทึกประวัติการดำเนินงาน
                 </h3>
@@ -1431,7 +1431,7 @@ export default function Settings() {
                 type="button"
                 onClick={() => void auditQuery.refetch()}
                 disabled={auditQuery.isFetching}
-                className="btn-secondary inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold disabled:opacity-50 self-start sm:self-auto"
+                className="btn-secondary inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-medium disabled:opacity-50 self-start sm:self-auto"
               >
                 <RefreshCw
                   className={`w-3.5 h-3.5 ${
@@ -1448,7 +1448,7 @@ export default function Settings() {
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3" />
                 <input
                   type="text"
-                  placeholder="ค้นหาชื่อผู้ดำเนินการ, อีเมล หรือกิจกรรม..."
+                  placeholder="ค้นหาชื่อผู้ดำเนินการ, อีเมล หรือกิจกรรม…"
                   aria-label="ค้นหาประวัติการใช้งานจากชื่อผู้ดำเนินการ อีเมล หรือกิจกรรม"
                   value={auditSearch}
                   onChange={e => setAuditSearch(e.target.value)}
@@ -1525,7 +1525,7 @@ export default function Settings() {
             {auditQuery.isLoading ? (
               <div className="py-12 flex flex-col items-center justify-center text-sm text-ink-3 gap-3">
                 <Loader2 className="w-6 h-6 animate-spin text-brand" />
-                <span>กำลังโหลด Audit Log...</span>
+                <span>กำลังโหลด Audit Log…</span>
               </div>
             ) : (
               (() => {
@@ -1594,26 +1594,26 @@ export default function Settings() {
                   switch (action) {
                     case "CREATE":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-accent text-accent-foreground font-extrabold text-xs border border-line">
+                        <span className="px-2.5 py-0.5 rounded-full bg-accent text-accent-foreground font-semibold text-xs border border-line">
                           บันทึกใหม่
                         </span>
                       );
                     case "UPDATE":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sky text-tile-sky-ink font-bold text-xs border border-line">
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sky text-tile-sky-ink font-medium text-xs border border-line">
                           แก้ไขข้อมูล
                         </span>
                       );
                     case "VOID":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-danger/15 text-danger font-extrabold text-xs border border-danger/30">
+                        <span className="px-2.5 py-0.5 rounded-full bg-danger/15 text-danger font-semibold text-xs border border-danger/30">
                           ยกเลิกรายการ
                         </span>
                       );
                     case "DELETE":
                     case "delete_user":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-danger/20 text-danger font-extrabold text-xs border border-danger/40">
+                        <span className="px-2.5 py-0.5 rounded-full bg-danger/20 text-danger font-semibold text-xs border border-danger/40">
                           ลบข้อมูล
                         </span>
                       );
@@ -1621,57 +1621,57 @@ export default function Settings() {
                     case "APPROVE_LINE_SLIP":
                     case "approve_user":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-tile-mint text-tile-mint-ink font-extrabold text-xs border border-line">
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-mint text-tile-mint-ink font-semibold text-xs border border-line">
                           อนุมัติ
                         </span>
                       );
                     case "REJECT_LINE_SLIP":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-tile-peach text-tile-peach-ink font-extrabold text-xs border border-danger/30">
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-peach text-tile-peach-ink font-semibold text-xs border border-danger/30">
                           ปฏิเสธสลิป
                         </span>
                       );
                     case "SIGN":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-tile-lilac text-tile-lilac-ink font-extrabold text-xs border border-line">
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-lilac text-tile-lilac-ink font-semibold text-xs border border-line">
                           ลงนาม
                         </span>
                       );
                     case "DISBURSE":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-brand text-white font-extrabold text-xs border border-brand">
+                        <span className="px-2.5 py-0.5 rounded-full bg-brand text-white font-semibold text-xs border border-brand">
                           จ่ายเงินแล้ว
                         </span>
                       );
                     case "POST":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-tile-mint text-tile-mint-ink font-extrabold text-xs border border-line">
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-mint text-tile-mint-ink font-semibold text-xs border border-line">
                           โพสต์ลงบัญชี
                         </span>
                       );
                     case "SUBMIT":
                     case "VERIFY":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sand text-tile-sand-ink font-bold text-xs border border-line">
+                        <span className="px-2.5 py-0.5 rounded-full bg-tile-sand text-tile-sand-ink font-medium text-xs border border-line">
                           {action === "SUBMIT" ? "ส่งตรวจนับ" : "ตรวจนับแล้ว"}
                         </span>
                       );
                     case "owner_auto_promote":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-accent text-accent-foreground font-extrabold text-xs border border-line">
+                        <span className="px-2.5 py-0.5 rounded-full bg-accent text-accent-foreground font-semibold text-xs border border-line">
                           กู้คืนสิทธิ์เจ้าของระบบ
                         </span>
                       );
                     case "update_user_role":
                     case "AUTH_SET_CHURCH_ROLE":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-brand/15 text-brand font-extrabold text-xs border border-brand/30">
+                        <span className="px-2.5 py-0.5 rounded-full bg-brand/15 text-brand font-semibold text-xs border border-brand/30">
                           เปลี่ยนบทบาท
                         </span>
                       );
                     case "disable_user":
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full bg-danger/15 text-danger font-bold text-xs border border-danger/30">
+                        <span className="px-2.5 py-0.5 rounded-full bg-danger/15 text-danger font-medium text-xs border border-danger/30">
                           ปิดการใช้งาน
                         </span>
                       );
@@ -1713,7 +1713,7 @@ export default function Settings() {
 
                             <div className="text-xs">
                               <span className="text-ink-3">ผู้ดำเนินการ: </span>
-                              <span className="font-extrabold text-ink">
+                              <span className="font-semibold text-ink">
                                 {log.userName || "ไม่ระบุชื่อ"}
                               </span>
                               {log.userEmail && (
@@ -1725,7 +1725,7 @@ export default function Settings() {
 
                             <div className="text-xs flex items-center gap-2">
                               <span className="text-ink-3">เป้าหมาย:</span>
-                              <span className="font-mono text-xs bg-surface px-2 py-0.5 rounded border border-line font-bold text-ink">
+                              <span className="font-mono text-xs bg-surface px-2 py-0.5 rounded border border-line font-medium text-ink">
                                 {log.entity}
                                 {log.entityId ? ` #${log.entityId}` : ""}
                               </span>
@@ -1748,7 +1748,7 @@ export default function Settings() {
                           ประวัติกิจกรรมและบันทึกการตรวจสอบระบบ
                         </caption>
                         <thead>
-                          <tr className="border-b border-line font-extrabold text-ink">
+                          <tr className="border-b border-line font-semibold text-ink">
                             <th scope="col" className="pb-3 px-3">
                               วัน-เวลา
                             </th>

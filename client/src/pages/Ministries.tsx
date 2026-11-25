@@ -113,7 +113,7 @@ export default function Ministries() {
         {canManage && showCreate && (
           <form onSubmit={submit} noValidate className="bento-card p-6">
             <div className="mb-5 flex items-center justify-between pb-3 border-b border-line">
-              <h2 className="font-extrabold text-ink">เพิ่มฝ่ายงานใหม่</h2>
+              <h2 className="font-semibold text-ink">เพิ่มฝ่ายงานใหม่</h2>
               <button
                 type="button"
                 onClick={closeCreateForm}
@@ -124,7 +124,7 @@ export default function Ministries() {
               </button>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-extrabold text-ink-2">
+              <label className="text-sm font-semibold text-ink-2">
                 ชื่อฝ่ายงาน *
                 <input
                   id="new-ministry-name"
@@ -140,7 +140,7 @@ export default function Ministries() {
                 />
                 <FieldError fieldId="new-ministry-name" message={errors.name} />
               </label>
-              <label className="text-sm font-extrabold text-ink-2">
+              <label className="text-sm font-semibold text-ink-2">
                 หัวหน้าฝ่าย
                 <input
                   value={leaderName}
@@ -148,7 +148,7 @@ export default function Ministries() {
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
+              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
                 เวลานัดประชุม
                 <input
                   value={meetingSchedule}
@@ -157,7 +157,7 @@ export default function Ministries() {
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
+              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
                 รายละเอียดพันธกิจ
                 <textarea
                   value={description}
@@ -202,12 +202,12 @@ export default function Ministries() {
                 key={ministry.id}
                 type="button"
                 onClick={() => setLocation(`/ministries/${ministry.id}`)}
-                className="bento-card p-5 text-left transition-colors hover:-translate-x-0.5 hover:-translate-y-0.5"
+                className="bento-card p-5 text-left transition-colors"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-extrabold text-ink">{ministry.name}</h2>
+                  <h2 className="font-semibold text-ink">{ministry.name}</h2>
                   <span
-                    className={`rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${
+                    className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                       ministry.status === "active"
                         ? "border-line bg-tile-mint text-tile-mint-ink"
                         : "border-line bg-paper-2 text-ink-2"

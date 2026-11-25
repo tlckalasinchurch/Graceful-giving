@@ -102,7 +102,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
               className="btn-primary inline-flex min-h-11 items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-xs transition-colors"
             >
               <Printer className="w-4 h-4" />
-              <span>พิมพ์เอกสาร (Print / PDF)</span>
+              <span>พิมพ์หรือบันทึก PDF</span>
             </button>
             <button
               type="button"
@@ -125,7 +125,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             {/* Header / Church Info */}
             <div className="border-b border-line pb-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-ink tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">
                   {church?.name || "คริสตจักร"}
                 </h1>
                 <p className="text-xs text-ink-2 mt-1 max-w-md">
@@ -140,7 +140,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 <p className="text-xs font-medium text-ink-3">
                   {isExpense ? "เลขที่ใบสำคัญจ่าย" : "เลขที่ใบเสร็จ"}
                 </p>
-                <p className="text-sm font-bold text-ink font-mono">
+                <p className="text-sm font-medium text-ink font-mono">
                   {docNumber}
                 </p>
                 <p className="text-xs text-ink-2 mt-1">
@@ -151,7 +151,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
 
             {/* Document Title Banner */}
             <div className="text-center my-6">
-              <span className="inline-block px-6 py-1.5 bg-paper border border-field rounded-lg text-sm sm:text-base font-bold text-ink tracking-wide">
+              <span className="inline-block px-6 py-1.5 bg-paper border border-field rounded-lg text-sm sm:text-base font-medium text-ink tracking-wide">
                 {docTitle}
               </span>
             </div>
@@ -162,7 +162,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 <span className="text-ink-3 font-medium">
                   {isExpense ? "จ่ายให้แก่ (Payee):" : "ได้รับเงินจาก (Donor):"}
                 </span>
-                <p className="font-bold text-ink text-sm mt-0.5">
+                <p className="font-medium text-ink text-sm mt-0.5">
                   {data.payeeOrDonor ||
                     (isExpense ? "ทั่วไป" : "ผู้ถวายนิรนาม")}
                 </p>
@@ -171,7 +171,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 <span className="text-ink-3 font-medium">
                   หักจาก / เข้ากองทุน:
                 </span>
-                <p className="font-bold text-ink text-sm mt-0.5">
+                <p className="font-medium text-ink text-sm mt-0.5">
                   {data.fundName || "กองทุนทั่วไป"}
                 </p>
               </div>
@@ -198,7 +198,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             {/* Items Table */}
             <div className="relative border border-field rounded-xl overflow-x-auto mb-6">
               <table className="w-full text-left text-xs">
-                <thead className="bg-paper border-b border-field text-ink-2 font-bold">
+                <thead className="bg-paper border-b border-field text-ink-2 font-medium">
                   <tr>
                     <th className="py-2.5 px-4 w-12 text-center">ลำดับ</th>
                     <th className="py-2.5 px-4">
@@ -215,14 +215,14 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                       1
                     </td>
                     <td className="py-4 px-4">
-                      <p className="font-bold text-ink text-sm">
+                      <p className="font-medium text-ink text-sm">
                         {data.titleOrDescription}
                       </p>
                       {data.notes && (
                         <p className="text-ink-3 text-xs mt-1">{data.notes}</p>
                       )}
                     </td>
-                    <td className="py-4 px-4 text-right font-mono font-bold text-ink text-sm">
+                    <td className="py-4 px-4 text-right font-mono font-medium text-ink text-sm">
                       {data.amount.toLocaleString(THAI_LOCALE, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -230,11 +230,11 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     </td>
                   </tr>
                 </tbody>
-                <tfoot className="bg-paper border-t-2 border-field font-bold">
+                <tfoot className="bg-paper border-t-2 border-field font-medium">
                   <tr>
                     <td colSpan={2} className="py-3 px-4 text-ink-2">
                       จำนวนเงินรวมทั้งสิ้น (ตัวอักษร):
-                      <span className="text-ink font-bold ml-2">
+                      <span className="text-ink font-medium ml-2">
                         ({bahtText(data.amount)})
                       </span>
                     </td>
@@ -262,7 +262,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                   href={data.receiptUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold underline hover:text-brand"
+                  className="font-medium underline hover:text-brand"
                 >
                   เปิดดูหลักฐานแนบ
                 </a>

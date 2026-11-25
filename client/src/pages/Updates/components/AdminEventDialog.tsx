@@ -90,7 +90,7 @@ export function AdminEventDialog({
                 <CalendarDays className="size-5" />
               </span>
               <div>
-                <DialogTitle className="font-display text-xl font-extrabold text-ink">
+                <DialogTitle className="font-display text-xl font-semibold text-ink">
                   {editingEventId ? "แก้ไขกิจกรรม" : "สร้างกิจกรรมใหม่"}
                 </DialogTitle>
                 <DialogDescription className="text-xs font-medium text-ink-2">
@@ -143,7 +143,7 @@ export function AdminEventDialog({
                     description: event.target.value,
                   })
                 }
-                placeholder="รายละเอียดกิจกรรม..."
+                placeholder="รายละเอียดกิจกรรม…"
                 className="neo-input w-full px-3.5 py-2.5 text-sm font-medium text-ink"
               />
               <FieldError

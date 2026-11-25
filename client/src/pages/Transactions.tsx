@@ -216,14 +216,14 @@ export default function Transactions() {
             <>
               <button
                 onClick={() => setLocation("/expenses/new")}
-                className="btn-secondary flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 text-sm font-bold"
+                className="btn-secondary flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 text-sm font-medium"
               >
                 <Plus className="size-4" aria-hidden="true" />
                 <span>บันทึกรายจ่าย</span>
               </button>
               <button
                 onClick={() => setLocation("/offerings/new")}
-                className="btn-primary flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-bold"
+                className="btn-primary flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-medium"
               >
                 <Plus className="size-4" aria-hidden="true" />
                 <span>บันทึกการถวาย</span>
@@ -236,7 +236,7 @@ export default function Transactions() {
       {/* Eyebrow + Period & Fund Scope Controls */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
+          <span className="text-sm font-medium text-ink-2">
             สมุดรายการ · การเงิน
           </span>
         </div>
@@ -256,7 +256,7 @@ export default function Transactions() {
                 type="button"
                 onClick={() => handlePeriodChange(opt.id)}
                 aria-pressed={periodFilter === opt.id}
-                className={`min-h-9 rounded-lg px-3 py-1 text-xs font-extrabold transition-colors ${
+                className={`min-h-9 rounded-lg px-3 py-1 text-xs font-semibold transition-colors ${
                   periodFilter === opt.id
                     ? "bg-accent text-accent-foreground border border-brand/40"
                     : "text-ink-2 hover:bg-paper-2"
@@ -270,7 +270,7 @@ export default function Transactions() {
             aria-label="กรองตามกองทุน"
             value={fundFilter}
             onChange={e => handleFundChange(e.target.value)}
-            className="neo-input min-h-11 w-auto px-3 py-1.5 text-xs font-bold"
+            className="neo-input min-h-11 w-auto px-3 py-1.5 text-xs font-medium"
           >
             <option value="all">ทุกกองทุน</option>
             {(accountsData ?? []).map(a => (
@@ -313,7 +313,7 @@ export default function Transactions() {
           <div key={c.label} className="bento-card p-5 sm:p-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-extrabold text-ink-3">{c.label}</p>
+                <p className="text-xs font-semibold text-ink-3">{c.label}</p>
                 <p className="text-xs font-medium text-ink-3 mt-0.5">
                   {c.note}
                 </p>
@@ -349,7 +349,7 @@ export default function Transactions() {
       {/* 2. Filter Bar */}
       <div className="bento-card-static p-4 md:p-5">
         <FilterBar
-          searchPlaceholder="ค้นหารายการ, ชื่อผู้ถวาย, ผู้รับเงิน, กองทุน หรือเลขอ้างอิง..."
+          searchPlaceholder="ค้นหารายการ, ชื่อผู้ถวาย, ผู้รับเงิน, กองทุน หรือเลขอ้างอิง…"
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           filters={[
@@ -396,7 +396,7 @@ export default function Transactions() {
               <caption className="sr-only">
                 รายการธุรกรรมรับถวายและรายจ่ายของคริสตจักร
               </caption>
-              <thead className="border-b border-line bg-paper-2 text-xs font-extrabold text-ink">
+              <thead className="border-b border-line bg-paper-2 text-xs font-semibold text-ink">
                 <tr>
                   <th scope="col" className="p-4">
                     วันที่
@@ -427,7 +427,7 @@ export default function Transactions() {
                     <td className="p-4 text-ink-2 font-medium whitespace-nowrap">
                       {formatThaiDate(tx.date)}
                     </td>
-                    <th scope="row" className="p-4 font-bold text-ink">
+                    <th scope="row" className="p-4 font-medium text-ink">
                       <Link
                         href={`/transactions/${tx.id}`}
                         className="rounded-md underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
@@ -469,7 +469,7 @@ export default function Transactions() {
           <div className="md:hidden">
             {feedByDay.map(day => (
               <section key={day.label} aria-label={day.label}>
-                <h3 className="sticky top-0 z-10 border-y border-line bg-paper-2 px-4 py-2 text-xs font-extrabold text-ink-2">
+                <h3 className="sticky top-0 z-10 border-y border-line bg-paper-2 px-4 py-2 text-xs font-semibold text-ink-2">
                   {day.label}
                 </h3>
                 <ul className="divide-y divide-line">
@@ -482,7 +482,7 @@ export default function Transactions() {
                       >
                         <div className="flex min-w-0 items-center">
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-extrabold text-ink">
+                            <p className="truncate text-sm font-semibold text-ink">
                               {tx.title}
                             </p>
                             <p className="truncate text-xs font-medium text-ink-2 pt-0.5">

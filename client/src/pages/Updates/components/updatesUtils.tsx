@@ -112,7 +112,7 @@ export function EmptyPanel({ type }: { type: "news" | "events" }) {
           <CalendarDays className="size-7" strokeWidth={1.75} />
         )}
       </div>
-      <p className="mt-4 text-base font-extrabold text-ink">
+      <p className="mt-4 text-base font-semibold text-ink">
         {type === "news"
           ? "ยังไม่มีข่าวสารเผยแพร่"
           : "ยังไม่มีกิจกรรมที่กำลังจะมาถึง"}
@@ -143,7 +143,7 @@ export function StatusPill({ status }: { status: string }) {
           : "ฉบับร่าง";
   return (
     <span
-      className={`rounded-full px-2.5 py-1 text-xs font-extrabold ${styles}`}
+      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${styles}`}
     >
       {" "}
       {label}{" "}
@@ -158,7 +158,7 @@ export function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block text-xs font-extrabold text-ink-2">
+    <label className="block text-xs font-semibold text-ink-2">
       {label}
       <span className="mt-1.5 block">{children}</span>
     </label>
@@ -193,7 +193,7 @@ export function SubmitButtons({
         ) : (
           <Send className="size-4" />
         )}
-        {pending ? "กำลังบันทึก..." : label}
+        {pending ? "กำลังบันทึก…" : label}
       </button>
     </div>
   );

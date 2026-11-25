@@ -214,15 +214,15 @@ export default function BudgetDetail() {
                 query.data.month === null && query.data.category === null;
 
               return (
-                <section className="rounded-2xl border border-line bg-surface p-6 sm:p-7 shadow-sm">
+                <section className="rounded-2xl border border-line bg-surface p-6 sm:p-7">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink">
+                        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-ink">
                           {budgetCategoryLabel(query.data.category)}
                         </h1>
                         {isMaster && (
-                          <span className="rounded-md border border-brand/30 bg-brand/10 px-2 py-0.5 text-xs font-bold text-brand">
+                          <span className="rounded-md border border-brand/30 bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">
                             MASTER
                           </span>
                         )}
@@ -249,10 +249,8 @@ export default function BudgetDetail() {
                           : "วงเงินงบประมาณคงเหลือ"}
                       </span>
                       <span
-                        className={`text-xl sm:text-2xl font-bold font-mono tabular-nums ${
-                          isOver
-                            ? "text-rose-600 dark:text-rose-400"
-                            : "text-ink"
+                        className={`text-xl sm:text-2xl font-semibold font-mono tabular-nums ${
+                          isOver ? "text-danger" : "text-ink"
                         }`}
                       >
                         {isOver ? "-" : ""}
@@ -267,7 +265,7 @@ export default function BudgetDetail() {
                       <dt className="text-xs font-semibold text-ink-3">
                         วงเงินงบประมาณที่อนุมัติ
                       </dt>
-                      <dd className="mt-1 font-mono text-base font-bold tabular-nums text-ink">
+                      <dd className="mt-1 font-mono text-base font-medium tabular-nums text-ink">
                         {formatBaht(query.data.plannedAmount)}
                       </dd>
                     </div>
@@ -275,7 +273,7 @@ export default function BudgetDetail() {
                       <dt className="text-xs font-semibold text-ink-3">
                         ยอดเบิกจ่ายจริงสะสม
                       </dt>
-                      <dd className="mt-1 font-mono text-base font-bold tabular-nums text-ink">
+                      <dd className="mt-1 font-mono text-base font-medium tabular-nums text-ink">
                         {formatBaht(query.data.actualAmount)}
                       </dd>
                     </div>
@@ -284,10 +282,8 @@ export default function BudgetDetail() {
                         {isOver ? "ส่วนต่างที่เกิน" : "สัดส่วนคงเหลือ"}
                       </dt>
                       <dd
-                        className={`mt-1 font-mono text-base font-bold tabular-nums ${
-                          isOver
-                            ? "text-rose-600 dark:text-rose-400"
-                            : "text-emerald-700 dark:text-emerald-400"
+                        className={`mt-1 font-mono text-base font-medium tabular-nums ${
+                          isOver ? "text-danger" : "text-income"
                         }`}
                       >
                         {isOver ? "-" : "+"}
@@ -309,11 +305,11 @@ export default function BudgetDetail() {
             <form
               onSubmit={submit}
               noValidate
-              className="rounded-2xl border border-line bg-surface p-6 sm:p-7 shadow-sm"
+              className="rounded-2xl border border-line bg-surface p-6 sm:p-7"
             >
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
                 <div>
-                  <h2 className="text-base font-bold text-ink">
+                  <h2 className="text-base font-medium text-ink">
                     แก้ไขแผนงบประมาณ
                   </h2>
                   <p className="text-xs text-ink-3">
@@ -325,7 +321,7 @@ export default function BudgetDetail() {
                   type="button"
                   onClick={confirmDelete}
                   disabled={remove.isPending}
-                  className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 disabled:opacity-50 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/50"
+                  className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-danger/30 bg-danger/10 px-3.5 py-1.5 text-xs font-semibold text-danger transition-colors hover:bg-danger/15 disabled:opacity-50"
                 >
                   <Trash2 className="size-3.5" />
                   ลบงบประมาณนี้
@@ -347,7 +343,7 @@ export default function BudgetDetail() {
                 <button
                   type="submit"
                   disabled={update.isPending || !isDirty}
-                  className="btn-primary inline-flex min-h-10 items-center gap-2 rounded-xl px-5 py-2 text-xs font-semibold disabled:opacity-50 transition-all"
+                  className="btn-primary inline-flex min-h-10 items-center gap-2 rounded-xl px-5 py-2 text-xs font-semibold disabled:opacity-50 transition-colors"
                 >
                   <Save className="size-4" />
                   {update.isPending ? "กำลังบันทึก…" : "บันทึกการแก้ไข"}
@@ -356,7 +352,7 @@ export default function BudgetDetail() {
             </form>
 
             {/* Expenses Counted in this Budget */}
-            <section className="rounded-2xl border border-line bg-surface p-6 sm:p-7 shadow-sm">
+            <section className="rounded-2xl border border-line bg-surface p-6 sm:p-7">
               <div className="border-b border-line pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -364,7 +360,7 @@ export default function BudgetDetail() {
                       <FileText className="size-4" />
                     </div>
                     <div>
-                      <h2 className="text-base font-bold text-ink">
+                      <h2 className="text-base font-medium text-ink">
                         รายจ่ายที่นับรวมในงบนี้ ({query.data.expenseCount}{" "}
                         รายการ)
                       </h2>
@@ -401,7 +397,7 @@ export default function BudgetDetail() {
                             {expense.payee ? ` · ${expense.payee}` : ""}
                           </p>
                         </div>
-                        <span className="shrink-0 font-mono text-sm font-bold tabular-nums text-rose-600 dark:text-rose-400">
+                        <span className="shrink-0 font-mono text-sm font-medium tabular-nums text-danger">
                           -{formatBaht(expense.amount)}
                         </span>
                       </Link>

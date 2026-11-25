@@ -137,15 +137,11 @@ export default function Reports() {
       }
     >
       <div className="space-y-6">
-        <p className="bento-card-static flex items-start gap-2.5 px-4 py-3 text-sm font-medium text-ink-2">
-          <span
-            className="mt-1.5 size-2 shrink-0 rounded-full bg-brand border border-line"
-            aria-hidden="true"
-          />
+        <p className="bento-card-static px-4 py-3 text-sm font-medium text-ink-2">
           <span>
             คำนวณจากรายการถวายและรายจ่ายที่บันทึกไว้ ไม่รวมรายการที่ยกเลิกแล้ว
             {summary
-              ? ` · ช่วง ${fmtThaiDate(summary.from)} ถึง ${fmtThaiDate(summary.to)}`
+              ? ` ช่วง ${fmtThaiDate(summary.from)} ถึง ${fmtThaiDate(summary.to)}`
               : ""}
           </span>
         </p>
@@ -165,7 +161,7 @@ export default function Reports() {
                 onClick={() => setTab(id)}
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm transition-colors ${
                   tab === id
-                    ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
+                    ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
                     : "btn-secondary"
                 }`}
               >
@@ -175,7 +171,7 @@ export default function Reports() {
             ))}
           </div>
 
-          <label className="text-sm font-extrabold text-ink-2">
+          <label className="text-sm font-semibold text-ink-2">
             <span className="sr-only">ช่วงเวลา</span>
             <NativeSelect
               value={period}
@@ -205,7 +201,7 @@ export default function Reports() {
           />
         ) : tab === "funds" ? (
           <section className="bento-card-static overflow-hidden p-0">
-            <h2 className="border-b border-line bg-paper-2 p-4 font-extrabold text-ink">
+            <h2 className="border-b border-line bg-paper-2 p-4 font-semibold text-ink">
               ยอดคงเหลือแต่ละกองทุน
             </h2>
             {!summary || summary.funds.length === 0 ? (
@@ -224,7 +220,7 @@ export default function Reports() {
                     >
                       <div className="flex items-center gap-3">
                         <Wallet className="h-5 w-5 shrink-0 text-brand" />
-                        <span className="font-extrabold text-ink">
+                        <span className="font-semibold text-ink">
                           {fund.name}
                         </span>
                       </div>
@@ -233,7 +229,7 @@ export default function Reports() {
                   ))}
                 </ul>
                 <div className="flex items-center justify-between border-t border-line bg-paper-2 p-4">
-                  <span className="font-extrabold text-ink">รวมทุกกองทุน</span>
+                  <span className="font-semibold text-ink">รวมทุกกองทุน</span>
                   <MoneyDisplay
                     amount={summary.funds.reduce((t, f) => t + f.balance, 0)}
                     size="lg"
@@ -252,7 +248,7 @@ export default function Reports() {
             {/* Totals */}
             <section className="bento-card p-0 grid grid-cols-1 sm:grid-cols-3 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[var(--ink)] overflow-hidden">
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-xs font-extrabold text-ink-3">รายรับรวม</p>
+                <p className="text-xs font-semibold text-ink-3">รายรับรวม</p>
                 <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.totalIncome}
@@ -262,7 +258,7 @@ export default function Reports() {
                 </div>
               </div>
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-xs font-extrabold text-ink-3">รายจ่ายรวม</p>
+                <p className="text-xs font-semibold text-ink-3">รายจ่ายรวม</p>
                 <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.totalExpense}
@@ -272,16 +268,14 @@ export default function Reports() {
                 </div>
               </div>
               <div className="p-5 flex items-baseline justify-between sm:block">
-                <p className="text-xs font-extrabold text-ink-3">
-                  คงเหลือสุทธิ
-                </p>
+                <p className="text-xs font-semibold text-ink-3">คงเหลือสุทธิ</p>
                 <div className="text-right sm:text-left sm:mt-1.5">
                   <MoneyDisplay
                     amount={summary!.net}
                     type={summary!.net >= 0 ? "income" : "neutral"}
                     size="lg"
                   />
-                  <p className="mt-1 text-xs font-bold text-ink-3">
+                  <p className="mt-1 text-xs font-medium text-ink-3">
                     {summary!.transactionCount} รายการ
                   </p>
                 </div>
@@ -291,7 +285,7 @@ export default function Reports() {
             {/* Statement by category */}
             <section className="bento-card-static overflow-hidden p-0">
               <div className="flex items-center justify-between border-b border-line bg-paper-2 p-4">
-                <h2 className="font-extrabold text-ink">สรุปตามหมวดหมู่</h2>
+                <h2 className="font-semibold text-ink">สรุปตามหมวดหมู่</h2>
                 <span className="text-xs font-semibold text-ink-3 md:hidden">
                   (เลื่อนซ้าย-ขวาเพื่อดูตาราง)
                 </span>
@@ -301,7 +295,7 @@ export default function Reports() {
                   <caption className="sr-only">
                     สรุปรายรับและรายจ่ายตามหมวดหมู่
                   </caption>
-                  <thead className="border-b border-line bg-paper-2 text-xs font-extrabold text-ink-2">
+                  <thead className="border-b border-line bg-paper-2 text-xs font-semibold text-ink-2">
                     <tr>
                       <th scope="col" className="p-4">
                         รายการ
@@ -316,7 +310,7 @@ export default function Reports() {
                   </thead>
                   <tbody className="divide-y divide-line">
                     <tr className="bg-paper-2/70">
-                      <td colSpan={3} className="p-3 font-extrabold text-ink">
+                      <td colSpan={3} className="p-3 font-semibold text-ink">
                         รายรับ (เงินถวาย)
                       </td>
                     </tr>
@@ -332,10 +326,10 @@ export default function Reports() {
                           <td className="py-3 pl-8 pr-4 font-medium text-ink-2">
                             {offeringCategoryLabel(row.category)}
                           </td>
-                          <td className="p-4 text-right font-bold tabular-nums text-ink-2">
+                          <td className="p-4 text-right font-medium tabular-nums text-ink-2">
                             {row.count}
                           </td>
-                          <td className="p-4 text-right font-extrabold tabular-nums text-income">
+                          <td className="p-4 text-right font-semibold tabular-nums text-income">
                             {fmtBaht(row.total)}
                           </td>
                         </tr>
@@ -343,7 +337,7 @@ export default function Reports() {
                     )}
 
                     <tr className="bg-paper-2/70">
-                      <td colSpan={3} className="p-3 font-extrabold text-ink">
+                      <td colSpan={3} className="p-3 font-semibold text-ink">
                         รายจ่าย
                       </td>
                     </tr>
@@ -359,10 +353,10 @@ export default function Reports() {
                           <td className="py-3 pl-8 pr-4 font-medium text-ink-2">
                             {expenseCategoryLabel(row.category)}
                           </td>
-                          <td className="p-4 text-right font-bold tabular-nums text-ink-2">
+                          <td className="p-4 text-right font-medium tabular-nums text-ink-2">
                             {row.count}
                           </td>
-                          <td className="p-4 text-right font-extrabold tabular-nums text-danger">
+                          <td className="p-4 text-right font-semibold tabular-nums text-danger">
                             {fmtBaht(row.total)}
                           </td>
                         </tr>
@@ -370,11 +364,11 @@ export default function Reports() {
                     )}
 
                     <tr className="border-t border-line bg-paper-2">
-                      <td className="p-4 font-extrabold text-ink">
+                      <td className="p-4 font-semibold text-ink">
                         คงเหลือสุทธิ
                       </td>
                       <td className="p-4" />
-                      <td className="p-4 text-right font-extrabold tabular-nums text-ink">
+                      <td className="p-4 text-right font-semibold tabular-nums text-ink">
                         {fmtBaht(summary!.net)}
                       </td>
                     </tr>
@@ -386,10 +380,10 @@ export default function Reports() {
             {/* Six month trend */}
             <section className="bento-card-static p-6">
               <div className="mb-4 flex flex-col gap-2 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="font-extrabold text-ink">
+                <h2 className="font-semibold text-ink">
                   เปรียบเทียบ 6 เดือนล่าสุด
                 </h2>
-                <div className="flex items-center gap-4 text-sm font-extrabold text-ink">
+                <div className="flex items-center gap-4 text-sm font-semibold text-ink">
                   <span className="flex items-center gap-1.5">
                     <span className="h-3.5 w-3.5 rounded-sm border border-line bg-income" />
                     รายรับ
@@ -429,7 +423,7 @@ export default function Reports() {
                           title={`รายจ่าย ${fmtBaht(month.expense)}`}
                         />
                       </div>
-                      <span className="mt-3 whitespace-nowrap text-xs sm:text-sm font-extrabold text-ink-2">
+                      <span className="mt-3 whitespace-nowrap text-xs sm:text-sm font-semibold text-ink-2">
                         {month.month}
                       </span>
                     </div>

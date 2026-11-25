@@ -101,7 +101,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Custom GraceBox Brand Colors (Semantic Tokens) */
+  /* Grace Giving brand colours (semantic tokens) */
   --color-brand-bg: var(--background);
   --color-brand-cream: var(--ink);
   --color-brand-sage: var(--income);
@@ -281,8 +281,8 @@
   --secondary-foreground: var(--ink);
   --muted: var(--paper-2);
   --muted-foreground: var(--ink-3);
-  --accent: var(--accent-lime);
-  --accent-foreground: var(--accent-lime-ink);
+  --accent: var(--tile-mint);
+  --accent-foreground: var(--tile-mint-ink);
   --destructive: var(--danger);
   --destructive-foreground: #ffffff;
   --border: var(--line);
@@ -340,14 +340,14 @@
   --secondary-foreground: var(--ink);
   --muted: var(--paper-2);
   --muted-foreground: var(--ink-3);
-  --accent: var(--accent-lime);
-  --accent-foreground: var(--accent-lime-ink);
+  --accent: var(--tile-mint);
+  --accent-foreground: var(--tile-mint-ink);
   --destructive-foreground: #ffffff;
 }
 
 .alpha-display {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.18;
 }
@@ -465,18 +465,15 @@ select:focus-visible {
 
 /* Grace Giving — design-system utilities ----------------------------------- */
 
-/* Quiet inline tag (sentence case, no heavy borders or shadows). */
+/* Quiet context line above a heading: plain text, no pill. */
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.3;
-  font-weight: 600;
-  color: var(--tile-mint-ink);
-  background-color: var(--tile-mint);
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
+  font-weight: 500;
+  color: var(--ink-2);
 }
 
 /* Quiet context label inside the shared shell. */
@@ -568,7 +565,7 @@ select:focus-visible {
     justify-content: center;
     gap: 0.5rem;
     border-radius: var(--radius-xl);
-    font-weight: 700;
+    font-weight: 600;
     text-align: center;
   }
   .btn-primary > svg,

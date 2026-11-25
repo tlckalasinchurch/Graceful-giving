@@ -63,7 +63,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
                 className="flex min-h-12 w-full items-center gap-3.5 rounded-lg px-2.5 py-2.5 text-left transition-colors hover:bg-ground focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-ink">
+                  <span className="block text-sm font-medium text-ink">
                     {item.title}
                   </span>
                   <span className="hidden truncate text-xs text-ink-2 sm:block">
@@ -72,7 +72,7 @@ export function TaskQueue({ items, isLoading, onOpen }: TaskQueueProps) {
                 </span>
                 <span
                   aria-hidden="true"
-                  className="money flex size-7 shrink-0 items-center justify-center rounded-lg border border-brand/20 bg-brand/10 text-xs font-bold text-brand"
+                  className="money flex size-7 shrink-0 items-center justify-center rounded-lg border border-brand/20 bg-brand/10 text-xs font-medium text-brand"
                 >
                   {item.count}
                 </span>

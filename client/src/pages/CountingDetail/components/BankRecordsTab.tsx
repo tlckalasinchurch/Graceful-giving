@@ -159,7 +159,7 @@ export function BankRecordsTab({
             บันทึกรายการธนาคาร
           </h2>
           <div className="grid gap-4 md:grid-cols-4">
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               ประเภท
               <NativeSelect
                 value={bType}
@@ -178,7 +178,7 @@ export function BankRecordsTab({
                 ))}
               </NativeSelect>
             </label>
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               จำนวนเงิน *
               <input
                 type="number"
@@ -192,14 +192,14 @@ export function BankRecordsTab({
                   clearField("amount");
                 }}
                 {...invalidProps("amount")}
-                className="neo-input mt-1 font-bold tabular-nums"
+                className="neo-input mt-1 font-medium tabular-nums"
               />
               <FieldError
                 fieldId="bank-record-amount"
                 message={errors.amount}
               />
             </label>
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               ผู้โอน
               <input
                 value={bName}
@@ -208,7 +208,7 @@ export function BankRecordsTab({
                 className="neo-input mt-1 font-normal"
               />
             </label>
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               เลขอ้างอิง
               <input
                 value={bRef}
@@ -218,7 +218,7 @@ export function BankRecordsTab({
             </label>
           </div>
           {needsNote(bType) && (
-            <label className="mt-4 block text-sm font-extrabold text-ink">
+            <label className="mt-4 block text-sm font-semibold text-ink">
               รายละเอียด *
               <input
                 id="bank-record-notes"
@@ -248,7 +248,7 @@ export function BankRecordsTab({
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="bento-card p-4">
-          <p className="text-xs font-extrabold text-ink-3">
+          <p className="text-xs font-semibold text-ink-3">
             เงินโอนเข้าบัญชีจริง
           </p>
           <MoneyDisplay
@@ -265,7 +265,7 @@ export function BankRecordsTab({
           </div>
         </div>
         <div className="bento-card p-4">
-          <p className="text-xs font-extrabold text-ink-3">
+          <p className="text-xs font-semibold text-ink-3">
             นำเงินสดเข้าฝากจริง
           </p>
           <MoneyDisplay
@@ -277,7 +277,7 @@ export function BankRecordsTab({
       </div>
 
       <div className="bento-card-static overflow-hidden">
-        <h2 className="border-b border-line bg-paper-2 p-4 font-extrabold text-ink">
+        <h2 className="border-b border-line bg-paper-2 p-4 font-semibold text-ink">
           รายการธนาคาร ({bankRecords.length})
         </h2>
         {bankRecords.length === 0 ? (
@@ -292,7 +292,7 @@ export function BankRecordsTab({
                 className="flex items-center justify-between gap-4 p-4 hover:bg-paper-2/40"
               >
                 <div className="min-w-0">
-                  <p className="font-extrabold text-ink">
+                  <p className="font-semibold text-ink">
                     {BANK_RECORD_LABELS[record.type as BankRecordType] ??
                       record.type}
                   </p>
@@ -304,11 +304,11 @@ export function BankRecordsTab({
                   </p>
                   <p className="mt-1 text-sm">
                     {record.passbookMatched ? (
-                      <span className="font-bold text-income">
+                      <span className="font-medium text-income">
                         กระทบสมุดบัญชีแล้ว
                       </span>
                     ) : (
-                      <span className="font-bold text-brand">
+                      <span className="font-medium text-brand">
                         ยังไม่กระทบสมุดบัญชี
                       </span>
                     )}
