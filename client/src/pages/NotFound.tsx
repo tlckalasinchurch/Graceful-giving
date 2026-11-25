@@ -11,8 +11,8 @@ export default function NotFound() {
           <Compass className="size-8" strokeWidth={2} />
         </div>
 
-        <p className="font-display text-4xl font-bold text-brand">404</p>
-        <h1 className="mt-2 font-display text-2xl font-bold text-ink">
+        <p className="font-display text-4xl font-semibold text-brand">404</p>
+        <h1 className="mt-2 font-display text-2xl font-semibold text-ink">
           ไม่พบหน้าที่คุณต้องการ
         </h1>
 

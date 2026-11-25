@@ -204,7 +204,7 @@ export default function Counting() {
     >
       <div className="space-y-6">
         {openCount > 0 && (
-          <div className="inline-flex items-center gap-2 rounded-xl border border-line bg-tile-sand px-3.5 py-2 text-xs font-extrabold text-tile-sand-ink">
+          <div className="inline-flex items-center gap-2 rounded-xl border border-line bg-tile-sand px-3.5 py-2 text-xs font-semibold text-tile-sand-ink">
             <span className="money">{openCount} รอบ</span>
             <span>ค้างอยู่หรือกำลังนับ</span>
           </div>
@@ -247,7 +247,7 @@ export default function Counting() {
               </button>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-extrabold text-ink">
+              <label className="text-sm font-semibold text-ink">
                 วันอาทิตย์ที่รับถวาย *
                 <input
                   type="date"
@@ -266,7 +266,7 @@ export default function Counting() {
                   message={errors.serviceDate}
                 />
               </label>
-              <label className="text-sm font-extrabold text-ink md:col-span-2">
+              <label className="text-sm font-semibold text-ink md:col-span-2">
                 บันทึกเพิ่มเติม
                 <textarea
                   rows={2}
@@ -326,14 +326,14 @@ export default function Counting() {
                 type="button"
                 aria-pressed={activeTab === tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-extrabold transition-colors ${
+                className={`inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                   activeTab === tab.id
                     ? "border border-brand/40 bg-accent text-accent-foreground "
                     : "text-ink-2 hover:bg-paper-2 hover:text-ink"
                 }`}
               >
                 <span>{tab.label}</span>
-                <span className="money rounded-full border border-line bg-surface px-1.5 py-0.5 text-xs font-bold text-ink">
+                <span className="money rounded-full border border-line bg-surface px-1.5 py-0.5 text-xs font-medium text-ink">
                   {tab.count}
                 </span>
               </button>
@@ -347,7 +347,7 @@ export default function Counting() {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาวันที่, บันทึก..."
+              placeholder="ค้นหาวันที่, บันทึก…"
               aria-label="ค้นหารอบนับเงิน"
               className="neo-input pl-9 pr-8 py-2"
             />
@@ -382,7 +382,7 @@ export default function Counting() {
           />
         ) : filteredSessions.length === 0 ? (
           <div className="bento-card-static p-12 text-center">
-            <h3 className="display text-base font-bold text-ink">
+            <h3 className="display text-base font-semibold text-ink">
               ไม่พบรายการในหมวดหมู่นี้
             </h3>
             <p className="mt-1 text-sm font-medium text-ink-2">
@@ -399,7 +399,7 @@ export default function Counting() {
                   setActiveTab("all");
                   setSearchQuery("");
                 }}
-                className="mt-4 min-h-11 px-3 text-sm font-extrabold text-brand hover:underline"
+                className="mt-4 min-h-11 px-3 text-sm font-semibold text-brand hover:underline"
               >
                 ดูทุกรอบทั้งหมด
               </button>
@@ -431,7 +431,7 @@ export default function Counting() {
                     </div>
 
                     {session.varianceNote && (
-                      <p className="mt-1.5 text-xs sm:text-sm font-bold text-brand">
+                      <p className="mt-1.5 text-xs sm:text-sm font-medium text-brand">
                         มีบันทึกผลต่าง: {session.varianceNote}
                       </p>
                     )}
@@ -490,7 +490,7 @@ export default function Counting() {
                               title="ลบรอบนับเงินค้างนี้อย่างถาวร"
                               onClick={() => handleDeleteSession(session)}
                               disabled={deleteSession.isPending}
-                              className="min-h-11 inline-flex items-center gap-1 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
+                              className="min-h-11 inline-flex items-center gap-1 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-semibold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                               <span>ลบรอบค้าง</span>

@@ -38,7 +38,7 @@ export function SignatureProgress({
 
   return (
     <section aria-label="สถานะการลงนาม" className="space-y-3">
-      <h4 className="display text-sm font-extrabold text-ink">
+      <h4 className="display text-sm font-semibold text-ink">
         ลงนามโดยผู้มีอำนาจ
       </h4>
 
@@ -49,19 +49,19 @@ export function SignatureProgress({
               key={sig.userId}
               className="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-3.5 py-2.5 text-sm"
             >
-              <span className="font-extrabold text-ink">
+              <span className="font-semibold text-ink">
                 {sig.name || `ผู้ใช้ #${sig.userId}`}
               </span>
               {sig.wasRequiredSigner && (
-                <span className="rounded-full border border-line bg-tile-sand px-2.5 py-0.5 text-xs font-extrabold text-tile-sand-ink">
+                <span className="rounded-full border border-line bg-tile-sand px-2.5 py-0.5 text-xs font-semibold text-tile-sand-ink">
                   ต้องลงนามทุกครั้ง
                 </span>
               )}
               <span
                 className={
                   sig.decision === "approved"
-                    ? "text-xs font-extrabold text-brand"
-                    : "text-xs font-extrabold text-danger"
+                    ? "text-xs font-semibold text-brand"
+                    : "text-xs font-semibold text-danger"
                 }
               >
                 {sig.decision === "approved" ? "ลงนามแล้ว" : "ปฏิเสธ"}
@@ -80,24 +80,24 @@ export function SignatureProgress({
       )}
 
       {approval.outcome === "approved" && (
-        <p className="inline-flex items-center rounded-full border border-line bg-tile-mint px-3 py-1 text-xs font-extrabold text-tile-mint-ink">
+        <p className="inline-flex items-center rounded-full border border-line bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
           ครบตามเงื่อนไขธนาคาร
         </p>
       )}
       {approval.outcome === "rejected" && (
-        <p className="inline-flex items-center rounded-full border border-danger/40 bg-danger/10 px-3 py-1 text-xs font-extrabold text-danger">
+        <p className="inline-flex items-center rounded-full border border-danger/40 bg-danger/10 px-3 py-1 text-xs font-semibold text-danger">
           ถูกปฏิเสธ คำขอนี้ไปไม่ถึงการจ่ายเงิน
         </p>
       )}
       {approval.outcome === "pending" && (
         <p className="flex flex-wrap items-center gap-2 text-xs">
           {!approval.requiredSignerApproved && (
-            <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-extrabold text-brand">
+            <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-semibold text-brand">
               รอศิษยาภิบาลลงนาม
             </span>
           )}
           {approval.approvedCount < MIN_APPROVALS && (
-            <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-extrabold text-ink-2">
+            <span className="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-semibold text-ink-2">
               รออีก {MIN_APPROVALS - approval.approvedCount} คน
             </span>
           )}

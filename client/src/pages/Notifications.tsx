@@ -81,9 +81,7 @@ export default function Notifications() {
                   if (item.link) setLocation(item.link);
                 }}
                 className={`relative w-full rounded-2xl border border-line p-4 pl-9 text-left transition-colors ${
-                  item.readAt
-                    ? "bg-surface hover:bg-paper-2"
-                    : "bg-paper-2 hover:-translate-x-0.5 hover:-translate-y-0.5"
+                  item.readAt ? "bg-surface hover:bg-paper-2" : "bg-paper-2"
                 }`}
               >
                 {!item.readAt && (
@@ -95,7 +93,7 @@ export default function Notifications() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2
-                      className={`text-base text-ink ${item.readAt ? "font-bold" : "font-extrabold"}`}
+                      className={`text-base text-ink ${item.readAt ? "font-medium" : "font-semibold"}`}
                     >
                       {item.title}
                     </h2>
@@ -103,7 +101,7 @@ export default function Notifications() {
                       {item.description || ""}
                     </p>
                   </div>
-                  <span className="shrink-0 text-xs font-bold text-ink-3">
+                  <span className="shrink-0 text-xs font-medium text-ink-3">
                     {formatThaiDate(item.createdAt)}
                     <span className="sr-only">
                       {item.readAt ? " อ่านแล้ว" : " ยังไม่อ่าน"}

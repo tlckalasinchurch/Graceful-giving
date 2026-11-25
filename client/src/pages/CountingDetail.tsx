@@ -355,7 +355,7 @@ export default function CountingDetail() {
                 title="ลบรอบนับเงินนี้"
                 onClick={handleDeleteThisSession}
                 disabled={deleteSession.isPending}
-                className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-extrabold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
+                className="min-h-11 inline-flex items-center gap-1.5 rounded-xl border border-danger/30 bg-tile-peach px-3.5 py-2 text-xs font-semibold text-tile-peach-ink hover:bg-danger hover:text-white transition-colors disabled:opacity-50"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="hidden sm:inline">ลบรอบนี้</span>
@@ -370,7 +370,7 @@ export default function CountingDetail() {
         {/* Running totals stay visible on every tab. */}
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <div className="bento-card p-4">
-            <p className="text-xs font-extrabold text-ink-3">ยอดถวายตามซอง</p>
+            <p className="text-xs font-semibold text-ink-3">ยอดถวายตามซอง</p>
             <MoneyDisplay
               amount={r.offeringTotal}
               type="income"
@@ -379,7 +379,7 @@ export default function CountingDetail() {
             />
           </div>
           <div className="bento-card p-4">
-            <p className="text-xs font-extrabold text-ink-3">นับเงินสดได้</p>
+            <p className="text-xs font-semibold text-ink-3">นับเงินสดได้</p>
             <MoneyDisplay
               amount={r.countedCashTotal}
               size="lg"
@@ -390,7 +390,7 @@ export default function CountingDetail() {
             </div>
           </div>
           <div className="bento-card p-4">
-            <p className="text-xs font-extrabold text-ink-3">หักเบิก</p>
+            <p className="text-xs font-semibold text-ink-3">หักเบิก</p>
             <MoneyDisplay
               amount={r.deductionTotal}
               type="expense"
@@ -399,7 +399,7 @@ export default function CountingDetail() {
             />
           </div>
           <div className="bento-card p-4">
-            <p className="text-xs font-extrabold text-ink-3">นำฝาก</p>
+            <p className="text-xs font-semibold text-ink-3">นำฝาก</p>
             <MoneyDisplay
               amount={r.actualCashDeposit}
               size="lg"
@@ -415,14 +415,14 @@ export default function CountingDetail() {
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-extrabold transition-colors cursor-pointer ${
+              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                 tab === id
                   ? "border-brand/40 bg-accent text-accent-foreground"
                   : "border-line bg-surface text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
               <span
-                className={`inline-flex size-5 items-center justify-center rounded-full text-xs font-black ${
+                className={`inline-flex size-5 items-center justify-center rounded-full text-xs font-semibold ${
                   tab === id
                     ? "bg-brand text-primary-foreground"
                     : "bg-paper-2 text-ink-3 border border-line"
@@ -437,7 +437,7 @@ export default function CountingDetail() {
         </div>
 
         {!editable && tab !== "summary" && tab !== "bank" && (
-          <p className="rounded-xl border border-line bg-tile-sand p-4 text-sm font-bold text-tile-sand-ink">
+          <p className="rounded-xl border border-line bg-tile-sand p-4 text-sm font-medium text-tile-sand-ink">
             รอบนี้ส่งนับแล้ว จึงแก้ไขซองและผลนับไม่ได้ ถ้าต้องแก้ ให้เหรัญญิกกด
             “ส่งกลับไปนับใหม่” ในแท็บสรุป
           </p>
@@ -463,7 +463,7 @@ export default function CountingDetail() {
                   setTab("cash");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="btn-primary min-h-11 px-5 text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer"
+                className="btn-primary min-h-11 px-5 text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
               >
                 <span>ไปขั้นตอนที่ 2: นับเงินสด</span>
                 <ArrowRight className="w-4 h-4" />
@@ -492,7 +492,7 @@ export default function CountingDetail() {
                   setTab("envelopes");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="btn-secondary min-h-11 px-4 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                className="btn-secondary min-h-11 px-4 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>ขั้นตอนที่ 1: ซองถวาย</span>
@@ -503,7 +503,7 @@ export default function CountingDetail() {
                   setTab("bank");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="btn-primary min-h-11 px-5 text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer"
+                className="btn-primary min-h-11 px-5 text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
               >
                 <span>ไปขั้นตอนที่ 3: เงินโอน / นำฝาก</span>
                 <ArrowRight className="w-4 h-4" />
@@ -534,7 +534,7 @@ export default function CountingDetail() {
                   setTab("cash");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="btn-secondary min-h-11 px-4 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                className="btn-secondary min-h-11 px-4 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>ขั้นตอนที่ 2: นับเงินสด</span>
@@ -545,7 +545,7 @@ export default function CountingDetail() {
                   setTab("deductions");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="btn-primary min-h-11 px-5 text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer"
+                className="btn-primary min-h-11 px-5 text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
               >
                 <span>ไปขั้นตอนที่ 4: หักเบิก</span>
                 <ArrowRight className="w-4 h-4" />
@@ -577,7 +577,7 @@ export default function CountingDetail() {
                   setTab("bank");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="btn-secondary min-h-11 px-4 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                className="btn-secondary min-h-11 px-4 text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>ขั้นตอนที่ 3: เงินโอน</span>
@@ -588,7 +588,7 @@ export default function CountingDetail() {
                   setTab("summary");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="btn-primary min-h-11 px-5 text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer"
+                className="btn-primary min-h-11 px-5 text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
               >
                 <span>ไปขั้นตอนที่ 5: สรุปและปิดรอบ</span>
                 <ArrowRight className="w-4 h-4" />

@@ -220,7 +220,7 @@ export default function Approvals() {
       action={
         <button
           onClick={() => setLocation("/withdrawals/new")}
-          className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold transition-colors active:scale-[0.97]"
+          className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors active:scale-[0.97]"
         >
           <Banknote className="size-4" />
           ยื่นคำขอเบิกเงิน
@@ -234,8 +234,8 @@ export default function Approvals() {
             onClick={() => setActiveTab("pending")}
             className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-colors flex items-center gap-2 ${
               activeTab === "pending"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
-                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
+                : "font-medium text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <Clock className="w-4 h-4" />
@@ -245,8 +245,8 @@ export default function Approvals() {
             onClick={() => setActiveTab("approved")}
             className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-colors flex items-center gap-2 ${
               activeTab === "approved"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
-                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
+                : "font-medium text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />
@@ -256,8 +256,8 @@ export default function Approvals() {
             onClick={() => setActiveTab("disbursed")}
             className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-colors flex items-center gap-2 ${
               activeTab === "disbursed"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
-                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
+                : "font-medium text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <Banknote className="w-4 h-4" />
@@ -267,8 +267,8 @@ export default function Approvals() {
             onClick={() => setActiveTab("rejected")}
             className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-colors flex items-center gap-2 ${
               activeTab === "rejected"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
-                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
+                : "font-medium text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <XCircle className="w-4 h-4" />
@@ -278,8 +278,8 @@ export default function Approvals() {
             onClick={() => setActiveTab("cancelled")}
             className={`min-h-11 shrink-0 whitespace-nowrap px-4 rounded-xl text-sm transition-colors flex items-center gap-2 ${
               activeTab === "cancelled"
-                ? "border border-brand/40 bg-accent text-accent-foreground font-extrabold "
-                : "font-bold text-ink-2 hover:bg-paper-2 hover:text-ink"
+                ? "border border-brand/40 bg-accent text-accent-foreground font-semibold "
+                : "font-medium text-ink-2 hover:bg-paper-2 hover:text-ink"
             }`}
           >
             <Ban className="w-4 h-4" />
@@ -329,10 +329,10 @@ export default function Approvals() {
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                     <div className="space-y-2.5 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-mono font-extrabold text-ink bg-paper-2 px-3 py-1 rounded-full border border-line">
+                        <span className="text-xs font-mono font-semibold text-ink bg-paper-2 px-3 py-1 rounded-full border border-line">
                           {`REQ-${new Date(reqDate || Date.now()).getFullYear()}-${String(req.id).padStart(3, "0")}`}
                         </span>
-                        <span className="text-xs font-extrabold text-ink bg-paper-2 px-3 py-1 rounded-full border border-line">
+                        <span className="text-xs font-semibold text-ink bg-paper-2 px-3 py-1 rounded-full border border-line">
                           {fundName}
                         </span>
                         <StatusBadge
@@ -359,7 +359,7 @@ export default function Approvals() {
                         />
                       </div>
 
-                      <h3 className="display text-lg font-extrabold text-ink">
+                      <h3 className="display text-lg font-semibold text-ink">
                         {req.purpose}
                       </h3>
 
@@ -367,7 +367,7 @@ export default function Approvals() {
                         {req.details || "เบิกจ่ายตามงบประมาณที่ได้รับอนุมัติ"}
                       </p>
 
-                      <div className="flex items-center gap-3 text-xs font-bold text-ink-3 pt-1">
+                      <div className="flex items-center gap-3 text-xs font-medium text-ink-3 pt-1">
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-2 px-2.5 py-1 text-ink-2">
                           <User className="w-3.5 h-3.5 text-ink-3" />
                           {req.requesterName || `ผู้ใช้ #${req.requestedBy}`}
@@ -380,7 +380,7 @@ export default function Approvals() {
                     {/* Amount & Actions */}
                     <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-4 pt-4 md:pt-0 border-t border-line md:border-t-0 flex-shrink-0">
                       <div className="text-left md:text-right">
-                        <p className="text-xs font-extrabold text-ink-3">
+                        <p className="text-xs font-semibold text-ink-3">
                           ยอดขอเบิก
                         </p>
                         <MoneyDisplay
@@ -399,7 +399,7 @@ export default function Approvals() {
                                 setShowRejectModal(true);
                               }}
                               disabled={signMutation.isPending}
-                              className="min-h-11 px-5 py-2.5 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 text-danger text-xs font-extrabold transition-colors active:scale-[0.97] disabled:opacity-50"
+                              className="min-h-11 px-5 py-2.5 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 text-danger text-xs font-semibold transition-colors active:scale-[0.97] disabled:opacity-50"
                             >
                               ไม่อนุมัติ
                             </button>
@@ -449,7 +449,7 @@ export default function Approvals() {
 
                   {/* Notice if cancelled */}
                   {req.status === "cancelled" && (
-                    <div className="rounded-xl border border-danger/40 bg-danger/10 p-3.5 text-xs font-extrabold text-danger">
+                    <div className="rounded-xl border border-danger/40 bg-danger/10 p-3.5 text-xs font-semibold text-danger">
                       ยกเลิกคำขอเมื่อ {fmtDate(req.cancelledAt)}:{" "}
                       {req.cancelReason || "ไม่ระบุเหตุผล"}
                     </div>
@@ -457,7 +457,7 @@ export default function Approvals() {
 
                   {/* Notice if disbursed */}
                   {req.status === "disbursed" && (
-                    <div className="rounded-xl border border-line bg-tile-mint p-3.5 text-xs font-extrabold text-tile-mint-ink">
+                    <div className="rounded-xl border border-line bg-tile-mint p-3.5 text-xs font-semibold text-tile-mint-ink">
                       จ่ายเงินแล้วเมื่อ {fmtDate(req.disbursedAt)}{" "}
                       (ยอดเข้ารอบนับเงินเรียบร้อยแล้ว)
                     </div>
@@ -477,7 +477,7 @@ export default function Approvals() {
         >
           <DialogContent className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4">
             <DialogHeader className="border-b border-line pb-3 text-left">
-              <DialogTitle className="display text-lg font-extrabold text-ink">
+              <DialogTitle className="display text-lg font-semibold text-ink">
                 ระบุเหตุผลที่ไม่อนุมัติ
               </DialogTitle>
               <DialogDescription className="text-xs font-medium text-ink-2">
@@ -491,7 +491,7 @@ export default function Approvals() {
                 rows={3}
                 required
                 aria-label="เหตุผลที่ไม่อนุมัติ"
-                placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้..."
+                placeholder="เช่น เอกสารใบเสนอราคาไม่ครบถ้วน, เกินงบประมาณที่จัดสรรไว้…"
                 id="reject-reason"
                 value={rejectReason}
                 onChange={e => {
@@ -520,9 +520,9 @@ export default function Approvals() {
                 type="button"
                 onClick={handleRejectSubmit}
                 disabled={signMutation.isPending}
-                className="min-h-11 px-5 py-2.5 rounded-xl border border-danger/30 bg-danger text-white text-xs font-extrabold hover:opacity-95 disabled:opacity-50 cursor-pointer"
+                className="min-h-11 px-5 py-2.5 rounded-xl border border-danger/30 bg-danger text-white text-xs font-semibold hover:opacity-95 disabled:opacity-50 cursor-pointer"
               >
-                {signMutation.isPending ? "กำลังบันทึก..." : "ยืนยันไม่อนุมัติ"}
+                {signMutation.isPending ? "กำลังบันทึก…" : "ยืนยันไม่อนุมัติ"}
               </button>
             </div>
           </DialogContent>
@@ -537,7 +537,7 @@ export default function Approvals() {
         >
           <DialogContent className="neo-modal max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 space-y-4">
             <DialogHeader className="border-b border-line pb-3 text-left">
-              <DialogTitle className="display text-lg font-extrabold text-ink">
+              <DialogTitle className="display text-lg font-semibold text-ink">
                 ระบุเหตุผลในการยกเลิกคำขอ
               </DialogTitle>
               <DialogDescription className="text-xs font-medium text-ink-2">
@@ -551,7 +551,7 @@ export default function Approvals() {
                 rows={3}
                 required
                 aria-label="เหตุผลในการยกเลิก"
-                placeholder="เช่น ยกเลิกโครงการ, ปรับเปลี่ยนรายการจัดซื้อ..."
+                placeholder="เช่น ยกเลิกโครงการ, ปรับเปลี่ยนรายการจัดซื้อ…"
                 id="cancel-reason"
                 value={cancelReason}
                 onChange={e => {
@@ -580,11 +580,9 @@ export default function Approvals() {
                 type="button"
                 onClick={handleCancelSubmit}
                 disabled={cancelMutation.isPending}
-                className="min-h-11 px-5 py-2.5 rounded-xl border border-danger/30 bg-danger text-white text-xs font-extrabold hover:opacity-95 disabled:opacity-50 cursor-pointer"
+                className="min-h-11 px-5 py-2.5 rounded-xl border border-danger/30 bg-danger text-white text-xs font-semibold hover:opacity-95 disabled:opacity-50 cursor-pointer"
               >
-                {cancelMutation.isPending
-                  ? "กำลังบันทึก..."
-                  : "ยืนยันการยกเลิก"}
+                {cancelMutation.isPending ? "กำลังบันทึก…" : "ยืนยันการยกเลิก"}
               </button>
             </div>
           </DialogContent>

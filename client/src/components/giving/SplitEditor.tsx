@@ -85,7 +85,7 @@ export function SplitEditor({
             <div key={line.category} className="flex items-center gap-2">
               <label
                 htmlFor={`${idPrefix}-amount-${line.category}`}
-                className="min-w-0 flex-1 truncate text-sm font-bold text-ink"
+                className="min-w-0 flex-1 truncate text-sm font-medium text-ink"
               >
                 {label}
               </label>
@@ -102,7 +102,7 @@ export function SplitEditor({
                   total !== null &&
                   onChange(setLineAmount(lines, index, e.target.value, total))
                 }
-                className="neo-input min-h-11 w-32 shrink-0 text-right text-sm font-bold tabular-nums text-ink"
+                className="neo-input min-h-11 w-32 shrink-0 text-right text-sm font-medium tabular-nums text-ink"
               />
               <span className="shrink-0 text-xs font-semibold text-ink-3">
                 บาท
@@ -118,7 +118,7 @@ export function SplitEditor({
       <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-line">
         <p
           role="status"
-          className={`text-xs font-bold tabular-nums ${
+          className={`text-xs font-medium tabular-nums ${
             problem === null ? "text-brand" : "text-danger"
           }`}
         >
@@ -131,7 +131,7 @@ export function SplitEditor({
             type="button"
             disabled={disabled}
             onClick={onCancel}
-            className="min-h-11 px-3 text-xs font-bold text-ink-3 underline underline-offset-2 hover:text-ink"
+            className="min-h-11 px-3 text-xs font-medium text-ink-3 underline underline-offset-2 hover:text-ink"
           >
             ยกเลิกการแบ่งยอด
           </button>

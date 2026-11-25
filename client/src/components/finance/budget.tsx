@@ -122,7 +122,7 @@ export const BudgetProgress: React.FC<{
         aria-label={`ใช้ไปแล้ว ${percent.toFixed(0)}% ของงบประมาณ`}
       >
         <div
-          className={`h-full rounded-full transition-all duration-300 ${style.bar}`}
+          className={`h-full rounded-full ${style.bar}`}
           style={{ width: `${Math.min(percent, 100)}%` }}
         />
       </div>
@@ -130,7 +130,7 @@ export const BudgetProgress: React.FC<{
         <span className={`font-semibold ${style.text}`}>{style.label}</span>
         <span className="font-medium text-ink-3">
           ใช้ไป{" "}
-          <span className="font-bold text-ink">{percent.toFixed(1)}%</span>
+          <span className="font-medium text-ink">{percent.toFixed(1)}%</span>
         </span>
       </div>
     </div>
@@ -267,7 +267,7 @@ export const BudgetFormFields: React.FC<{
           placeholder="เช่น 120,000"
           aria-invalid={amountError ? true : undefined}
           aria-describedby={amountError ? fieldErrorId(amountId) : undefined}
-          className={`${inputClass} font-mono font-bold tabular-nums aria-invalid:border-danger`}
+          className={`${inputClass} font-mono font-medium tabular-nums aria-invalid:border-danger`}
         />
         <FieldError fieldId={amountId} message={amountError} />
       </label>

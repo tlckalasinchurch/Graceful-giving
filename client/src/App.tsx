@@ -196,7 +196,7 @@ function RoleGuard({
             </svg>
           </div>
           <div className="space-y-2">
-            <span className="inline-flex items-center rounded-full bg-tile-rose px-3 py-1 text-xs font-semibold text-tile-rose-ink">
+            <span className="text-sm font-medium text-danger">
               จำกัดสิทธิ์การเข้าถึง
             </span>
             <h2 className="display text-2xl text-ink pt-1">{title}</h2>
@@ -205,7 +205,7 @@ function RoleGuard({
           <div className="pt-2">
             <a
               href="/"
-              className="btn-primary inline-flex min-h-11 items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-colors"
+              className="btn-primary inline-flex min-h-11 items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm transition-colors"
             >
               กลับสู่หน้าหลัก
             </a>

@@ -49,7 +49,7 @@ function WalletLedger({
             key={line.label}
             className="grid grid-cols-[1.25rem_1fr_auto] items-baseline gap-2 border-b border-line py-2"
           >
-            <span aria-hidden className="font-mono font-bold text-ink-2">
+            <span aria-hidden className="font-mono font-medium text-ink-2">
               {line.sign}
             </span>
             <dt className="font-medium text-ink-2">{line.label}</dt>
@@ -59,13 +59,13 @@ function WalletLedger({
           </div>
         ))}
         <div className="grid grid-cols-[1.25rem_1fr_auto] items-baseline gap-2 border-b border-line bg-paper-2 px-2 py-2.5 rounded-b-lg">
-          <span aria-hidden className="font-mono font-extrabold text-ink">
+          <span aria-hidden className="font-mono font-semibold text-ink">
             =
           </span>
-          <dt className="font-extrabold text-ink">{totalLabel}</dt>
+          <dt className="font-semibold text-ink">{totalLabel}</dt>
           <dd
             data-testid={totalTestId}
-            className="text-base font-extrabold tabular-nums text-ink"
+            className="text-base font-semibold tabular-nums text-ink"
           >
             {fmtBaht(total)}
           </dd>
@@ -96,7 +96,7 @@ function AmountField({
   const id = useId();
   return (
     <div className="min-w-0 flex-1">
-      <label htmlFor={id} className="text-xs font-extrabold text-ink-2">
+      <label htmlFor={id} className="text-xs font-semibold text-ink-2">
         {label}
       </label>
       <input
@@ -107,7 +107,7 @@ function AmountField({
         value={value}
         disabled={disabled}
         onChange={e => onChange(e.target.value)}
-        className="neo-input mt-1 font-extrabold tabular-nums disabled:opacity-50"
+        className="neo-input mt-1 font-semibold tabular-nums disabled:opacity-50"
       />
     </div>
   );
@@ -208,8 +208,8 @@ export function CarryForwardLedger({
   return (
     <div className="bento-card-static overflow-hidden">
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line bg-paper-2 px-5 py-4">
-        <h2 className="font-extrabold text-ink">ยอดยกมาและยกไป</h2>
-        <p className="text-xs font-bold text-ink-2">
+        <h2 className="font-semibold text-ink">ยอดยกมาและยกไป</h2>
+        <p className="text-xs font-medium text-ink-2">
           {openingSource === "previous"
             ? "ยกมาจากรอบที่ลงบัญชีก่อนหน้า"
             : "ยกมาตามที่บันทึกไว้"}
@@ -257,7 +257,7 @@ export function CarryForwardLedger({
               </div>
             )}
             {r.cashOnHandActual === null && (
-              <p className="text-xs font-bold text-brand">
+              <p className="text-xs font-medium text-brand">
                 ต้องนับเงินในกล่องก่อนลงบัญชี
               </p>
             )}
@@ -275,7 +275,7 @@ export function CarryForwardLedger({
             {r.passbookBalance !== null && r.passbookVariance !== null && (
               <p className="flex flex-wrap items-baseline justify-between gap-2 text-sm font-medium text-ink-2">
                 <span>สมุดบัญชี {fmtBaht(r.passbookBalance)}</span>
-                <span className="font-bold tabular-nums">
+                <span className="font-medium tabular-nums">
                   {r.passbookVariance === 0
                     ? "ตรงกับที่ควรเป็น"
                     : `ต่าง ${fmtBaht(r.passbookVariance)}`}
@@ -283,7 +283,7 @@ export function CarryForwardLedger({
               </p>
             )}
             {unmatchedPassbookCount > 0 && (
-              <p className="text-xs font-bold text-brand">
+              <p className="text-xs font-medium text-brand">
                 ยังไม่ได้ติ๊กกับสมุดบัญชี {unmatchedPassbookCount} รายการ
               </p>
             )}
@@ -298,7 +298,7 @@ export function CarryForwardLedger({
                 <div className="min-w-0 flex-1">
                   <label
                     htmlFor={passbookDateId}
-                    className="text-xs font-extrabold text-ink-2"
+                    className="text-xs font-semibold text-ink-2"
                   >
                     วันที่ในสมุด
                   </label>

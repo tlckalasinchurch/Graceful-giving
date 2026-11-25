@@ -5,14 +5,12 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
-  OFFERING_CATEGORIES,
   offeringCategoryLabel,
   type OfferingCategory,
 } from "@shared/categories";
 import {
   canManageChurchSettings,
   canManageFinance,
-  getChurchRoleInfo,
   isStationOnlyUser,
 } from "@shared/roles";
 import {
@@ -33,7 +31,10 @@ import {
   type StationSubmission,
 } from "./givingStationFlow";
 import { fetchLiffId } from "@/lib/liffSignIn";
-import { GiveChooser } from "@/components/giving/GiveChooser";
+import {
+  GiveChooser,
+  STATION_CATEGORIES,
+} from "@/components/giving/GiveChooser";
 import { UNREADABLE_SLIP, type SlipReading } from "@shared/slipReading";
 import { giveTotal, parseDrafts, type SplitDraft } from "@/lib/splitDraft";
 import { checkSplit } from "@shared/givingSplit";
@@ -71,14 +72,11 @@ import {
   type PosterPaper,
 } from "@/lib/posterExport";
 import {
-  StationCountdownCard,
   defaultStationUrl,
   StationCubeLogo,
   StationHeroCTA,
-  StationProfileCard,
   StationQrPoster,
   StationStatusCard,
-  StationStepStatusCard,
   StationUnlockConfirmCard,
 } from "@/components/ui/station-giving-kit";
 
@@ -93,18 +91,6 @@ const STEP_TITLES: Record<FlowStep, string> = {
   2: "เลือกประเภทและยอด",
   3: "โอนเงินและส่งสลิป",
   4: "ผลการส่ง",
-};
-
-const DEFAULT_AMOUNTS: Record<OfferingCategory, number> = {
-  cash: 300,
-  meal: 100,
-  memorial: 500,
-  mission: 500,
-  special: 300,
-  land: 1000,
-  party: 300,
-  venue_rent: 1000,
-  tithe: 1000,
 };
 
 const PRESET_CHOICES: Record<OfferingCategory, number[]> = {
@@ -379,6 +365,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
       : null;
 
   const canRecordDirectly = canManageFinance(user);
+  // Donors see the send form only once they say they have transferred, so nobody sends before paying.
+  const showConfirm =
+    transferState === "done" || canRecordDirectly || slipPreview !== null;
   const submitMode = resolveSubmitMode({
     canManageFinance: canRecordDirectly,
     hasSlip: slipPreview !== null,
@@ -631,7 +620,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           method: "transfer",
           receiptDate: new Date(),
           donorName: name,
-          notes: "ทำรายการผ่านจุดถวายอัตโนมัติ (GraceBox Station)",
+          notes: "ทำรายการผ่านจุดถวาย Grace Giving",
         });
         batchKeyRef.current = null;
         void Promise.all([
@@ -693,18 +682,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     setStep(3);
   };
 
-  const handleCountdownExpire = () => {
-    if (isSubmitting || slipPreview !== null) return;
-    if (giveLines.length > 0) {
-      toast.warning(
-        "หมดเวลาทำรายการสำหรับเครื่องสาธารณะ หากต้องการทำรายการต่อโปรดแตะหน้าจอ"
-      );
-      return;
-    }
-    toast.info("หมดเวลาทำรายการ กำลังรีเซ็ตหน้าจอเพื่อความปลอดภัย");
-    resetFlow();
-  };
-
   const resetFlow = () => {
     setTransferState("not_yet");
     setRestoredFromDraft(false);
@@ -735,11 +712,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     isCompressing;
 
   const shownStep: FlowStep = step === 4 && !submission ? 1 : step;
-
-  const updatedStamp = useMemo(
-    () => `อัปเดตล่าสุด ${formatThaiDateTime(new Date())}`,
-    [step]
-  );
 
   const body = (
     <div className="space-y-6">
@@ -776,9 +748,15 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
         )}
 
         {activeTab === "flow" && (
+          <p className="sm:hidden px-3 py-2 text-base font-medium text-ink">
+            <span className="text-ink-2">ขั้น {shownStep} จาก 4: </span>
+            {STEP_TITLES[shownStep]}
+          </p>
+        )}
+        {activeTab === "flow" && (
           <ol
             aria-label="ขั้นตอนการถวาย"
-            className="flex items-center justify-center gap-1.5 px-2 py-1"
+            className="hidden sm:flex items-center justify-center gap-1.5 px-2 py-1"
           >
             {([1, 2, 3, 4] as FlowStep[]).map(n => (
               <li
@@ -813,8 +791,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           <div className="rounded-2xl bg-paper-2 p-4 sm:p-7 text-ink border border-line space-y-5 sm:space-y-6 relative">
             {/* Top Bar: Step Back Button. The station is Thai only, so it
                 shows no language control. */}
-            <div className="flex items-center justify-between">
-              {shownStep > 1 && shownStep < 4 ? (
+            {shownStep > 1 && shownStep < 4 && (
+              <div className="flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() =>
@@ -826,64 +804,40 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
-              ) : (
-                <div className="w-11 h-11" />
-              )}
-            </div>
-
-            {stationOnly && shownStep === 2 && (
-              <StationCountdownCard
-                initialSeconds={300}
-                label="เวลาทำรายการคงเหลือ"
-                onExpire={handleCountdownExpire}
-              />
+              </div>
             )}
 
             {/* ── STEP 1: Landing / Status / ถวายทรัพย์ ── */}
             {shownStep === 1 && (
               <div className="space-y-5 animate-in fade-in duration-200">
-                <div className="text-center -mt-2">
-                  <StationCubeLogo
-                    brandTitle="GraceBox"
-                    subtitle="จุดถวายทรัพย์อัตโนมัติของคริสตจักร"
+                <StationCubeLogo
+                  brandTitle="ถวายทรัพย์"
+                  subtitle={churchQuery.data?.name ?? ""}
+                />
+
+                {/* Station availability: shown only when something is wrong */}
+                {!stationReady && (
+                  <StationStatusCard
+                    label="สถานะจุดถวาย"
+                    statusBadgeText={
+                      stationReady ? "พร้อมรับถวาย" : "ระบบไม่พร้อม"
+                    }
+                    statusDetail={
+                      stationReady
+                        ? "ส่งสลิปการถวายให้เหรัญญิกตรวจสอบได้ทุกเวลา"
+                        : "โหลดข้อมูลคริสตจักรไม่สำเร็จ กรุณาลองใหม่ภายหลัง"
+                    }
+                    isAvailable={stationReady}
                   />
-                </div>
-
-                {/* Station Breadcrumb */}
-                <div className="text-sm font-medium text-ink-3 text-center sm:text-left">
-                  จุดถวายของคริสตจักร <span className="text-ink-3 mx-1">/</span>{" "}
-                  {churchQuery.data?.name || "คริสตจักรชีวิตสุขสันต์กาฬสินธุ์"}
-                </div>
-
-                {/* Donor Profile Card */}
-                <StationProfileCard
-                  userName={user?.name || donorName || "ผู้ถวายด้วยใจยินดี"}
-                  avatarUrl={user?.avatarUrl}
-                  metricLabel="สถานะผู้ถวาย"
-                  metricValue={getChurchRoleInfo(user?.churchRole).label}
-                />
-
-                {/* Room / Station Availability Card */}
-                <StationStatusCard
-                  label="สถานะจุดถวาย"
-                  statusBadgeText={
-                    stationReady ? "พร้อมรับถวาย" : "ระบบไม่พร้อม"
-                  }
-                  statusDetail={
-                    stationReady
-                      ? "ส่งสลิปการถวายให้เหรัญญิกตรวจสอบได้ทุกเวลา"
-                      : "โหลดข้อมูลคริสตจักรไม่สำเร็จ กรุณาลองใหม่ภายหลัง"
-                  }
-                  isAvailable={stationReady}
-                />
+                )}
 
                 {/* Primary give CTA */}
                 <StationHeroCTA
-                  eyebrow="เริ่มใช้งาน"
-                  headline="พร้อมถวายทรัพย์เลยไหม?"
-                  buttonTitle="ถวายทรัพย์"
-                  buttonSubtitle="เริ่มถวายทันที"
-                  helperText="ถ้าต้องการถวายเจาะจงกองทุน กดเพื่อเลือกหมวดหมู่ · ทำรายการได้ทันที"
+                  eyebrow=""
+                  headline=""
+                  buttonTitle="เริ่มถวาย"
+                  buttonSubtitle=""
+                  helperText="หรือแตะประเภทการถวายด้านล่างเพื่อเริ่ม"
                   onClick={() =>
                     stationReady
                       ? setStep(2)
@@ -897,10 +851,10 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 {/* Direct category shortcuts */}
                 <div className="rounded-2xl border border-line bg-surface p-4 space-y-2.5">
                   <div className="text-base font-medium text-ink-2">
-                    หมวดหมู่การถวาย (เลือกเพื่อเริ่มถวายได้ทันที)
+                    ประเภทการถวาย
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {OFFERING_CATEGORIES.map(c => (
+                    {STATION_CATEGORIES.map(c => (
                       <button
                         key={c.id}
                         type="button"
@@ -908,7 +862,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           setGiveLines([
                             {
                               category: c.id,
-                              amount: String(DEFAULT_AMOUNTS[c.id]),
+                              amount: "",
                             },
                           ]);
                           setStep(2);
@@ -933,16 +887,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
             {/* ── STEP 2: Countdown + Offering Packages ── */}
             {shownStep === 2 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in fade-in duration-200">
-                <div className="lg:col-span-2 display text-xl text-ink px-1">
-                  จุดถวายอัตโนมัติ · {churchQuery.data?.name || "คริสตจักร"}
-                </div>
-
-                {/* Selection Status Card */}
-                <StationStepStatusCard
-                  title="เลือกประเภทและยอดถวายที่ต้องการ"
-                  updatedAtText={updatedStamp}
-                />
-
                 {/* Fund Selector */}
                 <div className="space-y-1.5 rounded-2xl border border-line bg-surface p-5 lg:col-span-2">
                   <label
@@ -979,7 +923,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                 <GiveChooser
                   lines={giveLines}
                   onChange={setGiveLines}
-                  defaults={DEFAULT_AMOUNTS}
                   presets={PRESET_CHOICES}
                 />
 
@@ -1092,7 +1035,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                             onClick={() => setTransferState(value)}
                             className={`min-h-11 rounded-xl border border-line text-base font-semibold cursor-pointer focus-visible:ring-2 focus-visible:ring-brand transition-colors ${
                               transferState === value
-                                ? "bg-accent text-accent-foreground"
+                                ? "border-brand bg-tile-mint text-tile-mint-ink"
                                 : "bg-surface text-ink-2 hover:bg-paper-2"
                             }`}
                           >
@@ -1117,7 +1060,9 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                           </li>
                           <li className="rounded-xl border border-line bg-paper-2 px-3 py-2">
                             <span className="text-brand">สุดท้าย: </span>
-                            <span>กลับมาหน้านี้เพื่อแนบรูปสลิป</span>
+                            <span>
+                              กลับมาหน้านี้ กด “โอนแล้ว” แล้วแนบรูปสลิป
+                            </span>
                           </li>
                         </ul>
                       )}
@@ -1188,294 +1133,311 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
                   </div>
 
                   {/* Right Column: Slip Media Tray, Verification & Confirm */}
-                  <div className="lg:col-span-6 space-y-4">
-                    <StationUnlockConfirmCard
-                      title="ตรวจสอบและยืนยันการถวาย"
-                      description={
-                        submitMode === "ledger"
-                          ? "ไม่ได้แนบสลิป ระบบจะบันทึกรายการถวายเข้าบัญชีทันทีในนามเจ้าหน้าที่การเงิน"
-                          : submitMode === "no-slip"
-                            ? "ไม่ได้แนบสลิป กรอกชื่อและวันที่โอนให้ถูกต้อง เหรัญญิกจะตรวจกับยอดเข้าบัญชีธนาคารก่อนนับเข้าบัญชี และแจ้งผลให้คุณทราบ"
-                            : "เมื่อโอนเงินและแนบสลิปเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อส่งสลิป เหรัญญิกจะตรวจสอบก่อนบันทึกเข้าบัญชี"
-                      }
-                      buttonLabel={
-                        submitMode === "ledger"
-                          ? "บันทึกรายการถวายเข้าบัญชี"
-                          : submitMode === "no-slip"
-                            ? "ส่งให้เหรัญญิกตรวจสอบ"
-                            : "ยืนยันและส่งสลิปถวาย"
-                      }
-                      loading={isSubmitting}
-                      disabled={effectiveAmount === null || !canSend(checklist)}
-                      onConfirm={() => void handleConfirmGiving()}
-                    >
-                      <div className="space-y-3.5 my-2">
-                        {/* Submission Error Banner with Auto-scroll and Retry (GAP-05) */}
-                        {submissionError && (
-                          <div
-                            ref={errorBannerRef}
-                            role="alert"
-                            aria-live="assertive"
-                            className="rounded-xl border border-danger/40 bg-tile-peach p-4 text-left space-y-2.5"
-                          >
-                            <div className="flex items-start gap-2.5">
-                              <AlertTriangle className="size-5 shrink-0 text-danger mt-0.5" />
-                              <div className="flex-1 space-y-1">
-                                <h4 className="font-semibold text-tile-peach-ink text-base">
-                                  {submitMode === "slip"
-                                    ? "ส่งสลิปไม่สำเร็จ"
-                                    : submitMode === "ledger"
-                                      ? "ยังไม่ได้บันทึกรายการถวายเข้าบัญชี"
-                                      : "ส่งรายการไม่สำเร็จ"}
-                                </h4>
-                                <p className="text-base font-normal text-tile-peach-ink leading-relaxed">
-                                  {submissionError}
-                                </p>
-                                <p className="text-base font-normal text-tile-peach-ink leading-relaxed">
-                                  {submitMode === "ledger"
-                                    ? "ข้อมูลที่เลือกไว้ยังอยู่ครบ กด “ลองส่งใหม่อีกครั้ง” ได้เลย ระบบจะไม่บันทึกซ้ำหากรายการเดิมถูกบันทึกไปแล้ว"
-                                    : "ข้อมูลและรูปที่เลือกไว้ยังอยู่ครบ ตรวจอินเทอร์เน็ตแล้วกด “ลองส่งใหม่อีกครั้ง” หากยังไม่สำเร็จ ให้แจ้งเจ้าหน้าที่"}
-                                </p>
+                  {showConfirm && (
+                    <div className="lg:col-span-6 space-y-4">
+                      <StationUnlockConfirmCard
+                        title="ตรวจสอบและยืนยันการถวาย"
+                        description={
+                          submitMode === "ledger"
+                            ? "ไม่ได้แนบสลิป ระบบจะบันทึกรายการถวายเข้าบัญชีทันทีในนามเจ้าหน้าที่การเงิน"
+                            : submitMode === "no-slip"
+                              ? "แนบรูปสลิปเพื่อให้ตรวจได้เร็ว ถ้าไม่มีสลิป กรอกชื่อและวันที่โอนให้ถูกต้อง เหรัญญิกจะตรวจกับยอดเข้าบัญชีธนาคารแล้วแจ้งผลให้คุณทราบ"
+                              : "เมื่อโอนเงินและแนบสลิปเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อส่งสลิป เหรัญญิกจะตรวจสอบก่อนบันทึกเข้าบัญชี"
+                        }
+                        buttonLabel={
+                          submitMode === "ledger"
+                            ? "บันทึกรายการถวายเข้าบัญชี"
+                            : submitMode === "no-slip"
+                              ? "ส่งให้เหรัญญิกตรวจสอบ"
+                              : "ยืนยันและส่งสลิปถวาย"
+                        }
+                        loading={isSubmitting}
+                        disabled={
+                          effectiveAmount === null || !canSend(checklist)
+                        }
+                        onConfirm={() => void handleConfirmGiving()}
+                      >
+                        <div className="space-y-3.5 my-2">
+                          {/* Submission Error Banner with Auto-scroll and Retry (GAP-05) */}
+                          {submissionError && (
+                            <div
+                              ref={errorBannerRef}
+                              role="alert"
+                              aria-live="assertive"
+                              className="rounded-xl border border-danger/40 bg-tile-peach p-4 text-left space-y-2.5"
+                            >
+                              <div className="flex items-start gap-2.5">
+                                <AlertTriangle className="size-5 shrink-0 text-danger mt-0.5" />
+                                <div className="flex-1 space-y-1">
+                                  <h4 className="font-semibold text-tile-peach-ink text-base">
+                                    {submitMode === "slip"
+                                      ? "ส่งสลิปไม่สำเร็จ"
+                                      : submitMode === "ledger"
+                                        ? "ยังไม่ได้บันทึกรายการถวายเข้าบัญชี"
+                                        : "ส่งรายการไม่สำเร็จ"}
+                                  </h4>
+                                  <p className="text-base font-normal text-tile-peach-ink leading-relaxed">
+                                    {submissionError}
+                                  </p>
+                                  <p className="text-base font-normal text-tile-peach-ink leading-relaxed">
+                                    {submitMode === "ledger"
+                                      ? "ข้อมูลที่เลือกไว้ยังอยู่ครบ กด “ลองส่งใหม่อีกครั้ง” ได้เลย ระบบจะไม่บันทึกซ้ำหากรายการเดิมถูกบันทึกไปแล้ว"
+                                      : "ข้อมูลและรูปที่เลือกไว้ยังอยู่ครบ ตรวจอินเทอร์เน็ตแล้วกด “ลองส่งใหม่อีกครั้ง” หากยังไม่สำเร็จ ให้แจ้งเจ้าหน้าที่"}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap gap-2 pt-1 border-t border-line">
+                                <button
+                                  type="button"
+                                  onClick={() => void handleConfirmGiving()}
+                                  disabled={isSubmitting}
+                                  className="btn-primary min-h-11 py-2 px-4 text-base font-semibold cursor-pointer"
+                                >
+                                  {isSubmitting
+                                    ? "กำลังส่งอีกครั้ง…"
+                                    : "ลองส่งใหม่อีกครั้ง"}
+                                </button>
+                                {submitMode === "slip" && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      slipInputRef.current?.click()
+                                    }
+                                    className="btn-secondary min-h-11 py-2 px-4 text-base font-semibold cursor-pointer"
+                                  >
+                                    เลือกรูปสลิปใหม่
+                                  </button>
+                                )}
+                                {submitMode === "slip" && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSlipPreview(null);
+                                      setSubmissionError(null);
+                                    }}
+                                    className="rounded-xl border border-line bg-paper-2 min-h-11 px-4 py-2 text-base font-semibold text-ink hover:bg-surface cursor-pointer"
+                                  >
+                                    ส่งแบบไม่แนบสลิปแทน
+                                  </button>
+                                )}
                               </div>
                             </div>
-                            <div className="flex flex-wrap gap-2 pt-1 border-t border-line">
-                              <button
-                                type="button"
-                                onClick={() => void handleConfirmGiving()}
-                                disabled={isSubmitting}
-                                className="btn-primary min-h-11 py-2 px-4 text-base font-semibold cursor-pointer"
-                              >
-                                {isSubmitting
-                                  ? "กำลังส่งอีกครั้ง..."
-                                  : "ลองส่งใหม่อีกครั้ง"}
-                              </button>
-                              {submitMode === "slip" && (
-                                <button
-                                  type="button"
-                                  onClick={() => slipInputRef.current?.click()}
-                                  className="btn-secondary min-h-11 py-2 px-4 text-base font-semibold cursor-pointer"
-                                >
-                                  เลือกรูปสลิปใหม่
-                                </button>
-                              )}
-                              {submitMode === "slip" && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSlipPreview(null);
-                                    setSubmissionError(null);
-                                  }}
-                                  className="rounded-xl border border-line bg-paper-2 min-h-11 px-4 py-2 text-base font-semibold text-ink hover:bg-surface cursor-pointer"
-                                >
-                                  ส่งแบบไม่แนบสลิปแทน
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {isCompressing && (
-                          <div className="flex items-center justify-center gap-2 rounded-xl bg-paper-2 border border-line p-3 text-base font-medium text-ink">
-                            <Loader2 className="size-4 animate-spin motion-reduce:animate-none text-brand" />
-                            กำลังปรับขนาดรูปสลิปและบีบอัดให้เหมาะสม…
-                          </div>
-                        )}
-
-                        {/* Donor Name Input */}
-                        <div className="space-y-1">
-                          <label
-                            htmlFor="station-donor-name"
-                            className="text-base font-medium text-ink-2 block"
-                          >
-                            {submitMode === "no-slip"
-                              ? "ชื่อผู้ถวาย (จำเป็น ต้องตรงกับชื่อบัญชีที่โอน)"
-                              : "ชื่อผู้ถวาย (ไม่ระบุเพื่อถวายนิรนามได้)"}
-                          </label>
-                          <input
-                            id="station-donor-name"
-                            type="text"
-                            maxLength={120}
-                            value={donorName}
-                            onChange={e => {
-                              nameTouched.current = true;
-                              setNameFromSlip(false);
-                              setDonorNameInput(e.target.value);
-                            }}
-                            placeholder="เช่น สมชาย สุขใจ หรือ ผู้ถวายนิรนาม"
-                            className="neo-input"
-                          />
-                          {nameFromSlip && (
-                            <p className="text-sm font-medium text-brand">
-                              ชื่อจากสลิป (AI อ่านให้) แก้ไขได้
-                            </p>
                           )}
-                        </div>
 
-                        {submitMode === "no-slip" && (
+                          {isCompressing && (
+                            <div className="flex items-center justify-center gap-2 rounded-xl bg-paper-2 border border-line p-3 text-base font-medium text-ink">
+                              <Loader2 className="size-4 animate-spin motion-reduce:animate-none text-brand" />
+                              กำลังปรับขนาดรูปสลิปและบีบอัดให้เหมาะสม…
+                            </div>
+                          )}
+
+                          {/* Donor Name Input */}
                           <div className="space-y-1">
                             <label
-                              htmlFor="station-transfer-date"
+                              htmlFor="station-donor-name"
                               className="text-base font-medium text-ink-2 block"
                             >
-                              วันที่โอนเงิน (จำเป็น)
+                              {submitMode === "no-slip"
+                                ? "ชื่อผู้ถวาย ตามชื่อบัญชีที่โอน (จำเป็น)"
+                                : "ชื่อผู้ถวาย (ไม่ระบุเพื่อถวายนิรนามได้)"}
                             </label>
                             <input
-                              id="station-transfer-date"
-                              type="date"
-                              required
-                              max={new Date().toLocaleDateString("sv-SE")}
-                              value={transferDate}
-                              onChange={e => setTransferDate(e.target.value)}
+                              id="station-donor-name"
+                              type="text"
+                              maxLength={120}
+                              value={donorName}
+                              onChange={e => {
+                                nameTouched.current = true;
+                                setNameFromSlip(false);
+                                setDonorNameInput(e.target.value);
+                              }}
+                              placeholder="เช่น สมชาย สุขใจ หรือ ผู้ถวายนิรนาม"
                               className="neo-input"
                             />
-                          </div>
-                        )}
-
-                        {/* Unified Slip Media Action Area */}
-                        <div className="rounded-xl border border-line bg-paper-2 p-3.5 space-y-2.5">
-                          <input
-                            ref={slipInputRef}
-                            type="file"
-                            accept="image/*,image/jpeg,image/png,image/webp,image/heic,image/heif"
-                            aria-label="รูปสลิปการโอน"
-                            onChange={e => void handleSlipFileChange(e)}
-                            className="hidden"
-                          />
-                          <input
-                            ref={slipCameraRef}
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            aria-label="ถ่ายรูปสลิปด้วยกล้อง"
-                            onChange={e => void handleSlipFileChange(e)}
-                            className="hidden"
-                          />
-
-                          <div className="text-base font-medium text-ink-2">
-                            {slipPreview
-                              ? "รูปสลิปที่แนบไว้"
-                              : canRecordDirectly
-                                ? "แนบรูปสลิปการโอน (ถ้ามี)"
-                                : "แนบรูปสลิปการโอน (แนะนำ ตรวจได้เร็วกว่า)"}
+                            {submitMode === "no-slip" &&
+                              !nameFromSlip &&
+                              !nameTouched.current &&
+                              donorName !== "" &&
+                              donorName === user?.name && (
+                                <p className="text-base font-normal text-tile-sand-ink">
+                                  ชื่อนี้มาจาก LINE
+                                  ตรวจให้ตรงกับชื่อบัญชีธนาคารที่โอน
+                                </p>
+                              )}
+                            {nameFromSlip && (
+                              <p className="text-sm font-medium text-brand">
+                                ชื่อจากสลิป (AI อ่านให้) แก้ไขได้
+                              </p>
+                            )}
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <button
-                              type="button"
-                              onClick={() => slipInputRef.current?.click()}
-                              className="min-h-11 rounded-xl border border-dashed border-line hover:border-brand bg-surface hover:bg-ground p-2.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
-                            >
-                              <UploadCloud className="w-4 h-4 text-brand shrink-0" />
-                              <span className="text-base font-medium text-ink">
-                                {slipPreview
-                                  ? "เปลี่ยนรูปสลิป"
-                                  : "เลือกรูปสลิป"}
-                              </span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => slipCameraRef.current?.click()}
-                              className="min-h-11 rounded-xl border border-line bg-surface hover:bg-ground p-2.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
-                            >
-                              <Camera
-                                className="w-4 h-4 text-brand shrink-0"
-                                aria-hidden="true"
+                          {submitMode === "no-slip" && (
+                            <div className="space-y-1">
+                              <label
+                                htmlFor="station-transfer-date"
+                                className="text-base font-medium text-ink-2 block"
+                              >
+                                วันที่โอนเงิน (จำเป็น)
+                              </label>
+                              <input
+                                id="station-transfer-date"
+                                type="date"
+                                required
+                                max={new Date().toLocaleDateString("sv-SE")}
+                                value={transferDate}
+                                onChange={e => setTransferDate(e.target.value)}
+                                className="neo-input"
                               />
-                              <span className="text-base font-medium text-ink">
-                                ถ่ายรูปสลิปด้วยกล้อง
-                              </span>
-                            </button>
-                          </div>
-
-                          <p className="text-center text-base text-ink-2">
-                            ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
-                            วางบนพื้นเรียบ ไม่ให้เงาบัง
-                          </p>
-
-                          {slipPreview && slipReading.state === "reading" && (
-                            <p
-                              role="status"
-                              className="flex items-center justify-center gap-2 text-base font-medium text-ink-2 py-1"
-                            >
-                              <Loader2
-                                className="w-4 h-4 animate-spin text-brand"
-                                aria-hidden="true"
-                              />
-                              AI กำลังอ่านสลิป...
-                            </p>
+                            </div>
                           )}
 
-                          {slipPreview && slipReading.state === "done" && (
-                            <div
-                              role="status"
-                              className={`rounded-xl border border-line p-3 text-base leading-relaxed ${
-                                slipReading.data.status === "read"
-                                  ? "bg-tile-mint text-tile-mint-ink"
-                                  : "bg-tile-sand text-tile-sand-ink"
-                              }`}
-                            >
-                              {slipReading.data.status === "read" ? (
-                                <>
-                                  <div className="font-semibold">
-                                    AI อ่านสลิปแล้ว ตรวจและแก้ไขได้
-                                  </div>
-                                  {slipReading.data.amount !== null && (
-                                    <div>
-                                      ยอดโอน{" "}
-                                      {formatAmount(slipReading.data.amount)}{" "}
-                                      บาท
-                                      {amountFromSlip
-                                        ? " (ใส่ยอดถวายให้แล้ว)"
-                                        : ""}
+                          {/* Unified Slip Media Action Area */}
+                          <div className="rounded-xl border border-line bg-paper-2 p-3.5 space-y-2.5">
+                            <input
+                              ref={slipInputRef}
+                              type="file"
+                              accept="image/*,image/jpeg,image/png,image/webp,image/heic,image/heif"
+                              aria-label="รูปสลิปการโอน"
+                              onChange={e => void handleSlipFileChange(e)}
+                              className="hidden"
+                            />
+                            <input
+                              ref={slipCameraRef}
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              aria-label="ถ่ายรูปสลิปด้วยกล้อง"
+                              onChange={e => void handleSlipFileChange(e)}
+                              className="hidden"
+                            />
+
+                            <div className="text-base font-medium text-ink-2">
+                              {slipPreview
+                                ? "รูปสลิปที่แนบไว้"
+                                : canRecordDirectly
+                                  ? "แนบรูปสลิปการโอน (ถ้ามี)"
+                                  : "แนบรูปสลิปการโอน (แนะนำ ตรวจได้เร็วกว่า)"}
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => slipInputRef.current?.click()}
+                                className="min-h-11 rounded-xl border border-dashed border-line hover:border-brand bg-surface hover:bg-ground p-2.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+                              >
+                                <UploadCloud className="w-4 h-4 text-brand shrink-0" />
+                                <span className="text-base font-medium text-ink">
+                                  {slipPreview
+                                    ? "เปลี่ยนรูปสลิป"
+                                    : "เลือกรูปสลิป"}
+                                </span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => slipCameraRef.current?.click()}
+                                className="min-h-11 rounded-xl border border-line bg-surface hover:bg-ground p-2.5 text-center transition-colors cursor-pointer flex items-center justify-center gap-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+                              >
+                                <Camera
+                                  className="w-4 h-4 text-brand shrink-0"
+                                  aria-hidden="true"
+                                />
+                                <span className="text-base font-medium text-ink">
+                                  ถ่ายรูปสลิปด้วยกล้อง
+                                </span>
+                              </button>
+                            </div>
+
+                            <p className="text-center text-base text-ink-2">
+                              ถ่ายสลิปให้เห็นยอดเงิน เลขบัญชี และวันที่ครบ
+                              วางบนพื้นเรียบ ไม่ให้เงาบัง
+                            </p>
+
+                            {slipPreview && slipReading.state === "reading" && (
+                              <p
+                                role="status"
+                                className="flex items-center justify-center gap-2 text-base font-medium text-ink-2 py-1"
+                              >
+                                <Loader2
+                                  className="w-4 h-4 animate-spin text-brand"
+                                  aria-hidden="true"
+                                />
+                                AI กำลังอ่านสลิป…
+                              </p>
+                            )}
+
+                            {slipPreview && slipReading.state === "done" && (
+                              <div
+                                role="status"
+                                className={`rounded-xl border border-line p-3 text-base leading-relaxed ${
+                                  slipReading.data.status === "read"
+                                    ? "bg-tile-mint text-tile-mint-ink"
+                                    : "bg-tile-sand text-tile-sand-ink"
+                                }`}
+                              >
+                                {slipReading.data.status === "read" ? (
+                                  <>
+                                    <div className="font-semibold">
+                                      AI อ่านสลิปแล้ว ตรวจและแก้ไขได้
                                     </div>
-                                  )}
-                                  {slipReading.data.amount !== null &&
-                                    effectiveAmount !== null &&
-                                    giveLines.length >= 2 &&
-                                    slipReading.data.amount !==
-                                      effectiveAmount && (
-                                      <div className="font-semibold text-tile-sand-ink">
-                                        ยอดบนสลิปไม่ตรงกับยอดรวม{" "}
-                                        {formatAmount(effectiveAmount)} บาท
-                                        ปรับยอดแต่ละประเภทให้รวมเป็นยอดบนสลิป
+                                    {slipReading.data.amount !== null && (
+                                      <div>
+                                        ยอดโอน{" "}
+                                        {formatAmount(slipReading.data.amount)}{" "}
+                                        บาท
+                                        {amountFromSlip
+                                          ? " (ใส่ยอดถวายให้แล้ว)"
+                                          : ""}
                                       </div>
                                     )}
-                                  {slipReading.data.senderName && (
-                                    <div>
-                                      ชื่อผู้โอน {slipReading.data.senderName}
-                                    </div>
-                                  )}
-                                  {slipReading.data.transferDate && (
-                                    <div>
-                                      วันที่โอน {slipReading.data.transferDate}
-                                    </div>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  AI อ่านสลิปนี้ไม่ชัด กรอกข้อมูลเอง
-                                  ระบบจะตรวจสลิปอีกครั้งหลังกดส่ง
-                                </>
-                              )}
-                            </div>
-                          )}
+                                    {slipReading.data.amount !== null &&
+                                      effectiveAmount !== null &&
+                                      giveLines.length >= 2 &&
+                                      slipReading.data.amount !==
+                                        effectiveAmount && (
+                                        <div className="font-semibold text-tile-sand-ink">
+                                          ยอดบนสลิปไม่ตรงกับยอดรวม{" "}
+                                          {formatAmount(effectiveAmount)} บาท
+                                          ปรับยอดแต่ละประเภทให้รวมเป็นยอดบนสลิป
+                                        </div>
+                                      )}
+                                    {slipReading.data.senderName && (
+                                      <div>
+                                        ชื่อผู้โอน {slipReading.data.senderName}
+                                      </div>
+                                    )}
+                                    {slipReading.data.transferDate && (
+                                      <div>
+                                        วันที่โอน{" "}
+                                        {slipReading.data.transferDate}
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  <>
+                                    AI อ่านสลิปนี้ไม่ชัด กรอกข้อมูลเอง
+                                    ระบบจะตรวจสลิปอีกครั้งหลังกดส่ง
+                                  </>
+                                )}
+                              </div>
+                            )}
 
-                          {slipPreview && (
-                            <div className="pt-1 flex justify-center">
-                              <img
-                                src={slipPreview}
-                                alt="สลิปที่แนบ"
-                                className="max-h-36 rounded-lg border border-line object-contain"
-                              />
-                            </div>
-                          )}
+                            {slipPreview && (
+                              <div className="pt-1 flex justify-center">
+                                <img
+                                  src={slipPreview}
+                                  alt="สลิปที่แนบ"
+                                  className="max-h-36 rounded-lg border border-line object-contain"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <SendChecklist items={checklist} />
                         </div>
-
-                        <SendChecklist items={checklist} />
-                      </div>
-                    </StationUnlockConfirmCard>
-                  </div>
+                      </StationUnlockConfirmCard>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -2025,7 +1987,7 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
               )}
               {posterBusy && (
                 <p role="status" className="text-xs font-medium text-ink-3">
-                  กำลังสร้างรูปโปสเตอร์...
+                  กำลังสร้างรูปโปสเตอร์…
                 </p>
               )}
               {!posterHasQr && (
@@ -2077,8 +2039,8 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
     <AppLayout
       activeRoute="/offerings"
       hideHeaderOnPrint
-      title="จุดถวายทรัพย์อัตโนมัติ & ป้าย QR"
-      subtitle="ระบบถวายทรัพย์บริการตนเองสไตล์โมเดิร์น (สแกน -> เลือกยอด -> โอน/แนบสลิป -> ยืนยัน) พร้อมป้าย QR สำหรับพิมพ์ติดหน้าห้อง"
+      title="จุดถวายและป้าย QR"
+      subtitle="สมาชิกสแกน เลือกยอด แนบสลิป แล้วส่งให้เหรัญญิกตรวจ หรือพิมพ์ป้าย QR ติดหน้าห้อง"
       action={
         <div className="flex flex-wrap items-center gap-2 print:hidden">
           <button
@@ -2088,25 +2050,6 @@ function GivingStationView({ plain = false }: { plain?: boolean }) {
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>กลับหน้าถวายทรัพย์</span>
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              setActiveTab(activeTab === "flow" ? "poster" : "flow")
-            }
-            className="btn-primary min-h-11 px-4 py-2 text-xs cursor-pointer"
-          >
-            {activeTab === "flow" ? (
-              <>
-                <QrCode className="w-4 h-4" />
-                <span>ดูโปสเตอร์ป้าย QR หน้าห้อง</span>
-              </>
-            ) : (
-              <>
-                <Smartphone className="w-4 h-4" />
-                <span>เปิดหน้าแอปถวายอัตโนมัติ</span>
-              </>
-            )}
           </button>
         </div>
       }

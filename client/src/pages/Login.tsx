@@ -24,7 +24,7 @@ function BrandMark() {
       <span className="grid size-10 place-items-center rounded-xl bg-brand text-white">
         <Sprout className="size-5" aria-hidden="true" />
       </span>
-      <span className="alpha-display text-lg font-bold">เกรซกิฟวิง</span>
+      <span className="alpha-display text-lg font-semibold">Grace Giving</span>
     </div>
   );
 }
@@ -66,20 +66,20 @@ export default function Login() {
           <BrandMark />
 
           <figure className="space-y-6">
-            <span className="inline-flex items-center rounded-full bg-tile-mint px-3.5 py-1 text-xs font-semibold text-tile-mint-ink">
-              2 โครินธ์ 9:7
-            </span>
             <blockquote className="alpha-display max-w-[13ch] text-[clamp(2.1rem,3.4vw,3.1rem)] leading-[1.18] text-ink">
               “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
             </blockquote>
-            <figcaption className="text-base font-medium text-ink-2">
+            <figcaption className="space-y-2 text-base font-medium text-ink-2">
+              <cite className="block text-sm not-italic text-ink-3">
+                2 โครินธ์ 9:7
+              </cite>
               ความโปร่งใส ความสัตย์ซื่อ
               และความชื่นชมยินดีในการถวายเพื่อพระราชกิจ
             </figcaption>
           </figure>
 
           <p className="text-sm font-medium text-ink-3">
-            ระบบบัญชีการเงินคริสตจักร · เพื่อพันธกิจของพระเจ้า
+            ระบบบัญชีการเงินคริสตจักร
           </p>
         </aside>
 
@@ -166,7 +166,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={async () => {
-                        toast.info("กำลังตรวจสอบสถานะการอนุมัติ...");
+                        toast.info("กำลังตรวจสอบสถานะการอนุมัติ…");
                         const res = await statusQuery.refetch();
                         if (res.data?.state === "active") {
                           formToast.success(
@@ -184,7 +184,7 @@ export default function Login() {
                       className="btn-primary min-h-12 w-full rounded-xl px-4 py-3 text-base font-semibold cursor-pointer"
                     >
                       {statusQuery.isFetching
-                        ? "กำลังตรวจสอบ..."
+                        ? "กำลังตรวจสอบ…"
                         : "ตรวจสอบสถานะอีกครั้ง"}
                     </button>
                   )}
@@ -202,7 +202,7 @@ export default function Login() {
               <div className="space-y-5">
                 <a
                   href="/api/auth/line/login"
-                  className="alpha-press flex min-h-13 w-full items-center justify-center rounded-2xl bg-[var(--line-brand)] px-5 text-base font-bold text-[var(--line-brand-ink)]"
+                  className="alpha-press flex min-h-13 w-full items-center justify-center rounded-2xl bg-[var(--line-brand)] px-5 text-base font-medium text-[var(--line-brand-ink)]"
                 >
                   เข้าสู่ระบบด้วย LINE
                 </a>
@@ -227,7 +227,7 @@ export default function Login() {
 
                 <p className="border-t border-line pt-5 text-xs sm:text-sm leading-relaxed text-ink-3">
                   ระบบนี้เปิดให้เฉพาะผู้ที่ได้รับมอบหมาย หากยังไม่มีสิทธิ์
-                  โปรดติดต่อผู้ดูแลระบบของคริสตจักร ·{" "}
+                  โปรดติดต่อผู้ดูแลระบบของคริสตจักร อ่าน{" "}
                   <a
                     href="/privacy"
                     className="font-semibold text-ink underline"

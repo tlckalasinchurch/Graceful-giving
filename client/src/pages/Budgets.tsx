@@ -208,7 +208,7 @@ export default function Budgets() {
         <button
           type="button"
           onClick={() => setShowCreate(true)}
-          className="btn-primary min-h-11 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition-all active:scale-[0.99]"
+          className="btn-primary min-h-11 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors active:scale-[0.99]"
         >
           <Plus className="h-4 w-4" />
           <span>ตั้งงบประมาณ</span>
@@ -220,14 +220,14 @@ export default function Budgets() {
         <div className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div
-              className="inline-flex items-center gap-1 rounded-xl border border-line bg-paper p-1 shadow-sm"
+              className="inline-flex items-center gap-1 rounded-xl border border-line bg-paper p-1"
               role="group"
               aria-label="เลือกปีงบประมาณ"
             >
               <button
                 type="button"
                 onClick={() => setYear(y => y - 1)}
-                className="flex size-9 items-center justify-center rounded-lg text-ink-2 hover:bg-paper-2 hover:text-ink active:scale-95 transition-all"
+                className="flex size-9 items-center justify-center rounded-lg text-ink-2 hover:bg-paper-2 hover:text-ink active:scale-95 transition-colors"
                 aria-label="ปีก่อนหน้า"
               >
                 <ChevronLeft className="size-4" />
@@ -236,14 +236,14 @@ export default function Budgets() {
                 <span className="block text-xs font-semibold text-ink-3">
                   ปีงบประมาณ
                 </span>
-                <span className="whitespace-nowrap text-sm font-bold tabular-nums text-ink">
+                <span className="whitespace-nowrap text-sm font-medium tabular-nums text-ink">
                   {formatDualYear(year)}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setYear(y => y + 1)}
-                className="flex size-9 items-center justify-center rounded-lg text-ink-2 hover:bg-paper-2 hover:text-ink active:scale-95 transition-all"
+                className="flex size-9 items-center justify-center rounded-lg text-ink-2 hover:bg-paper-2 hover:text-ink active:scale-95 transition-colors"
                 aria-label="ปีถัดไป"
               >
                 <ChevronRight className="size-4" />
@@ -255,7 +255,7 @@ export default function Budgets() {
               onClick={() => setYear(new Date().getFullYear())}
               className={`min-h-11 whitespace-nowrap rounded-xl border border-line px-3 py-2 text-xs font-semibold transition-colors ${
                 year === new Date().getFullYear()
-                  ? "bg-brand/10 text-brand border-brand/20 font-bold"
+                  ? "bg-brand/10 text-brand border-brand/20 font-medium"
                   : "bg-paper text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
@@ -315,7 +315,7 @@ export default function Budgets() {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาแผนงาน, หมวดรายจ่าย, กองทุน หรือหมายเหตุ..."
+              placeholder="ค้นหาแผนงาน, หมวดรายจ่าย, กองทุน หรือหมายเหตุ…"
               className="w-full rounded-xl border border-line bg-paper pl-10 pr-9 py-2 text-sm text-ink placeholder:text-ink-3 outline-none focus:border-brand focus:ring-1 focus:ring-brand"
             />
             {searchQuery && (
@@ -403,7 +403,7 @@ export default function Budgets() {
             <button
               type="button"
               onClick={resetFilters}
-              className="mt-4 rounded-xl border border-line bg-paper px-4 py-2 text-xs font-bold text-ink hover:bg-paper-2 transition-colors"
+              className="mt-4 rounded-xl border border-line bg-paper px-4 py-2 text-xs font-medium text-ink hover:bg-paper-2 transition-colors"
             >
               ล้างตัวกรองทั้งหมด
             </button>
@@ -418,7 +418,7 @@ export default function Budgets() {
                     <Layers className="size-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-ink">
+                    <h2 className="text-sm font-medium text-ink">
                       งบประมาณภาพรวมทั้งปี (Church Master Budget)
                     </h2>
                     <p className="text-xs text-ink-3">
@@ -446,7 +446,7 @@ export default function Budgets() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-sm font-bold text-ink">
+                    <h2 className="text-sm font-medium text-ink">
                       งบประมาณตามแผนกและรายเดือน (Departmental & Monthly
                       Allocations)
                     </h2>
@@ -487,7 +487,7 @@ export default function Budgets() {
         <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl border border-line bg-surface">
           <form onSubmit={submit} noValidate>
             <DialogHeader className="border-b border-line p-5 pb-4">
-              <DialogTitle className="text-base font-bold text-ink">
+              <DialogTitle className="text-base font-medium text-ink">
                 ตั้งงบประมาณสำหรับปี {formatDualYear(year)}
               </DialogTitle>
               <DialogDescription className="text-xs text-ink-3">
@@ -520,7 +520,7 @@ export default function Budgets() {
               <button
                 type="submit"
                 disabled={createPlan.isPending}
-                className="btn-primary rounded-xl px-5 py-2 text-xs font-semibold disabled:opacity-50 transition-all"
+                className="btn-primary rounded-xl px-5 py-2 text-xs font-semibold disabled:opacity-50 transition-colors"
               >
                 {createPlan.isPending ? "กำลังบันทึก…" : "บันทึกงบประมาณ"}
               </button>
@@ -564,9 +564,9 @@ function KpiFilterCard({
     <button
       type="button"
       onClick={onClick}
-      className={`relative flex flex-col justify-between rounded-2xl border p-4 text-left transition-all outline-none ${
+      className={`relative flex flex-col justify-between rounded-2xl border p-4 text-left transition-colors outline-none ${
         active
-          ? "border-brand bg-brand/[0.04] ring-2 ring-brand/20 shadow-sm"
+          ? "border-brand bg-brand/[0.04] ring-2 ring-brand/20"
           : "border-line bg-surface hover:bg-paper-2/60"
       } ${accent ?? ""}`}
     >
@@ -574,12 +574,12 @@ function KpiFilterCard({
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-ink-3">{label}</span>
           <span
-            className={`rounded-full border px-2 py-0.5 text-xs font-mono font-bold tabular-nums ${getBadgeStyle()}`}
+            className={`rounded-full border px-2 py-0.5 text-xs font-mono font-medium tabular-nums ${getBadgeStyle()}`}
           >
             {count}
           </span>
         </div>
-        <p className="mt-2 text-xl font-bold font-mono tabular-nums text-ink sm:text-2xl">
+        <p className="mt-2 text-xl font-semibold font-mono tabular-nums text-ink sm:text-2xl">
           {count} <span className="text-xs font-normal text-ink-3">แผน</span>
         </p>
       </div>
@@ -624,9 +624,9 @@ function BudgetPlanCard({
           onClick();
         }
       }}
-      className={`group relative rounded-2xl border text-left transition-all cursor-pointer outline-none ${
+      className={`group relative rounded-2xl border text-left transition-colors cursor-pointer outline-none ${
         isMaster
-          ? "border-brand/40 bg-surface hover:border-brand shadow-sm p-5 sm:p-6"
+          ? "border-brand/40 bg-surface hover:border-brand p-5 sm:p-6"
           : "border-line bg-surface hover:border-ink-3/40 hover:bg-paper-2/40 p-5"
       }`}
     >
@@ -634,14 +634,14 @@ function BudgetPlanCard({
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3
-              className={`font-bold text-ink truncate ${
+              className={`font-semibold text-ink truncate ${
                 isMaster ? "text-base sm:text-lg" : "text-sm"
               }`}
             >
               {budgetCategoryLabel(plan.category)}
             </h3>
             {isMaster && (
-              <span className="rounded-md border border-brand/30 bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand">
+              <span className="rounded-md border border-brand/30 bg-brand/10 px-2 py-0.5 text-[10px] font-medium text-brand">
                 MASTER
               </span>
             )}
@@ -665,7 +665,7 @@ function BudgetPlanCard({
             {isOver ? "ใช้เกินงบ" : "คงเหลืองบ"}
           </span>
           <span
-            className={`font-mono text-sm sm:text-base font-bold tabular-nums ${
+            className={`font-mono text-sm sm:text-base font-medium tabular-nums ${
               isOver ? "text-rose-600 dark:text-rose-400" : "text-ink"
             }`}
           >
@@ -679,7 +679,7 @@ function BudgetPlanCard({
       <div className="mt-4 flex items-baseline justify-between text-xs text-ink-3">
         <span className="tabular-nums">
           ใช้จริง{" "}
-          <span className="font-mono font-bold text-ink tabular-nums">
+          <span className="font-mono font-medium text-ink tabular-nums">
             {formatBaht(plan.actualAmount)}
           </span>
         </span>

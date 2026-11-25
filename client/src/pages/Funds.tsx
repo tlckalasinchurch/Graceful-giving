@@ -143,7 +143,7 @@ export default function Funds() {
         canCreate ? (
           <button
             onClick={() => setShowNewFundModal(true)}
-            className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold"
+            className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-medium"
           >
             <Plus className="size-4" />
             สร้างกองทุนใหม่
@@ -158,7 +158,7 @@ export default function Funds() {
           className="bento-card space-y-4 p-5 sm:p-6"
         >
           <div>
-            <p className="inline-flex items-center rounded-full bg-tile-mint px-3 py-1 text-xs font-semibold text-tile-mint-ink">
+            <p className="text-base font-medium text-ink-2">
               ยอดเงินรวมทุกกองทุน
             </p>
             <p
@@ -166,7 +166,7 @@ export default function Funds() {
             >
               {formatBaht(totalFundsBalance)}
             </p>
-            <p className="mt-1.5 text-xs font-bold text-ink-3">
+            <p className="mt-1.5 text-xs font-medium text-ink-3">
               จาก {fundsList.length} กองทุนที่เปิดใช้งาน
             </p>
           </div>
@@ -179,7 +179,7 @@ export default function Funds() {
             <span className="text-tile-mint-ink font-semibold text-xs">
               กองทุนทั่วไป (คล่องตัว ไม่ผูกพัน)
             </span>
-            <p className="money text-xl sm:text-2xl font-bold text-tile-mint-ink">
+            <p className="money text-xl sm:text-2xl font-semibold text-tile-mint-ink">
               {formatBaht(generalFundBalance)}
             </p>
             <p className="text-xs text-tile-mint-ink/80 font-medium">
@@ -190,7 +190,7 @@ export default function Funds() {
             <span className="text-tile-sand-ink font-semibold text-xs">
               กองทุนเฉพาะพันธกิจ (เงินผูกพัน)
             </span>
-            <p className="money text-xl sm:text-2xl font-bold text-tile-sand-ink">
+            <p className="money text-xl sm:text-2xl font-semibold text-tile-sand-ink">
               {formatBaht(restrictedFundBalance)}
             </p>
             <p className="text-xs text-tile-sand-ink/80 font-medium">
@@ -207,7 +207,7 @@ export default function Funds() {
         >
           {fundsList.length === 0 ? (
             <div className="m-5 rounded-2xl border border-dashed border-line bg-paper-2 p-6 text-center space-y-3">
-              <p className="text-sm font-extrabold text-ink">
+              <p className="text-sm font-semibold text-ink">
                 ยังไม่มีข้อมูลกองทุนในระบบ
               </p>
               <p className="text-xs font-medium text-ink-3 max-w-md mx-auto">
@@ -218,7 +218,7 @@ export default function Funds() {
                 <button
                   type="button"
                   onClick={() => setShowNewFundModal(true)}
-                  className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-xs font-bold"
+                  className="btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-xs font-medium"
                 >
                   <Plus className="size-4" />
                   สร้างกองทุนแรก
@@ -245,7 +245,7 @@ export default function Funds() {
                         }`}
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-extrabold text-ink">
+                        <span className="block truncate text-sm font-semibold text-ink">
                           {f.name}
                         </span>
                         <span className="block truncate text-xs font-medium text-ink-3">
@@ -254,7 +254,7 @@ export default function Funds() {
                       </span>
                       <span className="shrink-0 text-right">
                         <span
-                          className={`money block text-base font-extrabold ${f.balance < 0 ? "text-danger" : "text-ink"}`}
+                          className={`money block text-base font-semibold ${f.balance < 0 ? "text-danger" : "text-ink"}`}
                         >
                           {formatBaht(f.balance)}
                         </span>
@@ -280,7 +280,7 @@ export default function Funds() {
         <Dialog open={showNewFundModal} onOpenChange={setShowNewFundModal}>
           <DialogContent className="neo-modal max-h-[calc(100dvh-2rem)] w-full max-w-md space-y-5 overflow-y-auto overscroll-contain p-6 md:p-8">
             <DialogHeader className="border-b border-line pb-3 text-left">
-              <DialogTitle className="text-lg font-extrabold text-ink">
+              <DialogTitle className="text-lg font-semibold text-ink">
                 สร้างกองทุนใหม่
               </DialogTitle>
               <DialogDescription className="sr-only">
@@ -292,7 +292,7 @@ export default function Funds() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="new-fund-name"
-                  className="text-xs font-extrabold text-ink-2"
+                  className="text-xs font-semibold text-ink-2"
                 >
                   ชื่อกองทุน <span className="text-danger">*</span>
                 </label>
@@ -315,7 +315,7 @@ export default function Funds() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="new-fund-type"
-                  className="text-xs font-extrabold text-ink-2"
+                  className="text-xs font-semibold text-ink-2"
                 >
                   ประเภทกองทุน
                 </label>
@@ -340,14 +340,14 @@ export default function Funds() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="new-fund-desc"
-                  className="text-xs font-extrabold text-ink-2"
+                  className="text-xs font-semibold text-ink-2"
                 >
                   คำอธิบายและวัตถุประสงค์
                 </label>
                 <textarea
                   id="new-fund-desc"
                   rows={3}
-                  placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้..."
+                  placeholder="ระบุวัตถุประสงค์ของการรับและจ่ายเงินกองทุนนี้…"
                   value={newFundDesc}
                   onChange={e => setNewFundDesc(e.target.value)}
                   className="neo-input w-full px-4 py-2.5 text-sm"

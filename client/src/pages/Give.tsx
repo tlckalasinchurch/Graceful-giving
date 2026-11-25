@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { fetchLiffId, signInWithLiff } from "@/lib/liffSignIn";
 import { trpc } from "@/lib/trpc";
-import { HandHeart, Loader2 } from "lucide-react";
+import { Loader2, Sprout } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { PlainGivingStation } from "./GivingStation";
 
@@ -95,7 +95,10 @@ export default function Give() {
   if (loading) {
     return (
       <GiveShell>
-        <p role="status" className="text-center text-base font-bold text-ink-3">
+        <p
+          role="status"
+          className="text-center text-base font-medium text-ink-3"
+        >
           กำลังโหลด…
         </p>
       </GiveShell>
@@ -120,13 +123,13 @@ export default function Give() {
       <header className="space-y-5">
         <div className="flex items-center gap-2.5">
           <span className="grid size-10 place-items-center rounded-xl bg-brand text-white">
-            <HandHeart className="size-5" strokeWidth={2} aria-hidden="true" />
+            <Sprout className="size-5" aria-hidden="true" />
           </span>
-          <span className="text-base font-bold text-ink">เกรซกิฟวิง</span>
+          <span className="text-base font-medium text-ink">Grace Giving</span>
         </div>
 
         <div className="space-y-2.5">
-          <h1 className="display text-2xl sm:text-[1.75rem] font-bold leading-[1.2] text-ink">
+          <h1 className="display text-2xl sm:text-[1.75rem] font-semibold leading-[1.2] text-ink">
             ถวายทรัพย์
           </h1>
           <p className="max-w-[32ch] text-base leading-relaxed text-ink-2">
@@ -159,11 +162,11 @@ export default function Give() {
           <>
             <a
               href={GIVE_LOGIN_URL}
-              className="alpha-press flex min-h-13 w-full items-center justify-center rounded-2xl bg-line-brand px-6 text-base font-bold text-[var(--line-brand-ink)]"
+              className="alpha-press flex min-h-13 w-full items-center justify-center rounded-2xl bg-line-brand px-6 text-base font-medium text-[var(--line-brand-ink)]"
             >
               เข้าสู่ระบบด้วย LINE
             </a>
-            <p className="text-center text-xs sm:text-sm font-medium text-ink-3">
+            <p className="text-center text-base font-normal text-ink-2">
               ใช้บัญชี LINE ที่มีอยู่ ไม่ต้องสมัครใหม่
             </p>
           </>
@@ -187,7 +190,7 @@ export default function Give() {
             </span>
             <div className="min-w-0">
               <p className="text-base font-semibold text-ink">{title}</p>
-              <p className="mt-0.5 text-sm leading-relaxed text-ink-2">
+              <p className="mt-0.5 text-base leading-relaxed text-ink-2">
                 {detail}
               </p>
             </div>
@@ -195,14 +198,14 @@ export default function Give() {
         ))}
       </ol>
 
-      <p className="text-center text-xs sm:text-sm leading-relaxed text-ink-3">
+      <p className="text-center text-base leading-relaxed text-ink-2">
         <a
           href="/privacy"
-          className="font-semibold text-ink underline underline-offset-2"
+          className="inline-flex min-h-11 items-center font-medium text-ink underline underline-offset-2"
         >
           นโยบายความเป็นส่วนตัว
-        </a>
-        {" · "}ติดต่อเจ้าหน้าที่คริสตจักร
+        </a>{" "}
+        หรือติดต่อเจ้าหน้าที่คริสตจักร
       </p>
     </GiveShell>
   );

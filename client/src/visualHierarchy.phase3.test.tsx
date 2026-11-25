@@ -44,7 +44,7 @@ describe("Phase 3 Visual Hierarchy & Mobile UX Regressions", () => {
       );
 
       const givingBtn = screen.getByRole("button", {
-        name: "ถวายทรัพย์ (Giving Station)",
+        name: "ถวายทรัพย์",
       });
       expect(givingBtn).toBeInTheDocument();
       fireEvent.click(givingBtn);

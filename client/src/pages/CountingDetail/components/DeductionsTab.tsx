@@ -134,7 +134,7 @@ export function DeductionsTab({
             บันทึกรายการหักเบิก
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               รายการที่เบิก *
               <input
                 required
@@ -154,7 +154,7 @@ export function DeductionsTab({
                 message={errors.purpose}
               />
             </label>
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               เบิกให้ใคร *
               <input
                 required
@@ -171,7 +171,7 @@ export function DeductionsTab({
               />
               <FieldError fieldId="deduction-paid-to" message={errors.paidTo} />
             </label>
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               จำนวนเงิน *
               <input
                 type="number"
@@ -185,11 +185,11 @@ export function DeductionsTab({
                   clearField("amount");
                 }}
                 {...invalidProps("amount")}
-                className="neo-input mt-1 font-bold tabular-nums text-danger"
+                className="neo-input mt-1 font-medium tabular-nums text-danger"
               />
               <FieldError fieldId="deduction-amount" message={errors.amount} />
             </label>
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               หมวดหมู่รายจ่าย
               <NativeSelect
                 value={dCategory}
@@ -203,7 +203,7 @@ export function DeductionsTab({
                 ))}
               </NativeSelect>
             </label>
-            <label className="text-sm font-extrabold text-ink">
+            <label className="text-sm font-semibold text-ink">
               ตัดจากกองทุน *
               <NativeSelect
                 required
@@ -228,7 +228,7 @@ export function DeductionsTab({
               </NativeSelect>
               <FieldError fieldId="deduction-fund" message={errors.fundId} />
             </label>
-            <label className="text-sm font-extrabold text-ink md:col-span-2">
+            <label className="text-sm font-semibold text-ink md:col-span-2">
               เหตุผล *
               <textarea
                 required
@@ -259,10 +259,10 @@ export function DeductionsTab({
 
       <div className="bento-card-static overflow-hidden">
         <div className="flex items-center justify-between border-b border-line bg-paper-2 p-4">
-          <h2 className="font-extrabold text-ink">
+          <h2 className="font-semibold text-ink">
             รายการหักเบิก ({deductions.length})
           </h2>
-          <span className="text-sm font-extrabold text-danger tabular-nums">
+          <span className="text-sm font-semibold text-danger tabular-nums">
             รวม {fmtBaht(deductionTotal)}
           </span>
         </div>
@@ -279,7 +279,7 @@ export function DeductionsTab({
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="font-extrabold text-ink">
+                    <p className="font-semibold text-ink">
                       {deduction.purpose}
                     </p>
                     <p className="text-sm font-medium text-ink-2">

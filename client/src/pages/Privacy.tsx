@@ -20,14 +20,14 @@ export default function Privacy() {
             <button
               type="button"
               onClick={handleBack}
-              className="btn-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold"
+              className="btn-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium"
             >
               <ArrowLeft className="size-4" />
               ย้อนกลับ
             </button>
             <Link
               href="/give"
-              className="btn-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold"
+              className="btn-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium"
             >
               หน้าถวายทรัพย์
             </Link>
@@ -35,17 +35,17 @@ export default function Privacy() {
         </div>
 
         <header className="space-y-3 border-b border-line pb-6">
-          <h1 className="display text-2xl sm:text-[1.75rem] font-bold text-ink">
+          <h1 className="display text-2xl sm:text-[1.75rem] font-semibold text-ink">
             นโยบายความเป็นส่วนตัว (PDPA)
           </h1>
           <p className="text-sm text-ink-2 leading-relaxed">
-            ระบบบัญชีการเงินและการถวายทรัพย์ของคริสตจักร (Grace Ledger)
+            ระบบบัญชีการเงินและการถวายทรัพย์ของคริสตจักร (Grace Giving)
             ให้ความสำคัญสูงสุดต่อความโปร่งใสและความปลอดภัยของข้อมูลส่วนบุคคลของสมาชิกและผู้ถวายทุกท่าน
           </p>
         </header>
 
         <section className="bento-card space-y-4 p-6">
-          <h2 className="text-base font-extrabold text-ink flex items-center gap-2">
+          <h2 className="text-base font-semibold text-ink flex items-center gap-2">
             <Lock className="size-4 text-brand" />
             1. ข้อมูลที่เราเก็บรวบรวม
           </h2>
@@ -64,7 +64,7 @@ export default function Privacy() {
         </section>
 
         <section className="bento-card-static space-y-4 p-6">
-          <h2 className="text-base font-extrabold text-ink">
+          <h2 className="text-base font-semibold text-ink">
             2. วัตถุประสงค์และการจำกัดสิทธิ์การเข้าถึง
           </h2>
           <ul className="list-disc pl-5 space-y-2 text-sm text-ink-2 leading-relaxed">
@@ -92,7 +92,7 @@ export default function Privacy() {
           aria-labelledby="privacy-ai"
           className="bento-card-static space-y-4 p-6"
         >
-          <h2 id="privacy-ai" className="text-base font-extrabold text-ink">
+          <h2 id="privacy-ai" className="text-base font-semibold text-ink">
             3. การอ่านสลิปด้วย AI ของ Google
           </h2>
           <ul className="list-disc pl-5 space-y-2 text-sm text-ink-2 leading-relaxed">
@@ -126,7 +126,7 @@ export default function Privacy() {
         </section>
 
         <section className="bento-card-static space-y-4 p-6">
-          <h2 className="text-base font-extrabold text-ink">
+          <h2 className="text-base font-semibold text-ink">
             4. สิทธิของเจ้าของข้อมูลส่วนบุคคล
           </h2>
           <p className="text-sm text-ink-2 leading-relaxed">

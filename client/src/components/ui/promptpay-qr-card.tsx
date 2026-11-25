@@ -41,9 +41,7 @@ export function PromptPayQrCard({
       aria-label="QR พร้อมเพย์สำหรับถวาย"
       className="bento-card-static p-5 space-y-3 text-center"
     >
-      <span className="inline-flex items-center rounded-full bg-tile-sky px-3 py-1 text-xs font-semibold text-tile-sky-ink">
-        พร้อมเพย์ QR
-      </span>
+      <span className="text-sm font-medium text-ink-2">พร้อมเพย์ QR</span>
       <h3 className="display text-base text-ink pt-1">สแกนจ่ายด้วยแอปธนาคาร</h3>
       <p className="text-xs text-ink-2">
         ยอด{" "}
@@ -69,13 +67,13 @@ export function PromptPayQrCard({
       </div>
 
       <p className="text-xs text-ink-3">
-        ผู้รับ: <span className="font-bold text-ink">{payeeName}</span>
+        ผู้รับ: <span className="font-medium text-ink">{payeeName}</span>
       </p>
 
       <button
         type="button"
         onClick={() => void save()}
-        className="btn-secondary inline-flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-xs font-bold focus-visible:ring-2 focus-visible:ring-brand"
+        className="btn-secondary inline-flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-xs font-medium focus-visible:ring-2 focus-visible:ring-brand"
       >
         <Download className="size-4" aria-hidden="true" />
         <span>บันทึกรูป QR ไว้เปิดในแอปธนาคาร</span>

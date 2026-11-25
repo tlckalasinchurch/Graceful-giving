@@ -67,7 +67,7 @@ export function AdminNewsDialog({
                 <Megaphone className="size-5" />
               </span>
               <div>
-                <DialogTitle className="font-display text-xl font-extrabold text-ink">
+                <DialogTitle className="font-display text-xl font-semibold text-ink">
                   {editingNewsId ? "แก้ไขข่าวสาร" : "สร้างข่าวสารใหม่"}
                 </DialogTitle>
                 <DialogDescription className="text-xs font-medium text-ink-2">
@@ -117,7 +117,7 @@ export function AdminNewsDialog({
                 onChange={event =>
                   setNewsForm({ ...newsForm, body: event.target.value })
                 }
-                placeholder="เขียนรายละเอียดข่าวสาร..."
+                placeholder="เขียนรายละเอียดข่าวสาร…"
                 className="neo-input w-full px-3.5 py-2.5 text-sm font-medium text-ink"
               />
               <FieldError fieldId="news-body" message={errors.body} />

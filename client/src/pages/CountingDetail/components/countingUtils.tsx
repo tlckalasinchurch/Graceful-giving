@@ -86,7 +86,7 @@ export function getNextEnvelopeNo(
 export function Variance({ amount }: { amount: number }) {
   if (amount === 0) {
     return (
-      <span className="inline-flex items-center gap-1 font-bold text-income">
+      <span className="inline-flex items-center gap-1 font-medium text-income">
         <Check className="h-4 w-4" />
         ตรงกัน
       </span>
@@ -95,7 +95,7 @@ export function Variance({ amount }: { amount: number }) {
   const over = amount > 0;
   return (
     <span
-      className={`font-bold tabular-nums ${over ? "text-brand" : "text-danger"}`}
+      className={`font-medium tabular-nums ${over ? "text-brand" : "text-danger"}`}
     >
       {over ? "เกิน " : "ขาด "}
       {fmtBaht(Math.abs(amount))}

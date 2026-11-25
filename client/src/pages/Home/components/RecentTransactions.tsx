@@ -84,7 +84,7 @@ export function RecentTransactions({
                           {tx.title}
                         </p>
                         <p className="truncate text-xs sm:text-sm font-medium text-ink-3 pt-0.5">
-                          {tx.subCategory} · {fmtThaiDate(tx.date)}
+                          {tx.subCategory}, {fmtThaiDate(tx.date)}
                         </p>
                       </div>
                     </div>
@@ -92,7 +92,7 @@ export function RecentTransactions({
                       amount={tx.amount}
                       type={tx.type}
                       size="base"
-                      className="shrink-0 font-bold"
+                      className="shrink-0 font-medium"
                     />
                   </Link>
                 </li>

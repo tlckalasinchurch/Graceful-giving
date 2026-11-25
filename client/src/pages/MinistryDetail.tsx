@@ -144,12 +144,12 @@ export default function MinistryDetail() {
           <form onSubmit={submit} noValidate className="bento-card p-6 md:p-8">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-line">
               <div>
-                <h1 className="text-2xl font-extrabold tracking-tight text-ink">
+                <h1 className="text-2xl font-semibold tracking-tight text-ink">
                   แก้ไขข้อมูลฝ่ายงาน
                 </h1>
                 <p className="mt-1 text-sm font-medium text-ink-3">
                   สถานะปัจจุบัน:{" "}
-                  <span className="font-extrabold text-ink">
+                  <span className="font-semibold text-ink">
                     {query.data.status === "active" ? "ดำเนินการ" : "พักงาน"}
                   </span>
                 </p>
@@ -179,7 +179,7 @@ export default function MinistryDetail() {
                     );
                     if (isConfirmed) archive.mutate({ id });
                   }}
-                  className="min-h-11 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-extrabold text-danger transition-colors disabled:opacity-50"
+                  className="min-h-11 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/15 px-4 py-2 text-sm font-semibold text-danger transition-colors disabled:opacity-50"
                 >
                   พักงานฝ่าย
                 </button>
@@ -187,7 +187,7 @@ export default function MinistryDetail() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-extrabold text-ink-2">
+              <label className="text-sm font-semibold text-ink-2">
                 ชื่อฝ่ายงาน *
                 <input
                   required
@@ -202,7 +202,7 @@ export default function MinistryDetail() {
                 />
                 <FieldError fieldId="ministry-name" message={errors.name} />
               </label>
-              <label className="text-sm font-extrabold text-ink-2">
+              <label className="text-sm font-semibold text-ink-2">
                 หัวหน้าฝ่าย
                 <input
                   value={leaderName}
@@ -210,7 +210,7 @@ export default function MinistryDetail() {
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
+              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
                 เวลานัดประชุม
                 <input
                   value={meetingSchedule}
@@ -219,7 +219,7 @@ export default function MinistryDetail() {
                   className="neo-input mt-1.5 w-full p-3 font-medium text-ink"
                 />
               </label>
-              <label className="text-sm font-extrabold text-ink-2 md:col-span-2">
+              <label className="text-sm font-semibold text-ink-2 md:col-span-2">
                 รายละเอียดพันธกิจ
                 <textarea
                   value={description}
@@ -241,11 +241,11 @@ export default function MinistryDetail() {
         ) : (
           <section className="bento-card p-6 md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-line">
-              <h1 className="text-2xl font-extrabold tracking-tight text-ink">
+              <h1 className="text-2xl font-semibold tracking-tight text-ink">
                 {query.data.name}
               </h1>
               <span
-                className={`rounded-full border px-2.5 py-1 text-xs font-extrabold ${
+                className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
                   query.data.status === "active"
                     ? "border-line bg-tile-mint text-tile-mint-ink"
                     : "border-line bg-paper-2 text-ink-2"
@@ -255,7 +255,7 @@ export default function MinistryDetail() {
               </span>
             </div>
 
-            <dl className="mt-5 space-y-3 text-sm font-bold text-ink-2">
+            <dl className="mt-5 space-y-3 text-sm font-medium text-ink-2">
               <div className="flex items-center gap-2">
                 <UserRound className="h-4 w-4 shrink-0 text-brand" />
                 <dt className="sr-only">หัวหน้าฝ่าย</dt>

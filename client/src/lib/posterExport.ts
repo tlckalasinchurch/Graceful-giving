@@ -483,7 +483,7 @@ export async function renderPosterCanvas(
   drawTopIsometricLogo(ctx, centerX, cursorY, 1.85);
   cursorY += 110 * 1.85 + 68;
 
-  // 5. Brand Lockup (GraceBox)
+  // 5. Brand Lockup (Grace Giving)
   drawTwoToneCenteredText(
     ctx,
     brandPrefix,

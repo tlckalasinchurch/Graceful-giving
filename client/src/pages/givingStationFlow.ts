@@ -9,7 +9,7 @@ import {
   type SplitProblem,
 } from "@shared/givingSplit";
 import { describeLines } from "@/lib/splitDraft";
-import { formatAmount } from "@/lib/format";
+import { formatAmount, formatThaiDate } from "@/lib/format";
 import {
   MAX_AUTO_REJECTS,
   TRANSFER_DATE_MESSAGE,
@@ -221,7 +221,7 @@ export function buildSendChecklist(input: {
       ok: problem === null,
       detail:
         problem === null
-          ? raw
+          ? formatThaiDate(parsed)
           : raw === ""
             ? "ระบุวันที่โอนเงิน"
             : TRANSFER_DATE_MESSAGE[problem],
