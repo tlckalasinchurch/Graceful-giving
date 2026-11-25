@@ -252,19 +252,6 @@ export default function NewOffering() {
       action={<BackLink label="ดูรายการทั้งหมด" onClick={goBack} />}
     >
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Intro */}
-        <div className="bento-card p-6 flex items-center gap-5">
-          <div className="space-y-1.5">
-            <h2 className="display text-lg sm:text-xl text-ink">
-              การถวายด้วยความยินดี
-            </h2>
-            <p className="text-xs font-medium text-ink-2 leading-relaxed">
-              “พระเจ้าทรงรักผู้ที่ให้ด้วยใจยินดี”:
-              ทุกยอดการถวายจะถูกบันทึกอย่างถูกต้องและโปร่งใสเพื่อการงานของพระเจ้า
-            </p>
-          </div>
-        </div>
-
         {funds.length === 0 && !fundsQuery.isLoading ? (
           <EmptyState
             title="ยังไม่มีกองทุนในระบบ"
@@ -280,7 +267,7 @@ export default function NewOffering() {
             className="bento-card-static p-6 sm:p-8 space-y-6"
           >
             {/* 1. ประเภทถวาย */}
-            <fieldset className="space-y-2.5 min-w-0 border-0 p-0 m-0">
+            <fieldset className="space-y-2.5 min-w-0 border-0 p-0">
               <legend className="text-sm font-semibold text-ink mb-2.5 p-0">
                 1. เลือกประเภทการถวาย
               </legend>
@@ -393,7 +380,7 @@ export default function NewOffering() {
             </div>
 
             {/* 4. วิธีรับเงิน */}
-            <fieldset className="space-y-2.5 min-w-0 border-0 p-0 m-0">
+            <fieldset className="space-y-2.5 min-w-0 border-0 p-0">
               <legend className="text-sm font-semibold text-ink mb-2.5 p-0">
                 4. วิธีการรับเงิน
               </legend>
