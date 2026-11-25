@@ -60,12 +60,14 @@ export default function Login() {
 
   return (
     <div className="min-h-dvh bg-ground text-ink">
-      <div className="mx-auto grid min-h-dvh w-full max-w-[1180px] lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
+      <div className="grid min-h-dvh w-full lg:grid-cols-[minmax(0,1fr)_minmax(460px,38%)]">
         {/* The verse the ministry stands on. Desktop only. */}
-        <aside className="hidden flex-col justify-between gap-12 border-r border-line bg-ground p-12 lg:flex xl:p-16">
-          <BrandMark />
+        <aside className="hidden flex-col items-end justify-between gap-12 border-r border-line bg-ground p-12 lg:flex xl:p-16">
+          <div className="w-full max-w-[600px]">
+            <BrandMark />
+          </div>
 
-          <figure className="space-y-6">
+          <figure className="w-full max-w-[600px] space-y-6">
             <blockquote className="alpha-display max-w-[13ch] text-[clamp(2.1rem,3.4vw,3.1rem)] leading-[1.18] text-ink">
               “ผู้ให้ด้วยใจยินดี พระเจ้าทรงรัก”
             </blockquote>
@@ -78,7 +80,7 @@ export default function Login() {
             </figcaption>
           </figure>
 
-          <p className="text-sm font-medium text-ink-3">
+          <p className="w-full max-w-[600px] text-sm font-medium text-ink-3">
             ระบบบัญชีการเงินคริสตจักร
           </p>
         </aside>
